@@ -54,7 +54,7 @@ namespace Rubicon.Reflection
   /// using InvokeWith.
   /// </remarks>
   /// <typeparam name="T"> Return type of yourMethod(...).With(...)</typeparam>
-  public struct InvokeWith<T>
+  public struct InvokeWith<T> : IInvokeWith<T>
   {
     private GetDelegateWith<T> _getDelegateWith;
 

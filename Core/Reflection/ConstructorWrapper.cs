@@ -10,7 +10,7 @@ namespace Rubicon.Reflection
   /// <summary>
   /// Creates wrapper methods for constructors so they can be called via delegates instead of reflection.
   /// </summary>
-  class ConstructorWrapper
+  public class ConstructorWrapper
   {
     public static GetDelegateWith<T> GetConstructor<T> ()
     {
@@ -53,7 +53,7 @@ namespace Rubicon.Reflection
           });
     }
 
-    private static Delegate CreateConstructorDelegate (
+    public static Delegate CreateConstructorDelegate (
         Type type,
         BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, Type[] parameterTypes, ParameterModifier[] parameterModifiers,
         Type delegateType)
