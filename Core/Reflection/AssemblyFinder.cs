@@ -13,7 +13,6 @@ namespace Rubicon.Reflection
   {
     private readonly Assembly[] _rootAssemblies;
     private Type _assemblyMarkerAttribute;
-    private bool _reflectionOnly;
 
     /// <summary>
     /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type with a predetermined set of <paramref name="rootAssemblies"/>.
@@ -27,7 +26,6 @@ namespace Rubicon.Reflection
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("rootAssemblies", rootAssemblies);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("assemblyMarkerAttribute", assemblyMarkerAttribute, typeof (Attribute));
 
-      _reflectionOnly = false;
       _assemblyMarkerAttribute = assemblyMarkerAttribute;
       _rootAssemblies = rootAssemblies;
     }
@@ -42,40 +40,13 @@ namespace Rubicon.Reflection
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("assemblyMarkerAttribute", assemblyMarkerAttribute, typeof (Attribute));
 
-      _reflectionOnly = false;
       _assemblyMarkerAttribute = assemblyMarkerAttribute;
 
       List<Assembly> assemblies = new List<Assembly> (AppDomain.CurrentDomain.GetAssemblies());
       LoadAssemblies (assemblies, Directory.GetFiles (AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.TopDirectoryOnly));
       LoadAssemblies (assemblies, Directory.GetFiles (AppDomain.CurrentDomain.BaseDirectory, "*.exe", SearchOption.TopDirectoryOnly));
 
-      _rootAssemblies = assemblies.FindAll (HasAssemblyMarkerAttributeDefined).ToArray ();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type to look for assemblies within the specified 
-    /// <paramref name="baseDirectory"/> having the <paramref name="assemblyMarkerAttribute"/> applied. These assemblies are then used as 
-    /// startng points for looking up any referenced assembly having the <paramref name="assemblyMarkerAttribute"/> applied as well.
-    /// </summary>
-    /// <param name="assemblyMarkerAttribute">The <see cref="Attribute"/> to used to filter the assemblies.</param>
-    /// <param name="baseDirectory">The base directory used to look-up the assemblies.</param>
-    /// <remarks>
-    /// The constructor with load the assemblies in a reflection only state. It is only intended for use in tools that work with the assemblies'
-    /// reflection metadata.
-    /// </remarks>
-    public AssemblyFinder (Type assemblyMarkerAttribute, string baseDirectory)
-    {
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("assemblyMarkerAttribute", assemblyMarkerAttribute, typeof (Attribute));
-      ArgumentUtility.CheckNotNullOrEmpty ("baseDirectory", baseDirectory);
-
-      _reflectionOnly = true;
-      _assemblyMarkerAttribute = assemblyMarkerAttribute;
-
-      List<Assembly> assemblies = new List<Assembly>();
-      LoadAssemblies (assemblies, Directory.GetFiles (baseDirectory, "*.dll", SearchOption.TopDirectoryOnly));
-      LoadAssemblies (assemblies, Directory.GetFiles (baseDirectory, "*.exe", SearchOption.TopDirectoryOnly));
-
-      _rootAssemblies = assemblies.FindAll (HasAssemblyMarkerAttributeDefined).ToArray ();
+      _rootAssemblies = assemblies.FindAll (HasAssemblyMarkerAttributeDefined).ToArray();
     }
 
     /// <summary>
@@ -91,19 +62,15 @@ namespace Rubicon.Reflection
       List<Assembly> assemblies = new List<Assembly> (_rootAssemblies);
       for (int i = 0; i < assemblies.Count; i++)
       {
-        foreach (AssemblyName referencedAssemblyName in assemblies[i].GetReferencedAssemblies ())
+        foreach (AssemblyName referencedAssemblyName in assemblies[i].GetReferencedAssemblies())
         {
-          Assembly referencedAssembly;
-          if (!_reflectionOnly)
-            referencedAssembly = Assembly.Load (referencedAssemblyName);
-          else
-            throw new NotImplementedException();
+          Assembly referencedAssembly = Assembly.Load (referencedAssemblyName);
           if (!assemblies.Contains (referencedAssembly) && HasAssemblyMarkerAttributeDefined (referencedAssembly))
             assemblies.Add (referencedAssembly);
         }
       }
 
-      return assemblies.ToArray ();
+      return assemblies.ToArray();
     }
 
     private void LoadAssemblies (List<Assembly> assemblies, string[] paths)
@@ -120,10 +87,7 @@ namespace Rubicon.Reflection
     {
       try
       {
-        if (!_reflectionOnly)
-          return Assembly.Load (Path.GetFileNameWithoutExtension (path));
-        else 
-          return Assembly.ReflectionOnlyLoadFrom (path);
+        return Assembly.Load (Path.GetFileNameWithoutExtension (path));
       }
       catch (BadImageFormatException)
       {
@@ -133,25 +97,7 @@ namespace Rubicon.Reflection
 
     private bool HasAssemblyMarkerAttributeDefined (Assembly assembly)
     {
-      if (!_reflectionOnly)
-      {
-        return assembly.IsDefined (_assemblyMarkerAttribute, false);
-      }
-      else
-      {
-        foreach (CustomAttributeData customAttributeData in CustomAttributeData.GetCustomAttributes (assembly))
-        {
-          for (Type customAttributeType = customAttributeData.Constructor.DeclaringType;
-               customAttributeType != typeof (Attribute);
-               customAttributeType = customAttributeType.BaseType)
-          {
-            if (customAttributeType.AssemblyQualifiedName.Equals (_assemblyMarkerAttribute.AssemblyQualifiedName, StringComparison.Ordinal))
-              return true;
-          }
-        }
-
-        return false;
-      }
+      return assembly.IsDefined (_assemblyMarkerAttribute, false);
     }
   }
 }
