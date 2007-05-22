@@ -1,4 +1,4 @@
 using System;
-using Rubicon.Core.UnitTests.Reflection;
+using Rubicon.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly;
 
-[assembly: TestAssemblyMarker]
+[assembly: Marker]
