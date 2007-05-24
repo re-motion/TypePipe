@@ -15,12 +15,20 @@ namespace Rubicon.Core.UnitTests.Reflection
     [Serializable]
     private class TestFixture
     {
-      private string _baseDirectory;
+      private string _relativeSearchPathDirectoryForDlls;
+      private string _relativeSearchPathDirectoryForExes;
+      private string _dynamicDirectory;
 
       private string _markedAssemblyName;
       private string _markedExeAssemblyName;
       private string _markedAssemblyWithDerivedAttributeName;
       private string _markedReferencedAssemblyName;
+
+      private string _markedAssemblyInRelativeSearchPathName;
+      private string _markedExeAssemblyInRelativeSearchPathName;
+
+      private string _markedAssemblyInDynamicDirectoryName;
+      private string _markedExeAssemblyInDynamicDirectoryName;
 
       private string _markerAttributeAssemblyName;
       private Type _markerAttributeType;
@@ -36,15 +44,13 @@ namespace Rubicon.Core.UnitTests.Reflection
             assemblyCompiler.CompiledAssembly.GetType ("Rubicon.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly.MarkerAttribute");
         Assert.IsNotNull (_markerAttributeType);
 
-        _baseDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest");
+        _relativeSearchPathDirectoryForDlls = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Dlls");
+        _relativeSearchPathDirectoryForExes = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Exes");
+        _dynamicDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Dynamic");
 
-        if (Directory.Exists (_baseDirectory))
-          Directory.Delete (_baseDirectory, true);
-        Directory.CreateDirectory (_baseDirectory);
-        File.Copy (
-            _markerAttributeAssemblyName + ".dll",
-            Path.Combine (_baseDirectory, _markerAttributeAssemblyName + ".dll"),
-            true);
+        ResetDirectory(_relativeSearchPathDirectoryForDlls);
+        ResetDirectory (_relativeSearchPathDirectoryForExes);
+        ResetDirectory (_dynamicDirectory);
 
         _markedReferencedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
             AppDomain.CurrentDomain.BaseDirectory, "MarkedReferencedAssembly", "dll");
@@ -55,6 +61,26 @@ namespace Rubicon.Core.UnitTests.Reflection
         _markedAssemblyWithDerivedAttributeName = CompileTestAssemblyInSeparateAppDomain (
             AppDomain.CurrentDomain.BaseDirectory, "MarkedAssemblyWithDerivedAttribute", "dll");
         CompileTestAssemblyInSeparateAppDomain (AppDomain.CurrentDomain.BaseDirectory, "UnmarkedAssembly", "dll");
+
+        _markedAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
+            _relativeSearchPathDirectoryForDlls, "MarkedAssemblyInRelativeSearchPath", "dll");
+        _markedExeAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
+           _relativeSearchPathDirectoryForExes, "MarkedExeAssemblyInRelativeSearchPath", "exe");
+
+        _markedAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
+            _dynamicDirectory, "MarkedAssemblyInDynamicDirectory", "dll");
+        _markedExeAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
+         _dynamicDirectory, "MarkedExeAssemblyInDynamicDirectory", "exe");
+      }
+
+      public string RelativeSearchPathDirectory
+      {
+        get { return string.Join (";", new string[] { _relativeSearchPathDirectoryForDlls, _relativeSearchPathDirectoryForExes }); }
+      }
+
+      public string DynamicDirectory
+      {
+        get { return _dynamicDirectory; }
       }
 
       public void Initialize_WithRootAssemblies ()
@@ -66,27 +92,40 @@ namespace Rubicon.Core.UnitTests.Reflection
         AssemblyFinder assemblyFinder =
             new AssemblyFinder (_markerAttributeType, firstInMemoryAssembly, secondInMemoryAssembly, unmarkedInMemoryAssembly);
 
+        Assert.That (_markerAttributeType, Is.SameAs (assemblyFinder.AssemblyMarkerAttribute));
         Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (3));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (firstInMemoryAssembly));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (secondInMemoryAssembly));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (unmarkedInMemoryAssembly));
       }
 
-      public void Initialize_WithAppDomainBaseDirectory ()
+      public void Initialize_WithDefaultConstructor ()
       {
         Assembly firstInMemoryAssembly = CompileTestAssemblyInMemory ("FirstInMemoryAssembly", _markedReferencedAssemblyName + ".dll");
         Assembly secondInMemoryAssembly = CompileTestAssemblyInMemory ("SecondInMemoryAssembly");
         CompileTestAssemblyInMemory ("UnmarkedInMemoryAssembly");
 
+        Directory.CreateDirectory (AppDomain.CurrentDomain.DynamicDirectory);
+        File.Copy (
+            Path.Combine (_dynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"),
+            Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"));
+        File.Copy (
+          Path.Combine (_dynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"),
+          Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"));
+      
         AssemblyFinder assemblyFinder = new AssemblyFinder (_markerAttributeType);
 
-        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (6));
+        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (10));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (firstInMemoryAssembly));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (secondInMemoryAssembly));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyName)));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedExeAssemblyName)));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyWithDerivedAttributeName)));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedReferencedAssemblyName)));
+        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyInRelativeSearchPathName)));
+        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedExeAssemblyInRelativeSearchPathName)));
+        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyInDynamicDirectoryName)));
+        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedExeAssemblyInDynamicDirectoryName)));
       }
 
       public void FindAssemblies_WithRootAssemblies ()
@@ -127,6 +166,13 @@ namespace Rubicon.Core.UnitTests.Reflection
         assemblyCompiler.CompileInSeparateAppDomain();
         return Path.GetFileNameWithoutExtension (outputAssembly);
       }
+
+      private void ResetDirectory (string directory)
+      {
+        if (Directory.Exists (directory))
+          Directory.Delete (directory, true);
+        Directory.CreateDirectory (directory);
+      }
     }
 
     private TestFixture _testFixture;
@@ -144,9 +190,9 @@ namespace Rubicon.Core.UnitTests.Reflection
     }
 
     [Test]
-    public void Initialize_WithAppDomainBaseDirectory ()
+    public void Initialize_WithDefaultConstructor ()
     {
-      ExecuteInSeparateAppDomain (_testFixture.Initialize_WithAppDomainBaseDirectory);
+      ExecuteInSeparateAppDomain (_testFixture.Initialize_WithDefaultConstructor);
     }
 
     [Test]
@@ -161,13 +207,15 @@ namespace Rubicon.Core.UnitTests.Reflection
 
       try
       {
-        appDomain = AppDomain.CreateDomain (
-            "Test",
-            null,
-            AppDomain.CurrentDomain.BaseDirectory,
-            AppDomain.CurrentDomain.RelativeSearchPath,
-            AppDomain.CurrentDomain.ShadowCopyFiles);
+        AppDomainSetup appDomainSetup = new AppDomainSetup();
+        appDomainSetup.ApplicationName = "Test";
+        appDomainSetup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+        appDomainSetup.PrivateBinPath = _testFixture.RelativeSearchPathDirectory;
+        appDomainSetup.DynamicBase = _testFixture.DynamicDirectory;
+        appDomainSetup.ShadowCopyFiles = AppDomain.CurrentDomain.SetupInformation.ShadowCopyFiles;
 
+        appDomain = AppDomain.CreateDomain ("Test", null, appDomainSetup);
+        
         appDomain.DoCallBack (test);
       }
       finally

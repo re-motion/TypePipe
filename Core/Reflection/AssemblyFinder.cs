@@ -42,11 +42,28 @@ namespace Rubicon.Reflection
 
       _assemblyMarkerAttribute = assemblyMarkerAttribute;
 
-      List<Assembly> assemblies = new List<Assembly> (AppDomain.CurrentDomain.GetAssemblies());
-      LoadAssemblies (assemblies, Directory.GetFiles (AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.TopDirectoryOnly));
-      LoadAssemblies (assemblies, Directory.GetFiles (AppDomain.CurrentDomain.BaseDirectory, "*.exe", SearchOption.TopDirectoryOnly));
+      List<Assembly> assemblies = new List<Assembly> (AppDomain.CurrentDomain.GetAssemblies ());
+
+      LoadAssemblies(assemblies, AppDomain.CurrentDomain.BaseDirectory);
+
+      if (!string.IsNullOrEmpty (AppDomain.CurrentDomain.RelativeSearchPath))
+      {
+        foreach (string privateBinPath in AppDomain.CurrentDomain.RelativeSearchPath.Split (';'))
+          LoadAssemblies(assemblies, privateBinPath);
+      }
+      
+      if (!string.IsNullOrEmpty (AppDomain.CurrentDomain.DynamicDirectory))
+        LoadAssemblies (assemblies, AppDomain.CurrentDomain.DynamicDirectory);
 
       _rootAssemblies = assemblies.FindAll (HasAssemblyMarkerAttributeDefined).ToArray();
+    }
+
+    /// <summary>
+    /// Gets the attribute <see cref="Type"/> passed during initialization.
+    /// </summary>
+    public Type AssemblyMarkerAttribute
+    {
+      get { return _assemblyMarkerAttribute; }
     }
 
     /// <summary>
@@ -56,7 +73,11 @@ namespace Rubicon.Reflection
     {
       get { return _rootAssemblies; }
     }
-
+    
+    /// <summary>
+    /// Returns the <see cref="RootAssemblies"/> as well as all referenced assemblies having the <see cref="AssemblyMarkerAttribute"/> defined.
+    /// </summary>
+    /// <returns>An array of assemblies.</returns>
     public Assembly[] FindAssemblies ()
     {
       List<Assembly> assemblies = new List<Assembly> (_rootAssemblies);
@@ -73,21 +94,27 @@ namespace Rubicon.Reflection
       return assemblies.ToArray();
     }
 
-    private void LoadAssemblies (List<Assembly> assemblies, string[] paths)
+    private void LoadAssemblies (List<Assembly> assemblies, string searchPath)
     {
-      foreach (string path in paths)
+      LoadAssemblies (assemblies, Directory.GetFiles (searchPath, "*.dll", SearchOption.TopDirectoryOnly));
+      LoadAssemblies (assemblies, Directory.GetFiles (searchPath, "*.exe", SearchOption.TopDirectoryOnly));
+    }
+
+    private void LoadAssemblies (List<Assembly> assemblies, string[] filePaths)
+    {
+      foreach (string filePath in filePaths)
       {
-        Assembly assembly = TryLoadAssembly (path);
+        Assembly assembly = TryLoadAssembly (filePath);
         if (assembly != null && !assemblies.Contains (assembly))
           assemblies.Add (assembly);
       }
     }
 
-    private Assembly TryLoadAssembly (string path)
+    private Assembly TryLoadAssembly (string filePath)
     {
       try
       {
-        return Assembly.Load (Path.GetFileNameWithoutExtension (path));
+        return Assembly.Load (Path.GetFileNameWithoutExtension (filePath));
       }
       catch (BadImageFormatException)
       {
