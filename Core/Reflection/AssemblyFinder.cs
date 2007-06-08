@@ -28,6 +28,18 @@ namespace Rubicon.Reflection
 
       _assemblyMarkerAttribute = assemblyMarkerAttribute;
       _rootAssemblies = rootAssemblies;
+
+      foreach (Assembly rootAssembly in rootAssemblies)
+      {
+        if (!HasAssemblyMarkerAttributeDefined (rootAssembly))
+        {
+          string message = string.Format (
+              "The root assembly '{0}' is not tagged with the marker attribute '{1}'.",
+              rootAssembly.FullName,
+              assemblyMarkerAttribute.FullName);
+          throw new ArgumentException (message, "rootAssemblies");
+        }
+      }
     }
 
     /// <summary>

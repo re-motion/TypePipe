@@ -87,16 +87,20 @@ namespace Rubicon.Core.UnitTests.Reflection
       {
         Assembly firstInMemoryAssembly = CompileTestAssemblyInMemory ("FirstInMemoryAssembly", _markedReferencedAssemblyName + ".dll");
         Assembly secondInMemoryAssembly = CompileTestAssemblyInMemory ("SecondInMemoryAssembly");
-        Assembly unmarkedInMemoryAssembly = CompileTestAssemblyInMemory ("UnmarkedInMemoryAssembly");
 
         AssemblyFinder assemblyFinder =
-            new AssemblyFinder (_markerAttributeType, firstInMemoryAssembly, secondInMemoryAssembly, unmarkedInMemoryAssembly);
+            new AssemblyFinder (_markerAttributeType, firstInMemoryAssembly, secondInMemoryAssembly);
 
         Assert.That (_markerAttributeType, Is.SameAs (assemblyFinder.AssemblyMarkerAttribute));
-        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (3));
+        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (2));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (firstInMemoryAssembly));
         Assert.That (assemblyFinder.RootAssemblies, List.Contains (secondInMemoryAssembly));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (unmarkedInMemoryAssembly));
+      }
+
+      public void Throws_WhenRootAssemblyWithoutmarkerAttribute ()
+      {
+        Assembly unmarkedInMemoryAssembly = CompileTestAssemblyInMemory ("UnmarkedInMemoryAssembly");
+        new AssemblyFinder (_markerAttributeType, unmarkedInMemoryAssembly);
       }
 
       public void Initialize_WithDefaultConstructor ()
@@ -187,6 +191,15 @@ namespace Rubicon.Core.UnitTests.Reflection
     public void Initialize_WithRootAssemblies ()
     {
       ExecuteInSeparateAppDomain (_testFixture.Initialize_WithRootAssemblies);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "The root assembly '.*' is not tagged with the marker attribute '.*MarkerAttribute'",
+        MatchType = MessageMatch.Regex)]
+    public void Throws_WhenRootAssemblyWithoutmarkerAttribute ()
+    {
+      ExecuteInSeparateAppDomain (_testFixture.Throws_WhenRootAssemblyWithoutmarkerAttribute);
     }
 
     [Test]
