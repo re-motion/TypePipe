@@ -124,14 +124,17 @@ namespace Rubicon.Reflection
 
     private Assembly TryLoadAssembly (string filePath)
     {
+      AssemblyName assemblyName;
       try
       {
-        return Assembly.Load (Path.GetFileNameWithoutExtension (filePath));
+        assemblyName = AssemblyName.GetAssemblyName (filePath);
       }
       catch (BadImageFormatException)
       {
         return null;
       }
+
+      return Assembly.Load (assemblyName);
     }
 
     private bool HasAssemblyMarkerAttributeDefined (Assembly assembly)

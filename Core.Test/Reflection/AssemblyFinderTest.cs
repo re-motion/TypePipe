@@ -23,6 +23,7 @@ namespace Rubicon.Core.UnitTests.Reflection
       private string _markedExeAssemblyName;
       private string _markedAssemblyWithDerivedAttributeName;
       private string _markedReferencedAssemblyName;
+      private string _markedAssemblyWithOtherFilenameInRelativeSearchPathName;
 
       private string _markedAssemblyInRelativeSearchPathName;
       private string _markedExeAssemblyInRelativeSearchPathName;
@@ -48,13 +49,13 @@ namespace Rubicon.Core.UnitTests.Reflection
         _relativeSearchPathDirectoryForExes = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Exes");
         _dynamicDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Dynamic");
 
-        ResetDirectory(_relativeSearchPathDirectoryForDlls);
+        ResetDirectory (_relativeSearchPathDirectoryForDlls);
         ResetDirectory (_relativeSearchPathDirectoryForExes);
         ResetDirectory (_dynamicDirectory);
 
         _markedReferencedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
             AppDomain.CurrentDomain.BaseDirectory, "MarkedReferencedAssembly", "dll");
-    
+
         _markedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
             AppDomain.CurrentDomain.BaseDirectory, "MarkedAssembly", "dll", _markedReferencedAssemblyName + ".dll");
         _markedExeAssemblyName = CompileTestAssemblyInSeparateAppDomain (AppDomain.CurrentDomain.BaseDirectory, "MarkedExeAssembly", "exe");
@@ -65,17 +66,24 @@ namespace Rubicon.Core.UnitTests.Reflection
         _markedAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
             _relativeSearchPathDirectoryForDlls, "MarkedAssemblyInRelativeSearchPath", "dll");
         _markedExeAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
-           _relativeSearchPathDirectoryForExes, "MarkedExeAssemblyInRelativeSearchPath", "exe");
+            _relativeSearchPathDirectoryForExes, "MarkedExeAssemblyInRelativeSearchPath", "exe");
 
         _markedAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
             _dynamicDirectory, "MarkedAssemblyInDynamicDirectory", "dll");
         _markedExeAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
-         _dynamicDirectory, "MarkedExeAssemblyInDynamicDirectory", "exe");
+            _dynamicDirectory, "MarkedExeAssemblyInDynamicDirectory", "exe");
+
+        _markedAssemblyWithOtherFilenameInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
+            _relativeSearchPathDirectoryForDlls, "MarkedAssemblyWithOtherFilenameInRelativeSearchPath", "dll");
+
+        File.Move (
+            Path.Combine (_relativeSearchPathDirectoryForDlls, _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"),
+            Path.Combine (_relativeSearchPathDirectoryForDlls, "_" + _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"));
       }
 
       public string RelativeSearchPathDirectory
       {
-        get { return string.Join (";", new string[] { _relativeSearchPathDirectoryForDlls, _relativeSearchPathDirectoryForExes }); }
+        get { return string.Join (";", new string[] {_relativeSearchPathDirectoryForDlls, _relativeSearchPathDirectoryForExes}); }
       }
 
       public string DynamicDirectory
@@ -92,9 +100,7 @@ namespace Rubicon.Core.UnitTests.Reflection
             new AssemblyFinder (_markerAttributeType, firstInMemoryAssembly, secondInMemoryAssembly);
 
         Assert.That (_markerAttributeType, Is.SameAs (assemblyFinder.AssemblyMarkerAttribute));
-        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (2));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (firstInMemoryAssembly));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (secondInMemoryAssembly));
+        Assert.That (assemblyFinder.RootAssemblies, Is.EquivalentTo (new Assembly[] {firstInMemoryAssembly, secondInMemoryAssembly}));
       }
 
       public void Throws_WhenRootAssemblyWithoutmarkerAttribute ()
@@ -114,22 +120,30 @@ namespace Rubicon.Core.UnitTests.Reflection
             Path.Combine (_dynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"),
             Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"));
         File.Copy (
-          Path.Combine (_dynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"),
-          Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"));
-      
+            Path.Combine (_dynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"),
+            Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"));
+
         AssemblyFinder assemblyFinder = new AssemblyFinder (_markerAttributeType);
 
-        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (10));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (firstInMemoryAssembly));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (secondInMemoryAssembly));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedExeAssemblyName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyWithDerivedAttributeName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedReferencedAssemblyName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyInRelativeSearchPathName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedExeAssemblyInRelativeSearchPathName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedAssemblyInDynamicDirectoryName)));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (Assembly.Load (_markedExeAssemblyInDynamicDirectoryName)));
+        Assert.That (
+            assemblyFinder.RootAssemblies,
+            Is.EquivalentTo (
+                new Assembly[]
+                    {
+                        firstInMemoryAssembly,
+                        secondInMemoryAssembly,
+                        Assembly.Load (_markedAssemblyName),
+                        Assembly.Load (_markedExeAssemblyName),
+                        Assembly.Load (_markedAssemblyWithDerivedAttributeName),
+                        Assembly.Load (_markedReferencedAssemblyName),
+                        Assembly.Load (_markedAssemblyInRelativeSearchPathName),
+                        Assembly.Load (_markedExeAssemblyInRelativeSearchPathName),
+                        Assembly.Load (_markedAssemblyInDynamicDirectoryName),
+                        Assembly.Load (_markedExeAssemblyInDynamicDirectoryName),
+                        Assembly.LoadFile (
+                            Path.Combine (
+                                _relativeSearchPathDirectoryForDlls, "_" + _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"))
+                    }));
       }
 
       public void FindAssemblies_WithRootAssemblies ()
@@ -139,12 +153,8 @@ namespace Rubicon.Core.UnitTests.Reflection
 
         Assembly[] assemblies = assemblyFinder.FindAssemblies();
 
-        Assert.That (assemblyFinder.RootAssemblies.Length, Is.EqualTo (1));
-        Assert.That (assemblyFinder.RootAssemblies, List.Contains (markedAssembly));
-
-        Assert.That (assemblies.Length, Is.EqualTo (2));
-        Assert.That (assemblies, List.Contains (markedAssembly));
-        Assert.That (assemblies, List.Contains (Assembly.Load (_markedReferencedAssemblyName)));
+        Assert.That (assemblyFinder.RootAssemblies, Is.EquivalentTo (new Assembly[] {markedAssembly}));
+        Assert.That (assemblies, Is.EquivalentTo (new Assembly[] {markedAssembly, Assembly.Load (_markedReferencedAssemblyName)}));
       }
 
       private Assembly CompileTestAssemblyInMemory (string assemblyName, params string[] referncedAssemblies)
@@ -228,7 +238,7 @@ namespace Rubicon.Core.UnitTests.Reflection
         appDomainSetup.ShadowCopyFiles = AppDomain.CurrentDomain.SetupInformation.ShadowCopyFiles;
 
         appDomain = AppDomain.CreateDomain ("Test", null, appDomainSetup);
-        
+
         appDomain.DoCallBack (test);
       }
       finally
