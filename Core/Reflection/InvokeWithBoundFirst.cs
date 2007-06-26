@@ -52,9 +52,9 @@ namespace Rubicon.Reflection
       return (T) _getDelegateWith.With (valueTypes).DynamicInvoke (values);
     }
 
-    private T[] Prepend<T> (T newValue, T[] oldValues)
+    private T1[] Prepend<T1> (T1 newValue, T1[] oldValues)
     {
-      T[] newValues = new T[oldValues.Length + 1];
+      T1[] newValues = new T1[oldValues.Length + 1];
       newValues[0] = newValue;
       Array.Copy (oldValues, 0, newValues, 1, oldValues.Length);
       return newValues;
