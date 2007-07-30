@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using Rubicon.Collections;
 using Rubicon.Text;
 
 namespace Rubicon.Reflection
 {
+  using CacheKey = Tuple<Type, Type>;
+
   /// <summary>
   /// Create an instance of a known type using fixed parameter types for the constructor.
   /// </summary>
@@ -22,36 +25,77 @@ namespace Rubicon.Reflection
   /// </remarks>
   public static class TypesafeActivator
   {
-    public static InvokeWith<T> CreateInstance<T> ()
+    private class ConstructorLookupInfo: MemberLookupInfo
     {
-      return CreateInstance<T> (BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null);
+      private Type _definingType;
+
+      public ConstructorLookupInfo (Type definingType, BindingFlags bindingFlags)
+        : this (definingType, bindingFlags, null, CallingConventions.Any, null)
+      {
+      }
+
+      public ConstructorLookupInfo (Type definingType)
+        : this (definingType, BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null)
+      {
+      }
+
+      public ConstructorLookupInfo (
+          Type definingType, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
+        : base (null, bindingFlags, binder, callingConvention, parameterModifiers)
+      {
+        _definingType = definingType;
+      }
+
+      public Delegate GetDelegate (Type delegateType)
+      {
+        CacheKey key = new CacheKey (_definingType, delegateType);
+        Delegate result;
+        if (! s_delegateCache.TryGetValue (key, out result))
+        {
+          result = s_delegateCache.GetOrCreateValue (
+              key,
+              delegate
+              {
+                return ConstructorWrapper.CreateDelegate (
+                    _definingType, delegateType, BindingFlags, Binder, CallingConvention, ParameterModifiers);
+              });
+        }
+        return result;
+      }
     }
 
-    public static InvokeWith<T> CreateInstance<T> (BindingFlags bindingFlags)
+    private static ICache<CacheKey, Delegate> s_delegateCache = new InterlockedCache<CacheKey, Delegate> ();
+
+    public static FuncInvoker<T> CreateInstance<T> ()
     {
-      return CreateInstance<T> (bindingFlags, null, CallingConventions.Any, null);
+      return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T)).GetDelegate);
     }
 
-    public static InvokeWith<T> CreateInstance<T> (
+    public static FuncInvoker<T> CreateInstance<T> (BindingFlags bindingFlags)
+    {
+      return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T), bindingFlags).GetDelegate);
+    }
+
+    public static FuncInvoker<T> CreateInstance<T> (
         BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      return new InvokeWith<T> (ConstructorWrapper.GetConstructor<T> (bindingFlags, binder, callingConvention, parameterModifiers));
+      return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T), bindingFlags, binder, callingConvention, parameterModifiers).GetDelegate);
     }
 
-    public static InvokeWith<object> CreateInstance (Type type)
+    public static FuncInvoker<object> CreateInstance (Type type)
     {
-      return CreateInstance (type, BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null);
+      return new FuncInvoker<object> (new ConstructorLookupInfo (type).GetDelegate);
     }
 
-    public static InvokeWith<object> CreateInstance (Type type, BindingFlags bindingFlags)
+    public static FuncInvoker<object> CreateInstance (Type type, BindingFlags bindingFlags)
     {
-      return CreateInstance (type, bindingFlags, null, CallingConventions.Any, null);
+      return new FuncInvoker<object> (new ConstructorLookupInfo (type, bindingFlags).GetDelegate);
     }
 
-    public static InvokeWith<object> CreateInstance (
+    public static FuncInvoker<object> CreateInstance (
         Type type, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      return new InvokeWith<object> (ConstructorWrapper.GetConstructor (type, bindingFlags, binder, callingConvention, parameterModifiers));
+      return new FuncInvoker<object> (new ConstructorLookupInfo (type, bindingFlags, binder, callingConvention, parameterModifiers).GetDelegate);
     }
   }
 }

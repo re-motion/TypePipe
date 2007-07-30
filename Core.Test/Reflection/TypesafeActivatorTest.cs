@@ -14,6 +14,16 @@ namespace Rubicon.Core.UnitTests.Reflection
     public class B: A { }
     public class C: B { }
 
+    public struct V
+    {
+      public V (int value)
+      {
+        Value = value;
+      }
+
+      public int Value; 
+    }
+
     public class TestClass
     {
       public readonly Type InvocationType;
@@ -68,6 +78,20 @@ namespace Rubicon.Core.UnitTests.Reflection
       A a = null;
       TestClass testObject = (TestClass) TypesafeActivator.CreateInstance (typeof (TestClass)).With (a);
       Assert.AreEqual (typeof (A), testObject.InvocationType);
+    }
+
+    [Test]
+    public void TestValueTypeDefaultCtor()
+    {
+      V v = TypesafeActivator.CreateInstance<V>().With();
+      Assert.AreEqual (v.Value, 0);
+    }
+
+    [Test]
+    public void TestValueTypeCustomCtor ()
+    {
+      V v = TypesafeActivator.CreateInstance<V> ().With (1);
+      Assert.AreEqual (v.Value, 1);
     }
   }
 }
