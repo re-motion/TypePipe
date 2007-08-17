@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.IO;
 using Rubicon.Reflection;
 using NUnit.Framework;
+using Rubicon.Utilities;
 
 namespace Rubicon.Core.UnitTests.Reflection
 {
@@ -78,6 +80,40 @@ namespace Rubicon.Core.UnitTests.Reflection
       A a = null;
       TestClass testObject = (TestClass) TypesafeActivator.CreateInstance (typeof (TestClass)).With (a);
       Assert.AreEqual (typeof (A), testObject.InvocationType);
+    }
+
+    [Test]
+    public void TestWithUntypedDerivedAndTMinimal ()
+    {
+      A a = TypesafeActivator.CreateInstance<A> (typeof (B)).With ();
+
+      Assert.IsNotNull (a);
+      Assert.AreEqual (typeof (B), a.GetType ());
+    }
+
+    [Test]
+    public void TestWithUntypedDerivedAndTMinimalWithBindingFlags ()
+    {
+      A a = TypesafeActivator.CreateInstance<A> (typeof (B), BindingFlags.Public | BindingFlags.Instance).With ();
+
+      Assert.IsNotNull (a);
+      Assert.AreEqual (typeof (B), a.GetType ());
+    }
+
+    [Test]
+    public void TestWithUntypedDerivedAndTMinimalWithFullSignature ()
+    {
+      A a = TypesafeActivator.CreateInstance<A> (typeof (B), BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null).With ();
+
+      Assert.IsNotNull (a);
+      Assert.AreEqual (typeof (B), a.GetType ());
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentTypeException))]
+    public void TestWithUntypedAndTMinimalThrowsOnIncompatibleTypes ()
+    {
+      TypesafeActivator.CreateInstance<B> (typeof (A)).With ();
     }
 
     [Test]

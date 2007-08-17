@@ -8,6 +8,7 @@ using Rubicon.Text;
 namespace Rubicon.Reflection
 {
   using CacheKey = Tuple<Type, Type>;
+  using Rubicon.Utilities;
 
   /// <summary>
   /// Create an instance of a known type using fixed parameter types for the constructor.
@@ -84,18 +85,37 @@ namespace Rubicon.Reflection
 
     public static FuncInvoker<object> CreateInstance (Type type)
     {
-      return new FuncInvoker<object> (new ConstructorLookupInfo (type).GetDelegate);
+      return CreateInstance<object> (type);
+    }
+
+    public static FuncInvoker<TMinimal> CreateInstance<TMinimal> (Type type)
+    {
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("type", type, typeof (TMinimal));
+      return new FuncInvoker<TMinimal> (new ConstructorLookupInfo (type).GetDelegate);
     }
 
     public static FuncInvoker<object> CreateInstance (Type type, BindingFlags bindingFlags)
     {
-      return new FuncInvoker<object> (new ConstructorLookupInfo (type, bindingFlags).GetDelegate);
+      return CreateInstance<object> (type, bindingFlags);
+    }
+
+    public static FuncInvoker<TMinimal> CreateInstance<TMinimal> (Type type, BindingFlags bindingFlags)
+    {
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("type", type, typeof (TMinimal));
+      return new FuncInvoker<TMinimal> (new ConstructorLookupInfo (type, bindingFlags).GetDelegate);
     }
 
     public static FuncInvoker<object> CreateInstance (
         Type type, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      return new FuncInvoker<object> (new ConstructorLookupInfo (type, bindingFlags, binder, callingConvention, parameterModifiers).GetDelegate);
+      return CreateInstance<object> (type, bindingFlags, binder, callingConvention, parameterModifiers);
+    }
+
+    public static FuncInvoker<TMinimal> CreateInstance<TMinimal> (
+        Type type, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
+    {
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("type", type, typeof (TMinimal));
+      return new FuncInvoker<TMinimal> (new ConstructorLookupInfo (type, bindingFlags, binder, callingConvention, parameterModifiers).GetDelegate);
     }
   }
 }
