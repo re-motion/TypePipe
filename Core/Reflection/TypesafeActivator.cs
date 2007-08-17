@@ -26,7 +26,7 @@ namespace Rubicon.Reflection
   /// </remarks>
   public static class TypesafeActivator
   {
-    private class ConstructorLookupInfo: MemberLookupInfo
+    public class ConstructorLookupInfo: MemberLookupInfo
     {
       private Type _definingType;
 
@@ -47,7 +47,7 @@ namespace Rubicon.Reflection
         _definingType = definingType;
       }
 
-      public Delegate GetDelegate (Type delegateType)
+      public virtual Delegate GetDelegate (Type delegateType)
       {
         CacheKey key = new CacheKey (_definingType, delegateType);
         Delegate result;

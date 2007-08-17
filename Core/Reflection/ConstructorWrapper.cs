@@ -84,9 +84,9 @@ namespace Rubicon.Reflection
       ConstructorInfo ctor = type.GetConstructor (bindingFlags, binder, callingConvention, parameterTypes, parameterModifiers);
       if (ctor == null)
       {
-        throw new MissingMethodException (
-          "Type " + type.FullName + " does not contain a constructor with the following arguments types: "
-          + SeparatedStringBuilder.Build (", ", parameterTypes, delegate (Type t) { return t.FullName; }));
+        string message = string.Format ("Type {0} does not contain a constructor with the following arguments types: {1}",
+            type.FullName, SeparatedStringBuilder.Build (", ", parameterTypes, delegate (Type t) { return t.FullName; }));
+        throw new MissingMethodException (message);
       }
       return CreateDelegate (ctor, delegateType);
     }
