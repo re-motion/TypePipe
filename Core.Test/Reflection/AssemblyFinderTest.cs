@@ -3,9 +3,11 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
+using Rhino.Mocks;
 using Rubicon.Development.UnitTesting;
 using Rubicon.Reflection;
 using Rubicon.Utilities;
+using Rhino_Is = Rhino.Mocks.Constraints.Is;
 
 namespace Rubicon.Core.UnitTests.Reflection
 {
@@ -33,6 +35,7 @@ namespace Rubicon.Core.UnitTests.Reflection
 
       private string _markerAttributeAssemblyName;
       private Type _markerAttributeType;
+      private AttributeAssemblyFinderFilter _attributeFilter;
 
       public TestFixture ()
       {
@@ -79,6 +82,8 @@ namespace Rubicon.Core.UnitTests.Reflection
         File.Move (
             Path.Combine (_relativeSearchPathDirectoryForDlls, _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"),
             Path.Combine (_relativeSearchPathDirectoryForDlls, "_" + _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"));
+
+        _attributeFilter = new AttributeAssemblyFinderFilter (_markerAttributeType);
       }
 
       public string RelativeSearchPathDirectory
@@ -97,16 +102,18 @@ namespace Rubicon.Core.UnitTests.Reflection
         Assembly secondInMemoryAssembly = CompileTestAssemblyInMemory ("SecondInMemoryAssembly");
 
         AssemblyFinder assemblyFinder =
-            new AssemblyFinder (_markerAttributeType, firstInMemoryAssembly, secondInMemoryAssembly);
+            new AssemblyFinder (_attributeFilter, firstInMemoryAssembly, secondInMemoryAssembly);
 
-        Assert.That (_markerAttributeType, Is.SameAs (assemblyFinder.AssemblyMarkerAttribute));
+        Assert.That (_attributeFilter, Is.SameAs (assemblyFinder.Filter));
         Assert.That (assemblyFinder.RootAssemblies, Is.EquivalentTo (new Assembly[] {firstInMemoryAssembly, secondInMemoryAssembly}));
       }
 
-      public void Throws_WhenRootAssemblyWithoutmarkerAttribute ()
+      public void RootAssemblyNeedntMatchFilter ()
       {
         Assembly unmarkedInMemoryAssembly = CompileTestAssemblyInMemory ("UnmarkedInMemoryAssembly");
-        new AssemblyFinder (_markerAttributeType, unmarkedInMemoryAssembly);
+        AssemblyFinder finder = new AssemblyFinder (_attributeFilter, unmarkedInMemoryAssembly);
+        Assert.That (finder.RootAssemblies, List.Contains (unmarkedInMemoryAssembly));
+        Assert.That (finder.FindAssemblies(), List.Contains (unmarkedInMemoryAssembly));
       }
 
       public void Initialize_WithDefaultConstructor ()
@@ -115,23 +122,18 @@ namespace Rubicon.Core.UnitTests.Reflection
         Assembly secondInMemoryAssembly = CompileTestAssemblyInMemory ("SecondInMemoryAssembly");
         CompileTestAssemblyInMemory ("UnmarkedInMemoryAssembly");
 
-        Directory.CreateDirectory (AppDomain.CurrentDomain.DynamicDirectory);
-        File.Copy (
-            Path.Combine (_dynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"),
-            Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"));
-        File.Copy (
-            Path.Combine (_dynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"),
-            Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"));
+        InitializeDynamicDirectory();
 
-        AssemblyFinder assemblyFinder = new AssemblyFinder (_markerAttributeType);
+        AssemblyFinder assemblyFinder = new AssemblyFinder (_attributeFilter);
+
+        Assert.That (assemblyFinder.RootAssemblies, List.Not.Contains (firstInMemoryAssembly));
+        Assert.That (assemblyFinder.RootAssemblies, List.Not.Contains (secondInMemoryAssembly));
 
         Assert.That (
             assemblyFinder.RootAssemblies,
             Is.EquivalentTo (
                 new Assembly[]
                     {
-                        firstInMemoryAssembly,
-                        secondInMemoryAssembly,
                         Assembly.Load (_markedAssemblyName),
                         Assembly.Load (_markedExeAssemblyName),
                         Assembly.Load (_markedAssemblyWithDerivedAttributeName),
@@ -146,10 +148,23 @@ namespace Rubicon.Core.UnitTests.Reflection
                     }));
       }
 
+      private void InitializeDynamicDirectory ()
+      {
+        if (Directory.Exists (AppDomain.CurrentDomain.DynamicDirectory))
+          Directory.Delete (AppDomain.CurrentDomain.DynamicDirectory, true);
+        Directory.CreateDirectory (AppDomain.CurrentDomain.DynamicDirectory);
+        File.Copy (
+            Path.Combine (_dynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"),
+            Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedAssemblyInDynamicDirectoryName + ".dll"));
+        File.Copy (
+            Path.Combine (_dynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"),
+            Path.Combine (AppDomain.CurrentDomain.DynamicDirectory, _markedExeAssemblyInDynamicDirectoryName + ".exe"));
+      }
+
       public void FindAssemblies_WithRootAssemblies ()
       {
         Assembly markedAssembly = Assembly.Load (_markedAssemblyName);
-        AssemblyFinder assemblyFinder = new AssemblyFinder (_markerAttributeType, markedAssembly);
+        AssemblyFinder assemblyFinder = new AssemblyFinder (_attributeFilter, markedAssembly);
 
         Assembly[] assemblies = assemblyFinder.FindAssemblies();
 
@@ -157,11 +172,104 @@ namespace Rubicon.Core.UnitTests.Reflection
         Assert.That (assemblies, Is.EquivalentTo (new Assembly[] {markedAssembly, Assembly.Load (_markedReferencedAssemblyName)}));
       }
 
-      private Assembly CompileTestAssemblyInMemory (string assemblyName, params string[] referncedAssemblies)
+      public void FindAssemblies_WithSpecificFilter_ConsiderAssemblyFalse ()
+      {
+        InitializeDynamicDirectory ();
+
+        MockRepository mockRepository = new MockRepository ();
+        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+
+        Expect.Call (filter.ShouldConsiderAssembly (null)).IgnoreArguments ().Return (false).Repeat.AtLeastOnce();
+
+        mockRepository.ReplayAll ();
+
+        AssemblyFinder assemblyFinder = new AssemblyFinder (filter);
+        Assembly[] assemblies = assemblyFinder.FindAssemblies ();
+
+        mockRepository.VerifyAll ();
+
+        Assert.That (assemblyFinder.RootAssemblies, Is.Empty);
+        Assert.That (assemblies, Is.Empty);
+      }
+
+      public void FindAssemblies_WithSpecificFilter_ConsiderAssemblyTrueIncludeAssemblyFalse ()
+      {
+        InitializeDynamicDirectory ();
+
+        MockRepository mockRepository = new MockRepository ();
+        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+
+        using (mockRepository.Ordered ())
+        {
+          Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.Times (20, int.MaxValue);
+          Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (false).Repeat.Times (20, int.MaxValue);
+        }
+
+        mockRepository.ReplayAll ();
+
+        AssemblyFinder assemblyFinder = new AssemblyFinder (filter);
+        Assembly[] assemblies = assemblyFinder.FindAssemblies ();
+
+        mockRepository.VerifyAll ();
+
+        Assert.That (assemblyFinder.RootAssemblies, Is.Empty);
+        Assert.That (assemblies, Is.Empty);
+      }
+
+      public void FindAssemblies_WithSpecificFilter_IncludeOnlyRoot ()
+      {
+        InitializeDynamicDirectory ();
+
+        MockRepository mockRepository = new MockRepository ();
+        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+
+        using (mockRepository.Ordered ())
+        {
+          Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull()).Return (true).Repeat.Times (20, int.MaxValue); // root assemblies
+          Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.Times (20, int.MaxValue);
+          Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull()).Return (false).Repeat.AtLeastOnce(); // dependencies
+        }
+        mockRepository.ReplayAll ();
+
+        AssemblyFinder assemblyFinder = new AssemblyFinder (filter);
+        Assembly[] assemblies = assemblyFinder.FindAssemblies ();
+
+        mockRepository.VerifyAll ();
+
+        Assert.That (assemblyFinder.RootAssemblies.Length, Is.GreaterThanOrEqualTo (20));
+        Assert.That (assemblies, Is.EqualTo (assemblyFinder.RootAssemblies));
+      }
+
+      public void FindAssemblies_WithSpecificFilter_IncludeAll ()
+      {
+        InitializeDynamicDirectory ();
+
+        MockRepository mockRepository = new MockRepository ();
+        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+
+        using (mockRepository.Unordered ())
+        {
+          Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.Any ();
+          Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.Any ();
+        }
+
+        mockRepository.ReplayAll ();
+
+        AssemblyFinder assemblyFinder = new AssemblyFinder (filter);
+        Assembly[] assemblies = assemblyFinder.FindAssemblies ();
+
+        mockRepository.VerifyAll ();
+
+        Assert.That (assemblyFinder.RootAssemblies.Length, Is.GreaterThanOrEqualTo (20));
+        Assert.That (assemblies.Length, Is.GreaterThan (assemblyFinder.RootAssemblies.Length));
+        Assert.That (assemblyFinder.RootAssemblies, Is.SubsetOf (assemblies));
+      }
+
+      private Assembly CompileTestAssemblyInMemory (string assemblyName, params string[] referencedAssemblies)
       {
         AssemblyCompiler assemblyCompiler = AssemblyCompiler.CreateInMemoryAssemblyCompiler (
             string.Format (@"Reflection\TestAssemblies\{0}", assemblyName),
-            ArrayUtility.Combine (new string[] {_markerAttributeAssemblyName + ".dll"}, referncedAssemblies));
+            ArrayUtility.Combine (new string[] {_markerAttributeAssemblyName + ".dll"}, referencedAssemblies));
         assemblyCompiler.Compile();
         return assemblyCompiler.CompiledAssembly;
       }
@@ -204,12 +312,9 @@ namespace Rubicon.Core.UnitTests.Reflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The root assembly '.*' is not tagged with the marker attribute '.*MarkerAttribute'",
-        MatchType = MessageMatch.Regex)]
-    public void Throws_WhenRootAssemblyWithoutmarkerAttribute ()
+    public void RootAssemblyNeedntMatchFilter ()
     {
-      ExecuteInSeparateAppDomain (_testFixture.Throws_WhenRootAssemblyWithoutmarkerAttribute);
+      ExecuteInSeparateAppDomain (_testFixture.RootAssemblyNeedntMatchFilter);
     }
 
     [Test]
@@ -222,6 +327,30 @@ namespace Rubicon.Core.UnitTests.Reflection
     public void FindAssemblies_WithRootAssemblies ()
     {
       ExecuteInSeparateAppDomain (_testFixture.FindAssemblies_WithRootAssemblies);
+    }
+
+    [Test]
+    public void FindAssemblies_WithSpecificFiler_ConsiderAssemblyFalse ()
+    {
+      ExecuteInSeparateAppDomain (_testFixture.FindAssemblies_WithSpecificFilter_ConsiderAssemblyFalse);
+    }
+
+    [Test]
+    public void FindAssemblies_WithSpecificFiler_ConsiderAssemblyTrueIncludeAssemblyFalse ()
+    {
+      ExecuteInSeparateAppDomain (_testFixture.FindAssemblies_WithSpecificFilter_ConsiderAssemblyTrueIncludeAssemblyFalse);
+    }
+
+    [Test]
+    public void FindAssemblies_WithSpecificFilter_IncludeOnlyRoot ()
+    {
+      ExecuteInSeparateAppDomain (_testFixture.FindAssemblies_WithSpecificFilter_IncludeOnlyRoot);
+    }
+
+    [Test]
+    public void FindAssemblies_WithSpecificFilter_IncludeAll ()
+    {
+      ExecuteInSeparateAppDomain (_testFixture.FindAssemblies_WithSpecificFilter_IncludeAll);
     }
 
     private void ExecuteInSeparateAppDomain (CrossAppDomainDelegate test)

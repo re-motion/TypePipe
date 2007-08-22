@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Rubicon.Collections;
 using Rubicon.Utilities;
 
 namespace Rubicon.Reflection
@@ -12,51 +13,39 @@ namespace Rubicon.Reflection
   public class AssemblyFinder
   {
     private readonly Assembly[] _rootAssemblies;
-    private Type _assemblyMarkerAttribute;
+    private readonly IAssemblyFinderFilter _filter;
 
     /// <summary>
     /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type with a predetermined set of <paramref name="rootAssemblies"/>.
-    /// These assemblies are then used as startng points for looking up any referenced assembly having the <paramref name="assemblyMarkerAttribute"/>
+    /// These assemblies are then used as startng points for looking up any referenced assembly matching the given <paramref name="filter"/>
     /// applied.
     /// </summary>
-    /// <param name="assemblyMarkerAttribute">The <see cref="Attribute"/> to used to filter the referenced assemblies.</param>
-    /// <param name="rootAssemblies">The <see cref="Assembly"/> array used as starting point for finding the referenced assemblies.</param>
-    public AssemblyFinder (Type assemblyMarkerAttribute, params Assembly[] rootAssemblies)
+    /// <param name="filter">The <see cref="IAssemblyFinderFilter"/> used to filter the referenced assemblies.</param>
+    /// <param name="rootAssemblies">The <see cref="Assembly"/> array used as starting point for finding the referenced assemblies. All of these
+    /// assemblies will be included in the result list, no matter whether they match the filter or not.</param>
+    public AssemblyFinder (IAssemblyFinderFilter filter, params Assembly[] rootAssemblies)
     {
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("rootAssemblies", rootAssemblies);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("assemblyMarkerAttribute", assemblyMarkerAttribute, typeof (Attribute));
+      ArgumentUtility.CheckNotNull ("filter", filter);
 
-      _assemblyMarkerAttribute = assemblyMarkerAttribute;
       _rootAssemblies = rootAssemblies;
-
-      foreach (Assembly rootAssembly in rootAssemblies)
-      {
-        if (!HasAssemblyMarkerAttributeDefined (rootAssembly))
-        {
-          string message = string.Format (
-              "The root assembly '{0}' is not tagged with the marker attribute '{1}'.",
-              rootAssembly.FullName,
-              assemblyMarkerAttribute.FullName);
-          throw new ArgumentException (message, "rootAssemblies");
-        }
-      }
+      _filter = filter;
     }
 
     /// <summary>
-    /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type to look for assemblies within the current <see cref="AppDomain"/>'s 
-    /// <see cref="AppDomain.BaseDirectory"/> having the <paramref name="assemblyMarkerAttribute"/> applied. These assemblies are then used as 
-    /// startng points for looking up any referenced assembly having the <paramref name="assemblyMarkerAttribute"/> applied as well.
+    /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type to look for assemblies within the current
+    /// <see cref="AppDomain"/>'s <see cref="AppDomain.BaseDirectory"/> matching the <paramref name="filter"/>. These assemblies are then used as 
+    /// startng points for looking up any referenced assembly also matching the <paramref name="filter"/>.
     /// </summary>
-    /// <param name="assemblyMarkerAttribute">The <see cref="Attribute"/> to used to filter the assemblies.</param>
-    public AssemblyFinder (Type assemblyMarkerAttribute)
+    /// <param name="filter">The <see cref="IAssemblyFinderFilter"/> used to filter the referenced assemblies.</param>
+    public AssemblyFinder (IAssemblyFinderFilter filter)
     {
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("assemblyMarkerAttribute", assemblyMarkerAttribute, typeof (Attribute));
+      ArgumentUtility.CheckNotNull ("filter", filter);
 
-      _assemblyMarkerAttribute = assemblyMarkerAttribute;
+      _filter = filter;
 
-      List<Assembly> assemblies = new List<Assembly> (AppDomain.CurrentDomain.GetAssemblies ());
-
-      LoadAssemblies(assemblies, AppDomain.CurrentDomain.BaseDirectory);
+      List<Assembly> assemblies = new List<Assembly> ();
+      LoadAssemblies (assemblies, AppDomain.CurrentDomain.BaseDirectory);
 
       if (!string.IsNullOrEmpty (AppDomain.CurrentDomain.RelativeSearchPath))
       {
@@ -67,15 +56,15 @@ namespace Rubicon.Reflection
       if (!string.IsNullOrEmpty (AppDomain.CurrentDomain.DynamicDirectory))
         LoadAssemblies (assemblies, AppDomain.CurrentDomain.DynamicDirectory);
 
-      _rootAssemblies = assemblies.FindAll (HasAssemblyMarkerAttributeDefined).ToArray();
+      _rootAssemblies = assemblies.FindAll (_filter.ShouldIncludeAssembly).ToArray();
     }
 
     /// <summary>
-    /// Gets the attribute <see cref="Type"/> passed during initialization.
+    /// Gets the <see cref="IAssemblyFinderFilter"/> passed during initialization.
     /// </summary>
-    public Type AssemblyMarkerAttribute
+    public IAssemblyFinderFilter Filter
     {
-      get { return _assemblyMarkerAttribute; }
+      get { return _filter; }
     }
 
     /// <summary>
@@ -87,9 +76,10 @@ namespace Rubicon.Reflection
     }
     
     /// <summary>
-    /// Returns the <see cref="RootAssemblies"/> as well as all referenced assemblies having the <see cref="AssemblyMarkerAttribute"/> defined.
+    /// Returns the <see cref="RootAssemblies"/> as well as all directly or indirectly referenced assemblies matching the filter specified
+    /// at construction time.
     /// </summary>
-    /// <returns>An array of assemblies.</returns>
+    /// <returns>An array of assemblies matching the <see cref="IAssemblyFinderFilter"/> specified at construction time.</returns>
     public Assembly[] FindAssemblies ()
     {
       List<Assembly> assemblies = new List<Assembly> (_rootAssemblies);
@@ -97,9 +87,12 @@ namespace Rubicon.Reflection
       {
         foreach (AssemblyName referencedAssemblyName in assemblies[i].GetReferencedAssemblies())
         {
-          Assembly referencedAssembly = Assembly.Load (referencedAssemblyName);
-          if (!assemblies.Contains (referencedAssembly) && HasAssemblyMarkerAttributeDefined (referencedAssembly))
-            assemblies.Add (referencedAssembly);
+          if (_filter.ShouldConsiderAssembly (referencedAssemblyName))
+          {
+            Assembly referencedAssembly = Assembly.Load (referencedAssemblyName);
+            if (!assemblies.Contains (referencedAssembly) && _filter.ShouldIncludeAssembly (referencedAssembly))
+              assemblies.Add (referencedAssembly);
+          }
         }
       }
 
@@ -134,12 +127,10 @@ namespace Rubicon.Reflection
         return null;
       }
 
-      return Assembly.Load (assemblyName);
-    }
-
-    private bool HasAssemblyMarkerAttributeDefined (Assembly assembly)
-    {
-      return assembly.IsDefined (_assemblyMarkerAttribute, false);
+      if (_filter.ShouldConsiderAssembly (assemblyName))
+        return Assembly.Load (assemblyName);
+      else
+        return null;
     }
   }
 }
