@@ -16,7 +16,7 @@ namespace Rubicon.Core.UnitTests.Reflection
     public void NonSystemAssemblyMatchExpression ()
     {
       NonSystemAssemblyFinderFilter filter = new NonSystemAssemblyFinderFilter();
-      Assert.AreEqual (@"^(mscorlib)|(System)|(System\..*)|(Microsoft\..*)$", filter.SystemAssemblyMatchExpression);
+      Assert.AreEqual (@"^((mscorlib)|(System)|(System\..*)|(Microsoft\..*))$", filter.SystemAssemblyMatchExpression);
     }
 
     [Test]
@@ -25,17 +25,20 @@ namespace Rubicon.Core.UnitTests.Reflection
       NonSystemAssemblyFinderFilter filter = new NonSystemAssemblyFinderFilter ();
       Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinderFilterTest).Assembly.GetName ()));
       Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (TestFixtureAttribute).Assembly.GetName ()));
+      Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinder).Assembly.GetName()));
+
       Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (object).Assembly.GetName ()));
       Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("System")));
       Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Microsoft.Something.Whatever")));
     }
 
     [Test]
-    public void NonSystemAssemblyInclusion ()
+    public void NonSystemAssemblyInclusionAlwaysTrue ()
     {
       NonSystemAssemblyFinderFilter filter = new NonSystemAssemblyFinderFilter ();
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinderFilterTest).Assembly));
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (TestFixtureAttribute).Assembly));
+      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinder).Assembly));
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (object).Assembly));
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (Uri).Assembly));
     }
