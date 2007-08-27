@@ -52,38 +52,45 @@ namespace Rubicon.Reflection
 
     public TResult With ()
     {
-      return _invoker.With ();
+      return PerformAfterAction (_invoker.With ());
     }
+
 
     public TResult With<A1, A2> (A1 a1, A2 a2)
     {
-      return _invoker.With (a1, a2);
+      return PerformAfterAction (_invoker.With (a1, a2));
     }
+
 
     public TResult With<A1, A2, A3> (A1 a1, A2 a2, A3 a3)
     {
-      return _invoker.With (a1, a2, a3);
+      return PerformAfterAction (_invoker.With (a1, a2, a3));
     }
+
 
     public TResult With<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4)
     {
-      return _invoker.With (a1, a2, a3, a4);
+      return PerformAfterAction (_invoker.With (a1, a2, a3, a4));
     }
+
 
     public TResult With<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
     {
-      return _invoker.With (a1, a2, a3, a4, a5);
+      return PerformAfterAction (_invoker.With (a1, a2, a3, a4, a5));
     }
+
 
     public TResult With<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
     {
-      return _invoker.With (a1, a2, a3, a4, a5, a6);
+      return PerformAfterAction (_invoker.With (a1, a2, a3, a4, a5, a6));
     }
+
 
     public TResult With<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
     {
-      return _invoker.With (a1, a2, a3, a4, a5, a6, a7);
+      return PerformAfterAction (_invoker.With (a1, a2, a3, a4, a5, a6, a7));
     }
+
   }
 
 

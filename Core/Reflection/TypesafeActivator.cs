@@ -57,11 +57,16 @@ namespace Rubicon.Reflection
               key,
               delegate
               {
-                return ConstructorWrapper.CreateDelegate (
-                    _definingType, delegateType, BindingFlags, Binder, CallingConvention, ParameterModifiers);
+                return CreateDelegate(delegateType);
               });
         }
         return result;
+      }
+
+      protected virtual Delegate CreateDelegate (Type delegateType)
+      {
+        return ConstructorWrapper.CreateDelegate (
+            _definingType, delegateType, BindingFlags, Binder, CallingConvention, ParameterModifiers);
       }
     }
 

@@ -39,20 +39,36 @@ namespace Rubicon.Reflection
   {
     // @begin-skip
     private IFuncInvoker<TResult> _invoker;
+    private Func<TResult, TResult> _afterAction;
 
     public FuncInvokerWrapper (IFuncInvoker<TResult> invoker)
+        : this (invoker, null)
+    {
+    }
+
+    public FuncInvokerWrapper (IFuncInvoker<TResult> invoker, Func<TResult, TResult> afterAction)
     {
       _invoker = invoker;
+      _afterAction = afterAction;
     }
 
     public TResult Invoke (Type[] valueTypes, object[] values)
     {
-      return _invoker.Invoke (valueTypes, values);
+      return PerformAfterAction (_invoker.Invoke (valueTypes, values));
+      
     }
     public TResult Invoke (object[] values)
     {
-      return _invoker.Invoke (values);
+      return PerformAfterAction (_invoker.Invoke (values));
     }
+
+    private TResult PerformAfterAction (TResult result)
+    {
+      if (_afterAction != null)
+        result = _afterAction (result);
+      return result;
+    }
+
     // @end-skip
 
     // @begin-template first=1 generate=0..7 suppressTemplate=true
@@ -62,8 +78,9 @@ namespace Rubicon.Reflection
     public TResult With<A1> (A1 a1)
     {
       // @replace "a<n>" ", "
-      return _invoker.With (a1);
+      return PerformAfterAction (_invoker.With (a1));
     }
+
     // @end-template
   }
 
