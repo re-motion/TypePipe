@@ -89,9 +89,17 @@ namespace Rubicon.Reflection
         {
           if (_filter.ShouldConsiderAssembly (referencedAssemblyName))
           {
-            Assembly referencedAssembly = Assembly.Load (referencedAssemblyName);
-            if (!assemblies.Contains (referencedAssembly) && _filter.ShouldIncludeAssembly (referencedAssembly))
-              assemblies.Add (referencedAssembly);
+            try
+            {
+              Assembly referencedAssembly = Assembly.Load (referencedAssemblyName);
+              if (!assemblies.Contains (referencedAssembly) && _filter.ShouldIncludeAssembly (referencedAssembly))
+                assemblies.Add (referencedAssembly);
+            }
+            catch (FileLoadException ex)
+            {
+              string message = string.Format ("Problem when loading referenced assemblies of assembly '{0}': {1}", assemblies[i].FullName, ex.Message);
+              throw new FileLoadException (message, ex);
+            }
           }
         }
       }
