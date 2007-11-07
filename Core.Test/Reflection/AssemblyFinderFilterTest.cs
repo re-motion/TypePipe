@@ -4,6 +4,7 @@ using Rubicon.Reflection;
 using System.Reflection;
 
 [assembly: Rubicon.Core.UnitTests.Reflection.TestMarker]
+[assembly: NonApplicationAssembly]
 
 namespace Rubicon.Core.UnitTests.Reflection
 {
@@ -12,17 +13,57 @@ namespace Rubicon.Core.UnitTests.Reflection
   [TestFixture]
   public class AssemblyFinderFilterTest
   {
-    [Test]
-    public void NonSystemAssemblyMatchExpression ()
+    [TearDown]
+    public void TearDown ()
     {
-      NonSystemAssemblyFinderFilter filter = new NonSystemAssemblyFinderFilter();
+      ApplicationAssemblyFinderFilter.Instance.Reset ();
+    }
+
+    [Test]
+    public void RegexConsidering_SimpleName ()
+    {
+      RegexAssemblyFinderFilter filter = new RegexAssemblyFinderFilter ("^Rubicon.*$", RegexAssemblyFinderFilter.MatchTargetKind.SimpleName);
+      Assert.AreEqual ("^Rubicon.*$", filter.MatchExpressionString);
+      Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinderFilterTest).Assembly.GetName ()));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (TestFixtureAttribute).Assembly.GetName ()));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (object).Assembly.GetName ()));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("this is not a Rubicon assembly")));
+    }
+
+    [Test]
+    public void RegexConsidering_FullName ()
+    {
+      RegexAssemblyFinderFilter filter = new RegexAssemblyFinderFilter (typeof (object).Assembly.FullName,
+          RegexAssemblyFinderFilter.MatchTargetKind.FullName);
+      Assert.IsTrue (filter.MatchExpressionString.StartsWith ("mscorlib"));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (AssemblyFinderFilterTest).Assembly.GetName ()));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (TestFixtureAttribute).Assembly.GetName ()));
+      Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (object).Assembly.GetName ()));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("this is not mscorlib")));
+    }
+
+    [Test]
+    public void RegexInclusion_AlwaysTrue ()
+    {
+      RegexAssemblyFinderFilter filter = new RegexAssemblyFinderFilter ("spispopd", RegexAssemblyFinderFilter.MatchTargetKind.SimpleName);
+      Assert.AreEqual ("spispopd", filter.MatchExpressionString);
+      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinderFilterTest).Assembly));
+      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (TestFixtureAttribute).Assembly));
+      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (object).Assembly));
+      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (Uri).Assembly));
+    }
+
+    [Test]
+    public void ApplicationAssemblyMatchExpression ()
+    {
+      ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
       Assert.AreEqual (@"^((mscorlib)|(System)|(System\..*)|(Microsoft\..*))$", filter.SystemAssemblyMatchExpression);
     }
 
     [Test]
-    public void NonSystemAssemblyConsidering ()
+    public void ApplicationAssemblyConsidering ()
     {
-      NonSystemAssemblyFinderFilter filter = new NonSystemAssemblyFinderFilter ();
+      ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
       Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinderFilterTest).Assembly.GetName ()));
       Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (TestFixtureAttribute).Assembly.GetName ()));
       Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinder).Assembly.GetName()));
@@ -33,10 +74,19 @@ namespace Rubicon.Core.UnitTests.Reflection
     }
 
     [Test]
-    public void NonSystemAssemblyInclusionAlwaysTrue ()
+    public void AddIgnoredAssembly ()
     {
-      NonSystemAssemblyFinderFilter filter = new NonSystemAssemblyFinderFilter ();
-      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinderFilterTest).Assembly));
+      ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
+      Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinder).Assembly.GetName ()));
+      filter.AddIgnoredAssembly (typeof (AssemblyFinder).Assembly.GetName().Name);
+      Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (AssemblyFinder).Assembly.GetName ()));
+    }
+
+    [Test]
+    public void ApplicationAssemblyInclusion_DependsOnAttribute ()
+    {
+      ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
+      Assert.IsFalse (filter.ShouldIncludeAssembly (typeof (AssemblyFinderFilterTest).Assembly));
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (TestFixtureAttribute).Assembly));
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinder).Assembly));
       Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (object).Assembly));
