@@ -42,7 +42,7 @@ namespace Rubicon.Reflection
     }
 
     public MemberLookupInfo (string memberName)
-      : this (memberName, BindingFlags.Instance | BindingFlags.Public)
+      : this (memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static)
     {
     }
 

@@ -70,7 +70,7 @@ namespace Rubicon.Reflection
       }
     }
 
-    private static ICache<CacheKey, Delegate> s_delegateCache = new InterlockedCache<CacheKey, Delegate> ();
+    private static readonly ICache<CacheKey, Delegate> s_delegateCache = new InterlockedCache<CacheKey, Delegate> ();
 
     public static FuncInvoker<T> CreateInstance<T> ()
     {
