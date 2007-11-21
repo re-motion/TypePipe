@@ -97,7 +97,8 @@ namespace Rubicon.Reflection
             }
             catch (FileLoadException ex)
             {
-              string message = string.Format ("Problem when loading referenced assemblies of assembly '{0}': {1}", assemblies[i].FullName, ex.Message);
+              string message = string.Format ("There was a problem when loading referenced assemblies of assembly '{0}': {1}", assemblies[i].FullName,
+                  ex.Message);
               throw new FileLoadException (message, ex);
             }
           }
@@ -117,9 +118,17 @@ namespace Rubicon.Reflection
     {
       foreach (string filePath in filePaths)
       {
-        Assembly assembly = TryLoadAssembly (filePath);
-        if (assembly != null && !assemblies.Contains (assembly))
-          assemblies.Add (assembly);
+        try
+        {
+          Assembly assembly = TryLoadAssembly (filePath);
+          if (assembly != null && !assemblies.Contains (assembly))
+            assemblies.Add (assembly);
+        }
+        catch (FileNotFoundException ex)
+        {
+          string message = string.Format ("{0}: {1}", filePath, ex.Message);
+          throw new FileLoadException (message, ex);
+        }
       }
     }
 
