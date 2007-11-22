@@ -38,7 +38,9 @@ namespace Rubicon.Reflection
     /// startng points for looking up any referenced assembly also matching the <paramref name="filter"/>.
     /// </summary>
     /// <param name="filter">The <see cref="IAssemblyFinderFilter"/> used to filter the referenced assemblies.</param>
-    public AssemblyFinder (IAssemblyFinderFilter filter)
+    /// <param name="considerDynamicDirectory">Specifies whether to search the <see cref="AppDomain.DynamicDirectory"/> as well as the base
+    /// directory.</param>
+    public AssemblyFinder (IAssemblyFinderFilter filter, bool considerDynamicDirectory)
     {
       ArgumentUtility.CheckNotNull ("filter", filter);
 
@@ -52,8 +54,8 @@ namespace Rubicon.Reflection
         foreach (string privateBinPath in AppDomain.CurrentDomain.RelativeSearchPath.Split (';'))
           LoadAssemblies(assemblies, privateBinPath);
       }
-      
-      if (!string.IsNullOrEmpty (AppDomain.CurrentDomain.DynamicDirectory))
+
+      if (considerDynamicDirectory && !string.IsNullOrEmpty (AppDomain.CurrentDomain.DynamicDirectory))
         LoadAssemblies (assemblies, AppDomain.CurrentDomain.DynamicDirectory);
 
       _rootAssemblies = assemblies.FindAll (_filter.ShouldIncludeAssembly).ToArray();
