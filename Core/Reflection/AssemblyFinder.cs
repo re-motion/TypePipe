@@ -82,7 +82,7 @@ namespace Rubicon.Reflection
     /// at construction time.
     /// </summary>
     /// <returns>An array of assemblies matching the <see cref="IAssemblyFinderFilter"/> specified at construction time.</returns>
-    public Assembly[] FindAssemblies ()
+    public virtual Assembly[] FindAssemblies ()
     {
       List<Assembly> assemblies = new List<Assembly> (_rootAssemblies);
       for (int i = 0; i < assemblies.Count; i++)
