@@ -57,7 +57,8 @@ namespace Rubicon.Core.UnitTests.Reflection
     public void ApplicationAssemblyMatchExpression ()
     {
       ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
-      Assert.AreEqual (@"^((mscorlib)|(System)|(System\..*)|(Microsoft\..*))$", filter.SystemAssemblyMatchExpression);
+      Assert.AreEqual (@"^((mscorlib)|(System)|(System\..*)|(Microsoft\..*)|(Rubicon\..*\.Generated\..*))$", 
+          filter.SystemAssemblyMatchExpression);
     }
 
     [Test]
@@ -71,6 +72,10 @@ namespace Rubicon.Core.UnitTests.Reflection
       Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (object).Assembly.GetName ()));
       Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("System")));
       Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Microsoft.Something.Whatever")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Mixins.Generated.Unsigned")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Mixins.Generated.Signed")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Data.DomainObjects.Generated.Signed")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Data.DomainObjects.Generated.Unsigned")));
     }
 
     [Test]

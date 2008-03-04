@@ -38,7 +38,8 @@ namespace Rubicon.Reflection
                     @"mscorlib",
                     @"System",
                     @"System\..*",
-                    @"Microsoft\..*"
+                    @"Microsoft\..*",
+                    @"Rubicon\..*\.Generated\..*",
                 });
         _assemblyNameFilter = null;
       }
