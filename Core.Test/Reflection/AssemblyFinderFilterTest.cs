@@ -13,6 +13,12 @@ namespace Rubicon.Core.UnitTests.Reflection
   [TestFixture]
   public class AssemblyFinderFilterTest
   {
+    [SetUp]
+    public void SetUp ()
+    {
+      ApplicationAssemblyFinderFilter.Instance.Reset ();
+    }
+
     [TearDown]
     public void TearDown ()
     {
