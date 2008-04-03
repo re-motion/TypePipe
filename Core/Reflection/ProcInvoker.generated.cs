@@ -6,10 +6,10 @@
 //
 //------------------------------------------------------------------------------
 using System;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 using System.Reflection;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   /// <summary>
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 

@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   ///// <summary>
   ///// A function that will create a delegate to call from <see cref="FuncInvoker{TResult}"/>.

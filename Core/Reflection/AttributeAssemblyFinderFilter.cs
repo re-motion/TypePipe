@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   [Serializable]
   public class AttributeAssemblyFinderFilter : IAssemblyFinderFilter

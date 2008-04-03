@@ -1,4 +1,4 @@
 using System;
-using Rubicon.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly;
+using Remotion.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly;
 
 [assembly: Marker]

@@ -1,9 +1,9 @@
 using System;
 using NUnit.Framework;
 using System.Runtime.Remoting.Messaging;
-using Rubicon.Development.UnitTesting;
+using Remotion.Development.UnitTesting;
 
-namespace Rubicon.Core.UnitTests
+namespace Remotion.Core.UnitTests
 {
   [TestFixture]
   public class CallContextSingletonTest

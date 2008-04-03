@@ -1,9 +1,9 @@
 using System;
 using NUnit.Framework;
-using Rubicon.Development.UnitTesting;
-using Rubicon.Reflection;
+using Remotion.Development.UnitTesting;
+using Remotion.Reflection;
 
-namespace Rubicon.Core.UnitTests.Reflection
+namespace Remotion.Core.UnitTests.Reflection
 {
   [TestFixture]
   public class FuncInvokerWrapperTest

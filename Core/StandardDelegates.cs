@@ -1,8 +1,8 @@
 using System;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 using System.ComponentModel;
 
-namespace Rubicon
+namespace Remotion
 {
   [EditorBrowsable (EditorBrowsableState.Always)]
   public delegate void Proc ();

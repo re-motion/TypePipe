@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.IO;
-using Rubicon.Reflection;
+using Remotion.Reflection;
 using NUnit.Framework;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 
-namespace Rubicon.Core.UnitTests.Reflection
+namespace Remotion.Core.UnitTests.Reflection
 {
   [TestFixture]
   public class TypesafeActivatorTest

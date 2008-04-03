@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Rubicon.Collections;
-using Rubicon.Utilities;
+using Remotion.Collections;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   /// <summary>
   /// Use the <see cref="AssemblyFinder"/> class to find all (referenced) assemblies identified by a marker <see cref="Attribute"/>.

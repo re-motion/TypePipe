@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Rubicon.Reflection;
+using Remotion.Reflection;
 
-namespace Rubicon.Core.UnitTests.Reflection
+namespace Remotion.Core.UnitTests.Reflection
 {
   [TestFixture]
   public class MethodCallerTest

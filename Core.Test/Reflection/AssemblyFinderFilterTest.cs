@@ -1,12 +1,12 @@
 using System;
 using NUnit.Framework;
-using Rubicon.Reflection;
+using Remotion.Reflection;
 using System.Reflection;
 
-[assembly: Rubicon.Core.UnitTests.Reflection.TestMarker]
+[assembly: Remotion.Core.UnitTests.Reflection.TestMarker]
 [assembly: NonApplicationAssembly]
 
-namespace Rubicon.Core.UnitTests.Reflection
+namespace Remotion.Core.UnitTests.Reflection
 {
   public class TestMarkerAttribute : Attribute { }
 
@@ -28,12 +28,12 @@ namespace Rubicon.Core.UnitTests.Reflection
     [Test]
     public void RegexConsidering_SimpleName ()
     {
-      RegexAssemblyFinderFilter filter = new RegexAssemblyFinderFilter ("^Rubicon.*$", RegexAssemblyFinderFilter.MatchTargetKind.SimpleName);
-      Assert.AreEqual ("^Rubicon.*$", filter.MatchExpressionString);
+      RegexAssemblyFinderFilter filter = new RegexAssemblyFinderFilter ("^Remotion.*$", RegexAssemblyFinderFilter.MatchTargetKind.SimpleName);
+      Assert.AreEqual ("^Remotion.*$", filter.MatchExpressionString);
       Assert.IsTrue (filter.ShouldConsiderAssembly (typeof (AssemblyFinderFilterTest).Assembly.GetName ()));
       Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (TestFixtureAttribute).Assembly.GetName ()));
       Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (object).Assembly.GetName ()));
-      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("this is not a Rubicon assembly")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("this is not a Remotion assembly")));
     }
 
     [Test]
@@ -63,7 +63,7 @@ namespace Rubicon.Core.UnitTests.Reflection
     public void ApplicationAssemblyMatchExpression ()
     {
       ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
-      Assert.AreEqual (@"^((mscorlib)|(System)|(System\..*)|(Microsoft\..*)|(Rubicon\..*\.Generated\..*))$", 
+      Assert.AreEqual (@"^((mscorlib)|(System)|(System\..*)|(Microsoft\..*)|(Remotion\..*\.Generated\..*))$", 
           filter.SystemAssemblyMatchExpression);
     }
 
@@ -78,10 +78,10 @@ namespace Rubicon.Core.UnitTests.Reflection
       Assert.IsFalse (filter.ShouldConsiderAssembly (typeof (object).Assembly.GetName ()));
       Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("System")));
       Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Microsoft.Something.Whatever")));
-      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Mixins.Generated.Unsigned")));
-      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Mixins.Generated.Signed")));
-      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Data.DomainObjects.Generated.Signed")));
-      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Rubicon.Data.DomainObjects.Generated.Unsigned")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Remotion.Mixins.Generated.Unsigned")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Remotion.Mixins.Generated.Signed")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Remotion.Data.DomainObjects.Generated.Signed")));
+      Assert.IsFalse (filter.ShouldConsiderAssembly (new AssemblyName ("Remotion.Data.DomainObjects.Generated.Unsigned")));
     }
 
     [Test]

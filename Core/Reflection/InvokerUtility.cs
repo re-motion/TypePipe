@@ -1,7 +1,7 @@
 using System;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   internal static class InvokerUtility
   {

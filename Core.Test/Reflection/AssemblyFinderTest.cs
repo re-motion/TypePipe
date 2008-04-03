@@ -4,12 +4,12 @@ using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Rhino.Mocks;
-using Rubicon.Development.UnitTesting;
-using Rubicon.Reflection;
-using Rubicon.Utilities;
+using Remotion.Development.UnitTesting;
+using Remotion.Reflection;
+using Remotion.Utilities;
 using Rhino_Is = Rhino.Mocks.Constraints.Is;
 
-namespace Rubicon.Core.UnitTests.Reflection
+namespace Remotion.Core.UnitTests.Reflection
 {
   [TestFixture]
   public class AssemblyFinderTest
@@ -45,7 +45,7 @@ namespace Rubicon.Core.UnitTests.Reflection
             Path.Combine (AppDomain.CurrentDomain.BaseDirectory, _markerAttributeAssemblyName + ".dll"));
         assemblyCompiler.Compile();
         _markerAttributeType =
-            assemblyCompiler.CompiledAssembly.GetType ("Rubicon.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly.MarkerAttribute");
+            assemblyCompiler.CompiledAssembly.GetType ("Remotion.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly.MarkerAttribute");
         Assert.IsNotNull (_markerAttributeType);
 
         _relativeSearchPathDirectoryForDlls = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Dlls");

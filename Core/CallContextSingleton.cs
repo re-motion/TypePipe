@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.Remoting.Messaging;
-using Rubicon;
-using Rubicon.Utilities;
+using Remotion;
+using Remotion.Utilities;
 
-namespace Rubicon
+namespace Remotion
 {
   public class CallContextSingleton<T>
   {

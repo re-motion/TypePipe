@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
-using Rubicon.Collections;
-using Rubicon.Utilities;
+using Remotion.Collections;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   using CacheKey = Tuple<Type, string>; // delegate type, member name (reflected type is the delegate's first parameter type)
 

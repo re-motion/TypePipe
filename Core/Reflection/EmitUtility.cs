@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   /// <summary>
   /// Provides helper methods for Reflection.Emit.

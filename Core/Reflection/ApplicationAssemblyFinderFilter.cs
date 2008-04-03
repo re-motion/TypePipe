@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Rubicon.Text;
-using Rubicon.Utilities;
+using Remotion.Text;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   [Serializable]
   public class ApplicationAssemblyFinderFilter : IAssemblyFinderFilter
@@ -39,7 +39,7 @@ namespace Rubicon.Reflection
                     @"System",
                     @"System\..*",
                     @"Microsoft\..*",
-                    @"Rubicon\..*\.Generated\..*",
+                    @"Remotion\..*\.Generated\..*",
                 });
         _assemblyNameFilter = null;
       }

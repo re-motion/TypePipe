@@ -1,5 +1,5 @@
 using System.Reflection;
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   /// <summary>
   /// Provides an interface for filtering the assemblies found by the <see cref="AssemblyFinder"/>.

@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Rubicon.Utilities;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   [Serializable]
   public class RegexAssemblyFinderFilter : IAssemblyFinderFilter

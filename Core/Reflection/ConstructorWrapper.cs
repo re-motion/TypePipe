@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
-using Rubicon.Text;
-using Rubicon.Utilities;
+using Remotion.Text;
+using Remotion.Utilities;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   /// <summary>
   /// Creates wrapper methods for constructors so they can be called via delegates instead of reflection.

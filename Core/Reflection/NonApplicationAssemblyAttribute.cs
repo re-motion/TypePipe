@@ -1,10 +1,10 @@
 using System;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   /// <summary>
   /// Causes an assembly to be ignored by <see cref="ApplicationAssemblyFinderFilter"/> (which is used by the configuration loaders
-  /// in Rubicon.Data.DomainObjects and Rubicon.Mixins).
+  /// in Remotion.Data.DomainObjects and Remotion.Mixins).
   /// </summary>
   [AttributeUsage (AttributeTargets.Assembly)]
   public class NonApplicationAssemblyAttribute : Attribute

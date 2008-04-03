@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
-using Rubicon.Collections;
-using Rubicon.Text;
+using Remotion.Collections;
+using Remotion.Text;
 
-namespace Rubicon.Reflection
+namespace Remotion.Reflection
 {
   using CacheKey = Tuple<Type, Type>;
-  using Rubicon.Utilities;
+  using Remotion.Utilities;
 
   /// <summary>
   /// Create an instance of a known type using fixed parameter types for the constructor.
