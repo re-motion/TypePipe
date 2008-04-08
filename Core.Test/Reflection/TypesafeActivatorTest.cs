@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.IO;
-using Remotion.Reflection;
 using NUnit.Framework;
+using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.Core.UnitTests.Reflection

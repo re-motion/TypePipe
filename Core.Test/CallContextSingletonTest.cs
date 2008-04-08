@@ -1,6 +1,6 @@
 using System;
-using NUnit.Framework;
 using System.Runtime.Remoting.Messaging;
+using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 
 namespace Remotion.Core.UnitTests

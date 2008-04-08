@@ -3,11 +3,12 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
-using Rhino.Mocks;
 using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
 using Remotion.Utilities;
+using Rhino.Mocks;
 using Rhino_Is = Rhino.Mocks.Constraints.Is;
+using System.Diagnostics;
 
 namespace Remotion.Core.UnitTests.Reflection
 {
@@ -39,13 +40,8 @@ namespace Remotion.Core.UnitTests.Reflection
 
       public TestFixture ()
       {
-        _markerAttributeAssemblyName = "Reflection.TestAssemblies.MarkerAttributeAssembly";
-        AssemblyCompiler assemblyCompiler = new AssemblyCompiler (
-            @"Reflection\TestAssemblies\MarkerAttributeAssembly",
-            Path.Combine (AppDomain.CurrentDomain.BaseDirectory, _markerAttributeAssemblyName + ".dll"));
-        assemblyCompiler.Compile();
-        _markerAttributeType =
-            assemblyCompiler.CompiledAssembly.GetType ("Remotion.Core.UnitTests.Reflection.TestAssemblies.MarkerAttributeAssembly.MarkerAttribute");
+        _markerAttributeAssemblyName = typeof (MarkerAttribute).Assembly.GetName().Name;
+        _markerAttributeType = typeof (MarkerAttribute);
         Assert.IsNotNull (_markerAttributeType);
 
         _relativeSearchPathDirectoryForDlls = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderTest.Dlls");
@@ -84,6 +80,19 @@ namespace Remotion.Core.UnitTests.Reflection
             Path.Combine (_relativeSearchPathDirectoryForDlls, "_" + _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"));
 
         _attributeFilter = new AttributeAssemblyFinderFilter (_markerAttributeType);
+      }
+
+      public void Cleanup ()
+      {
+        ResetDirectory (_relativeSearchPathDirectoryForDlls);
+        ResetDirectory (_relativeSearchPathDirectoryForExes);
+        ResetDirectory (_dynamicDirectory);
+
+        FileUtility.DeleteAndWaitForCompletion (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, _markedReferencedAssemblyName + ".dll"));
+        FileUtility.DeleteAndWaitForCompletion (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, _markedAssemblyName + ".dll"));
+        FileUtility.DeleteAndWaitForCompletion (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, _markedExeAssemblyName + ".exe"));
+        FileUtility.DeleteAndWaitForCompletion (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, _markedAssemblyWithDerivedAttributeName + ".dll"));
+        FileUtility.DeleteAndWaitForCompletion (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.TestAssemblies.UnmarkedAssembly.dll"));
       }
 
       public string RelativeSearchPathDirectory
@@ -333,6 +342,12 @@ namespace Remotion.Core.UnitTests.Reflection
     public void TestFixtureSetUp ()
     {
       _testFixture = new TestFixture();
+    }
+
+    [TestFixtureTearDown]
+    public void TeastFixtureTearDown ()
+    {
+      _testFixture.Cleanup();
     }
 
     [Test]

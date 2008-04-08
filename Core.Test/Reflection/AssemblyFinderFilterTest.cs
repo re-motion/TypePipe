@@ -1,10 +1,13 @@
 using System;
-using NUnit.Framework;
-using Remotion.Reflection;
+using System.IO;
 using System.Reflection;
+using NUnit.Framework;
+using Remotion.Core.UnitTests.Reflection;
+using Remotion.Development.UnitTesting;
+using Remotion.Reflection;
+using Remotion.Utilities;
 
-[assembly: Remotion.Core.UnitTests.Reflection.TestMarker]
-[assembly: NonApplicationAssembly]
+[assembly: TestMarker]
 
 namespace Remotion.Core.UnitTests.Reflection
 {
@@ -96,12 +99,32 @@ namespace Remotion.Core.UnitTests.Reflection
     [Test]
     public void ApplicationAssemblyInclusion_DependsOnAttribute ()
     {
-      ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
-      Assert.IsFalse (filter.ShouldIncludeAssembly (typeof (AssemblyFinderFilterTest).Assembly));
-      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (TestFixtureAttribute).Assembly));
-      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinder).Assembly));
-      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (object).Assembly));
-      Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (Uri).Assembly));
+      string compiledAssemblyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "NonApplicationMarkedAssembly.dll");
+      try
+      {
+        AppDomainRunner.Run (
+            delegate (object[] args)
+            {
+              string path = (string) args[0];
+
+              ApplicationAssemblyFinderFilter filter = ApplicationAssemblyFinderFilter.Instance;
+              Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinderFilterTest).Assembly));
+              Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (TestFixtureAttribute).Assembly));
+              Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (AssemblyFinder).Assembly));
+              Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (object).Assembly));
+              Assert.IsTrue (filter.ShouldIncludeAssembly (typeof (Uri).Assembly));
+
+              AssemblyCompiler assemblyCompiler = new AssemblyCompiler (@"Reflection\TestAssemblies\NonApplicationMarkedAssembly", path, 
+                  typeof (NonApplicationAssemblyAttribute).Assembly.Location);
+              assemblyCompiler.Compile ();
+              Assert.IsFalse (filter.ShouldIncludeAssembly (assemblyCompiler.CompiledAssembly));
+            }, compiledAssemblyPath);
+      }
+      finally
+      {
+        if (File.Exists (compiledAssemblyPath))
+          FileUtility.DeleteAndWaitForCompletion (compiledAssemblyPath);
+      }
     }
 
     [Test]
