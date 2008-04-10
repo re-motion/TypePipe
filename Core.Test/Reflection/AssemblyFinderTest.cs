@@ -10,7 +10,7 @@ using Rhino.Mocks;
 using Rhino_Is = Rhino.Mocks.Constraints.Is;
 using System.Diagnostics;
 
-namespace Remotion.Core.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   public class AssemblyFinderTest

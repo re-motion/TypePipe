@@ -2,14 +2,14 @@ using System;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Core.UnitTests.Reflection;
+using Remotion.UnitTests.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
 [assembly: TestMarker]
 
-namespace Remotion.Core.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection
 {
   public class TestMarkerAttribute : Attribute { }
 

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
 
-namespace Remotion.Core.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   public class FuncInvokerWrapperTest

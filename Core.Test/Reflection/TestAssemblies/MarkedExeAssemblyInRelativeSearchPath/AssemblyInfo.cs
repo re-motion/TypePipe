@@ -1,4 +1,4 @@
 using System;
-using Remotion.Core.UnitTests.Reflection;
+using Remotion.UnitTests.Reflection;
 
 [assembly: Marker]

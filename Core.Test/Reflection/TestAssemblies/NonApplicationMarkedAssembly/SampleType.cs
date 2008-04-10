@@ -1,6 +1,6 @@
 using System;
 
-namespace Remotion.Core.UnitTests.Reflection.TestAssemblies.NonApplicationMarkedAssembly
+namespace Remotion.UnitTests.Reflection.TestAssemblies.NonApplicationMarkedAssembly
 {
   public class SampleType
   {

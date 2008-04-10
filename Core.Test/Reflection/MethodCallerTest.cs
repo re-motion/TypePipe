@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using Remotion.Reflection;
 
-namespace Remotion.Core.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   public class MethodCallerTest

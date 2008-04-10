@@ -3,7 +3,7 @@ using System.Runtime.Remoting.Messaging;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 
-namespace Remotion.Core.UnitTests
+namespace Remotion.UnitTests
 {
   [TestFixture]
   public class CallContextSingletonTest

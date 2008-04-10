@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.Core.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   public class TypesafeActivatorTest

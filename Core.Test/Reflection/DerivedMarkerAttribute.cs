@@ -1,6 +1,6 @@
 using System;
 
-namespace Remotion.Core.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection
 {
   [AttributeUsage (AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
   public class DerivedMarkerAttribute : MarkerAttribute
