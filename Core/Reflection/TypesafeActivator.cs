@@ -1,20 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using Remotion.Collections;
-using Remotion.Text;
 
 namespace Remotion.Reflection
 {
-  using CacheKey = Tuple<Type, Type>;
   using Remotion.Utilities;
 
   /// <summary>
   /// Create an instance of a known type using fixed parameter types for the constructor.
   /// </summary>
   /// <remarks>
-  /// While <see cref="System.Activator.CreateInstance"/> uses the types of passed arguments to select the correct constructor, this class
+  /// While <see cref="Activator.CreateInstance(Type,object[])"/> uses the types of passed arguments to select the correct constructor, this class
   /// uses the types of the expressions you use at compile time. Use the following code to create an instance of a class called MyClass using a 
   /// constructor that has an argument of type string:
   /// <code>
@@ -28,7 +24,7 @@ namespace Remotion.Reflection
   {
     public class ConstructorLookupInfo: MemberLookupInfo
     {
-      private Type _definingType;
+      private readonly Type _definingType;
 
       public ConstructorLookupInfo (Type definingType, BindingFlags bindingFlags)
         : this (definingType, bindingFlags, null, CallingConventions.Any, null)
@@ -49,7 +45,7 @@ namespace Remotion.Reflection
 
       public virtual Delegate GetDelegate (Type delegateType)
       {
-        CacheKey key = new CacheKey (_definingType, delegateType);
+        object key = GetCacheKey(delegateType);
         Delegate result;
         if (! s_delegateCache.TryGetValue (key, out result))
         {
@@ -63,6 +59,11 @@ namespace Remotion.Reflection
         return result;
       }
 
+      protected virtual object GetCacheKey (Type delegateType)
+      {
+        return new Tuple<Type, Type> (_definingType, delegateType);
+      }
+
       protected virtual Delegate CreateDelegate (Type delegateType)
       {
         return ConstructorWrapper.CreateDelegate (
@@ -70,7 +71,7 @@ namespace Remotion.Reflection
       }
     }
 
-    private static readonly ICache<CacheKey, Delegate> s_delegateCache = new InterlockedCache<CacheKey, Delegate> ();
+    private static readonly ICache<object, Delegate> s_delegateCache = new InterlockedCache<object, Delegate> ();
 
     public static FuncInvoker<T> CreateInstance<T> ()
     {
