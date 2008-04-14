@@ -4,67 +4,6 @@ using System.Reflection;
 
 namespace Remotion.Reflection
 {
-  /// <summary>
-  /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
-  /// </summary>
-  /// <remarks>
-  /// <p>Note that casting a struct like <see cref="ProcInvoker"/> to an interface is a boxing operation, thus creating an object on the
-  /// heap and garbage collecting it later. For very performance-critical scenarios, it be better to avoid this and accept the references to 
-  /// the invoker's generic argument types.</p>
-  /// <p>It is recommended to wrap this interface within a <see cref="ProcInvokerWrapper"/>, because returning an interface could lead to 
-  /// ambigous castings if the final call to <see cref="With()"/> is missing, while using structs will usually lead to a compile-time error as 
-  /// expected.</p>
-  /// </remarks>
-  public partial interface IProcInvoker
-  {
-    // @begin-skip
-    void Invoke (Type[] valueTypes, object[] values);
-    void Invoke (object[] values);
-    // @end-skip
-
-    // @begin-template first=1 generate=0..7 suppressTemplate=true
-
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    void With<A1> (A1 a1);
-    // @end-template
-  }
-
-  /// <summary>
-  /// Used to wrap an <see cref="IProcInvoker"/> object rather than returning it directly.
-  /// </summary>
-  public partial struct ProcInvokerWrapper: IProcInvoker
-  {
-    // @begin-skip
-    private IProcInvoker _invoker;
-
-    public ProcInvokerWrapper (IProcInvoker invoker)
-    {
-      _invoker = invoker;
-    }
-
-    public void Invoke (Type[] valueTypes, object[] values)
-    {
-      _invoker.Invoke (valueTypes, values);
-    }
-    public void Invoke (object[] values)
-    {
-      _invoker.Invoke (values);
-    }
-    // @end-skip
-
-    // @begin-template first=1 generate=0..7 suppressTemplate=true
-
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    public void With<A1> (A1 a1)
-    {
-      // @replace "a<n>" ", "
-      _invoker.With (a1);
-    }
-    // @end-template
-  }
-
   // @begin-template first=1 template=1 generate=0..3 suppressTemplate=true
 
   // @replace "TFixedArg<n>" ", " "<" ">"
