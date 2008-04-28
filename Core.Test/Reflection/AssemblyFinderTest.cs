@@ -377,7 +377,6 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindAssemblies_WithRootAssemblies ()
     {
-      Debugger.Break ();
       ExecuteInSeparateAppDomain (_testFixture.FindAssemblies_WithRootAssemblies);
     }
 
