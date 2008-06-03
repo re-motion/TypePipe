@@ -1,1 +1,0 @@
-funcgen Core\*.template.cs *.generated.cs /r
