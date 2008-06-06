@@ -11,11 +11,10 @@
 using System;
 using System.Reflection;
 using Remotion.Collections;
+using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  using Remotion.Utilities;
-
   /// <summary>
   /// Create an instance of a known type using fixed parameter types for the constructor.
   /// </summary>

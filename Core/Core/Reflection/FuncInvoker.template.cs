@@ -10,7 +10,6 @@
 
 using System;
 using Remotion.Utilities;
-using System.Reflection;
 
 namespace Remotion.Reflection
 {

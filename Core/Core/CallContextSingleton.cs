@@ -10,7 +10,6 @@
 
 using System;
 using System.Runtime.Remoting.Messaging;
-using Remotion;
 using Remotion.Utilities;
 
 namespace Remotion

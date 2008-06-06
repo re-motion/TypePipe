@@ -12,9 +12,9 @@ using System;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.UnitTests.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
+using Remotion.UnitTests.Reflection;
 using Remotion.Utilities;
 
 [assembly: TestMarker]

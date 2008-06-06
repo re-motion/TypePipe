@@ -18,7 +18,6 @@ using Remotion.Reflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
 using Rhino_Is = Rhino.Mocks.Constraints.Is;
-using System.Diagnostics;
 
 namespace Remotion.UnitTests.Reflection
 {

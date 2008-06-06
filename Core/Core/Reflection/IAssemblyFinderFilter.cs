@@ -9,6 +9,7 @@
  */
 
 using System.Reflection;
+
 namespace Remotion.Reflection
 {
   /// <summary>

@@ -9,15 +9,13 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  using CacheKey = Tuple<Type, string>; // delegate type, member name (reflected type is the delegate's first parameter type)
+  using CacheKey = Collections.Tuple<Type, string>; // delegate type, member name (reflected type is the delegate's first parameter type)
 
   public static class MethodCaller
   {
