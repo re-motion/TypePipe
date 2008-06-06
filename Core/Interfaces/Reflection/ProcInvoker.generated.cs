@@ -19,17 +19,6 @@ using System;
 
 namespace Remotion.Reflection
 {
-  /// <summary>
-  /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
-  /// </summary>
-  /// <remarks>
-  /// <p>Note that casting a <c>ProcInvoker</c> to an interface is a boxing operation, thus creating an object on the
-  /// heap and garbage collecting it later. For very performance-critical scenarios, it be better to avoid this and accept the references to 
-  /// the invoker's generic argument types.</p>
-  /// <p>It is recommended to wrap this interface within a <see cref="ProcInvokerWrapper"/>, because returning an interface could lead to 
-  /// ambigous castings if the final call to <see cref="With{A1}"/> is missing, while using structs will usually lead to a compile-time error as 
-  /// expected.</p>
-  /// </remarks>
   public partial interface IProcInvoker
   {
 
@@ -49,10 +38,7 @@ namespace Remotion.Reflection
     void With<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
   }
 
-  /// <summary>
-  /// Used to wrap an <see cref="IProcInvoker"/> object rather than returning it directly.
-  /// </summary>
-  public partial struct ProcInvokerWrapper: IProcInvoker
+  public partial struct ProcInvokerWrapper : IProcInvoker
   {
 
 

@@ -12,6 +12,7 @@ using System;
 
 namespace Remotion.Reflection
 {
+  // @begin-skip
   /// <summary>
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
   /// </summary>
@@ -23,6 +24,7 @@ namespace Remotion.Reflection
   /// ambigous castings if the final call to <see cref="With{A1}"/> is missing, while using structs will usually lead to a compile-time error as 
   /// expected.</p>
   /// </remarks>
+  // @end-skip
   public partial interface IProcInvoker
   {
     // @begin-skip
@@ -38,10 +40,12 @@ namespace Remotion.Reflection
     // @end-template
   }
 
+  // @begin-skip
   /// <summary>
   /// Used to wrap an <see cref="IProcInvoker"/> object rather than returning it directly.
   /// </summary>
-  public partial struct ProcInvokerWrapper: IProcInvoker
+  // @end-skip
+  public partial struct ProcInvokerWrapper : IProcInvoker
   {
     // @begin-skip
     private readonly IProcInvoker _invoker;

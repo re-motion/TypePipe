@@ -12,6 +12,7 @@ using System;
 
 namespace Remotion.Reflection
 {
+  // @begin-skip
   /// <summary>
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
   /// </summary>
@@ -24,6 +25,7 @@ namespace Remotion.Reflection
   /// expected.</p>
   /// </remarks>
   /// <typeparam name="TResult"> Return type of the method that will be invoked. </typeparam>
+  // @end-skip
   public partial interface IFuncInvoker<TResult>
   {
     // @begin-skip
@@ -39,10 +41,12 @@ namespace Remotion.Reflection
     // @end-template
   }
 
+  // @begin-skip
   /// <summary>
   /// Used to wrap an <see cref="IFuncInvoker{TResult}"/> object rather than returning it directly.
   /// </summary>
   /// <typeparam name="TResult"> Return type of the method that will be invoked. </typeparam>
+  // @end-skip
   public partial struct FuncInvokerWrapper<TResult> : IFuncInvoker<TResult>
   {
     // @begin-skip
