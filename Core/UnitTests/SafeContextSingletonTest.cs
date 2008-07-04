@@ -11,44 +11,45 @@
 using System;
 using System.Runtime.Remoting.Messaging;
 using NUnit.Framework;
+using Remotion.Context;
 using Remotion.Development.UnitTesting;
 
 namespace Remotion.UnitTests
 {
   [TestFixture]
-  public class CallContextSingletonTest
+  public class SafeContextSingletonTest
   {
     [SetUp]
     public void SetUp ()
     {
-      CallContext.SetData ("test", null);
-      CallContext.SetData ("test1", null);
-      CallContext.SetData ("test2", null);
+      SafeContext.Instance.FreeData ("test");
+      SafeContext.Instance.FreeData ("test1");
+      SafeContext.Instance.FreeData ("test2");
     }
 
     [TearDown]
     public void TearDown ()
     {
-      CallContext.SetData ("test", null);
-      CallContext.SetData ("test1", null);
-      CallContext.SetData ("test2", null);
+      SafeContext.Instance.FreeData ("test");
+      SafeContext.Instance.FreeData ("test1");
+      SafeContext.Instance.FreeData ("test2");
     }
 
     [Test]
-    public void UsesCallContext_WithGivenKey ()
+    public void UsesSafeContext_WithGivenKey ()
     {
       object instance = new object();
-      CallContextSingleton<object> singleton = new CallContextSingleton<object> ("test", delegate { return null; });
+      SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return null; });
       singleton.SetCurrent (instance);
 
-      Assert.AreSame (instance, CallContext.GetData ("test"));
+      Assert.AreSame (instance, SafeContext.Instance.GetData ("test"));
     }
 
     [Test]
     public void SingleInstance_CreatedOnDemand ()
     {
       object instance = null;
-      CallContextSingleton<object> singleton = new CallContextSingleton<object> ("test", delegate { return (instance = new object ()); });
+      SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return (instance = new object ()); });
 
       Assert.IsNull (instance);
       object current = singleton.Current;
@@ -67,8 +68,8 @@ namespace Remotion.UnitTests
       object instance1 = new object ();
       object instance2 = new object ();
 
-      CallContextSingleton<object> singleton1 = new CallContextSingleton<object> ("test1", delegate { return instance1; });
-      CallContextSingleton<object> singleton2 = new CallContextSingleton<object> ("test2", delegate { return instance2; });
+      SafeContextSingleton<object> singleton1 = new SafeContextSingleton<object> ("test1", delegate { return instance1; });
+      SafeContextSingleton<object> singleton2 = new SafeContextSingleton<object> ("test2", delegate { return instance2; });
 
       Assert.AreSame (instance1, singleton1.Current);
       Assert.AreSame (instance2, singleton2.Current);
@@ -79,7 +80,7 @@ namespace Remotion.UnitTests
     [Test]
     public void HasCurrent ()
     {
-      CallContextSingleton<object> singleton = new CallContextSingleton<object> ("test", delegate { return ( new object ()); });
+      SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return ( new object ()); });
       Assert.IsFalse (singleton.HasCurrent);
       Dev.Null = singleton.Current;
       Assert.IsTrue (singleton.HasCurrent);
@@ -91,7 +92,7 @@ namespace Remotion.UnitTests
     public void SetCurrent ()
     {
       object instance = new object();
-      CallContextSingleton<object> singleton = new CallContextSingleton<object> ("test", delegate { return new object (); });
+      SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return new object (); });
       Assert.AreNotSame (instance, singleton.Current);
       singleton.SetCurrent (instance);
       Assert.AreSame (instance, singleton.Current);

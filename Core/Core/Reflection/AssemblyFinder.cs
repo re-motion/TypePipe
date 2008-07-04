@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -21,8 +22,15 @@ namespace Remotion.Reflection
   /// </summary>
   public class AssemblyFinder
   {
-    private readonly Assembly[] _rootAssemblies;
     private readonly IAssemblyFinderFilter _filter;
+    private readonly bool _considerDynamicDirectory;
+    
+    private AssemblyLoader _loader;
+    private Assembly[] _rootAssemblies;
+
+    private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+    private readonly string _relativeSearchPath = AppDomain.CurrentDomain.RelativeSearchPath;
+    private readonly string _dynamicDirectory = AppDomain.CurrentDomain.DynamicDirectory;
 
     /// <summary>
     /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type with a predetermined set of <paramref name="rootAssemblies"/>.
@@ -33,12 +41,10 @@ namespace Remotion.Reflection
     /// <param name="rootAssemblies">The <see cref="Assembly"/> array used as starting point for finding the referenced assemblies. All of these
     /// assemblies will be included in the result list, no matter whether they match the filter or not.</param>
     public AssemblyFinder (IAssemblyFinderFilter filter, params Assembly[] rootAssemblies)
+        : this (filter, false, AppDomain.CurrentDomain.BaseDirectory, null, null)
     {
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("rootAssemblies", rootAssemblies);
-      ArgumentUtility.CheckNotNull ("filter", filter);
-
       _rootAssemblies = rootAssemblies;
-      _filter = filter;
     }
 
     /// <summary>
@@ -50,24 +56,59 @@ namespace Remotion.Reflection
     /// <param name="considerDynamicDirectory">Specifies whether to search the <see cref="AppDomain.DynamicDirectory"/> as well as the base
     /// directory.</param>
     public AssemblyFinder (IAssemblyFinderFilter filter, bool considerDynamicDirectory)
+        : this (filter, considerDynamicDirectory, AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.RelativeSearchPath, AppDomain.CurrentDomain.DynamicDirectory)
+    {
+    }
+
+    protected AssemblyFinder (IAssemblyFinderFilter filter, bool considerDynamicDirectory, string baseDirectory, string relativeSearchPath, string dynamicDirectory)
     {
       ArgumentUtility.CheckNotNull ("filter", filter);
+      ArgumentUtility.CheckNotNull ("baseDirectory", baseDirectory);
 
       _filter = filter;
+      _loader = new AssemblyLoader (filter);
+      _considerDynamicDirectory = considerDynamicDirectory;
+      _rootAssemblies = null; // will be retrieved in GetRootAssemblies
 
-      List<Assembly> assemblies = new List<Assembly> ();
-      LoadAssemblies (assemblies, AppDomain.CurrentDomain.BaseDirectory);
+      _baseDirectory = baseDirectory;
+      _relativeSearchPath = relativeSearchPath;
+      _dynamicDirectory = dynamicDirectory;
+    }
 
-      if (!string.IsNullOrEmpty (AppDomain.CurrentDomain.RelativeSearchPath))
-      {
-        foreach (string privateBinPath in AppDomain.CurrentDomain.RelativeSearchPath.Split (';'))
-          LoadAssemblies(assemblies, privateBinPath);
-      }
+    /// <summary>
+    /// Gets the base directory used for loading root assemblies.
+    /// </summary>
+    /// <value>The base directory.</value>
+    public string BaseDirectory
+    {
+      get { return _baseDirectory; }
+    }
 
-      if (considerDynamicDirectory && !string.IsNullOrEmpty (AppDomain.CurrentDomain.DynamicDirectory))
-        LoadAssemblies (assemblies, AppDomain.CurrentDomain.DynamicDirectory);
+    /// <summary>
+    /// Gets the semicolon-separated relative search path used for loading root assemblies.
+    /// </summary>
+    /// <value>The relative search path.</value>
+    public string RelativeSearchPath
+    {
+      get { return _relativeSearchPath; }
+    }
 
-      _rootAssemblies = assemblies.FindAll (_filter.ShouldIncludeAssembly).ToArray();
+    /// <summary>
+    /// Gets the dynamic directory used for loading root assemblies.
+    /// </summary>
+    /// <value>The dynamic directory.</value>
+    public string DynamicDirectory
+    {
+      get { return _dynamicDirectory; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the <see cref="DynamicDirectory"/> is used for loading root assemblies.
+    /// </summary>
+    /// <value>true if the dynamic directory is used; otherwise, false.</value>
+    public bool ConsiderDynamicDirectory
+    {
+      get { return _considerDynamicDirectory; }
     }
 
     /// <summary>
@@ -79,86 +120,88 @@ namespace Remotion.Reflection
     }
 
     /// <summary>
-    /// Gets the array of assembies identified by the constructor arguments.
+    /// Gets or sets the <see cref="AssemblyLoader"/> used to load assemblies.
     /// </summary>
-    public Assembly[] RootAssemblies
+    /// <value>The loader used to load assemblies.</value>
+    public AssemblyLoader Loader
     {
-      get { return _rootAssemblies; }
+      get { return _loader; }
+      set { _loader = value; }
     }
-    
+
     /// <summary>
-    /// Returns the <see cref="RootAssemblies"/> as well as all directly or indirectly referenced assemblies matching the filter specified
+    /// Returns the root assemblies as well as all directly or indirectly referenced assemblies matching the filter specified
     /// at construction time.
     /// </summary>
     /// <returns>An array of assemblies matching the <see cref="IAssemblyFinderFilter"/> specified at construction time.</returns>
     public virtual Assembly[] FindAssemblies ()
     {
-      List<Assembly> assemblies = new List<Assembly> (_rootAssemblies);
-      for (int i = 0; i < assemblies.Count; i++)
+      Assembly[] rootAssemblies = GetRootAssemblies ();
+      Set<Assembly> resultSet = new Set<Assembly> (rootAssemblies);
+
+      resultSet.AddRange (FindReferencedAssemblies (rootAssemblies));
+      return resultSet.ToArray ();
+    }
+
+    /// <summary>
+    /// Gets the array of root assembies identified by the constructor arguments or retrieved from the AppDomain's directory.
+    /// </summary>
+    public Assembly[] GetRootAssemblies ()
+    {
+      if (_rootAssemblies == null)
+        _rootAssemblies = FindRootAssemblies();
+      return _rootAssemblies;
+    }
+
+    private Assembly[] FindRootAssemblies ()
+    {
+      Set<Assembly> rootAssemblies = new Set<Assembly> ();
+      rootAssemblies.AddRange (FindAssembliesInPath (_baseDirectory));
+
+      if (!string.IsNullOrEmpty (_relativeSearchPath))
       {
-        foreach (AssemblyName referencedAssemblyName in assemblies[i].GetReferencedAssemblies())
+        foreach (string privateBinPath in _relativeSearchPath.Split (';'))
+          rootAssemblies.AddRange (FindAssembliesInPath (privateBinPath));
+      }
+
+      if (_considerDynamicDirectory && !string.IsNullOrEmpty (_dynamicDirectory))
+        rootAssemblies.AddRange (FindAssembliesInPath (_dynamicDirectory));
+
+      return rootAssemblies.ToArray ();
+    }
+
+    private IEnumerable<Assembly> FindReferencedAssemblies (Assembly[] rootAssemblies)
+    {
+      Set<string> processedAssemblyNames = new Set<string> ();
+      Set<Assembly> referenceRoots = new Set<Assembly> (rootAssemblies);
+
+      while (referenceRoots.Count > 0)
+      {
+        Assembly currentRoot = referenceRoots.GetAny ();
+        referenceRoots.Remove (currentRoot);
+
+        foreach (AssemblyName referencedAssemblyName in currentRoot.GetReferencedAssemblies ())
         {
-          if (_filter.ShouldConsiderAssembly (referencedAssemblyName))
+          if (!processedAssemblyNames.Contains (referencedAssemblyName.FullName))
           {
-            try
+            processedAssemblyNames.Add (referencedAssemblyName.FullName);
+
+            Assembly referencedAssembly = Loader.TryLoadAssembly (referencedAssemblyName, currentRoot.FullName);
+            if (referencedAssembly != null)
             {
-              Assembly referencedAssembly = Assembly.Load (referencedAssemblyName);
-              if (!assemblies.Contains (referencedAssembly) && _filter.ShouldIncludeAssembly (referencedAssembly))
-                assemblies.Add (referencedAssembly);
-            }
-            catch (FileLoadException ex)
-            {
-              string message = string.Format ("There was a problem when loading referenced assemblies of assembly '{0}': {1}", assemblies[i].FullName,
-                  ex.Message);
-              throw new FileLoadException (message, ex);
+              referenceRoots.Add (referencedAssembly);
+              yield return referencedAssembly;
             }
           }
         }
       }
-
-      return assemblies.ToArray();
     }
 
-    private void LoadAssemblies (List<Assembly> assemblies, string searchPath)
+    protected virtual IEnumerable<Assembly> FindAssembliesInPath (string searchPath)
     {
-      LoadAssemblies (assemblies, Directory.GetFiles (searchPath, "*.dll", SearchOption.TopDirectoryOnly));
-      LoadAssemblies (assemblies, Directory.GetFiles (searchPath, "*.exe", SearchOption.TopDirectoryOnly));
-    }
-
-    private void LoadAssemblies (List<Assembly> assemblies, string[] filePaths)
-    {
-      foreach (string filePath in filePaths)
-      {
-        try
-        {
-          Assembly assembly = TryLoadAssembly (filePath);
-          if (assembly != null && !assemblies.Contains (assembly))
-            assemblies.Add (assembly);
-        }
-        catch (FileNotFoundException ex)
-        {
-          string message = string.Format ("{0}: {1}", filePath, ex.Message);
-          throw new FileLoadException (message, ex);
-        }
-      }
-    }
-
-    private Assembly TryLoadAssembly (string filePath)
-    {
-      AssemblyName assemblyName;
-      try
-      {
-        assemblyName = AssemblyName.GetAssemblyName (filePath);
-      }
-      catch (BadImageFormatException)
-      {
-        return null;
-      }
-
-      if (_filter.ShouldConsiderAssembly (assemblyName))
-        return Assembly.Load (assemblyName);
-      else
-        return null;
-    }
+      return EnumerableUtility.Combine (
+        Loader.LoadAssemblies (Directory.GetFiles (searchPath, "*.dll", SearchOption.TopDirectoryOnly)),
+        Loader.LoadAssemblies (Directory.GetFiles (searchPath, "*.exe", SearchOption.TopDirectoryOnly)));
+    }    
   }
 }

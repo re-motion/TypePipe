@@ -10,22 +10,23 @@
 
 using System;
 using System.Runtime.Remoting.Messaging;
+using Remotion.Context;
 using Remotion.Utilities;
 
 namespace Remotion
 {
-  public class CallContextSingleton<T>
+  public class SafeContextSingleton<T>
   {
-    private readonly object _callContextLock = new object ();
-    private readonly string _callContextKey;
+    private readonly object _currentLock = new object ();
+    private readonly string _currentKey;
     private readonly Func<T> _creator;
 
-    public CallContextSingleton(string callContextKey, Func<T> creator)
+    public SafeContextSingleton(string currentKey, Func<T> creator)
     {
-      ArgumentUtility.CheckNotNull ("callContextKey", callContextKey);
+      ArgumentUtility.CheckNotNull ("currentKey", currentKey);
       ArgumentUtility.CheckNotNull ("creator", creator);
 
-      _callContextKey = callContextKey;
+      _currentKey = currentKey;
       _creator = creator;
     }
 
@@ -33,7 +34,7 @@ namespace Remotion
     {
       get
       {
-        lock (_callContextLock)
+        lock (_currentLock)
         {
           return GetCurrentInternal() != null;
         }
@@ -44,7 +45,7 @@ namespace Remotion
     {
       get
       {
-        lock (_callContextLock)
+        lock (_currentLock)
         {
           if (!HasCurrent)
             SetCurrent (_creator());
@@ -56,15 +57,15 @@ namespace Remotion
 
     public void SetCurrent (T value)
     {
-      lock (_callContextLock)
+      lock (_currentLock)
       {
-        CallContext.SetData (_callContextKey, value);
+        SafeContext.Instance.SetData (_currentKey, value);
       }
     }
 
     private T GetCurrentInternal ()
     {
-      return (T) CallContext.GetData (_callContextKey);
+      return (T) SafeContext.Instance.GetData (_currentKey);
     }
   }
 }
