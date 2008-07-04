@@ -106,7 +106,7 @@ namespace Remotion.UnitTests.Reflection
 
       _mockRepository.ReplayAll ();
       Assembly[] result = finder.GetRootAssemblies ();
-      Assert.That (result, Is.EquivalentTo (new[] { _coreUnitTestsAssembly, _coreAssembly, _mscorlibAssembly }));
+      Assert.That (result, Is.EquivalentTo (new object[] { _coreUnitTestsAssembly, _coreAssembly, _mscorlibAssembly }));
       _mockRepository.VerifyAll ();
     }
 
@@ -119,7 +119,7 @@ namespace Remotion.UnitTests.Reflection
 
       _mockRepository.ReplayAll ();
       Assembly[] result = finder.GetRootAssemblies ();
-      Assert.That (result, Is.EquivalentTo (new[] { _coreUnitTestsAssembly }));
+      Assert.That (result, Is.EquivalentTo (new object[] { _coreUnitTestsAssembly }));
       _mockRepository.VerifyAll ();
     }
 
