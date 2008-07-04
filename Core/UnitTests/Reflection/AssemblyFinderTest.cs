@@ -91,7 +91,7 @@ namespace Remotion.UnitTests.Reflection
 
       _mockRepository.ReplayAll ();
       Assembly[] result = finder.GetRootAssemblies ();
-      Assert.That (result, Is.EquivalentTo (new[] { _coreUnitTestsAssembly, _coreAssembly, _mscorlibAssembly, _developmentAssembly }));
+      Assert.That (result, Is.EquivalentTo (new object[] { _coreUnitTestsAssembly, _coreAssembly, _mscorlibAssembly, _developmentAssembly }));
       _mockRepository.VerifyAll ();
     }
 
