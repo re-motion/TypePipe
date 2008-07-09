@@ -10,21 +10,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
+using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting;
-using System.Diagnostics;
-
 using Mocks_Property = Rhino.Mocks.Constraints.Property;
 
 namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
+  [Serializable]
   public class AssemblyLoaderTest
   {
     private MockRepository _mockRepository;
@@ -34,8 +34,8 @@ namespace Remotion.UnitTests.Reflection
     [SetUp]
     public void SetUp ()
     {
-      _mockRepository = new MockRepository ();
-      _filterMock = _mockRepository.CreateMock<IAssemblyFinderFilter> ();
+      _mockRepository = new MockRepository();
+      _filterMock = _mockRepository.CreateMock<IAssemblyFinderFilter>();
       _loader = new AssemblyLoader (_filterMock);
     }
 
@@ -57,16 +57,16 @@ namespace Remotion.UnitTests.Reflection
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
 
       Expect.Call (_filterMock.ShouldConsiderAssembly (null))
-        .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
-        .Return (true);
+          .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
+          .Return (true);
       Expect.Call (_filterMock.ShouldIncludeAssembly (null))
-        .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
-        .Return (true);
+          .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
+          .Return (true);
 
-      _mockRepository.ReplayAll ();
+      _mockRepository.ReplayAll();
       Assembly loadedAssembly = _loader.TryLoadAssembly (path);
       Assert.That (loadedAssembly, Is.SameAs (referenceAssembly));
-      _mockRepository.VerifyAll ();
+      _mockRepository.VerifyAll();
     }
 
     [Test]
@@ -76,16 +76,16 @@ namespace Remotion.UnitTests.Reflection
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
 
       Expect.Call (_filterMock.ShouldConsiderAssembly (null))
-        .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
-        .Return (true);
+          .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
+          .Return (true);
       Expect.Call (_filterMock.ShouldIncludeAssembly (null))
-        .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
-        .Return (false);
+          .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
+          .Return (false);
 
-      _mockRepository.ReplayAll ();
+      _mockRepository.ReplayAll();
       Assembly loadedAssembly = _loader.TryLoadAssembly (path);
       Assert.That (loadedAssembly, Is.Null);
-      _mockRepository.VerifyAll ();
+      _mockRepository.VerifyAll();
     }
 
     [Test]
@@ -95,19 +95,19 @@ namespace Remotion.UnitTests.Reflection
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
 
       Expect.Call (_filterMock.ShouldConsiderAssembly (null))
-        .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
-        .Return (false);
+          .Constraints (Mocks_Property.Value ("FullName", referenceAssembly.FullName))
+          .Return (false);
 
-      _mockRepository.ReplayAll ();
+      _mockRepository.ReplayAll();
       Assembly loadedAssembly = _loader.TryLoadAssembly (path);
       Assert.That (loadedAssembly, Is.Null);
-      _mockRepository.VerifyAll ();
+      _mockRepository.VerifyAll();
     }
 
     [Test]
     public void TryLoadAssembly_WithBadImageFormatException ()
     {
-      SetupFilterTrue ();
+      SetupFilterTrue();
 
       const string path = "Invalid.dll";
       using (File.CreateText (path))
@@ -132,19 +132,40 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void TryLoadAssembly_WithFileLoadException ()
     {
-      string program = 
-          Compile("Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true);
-      string delaySignAssembly =
-          Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false);
+      string program = Compile (
+          "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, false);
+      string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, true);
 
       ProcessStartInfo startInfo = new ProcessStartInfo (program);
       startInfo.UseShellExecute = false;
       startInfo.CreateNoWindow = true;
       startInfo.RedirectStandardOutput = true;
-      startInfo.Arguments = delaySignAssembly;
+      startInfo.Arguments = delaySignAssembly + " false";
 
       Process process = Process.Start (startInfo);
       string output = process.StandardOutput.ReadToEnd();
+      process.WaitForExit();
+      Assert.That (process.ExitCode, Is.EqualTo (0), output);
+
+      FileUtility.DeleteAndWaitForCompletion (program);
+      FileUtility.DeleteAndWaitForCompletion (delaySignAssembly);
+    }
+
+    [Test]
+    public void TryLoadAssembly_WithFileLoadException_AndShadowCopying ()
+    {
+      string program = Compile (
+          "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, false);
+      string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, true);
+
+      ProcessStartInfo startInfo = new ProcessStartInfo (program);
+      startInfo.UseShellExecute = false;
+      startInfo.CreateNoWindow = true;
+      startInfo.RedirectStandardOutput = true;
+      startInfo.Arguments = delaySignAssembly + " true";
+
+      Process process = Process.Start (startInfo);
+      string output = process.StandardOutput.ReadToEnd ();
       process.WaitForExit ();
       Assert.That (process.ExitCode, Is.EqualTo (0), output);
 
@@ -164,28 +185,30 @@ namespace Remotion.UnitTests.Reflection
       Expect.Call (loaderPartialMock.TryLoadAssembly ("ghi")).Return (null);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("jkl")).Return (referenceAssembly2);
 
-      _mockRepository.ReplayAll ();
+      _mockRepository.ReplayAll();
 
       IEnumerable<Assembly> assemblies = loaderPartialMock.LoadAssemblies ("abc", "def", "ghi", "jkl");
-      Assert.That (EnumerableUtility.ToArray (assemblies), Is.EqualTo (new object[] {referenceAssembly1, referenceAssembly2}));
-      _mockRepository.VerifyAll ();
+      Assert.That (EnumerableUtility.ToArray (assemblies), Is.EqualTo (new object[] { referenceAssembly1, referenceAssembly2 }));
+      _mockRepository.VerifyAll();
     }
 
     private void SetupFilterTrue ()
     {
-      SetupResult.For (_filterMock.ShouldConsiderAssembly (null)).IgnoreArguments ().Return (true);
-      SetupResult.For (_filterMock.ShouldIncludeAssembly (null)).IgnoreArguments ().Return (true);
+      SetupResult.For (_filterMock.ShouldConsiderAssembly (null)).IgnoreArguments().Return (true);
+      SetupResult.For (_filterMock.ShouldIncludeAssembly (null)).IgnoreArguments().Return (true);
 
-      _mockRepository.ReplayAll ();
+      _mockRepository.ReplayAll();
     }
 
 
-    private string Compile (string sourceDirectory, string outputAssemblyName, bool generateExecutable)
+    private string Compile (string sourceDirectory, string outputAssemblyName, bool generateExecutable, bool signAssembly)
     {
-      AssemblyCompiler compiler = new AssemblyCompiler(sourceDirectory,
-          outputAssemblyName,
-          typeof (AssemblyLoader).Assembly.Location);
+      AssemblyCompiler compiler = new AssemblyCompiler (sourceDirectory, outputAssemblyName, typeof (AssemblyLoader).Assembly.Location);
+
       compiler.CompilerParameters.GenerateExecutable = generateExecutable;
+      if (signAssembly)
+        compiler.CompilerParameters.CompilerOptions = @"/keyfile:\Development\global\remotion.snk";
+      
       compiler.Compile();
       return compiler.OutputAssemblyPath;
     }
