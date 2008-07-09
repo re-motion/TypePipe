@@ -133,8 +133,8 @@ namespace Remotion.UnitTests.Reflection
     public void TryLoadAssembly_WithFileLoadException ()
     {
       string program = Compile (
-          "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, false);
-      string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, true);
+          "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, null);
+      string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, "/delaysign+ /keyfile:Reflection\\TestAssemblies\\DelaySignAssembly\\PublicKey.snk");
 
       ProcessStartInfo startInfo = new ProcessStartInfo (program);
       startInfo.UseShellExecute = false;
@@ -155,8 +155,8 @@ namespace Remotion.UnitTests.Reflection
     public void TryLoadAssembly_WithFileLoadException_AndShadowCopying ()
     {
       string program = Compile (
-          "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, false);
-      string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, true);
+          "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, null);
+      string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, "/delaysign+ /keyfile:Reflection\\TestAssemblies\\DelaySignAssembly\\PublicKey.snk");
 
       ProcessStartInfo startInfo = new ProcessStartInfo (program);
       startInfo.UseShellExecute = false;
@@ -201,13 +201,12 @@ namespace Remotion.UnitTests.Reflection
     }
 
 
-    private string Compile (string sourceDirectory, string outputAssemblyName, bool generateExecutable, bool signAssembly)
+    private string Compile (string sourceDirectory, string outputAssemblyName, bool generateExecutable, string compilerOptions)
     {
       AssemblyCompiler compiler = new AssemblyCompiler (sourceDirectory, outputAssemblyName, typeof (AssemblyLoader).Assembly.Location);
 
       compiler.CompilerParameters.GenerateExecutable = generateExecutable;
-      if (signAssembly)
-        compiler.CompilerParameters.CompilerOptions = @"/keyfile:\Development\global\remotion.snk";
+      compiler.CompilerParameters.CompilerOptions = compilerOptions;
       
       compiler.Compile();
       return compiler.OutputAssemblyPath;
