@@ -9,6 +9,7 @@
  */
 
 using System;
+using System.Reflection;
 
 namespace Remotion
 {
@@ -57,6 +58,7 @@ namespace Remotion
   /// they inherit from A, which is suppressed. The C attributes are not suppressed because they are not related to A; [A ("Derived")] and 
   /// [B ("Derived")] are not suppressed because they are declared on the same level as the <see cref="SuppressAttributesAttribute"/>.
   /// </para>
+  /// Do not suppress instances of <see cref="SuppressAttributesAttribute"/>.
   /// </example>
   /// </remarks>
   [AttributeUsage (AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = true)]
@@ -72,6 +74,11 @@ namespace Remotion
     public Type AttributeBaseType
     {
       get { return _attributeBaseType; }
+    }
+
+    public bool IsSuppressed (Type attributeType, ICustomAttributeProvider declaringEntity, ICustomAttributeProvider suppressingEntity)
+    {
+      return AttributeBaseType.IsAssignableFrom (attributeType) && declaringEntity != suppressingEntity;
     }
   }
 }
