@@ -14,8 +14,9 @@ using System.Reflection;
 namespace Remotion
 {
   /// <summary>
-  /// When applied to a class, causes certain custom attributes to be filtered out by <see cref="AttributeUtility.GetCustomAttributes"/> and 
-  /// <see cref="AttributeUtility.IsDefined"/>.
+  /// When applied to a class, causes certain custom attributes to be filtered out by 
+  /// <see cref="M:Remotion.Utilities.AttributeUtility.GetCustomAttributes(System.Type,System.Type,System.Boolean)"/> and 
+  /// <see cref="M:Remotion.Utilities.AttributeUtility.IsDefined(System.Reflection.MemberInfo,System.Type,System.Boolean)"/>.
   /// </summary>
   /// <remarks>
   /// All attributes of the given base type or derived from it are filtered unless they are declared on the same level as the 
