@@ -136,19 +136,24 @@ namespace Remotion.UnitTests.Reflection
           "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, null);
       string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, "/delaysign+ /keyfile:Reflection\\TestAssemblies\\DelaySignAssembly\\PublicKey.snk");
 
-      ProcessStartInfo startInfo = new ProcessStartInfo (program);
-      startInfo.UseShellExecute = false;
-      startInfo.CreateNoWindow = true;
-      startInfo.RedirectStandardOutput = true;
-      startInfo.Arguments = delaySignAssembly + " false";
+      try
+      {
+        ProcessStartInfo startInfo = new ProcessStartInfo (program);
+        startInfo.UseShellExecute = false;
+        startInfo.CreateNoWindow = true;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.Arguments = delaySignAssembly + " false";
 
-      Process process = Process.Start (startInfo);
-      string output = process.StandardOutput.ReadToEnd();
-      process.WaitForExit();
-      Assert.That (process.ExitCode, Is.EqualTo (0), output);
-
-      FileUtility.DeleteAndWaitForCompletion (program);
-      FileUtility.DeleteAndWaitForCompletion (delaySignAssembly);
+        Process process = Process.Start (startInfo);
+        string output = process.StandardOutput.ReadToEnd ();
+        process.WaitForExit ();
+        Assert.That (process.ExitCode, Is.EqualTo (0), output);
+      }
+      finally
+      {
+        FileUtility.DeleteAndWaitForCompletion (program);
+        FileUtility.DeleteAndWaitForCompletion (delaySignAssembly);
+      }
     }
 
     [Test]
@@ -158,19 +163,24 @@ namespace Remotion.UnitTests.Reflection
           "Reflection\\TestAssemblies\\FileLoadExceptionConsoleApplication", "FileLoadExceptionConsoleApplication.exe", true, null);
       string delaySignAssembly = Compile ("Reflection\\TestAssemblies\\DelaySignAssembly", "DelaySignAssembly.dll", false, "/delaysign+ /keyfile:Reflection\\TestAssemblies\\DelaySignAssembly\\PublicKey.snk");
 
-      ProcessStartInfo startInfo = new ProcessStartInfo (program);
-      startInfo.UseShellExecute = false;
-      startInfo.CreateNoWindow = true;
-      startInfo.RedirectStandardOutput = true;
-      startInfo.Arguments = delaySignAssembly + " true";
+      try
+      {
+        ProcessStartInfo startInfo = new ProcessStartInfo (program);
+        startInfo.UseShellExecute = false;
+        startInfo.CreateNoWindow = true;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.Arguments = delaySignAssembly + " true";
 
-      Process process = Process.Start (startInfo);
-      string output = process.StandardOutput.ReadToEnd ();
-      process.WaitForExit ();
-      Assert.That (process.ExitCode, Is.EqualTo (0), output);
-
-      FileUtility.DeleteAndWaitForCompletion (program);
-      FileUtility.DeleteAndWaitForCompletion (delaySignAssembly);
+        Process process = Process.Start (startInfo);
+        string output = process.StandardOutput.ReadToEnd ();
+        process.WaitForExit ();
+        Assert.That (process.ExitCode, Is.EqualTo (0), output);
+      }
+      finally
+      {
+        FileUtility.DeleteAndWaitForCompletion (program);
+        FileUtility.DeleteAndWaitForCompletion (delaySignAssembly);
+      }
     }
 
     [Test]

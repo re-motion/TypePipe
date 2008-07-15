@@ -22,7 +22,6 @@ namespace Remotion.Reflection
   /// </summary>
   public class AssemblyFinder
   {
-    private readonly IAssemblyFinderFilter _filter;
     private readonly bool _considerDynamicDirectory;
     
     private AssemblyLoader _loader;
@@ -65,7 +64,6 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("filter", filter);
       ArgumentUtility.CheckNotNull ("baseDirectory", baseDirectory);
 
-      _filter = filter;
       _loader = new AssemblyLoader (filter);
       _considerDynamicDirectory = considerDynamicDirectory;
       _rootAssemblies = null; // will be retrieved in GetRootAssemblies
@@ -116,7 +114,7 @@ namespace Remotion.Reflection
     /// </summary>
     public IAssemblyFinderFilter Filter
     {
-      get { return _filter; }
+      get { return Loader.Filter; }
     }
 
     /// <summary>

@@ -28,6 +28,11 @@ namespace Remotion.Reflection
       _filter = filter;
     }
 
+    public IAssemblyFinderFilter Filter
+    {
+      get { return _filter; }
+    }
+
     public virtual Assembly TryLoadAssembly (string filePath)
     {
       ArgumentUtility.CheckNotNull ("filePath", filePath);

@@ -260,8 +260,8 @@ namespace Remotion.UnitTests.Reflection
         MockRepository mockRepository = new MockRepository ();
         IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
 
-        Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.Times (20, int.MaxValue);
-        Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (false).Repeat.Times (20, int.MaxValue);
+        Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.AtLeastOnce();
+        Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (false).Repeat.AtLeastOnce ();
 
         mockRepository.ReplayAll ();
 
@@ -283,29 +283,27 @@ namespace Remotion.UnitTests.Reflection
         InitializeDynamicDirectory ();
 
         MockRepository mockRepository = new MockRepository ();
-        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filterForRoot = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filterForDependencies = mockRepository.CreateMock<IAssemblyFinderFilter> ();
 
-        using (mockRepository.Ordered ())
+        using (mockRepository.Unordered ())
         {
-          using (mockRepository.Unordered ())
-          {
-            // root assemblies
-            Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull()).Return (true).Repeat.Times (20);
-            Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull()).Return (true).Repeat.Times (20);
-          }
+          Expect.Call (filterForRoot.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull()).Return (true).Repeat.AtLeastOnce();
+          Expect.Call (filterForRoot.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.AtLeastOnce ();
 
-          // dependencies
-          Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull()).Return (false).Repeat.AtLeastOnce();
+          Expect.Call (filterForDependencies.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (false).Repeat.AtLeastOnce ();
         }
 
         mockRepository.ReplayAll ();
 
-        AssemblyFinder assemblyFinder = new AssemblyFinder (filter, true);
+        AssemblyFinder assemblyFinder = new AssemblyFinder (filterForRoot, true);
+        assemblyFinder.GetRootAssemblies();
+        assemblyFinder.Loader = new AssemblyLoader (filterForDependencies);
         Assembly[] assemblies = assemblyFinder.FindAssemblies ();
 
         mockRepository.VerifyAll ();
 
-        Assert.That (assemblyFinder.GetRootAssemblies().Length, Is.GreaterThanOrEqualTo (20));
+        Assert.That (assemblyFinder.GetRootAssemblies().Length, Is.GreaterThanOrEqualTo (1));
         Assert.That (assemblies, Is.EqualTo (assemblyFinder.GetRootAssemblies()));
       });
     }
@@ -333,7 +331,7 @@ namespace Remotion.UnitTests.Reflection
 
         mockRepository.VerifyAll ();
 
-        Assert.That (assemblyFinder.GetRootAssemblies().Length, Is.GreaterThanOrEqualTo (20));
+        Assert.That (assemblyFinder.GetRootAssemblies().Length, Is.GreaterThanOrEqualTo (1));
         Assert.That (assemblies.Length, Is.GreaterThan (assemblyFinder.GetRootAssemblies().Length));
         Assert.That (assemblyFinder.GetRootAssemblies(), Is.SubsetOf (assemblies));
       });
