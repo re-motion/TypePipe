@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Xml;
@@ -148,6 +149,9 @@ namespace Remotion.UnitTests.Reflection
           Mocks_Is.Equal (_coreAssembly.FullName)).Return (null);
       Expect.Call (loaderMock.TryLoadAssembly (null, null)).Constraints ( // System.Configuration.dll
           Mocks_Property.Value ("FullName", typeof (ConfigurationSection).Assembly.FullName),
+          Mocks_Is.Equal (_coreAssembly.FullName)).Return (null);
+      Expect.Call (loaderMock.TryLoadAssembly (null, null)).Constraints ( // System.Core.dll
+          Mocks_Property.Value ("FullName", typeof (Enumerable).Assembly.FullName),
           Mocks_Is.Equal (_coreAssembly.FullName)).Return (null);
       Expect.Call (loaderMock.TryLoadAssembly (null, null)).Constraints ( // System.Xml.dll
           Mocks_Property.Value ("FullName", typeof (XmlElement).Assembly.FullName),
