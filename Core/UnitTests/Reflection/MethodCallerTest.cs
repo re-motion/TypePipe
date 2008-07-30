@@ -128,13 +128,13 @@ namespace Remotion.UnitTests.Reflection
     }
     
     [Test]
-    public void CallProc()
+    public void CallAction()
     {
       A foo = new A ("foo");
-      MethodCaller.CallProc ("NoOp").With (foo);
-      MethodCaller.CallProc ("NoOp").With (foo, 0);
+      MethodCaller.CallAction ("NoOp").With (foo);
+      MethodCaller.CallAction ("NoOp").With (foo, 0);
       int i;
-      NoOpOutInt noop = MethodCaller.CallProc ("NoOp").GetDelegate<NoOpOutInt>();
+      NoOpOutInt noop = MethodCaller.CallAction ("NoOp").GetDelegate<NoOpOutInt>();
       noop (foo, out i);
       Assert.AreEqual (1, i);
     }

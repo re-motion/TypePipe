@@ -64,7 +64,7 @@ namespace Remotion
     }
   }
 
-  public static class ProcDelegates
+  public static class ActionDelegates
   {
     private static readonly Type[] s_types = new Type[]
         {

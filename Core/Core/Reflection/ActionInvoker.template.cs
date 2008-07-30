@@ -16,7 +16,7 @@ namespace Remotion.Reflection
   // @begin-template first=1 template=1 generate=0..3 suppressTemplate=true
 
   // @replace "TFixedArg<n>" ", " "<" ">"
-  public partial struct ProcInvoker<TFixedArg1> : IProcInvoker
+  public partial struct ActionInvoker<TFixedArg1> : IActionInvoker
   {
     private DelegateSelector _delegateSelector;
 
@@ -29,7 +29,7 @@ namespace Remotion.Reflection
     private const int c_argCount = 1;
 
     // @replace ", TFixedArg<n> fixedArg<n>"
-    public ProcInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
+    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
     {
       _delegateSelector = delegateSelector;
       // @begin-repeat
@@ -72,7 +72,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (ProcDelegates.MakeClosedType (parameterTypes));
+      return GetDelegate (ActionDelegates.MakeClosedType (parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()
@@ -108,7 +108,7 @@ namespace Remotion.Reflection
   // @begin-template first=1 template=1 generate=0..3 suppressTemplate=false
 
     // @replace "TFixedArg<n>" ", " "<" ">"
-    public partial struct ProcInvoker<TFixedArg1>
+    public partial struct ActionInvoker<TFixedArg1>
     {
       // @rem the following 2 replace-statements are part of the outer template's scope (because that's where they are declared) but only apply to the
       // @rem inner template (because they are preceeding it immediately). However, within the inner template, they apply to every single line.

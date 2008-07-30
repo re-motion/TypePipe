@@ -17,7 +17,7 @@ namespace Remotion.Reflection
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
   /// </summary>
   /// <remarks>
-  /// <p>Note that casting a <c>FuncInvoker</c> struct to an interface is a boxing operation, thus creating an object on the
+  /// <p>Note that casting a <see cref="T:Remotion.Reflection.FuncInvoker"/> struct to an interface is a boxing operation, thus creating an object on the
   /// heap and garbage collecting it later. For very performance-critical scenarios, it be better to avoid this and accept the references to 
   /// the invoker's generic argument types.</p>
   /// <p>It is recommended to wrap this interface within a <see cref="FuncInvokerWrapper{TResult}"/>, because returning an interface could lead to 
@@ -66,9 +66,9 @@ namespace Remotion.Reflection
 
     public TResult Invoke (Type[] valueTypes, object[] values)
     {
-      return PerformAfterAction (_invoker.Invoke (valueTypes, values));
-      
+      return PerformAfterAction (_invoker.Invoke (valueTypes, values));      
     }
+
     public TResult Invoke (object[] values)
     {
       return PerformAfterAction (_invoker.Invoke (values));

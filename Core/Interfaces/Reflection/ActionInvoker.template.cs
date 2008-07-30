@@ -17,15 +17,15 @@ namespace Remotion.Reflection
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
   /// </summary>
   /// <remarks>
-  /// <p>Note that casting a <c>ProcInvoker</c> to an interface is a boxing operation, thus creating an object on the
+  /// <p>Note that casting a <see cref="T:Remotion.Reflection.ActionInvoker"/> to an interface is a boxing operation, thus creating an object on the
   /// heap and garbage collecting it later. For very performance-critical scenarios, it be better to avoid this and accept the references to 
   /// the invoker's generic argument types.</p>
-  /// <p>It is recommended to wrap this interface within a <see cref="ProcInvokerWrapper"/>, because returning an interface could lead to 
+  /// <p>It is recommended to wrap this interface within a <see cref="ActionInvokerWrapper"/>, because returning an interface could lead to 
   /// ambigous castings if the final call to <see cref="With{A1}"/> is missing, while using structs will usually lead to a compile-time error as 
   /// expected.</p>
   /// </remarks>
   // @end-skip
-  public partial interface IProcInvoker
+  public partial interface IActionInvoker
   {
     // @begin-skip
     void Invoke (Type[] valueTypes, object[] values);
@@ -42,15 +42,15 @@ namespace Remotion.Reflection
 
   // @begin-skip
   /// <summary>
-  /// Used to wrap an <see cref="IProcInvoker"/> object rather than returning it directly.
+  /// Used to wrap an <see cref="IActionInvoker"/> object rather than returning it directly.
   /// </summary>
   // @end-skip
-  public partial struct ProcInvokerWrapper : IProcInvoker
+  public partial struct ActionInvokerWrapper : IActionInvoker
   {
     // @begin-skip
-    private readonly IProcInvoker _invoker;
+    private readonly IActionInvoker _invoker;
 
-    public ProcInvokerWrapper (IProcInvoker invoker)
+    public ActionInvokerWrapper (IActionInvoker invoker)
     {
       _invoker = invoker;
     }
@@ -59,6 +59,7 @@ namespace Remotion.Reflection
     {
       _invoker.Invoke (valueTypes, values);
     }
+
     public void Invoke (object[] values)
     {
       _invoker.Invoke (values);

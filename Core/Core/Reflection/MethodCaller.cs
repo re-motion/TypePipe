@@ -167,21 +167,21 @@ namespace Remotion.Reflection
       return new FuncInvoker<TReturn> (new MethodLookupInfo (methodName, bindingFlags).GetInstanceMethodDelegate);
     }
 
-    public static ProcInvoker CallProc (string methodName)
+    public static ActionInvoker CallAction (string methodName)
     {
-      return new ProcInvoker (new MethodLookupInfo (methodName).GetInstanceMethodDelegate);
+      return new ActionInvoker (new MethodLookupInfo (methodName).GetInstanceMethodDelegate);
     }
 
-    public static ProcInvoker CallProc (
+    public static ActionInvoker CallAction (
         string methodName, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      return new ProcInvoker (new MethodLookupInfo (methodName, bindingFlags, binder, callingConvention, parameterModifiers).GetInstanceMethodDelegate);
+      return new ActionInvoker (new MethodLookupInfo (methodName, bindingFlags, binder, callingConvention, parameterModifiers).GetInstanceMethodDelegate);
     }
 
-    public static ProcInvoker CallProc (
+    public static ActionInvoker CallAction (
         string methodName, BindingFlags bindingFlags)
     {
-      return new ProcInvoker (new MethodLookupInfo (methodName, bindingFlags).GetInstanceMethodDelegate);
+      return new ActionInvoker (new MethodLookupInfo (methodName, bindingFlags).GetInstanceMethodDelegate);
     }
   }
 

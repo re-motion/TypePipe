@@ -21,14 +21,14 @@ using Remotion.Utilities;
 namespace Remotion.Reflection
 {
 
-  public partial struct ProcInvoker : IProcInvoker
+  public partial struct ActionInvoker : IActionInvoker
   {
     private DelegateSelector _delegateSelector;
 
 
     private const int c_argCount = 0;
 
-    public ProcInvoker (DelegateSelector delegateSelector)
+    public ActionInvoker (DelegateSelector delegateSelector)
     {
       _delegateSelector = delegateSelector;
     }
@@ -65,7 +65,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (ProcDelegates.MakeClosedType (parameterTypes));
+      return GetDelegate (ActionDelegates.MakeClosedType (parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()
@@ -89,7 +89,7 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct ProcInvoker<TFixedArg1, TFixedArg2> : IProcInvoker
+  public partial struct ActionInvoker<TFixedArg1, TFixedArg2> : IActionInvoker
   {
     private DelegateSelector _delegateSelector;
 
@@ -98,7 +98,7 @@ namespace Remotion.Reflection
 
     private const int c_argCount = 2;
 
-    public ProcInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
+    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
     {
       _delegateSelector = delegateSelector;
       _fixedArg1 = fixedArg1;
@@ -137,7 +137,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (ProcDelegates.MakeClosedType (parameterTypes));
+      return GetDelegate (ActionDelegates.MakeClosedType (parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()
@@ -161,7 +161,7 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct ProcInvoker<TFixedArg1, TFixedArg2, TFixedArg3> : IProcInvoker
+  public partial struct ActionInvoker<TFixedArg1, TFixedArg2, TFixedArg3> : IActionInvoker
   {
     private DelegateSelector _delegateSelector;
 
@@ -171,7 +171,7 @@ namespace Remotion.Reflection
 
     private const int c_argCount = 3;
 
-    public ProcInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
+    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
     {
       _delegateSelector = delegateSelector;
       _fixedArg1 = fixedArg1;
@@ -211,7 +211,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (ProcDelegates.MakeClosedType (parameterTypes));
+      return GetDelegate (ActionDelegates.MakeClosedType (parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()
@@ -237,7 +237,7 @@ namespace Remotion.Reflection
 
 
 
-    public partial struct ProcInvoker
+    public partial struct ActionInvoker
     {
 
 
@@ -312,7 +312,7 @@ namespace Remotion.Reflection
         }
     }
 
-    public partial struct ProcInvoker<TFixedArg1>
+    public partial struct ActionInvoker<TFixedArg1>
     {
 
 
@@ -377,7 +377,7 @@ namespace Remotion.Reflection
         }
     }
 
-    public partial struct ProcInvoker<TFixedArg1, TFixedArg2>
+    public partial struct ActionInvoker<TFixedArg1, TFixedArg2>
     {
 
 
@@ -452,7 +452,7 @@ namespace Remotion.Reflection
         }
     }
 
-    public partial struct ProcInvoker<TFixedArg1, TFixedArg2, TFixedArg3>
+    public partial struct ActionInvoker<TFixedArg1, TFixedArg2, TFixedArg3>
     {
 
 
