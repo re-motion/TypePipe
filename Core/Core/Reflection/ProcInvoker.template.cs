@@ -95,10 +95,10 @@ namespace Remotion.Reflection
     }
 
     // @replace "TFixedArg<n>" ", " "<" ">"
-    public Proc<TFixedArg1> GetDelegateWith ()
+    public Action<TFixedArg1> GetDelegateWith ()
     {
       // @replace "TFixedArg<n>" ", " "<" ">"
-      return GetDelegate<Proc<TFixedArg1>> ();
+      return GetDelegate<Action<TFixedArg1>> ();
     }
   }
   // @end-template
@@ -128,10 +128,10 @@ namespace Remotion.Reflection
         }
 
         // @replace "A<n>" ", "
-        public Proc<TFixedArg1, A1> GetDelegateWith<A1> ()
+        public Action<TFixedArg1, A1> GetDelegateWith<A1> ()
         {
           // @replace "A<n>" ", "
-          return GetDelegate<Proc<TFixedArg1, A1>> ();
+          return GetDelegate<Action<TFixedArg1, A1>> ();
         }
       // @end-template
     }

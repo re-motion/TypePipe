@@ -83,9 +83,9 @@ namespace Remotion.Reflection
       GetDelegateWith () ();
     }
 
-    public Proc GetDelegateWith ()
+    public Action GetDelegateWith ()
     {
-      return GetDelegate<Proc> ();
+      return GetDelegate<Action> ();
     }
   }
 
@@ -155,9 +155,9 @@ namespace Remotion.Reflection
       GetDelegateWith () (_fixedArg1, _fixedArg2);
     }
 
-    public Proc<TFixedArg1, TFixedArg2> GetDelegateWith ()
+    public Action<TFixedArg1, TFixedArg2> GetDelegateWith ()
     {
-      return GetDelegate<Proc<TFixedArg1, TFixedArg2>> ();
+      return GetDelegate<Action<TFixedArg1, TFixedArg2>> ();
     }
   }
 
@@ -229,9 +229,9 @@ namespace Remotion.Reflection
       GetDelegateWith () (_fixedArg1, _fixedArg2, _fixedArg3);
     }
 
-    public Proc<TFixedArg1, TFixedArg2, TFixedArg3> GetDelegateWith ()
+    public Action<TFixedArg1, TFixedArg2, TFixedArg3> GetDelegateWith ()
     {
-      return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3>> ();
+      return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3>> ();
     }
   }
 
@@ -246,9 +246,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1> () (a1);
         }
 
-        public Proc<A1> GetDelegateWith<A1> ()
+        public Action<A1> GetDelegateWith<A1> ()
         {
-          return GetDelegate<Proc<A1>> ();
+          return GetDelegate<Action<A1>> ();
         }
 
         public void With<A1, A2> (A1 a1, A2 a2)
@@ -256,9 +256,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2> () (a1, a2);
         }
 
-        public Proc<A1, A2> GetDelegateWith<A1, A2> ()
+        public Action<A1, A2> GetDelegateWith<A1, A2> ()
         {
-          return GetDelegate<Proc<A1, A2>> ();
+          return GetDelegate<Action<A1, A2>> ();
         }
 
         public void With<A1, A2, A3> (A1 a1, A2 a2, A3 a3)
@@ -266,9 +266,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3> () (a1, a2, a3);
         }
 
-        public Proc<A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
+        public Action<A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
         {
-          return GetDelegate<Proc<A1, A2, A3>> ();
+          return GetDelegate<Action<A1, A2, A3>> ();
         }
 
         public void With<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4)
@@ -276,9 +276,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4> () (a1, a2, a3, a4);
         }
 
-        public Proc<A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
+        public Action<A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
         {
-          return GetDelegate<Proc<A1, A2, A3, A4>> ();
+          return GetDelegate<Action<A1, A2, A3, A4>> ();
         }
 
         public void With<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
@@ -286,9 +286,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5> () (a1, a2, a3, a4, a5);
         }
 
-        public Proc<A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
+        public Action<A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
         {
-          return GetDelegate<Proc<A1, A2, A3, A4, A5>> ();
+          return GetDelegate<Action<A1, A2, A3, A4, A5>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
@@ -296,9 +296,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6> () (a1, a2, a3, a4, a5, a6);
         }
 
-        public Proc<A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
+        public Action<A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
         {
-          return GetDelegate<Proc<A1, A2, A3, A4, A5, A6>> ();
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
@@ -306,9 +306,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> () (a1, a2, a3, a4, a5, a6, a7);
         }
 
-        public Proc<A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
+        public Action<A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
         {
-          return GetDelegate<Proc<A1, A2, A3, A4, A5, A6, A7>> ();
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7>> ();
         }
     }
 
@@ -321,9 +321,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2> () (_fixedArg1, a1, a2);
         }
 
-        public Proc<TFixedArg1, A1, A2> GetDelegateWith<A1, A2> ()
+        public Action<TFixedArg1, A1, A2> GetDelegateWith<A1, A2> ()
         {
-          return GetDelegate<Proc<TFixedArg1, A1, A2>> ();
+          return GetDelegate<Action<TFixedArg1, A1, A2>> ();
         }
 
         public void With<A1, A2, A3> (A1 a1, A2 a2, A3 a3)
@@ -331,9 +331,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3> () (_fixedArg1, a1, a2, a3);
         }
 
-        public Proc<TFixedArg1, A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
+        public Action<TFixedArg1, A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
         {
-          return GetDelegate<Proc<TFixedArg1, A1, A2, A3>> ();
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3>> ();
         }
 
         public void With<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4)
@@ -341,9 +341,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4> () (_fixedArg1, a1, a2, a3, a4);
         }
 
-        public Proc<TFixedArg1, A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
+        public Action<TFixedArg1, A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
         {
-          return GetDelegate<Proc<TFixedArg1, A1, A2, A3, A4>> ();
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4>> ();
         }
 
         public void With<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
@@ -351,9 +351,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5> () (_fixedArg1, a1, a2, a3, a4, a5);
         }
 
-        public Proc<TFixedArg1, A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
+        public Action<TFixedArg1, A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
         {
-          return GetDelegate<Proc<TFixedArg1, A1, A2, A3, A4, A5>> ();
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
@@ -361,9 +361,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6> () (_fixedArg1, a1, a2, a3, a4, a5, a6);
         }
 
-        public Proc<TFixedArg1, A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
         {
-          return GetDelegate<Proc<TFixedArg1, A1, A2, A3, A4, A5, A6>> ();
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
@@ -371,9 +371,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7);
         }
 
-        public Proc<TFixedArg1, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
         {
-          return GetDelegate<Proc<TFixedArg1, A1, A2, A3, A4, A5, A6, A7>> ();
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7>> ();
         }
     }
 
@@ -386,9 +386,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1> () (_fixedArg1, _fixedArg2, a1);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1> GetDelegateWith<A1> ()
+        public Action<TFixedArg1, TFixedArg2, A1> GetDelegateWith<A1> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1>> ();
         }
 
         public void With<A1, A2> (A1 a1, A2 a2)
@@ -396,9 +396,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2> () (_fixedArg1, _fixedArg2, a1, a2);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1, A2> GetDelegateWith<A1, A2> ()
+        public Action<TFixedArg1, TFixedArg2, A1, A2> GetDelegateWith<A1, A2> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1, A2>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2>> ();
         }
 
         public void With<A1, A2, A3> (A1 a1, A2 a2, A3 a3)
@@ -406,9 +406,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3> () (_fixedArg1, _fixedArg2, a1, a2, a3);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1, A2, A3>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3>> ();
         }
 
         public void With<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4)
@@ -416,9 +416,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4>> ();
         }
 
         public void With<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
@@ -426,9 +426,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
@@ -436,9 +436,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
@@ -446,9 +446,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7>> ();
         }
     }
 
@@ -461,9 +461,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1> () (_fixedArg1, _fixedArg2, _fixedArg3, a1);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1> GetDelegateWith<A1> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1> GetDelegateWith<A1> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1>> ();
         }
 
         public void With<A1, A2> (A1 a1, A2 a2)
@@ -471,9 +471,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2> GetDelegateWith<A1, A2> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2> GetDelegateWith<A1, A2> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2>> ();
         }
 
         public void With<A1, A2, A3> (A1 a1, A2 a2, A3 a3)
@@ -481,9 +481,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3> GetDelegateWith<A1, A2, A3> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3>> ();
         }
 
         public void With<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4)
@@ -491,9 +491,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4> GetDelegateWith<A1, A2, A3, A4> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4>> ();
         }
 
         public void With<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
@@ -501,9 +501,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5> GetDelegateWith<A1, A2, A3, A4, A5> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
@@ -511,9 +511,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6> GetDelegateWith<A1, A2, A3, A4, A5, A6> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6>> ();
         }
 
         public void With<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)
@@ -521,9 +521,9 @@ namespace Remotion.Reflection
           GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7);
         }
 
-        public Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
         {
-          return GetDelegate<Proc<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7>> ();
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7>> ();
         }
     }
 }

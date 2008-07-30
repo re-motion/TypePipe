@@ -68,27 +68,27 @@ namespace Remotion
   {
     private static readonly Type[] s_types = new Type[]
         {
-            typeof (Proc),
-            typeof (Proc<>),
-            typeof (Proc<,>),
-            typeof (Proc<,,>),
-            typeof (Proc<,,,>),
-            typeof (Proc<,,,,>),
-            typeof (Proc<,,,,,>),
-            typeof (Proc<,,,,,,>),
-            typeof (Proc<,,,,,,,>),
-            typeof (Proc<,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,,,,,,>),
-            typeof (Proc<,,,,,,,,,,,,,,,,,,,>)
+            typeof (Action),
+            typeof (Action<>),
+            typeof (Action<,>),
+            typeof (Action<,,>),
+            typeof (Action<,,,>),
+            typeof (Action<,,,,>),
+            typeof (Action<,,,,,>),
+            typeof (Action<,,,,,,>),
+            typeof (Action<,,,,,,,>),
+            typeof (Action<,,,,,,,,>),
+            typeof (Action<,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,,,,,,>),
+            typeof (Action<,,,,,,,,,,,,,,,,,,,>)
         };
 
     public static int MaxArguments
