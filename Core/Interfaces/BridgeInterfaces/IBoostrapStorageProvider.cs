@@ -13,7 +13,7 @@ using Remotion.Implementation;
 
 namespace Remotion.BridgeInterfaces
 {
-  [ConcreteImplementation ("Remotion.Context.BootstrapStorageProvider, Remotion, Version = <version>, PublicKeyToken = <publicKeyToken>")]
+  [ConcreteImplementation("Remotion.Context.BootstrapStorageProvider, Remotion, Culture = neutral, Version = <version>, PublicKeyToken = <publicKeyToken>")]
   public interface IBootstrapStorageProvider : ISafeContextStorageProvider
   {
   }
