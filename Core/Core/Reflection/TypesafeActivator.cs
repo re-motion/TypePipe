@@ -10,7 +10,6 @@
 
 using System;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -31,57 +30,6 @@ namespace Remotion.Reflection
   /// </remarks>
   public static class TypesafeActivator
   {
-    public class ConstructorLookupInfo: MemberLookupInfo
-    {
-      private readonly Type _definingType;
-
-      public ConstructorLookupInfo (Type definingType, BindingFlags bindingFlags)
-        : this (definingType, bindingFlags, null, CallingConventions.Any, null)
-      {
-      }
-
-      public ConstructorLookupInfo (Type definingType)
-        : this (definingType, BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null)
-      {
-      }
-
-      public ConstructorLookupInfo (
-          Type definingType, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
-        : base (null, bindingFlags, binder, callingConvention, parameterModifiers)
-      {
-        _definingType = definingType;
-      }
-
-      public virtual Delegate GetDelegate (Type delegateType)
-      {
-        object key = GetCacheKey(delegateType);
-        Delegate result;
-        if (! s_delegateCache.TryGetValue (key, out result))
-        {
-          result = s_delegateCache.GetOrCreateValue (
-              key,
-              delegate
-              {
-                return CreateDelegate(delegateType);
-              });
-        }
-        return result;
-      }
-
-      protected virtual object GetCacheKey (Type delegateType)
-      {
-        return new Tuple<Type, Type> (_definingType, delegateType);
-      }
-
-      protected virtual Delegate CreateDelegate (Type delegateType)
-      {
-        return ConstructorWrapper.CreateDelegate (
-            _definingType, delegateType, BindingFlags, Binder, CallingConvention, ParameterModifiers);
-      }
-    }
-
-    private static readonly ICache<object, Delegate> s_delegateCache = new InterlockedCache<object, Delegate> ();
-
     public static FuncInvoker<T> CreateInstance<T> ()
     {
       return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T)).GetDelegate);

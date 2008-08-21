@@ -12,6 +12,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Reflection;
+using Remotion.UnitTests.Reflection.TestDomain;
 using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection
@@ -19,35 +20,6 @@ namespace Remotion.UnitTests.Reflection
   [TestFixture]
   public class TypesafeActivatorTest
   {
-    public class A { }
-    public class B: A { }
-    public class C: B { }
-
-    public struct V
-    {
-      public V (int value)
-      {
-        Value = value;
-      }
-
-      public int Value; 
-    }
-
-    public class TestClass
-    {
-      public readonly Type InvocationType;
-
-      public TestClass (A a)
-      {
-        InvocationType = typeof (A);
-      }
-
-      public TestClass (B b)
-      {
-        InvocationType = typeof (B);
-      }
-    }
-
     [Test]
     [ExpectedException (typeof (MissingMethodException))]
     public void TestWithObjectNull ()
@@ -60,81 +32,81 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void TestWithANull ()
     {
-      A a = null;
+      Base a = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (a);
-      Assert.AreEqual (typeof (A), testObject.InvocationType);
+      Assert.AreEqual (typeof (Base), testObject.InvocationType);
     }
 
     [Test]
     public void TestWithBNull ()
     {
-      B b = null;
+      Derived b = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (b);
-      Assert.AreEqual (typeof (B), testObject.InvocationType);
+      Assert.AreEqual (typeof (Derived), testObject.InvocationType);
     }
 
     [Test]
     public void TestWithCNull ()
     {
-      C c = null;
+      DerivedDerived c = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (c);
-      Assert.AreEqual (typeof (B), testObject.InvocationType);
+      Assert.AreEqual (typeof (Derived), testObject.InvocationType);
     }
 
     [Test]
     public void TestWithUntypedANull ()
     {
-      A a = null;
+      Base a = null;
       TestClass testObject = (TestClass) TypesafeActivator.CreateInstance (typeof (TestClass)).With (a);
-      Assert.AreEqual (typeof (A), testObject.InvocationType);
+      Assert.AreEqual (typeof (Base), testObject.InvocationType);
     }
 
     [Test]
     public void TestWithUntypedDerivedAndTMinimal ()
     {
-      A a = TypesafeActivator.CreateInstance<A> (typeof (B)).With ();
+      Base a = TypesafeActivator.CreateInstance<Base> (typeof (Derived)).With ();
 
       Assert.IsNotNull (a);
-      Assert.AreEqual (typeof (B), a.GetType ());
+      Assert.AreEqual (typeof (Derived), a.GetType ());
     }
 
     [Test]
     public void TestWithUntypedDerivedAndTMinimalWithBindingFlags ()
     {
-      A a = TypesafeActivator.CreateInstance<A> (typeof (B), BindingFlags.Public | BindingFlags.Instance).With ();
+      Base a = TypesafeActivator.CreateInstance<Base> (typeof (Derived), BindingFlags.Public | BindingFlags.Instance).With ();
 
       Assert.IsNotNull (a);
-      Assert.AreEqual (typeof (B), a.GetType ());
+      Assert.AreEqual (typeof (Derived), a.GetType ());
     }
 
     [Test]
     public void TestWithUntypedDerivedAndTMinimalWithFullSignature ()
     {
-      A a = TypesafeActivator.CreateInstance<A> (typeof (B), BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null).With ();
+      Base a = TypesafeActivator.CreateInstance<Base> (typeof (Derived), BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null).With ();
 
       Assert.IsNotNull (a);
-      Assert.AreEqual (typeof (B), a.GetType ());
+      Assert.AreEqual (typeof (Derived), a.GetType ());
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentTypeException))]
     public void TestWithUntypedAndTMinimalThrowsOnIncompatibleTypes ()
     {
-      TypesafeActivator.CreateInstance<B> (typeof (A)).With ();
+      TypesafeActivator.CreateInstance<Derived> (typeof (Base)).With ();
     }
 
     [Test]
     public void TestValueTypeDefaultCtor()
     {
-      V v = TypesafeActivator.CreateInstance<V>().With();
-      Assert.AreEqual (v.Value, 0);
+      Struct @struct = TypesafeActivator.CreateInstance<Struct>().With();
+      Assert.AreEqual (@struct.Value, 0);
     }
 
     [Test]
     public void TestValueTypeCustomCtor ()
     {
-      V v = TypesafeActivator.CreateInstance<V> ().With (1);
-      Assert.AreEqual (v.Value, 1);
+      Struct @struct = TypesafeActivator.CreateInstance<Struct> ().With (1);
+      Assert.AreEqual (@struct.Value, 1);
     }
   }
 }
