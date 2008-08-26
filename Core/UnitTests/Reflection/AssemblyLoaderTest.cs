@@ -35,7 +35,7 @@ namespace Remotion.UnitTests.Reflection
     public void SetUp ()
     {
       _mockRepository = new MockRepository();
-      _filterMock = _mockRepository.CreateMock<IAssemblyFinderFilter>();
+      _filterMock = _mockRepository.StrictMock<IAssemblyFinderFilter>();
       _loader = new AssemblyLoader (_filterMock);
     }
 

@@ -42,7 +42,7 @@ namespace Remotion.UnitTests.Reflection
     public void SetUp ()
     {
       _mockRepository = new MockRepository ();
-      _filterMock = _mockRepository.CreateMock<IAssemblyFinderFilter> ();
+      _filterMock = _mockRepository.StrictMock<IAssemblyFinderFilter> ();
 
       _coreUnitTestsAssembly = typeof (AssemblyFinderTest).Assembly; // Core.UnitTests
       _coreAssembly = typeof (AssemblyFinder).Assembly; // Core
@@ -83,7 +83,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindRootAssemblies_LoadsAssembliesFromDifferentDirectories ()
     {
-      TestAssemblyFinder finder = _mockRepository.PartialMock<TestAssemblyFinder> (_filterMock, true, "base", "relative1;relative2", "xy");
+      AssemblyFinder finder = _mockRepository.PartialMock<AssemblyFinder> (_filterMock, true, "base", "relative1;relative2", "xy");
 
       Expect.Call (PrivateInvoke.InvokeNonPublicMethod (finder, "FindAssembliesInPath", "base")).Return (new Assembly[] { _coreUnitTestsAssembly });
       Expect.Call (PrivateInvoke.InvokeNonPublicMethod (finder, "FindAssembliesInPath", "relative1")).Return (new Assembly[] { _coreAssembly });
@@ -99,7 +99,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindRootAssemblies_LoadsAssembliesFromDifferentDirectories_ConsiderDynamicFalse ()
     {
-      TestAssemblyFinder finder = _mockRepository.PartialMock<TestAssemblyFinder> (_filterMock, false, "base", "relative1;relative2", "xy");
+      AssemblyFinder finder = _mockRepository.PartialMock<AssemblyFinder> (_filterMock, false, "base", "relative1;relative2", "xy");
 
       Expect.Call (PrivateInvoke.InvokeNonPublicMethod (finder, "FindAssembliesInPath", "base")).Return (new Assembly[] { _coreUnitTestsAssembly });
       Expect.Call (PrivateInvoke.InvokeNonPublicMethod (finder, "FindAssembliesInPath", "relative1")).Return (new Assembly[] { _coreAssembly });
@@ -114,7 +114,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindRootAssemblies_LoadsAssembliesFromDifferentDirectories_NullDirectories ()
     {
-      TestAssemblyFinder finder = _mockRepository.PartialMock<TestAssemblyFinder> (_filterMock, true, "base", null, null);
+      AssemblyFinder finder = _mockRepository.PartialMock<AssemblyFinder> (_filterMock, true, "base", null, null);
 
       Expect.Call (PrivateInvoke.InvokeNonPublicMethod (finder, "FindAssembliesInPath", "base")).Return (new Assembly[] { _coreUnitTestsAssembly });
 
@@ -127,7 +127,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindReferencedAssemblies ()
     {
-      AssemblyLoader loaderMock = _mockRepository.CreateMock<AssemblyLoader> (_filterMock);
+      AssemblyLoader loaderMock = _mockRepository.StrictMock<AssemblyLoader> (_filterMock);
       AssemblyFinder finder = new AssemblyFinder (_filterMock, _coreAssembly);
       finder.Loader = loaderMock;
 
@@ -183,7 +183,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindAssembliesInPath ()
     {
-      AssemblyLoader loaderMock = _mockRepository.CreateMock<AssemblyLoader> (_filterMock);
+      AssemblyLoader loaderMock = _mockRepository.StrictMock<AssemblyLoader> (_filterMock);
       TestAssemblyFinder finder = new TestAssemblyFinder (_filterMock, _coreAssembly);
       finder.Loader = loaderMock;
 

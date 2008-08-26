@@ -234,7 +234,7 @@ namespace Remotion.UnitTests.Reflection
         InitializeDynamicDirectory ();
 
         MockRepository mockRepository = new MockRepository ();
-        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filter = mockRepository.StrictMock<IAssemblyFinderFilter> ();
 
         Expect.Call (filter.ShouldConsiderAssembly (null)).IgnoreArguments ().Return (false).Repeat.AtLeastOnce ();
 
@@ -258,7 +258,7 @@ namespace Remotion.UnitTests.Reflection
         InitializeDynamicDirectory ();
 
         MockRepository mockRepository = new MockRepository ();
-        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filter = mockRepository.StrictMock<IAssemblyFinderFilter> ();
 
         Expect.Call (filter.ShouldConsiderAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (true).Repeat.AtLeastOnce();
         Expect.Call (filter.ShouldIncludeAssembly (null)).Constraints (Rhino_Is.NotNull ()).Return (false).Repeat.AtLeastOnce ();
@@ -283,8 +283,8 @@ namespace Remotion.UnitTests.Reflection
         InitializeDynamicDirectory ();
 
         MockRepository mockRepository = new MockRepository ();
-        IAssemblyFinderFilter filterForRoot = mockRepository.CreateMock<IAssemblyFinderFilter> ();
-        IAssemblyFinderFilter filterForDependencies = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filterForRoot = mockRepository.StrictMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filterForDependencies = mockRepository.StrictMock<IAssemblyFinderFilter> ();
 
         using (mockRepository.Unordered ())
         {
@@ -316,7 +316,7 @@ namespace Remotion.UnitTests.Reflection
         InitializeDynamicDirectory ();
 
         MockRepository mockRepository = new MockRepository ();
-        IAssemblyFinderFilter filter = mockRepository.CreateMock<IAssemblyFinderFilter> ();
+        IAssemblyFinderFilter filter = mockRepository.StrictMock<IAssemblyFinderFilter> ();
 
         using (mockRepository.Unordered ())
         {
