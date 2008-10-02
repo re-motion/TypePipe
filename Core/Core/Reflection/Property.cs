@@ -18,7 +18,7 @@ namespace Remotion.SecurityManager.UnitTests.AclTools.Expansion
   /// Wrapper around the property of a class, which allows the property to exist indepently of any
   /// concrete instance of the class.
   /// </summary>
-  /// <remarks>For an usage example see <see cref="Properties{T}"/>.</remarks>
+  /// <remarks>For an application example see <see cref="Properties{T}"/>.</remarks>
   /// <typeparam name="TClass">The class for which we want to create the <see cref="Property{TClass,TProperty}"/> object.</typeparam>
   /// <typeparam name="TProperty">The return value of the property.</typeparam>
   /// <example>
