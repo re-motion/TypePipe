@@ -12,14 +12,14 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Remotion.SecurityManager.UnitTests.AclTools.Expansion
+namespace Remotion.Reflection
 {
   /// <summary>
   /// Wrapper around the property of a class, which allows the property to exist indepently of any
   /// concrete instance of the class.
   /// </summary>
-  /// <remarks>For an application example see <see cref="Properties{T}"/>.</remarks>
-  /// <typeparam name="TClass">The class for which we want to create the <see cref="Property{TClass,TProperty}"/> object.</typeparam>
+  /// <remarks>For an application example see <see cref="Property{TClass,TProperty}"/>.</remarks>
+  /// <typeparam name="TClass">The class for which we want to create the <see cref="Properties{T}"/> object.</typeparam>
   /// <typeparam name="TProperty">The return value of the property.</typeparam>
   /// <example>
   /// <code>
