@@ -11,13 +11,39 @@
 using System;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
+using Remotion.Reflection;
 
 namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   public class PropertyTest
   {
-    
+
+    [Test]
+    public void PropertyTest1 ()
+    {
+      TestProperty(Properties<PropertyTestClass>.Get (x => x.Name),"zip");
+      TestProperty (Properties<PropertyTestClass>.Get (x => x.Number), 123);
+    }
+
+    private void TestProperty<TProperty> (Property<PropertyTestClass, TProperty> property, TProperty value) {
+      PropertyTestClass test = new PropertyTestClass();
+      Assert.That (property.Get (test), Is.Not.EqualTo (value));
+      property.Set (test, value);
+      Assert.That (property.Get (test), Is.EqualTo (value));
+    }
   }
 
+
+  class PropertyTestClass {
+    private int _number;
+
+    public string Name { get; set; }
+
+    public int Number
+    {
+      get { return _number; }
+      set { _number = value; }
+    }
+  }
 }
