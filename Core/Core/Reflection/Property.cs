@@ -38,6 +38,11 @@ namespace Remotion.Reflection
       _propertyInfo = (PropertyInfo) ((MemberExpression) propertyLambda.Body).Member;
     }
 
+    public PropertyInfo PropertyInfo
+    {
+      get { return _propertyInfo; }
+    }
+
     public TProperty Get (TClass obj)
     {
       return (TProperty) _propertyInfo.GetValue (obj, null);

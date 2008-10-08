@@ -18,6 +18,12 @@ namespace Remotion.UnitTests.Reflection
   [TestFixture]
   public class PropertyTest
   {
+    [Test]
+    public void PropertyInfo()
+    {
+      var propertyInfo = Properties<PropertyTestClass>.Get (x => x.Name).PropertyInfo;
+      Assert.That (propertyInfo, Is.EqualTo (typeof (PropertyTestClass).GetProperty ("Name")));
+    }
 
     [Test]
     public void PropertyTest1 ()
