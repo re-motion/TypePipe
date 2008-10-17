@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Remotion.Collections;
 using Remotion.Utilities;
 
@@ -139,6 +140,18 @@ namespace Remotion.Reflection
 
       resultSet.AddRange (FindReferencedAssemblies (rootAssemblies));
       return resultSet.ToArray ();
+    }
+
+    /// <summary>
+    /// Returns the root assemblies as well as all directly or indirectly referenced assemblies matching the filter specified
+    /// at construction time.
+    /// </summary>
+    /// <returns>An array of assemblies matching the <see cref="IAssemblyFinderFilter"/> specified at construction time.</returns>
+    /// <remarks>This method exists primarily for testing purposes.</remarks>
+    [CLSCompliant (false)]
+    public virtual _Assembly[] FindMockableAssemblies ()
+    {
+      return FindAssemblies ();
     }
 
     /// <summary>
