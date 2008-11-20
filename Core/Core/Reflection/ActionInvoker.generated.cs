@@ -310,6 +310,106 @@ namespace Remotion.Reflection
         {
           return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7>> ();
         }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> () (a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> () (a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> () (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17);
+        }
+
+        public Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> ()
+        {
+          return GetDelegate<Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>> ();
+        }
     }
 
     public partial struct ActionInvoker<TFixedArg1>
@@ -374,6 +474,106 @@ namespace Remotion.Reflection
         public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
         {
           return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> () (_fixedArg1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17);
+        }
+
+        public Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> ()
+        {
+          return GetDelegate<Action<TFixedArg1, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>> ();
         }
     }
 
@@ -450,6 +650,106 @@ namespace Remotion.Reflection
         {
           return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7>> ();
         }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> () (_fixedArg1, _fixedArg2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>> ();
+        }
     }
 
     public partial struct ActionInvoker<TFixedArg1, TFixedArg2, TFixedArg3>
@@ -524,6 +824,106 @@ namespace Remotion.Reflection
         public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7> ()
         {
           return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>> ();
+        }
+
+        public void With<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17)
+        {
+          GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> () (_fixedArg1, _fixedArg2, _fixedArg3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17);
+        }
+
+        public Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> GetDelegateWith<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> ()
+        {
+          return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>> ();
         }
     }
 }

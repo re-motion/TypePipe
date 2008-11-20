@@ -32,7 +32,7 @@ namespace Remotion.Reflection
     void Invoke (object[] values);
     // @end-skip
 
-    // @begin-template first=1 generate=0..7 suppressTemplate=true
+    // @begin-template first=1 generate=0..17 suppressTemplate=true
 
     // @replace "A<n>" ", " "<" ">"
     // @replace "A<n> a<n>" ", "
@@ -66,7 +66,7 @@ namespace Remotion.Reflection
     }
     // @end-skip
 
-    // @begin-template first=1 generate=0..7 suppressTemplate=true
+    // @begin-template first=1 generate=0..17 suppressTemplate=true
 
     // @replace "A<n>" ", " "<" ">"
     // @replace "A<n> a<n>" ", "

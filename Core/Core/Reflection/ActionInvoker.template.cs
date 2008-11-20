@@ -116,7 +116,7 @@ namespace Remotion.Reflection
       // @replace "TFixedArg<n>, "
       // @replace "_fixedArg<n>, "
       // @replace "typeof (TFixedArg<n>), "
-      // @begin-template first=1 generate=1..7 suppressTemplate=parent
+      // @begin-template first=1 generate=1..17 suppressTemplate=parent
 
         // @replace "A<n>" ", " "<" ">"
         // @replace "A<n> a<n>" ", "
