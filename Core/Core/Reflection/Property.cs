@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
@@ -40,7 +41,22 @@ namespace Remotion.Reflection
 
     public Property (Expression<Func<TClass, TProperty>> propertyLambda)
     {
-      _propertyInfo = (PropertyInfo) ((MemberExpression) propertyLambda.Body).Member;
+      ArgumentUtility.CheckNotNull ("propertyLambda", propertyLambda);
+      //_propertyInfo = (PropertyInfo) ((MemberExpression) propertyLambda.Body).Member;
+
+      var memberExpression = propertyLambda.Body as MemberExpression;
+      if (memberExpression == null)
+      {
+        throw new ArgumentException ("The body of the passed expression is not a MemberExpression, the passed expression does therefore not represent a property.");
+      }
+
+      var propertyInfo = memberExpression.Member as PropertyInfo;
+      if (propertyInfo == null)
+      {
+        throw new ArgumentException ("The passed expression does not represent a property.");
+      }
+
+      _propertyInfo = propertyInfo;
     }
 
     public PropertyInfo PropertyInfo
@@ -50,11 +66,13 @@ namespace Remotion.Reflection
 
     public TProperty Get (TClass obj)
     {
+      ArgumentUtility.CheckNotNull ("obj", obj);
       return (TProperty) _propertyInfo.GetValue (obj, null);
     }
 
     public void Set (TClass obj, TProperty value)
     {
+      ArgumentUtility.CheckNotNull ("obj", obj);
       _propertyInfo.SetValue (obj, value, null);
     }
   }

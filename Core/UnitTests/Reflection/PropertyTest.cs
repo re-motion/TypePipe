@@ -31,7 +31,7 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    public void PropertyTest1 ()
+    public void PropertySetGetTest ()
     {
       TestProperty(Properties<PropertyTestClass>.Get (x => x.Name),"zip");
       TestProperty (Properties<PropertyTestClass>.Get (x => x.Number), 123);
@@ -43,11 +43,27 @@ namespace Remotion.UnitTests.Reflection
       property.Set (test, value);
       Assert.That (property.Get (test), Is.EqualTo (value));
     }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "The body of the passed expression is not a MemberExpression, the passed expression does therefore not represent a property.")]
+    public void Ctor_ExpressionNotAMemberTest ()
+    {
+      Properties<PropertyTestClass>.Get (x => x.Foo());
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "The passed expression does not represent a property.")]
+    public void Ctor_ExpressionNotAPropertyTest ()
+    {
+      Properties<PropertyTestClass>.Get (x => x.SomeText);
+    }
+
   }
 
 
   class PropertyTestClass {
     private int _number;
+    public string SomeText;
 
     public string Name { get; set; }
 
@@ -55,6 +71,11 @@ namespace Remotion.UnitTests.Reflection
     {
       get { return _number; }
       set { _number = value; }
+    }
+
+    public int Foo ()
+    {
+      return 1;
     }
   }
 }
