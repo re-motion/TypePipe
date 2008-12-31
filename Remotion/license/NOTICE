@@ -1,0 +1,33 @@
+**
+**  NOTICE file corresponding to the section 4 (4) of the Apache License, 
+**  Version 2.0.
+**
+
+re-motion Framework
+www.re-motion.org
+Copyright (C) 2005 - 2008 rubicon informationstechnologie gmbh, www.rubicon.eu
+
+This software includes the following libraries:
+
+Castle.Core.dll and Castle.DynamicProxy.dll
+Copyright 2004-2008 Castle Project 
+Original software available from http://www.castleproject.org/
+
+log4net.dll
+Copyright 2001-2007 The Apache Software Foundation
+Original software available from http://logging.apache.org/log4net/
+Original license notice below
+
+   **
+   **  NOTICE file corresponding to the section 4 (d) of the Apache License, 
+   **  Version 2.0, in this case for the Apache log4net distribution.
+   **
+   
+   Please read the LICENSE files present in the root directory of this 
+   distribution.
+   
+   Apache log4net
+   Copyright 2001-2007 The Apache Software Foundation
+   
+   This product includes software developed at
+   The Apache Software Foundation (http://www.apache.org/).
