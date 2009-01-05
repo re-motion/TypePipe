@@ -61,17 +61,12 @@ namespace Remotion.UnitTests.Reflection
   }
 
 
-  class PropertyTestClass {
-    private int _number;
+  public class PropertyTestClass {
     public string SomeText;
 
     public string Name { get; set; }
 
-    public int Number
-    {
-      get { return _number; }
-      set { _number = value; }
-    }
+    public int Number { get; set; }
 
     public int Foo ()
     {
