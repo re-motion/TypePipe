@@ -42,25 +42,12 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNull ("filePath", filePath);
 
-      AssemblyName assemblyName;
-      try
-      {
-        s_log.InfoFormat ("Attempting to get assembly name for path {0}.", filePath);
-        assemblyName = AssemblyName.GetAssemblyName (filePath);
-      }
-      catch (BadImageFormatException ex)
-      {
-        s_log.InfoFormat (ex, "Path {0} triggered BadImageFormatException - is probably no .NET assembly.", filePath);
+      s_log.InfoFormat ("Attempting to get assembly name for path '{0}'.", filePath);
+      AssemblyName assemblyName = PerformGuardedLoadOperation (filePath, null, () => AssemblyName.GetAssemblyName (filePath));
+      if (assemblyName == null)
         return null;
-      }
-      catch (FileLoadException ex)
-      {
-        s_log.WarnFormat (
-            ex,
-            "Assembly {0} triggered FileLoadException - maybe the assembly is DelaySigned, but signing has not been completed?",
-            filePath);
-        return null;
-      }
+
+      s_log.InfoFormat ("Assembly name for path '{0}' is '{1}'.", filePath, assemblyName.FullName);
 
       return TryLoadAssembly(assemblyName, filePath);
     }
@@ -72,22 +59,55 @@ namespace Remotion.Reflection
 
       if (_filter.ShouldConsiderAssembly (assemblyName))
       {
-        try
-        {
-          Assembly loadedAssembly = Assembly.Load (assemblyName);
-          return _filter.ShouldIncludeAssembly (loadedAssembly) ? loadedAssembly : null;
-        }
-        catch (FileLoadException ex)
-        {
-          s_log.WarnFormat (
-              ex,
-              "Assembly {0} triggered FileLoadException - maybe a referenced assembly is missing? Or the assembly could be DelaySigned, but signing "
-              + "has not been completed. The assembly was loaded in the following context: {1}.", assemblyName, context);
-          return null;
-        }
+        s_log.InfoFormat ("Attempting to load assembly with name '{0}' in context '{1}'.", assemblyName, context);
+        Assembly loadedAssembly = PerformGuardedLoadOperation (assemblyName.FullName, context, () => Assembly.Load (assemblyName));
+        s_log.InfoFormat ("Success: {0}", loadedAssembly != null);
+
+        return loadedAssembly != null && _filter.ShouldIncludeAssembly (loadedAssembly) ? loadedAssembly : null;
       }
       else
         return null;
+    }
+
+    public T PerformGuardedLoadOperation<T> (string assemblyDescription, string loadContext, Func<T> loadOperation)
+        where T : class
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyDescription", assemblyDescription);
+      ArgumentUtility.CheckNotNull ("loadOperation", loadOperation);
+
+      var assemblyDescriptionText = "'" + assemblyDescription + "'";
+      if (loadContext != null)
+        assemblyDescriptionText += " (loaded in the context of '" + loadContext + "')";
+
+      try
+      {
+        return loadOperation ();
+      }
+      catch (BadImageFormatException ex)
+      {
+        s_log.InfoFormat (ex, "Assembly {0} triggered BadImageFormatException - it is probably no .NET assembly.", assemblyDescriptionText);
+        return null;
+      }
+      catch (FileLoadException ex)
+      {
+        s_log.WarnFormat (
+            ex,
+            "Assembly {0} triggered FileLoadException - maybe the assembly is DelaySigned, but signing has not been completed?",
+            assemblyDescriptionText);
+        return null;
+      }
+      catch (FileNotFoundException ex)
+      {
+        string message = string.Format ("Assembly {0} triggered a FileNotFoundException - maybe the assembly does not exist or a referenced assembly "
+            + "is missing?\r\nFileNotFoundException message: {1}", assemblyDescriptionText, ex.Message);
+        throw new AssemblyLoaderException (message, ex);
+      }
+      catch (Exception ex)
+      {
+        string message = string.Format ("Assembly {0} triggered an unexpected exception of type {1}.\r\nUnexpected exception message: {2}", 
+            assemblyDescriptionText, ex.GetType().FullName, ex.Message);
+        throw new AssemblyLoaderException (message, ex);
+      }
     }
 
     public virtual IEnumerable<Assembly> LoadAssemblies (params string[] filePaths)
@@ -100,6 +120,5 @@ namespace Remotion.Reflection
           yield return assembly;
       }
     }
-
   }
 }

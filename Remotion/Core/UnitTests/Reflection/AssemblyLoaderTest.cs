@@ -189,6 +189,78 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void PerformGuardedLoadOperation_WithNoException ()
+    {
+      var result = _loader.PerformGuardedLoadOperation ("x", "z", () => "y");
+      Assert.That (result, Is.EqualTo ("y"));
+    }
+
+    [Test]
+    public void PerformGuardedLoadOperation_WithBadImageFormatException ()
+    {
+      var result = _loader.PerformGuardedLoadOperation<string> ("x", "z", () => { throw new BadImageFormatException ("xy"); });
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void PerformGuardedLoadOperation_WithFileLoadException ()
+    {
+      var result = _loader.PerformGuardedLoadOperation<string> ("x", "z", () => { throw new FileLoadException ("xy"); });
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void PerformGuardedLoadOperation_WithFileNotFoundException ()
+    {
+      var fileNotFoundException = new FileNotFoundException ("xy");
+      try
+      {
+        _loader.PerformGuardedLoadOperation<string> ("x", "z", () => { throw fileNotFoundException; });
+        Assert.Fail ("Expected exception.");
+      }
+      catch (AssemblyLoaderException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Assembly 'x' (loaded in the context of 'z') triggered a FileNotFoundException - maybe the assembly does not exist or a referenced " 
+            + "assembly is missing?\r\nFileNotFoundException message: xy"));
+        Assert.That (ex.InnerException, Is.SameAs (fileNotFoundException));
+      }
+    }
+
+    [Test]
+    public void PerformGuardedLoadOperation_WithUnexpectedException ()
+    {
+      var unexpected = new IndexOutOfRangeException ("xy");
+      try
+      {
+        _loader.PerformGuardedLoadOperation<string> ("x", "z", () => { throw unexpected; });
+        Assert.Fail ("Expected exception.");
+      }
+      catch (AssemblyLoaderException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Assembly 'x' (loaded in the context of 'z') triggered an unexpected exception of type System.IndexOutOfRangeException.\r\n"
+            + "Unexpected exception message: xy"));
+        Assert.That (ex.InnerException, Is.SameAs (unexpected));
+      }
+    }
+
+    [Test]
+    public void PerformGuardedLoadOperation_NoLoadContext ()
+    {
+      var unexpected = new IndexOutOfRangeException ("xy");
+      try
+      {
+        _loader.PerformGuardedLoadOperation<string> ("x", null, () => { throw unexpected; });
+        Assert.Fail ("Expected exception.");
+      }
+      catch (AssemblyLoaderException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Assembly 'x' triggered an unexpected exception of type System.IndexOutOfRangeException.\r\n"
+            + "Unexpected exception message: xy"));
+        Assert.That (ex.InnerException, Is.SameAs (unexpected));
+      }
+    }
+
+    [Test]
     public void LoadAssemblies ()
     {
       Assembly referenceAssembly1 = typeof (AssemblyLoaderTest).Assembly;
