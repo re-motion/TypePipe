@@ -49,6 +49,13 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Test")]
+    public void ExecuteFunc_WithException ()
+    {
+      _implementation0.ExecuteFunc (((Func<object>) (() => { throw new InvalidOperationException ("Test"); })));
+    }
+
+    [Test]
     public void ExecuteAction ()
     {
       string result = null;
@@ -60,6 +67,13 @@ namespace Remotion.UnitTests.Reflection
 
       _implementation3.ExecuteAction (((Action<int, string, double>) (delegate (int i, string s, double d) { result = "done" + i + s + d; })));
       Assert.That (result, Is.EqualTo ("done123"));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Test")]
+    public void ExecuteAction_WithException ()
+    {
+      _implementation0.ExecuteAction (((Action) (() => { throw new InvalidOperationException ("Test"); })));
     }
 
     [Test]
