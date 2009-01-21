@@ -1,0 +1,75 @@
+// This file is part of the re-motion Core Framework (www.re-motion.org)
+// Copyright (C) 2005-2008 rubicon informationstechnologie gmbh, www.rubicon.eu
+// 
+// The re-motion Core Framework is free software; you can redistribute it 
+// and/or modify it under the terms of the GNU Lesser General Public License 
+// version 3.0 as published by the Free Software Foundation.
+// 
+// This framework is distributed in the hope that it will be useful, 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with this framework; if not, see http://www.gnu.org/licenses.
+// 
+using System;
+using Remotion.Utilities;
+
+namespace Remotion.Reflection
+{
+  // @begin-template first=1 generate=0..17 suppressTemplate=true
+  // @replace "A<n>" ", " "<" ">"
+  // @replace "private readonly A<n> _a<n>;" " "
+  // @replace "A<n> a<n>" ", " " " " "
+  // @replace "_a<n> = a<n>;" " "
+  // @replace "A<n>" ", " " " ", "
+  // @replace "_a<n>" ", "
+  // @replace "typeof (A<n>)" ", "
+  /// <summary>
+  /// Implements <see cref="ParamList"/> for a specific number of arguments. Use one of the <see cref="ParamList.Create"/> overloads to create
+  /// instances of the <see cref="ParamList"/> implementation classes.
+  /// </summary>
+  public class ParamListImplementation<A1> : ParamList
+  {
+    private readonly A1 _a1;
+
+    public ParamListImplementation ( A1 a1 )
+    {
+      _a1 = a1;
+    }
+
+    public override Type FuncType
+    {
+      get { return typeof (Func< A1, object>); }
+    }
+
+    public override Type ActionType
+    {
+      get { return typeof (Action<A1>); }
+    }
+
+    public override void ExecuteAction (Delegate action)
+    {
+      ArgumentUtility.CheckNotNull ("action", action);
+      ((Action<A1>) action) (_a1);
+    }
+
+    public override object ExecuteFunc (Delegate action)
+    {
+      ArgumentUtility.CheckNotNull ("action", action);
+      return ((Func< A1, object>) action)(_a1);
+    }
+
+    public override Type[] GetParameterTypes ()
+    {
+      return new Type[] { typeof (A1) };
+    }
+
+    public override object[] GetParameterValues ()
+    {
+      return new object[] { _a1 };
+    }
+  }
+  // @end-template
+}
