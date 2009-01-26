@@ -48,7 +48,7 @@ namespace Remotion.Reflection
       get { return typeof (Action); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -65,7 +65,7 @@ namespace Remotion.Reflection
       castAction ();
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -115,7 +115,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -132,7 +132,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -182,7 +182,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -199,7 +199,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -249,7 +249,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -266,7 +266,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -316,7 +316,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -333,7 +333,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -383,7 +383,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -400,7 +400,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -450,7 +450,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -467,7 +467,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -517,7 +517,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -534,7 +534,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -584,7 +584,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -601,7 +601,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -651,7 +651,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -668,7 +668,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -718,7 +718,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -735,7 +735,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -785,7 +785,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -802,7 +802,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -852,7 +852,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -869,7 +869,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -919,7 +919,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -936,7 +936,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -986,7 +986,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -1003,7 +1003,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -1053,7 +1053,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -1070,7 +1070,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
@@ -1120,7 +1120,7 @@ namespace Remotion.Reflection
       get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>); }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -1137,7 +1137,7 @@ namespace Remotion.Reflection
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 

@@ -51,7 +51,7 @@ namespace Remotion.Reflection
       get { return null; }
     }
 
-    public override void ExecuteAction (Delegate action)
+    public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
@@ -73,7 +73,7 @@ namespace Remotion.Reflection
       }
     }
 
-    public override object ExecuteFunc (Delegate func)
+    public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 

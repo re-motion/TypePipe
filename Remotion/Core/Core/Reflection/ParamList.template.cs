@@ -80,13 +80,13 @@ namespace Remotion.Reflection
     /// </summary>
     /// <param name="action">The action to be executed. This delegate must match <see cref="ActionType"/>. If <see cref="ActionType"/> is null,
     /// it must match the types returned by <see cref="GetParameterTypes"/>.</param>
-    public abstract void ExecuteAction (Delegate action);
+    public abstract void InvokeAction (Delegate action);
     /// <summary>
     /// Executes the given function delegate, passing in the parameters encapsulated by this <see cref="ParamList"/>.
     /// </summary>
     /// <param name="action">The function to be executed. This delegate must match <see cref="FuncType"/>. If <see cref="FuncType"/> is null,
     /// it must match the types returned by <see cref="GetParameterTypes"/>, plus <see cref="System.Object"/> as the return type.</param>
-    public abstract object ExecuteFunc (Delegate action);
+    public abstract object InvokeFunc (Delegate action);
 
     /// <summary>
     /// Gets the parameter types of the parameters encapsulated by this <see cref="ParamList"/>.

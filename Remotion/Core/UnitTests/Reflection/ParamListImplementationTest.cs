@@ -41,56 +41,56 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    public void ExecuteFunc ()
+    public void InvokeFunc ()
     {
       var ret = "ret";
-      Assert.That (_implementation0.ExecuteFunc (((Func<object>) (() => ret))), Is.SameAs (ret));
-      Assert.That (_implementation1.ExecuteFunc (((Func<int, object>) (i => i + ret))), Is.EqualTo (1 + ret));
-      Assert.That (_implementation3.ExecuteFunc (((Func<int, string, double, object>) ((i, s, d) => i + s + d + ret))), Is.EqualTo (1 + "2" + 3.0 + ret));
+      Assert.That (_implementation0.InvokeFunc (((Func<object>) (() => ret))), Is.SameAs (ret));
+      Assert.That (_implementation1.InvokeFunc (((Func<int, object>) (i => i + ret))), Is.EqualTo (1 + ret));
+      Assert.That (_implementation3.InvokeFunc (((Func<int, string, double, object>) ((i, s, d) => i + s + d + ret))), Is.EqualTo (1 + "2" + 3.0 + ret));
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Test")]
-    public void ExecuteFunc_WithException ()
+    public void InvokeFunc_WithException ()
     {
-      _implementation0.ExecuteFunc (((Func<object>) (() => { throw new InvalidOperationException ("Test"); })));
+      _implementation0.InvokeFunc (((Func<object>) (() => { throw new InvalidOperationException ("Test"); })));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument func has type System.Func`1[System.Int32] when type "
         + "System.Func`1[System.Object] was expected.\r\nParameter name: func")]
-    public void ExecuteFunc_InvalidDelegate ()
+    public void InvokeFunc_InvalidDelegate ()
     {
-      _implementation0.ExecuteFunc (((Func<int>) (() => 5)));
+      _implementation0.InvokeFunc (((Func<int>) (() => 5)));
     }
     
     [Test]
-    public void ExecuteAction ()
+    public void InvokeAction ()
     {
       string result = null;
-      _implementation0.ExecuteAction (((Action) (delegate { result = "done"; })));
+      _implementation0.InvokeAction (((Action) (delegate { result = "done"; })));
       Assert.That (result, Is.EqualTo ("done"));
 
-      _implementation1.ExecuteAction (((Action<int>) (delegate (int i) { result = "done" + i; })));
+      _implementation1.InvokeAction (((Action<int>) (delegate (int i) { result = "done" + i; })));
       Assert.That (result, Is.EqualTo ("done1"));
 
-      _implementation3.ExecuteAction (((Action<int, string, double>) (delegate (int i, string s, double d) { result = "done" + i + s + d; })));
+      _implementation3.InvokeAction (((Action<int, string, double>) (delegate (int i, string s, double d) { result = "done" + i + s + d; })));
       Assert.That (result, Is.EqualTo ("done123"));
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Test")]
-    public void ExecuteAction_WithException ()
+    public void InvokeAction_WithException ()
     {
-      _implementation0.ExecuteAction (((Action) (() => { throw new InvalidOperationException ("Test"); })));
+      _implementation0.InvokeAction (((Action) (() => { throw new InvalidOperationException ("Test"); })));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type System.Action`1[System.Int32] when type " 
         + "System.Action was expected.\r\nParameter name: action")]
-    public void ExecuteAction_InvalidDelegate ()
+    public void InvokeAction_InvalidDelegate ()
     {
-      _implementation0.ExecuteAction (((Action<int>) (i => { })));
+      _implementation0.InvokeAction (((Action<int>) (i => { })));
     }
 
     [Test]
