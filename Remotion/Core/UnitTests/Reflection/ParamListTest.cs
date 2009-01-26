@@ -47,5 +47,37 @@ namespace Remotion.UnitTests.Reflection
 
       Assert.That (paramList.GetParameterValues (), Is.EqualTo (new object[] { "s", 2, 3, 4, 5.0, 6, 7, 8, DateTime.MinValue, "10" }));
     }
+
+    [Test]
+    public void Create_Arbitrary_WithTypes ()
+    {
+      var paramList = ParamList.Create (new Type[] {typeof (int)}, new object[] {1});
+      Assert.That (paramList.GetParameterTypes (), Is.EqualTo (new[] {typeof (int)}));
+      Assert.That (paramList.GetParameterValues (), Is.EqualTo (new object[] {1}));
+    }
+
+    [Test]
+    public void Create_Arbitrary_WithoutTypes ()
+    {
+      var paramList = ParamList.Create (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28);
+      Assert.That (paramList.GetParameterTypes (), Is.EqualTo (new[] { typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), 
+        typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
+        typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
+        typeof (int), typeof (int), typeof (int)}));
+      Assert.That (paramList.GetParameterValues (), Is.EqualTo (new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+          21, 22, 23, 24, 25, 26, 27, 28 }));
+    }
+
+    [Test]
+    public void Create_Arbitrary_WithoutTypes_AndNulls ()
+    {
+      var paramList = ParamList.Create (1, 2, 3, 4, null, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28);
+      Assert.That (paramList.GetParameterTypes (), Is.EqualTo (new[] { typeof (int), typeof (int), typeof (int), typeof (int), typeof (object), 
+        typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
+        typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
+        typeof (int), typeof (int), typeof (int)}));
+      Assert.That (paramList.GetParameterValues (), Is.EqualTo (new object[] { 1, 2, 3, 4, null, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+          21, 22, 23, 24, 25, 26, 27, 28 }));
+    }
   }
 }

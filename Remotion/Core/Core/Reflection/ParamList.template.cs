@@ -14,6 +14,7 @@
 // along with this framework; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
@@ -35,6 +36,32 @@ namespace Remotion.Reflection
     public static ParamList Create<A1> (A1 a1) { return new ParamListImplementation<A1> ( a1 ); }
     // @end-template
     // @begin-skip
+
+    /// <summary>
+    /// Creates a strongly typed list of parameters to be passed to a function or action.
+    /// </summary>
+    /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
+    public static ParamList Create (Type[] parameterTypes, object[] parameterValues)
+    {
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+
+      return new DynamicParamListImplementation (parameterTypes, parameterValues);
+    }
+
+    /// <summary>
+    /// Creates a list of parameters to be passed to a function or action. This overload takes a <c>params</c> array, which is convenient, but might
+    /// lead to subtle bugs, especially when <see langword="null"/> values are supplied.
+    /// </summary>
+    /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
+    public static ParamList Create (params object[] parameterValues)
+    {
+      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+
+      var parameterTypes = EnumerableUtility.SelectToArray (parameterValues, p => p != null ? p.GetType () : typeof (object));
+      return new DynamicParamListImplementation (parameterTypes, parameterValues);
+    }
+
     /// <summary>
     /// Gets the type of <see cref="Func{TResult}"/> delegates supported by this <see cref="ParamList"/> instance.
     /// </summary>

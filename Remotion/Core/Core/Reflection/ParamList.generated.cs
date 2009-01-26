@@ -21,6 +21,7 @@
 // along with this framework; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
