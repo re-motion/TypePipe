@@ -28,16 +28,48 @@ namespace Remotion.Reflection
     // @replace "A<n>" ", " "<" ">"
     // @replace "A<n> a<n>" ", "
     // @replace "a<n>" ", " " " " "
+    /// <summary>
+    /// Creates a strongly typed list of parameters to be passed to a function or action.
+    /// </summary>
+    /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
     public static ParamList Create<A1> (A1 a1) { return new ParamListImplementation<A1> ( a1 ); }
     // @end-template
     // @begin-skip
+    /// <summary>
+    /// Gets the type of <see cref="Func{TResult}"/> delegates supported by this <see cref="ParamList"/> instance.
+    /// </summary>
+    /// <value>The function delegate type supported by this <see cref="ParamList"/> instance, or <see langword="null"/> if the instance supports
+    /// more than one delegate types.</value>
     public abstract Type FuncType { get; }
+    /// <summary>
+    /// Gets the type of <see cref="Action"/> delegates supported by this <see cref="ParamList"/> instance.
+    /// </summary>
+    /// <value>The action delegate type supported by this <see cref="ParamList"/> instance, or <see langword="null"/> if the instance supports
+    /// more than one delegate types.</value>
     public abstract Type ActionType { get; }
 
+    /// <summary>
+    /// Executes the given action delegate, passing in the parameters encapsulated by this <see cref="ParamList"/>.
+    /// </summary>
+    /// <param name="action">The action to be executed. This delegate must match <see cref="ActionType"/>. If <see cref="ActionType"/> is null,
+    /// it must match the types returned by <see cref="GetParameterTypes"/>.</param>
     public abstract void ExecuteAction (Delegate action);
+    /// <summary>
+    /// Executes the given function delegate, passing in the parameters encapsulated by this <see cref="ParamList"/>.
+    /// </summary>
+    /// <param name="action">The function to be executed. This delegate must match <see cref="FuncType"/>. If <see cref="FuncType"/> is null,
+    /// it must match the types returned by <see cref="GetParameterTypes"/>, plus <see cref="System.Object"/> as the return type.</param>
     public abstract object ExecuteFunc (Delegate action);
 
+    /// <summary>
+    /// Gets the parameter types of the parameters encapsulated by this <see cref="ParamList"/>.
+    /// </summary>
+    /// <returns>The parameter types.</returns>
     public abstract Type[] GetParameterTypes ();
+    /// <summary>
+    /// Gets the parameter values of the parameters encapsulated by this <see cref="ParamList"/>.
+    /// </summary>
+    /// <returns>The parameter values.</returns>
     public abstract object[] GetParameterValues ();
     // @end-skip
   }

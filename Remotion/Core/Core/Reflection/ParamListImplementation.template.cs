@@ -52,13 +52,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1>) action) (_a1);
+
+      Action<A1> castAction;
+      try
+      {
+        castAction = (Action<A1>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, object>) action)(_a1);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1);
     }
 
     public override Type[] GetParameterTypes ()

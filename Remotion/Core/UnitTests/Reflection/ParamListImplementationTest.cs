@@ -5,6 +5,7 @@ using System;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection
 {
@@ -56,6 +57,14 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument func has type System.Func`1[System.Int32] when type "
+        + "System.Func`1[System.Object] was expected.\r\nParameter name: func")]
+    public void ExecuteFunc_InvalidDelegate ()
+    {
+      _implementation0.ExecuteFunc (((Func<int>) (() => 5)));
+    }
+    
+    [Test]
     public void ExecuteAction ()
     {
       string result = null;
@@ -74,6 +83,14 @@ namespace Remotion.UnitTests.Reflection
     public void ExecuteAction_WithException ()
     {
       _implementation0.ExecuteAction (((Action) (() => { throw new InvalidOperationException ("Test"); })));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type System.Action`1[System.Int32] when type " 
+        + "System.Action was expected.\r\nParameter name: action")]
+    public void ExecuteAction_InvalidDelegate ()
+    {
+      _implementation0.ExecuteAction (((Action<int>) (i => { })));
     }
 
     [Test]

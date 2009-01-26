@@ -51,13 +51,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action) action) ();
+
+      Action castAction;
+      try
+      {
+        castAction = (Action) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction ();
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func<object>) action)();
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func<object> castFunc;
+      try
+      {
+      castFunc = (Func<object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc ();
     }
 
     public override Type[] GetParameterTypes ()
@@ -96,13 +118,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2>) action) (_a1, _a2);
+
+      Action<A1, A2> castAction;
+      try
+      {
+        castAction = (Action<A1, A2>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, object>) action)(_a1, _a2);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2);
     }
 
     public override Type[] GetParameterTypes ()
@@ -141,13 +185,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3>) action) (_a1, _a2, _a3);
+
+      Action<A1, A2, A3> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, object>) action)(_a1, _a2, _a3);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3);
     }
 
     public override Type[] GetParameterTypes ()
@@ -186,13 +252,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4>) action) (_a1, _a2, _a3, _a4);
+
+      Action<A1, A2, A3, A4> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, object>) action)(_a1, _a2, _a3, _a4);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4);
     }
 
     public override Type[] GetParameterTypes ()
@@ -231,13 +319,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5>) action) (_a1, _a2, _a3, _a4, _a5);
+
+      Action<A1, A2, A3, A4, A5> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, object>) action)(_a1, _a2, _a3, _a4, _a5);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5);
     }
 
     public override Type[] GetParameterTypes ()
@@ -276,13 +386,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6>) action) (_a1, _a2, _a3, _a4, _a5, _a6);
+
+      Action<A1, A2, A3, A4, A5, A6> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6);
     }
 
     public override Type[] GetParameterTypes ()
@@ -321,13 +453,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
+
+      Action<A1, A2, A3, A4, A5, A6, A7> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
     }
 
     public override Type[] GetParameterTypes ()
@@ -366,13 +520,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
     }
 
     public override Type[] GetParameterTypes ()
@@ -411,13 +587,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
     }
 
     public override Type[] GetParameterTypes ()
@@ -456,13 +654,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
     }
 
     public override Type[] GetParameterTypes ()
@@ -501,13 +721,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
     }
 
     public override Type[] GetParameterTypes ()
@@ -546,13 +788,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
     }
 
     public override Type[] GetParameterTypes ()
@@ -591,13 +855,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
     }
 
     public override Type[] GetParameterTypes ()
@@ -636,13 +922,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
     }
 
     public override Type[] GetParameterTypes ()
@@ -681,13 +989,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
     }
 
     public override Type[] GetParameterTypes ()
@@ -726,13 +1056,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
     }
 
     public override Type[] GetParameterTypes ()
@@ -771,13 +1123,35 @@ namespace Remotion.Reflection
     public override void ExecuteAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
-      ((Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>) action) (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
     }
 
-    public override object ExecuteFunc (Delegate action)
+    public override object ExecuteFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
-      return ((Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object>) action)(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
     }
 
     public override Type[] GetParameterTypes ()
