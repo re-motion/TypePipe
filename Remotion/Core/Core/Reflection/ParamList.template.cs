@@ -65,14 +65,12 @@ namespace Remotion.Reflection
     /// <summary>
     /// Gets the type of <see cref="Func{TResult}"/> delegates supported by this <see cref="ParamList"/> instance.
     /// </summary>
-    /// <value>The function delegate type supported by this <see cref="ParamList"/> instance, or <see langword="null"/> if the instance supports
-    /// more than one delegate types.</value>
+    /// <value>The function delegate type supported by this <see cref="ParamList"/> instance.</value>
     public abstract Type FuncType { get; }
     /// <summary>
     /// Gets the type of <see cref="Action"/> delegates supported by this <see cref="ParamList"/> instance.
     /// </summary>
-    /// <value>The action delegate type supported by this <see cref="ParamList"/> instance, or <see langword="null"/> if the instance supports
-    /// more than one delegate types.</value>
+    /// <value>The action delegate type supported by this <see cref="ParamList"/> instance.</value>
     public abstract Type ActionType { get; }
 
     /// <summary>
@@ -84,9 +82,17 @@ namespace Remotion.Reflection
     /// <summary>
     /// Executes the given function delegate, passing in the parameters encapsulated by this <see cref="ParamList"/>.
     /// </summary>
-    /// <param name="action">The function to be executed. This delegate must match <see cref="FuncType"/>. If <see cref="FuncType"/> is null,
+    /// <param name="func">The function to be executed. This delegate must match <see cref="FuncType"/>. If <see cref="FuncType"/> is null,
     /// it must match the types returned by <see cref="GetParameterTypes"/>, plus <see cref="System.Object"/> as the return type.</param>
-    public abstract object InvokeFunc (Delegate action);
+    /// <returns>The result of the delegate execution.</returns>
+    public abstract object InvokeFunc (Delegate func);
+    /// <summary>
+    /// Executes a constructor, passing in the parameters encapsulated by this <see cref="ParamList"/>.
+    /// </summary>
+    /// <param name="constructorLookupInfo">An object looking up the constructor to be invoked. The lookup is performed with the signature defined 
+    /// by the parameters encapsulated by this <see cref="ParamList"/>.</param>
+    /// <returns>The result of the constructor invocation.</returns>
+    public abstract object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo);
 
     /// <summary>
     /// Gets the parameter types of the parameters encapsulated by this <see cref="ParamList"/>.

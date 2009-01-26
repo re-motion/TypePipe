@@ -18,6 +18,7 @@ using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
 using Remotion.Utilities;
+using System.Collections.Generic;
 
 namespace Remotion.UnitTests.Reflection
 {
@@ -47,17 +48,17 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FuncType ()
     {
-      Assert.That (_implementation0.FuncType, Is.Null);
-      Assert.That (_implementation1.FuncType, Is.Null);
-      Assert.That (_implementation3.FuncType, Is.Null);
+      Assert.That (_implementation0.FuncType, Is.EqualTo (typeof (Func<object>)));
+      Assert.That (_implementation1.FuncType, Is.EqualTo (typeof (Func<int, object>)));
+      Assert.That (_implementation3.FuncType, Is.EqualTo (typeof (Func<int, string, double, object>)));
     }
 
     [Test]
     public void ActionType ()
     {
-      Assert.That (_implementation0.ActionType, Is.Null);
-      Assert.That (_implementation1.ActionType, Is.Null);
-      Assert.That (_implementation3.ActionType, Is.Null);
+      Assert.That (_implementation0.ActionType, Is.EqualTo (typeof (Action)));
+      Assert.That (_implementation1.ActionType, Is.EqualTo (typeof (Action<int>)));
+      Assert.That (_implementation3.ActionType, Is.EqualTo (typeof (Action<int, string, double>)));
     }
 
     [Test]
@@ -131,13 +132,39 @@ namespace Remotion.UnitTests.Reflection
 
     [Test]
     [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type "
-                                                                          + "System.Action`3[System.Int32,System.Int32,System.Int32] when a delegate "
-                                                                          +
-                                                                          "with the following parameter signature was expected: (System.Int32, System.String, System.Double).\r\nParameter name: action"
-        )]
+        + "System.Action`3[System.Int32,System.Int32,System.Int32] when a delegate with the following parameter signature was expected: "
+        + "(System.Int32, System.String, System.Double).\r\nParameter name: action")]
     public void InvokeAction_InvalidDelegate_Types ()
     {
       _implementation3.InvokeAction (((Action<int, int, int>) ((i, j, k) => { })));
+    }
+
+    [Test]
+    public void InvokeConstructor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (List<int>));
+      var list = _implementation1.InvokeConstructor (info);
+
+      Assert.That (list, Is.InstanceOfType (typeof (List<int>)));
+      Assert.That (((List<int>) list).Capacity, Is.EqualTo (_implementation1.GetParameterValues ()[0]));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentOutOfRangeException))]
+    public void InvokeConstructor_WithException ()
+    {
+      var info = new ConstructorLookupInfo (typeof (List<int>));
+      new DynamicParamListImplementation(new[] {typeof (int)}, new object[] { -2 }).InvokeConstructor (info);
+    }
+
+    [Test]
+    [ExpectedException (typeof (MissingMethodException), ExpectedMessage = "Type System.Collections.Generic.List`1[[System.Int32, mscorlib, "
+        + "Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]] does not contain a constructor with the following arguments types: "
+        + "System.Int32, System.String, System.Double.")]
+    public void InvokeConstructor_NoMatchingCtor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (List<int>));
+      _implementation3.InvokeConstructor (info);
     }
 
     [Test]

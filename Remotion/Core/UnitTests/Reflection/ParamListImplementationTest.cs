@@ -2,6 +2,7 @@
 // All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
@@ -91,6 +92,34 @@ namespace Remotion.UnitTests.Reflection
     public void InvokeAction_InvalidDelegate ()
     {
       _implementation0.InvokeAction (((Action<int>) (i => { })));
+    }
+
+    [Test]
+    public void InvokeConstructor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (List<int>));
+      var list = _implementation1.InvokeConstructor (info);
+
+      Assert.That (list, Is.InstanceOfType (typeof (List<int>)));
+      Assert.That (((List<int>)list).Capacity, Is.EqualTo (_implementation1.GetParameterValues()[0]));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentOutOfRangeException))]
+    public void InvokeConstructor_WithException ()
+    {
+      var info = new ConstructorLookupInfo (typeof (List<int>));
+      new ParamListImplementation<int> (-2).InvokeConstructor (info);
+    }
+
+    [Test]
+    [ExpectedException (typeof (MissingMethodException), ExpectedMessage = "Type System.Collections.Generic.List`1[[System.Int32, mscorlib, " 
+        + "Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]] does not contain a constructor with the following arguments types: "
+        + "System.Int32, System.String, System.Double.")]
+    public void InvokeConstructor_NoMatchingCtor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (List<int>));
+      _implementation3.InvokeConstructor (info);
     }
 
     [Test]

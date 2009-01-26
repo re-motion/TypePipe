@@ -83,6 +83,13 @@ namespace Remotion.Reflection
       return castFunc (_a1);
     }
 
+    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    {
+      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
+      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
+      return InvokeFunc (funcDelegate);
+    }
+
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1) };

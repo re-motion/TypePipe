@@ -115,6 +115,9 @@ namespace Remotion
       if (argumentTypes.Length > MaxArguments)
         throw new ArgumentOutOfRangeException ("argumentTypes");
 
+      if (argumentTypes.Length == 0)
+        return typeof (Action);
+
       return GetOpenType (argumentTypes.Length).MakeGenericType (argumentTypes);
     }
   }

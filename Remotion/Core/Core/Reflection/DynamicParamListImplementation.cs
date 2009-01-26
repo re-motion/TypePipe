@@ -43,12 +43,12 @@ namespace Remotion.Reflection
 
     public override Type FuncType
     {
-      get { return null; }
+      get { return FuncDelegates.MakeClosedType (typeof (object), _parameterTypes); }
     }
 
     public override Type ActionType
     {
-      get { return null; }
+      get { return ActionDelegates.MakeClosedType (_parameterTypes); }
     }
 
     public override void InvokeAction (Delegate action)
@@ -88,6 +88,21 @@ namespace Remotion.Reflection
       catch (ArgumentException)
       {
         throw CreateFuncTypeException (func);
+      }
+      catch (TargetInvocationException ex)
+      {
+        throw ex.InnerException.PreserveStackTrace ();
+      }
+    }
+
+    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    {
+      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
+
+      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
+      try
+      {
+        return funcDelegate.DynamicInvoke (_parameterValues);
       }
       catch (TargetInvocationException ex)
       {
