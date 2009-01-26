@@ -101,15 +101,7 @@ namespace Remotion.Reflection
 
       try
       {
-        if (_parameterTypes.Length <= FuncDelegates.MaxArguments)
-        {
-          var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-          return funcDelegate.DynamicInvoke (_parameterValues);
-        }
-        else
-        {
-          return constructorLookupInfo.DynamicInvoke (_parameterTypes, _parameterValues);
-        }
+        return constructorLookupInfo.DynamicInvoke (_parameterTypes, _parameterValues);
       }
       catch (TargetInvocationException ex)
       {
