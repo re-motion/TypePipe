@@ -61,7 +61,7 @@ namespace Remotion.Reflection
       }
       catch (TargetParameterCountException)
       {
-        throw CreateActionTypeException(action);
+        throw CreateActionTypeException (action);
       }
       catch (ArgumentException)
       {
@@ -69,7 +69,7 @@ namespace Remotion.Reflection
       }
       catch (TargetInvocationException ex)
       {
-        throw ex.InnerException.PreserveStackTrace ();
+        throw ex.InnerException.PreserveStackTrace();
       }
     }
 
@@ -83,7 +83,7 @@ namespace Remotion.Reflection
       }
       catch (TargetParameterCountException)
       {
-        throw CreateFuncTypeException(func);
+        throw CreateFuncTypeException (func);
       }
       catch (ArgumentException)
       {
@@ -91,7 +91,7 @@ namespace Remotion.Reflection
       }
       catch (TargetInvocationException ex)
       {
-        throw ex.InnerException.PreserveStackTrace ();
+        throw ex.InnerException.PreserveStackTrace();
       }
     }
 
@@ -99,14 +99,21 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
 
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
       try
       {
-        return funcDelegate.DynamicInvoke (_parameterValues);
+        if (_parameterTypes.Length <= FuncDelegates.MaxArguments)
+        {
+          var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
+          return funcDelegate.DynamicInvoke (_parameterValues);
+        }
+        else
+        {
+          return constructorLookupInfo.DynamicInvoke (_parameterTypes, _parameterValues);
+        }
       }
       catch (TargetInvocationException ex)
       {
-        throw ex.InnerException.PreserveStackTrace ();
+        throw ex.InnerException.PreserveStackTrace();
       }
     }
 
@@ -122,16 +129,21 @@ namespace Remotion.Reflection
 
     private ArgumentTypeException CreateActionTypeException (Delegate action)
     {
-      var message = string.Format ("Argument action has type {0} when a delegate with the following parameter signature was expected: ({1}).",
-                                   action.GetType (), SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
-      return new ArgumentTypeException (message, "action", null, action.GetType ());
+      var message = string.Format (
+          "Argument action has type {0} when a delegate with the following parameter signature was expected: ({1}).",
+          action.GetType(),
+          SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
+      return new ArgumentTypeException (message, "action", null, action.GetType());
     }
 
     private ArgumentTypeException CreateFuncTypeException (Delegate func)
     {
-      var message = string.Format ("Argument action has type {0} when a delegate returning System.Object with the following parameter signature "
-                                   + "was expected: ({1}).", func.GetType (), SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
-      return new ArgumentTypeException (message, "func", null, func.GetType ());
+      var message = string.Format (
+          "Argument action has type {0} when a delegate returning System.Object with the following parameter signature "
+          + "was expected: ({1}).",
+          func.GetType(),
+          SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
+      return new ArgumentTypeException (message, "func", null, func.GetType());
     }
   }
 }

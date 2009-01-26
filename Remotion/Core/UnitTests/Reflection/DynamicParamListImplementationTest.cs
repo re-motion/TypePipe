@@ -17,6 +17,7 @@ using System;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
+using Remotion.UnitTests.Reflection.TestDomain;
 using Remotion.Utilities;
 using System.Collections.Generic;
 
@@ -165,6 +166,23 @@ namespace Remotion.UnitTests.Reflection
     {
       var info = new ConstructorLookupInfo (typeof (List<int>));
       _implementation3.InvokeConstructor (info);
+    }
+
+    [Test]
+    public void InvokeConstructor_ManyArguments ()
+    {
+      var types = new[] { typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), 
+        typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
+        typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
+        typeof (int), typeof (int), typeof (int)};
+      var values = new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 };
+      var implementation = new DynamicParamListImplementation (types, values);
+
+      var info = new ConstructorLookupInfo (typeof (ClassWithManyConstructorArguments));
+      var instance = implementation.InvokeConstructor (info);
+
+      Assert.That (instance, Is.InstanceOfType (typeof (ClassWithManyConstructorArguments)));
+      Assert.That (((ClassWithManyConstructorArguments)instance).Values, Is.EqualTo (values));
     }
 
     [Test]

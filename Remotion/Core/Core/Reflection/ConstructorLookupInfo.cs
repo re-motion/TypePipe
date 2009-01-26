@@ -72,13 +72,7 @@ namespace Remotion.Reflection
       if (_definingType.IsValueType && parameterTypes.Length == 0)
         return CreateValueTypeDefaultDelegate (_definingType, delegateType);
 
-      ConstructorInfo ctor = _definingType.GetConstructor (BindingFlags, Binder, CallingConvention, parameterTypes, ParameterModifiers);
-      if (ctor == null)
-      {
-        string message = string.Format ("Type {0} does not contain a constructor with the following arguments types: {1}.",
-                                        _definingType.FullName, SeparatedStringBuilder.Build (", ", parameterTypes, t => t.FullName));
-        throw new MissingMethodException (message);
-      }
+      ConstructorInfo ctor = GetConstructor(parameterTypes);
       return CreateDelegate (ctor, delegateType);
     }
 
@@ -122,6 +116,27 @@ namespace Remotion.Reflection
       ilgen.Emit (OpCodes.Ret);             // and return it
 
       return method.CreateDelegate (delegateType);
+    }
+
+    public object DynamicInvoke (Type[] parameterTypes, object[] parameterValues)
+    {
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+
+      var ctor = GetConstructor (parameterTypes);
+      return ctor.Invoke (parameterValues);
+    }
+
+    private ConstructorInfo GetConstructor (Type[] parameterTypes)
+    {
+      ConstructorInfo ctor = _definingType.GetConstructor (BindingFlags, Binder, CallingConvention, parameterTypes, ParameterModifiers);
+      if (ctor == null)
+      {
+        string message = string.Format ("Type {0} does not contain a constructor with the following arguments types: {1}.",
+                                        _definingType.FullName, SeparatedStringBuilder.Build (", ", parameterTypes, t => t.FullName));
+        throw new MissingMethodException (message);
+      }
+      return ctor;
     }
   }
 }
