@@ -27,11 +27,7 @@ namespace Remotion.Reflection
 {
   public abstract partial class ParamList
   {
-    /// <summary>
-    /// Creates a strongly typed list of parameters to be passed to a function or action.
-    /// </summary>
-    /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create () { return new ParamListImplementation (); }
+
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>

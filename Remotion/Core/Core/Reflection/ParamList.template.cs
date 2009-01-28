@@ -25,7 +25,14 @@ namespace Remotion.Reflection
   // @end-skip
   public abstract partial class ParamList
   {
-    // @begin-template first=1 generate=0..17 suppressTemplate=true
+    // @begin-skip
+    /// <summary>
+    /// Represents an empty parameter list. This is equivalent to calling the <see cref="Create()"/> overload without parameters.
+    /// </summary>
+    public static ParamList Empty = new ParamListImplementation ();
+    // @end-skip
+
+    // @begin-template first=1 generate=1..17 suppressTemplate=true
     // @replace "A<n>" ", " "<" ">"
     // @replace "A<n> a<n>" ", "
     // @replace "a<n>" ", " " " " "
@@ -38,10 +45,16 @@ namespace Remotion.Reflection
     // @begin-skip
 
     /// <summary>
+    /// Returns an empty parameter list to be passed to a function or action.
+    /// </summary>
+    /// <returns>An empty <see cref="ParamList"/>. This is the same value returned by <see cref="Empty"/>.</returns>
+    public static ParamList Create () { return Empty; }
+
+    /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create (Type[] parameterTypes, object[] parameterValues)
+    public static ParamList CreateDynamic (Type[] parameterTypes, object[] parameterValues)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
@@ -54,7 +67,7 @@ namespace Remotion.Reflection
     /// lead to subtle bugs, especially when <see langword="null"/> values are supplied.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create (params object[] parameterValues)
+    public static ParamList CreateDynamic (params object[] parameterValues)
     {
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
 
