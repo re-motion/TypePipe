@@ -46,6 +46,11 @@ namespace Remotion.Reflection
       _definingType = definingType;
     }
 
+    public Type DefiningType
+    {
+      get { return _definingType; }
+    }
+
     public virtual Delegate GetDelegate (Type delegateType)
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom("delegateType", delegateType, typeof (Delegate));
