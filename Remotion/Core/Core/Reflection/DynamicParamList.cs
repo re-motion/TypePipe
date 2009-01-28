@@ -24,12 +24,12 @@ namespace Remotion.Reflection
   /// <summary>
   /// Implements the <see cref="ParamList"/> class for scenarios where the number or types of parameters are chosen at runtime.
   /// </summary>
-  public class DynamicParamListImplementation : ParamList
+  public class DynamicParamList : ParamList
   {
     private readonly Type[] _parameterTypes;
     private readonly object[] _parameterValues;
 
-    public DynamicParamListImplementation (Type[] parameterTypes, object[] parameterValues)
+    public DynamicParamList (Type[] parameterTypes, object[] parameterValues)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
@@ -95,7 +95,7 @@ namespace Remotion.Reflection
       }
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
 

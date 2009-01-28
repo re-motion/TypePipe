@@ -21,6 +21,7 @@
 // along with this framework; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using Remotion.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -82,7 +83,7 @@ namespace Remotion.Reflection
       return castFunc ();
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -156,7 +157,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -230,7 +231,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -304,7 +305,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -378,7 +379,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -452,7 +453,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -526,7 +527,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -600,7 +601,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -674,7 +675,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -748,7 +749,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -822,7 +823,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -896,7 +897,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -970,7 +971,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -1044,7 +1045,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -1118,7 +1119,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -1192,7 +1193,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
@@ -1266,7 +1267,7 @@ namespace Remotion.Reflection
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);

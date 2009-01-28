@@ -22,7 +22,7 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  public class ConstructorLookupInfo: MemberLookupInfo
+  public class ConstructorLookupInfo: MemberLookupInfo, IConstructorLookupInfo
   {
     private static readonly ICache<object, Delegate> s_delegateCache = new InterlockedCache<object, Delegate> ();
     private readonly Type _definingType;

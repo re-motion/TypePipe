@@ -24,18 +24,18 @@ using System.Collections.Generic;
 namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
-  public class DynamicParamListImplementationTest
+  public class DynamicParamListTest
   {
-    private DynamicParamListImplementation _implementation0;
-    private DynamicParamListImplementation _implementation1;
-    private DynamicParamListImplementation _implementation3;
+    private DynamicParamList _implementation0;
+    private DynamicParamList _implementation1;
+    private DynamicParamList _implementation3;
 
     [SetUp]
     public void SetUp ()
     {
-      _implementation0 = new DynamicParamListImplementation (new Type[0], new object[0]);
-      _implementation1 = new DynamicParamListImplementation (new[] { typeof (int) }, new object[] { 1 });
-      _implementation3 = new DynamicParamListImplementation (new[] { typeof (int), typeof (string), typeof (double) }, new object[] { 1, "2", 3.0 });
+      _implementation0 = new DynamicParamList (new Type[0], new object[0]);
+      _implementation1 = new DynamicParamList (new[] { typeof (int) }, new object[] { 1 });
+      _implementation3 = new DynamicParamList (new[] { typeof (int), typeof (string), typeof (double) }, new object[] { 1, "2", 3.0 });
     }
 
     [Test]
@@ -43,7 +43,7 @@ namespace Remotion.UnitTests.Reflection
                                                                       + "Parameter name: parameterValues")]
     public void Initialization_Mismatch ()
     {
-      new DynamicParamListImplementation (new Type[0], new object[] { 1 });
+      new DynamicParamList (new Type[0], new object[] { 1 });
     }
 
     [Test]
@@ -155,7 +155,7 @@ namespace Remotion.UnitTests.Reflection
     public void InvokeConstructor_WithException ()
     {
       var info = new ConstructorLookupInfo (typeof (List<int>));
-      new DynamicParamListImplementation(new[] {typeof (int)}, new object[] { -2 }).InvokeConstructor (info);
+      new DynamicParamList(new[] {typeof (int)}, new object[] { -2 }).InvokeConstructor (info);
     }
 
     [Test]
@@ -176,7 +176,7 @@ namespace Remotion.UnitTests.Reflection
         typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), typeof (int),
         typeof (int), typeof (int), typeof (int)};
       var values = new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 };
-      var implementation = new DynamicParamListImplementation (types, values);
+      var implementation = new DynamicParamList (types, values);
 
       var info = new ConstructorLookupInfo (typeof (ClassWithManyConstructorArguments));
       var instance = implementation.InvokeConstructor (info);

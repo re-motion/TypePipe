@@ -14,7 +14,8 @@
 // along with this framework; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using Remotion.Utilities;
+using Remotion.BridgeInterfaces;
+using Remotion.Implementation;
 
 namespace Remotion.Reflection
 {
@@ -29,7 +30,7 @@ namespace Remotion.Reflection
     /// <summary>
     /// Represents an empty parameter list. This is equivalent to calling the <see cref="Create()"/> overload without parameters.
     /// </summary>
-    public static ParamList Empty = new ParamListImplementation ();
+    public static ParamList Empty = VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.GetEmpty();
     // @end-skip
 
     // @begin-template first=1 generate=1..17 suppressTemplate=true
@@ -40,7 +41,7 @@ namespace Remotion.Reflection
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1> (A1 a1) { return new ParamListImplementation<A1> ( a1 ); }
+    public static ParamList Create<A1> (A1 a1) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1 ); }
     // @end-template
     // @begin-skip
 
@@ -59,7 +60,7 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
 
-      return new DynamicParamListImplementation (parameterTypes, parameterValues);
+      return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.CreateDynamic (parameterTypes, parameterValues);
     }
 
     /// <summary>
@@ -71,8 +72,8 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
 
-      var parameterTypes = EnumerableUtility.SelectToArray (parameterValues, p => p != null ? p.GetType () : typeof (object));
-      return new DynamicParamListImplementation (parameterTypes, parameterValues);
+      var parameterTypes = Array.ConvertAll (parameterValues, p => p != null ? p.GetType () : typeof (object));
+      return CreateDynamic (parameterTypes, parameterValues);
     }
 
     /// <summary>
@@ -105,7 +106,7 @@ namespace Remotion.Reflection
     /// <param name="constructorLookupInfo">An object looking up the constructor to be invoked. The lookup is performed with the signature defined 
     /// by the parameters encapsulated by this <see cref="ParamList"/>.</param>
     /// <returns>The result of the constructor invocation.</returns>
-    public abstract object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo);
+    public abstract object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo);
 
     /// <summary>
     /// Gets the parameter types of the parameters encapsulated by this <see cref="ParamList"/>.

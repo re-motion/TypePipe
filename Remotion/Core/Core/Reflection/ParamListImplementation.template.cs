@@ -14,6 +14,7 @@
 // along with this framework; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using Remotion.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -83,7 +84,7 @@ namespace Remotion.Reflection
       return castFunc (_a1);
     }
 
-    public override object InvokeConstructor (ConstructorLookupInfo constructorLookupInfo)
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
       var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
