@@ -70,7 +70,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (FuncDelegates.MakeClosedType (typeof (TResult), parameterTypes));
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()
@@ -142,7 +142,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (FuncDelegates.MakeClosedType (typeof (TResult), parameterTypes));
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()
@@ -216,7 +216,7 @@ namespace Remotion.Reflection
 
     public Delegate GetDelegate (params Type[] parameterTypes)
     {
-      return GetDelegate (FuncDelegates.MakeClosedType (typeof (TResult), parameterTypes));
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
     }
 
     public TDelegate GetDelegate<TDelegate> ()

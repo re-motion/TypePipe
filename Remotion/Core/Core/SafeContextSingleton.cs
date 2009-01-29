@@ -20,6 +20,14 @@ using Remotion.Utilities;
 
 namespace Remotion
 {
+  /// <summary>
+  /// Provides automatic "Singleton" behavior based on the <see cref="SafeContext"/> class.
+  /// </summary>
+  /// <typeparam name="T">The type for which a single instance should be held in the <see cref="SafeContext"/>.</typeparam>
+  /// <remarks>
+  /// This class stores a single instance of <typeparamref name="T"/> in the <see cref="SafeContext"/>. Use it to ensure that exactly one 
+  /// instance of <typeparamref name="T"/> exists per thread, web context, or the respective current <see cref="SafeContext"/> policy.
+  /// </remarks>
   public class SafeContextSingleton<T>
   {
     private readonly object _currentLock = new object ();

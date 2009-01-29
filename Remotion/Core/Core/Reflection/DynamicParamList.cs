@@ -43,12 +43,12 @@ namespace Remotion.Reflection
 
     public override Type FuncType
     {
-      get { return FuncDelegates.MakeClosedType (typeof (object), _parameterTypes); }
+      get { return FuncUtility.MakeClosedType (typeof (object), _parameterTypes); }
     }
 
     public override Type ActionType
     {
-      get { return ActionDelegates.MakeClosedType (_parameterTypes); }
+      get { return ActionUtility.MakeClosedType (_parameterTypes); }
     }
 
     public override void InvokeAction (Delegate action)

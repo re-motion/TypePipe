@@ -29,7 +29,7 @@ namespace Remotion.BridgeInterfaces
     ParamList GetEmpty ();
     // @end-skip
 
-    // @begin-template first=1 generate=1..17 suppressTemplate=true
+    // @begin-template first=1 generate=1..20 suppressTemplate=true
     // @replace "A<n>" ", " "<" ">"
     // @replace "A<n> a<n>" ", "
     ParamList Create<A1> (A1 a1);

@@ -1284,4 +1284,226 @@ namespace Remotion.Reflection
       return new object[] { _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17 };
     }
   }
+  /// <summary>
+  /// Implements <see cref="ParamList"/> for a specific number of arguments. Use one of the <see cref="ParamList.Create"/> overloads to create
+  /// instances of the <see cref="ParamList"/> implementation classes.
+  /// </summary>
+  public class ParamListImplementation<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> : ParamList
+  {
+    private readonly A1 _a1; private readonly A2 _a2; private readonly A3 _a3; private readonly A4 _a4; private readonly A5 _a5; private readonly A6 _a6; private readonly A7 _a7; private readonly A8 _a8; private readonly A9 _a9; private readonly A10 _a10; private readonly A11 _a11; private readonly A12 _a12; private readonly A13 _a13; private readonly A14 _a14; private readonly A15 _a15; private readonly A16 _a16; private readonly A17 _a17; private readonly A18 _a18;
+
+    public ParamListImplementation ( A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18 )
+    {
+      _a1 = a1; _a2 = a2; _a3 = a3; _a4 = a4; _a5 = a5; _a6 = a6; _a7 = a7; _a8 = a8; _a9 = a9; _a10 = a10; _a11 = a11; _a12 = a12; _a13 = a13; _a14 = a14; _a15 = a15; _a16 = a16; _a17 = a17; _a18 = a18;
+    }
+
+    public override Type FuncType
+    {
+      get { return typeof (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object>); }
+    }
+
+    public override Type ActionType
+    {
+      get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18>); }
+    }
+
+    public override void InvokeAction (Delegate action)
+    {
+      ArgumentUtility.CheckNotNull ("action", action);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
+    }
+
+    public override object InvokeFunc (Delegate func)
+    {
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
+    }
+
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
+    {
+      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
+      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
+      return InvokeFunc (funcDelegate);
+    }
+
+    public override Type[] GetParameterTypes ()
+    {
+      return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13), typeof (A14), typeof (A15), typeof (A16), typeof (A17), typeof (A18) };
+    }
+
+    public override object[] GetParameterValues ()
+    {
+      return new object[] { _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18 };
+    }
+  }
+  /// <summary>
+  /// Implements <see cref="ParamList"/> for a specific number of arguments. Use one of the <see cref="ParamList.Create"/> overloads to create
+  /// instances of the <see cref="ParamList"/> implementation classes.
+  /// </summary>
+  public class ParamListImplementation<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> : ParamList
+  {
+    private readonly A1 _a1; private readonly A2 _a2; private readonly A3 _a3; private readonly A4 _a4; private readonly A5 _a5; private readonly A6 _a6; private readonly A7 _a7; private readonly A8 _a8; private readonly A9 _a9; private readonly A10 _a10; private readonly A11 _a11; private readonly A12 _a12; private readonly A13 _a13; private readonly A14 _a14; private readonly A15 _a15; private readonly A16 _a16; private readonly A17 _a17; private readonly A18 _a18; private readonly A19 _a19;
+
+    public ParamListImplementation ( A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18, A19 a19 )
+    {
+      _a1 = a1; _a2 = a2; _a3 = a3; _a4 = a4; _a5 = a5; _a6 = a6; _a7 = a7; _a8 = a8; _a9 = a9; _a10 = a10; _a11 = a11; _a12 = a12; _a13 = a13; _a14 = a14; _a15 = a15; _a16 = a16; _a17 = a17; _a18 = a18; _a19 = a19;
+    }
+
+    public override Type FuncType
+    {
+      get { return typeof (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object>); }
+    }
+
+    public override Type ActionType
+    {
+      get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19>); }
+    }
+
+    public override void InvokeAction (Delegate action)
+    {
+      ArgumentUtility.CheckNotNull ("action", action);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
+    }
+
+    public override object InvokeFunc (Delegate func)
+    {
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
+    }
+
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
+    {
+      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
+      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
+      return InvokeFunc (funcDelegate);
+    }
+
+    public override Type[] GetParameterTypes ()
+    {
+      return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13), typeof (A14), typeof (A15), typeof (A16), typeof (A17), typeof (A18), typeof (A19) };
+    }
+
+    public override object[] GetParameterValues ()
+    {
+      return new object[] { _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19 };
+    }
+  }
+  /// <summary>
+  /// Implements <see cref="ParamList"/> for a specific number of arguments. Use one of the <see cref="ParamList.Create"/> overloads to create
+  /// instances of the <see cref="ParamList"/> implementation classes.
+  /// </summary>
+  public class ParamListImplementation<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> : ParamList
+  {
+    private readonly A1 _a1; private readonly A2 _a2; private readonly A3 _a3; private readonly A4 _a4; private readonly A5 _a5; private readonly A6 _a6; private readonly A7 _a7; private readonly A8 _a8; private readonly A9 _a9; private readonly A10 _a10; private readonly A11 _a11; private readonly A12 _a12; private readonly A13 _a13; private readonly A14 _a14; private readonly A15 _a15; private readonly A16 _a16; private readonly A17 _a17; private readonly A18 _a18; private readonly A19 _a19; private readonly A20 _a20;
+
+    public ParamListImplementation ( A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18, A19 a19, A20 a20 )
+    {
+      _a1 = a1; _a2 = a2; _a3 = a3; _a4 = a4; _a5 = a5; _a6 = a6; _a7 = a7; _a8 = a8; _a9 = a9; _a10 = a10; _a11 = a11; _a12 = a12; _a13 = a13; _a14 = a14; _a15 = a15; _a16 = a16; _a17 = a17; _a18 = a18; _a19 = a19; _a20 = a20;
+    }
+
+    public override Type FuncType
+    {
+      get { return typeof (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object>); }
+    }
+
+    public override Type ActionType
+    {
+      get { return typeof (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20>); }
+    }
+
+    public override void InvokeAction (Delegate action)
+    {
+      ArgumentUtility.CheckNotNull ("action", action);
+
+      Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> castAction;
+      try
+      {
+        castAction = (Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+      }
+
+      castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
+    }
+
+    public override object InvokeFunc (Delegate func)
+    {
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object> castFunc;
+      try
+      {
+      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+      }
+
+      return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
+    }
+
+    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
+    {
+      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
+      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
+      return InvokeFunc (funcDelegate);
+    }
+
+    public override Type[] GetParameterTypes ()
+    {
+      return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13), typeof (A14), typeof (A15), typeof (A16), typeof (A17), typeof (A18), typeof (A19), typeof (A20) };
+    }
+
+    public override object[] GetParameterValues ()
+    {
+      return new object[] { _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20 };
+    }
+  }
 }

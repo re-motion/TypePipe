@@ -19,7 +19,7 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  // @begin-template first=1 generate=0..17 suppressTemplate=true
+  // @begin-template first=1 generate=0..20 suppressTemplate=true
   // @replace "A<n>" ", " "<" ">"
   // @replace "private readonly A<n> _a<n>;" " "
   // @replace "A<n> a<n>" ", " " " " "
