@@ -132,7 +132,7 @@ namespace Remotion.Reflection
       return ctor.Invoke (parameterValues);
     }
 
-    private ConstructorInfo GetConstructor (Type[] parameterTypes)
+    protected virtual ConstructorInfo GetConstructor (Type[] parameterTypes)
     {
       ConstructorInfo ctor = _definingType.GetConstructor (BindingFlags, Binder, CallingConvention, parameterTypes, ParameterModifiers);
       if (ctor == null)
