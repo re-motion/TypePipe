@@ -60,10 +60,16 @@ namespace Remotion
       {
         lock (_currentLock)
         {
-          if (!HasCurrent)
-            SetCurrent (_creator());
+          // Performancetuning: SafeContext.Instance.GetData is quite expensive, so only called once
+          T current = GetCurrentInternal();
+          
+          if (current == null)
+          {
+            current = _creator();
+            SetCurrent(current);
+          }
 
-          return GetCurrentInternal();
+          return current;
         }
       }
     }
