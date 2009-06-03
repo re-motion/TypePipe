@@ -57,20 +57,24 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("assemblyName", assemblyName);
       ArgumentUtility.CheckNotNull ("context", context);
 
-      if (_filter.ShouldConsiderAssembly (assemblyName))
+      if (PerformGuardedLoadOperation (assemblyName.FullName, context, () => _filter.ShouldConsiderAssembly (assemblyName)))
       {
         s_log.InfoFormat ("Attempting to load assembly with name '{0}' in context '{1}'.", assemblyName, context);
         Assembly loadedAssembly = PerformGuardedLoadOperation (assemblyName.FullName, context, () => Assembly.Load (assemblyName));
         s_log.InfoFormat ("Success: {0}", loadedAssembly != null);
 
-        return loadedAssembly != null && _filter.ShouldIncludeAssembly (loadedAssembly) ? loadedAssembly : null;
+        if (loadedAssembly == null)
+          return null;
+        else if (PerformGuardedLoadOperation (assemblyName.FullName, context, () => _filter.ShouldIncludeAssembly (loadedAssembly)))
+          return loadedAssembly;
+        else
+          return null;
       }
       else
         return null;
     }
 
     public T PerformGuardedLoadOperation<T> (string assemblyDescription, string loadContext, Func<T> loadOperation)
-        where T : class
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyDescription", assemblyDescription);
       ArgumentUtility.CheckNotNull ("loadOperation", loadOperation);
@@ -86,7 +90,7 @@ namespace Remotion.Reflection
       catch (BadImageFormatException ex)
       {
         s_log.InfoFormat (ex, "Assembly {0} triggered BadImageFormatException - it is probably no .NET assembly.", assemblyDescriptionText);
-        return null;
+        return default (T);
       }
       catch (FileLoadException ex)
       {
@@ -94,7 +98,7 @@ namespace Remotion.Reflection
             ex,
             "Assembly {0} triggered FileLoadException - maybe the assembly is DelaySigned, but signing has not been completed?",
             assemblyDescriptionText);
-        return null;
+        return default (T);
       }
       catch (FileNotFoundException ex)
       {

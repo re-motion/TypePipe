@@ -189,6 +189,33 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [ExpectedException (typeof (AssemblyLoaderException))]
+    public void TryLoadAssembly_WithExceptionInShouldConsiderAssembly ()
+    {
+      var name = typeof (AssemblyLoaderTest).Assembly.GetName ();
+
+      _filterMock.Expect (mock => mock.ShouldConsiderAssembly (name)).Throw (new Exception ("Fatal error"));
+
+      _filterMock.Replay ();
+
+      _loader.TryLoadAssembly (name, "my context");
+    }
+
+    [Test]
+    [ExpectedException (typeof (AssemblyLoaderException))]
+    public void TryLoadAssembly_WithExceptionInShouldIncludeAssembly ()
+    {
+      var name = typeof (AssemblyLoaderTest).Assembly.GetName();
+
+      _filterMock.Expect (mock => mock.ShouldConsiderAssembly (name)).Return (true);
+      _filterMock.Expect (mock => mock.ShouldIncludeAssembly (typeof (AssemblyLoaderTest).Assembly)).Throw (new Exception ("Fatal error"));
+
+      _filterMock.Replay ();
+
+      _loader.TryLoadAssembly (name, "my context");
+    }
+
+    [Test]
     public void PerformGuardedLoadOperation_WithNoException ()
     {
       var result = _loader.PerformGuardedLoadOperation ("x", "z", () => "y");
