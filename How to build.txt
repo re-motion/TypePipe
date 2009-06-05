@@ -1,0 +1,57 @@
+Getting re-motion
+-----------------
+
+To get the latest version of the re-motion source code, check it out from the 
+SVN server (https://svn.re-motion.org/svn/Remotion/trunk/):
+
+md c:\Remotion 
+cd c:\Remotion 
+svn checkout https://svn.re-motion.org/svn/Remotion/trunk/ trunk 
+
+(To obtain the SVN tool, go to http://subversion.tigris.org/. You can also use 
+TortoiseSVN to check out the code if you want a graphical user interface.) 
+
+Getting remotion.snk
+--------------------
+
+We cannot provide our own remotion.snk, so you need to create your own one.
+For this, run the "Generate-Snk.cmd" script from a Visual Studio Command 
+Prompt. If you do not use a Visual Studio Command Prompt, make sure the .NET
+SDK is on your PATH.
+
+cd c:\Remotion
+Generate-Snk.cmd
+
+Note that the newly generated key file will not match the original key used 
+by rubicon to sign re-motion assemblies.
+
+Building re-motion from Visual Studio
+-------------------------------------
+
+After getting the sources and a remotion.snk, just load Remotion.sln in 
+Visual Studio and build it. It should work.
+
+To run all the tests from NUnit, make sure you have a local installation of
+SQL Server 2005. You might need to create C:\Databases and 
+C:\Databases\ftdata directories by hand to make the unit tests work.
+
+Building re-motion with NAnt
+----------------------------
+
+After getting the sources and a remotion.snk, run Build-RemotionLocal.cmd
+from the re-motion trunk directory:
+
+cd c:\Remotion
+Build-RemotionLocal.cmd
+
+re-motion contains a customized version of NAnt which is used for the build
+in the prereq\Tools\NAnt folder.
+
+As with the Visual Studio build, you need a local installation of 
+SQL Server 2005 to run the full build. You might also need to create 
+C:\Databases and C:\Databases\ftdata directories by hand to make the unit 
+tests work.
+
+The build scripts will create temporary files in your C:\Temp directory.
+
+To generate documentation files for re-motion, run Build-RemotionLocalDoc.cmd.
