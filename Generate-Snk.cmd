@@ -18,7 +18,7 @@ echo.
 sn.exe -k %keyfile%
 echo.
 
-if errorlevel 9009 goto nosn
+if %ERRORLEVEL%==9009 goto nosn
 
 echo Note that this newly generated key file will not match the original key used by rubicon to sign re-motion assemblies.
 
