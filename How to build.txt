@@ -1,29 +1,52 @@
+Introduction
+-----------
+
+You can download the latest stable and officially signed re-motion build from 
+the Downloads section at www.re-motion.org. In most cases this is your best
+option, since you can easily upgrade your re-motion version as new releases
+become available. 
+
+If however you want to build your own version of re-motion, either from 
+Visual Studio or from the command line, this text will tell you how to go 
+about this task. 
+
+Important: Please note that to build your own version of re-motion you need to 
+create your own key to sign your assembles. Please refer to 
+"Creating your own remotion.snk keyfile" below on how to do this.
+
+
 Getting re-motion
 -----------------
 
 To get the latest version of the re-motion source code, check it out from the 
-SVN server (https://svn.re-motion.org/svn/Remotion/trunk/):
+SVN server (https://svn.re-motion.org/svn/Remotion/trunk/) 
+(Note: The following examples assume that you check out the sourcecode into 
+"c:\Remotion"; you can, of course, pick any other directory structure you like):
 
 md c:\Remotion 
 cd c:\Remotion 
 svn checkout https://svn.re-motion.org/svn/Remotion/trunk/ trunk 
 
-(To obtain the SVN tool, go to http://subversion.tigris.org/. You can also use 
-TortoiseSVN to check out the code if you want a graphical user interface.) 
+(To obtain the SVN tool, please go to http://subversion.tigris.org/; 
+alternatively you can also use TortoiseSVN from http://tortoisesvn.tigris.org/ 
+if you prefer a graphical user interface.) 
 
-Getting remotion.snk
---------------------
 
-We cannot provide our own remotion.snk, so you need to create your own one.
-For this, run the "Generate-Snk.cmd" script from a Visual Studio Command 
-Prompt. If you do not use a Visual Studio Command Prompt, make sure the .NET
-SDK is on your PATH.
+Creating your own remotion.snk keyfile
+--------------------------------------
+
+We cannot provide the official remotion.snk keyfile, so you will need to 
+create your own.
+To do so, simply run the "Generate-Snk.cmd" script from a Visual Studio Command 
+Prompt. If you do not use a Visual Studio Command Prompt, you will need to make 
+sure the .NET SDK is on your PATH.
 
 cd c:\Remotion
 Generate-Snk.cmd
 
 Note that the newly generated key file will not match the original key used 
 by rubicon to sign re-motion assemblies.
+
 
 Building re-motion from Visual Studio
 -------------------------------------
@@ -34,6 +57,7 @@ Visual Studio and build it. It should work.
 To run all the tests from NUnit, make sure you have a local installation of
 SQL Server 2005. You might need to create C:\Databases and 
 C:\Databases\ftdata directories by hand to make the unit tests work.
+
 
 Building re-motion with NAnt
 ----------------------------
@@ -55,3 +79,5 @@ tests work.
 The build scripts will create temporary files in your C:\Temp directory.
 
 To generate documentation files for re-motion, run Build-RemotionLocalDoc.cmd.
+
+
