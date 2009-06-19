@@ -1,5 +1,5 @@
 Introduction
------------
+------------
 
 You can download the latest stable and officially signed re-motion build from 
 the Downloads section at www.re-motion.org. In most cases this is your best
