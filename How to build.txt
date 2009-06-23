@@ -1,8 +1,8 @@
 Introduction
 ------------
 
-You can download the latest stable and officially signed re-motion build from 
-the Downloads section at www.re-motion.org. In most cases this is your best
+You can download the latest officially signed, weekly or stable re-motion build 
+from the Downloads section at www.re-motion.org. In most cases this is your best
 option, since you can easily upgrade your re-motion version as new releases
 become available. 
 
