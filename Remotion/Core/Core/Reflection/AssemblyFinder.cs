@@ -130,7 +130,7 @@ namespace Remotion.Reflection
     public AssemblyLoader Loader
     {
       get { return _loader; }
-      set { _loader = value; }
+      set { _loader = ArgumentUtility.CheckNotNull ("value", value); }
     }
 
     /// <summary>
