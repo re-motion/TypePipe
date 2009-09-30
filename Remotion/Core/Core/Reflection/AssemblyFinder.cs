@@ -19,7 +19,9 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Remotion.Collections;
+using Remotion.Logging;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.Reflection
 {
@@ -28,6 +30,8 @@ namespace Remotion.Reflection
   /// </summary>
   public class AssemblyFinder
   {
+    private readonly static ILog s_log = LogManager.GetLogger (typeof (AssemblyFinder));
+    
     private readonly bool _considerDynamicDirectory;
     
     private AssemblyLoader _loader;
@@ -140,11 +144,14 @@ namespace Remotion.Reflection
     /// <returns>An array of assemblies matching the <see cref="IAssemblyFinderFilter"/> specified at construction time.</returns>
     public virtual Assembly[] FindAssemblies ()
     {
-      Assembly[] rootAssemblies = GetRootAssemblies ();
-      Set<Assembly> resultSet = new Set<Assembly> (rootAssemblies);
+      using (StopwatchScope.CreateScope (s_log, LogLevel.Info, "Time spent for finding and loading assemblies: {0}."))
+      {
+        Assembly[] rootAssemblies = GetRootAssemblies();
+        var resultSet = new HashSet<Assembly> (rootAssemblies);
 
-      resultSet.AddRange (FindReferencedAssemblies (rootAssemblies));
-      return resultSet.ToArray ();
+        resultSet.UnionWith (FindReferencedAssemblies (rootAssemblies));
+        return resultSet.ToArray ().LogAndReturn (s_log, LogLevel.Info, result => string.Format ("Found {0} assemblies.", result.Length));
+      }
     }
 
     /// <summary>
@@ -171,42 +178,48 @@ namespace Remotion.Reflection
 
     private Assembly[] FindRootAssemblies ()
     {
-      Set<Assembly> rootAssemblies = new Set<Assembly> ();
-      rootAssemblies.AddRange (FindAssembliesInPath (_baseDirectory));
-
-      if (!string.IsNullOrEmpty (_relativeSearchPath))
+      using (StopwatchScope.CreateScope (s_log, LogLevel.Debug, "Time spent for finding and loading root assemblies: {0}."))
       {
-        foreach (string privateBinPath in _relativeSearchPath.Split (';'))
-          rootAssemblies.AddRange (FindAssembliesInPath (privateBinPath));
+        var rootAssemblies = new Set<Assembly>();
+        rootAssemblies.AddRange (FindAssembliesInPath (_baseDirectory));
+
+        if (!string.IsNullOrEmpty (_relativeSearchPath))
+        {
+          foreach (string privateBinPath in _relativeSearchPath.Split (';'))
+            rootAssemblies.AddRange (FindAssembliesInPath (privateBinPath));
+        }
+
+        if (_considerDynamicDirectory && !string.IsNullOrEmpty (_dynamicDirectory))
+          rootAssemblies.AddRange (FindAssembliesInPath (_dynamicDirectory));
+
+        return rootAssemblies.ToArray().LogAndReturn (s_log, LogLevel.Debug, result => string.Format ("Found {0} root assemblies.", result.Length));
       }
-
-      if (_considerDynamicDirectory && !string.IsNullOrEmpty (_dynamicDirectory))
-        rootAssemblies.AddRange (FindAssembliesInPath (_dynamicDirectory));
-
-      return rootAssemblies.ToArray ();
     }
 
     private IEnumerable<Assembly> FindReferencedAssemblies (Assembly[] rootAssemblies)
     {
-      Set<string> processedAssemblyNames = new Set<string> ();
-      Set<Assembly> referenceRoots = new Set<Assembly> (rootAssemblies);
-
-      while (referenceRoots.Count > 0)
+      using (StopwatchScope.CreateScope (s_log, LogLevel.Debug, "Time spent for finding and loading referenced assemblies: {0}."))
       {
-        Assembly currentRoot = referenceRoots.GetAny ();
-        referenceRoots.Remove (currentRoot);
+        var processedAssemblyNames = new Set<string>();
+        var referenceRoots = new HashSet<Assembly> (rootAssemblies);
 
-        foreach (AssemblyName referencedAssemblyName in currentRoot.GetReferencedAssemblies ())
+        while (referenceRoots.Count > 0)
         {
-          if (!processedAssemblyNames.Contains (referencedAssemblyName.FullName))
-          {
-            processedAssemblyNames.Add (referencedAssemblyName.FullName);
+          Assembly currentRoot = referenceRoots.First();
+          referenceRoots.Remove (currentRoot);
 
-            Assembly referencedAssembly = Loader.TryLoadAssembly (referencedAssemblyName, currentRoot.FullName);
-            if (referencedAssembly != null)
+          foreach (AssemblyName referencedAssemblyName in currentRoot.GetReferencedAssemblies())
+          {
+            if (!processedAssemblyNames.Contains (referencedAssemblyName.FullName))
             {
-              referenceRoots.Add (referencedAssembly);
-              yield return referencedAssembly;
+              processedAssemblyNames.Add (referencedAssemblyName.FullName);
+
+              Assembly referencedAssembly = Loader.TryLoadAssembly (referencedAssemblyName, currentRoot.FullName);
+              if (referencedAssembly != null)
+              {
+                referenceRoots.Add (referencedAssembly);
+                yield return referencedAssembly;
+              }
             }
           }
         }
