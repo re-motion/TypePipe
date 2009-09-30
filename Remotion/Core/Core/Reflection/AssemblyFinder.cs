@@ -144,6 +144,7 @@ namespace Remotion.Reflection
     /// <returns>An array of assemblies matching the <see cref="IAssemblyFinderFilter"/> specified at construction time.</returns>
     public virtual Assembly[] FindAssemblies ()
     {
+      s_log.Debug ("Finding assemblies...");
       using (StopwatchScope.CreateScope (s_log, LogLevel.Info, "Time spent for finding and loading assemblies: {0}."))
       {
         Assembly[] rootAssemblies = GetRootAssemblies();
@@ -178,6 +179,7 @@ namespace Remotion.Reflection
 
     private Assembly[] FindRootAssemblies ()
     {
+      s_log.Debug ("Finding root assemblies...");
       using (StopwatchScope.CreateScope (s_log, LogLevel.Debug, "Time spent for finding and loading root assemblies: {0}."))
       {
         var rootAssemblies = new Set<Assembly>();
@@ -198,6 +200,7 @@ namespace Remotion.Reflection
 
     private IEnumerable<Assembly> FindReferencedAssemblies (Assembly[] rootAssemblies)
     {
+      s_log.Debug ("Finding referenced assemblies...");
       using (StopwatchScope.CreateScope (s_log, LogLevel.Debug, "Time spent for finding and loading referenced assemblies: {0}."))
       {
         var processedAssemblyNames = new Set<string>();
