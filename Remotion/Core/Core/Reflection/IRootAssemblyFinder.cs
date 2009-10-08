@@ -14,27 +14,15 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using Remotion.Reflection;
 
-namespace Remotion.UnitTests.Reflection
+namespace Remotion.Reflection
 {
-  public class TestAssemblyFinder : AssemblyFinder
+  /// <summary>
+  /// Defines an interface for classes finding the root assemblies for type discovery.
+  /// </summary>
+  public interface IRootAssemblyFinder
   {
-    public TestAssemblyFinder (IAssemblyFinderFilter filter, bool considerDynamicDirectory, string baseDirectory, string relativeSearchPath, string dynamicDirectory)
-        : base(filter, considerDynamicDirectory, baseDirectory, relativeSearchPath, dynamicDirectory)
-    {
-    }
-
-    public TestAssemblyFinder (IAssemblyFinderFilter filter, params Assembly[] rootAssemblies)
-        : base(filter, rootAssemblies)
-    {
-    }
-
-    public new IEnumerable<Assembly> FindAssembliesInPath (string searchPath)
-    {
-      return base.FindAssembliesInPath (searchPath);
-    }
+    Assembly[] FindRootAssemblies ();
   }
 }

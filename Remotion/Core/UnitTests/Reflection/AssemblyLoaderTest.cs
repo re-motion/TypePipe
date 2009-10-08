@@ -143,14 +143,16 @@ namespace Remotion.UnitTests.Reflection
 
       try
       {
-        ProcessStartInfo startInfo = new ProcessStartInfo (program);
+        var startInfo = new ProcessStartInfo (program);
         startInfo.UseShellExecute = false;
         startInfo.CreateNoWindow = true;
         startInfo.RedirectStandardOutput = true;
         startInfo.Arguments = delaySignAssembly + " false";
 
         Process process = Process.Start (startInfo);
+// ReSharper disable PossibleNullReferenceException
         string output = process.StandardOutput.ReadToEnd ();
+// ReSharper restore PossibleNullReferenceException
         process.WaitForExit ();
         Assert.That (process.ExitCode, Is.EqualTo (0), output);
       }
@@ -170,14 +172,16 @@ namespace Remotion.UnitTests.Reflection
 
       try
       {
-        ProcessStartInfo startInfo = new ProcessStartInfo (program);
+        var startInfo = new ProcessStartInfo (program);
         startInfo.UseShellExecute = false;
         startInfo.CreateNoWindow = true;
         startInfo.RedirectStandardOutput = true;
         startInfo.Arguments = delaySignAssembly + " true";
 
         Process process = Process.Start (startInfo);
+// ReSharper disable PossibleNullReferenceException
         string output = process.StandardOutput.ReadToEnd ();
+// ReSharper restore PossibleNullReferenceException
         process.WaitForExit ();
         Assert.That (process.ExitCode, Is.EqualTo (0), output);
       }
@@ -293,7 +297,7 @@ namespace Remotion.UnitTests.Reflection
       Assembly referenceAssembly1 = typeof (AssemblyLoaderTest).Assembly;
       Assembly referenceAssembly2 = typeof (AssemblyLoader).Assembly;
 
-      AssemblyLoader loaderPartialMock = _mockRepository.PartialMock<AssemblyLoader> (_filterMock);
+      var loaderPartialMock = _mockRepository.PartialMock<AssemblyLoader> (_filterMock);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("abc")).Return (null);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("def")).Return (referenceAssembly1);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("ghi")).Return (null);
@@ -317,7 +321,7 @@ namespace Remotion.UnitTests.Reflection
 
     private string Compile (string sourceDirectory, string outputAssemblyName, bool generateExecutable, string compilerOptions)
     {
-      AssemblyCompiler compiler = new AssemblyCompiler (sourceDirectory, outputAssemblyName, typeof (AssemblyLoader).Assembly.Location);
+      var compiler = new AssemblyCompiler (sourceDirectory, outputAssemblyName, typeof (AssemblyLoader).Assembly.Location);
 
       compiler.CompilerParameters.GenerateExecutable = generateExecutable;
       compiler.CompilerParameters.CompilerOptions = compilerOptions;

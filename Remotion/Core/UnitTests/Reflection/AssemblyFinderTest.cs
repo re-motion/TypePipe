@@ -86,6 +86,7 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Ignore ("TODO 1640")]
     public void FindRootAssemblies_LoadsAssembliesFromDifferentDirectories ()
     {
       AssemblyFinder finder = _mockRepository.PartialMock<AssemblyFinder> (_filterMock, true, "base", "relative1;relative2", "xy");
@@ -102,6 +103,7 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Ignore ("TODO 1640")]
     public void FindRootAssemblies_LoadsAssembliesFromDifferentDirectories_ConsiderDynamicFalse ()
     {
       AssemblyFinder finder = _mockRepository.PartialMock<AssemblyFinder> (_filterMock, false, "base", "relative1;relative2", "xy");
@@ -117,6 +119,7 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Ignore ("TODO 1640")]
     public void FindRootAssemblies_LoadsAssembliesFromDifferentDirectories_NullDirectories ()
     {
       AssemblyFinder finder = _mockRepository.PartialMock<AssemblyFinder> (_filterMock, true, "base", null, null);
@@ -183,51 +186,6 @@ namespace Remotion.UnitTests.Reflection
           typeof (Castle.Core.Interceptor.IInterceptor).Assembly }
       ));
       _mockRepository.VerifyAll ();
-    }
-
-    [Test]
-    public void FindAssembliesInPath ()
-    {
-      AssemblyLoader loaderMock = _mockRepository.StrictMock<AssemblyLoader> (_filterMock);
-      TestAssemblyFinder finder = new TestAssemblyFinder (_filterMock, _coreAssembly);
-      finder.Loader = loaderMock;
-
-      const string path = "AssemblyFinderTest.ExesAndDlls";
-      if (Directory.Exists (path))
-        Directory.Delete (path, true);
-      
-      Directory.CreateDirectory (path);
-      try
-      {
-        string exe1 = CreateFile (path, "1.exe");
-        string exe2 = CreateFile (path, "2.exe");
-        string dll1 = CreateFile (path, "1.dll");
-        string dll2 = CreateFile (path, "2.dll");
-        string dll3 = CreateFile (path, "3.dll");
-
-        Expect.Call (loaderMock.LoadAssemblies (exe1, exe2)).Return (new Assembly[] { _coreUnitTestsAssembly });
-        Expect.Call (loaderMock.LoadAssemblies (dll1, dll2, dll3)).Return (new Assembly[] { _coreAssembly });
-
-        _mockRepository.ReplayAll ();
-
-        IEnumerable<Assembly> result = finder.FindAssembliesInPath (path);
-        Assert.That (EnumerableUtility.ToArray (result), Is.EquivalentTo (new object[] { _coreUnitTestsAssembly, _coreAssembly }));
-
-        _mockRepository.VerifyAll ();
-      }
-      finally
-      {
-        Directory.Delete (path, true);
-      }
-    }
-
-    private string CreateFile (string path, string fileName)
-    {
-      string fullPath = Path.Combine (path, fileName);
-      using (File.CreateText (fullPath))
-      {
-      }
-      return fullPath;
     }
   }
 }

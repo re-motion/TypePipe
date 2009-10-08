@@ -15,7 +15,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Remotion.Collections;
@@ -40,6 +39,7 @@ namespace Remotion.Reflection
     private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
     private readonly string _relativeSearchPath = AppDomain.CurrentDomain.RelativeSearchPath;
     private readonly string _dynamicDirectory = AppDomain.CurrentDomain.DynamicDirectory;
+    private readonly IRootAssemblyFinder _rootAssemblyFinder;
 
     /// <summary>
     /// Initializes a new instance of the  <see cref="AssemblyFinder"/> type with a predetermined set of <paramref name="rootAssemblies"/>.
@@ -81,6 +81,13 @@ namespace Remotion.Reflection
       _baseDirectory = baseDirectory;
       _relativeSearchPath = relativeSearchPath;
       _dynamicDirectory = dynamicDirectory;
+
+      _rootAssemblyFinder = new SearchPathRootAssemblyFinder (
+          _loader, 
+          _baseDirectory, 
+          _relativeSearchPath, 
+          _considerDynamicDirectory, 
+          _dynamicDirectory);
     }
 
     /// <summary>
@@ -173,29 +180,8 @@ namespace Remotion.Reflection
     public Assembly[] GetRootAssemblies ()
     {
       if (_rootAssemblies == null)
-        _rootAssemblies = FindRootAssemblies();
+        _rootAssemblies = _rootAssemblyFinder.FindRootAssemblies();
       return _rootAssemblies;
-    }
-
-    private Assembly[] FindRootAssemblies ()
-    {
-      s_log.Debug ("Finding root assemblies...");
-      using (StopwatchScope.CreateScope (s_log, LogLevel.Debug, "Time spent for finding and loading root assemblies: {0}."))
-      {
-        var rootAssemblies = new Set<Assembly>();
-        rootAssemblies.AddRange (FindAssembliesInPath (_baseDirectory));
-
-        if (!string.IsNullOrEmpty (_relativeSearchPath))
-        {
-          foreach (string privateBinPath in _relativeSearchPath.Split (';'))
-            rootAssemblies.AddRange (FindAssembliesInPath (privateBinPath));
-        }
-
-        if (_considerDynamicDirectory && !string.IsNullOrEmpty (_dynamicDirectory))
-          rootAssemblies.AddRange (FindAssembliesInPath (_dynamicDirectory));
-
-        return rootAssemblies.ToArray().LogAndReturn (s_log, LogLevel.Debug, result => string.Format ("Found {0} root assemblies.", result.Length));
-      }
     }
 
     private IEnumerable<Assembly> FindReferencedAssemblies (Assembly[] rootAssemblies)
@@ -228,12 +214,5 @@ namespace Remotion.Reflection
         }
       }
     }
-
-    protected virtual IEnumerable<Assembly> FindAssembliesInPath (string searchPath)
-    {
-      return EnumerableUtility.Combine (
-        Loader.LoadAssemblies (Directory.GetFiles (searchPath, "*.dll", SearchOption.TopDirectoryOnly)),
-        Loader.LoadAssemblies (Directory.GetFiles (searchPath, "*.exe", SearchOption.TopDirectoryOnly)));
-    }    
   }
 }
