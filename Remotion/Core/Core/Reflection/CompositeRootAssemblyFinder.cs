@@ -39,12 +39,12 @@ namespace Remotion.Reflection
       get { return _innerFinders; }
     }
 
-    public Assembly[] FindRootAssemblies ()
+    public Assembly[] FindRootAssemblies (IAssemblyLoader loader)
     {
       var combinedAssemblies = new HashSet<Assembly>();
       foreach (var finder in _innerFinders)
       {
-        combinedAssemblies.UnionWith (finder.FindRootAssemblies ());
+        combinedAssemblies.UnionWith (finder.FindRootAssemblies (loader));
       }
       return combinedAssemblies.ToArray ();
     }

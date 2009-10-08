@@ -28,19 +28,22 @@ namespace Remotion.Reflection
   /// assemblies are preferred. The advantage of this load mode is that assemblies are loaded exactly the same way as if loaded directly by .NET:
   /// they are always loaded into the correct context and references are resolved correctly.
   /// </summary>
-  public class AssemblyLoader : IAssemblyLoader
+  /// <remarks>
+  /// The assemblies loaded by this class can be filtered by implementations of <see cref="IAssemblyLoaderFilter"/>.
+  /// </remarks>
+  public class FilteringAssemblyLoader : IAssemblyLoader
   {
     private static readonly ILog s_log = LogManager.GetLogger (typeof (AssemblyFinder));
 
-    private readonly IAssemblyFinderFilter _filter;
+    private readonly IAssemblyLoaderFilter _filter;
 
-    public AssemblyLoader (IAssemblyFinderFilter filter)
+    public FilteringAssemblyLoader (IAssemblyLoaderFilter filter)
     {
       ArgumentUtility.CheckNotNull ("filter", filter);
       _filter = filter;
     }
 
-    public IAssemblyFinderFilter Filter
+    public IAssemblyLoaderFilter Filter
     {
       get { return _filter; }
     }

@@ -30,18 +30,18 @@ namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   [Serializable]
-  public class AssemblyLoaderTest
+  public class FilteringAssemblyLoaderTest
   {
     private MockRepository _mockRepository;
-    private IAssemblyFinderFilter _filterMock;
-    private AssemblyLoader _loader;
+    private IAssemblyLoaderFilter _filterMock;
+    private FilteringAssemblyLoader _loader;
 
     [SetUp]
     public void SetUp ()
     {
       _mockRepository = new MockRepository();
-      _filterMock = _mockRepository.StrictMock<IAssemblyFinderFilter>();
-      _loader = new AssemblyLoader (_filterMock);
+      _filterMock = _mockRepository.StrictMock<IAssemblyLoaderFilter>();
+      _loader = new FilteringAssemblyLoader (_filterMock);
     }
 
     [Test]
@@ -49,7 +49,7 @@ namespace Remotion.UnitTests.Reflection
     {
       SetupFilterTrue();
 
-      Assembly referenceAssembly = typeof (AssemblyLoaderTest).Assembly;
+      Assembly referenceAssembly = typeof (FilteringAssemblyLoaderTest).Assembly;
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
       Assembly loadedAssembly = _loader.TryLoadAssembly (path);
       Assert.That (loadedAssembly, Is.SameAs (referenceAssembly));
@@ -58,7 +58,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void TryLoadAssembly_FilterConsiderTrue_IncludeTrue ()
     {
-      Assembly referenceAssembly = typeof (AssemblyLoaderTest).Assembly;
+      Assembly referenceAssembly = typeof (FilteringAssemblyLoaderTest).Assembly;
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
 
       Expect.Call (_filterMock.ShouldConsiderAssembly (null))
@@ -77,7 +77,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void TryLoadAssembly_FilterConsiderTrue_IncludeFalse ()
     {
-      Assembly referenceAssembly = typeof (AssemblyLoaderTest).Assembly;
+      Assembly referenceAssembly = typeof (FilteringAssemblyLoaderTest).Assembly;
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
 
       Expect.Call (_filterMock.ShouldConsiderAssembly (null))
@@ -96,7 +96,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void TryLoadAssembly_FilterConsiderFalse ()
     {
-      Assembly referenceAssembly = typeof (AssemblyLoaderTest).Assembly;
+      Assembly referenceAssembly = typeof (FilteringAssemblyLoaderTest).Assembly;
       string path = new Uri (referenceAssembly.EscapedCodeBase).AbsolutePath;
 
       Expect.Call (_filterMock.ShouldConsiderAssembly (null))
@@ -196,7 +196,7 @@ namespace Remotion.UnitTests.Reflection
     [ExpectedException (typeof (AssemblyLoaderException))]
     public void TryLoadAssembly_WithExceptionInShouldConsiderAssembly ()
     {
-      var name = typeof (AssemblyLoaderTest).Assembly.GetName ();
+      var name = typeof (FilteringAssemblyLoaderTest).Assembly.GetName ();
 
       _filterMock.Expect (mock => mock.ShouldConsiderAssembly (name)).Throw (new Exception ("Fatal error"));
 
@@ -209,10 +209,10 @@ namespace Remotion.UnitTests.Reflection
     [ExpectedException (typeof (AssemblyLoaderException))]
     public void TryLoadAssembly_WithExceptionInShouldIncludeAssembly ()
     {
-      var name = typeof (AssemblyLoaderTest).Assembly.GetName();
+      var name = typeof (FilteringAssemblyLoaderTest).Assembly.GetName();
 
       _filterMock.Expect (mock => mock.ShouldConsiderAssembly (name)).Return (true);
-      _filterMock.Expect (mock => mock.ShouldIncludeAssembly (typeof (AssemblyLoaderTest).Assembly)).Throw (new Exception ("Fatal error"));
+      _filterMock.Expect (mock => mock.ShouldIncludeAssembly (typeof (FilteringAssemblyLoaderTest).Assembly)).Throw (new Exception ("Fatal error"));
 
       _filterMock.Replay ();
 
@@ -294,10 +294,10 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void LoadAssemblies ()
     {
-      Assembly referenceAssembly1 = typeof (AssemblyLoaderTest).Assembly;
-      Assembly referenceAssembly2 = typeof (AssemblyLoader).Assembly;
+      Assembly referenceAssembly1 = typeof (FilteringAssemblyLoaderTest).Assembly;
+      Assembly referenceAssembly2 = typeof (FilteringAssemblyLoader).Assembly;
 
-      var loaderPartialMock = _mockRepository.PartialMock<AssemblyLoader> (_filterMock);
+      var loaderPartialMock = _mockRepository.PartialMock<FilteringAssemblyLoader> (_filterMock);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("abc")).Return (null);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("def")).Return (referenceAssembly1);
       Expect.Call (loaderPartialMock.TryLoadAssembly ("ghi")).Return (null);
@@ -321,7 +321,7 @@ namespace Remotion.UnitTests.Reflection
 
     private string Compile (string sourceDirectory, string outputAssemblyName, bool generateExecutable, string compilerOptions)
     {
-      var compiler = new AssemblyCompiler (sourceDirectory, outputAssemblyName, typeof (AssemblyLoader).Assembly.Location);
+      var compiler = new AssemblyCompiler (sourceDirectory, outputAssemblyName, typeof (FilteringAssemblyLoader).Assembly.Location);
 
       compiler.CompilerParameters.GenerateExecutable = generateExecutable;
       compiler.CompilerParameters.CompilerOptions = compilerOptions;

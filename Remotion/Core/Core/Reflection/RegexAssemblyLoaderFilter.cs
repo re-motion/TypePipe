@@ -21,7 +21,7 @@ using Remotion.Utilities;
 namespace Remotion.Reflection
 {
   [Serializable]
-  public class RegexAssemblyFinderFilter : IAssemblyFinderFilter
+  public class RegexAssemblyLoaderFilter : IAssemblyLoaderFilter
   {
     public enum MatchTargetKind { FullName, SimpleName };
 
@@ -29,7 +29,7 @@ namespace Remotion.Reflection
     private readonly string _matchExpressionString;
     private readonly MatchTargetKind _matchTarget;
 
-    public RegexAssemblyFinderFilter (Regex matchExpression, MatchTargetKind matchTarget)
+    public RegexAssemblyLoaderFilter (Regex matchExpression, MatchTargetKind matchTarget)
     {
       ArgumentUtility.CheckNotNull ("matchExpression", matchExpression);
       ArgumentUtility.CheckValidEnumValue ("matchTarget", matchTarget);
@@ -38,7 +38,7 @@ namespace Remotion.Reflection
       _matchTarget = matchTarget;
     }
 
-    public RegexAssemblyFinderFilter (string matchExpression, MatchTargetKind matchTarget)
+    public RegexAssemblyLoaderFilter (string matchExpression, MatchTargetKind matchTarget)
         : this (new Regex (
             ArgumentUtility.CheckNotNull ("matchExpression", matchExpression),
             RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline), matchTarget)

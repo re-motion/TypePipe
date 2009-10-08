@@ -60,46 +60,46 @@ namespace Remotion.UnitTests.Reflection
     public void TestFixtureSetUp ()
     {
       _relativeSearchPathDirectoryForDlls = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderIntegrationTest.Dlls");
-        _relativeSearchPathDirectoryForExes = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderIntegrationTest.Exes");
-        _dynamicDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderIntegrationTest.Dynamic");
+      _relativeSearchPathDirectoryForExes = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderIntegrationTest.Exes");
+      _dynamicDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Reflection.AssemblyFinderIntegrationTest.Dynamic");
 
-        ResetDirectory (_relativeSearchPathDirectoryForDlls);
-        ResetDirectory (_relativeSearchPathDirectoryForExes);
-        ResetDirectory (_dynamicDirectory);
+      ResetDirectory (_relativeSearchPathDirectoryForDlls);
+      ResetDirectory (_relativeSearchPathDirectoryForExes);
+      ResetDirectory (_dynamicDirectory);
 
-        _markedReferencedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
-            AppDomain.CurrentDomain.BaseDirectory, "MarkedReferencedAssembly", "dll");
+      _markedReferencedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
+          AppDomain.CurrentDomain.BaseDirectory, "MarkedReferencedAssembly", "dll");
 
-        _markedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
-            AppDomain.CurrentDomain.BaseDirectory, "MarkedAssembly", "dll", _markedReferencedAssemblyName + ".dll");
-        _markedExeAssemblyName = CompileTestAssemblyInSeparateAppDomain (AppDomain.CurrentDomain.BaseDirectory, "MarkedExeAssembly", "exe");
-        _markedAssemblyWithDerivedAttributeName = CompileTestAssemblyInSeparateAppDomain (
-            AppDomain.CurrentDomain.BaseDirectory, "MarkedAssemblyWithDerivedAttribute", "dll");
-        CompileTestAssemblyInSeparateAppDomain (AppDomain.CurrentDomain.BaseDirectory, "UnmarkedAssembly", "dll");
+      _markedAssemblyName = CompileTestAssemblyInSeparateAppDomain (
+          AppDomain.CurrentDomain.BaseDirectory, "MarkedAssembly", "dll", _markedReferencedAssemblyName + ".dll");
+      _markedExeAssemblyName = CompileTestAssemblyInSeparateAppDomain (AppDomain.CurrentDomain.BaseDirectory, "MarkedExeAssembly", "exe");
+      _markedAssemblyWithDerivedAttributeName = CompileTestAssemblyInSeparateAppDomain (
+          AppDomain.CurrentDomain.BaseDirectory, "MarkedAssemblyWithDerivedAttribute", "dll");
+      CompileTestAssemblyInSeparateAppDomain (AppDomain.CurrentDomain.BaseDirectory, "UnmarkedAssembly", "dll");
 
-        _markedAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
-            _relativeSearchPathDirectoryForDlls, "MarkedAssemblyInRelativeSearchPath", "dll");
-        _markedExeAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
-            _relativeSearchPathDirectoryForExes, "MarkedExeAssemblyInRelativeSearchPath", "exe");
+      _markedAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
+          _relativeSearchPathDirectoryForDlls, "MarkedAssemblyInRelativeSearchPath", "dll");
+      _markedExeAssemblyInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
+          _relativeSearchPathDirectoryForExes, "MarkedExeAssemblyInRelativeSearchPath", "exe");
 
-        _markedAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
-            _dynamicDirectory, "MarkedAssemblyInDynamicDirectory", "dll");
-        _markedExeAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
-            _dynamicDirectory, "MarkedExeAssemblyInDynamicDirectory", "exe");
+      _markedAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
+          _dynamicDirectory, "MarkedAssemblyInDynamicDirectory", "dll");
+      _markedExeAssemblyInDynamicDirectoryName = CompileTestAssemblyInSeparateAppDomain (
+          _dynamicDirectory, "MarkedExeAssemblyInDynamicDirectory", "exe");
 
-        _markedAssemblyWithOtherFilenameInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
-            _relativeSearchPathDirectoryForDlls, "MarkedAssemblyWithOtherFilenameInRelativeSearchPath", "dll");
+      _markedAssemblyWithOtherFilenameInRelativeSearchPathName = CompileTestAssemblyInSeparateAppDomain (
+          _relativeSearchPathDirectoryForDlls, "MarkedAssemblyWithOtherFilenameInRelativeSearchPath", "dll");
 
-        File.Move (
-            Path.Combine (_relativeSearchPathDirectoryForDlls, _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"),
-            Path.Combine (_relativeSearchPathDirectoryForDlls, "_" + _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"));
+      File.Move (
+          Path.Combine (_relativeSearchPathDirectoryForDlls, _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"),
+          Path.Combine (_relativeSearchPathDirectoryForDlls, "_" + _markedAssemblyWithOtherFilenameInRelativeSearchPathName + ".dll"));
     }
 
-    private AssemblyLoader CreateLoaderForMarkedAssemblies ()
+    private FilteringAssemblyLoader CreateLoaderForMarkedAssemblies ()
     {
       var markerAttributeType = typeof (MarkerAttribute);
-      var attributeFilter = new AttributeAssemblyFinderFilter (markerAttributeType);
-      return new AssemblyLoader (attributeFilter);
+      var attributeFilter = new AttributeAssemblyLoaderFilter (markerAttributeType);
+      return new FilteringAssemblyLoader (attributeFilter);
     }
 
     [TestFixtureTearDown]
@@ -127,9 +127,9 @@ namespace Remotion.UnitTests.Reflection
 
         InitializeDynamicDirectory ();
 
-        AssemblyLoader loader = CreateLoaderForMarkedAssemblies ();
-        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (loader, true);
-        var rootAssemblies = rootAssemblyFinder.FindRootAssemblies ();
+        FilteringAssemblyLoader loader = CreateLoaderForMarkedAssemblies ();
+        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (true);
+        var rootAssemblies = rootAssemblyFinder.FindRootAssemblies (loader);
 
         Assert.That (rootAssemblies, List.Not.Contains (firstInMemoryAssembly));
         Assert.That (rootAssemblies, List.Not.Contains (secondInMemoryAssembly));
@@ -165,9 +165,9 @@ namespace Remotion.UnitTests.Reflection
 
         InitializeDynamicDirectory ();
 
-        AssemblyLoader loader = CreateLoaderForMarkedAssemblies ();
-        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (loader, false);
-        var rootAssemblies = rootAssemblyFinder.FindRootAssemblies ();
+        FilteringAssemblyLoader loader = CreateLoaderForMarkedAssemblies ();
+        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (false);
+        var rootAssemblies = rootAssemblyFinder.FindRootAssemblies (loader);
 
         Assert.That (rootAssemblies, List.Not.Contains (firstInMemoryAssembly));
         Assert.That (rootAssemblies, List.Not.Contains (secondInMemoryAssembly));
@@ -196,12 +196,12 @@ namespace Remotion.UnitTests.Reflection
       ExecuteInSeparateAppDomain (delegate
       {
         Assembly markedAssembly = Assembly.Load (_markedAssemblyName);
-        
+
+        var loader = CreateLoaderForMarkedAssemblies ();
         var rootAssemblyFinderStub = MockRepository.GenerateStub<IRootAssemblyFinder> ();
-        rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies ()).Return (new[] { markedAssembly });
+        rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies (loader)).Return (new[] { markedAssembly });
         rootAssemblyFinderStub.Replay ();
 
-        AssemblyLoader loader = CreateLoaderForMarkedAssemblies ();
         var assemblyFinder = new AssemblyFinder (rootAssemblyFinderStub, loader);
 
         Assembly[] assemblies = assemblyFinder.FindAssemblies ();
@@ -216,12 +216,12 @@ namespace Remotion.UnitTests.Reflection
       {
         InitializeDynamicDirectory ();
 
-        var filterMock = new MockRepository ().StrictMock<IAssemblyFinderFilter> ();
+        var filterMock = new MockRepository ().StrictMock<IAssemblyLoaderFilter> ();
         filterMock.Expect (mock => mock.ShouldConsiderAssembly (Arg<AssemblyName>.Is.Anything)).Return (false).Repeat.AtLeastOnce ();
         filterMock.Replay ();
 
-        var loader = new AssemblyLoader (filterMock);
-        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (loader, true);
+        var loader = new FilteringAssemblyLoader (filterMock);
+        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (true);
         var assemblyFinder = new AssemblyFinder (rootAssemblyFinder, loader);
         
         Assembly[] assemblies = assemblyFinder.FindAssemblies ();
@@ -238,13 +238,13 @@ namespace Remotion.UnitTests.Reflection
       {
         InitializeDynamicDirectory ();
 
-        var filterMock = new MockRepository ().StrictMock<IAssemblyFinderFilter> ();
+        var filterMock = new MockRepository ().StrictMock<IAssemblyLoaderFilter> ();
         filterMock.Expect (mock => mock.ShouldConsiderAssembly (Arg<AssemblyName>.Is.NotNull)).Return (true).Repeat.AtLeastOnce ();
         filterMock.Expect (mock => mock.ShouldIncludeAssembly (Arg<Assembly>.Is.NotNull)).Return (false).Repeat.AtLeastOnce ();
         filterMock.Replay ();
 
-        var loader = new AssemblyLoader (filterMock);
-        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (loader, true);
+        var loader = new FilteringAssemblyLoader (filterMock);
+        var rootAssemblyFinder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (true);
         var assemblyFinder = new AssemblyFinder (rootAssemblyFinder, loader);
 
         Assembly[] assemblies = assemblyFinder.FindAssemblies ();

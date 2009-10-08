@@ -37,7 +37,7 @@ namespace Remotion.UnitTests.Reflection.TestAssemblies.FileLoadExceptionConsoleA
     public static void Callback ()
     {
       string path = Environment.GetCommandLineArgs ()[1];
-      AssemblyLoader loader = new AssemblyLoader (ApplicationAssemblyFinderFilter.Instance);
+      FilteringAssemblyLoader loader = new FilteringAssemblyLoader (ApplicationAssemblyLoaderFilter.Instance);
       try
       {
         if (loader.TryLoadAssembly (path) == null)

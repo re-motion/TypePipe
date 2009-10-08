@@ -58,8 +58,8 @@ namespace Remotion.UnitTests.Reflection
       loaderMock.Expect (mock => mock.LoadAssemblies (Arg<string[]>.List.Equal (new[] { path1, path2 }))).Return (new[] { _assembly1 });
       loaderMock.Replay ();
 
-      var finder = new DirectoryRootAssemblyFinder (loaderMock, _searchPath);
-      Assert.That (finder.FindRootAssemblies (), Is.EquivalentTo (new[] { _assembly1 }));
+      var finder = new DirectoryRootAssemblyFinder (_searchPath);
+      Assert.That (finder.FindRootAssemblies (loaderMock), Is.EquivalentTo (new[] { _assembly1 }));
 
       loaderMock.VerifyAllExpectations ();
     }
@@ -74,8 +74,8 @@ namespace Remotion.UnitTests.Reflection
       loaderMock.Expect (mock => mock.LoadAssemblies (Arg<string[]>.List.Equal (new[] { path1, path2 }))).Return (new[] { _assembly1 });
       loaderMock.Replay ();
 
-      var finder = new DirectoryRootAssemblyFinder (loaderMock, _searchPath);
-      Assert.That (finder.FindRootAssemblies (), Is.EquivalentTo (new[] { _assembly1 }));
+      var finder = new DirectoryRootAssemblyFinder (_searchPath);
+      Assert.That (finder.FindRootAssemblies (loaderMock), Is.EquivalentTo (new[] { _assembly1 }));
 
       loaderMock.VerifyAllExpectations ();
     }
@@ -91,8 +91,8 @@ namespace Remotion.UnitTests.Reflection
       loaderMock.Expect (mock => mock.LoadAssemblies (Arg<string[]>.List.Equal (new[] { path2 }))).Return (new[] { _assembly2 });
       loaderMock.Replay ();
 
-      var finder = new DirectoryRootAssemblyFinder (loaderMock, _searchPath);
-      Assert.That (finder.FindRootAssemblies (), Is.EquivalentTo (new[] { _assembly1, _assembly2 }));
+      var finder = new DirectoryRootAssemblyFinder (_searchPath);
+      Assert.That (finder.FindRootAssemblies (loaderMock), Is.EquivalentTo (new[] { _assembly1, _assembly2 }));
 
       loaderMock.VerifyAllExpectations ();
     }
@@ -105,8 +105,8 @@ namespace Remotion.UnitTests.Reflection
 
       var loaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
 
-      var finder = new DirectoryRootAssemblyFinder (loaderMock, _searchPath);
-      Assert.That (finder.FindRootAssemblies (), Is.Empty);
+      var finder = new DirectoryRootAssemblyFinder (_searchPath);
+      Assert.That (finder.FindRootAssemblies (loaderMock), Is.Empty);
 
       loaderMock.AssertWasNotCalled (mock => mock.LoadAssemblies (Arg<string[]>.Is.Anything));
     }

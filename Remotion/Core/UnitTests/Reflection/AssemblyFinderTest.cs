@@ -41,14 +41,14 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindAssemblies_FindsRootAssemblies ()
     {
+      var loaderStub = MockRepository.GenerateStub<IAssemblyLoader> ();
+      loaderStub.Replay ();
+
       var rootAssemblyFinderMock = MockRepository.GenerateMock<IRootAssemblyFinder> ();
-      rootAssemblyFinderMock.Expect (mock => mock.FindRootAssemblies ()).Return (new[] { _assembly1, _assembly2 });
+      rootAssemblyFinderMock.Expect (mock => mock.FindRootAssemblies (loaderStub)).Return (new[] { _assembly1, _assembly2 });
       rootAssemblyFinderMock.Replay ();
       
-      var referencedAssemblyLoaderStub = MockRepository.GenerateStub<IAssemblyLoader> ();
-      referencedAssemblyLoaderStub.Replay ();
-
-      var finder = new AssemblyFinder (rootAssemblyFinderMock, referencedAssemblyLoaderStub);
+      var finder = new AssemblyFinder (rootAssemblyFinderMock, loaderStub);
       var result = finder.FindAssemblies ();
 
       rootAssemblyFinderMock.VerifyAllExpectations ();
@@ -58,24 +58,23 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void FindAssemblies_FindsReferencedAssemblies ()
     {
-      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
-      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies ()).Return (new[] { _assembly3 });
-      rootAssemblyFinderStub.Replay ();
-
-      var referencedAssemblyLoaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
-      referencedAssemblyLoaderMock
+      var loaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
+      loaderMock
           .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (_assembly1), Arg.Is (_assembly3.FullName)))
           .Return (_assembly1);
-      referencedAssemblyLoaderMock
+      loaderMock
         .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (_assembly2), Arg.Is (_assembly3.FullName)))
         .Return (_assembly2);
-
-      referencedAssemblyLoaderMock.Replay ();
-
-      var finder = new AssemblyFinder (rootAssemblyFinderStub, referencedAssemblyLoaderMock);
+      loaderMock.Replay ();
+      
+      var rootAssemblyFinderStub = MockRepository.GenerateStub<IRootAssemblyFinder> ();
+      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies (loaderMock)).Return (new[] { _assembly3 });
+      rootAssemblyFinderStub.Replay ();
+      
+      var finder = new AssemblyFinder (rootAssemblyFinderStub, loaderMock);
       var result = finder.FindAssemblies ();
 
-      referencedAssemblyLoaderMock.VerifyAllExpectations ();
+      loaderMock.VerifyAllExpectations ();
       Assert.That (result, Is.EquivalentTo (new[] { _assembly1, _assembly2, _assembly3 }));
     }
 
@@ -90,31 +89,25 @@ namespace Remotion.UnitTests.Reflection
       Assert.That (IsAssemblyReferencedBy (remotionAssembly, mixinSamplesAssembly), Is.True);
       Assert.That (IsAssemblyReferencedBy (log4netAssembly, mixinSamplesAssembly), Is.False);
       Assert.That (IsAssemblyReferencedBy (log4netAssembly, remotionAssembly), Is.True);
-      
-      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
-      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies ()).Return (new[] { mixinSamplesAssembly });
-      rootAssemblyFinderStub.Replay ();
 
-      var referencedAssemblyLoaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
-      referencedAssemblyLoaderMock
+      var loaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
+      loaderMock
           .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (remotionAssembly), Arg.Is (mixinSamplesAssembly.FullName))) // load re-motion via samples
           .Return (remotionAssembly);
-      referencedAssemblyLoaderMock
+      loaderMock
         .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (log4netAssembly), Arg.Is (remotionAssembly.FullName))) // load log4net via re-motion
         .Return (log4netAssembly);
+      loaderMock.Replay ();
+      
+      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
+      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies (loaderMock)).Return (new[] { mixinSamplesAssembly });
+      rootAssemblyFinderStub.Replay ();
 
-      referencedAssemblyLoaderMock.Replay ();
-
-      var finder = new AssemblyFinder (rootAssemblyFinderStub, referencedAssemblyLoaderMock);
+      var finder = new AssemblyFinder (rootAssemblyFinderStub, loaderMock);
       var result = finder.FindAssemblies ();
 
-      referencedAssemblyLoaderMock.VerifyAllExpectations ();
+      loaderMock.VerifyAllExpectations ();
       Assert.That (result, Is.EquivalentTo (new[] { mixinSamplesAssembly, remotionAssembly, log4netAssembly }));
-    }
-
-    private bool IsAssemblyReferencedBy (Assembly referenced, Assembly origin)
-    {
-      return origin.GetReferencedAssemblies ().Where (assemblyName => AssemblyName.ReferenceMatchesDefinition (assemblyName, referenced.GetName ())).Any();
     }
 
     [Test]
@@ -127,47 +120,46 @@ namespace Remotion.UnitTests.Reflection
 
       // because _assembly1 is already loaded via _assembly3, it's not tried again via _assembly2
 
-      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
-      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies ()).Return (new[] { _assembly3 });
-      rootAssemblyFinderStub.Replay ();
-
-      var referencedAssemblyLoaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
-      referencedAssemblyLoaderMock
+      var loaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
+      loaderMock
           .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (_assembly2), Arg.Is (_assembly3.FullName))) // load _assembly2 via _assembly3
           .Return (_assembly2);
-      referencedAssemblyLoaderMock
+      loaderMock
           .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (_assembly1), Arg.Is (_assembly3.FullName))) // load _assembly1 via _assembly3
           .Return (null);
-      referencedAssemblyLoaderMock
+      loaderMock
         .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (_assembly1), Arg.Is (_assembly2.FullName))) // _assembly1 already loaded, no second time
-        .Repeat.Never()
+        .Repeat.Never ()
         .Return (_assembly2);
+      loaderMock.Replay ();
+      
+      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
+      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies (loaderMock)).Return (new[] { _assembly3 });
+      rootAssemblyFinderStub.Replay ();
 
-      referencedAssemblyLoaderMock.Replay ();
-
-      var finder = new AssemblyFinder (rootAssemblyFinderStub, referencedAssemblyLoaderMock);
+      var finder = new AssemblyFinder (rootAssemblyFinderStub, loaderMock);
       finder.FindAssemblies ();
 
-      referencedAssemblyLoaderMock.VerifyAllExpectations ();
+      loaderMock.VerifyAllExpectations ();
     }
 
     [Test]
     public void FindAssemblies_NoDuplicates ()
     {
-      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
-      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies ()).Return (new[] { _assembly3, _assembly2 });
-      rootAssemblyFinderStub.Replay ();
-
-      var referencedAssemblyLoaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
-      referencedAssemblyLoaderMock
+      var loaderMock = MockRepository.GenerateMock<IAssemblyLoader> ();
+      loaderMock
           .Expect (mock => mock.TryLoadAssembly (ArgReferenceMatchesDefinition (_assembly2), Arg.Is (_assembly3.FullName)))
           .Return (_assembly2);
-      referencedAssemblyLoaderMock.Replay ();
+      loaderMock.Replay ();
 
-      var finder = new AssemblyFinder (rootAssemblyFinderStub, referencedAssemblyLoaderMock);
+      var rootAssemblyFinderStub = MockRepository.GenerateMock<IRootAssemblyFinder> ();
+      rootAssemblyFinderStub.Stub (stub => stub.FindRootAssemblies (loaderMock)).Return (new[] { _assembly3, _assembly2 });
+      rootAssemblyFinderStub.Replay ();
+
+      var finder = new AssemblyFinder (rootAssemblyFinderStub, loaderMock);
       var result = finder.FindAssemblies ();
 
-      referencedAssemblyLoaderMock.VerifyAllExpectations ();
+      loaderMock.VerifyAllExpectations ();
       Assert.That (result, Is.EquivalentTo (new[] { _assembly2, _assembly3 }));
       Assert.That (result.Length, Is.EqualTo (2));
     }
@@ -175,6 +167,13 @@ namespace Remotion.UnitTests.Reflection
     private AssemblyName ArgReferenceMatchesDefinition (Assembly referencedAssembly)
     {
       return Arg<AssemblyName>.Matches (name => AssemblyName.ReferenceMatchesDefinition (name, referencedAssembly.GetName()));
+    }
+
+    private bool IsAssemblyReferencedBy (Assembly referenced, Assembly origin)
+    {
+      return origin.GetReferencedAssemblies ()
+          .Where (assemblyName => AssemblyName.ReferenceMatchesDefinition (assemblyName, referenced.GetName ()))
+          .Any ();
     }
   }
 }

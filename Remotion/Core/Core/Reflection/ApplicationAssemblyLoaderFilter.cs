@@ -21,9 +21,9 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  public class ApplicationAssemblyFinderFilter : IAssemblyFinderFilter
+  public class ApplicationAssemblyLoaderFilter : IAssemblyLoaderFilter
   {
-    public static readonly ApplicationAssemblyFinderFilter Instance = new ApplicationAssemblyFinderFilter();
+    public static readonly ApplicationAssemblyLoaderFilter Instance = new ApplicationAssemblyLoaderFilter();
 
     private static string MakeMatchExpression (IEnumerable<string> assemblyMatchStrings)
     {
@@ -34,10 +34,10 @@ namespace Remotion.Reflection
 
     private List<string> _nonApplicationAssemblyNames;
 
-    private RegexAssemblyFinderFilter _assemblyNameFilter;
+    private RegexAssemblyLoaderFilter _assemblyNameFilter;
     private readonly object _assemblyNameFilterLock = new object();
 
-    private ApplicationAssemblyFinderFilter ()
+    private ApplicationAssemblyLoaderFilter ()
     {
       Reset();
     }
@@ -64,7 +64,7 @@ namespace Remotion.Reflection
       get { return AssemblyNameFilter.MatchExpressionString; }
     }
 
-    private RegexAssemblyFinderFilter AssemblyNameFilter
+    private RegexAssemblyLoaderFilter AssemblyNameFilter
     {
       get
       {
@@ -73,7 +73,7 @@ namespace Remotion.Reflection
           if (_assemblyNameFilter == null)
           {
             string matchExpression = MakeMatchExpression (_nonApplicationAssemblyNames);
-            _assemblyNameFilter = new RegexAssemblyFinderFilter (matchExpression, RegexAssemblyFinderFilter.MatchTargetKind.SimpleName);
+            _assemblyNameFilter = new RegexAssemblyLoaderFilter (matchExpression, RegexAssemblyLoaderFilter.MatchTargetKind.SimpleName);
           }
           return _assemblyNameFilter;
         }

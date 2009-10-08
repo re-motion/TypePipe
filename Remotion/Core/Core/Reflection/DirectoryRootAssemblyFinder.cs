@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.Reflection
 {
@@ -27,15 +26,12 @@ namespace Remotion.Reflection
   /// </summary>
   public class DirectoryRootAssemblyFinder : IRootAssemblyFinder
   {
-    private readonly IAssemblyLoader _loader;
     private readonly string _searchPath;
 
-    public DirectoryRootAssemblyFinder (IAssemblyLoader loader, string searchPath)
+    public DirectoryRootAssemblyFinder (string searchPath)
     {
-      ArgumentUtility.CheckNotNull ("loader", loader);
       ArgumentUtility.CheckNotNullOrEmpty ("searchPath", searchPath);
 
-      _loader = loader;
       _searchPath = searchPath;
     }
 
@@ -44,16 +40,16 @@ namespace Remotion.Reflection
       get { return _searchPath; }
     }
 
-    public Assembly[] FindRootAssemblies ()
+    public Assembly[] FindRootAssemblies (IAssemblyLoader loader)
     {
       var dllFiles = Directory.GetFiles (_searchPath, "*.dll", SearchOption.TopDirectoryOnly);
       var exeFiles = Directory.GetFiles (_searchPath, "*.exe", SearchOption.TopDirectoryOnly);
 
       var allAssemblies = new List<Assembly> ();
       if (dllFiles.Length > 0)
-        allAssemblies.AddRange (_loader.LoadAssemblies (dllFiles));
+        allAssemblies.AddRange (loader.LoadAssemblies (dllFiles));
       if (exeFiles.Length > 0)
-        allAssemblies.AddRange (_loader.LoadAssemblies (exeFiles));
+        allAssemblies.AddRange (loader.LoadAssemblies (exeFiles));
       return allAssemblies.ToArray ();
     }
   }

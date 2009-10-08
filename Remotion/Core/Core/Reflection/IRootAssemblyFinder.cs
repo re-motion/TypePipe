@@ -23,6 +23,11 @@ namespace Remotion.Reflection
   /// </summary>
   public interface IRootAssemblyFinder
   {
-    Assembly[] FindRootAssemblies ();
+    /// <summary>
+    /// Finds the root assemblies, using the given <see cref="IAssemblyLoader"/>.
+    /// </summary>
+    /// <param name="loader">The <see cref="IAssemblyLoader"/> to load the assemblies with.</param>
+    /// <returns></returns>
+    Assembly[] FindRootAssemblies (IAssemblyLoader loader);
   }
 }

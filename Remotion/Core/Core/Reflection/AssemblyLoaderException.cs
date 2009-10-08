@@ -19,7 +19,7 @@ using System.Runtime.Serialization;
 namespace Remotion.Reflection
 {
   /// <summary>
-  /// Thrown when the automatic assembly loading performed by <see cref="AssemblyLoader"/> and <see cref="AssemblyFinder"/> yields an error during a
+  /// Thrown when the automatic assembly loading performed by an implementation of <see cref="IAssemblyLoader"/> yields an error during a
   /// load operation.
   /// </summary>
   [Serializable]

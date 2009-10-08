@@ -20,11 +20,11 @@ using Remotion.Utilities;
 namespace Remotion.Reflection
 {
   [Serializable]
-  public class AttributeAssemblyFinderFilter : IAssemblyFinderFilter
+  public class AttributeAssemblyLoaderFilter : IAssemblyLoaderFilter
   {
     private readonly Type _attributeType;
 
-    public AttributeAssemblyFinderFilter (Type attributeType)
+    public AttributeAssemblyLoaderFilter (Type attributeType)
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("attributeType", attributeType, typeof (Attribute));
       _attributeType = attributeType;
