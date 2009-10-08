@@ -21,7 +21,6 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  [Serializable]
   public class ApplicationAssemblyFinderFilter : IAssemblyFinderFilter
   {
     public static readonly ApplicationAssemblyFinderFilter Instance = new ApplicationAssemblyFinderFilter();

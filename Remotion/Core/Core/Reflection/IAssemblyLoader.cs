@@ -25,15 +25,26 @@ namespace Remotion.Reflection
   public interface IAssemblyLoader
   {
     /// <summary>
-    /// Tries to load an assembly from the given <paramref name="filePath"/>, returning <see langword="null"/> if there is any problem loading
-    /// the assembly.
+    /// Tries to load an assembly from the given <paramref name="filePath"/>, returning <see langword="null"/> if the file exists but is no assembly.
     /// </summary>
     /// <param name="filePath">The file path to load the assembly from.</param>
     /// <returns>The loaded assembly, or <see langword="null"/> if the assembly can't be loaded.</returns>
+    /// <exception cref="AssemblyLoaderException">Thrown when the file cannot be found or an unexpected exception occurs while loading it.</exception>
     Assembly TryLoadAssembly (string filePath);
 
     /// <summary>
-    /// Tries to load all assemblies from the given <paramref name="filePaths"/> as if <see cref="TryLoadAssembly"/> was called for each of them,
+    /// Tries the load an assembly from the given <paramref name="assemblyName"/>, returning <see langword="null"/> if the file exists but is no 
+    /// assembly.
+    /// </summary>
+    /// <param name="assemblyName">The assembly name to load the assembly from.</param>
+    /// <param name="context">Context information to be included with the exception message when the assembly cannot be found or an unexpected 
+    /// exception occurs while loading it.</param>
+    /// <returns>The loaded assembly, or <see langword="null"/> if the assembly can't be loaded.</returns>
+    /// <exception cref="AssemblyLoaderException">Thrown when the assembly cannot be found or an unexpected exception occurs while loading it.</exception>
+    Assembly TryLoadAssembly (AssemblyName assemblyName, string context);
+
+    /// <summary>
+    /// Tries to load all assemblies from the given <paramref name="filePaths"/> as if <see cref="TryLoadAssembly(string)"/> was called for each of them,
     /// returning only those assemblies that were successfully loaded.
     /// </summary>
     /// <param name="filePaths">The file paths to load assemblies from.</param>

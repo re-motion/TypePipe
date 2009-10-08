@@ -14,7 +14,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.IO;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
@@ -100,6 +99,31 @@ namespace Remotion.UnitTests.Reflection
       Assert.That (result, Is.EqualTo (new[] { typeof (object).Assembly }));
 
       finderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void CreateForCurrentAppDomain ()
+    {
+      var finder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (_loaderStub, true);
+
+      Assert.That (finder.Loader, Is.SameAs (_loaderStub));
+      Assert.That (finder.BaseDirectory, Is.EqualTo (AppDomain.CurrentDomain.BaseDirectory));
+      Assert.That (finder.RelativeSearchPath, Is.EqualTo (AppDomain.CurrentDomain.RelativeSearchPath));
+      Assert.That (finder.DynamicDirectory, Is.EqualTo (AppDomain.CurrentDomain.DynamicDirectory));
+    }
+
+    [Test]
+    public void CreateForCurrentAppDomain_ConsiderDynamicDirectoryTrue ()
+    {
+      var finder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (_loaderStub, true);
+      Assert.That (finder.ConsiderDynamicDirectory, Is.True);
+    }
+
+    [Test]
+    public void CreateForCurrentAppDomain_ConsiderDynamicDirectoryFalse ()
+    {
+      var finder = SearchPathRootAssemblyFinder.CreateForCurrentAppDomain (_loaderStub, false);
+      Assert.That (finder.ConsiderDynamicDirectory, Is.False);
     }
 
     private string[] GetDirectoriesForCombinedFinder (SearchPathRootAssemblyFinder finder)

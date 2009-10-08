@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Logging;
@@ -25,6 +26,26 @@ namespace Remotion.Reflection
   /// </summary>
   public class SearchPathRootAssemblyFinder : IRootAssemblyFinder
   {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SearchPathRootAssemblyFinder"/> type to look for assemblies within the current
+    /// <see cref="AppDomain"/>'s <see cref="AppDomain.BaseDirectory"/>.
+    /// </summary>
+    /// <param name="loader">The <see cref="IAssemblyLoader"/> to use to load the root assemblies.</param>
+    /// <param name="considerDynamicDirectory">Specifies whether to search the <see cref="AppDomain.DynamicDirectory"/> as well as the base
+    /// directory.</param>
+    public static SearchPathRootAssemblyFinder CreateForCurrentAppDomain (IAssemblyLoader loader, bool considerDynamicDirectory)
+    {
+      ArgumentUtility.CheckNotNull ("loader", loader);
+
+      var searchPathRootAssemblyFinder = new SearchPathRootAssemblyFinder (
+          loader,
+          AppDomain.CurrentDomain.BaseDirectory,
+          AppDomain.CurrentDomain.RelativeSearchPath,
+          considerDynamicDirectory,
+          AppDomain.CurrentDomain.DynamicDirectory);
+      return searchPathRootAssemblyFinder;
+    }
+
     private readonly IAssemblyLoader _loader;
     private readonly string _baseDirectory;
     private readonly string _relativeSearchPath;
@@ -47,6 +68,31 @@ namespace Remotion.Reflection
       _relativeSearchPath = relativeSearchPath;
       _considerDynamicDirectory = considerDynamicDirectory;
       _dynamicDirectory = dynamicDirectory;
+    }
+
+    public IAssemblyLoader Loader
+    {
+      get { return _loader; }
+    }
+
+    public string BaseDirectory
+    {
+      get { return _baseDirectory; }
+    }
+
+    public string RelativeSearchPath
+    {
+      get { return _relativeSearchPath; }
+    }
+
+    public bool ConsiderDynamicDirectory
+    {
+      get { return _considerDynamicDirectory; }
+    }
+
+    public string DynamicDirectory
+    {
+      get { return _dynamicDirectory; }
     }
 
     public Assembly[] FindRootAssemblies ()
