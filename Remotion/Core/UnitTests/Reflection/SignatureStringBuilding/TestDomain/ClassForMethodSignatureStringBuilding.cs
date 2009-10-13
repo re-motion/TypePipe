@@ -14,7 +14,8 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-namespace Remotion.UnitTests.Reflection.TestDomain
+
+namespace Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain
 {
   public class ClassForMethodSignatureStringBuilding<TType1, TType2>
   {
@@ -26,9 +27,9 @@ namespace Remotion.UnitTests.Reflection.TestDomain
     {
     }
 
-// ReSharper disable UnusedTypeParameter
+    // ReSharper disable UnusedTypeParameter
     public void MethodWithGenericParameters<T1, T2> (string p1, DateTime p2)
-// ReSharper restore UnusedTypeParameter
+        // ReSharper restore UnusedTypeParameter
     {
     }
 

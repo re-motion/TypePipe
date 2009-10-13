@@ -14,13 +14,12 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
 using System.Linq;
 
-namespace Remotion.Reflection
+namespace Remotion.Reflection.SignatureStringBuilding
 {
   /// <summary>
   /// Builds a string representing the signature of a given <see cref="MethodInfo"/> object. This is similar to the string returned by 
@@ -44,6 +43,8 @@ namespace Remotion.Reflection
   /// </remarks>
   public class MethodSignatureStringBuilder
   {
+    private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
+
     public string BuildSignatureString (MethodInfo methodInfo)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
@@ -52,61 +53,16 @@ namespace Remotion.Reflection
 
       var sb = new StringBuilder ();
       
-      AppendTypeString (sb, methodInfo.ReturnType);
+      _helper.AppendTypeString (sb, methodInfo.ReturnType);
       
       sb.Append ("(");
-      AppendSeparatedTypeStrings (sb, methodInfo.GetParameters ().Select (p => p.ParameterType));
+      _helper.AppendSeparatedTypeStrings (sb, methodInfo.GetParameters ().Select (p => p.ParameterType));
       sb.Append (")");
       
       if (methodInfo.IsGenericMethod)
         sb.Append ("`").Append (methodInfo.GetGenericArguments ().Length);
 
       return sb.ToString ();
-    }
-
-    private void AppendTypeString (StringBuilder sb, Type type)
-    {
-      if (type.IsGenericParameter)
-      {
-        if (type.DeclaringMethod != null)
-        {
-          sb.Append ("[").Append (type.GenericParameterPosition).Append ("]");
-        }
-        else
-        {
-          sb.Append ("[").Append (type.GenericParameterPosition);
-          sb.Append ("/");
-          AppendTypeString (sb, type.DeclaringType);
-          sb.Append ("]");
-        }
-      }
-      else if (type.IsGenericTypeDefinition)
-      {
-        sb.Append (type.FullName); // Namespace.Type`Count
-      }
-      else if (type.IsGenericType)
-      {
-        AppendTypeString (sb, type.GetGenericTypeDefinition ());
-        sb.Append ("[");
-        AppendSeparatedTypeStrings (sb, type.GetGenericArguments ());
-        sb.Append ("]");
-      }
-      else
-      {
-        sb.Append (type.FullName);
-      }
-    }
-
-    private void AppendSeparatedTypeStrings (StringBuilder sb, IEnumerable<Type> types)
-    {
-      bool first = true;
-      foreach (var type in types)
-      {
-        if (!first)
-          sb.Append (",");
-        AppendTypeString (sb, type);
-        first = false;
-      }
     }
   }
 }
