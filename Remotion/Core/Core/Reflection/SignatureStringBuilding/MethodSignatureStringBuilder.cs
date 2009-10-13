@@ -41,7 +41,7 @@ namespace Remotion.Reflection.SignatureStringBuilding
   /// This class does not support closed generic methods, only generic method definitions are supported.
   /// </para>
   /// </remarks>
-  public class MethodSignatureStringBuilder
+  public class MethodSignatureStringBuilder : IMemberSignatureStringBuilder
   {
     private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
 
@@ -63,6 +63,11 @@ namespace Remotion.Reflection.SignatureStringBuilding
         sb.Append ("`").Append (methodInfo.GetGenericArguments ().Length);
 
       return sb.ToString ();
+    }
+
+    string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
+    {
+      return BuildSignatureString ((MethodInfo) memberInfo);
     }
   }
 }

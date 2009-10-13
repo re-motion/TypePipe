@@ -37,7 +37,7 @@ namespace Remotion.Reflection.SignatureStringBuilding
   /// signatures is only guaranteed for properties that adhere to these assumptions.
   /// </para>
   /// </remarks>
-  public class PropertySignatureStringBuilder
+  public class PropertySignatureStringBuilder : IMemberSignatureStringBuilder
   {
     private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
 
@@ -52,6 +52,11 @@ namespace Remotion.Reflection.SignatureStringBuilding
       sb.Append (")");
 
       return sb.ToString ();
+    }
+
+    string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
+    {
+      return BuildSignatureString ((PropertyInfo) memberInfo);
     }
   }
 }
