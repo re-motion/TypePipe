@@ -30,7 +30,12 @@ namespace Remotion.Reflection
     /// <summary>
     /// Represents an empty parameter list. This is equivalent to calling the <see cref="Create()"/> overload without parameters.
     /// </summary>
-    public static ParamList Empty = VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.GetEmpty();
+    public static ParamList Empty 
+    { 
+      // Must be a property rather than a static field; otherwise, VersionDependentImplementationBridge will be initialized too eagerly, leading to 
+      // stupid exception messages!
+      get { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.GetEmpty(); } 
+    }
     // @end-skip
 
     // @begin-template first=1 generate=1..20 suppressTemplate=true
