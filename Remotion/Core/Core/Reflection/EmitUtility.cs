@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
@@ -31,8 +32,8 @@ namespace Remotion.Reflection
     {
       // return SelectToArray<ParameterInfo,Type> (parameters, delegate (ParameterInfo p) { return p.ParameterType; });
 
-      IEnumerable<Type> res = EnumerableUtility.Select<ParameterInfo,Type> (parameters, delegate (ParameterInfo p) { return p.ParameterType; });
-      List<Type> l = new List<Type> (res);
+      var res = parameters.Select (p => p.ParameterType);
+      var l = new List<Type> (res);
       return l.ToArray ();
     }
 

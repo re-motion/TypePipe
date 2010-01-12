@@ -15,6 +15,8 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -82,9 +84,7 @@ namespace Remotion.Reflection
       MethodInfo invokeMethod = delegateType.GetMethod ("Invoke");
       Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method."); // according to the CLI specs, each delegate type must define this method
 
-      return EnumerableUtility.SelectToArray<ParameterInfo, Type> (
-          invokeMethod.GetParameters (),
-          delegate (ParameterInfo par) { return par.ParameterType; });
+      return invokeMethod.GetParameters ().Select (par => par.ParameterType).ToArray ();
     }
   }
 }
