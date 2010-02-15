@@ -138,8 +138,8 @@ namespace Remotion.Reflection
       ConstructorInfo ctor = _definingType.GetConstructor (BindingFlags, Binder, CallingConvention, parameterTypes, ParameterModifiers);
       if (ctor == null)
       {
-        string message = string.Format ("Type {0} does not contain a constructor with the following arguments types: {1}.",
-                                        _definingType.FullName, SeparatedStringBuilder.Build (", ", parameterTypes, t => t.FullName));
+        string message = string.Format ("Type '{0}' does not contain a constructor with the following arguments types: {1}.",
+                                        _definingType, SeparatedStringBuilder.Build (", ", parameterTypes));
         throw new MissingMethodException (message);
       }
       return ctor;

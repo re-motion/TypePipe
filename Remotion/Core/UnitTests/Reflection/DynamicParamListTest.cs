@@ -160,8 +160,8 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [ExpectedException (typeof (MissingMethodException), ExpectedMessage = "Type System.Collections.Generic.List`1[[System.Int32, mscorlib, "
-        + "Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]] does not contain a constructor with the following arguments types: "
+    [ExpectedException (typeof (MissingMethodException), ExpectedMessage = 
+        "Type 'System.Collections.Generic.List`1[System.Int32]' does not contain a constructor with the following arguments types: "
         + "System.Int32, System.String, System.Double.")]
     public void InvokeConstructor_NoMatchingCtor ()
     {
