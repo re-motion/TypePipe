@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Collections;
@@ -87,13 +88,15 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("ctor", ctor);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-
       ParameterInfo[] parameters = ctor.GetParameters ();
-      Type type = ctor.DeclaringType;
-      DynamicMethod method = new DynamicMethod ("ConstructorWrapper", type, EmitUtility.GetParameterTypes (parameters), type);
+      Type declaringType = ctor.DeclaringType;
+      
+      var parameterTypes = parameters.Select (p => p.ParameterType).ToArray();
+      var method = new DynamicMethod ("ConstructorWrapper", declaringType, parameterTypes, declaringType);
       ILGenerator ilgen = method.GetILGenerator ();
 
-      EmitUtility.PushParameters (ilgen, parameters.Length);
+      for (int i = 0; i < parameters.Length; ++i)
+        ilgen.Emit (OpCodes.Ldarg, i);
       ilgen.Emit (OpCodes.Newobj, ctor);
       ilgen.Emit (OpCodes.Ret);
 
@@ -112,7 +115,7 @@ namespace Remotion.Reflection
     /// </summary>
     private Delegate CreateValueTypeDefaultDelegate (Type type, Type delegateType)
     {
-      DynamicMethod method = new DynamicMethod ("ConstructorWrapper", type, Type.EmptyTypes, type);
+      var method = new DynamicMethod ("ConstructorWrapper", type, Type.EmptyTypes, type);
       ILGenerator ilgen = method.GetILGenerator ();
 
       ilgen.DeclareLocal (type);
