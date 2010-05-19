@@ -15,7 +15,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Runtime.Remoting.Messaging;
 using Remotion.Context;
 using Remotion.Utilities;
 
@@ -29,7 +28,7 @@ namespace Remotion
   /// This class stores a single instance of <typeparamref name="T"/> in the <see cref="SafeContext"/>. Use it to ensure that exactly one 
   /// instance of <typeparamref name="T"/> exists per thread, web context, or the respective current <see cref="SafeContext"/> policy.
   /// </remarks>
-  public class SafeContextSingleton<T>
+  public class SafeContextSingleton<T> where T : class
   {
     private readonly object _currentLock = new object ();
     private readonly string _currentKey;
