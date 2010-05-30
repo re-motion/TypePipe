@@ -25,7 +25,15 @@ namespace Remotion.UnitTests.Reflection
   [TestFixture]
   public class DynamicMethodBasedMethodCallerTest
   {
-    private class ClassWithMethods
+// ReSharper disable MemberCanBePrivate.Global
+    public interface IInterfaceWithMethods
+// ReSharper restore MemberCanBePrivate.Global
+    {
+      string ImplicitInterfaceMethod (string value);
+      string ExplicitInterfaceMethod (string value);
+    }
+
+    private class ClassWithMethods : IInterfaceWithMethods
     {
       public static string StaticValue { get; set; }
 
@@ -40,7 +48,7 @@ namespace Remotion.UnitTests.Reflection
         StaticValue = value;
         return value;
       }
-      
+
       public string InstanceValue { get; set; }
 
       public string PublicInstanceMethod (string value)
@@ -50,6 +58,18 @@ namespace Remotion.UnitTests.Reflection
       }
 
       private string NonPublicInstanceMethod (string value)
+      {
+        InstanceValue = value;
+        return value;
+      }
+
+      public string ImplicitInterfaceMethod (string value)
+      {
+        InstanceValue = value;
+        return value;
+      }
+
+      string IInterfaceWithMethods.ExplicitInterfaceMethod (string value)
       {
         InstanceValue = value;
         return value;
@@ -79,7 +99,35 @@ namespace Remotion.UnitTests.Reflection
       var @delegate = (Func<ClassWithMethods, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
           methodInfo, typeof (Func<ClassWithMethods, string, string>));
 
-      var obj = new ClassWithMethods ();
+      var obj = new ClassWithMethods();
+      Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
+      Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
+    }
+
+    [Test]
+    public void GetMethodDelegate_ImplicitInterfaceMethod ()
+    {
+      Type declaringType = typeof (IInterfaceWithMethods);
+      var methodInfo = declaringType.GetMethod ("ImplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
+
+      var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
+          methodInfo, typeof (Func<object, string, string>));
+
+      var obj = new ClassWithMethods();
+      Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
+      Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
+    }
+
+    [Test]
+    public void GetMethodDelegate_ExplicitInterfaceMethod ()
+    {
+      Type declaringType = typeof (IInterfaceWithMethods);
+      var methodInfo = declaringType.GetMethod ("ExplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
+
+      var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
+          methodInfo, typeof (Func<object, string, string>));
+
+      var obj = new ClassWithMethods();
       Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
       Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
     }

@@ -40,14 +40,28 @@ namespace Remotion.Reflection
     public static Delegate CreateMethodCallerDelegate (MethodInfo methodInfo, Type delegateType)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom("delegateType", delegateType, typeof (Delegate));
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       var delegateMethod = delegateType.GetMethod ("Invoke");
       Assertion.IsNotNull (delegateMethod);
       var returnType = delegateMethod.ReturnType;
       var parameterTypes = delegateMethod.GetParameters().Select (p => p.ParameterType).ToArray();
 
-      var dynamicMethod = new DynamicMethod (methodInfo.Name + "_" + Guid.NewGuid(), returnType, parameterTypes, methodInfo.DeclaringType, false);
+      DynamicMethod dynamicMethod;
+      if (methodInfo.DeclaringType.IsInterface)
+      {
+        dynamicMethod = new DynamicMethod (
+            methodInfo.DeclaringType + "_" + methodInfo.Name + "_" + Guid.NewGuid (),
+            returnType,
+            parameterTypes,
+            methodInfo.DeclaringType.Module,
+            false);
+      }
+      else
+      {
+        dynamicMethod = new DynamicMethod (methodInfo.Name + "_" + Guid.NewGuid(), returnType, parameterTypes, methodInfo.DeclaringType, false);
+      }
+
       var ilGenerator = dynamicMethod.GetILGenerator();
 
       var emitter = new MethodWrapperEmitter (ilGenerator, methodInfo, parameterTypes, returnType);
