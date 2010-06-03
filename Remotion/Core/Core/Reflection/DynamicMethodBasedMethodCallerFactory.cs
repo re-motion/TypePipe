@@ -44,22 +44,21 @@ namespace Remotion.Reflection
 
       var delegateMethod = delegateType.GetMethod ("Invoke");
       Assertion.IsNotNull (delegateMethod);
+      var name = methodInfo.DeclaringType + "_" + methodInfo.Name + "_" + Guid.NewGuid();
       var returnType = delegateMethod.ReturnType;
       var parameterTypes = delegateMethod.GetParameters().Select (p => p.ParameterType).ToArray();
 
       DynamicMethod dynamicMethod;
       if (methodInfo.DeclaringType.IsInterface)
       {
-        dynamicMethod = new DynamicMethod (
-            methodInfo.DeclaringType + "_" + methodInfo.Name + "_" + Guid.NewGuid (),
-            returnType,
-            parameterTypes,
-            methodInfo.DeclaringType.Module,
-            false);
+        if (methodInfo.DeclaringType.IsNested)
+          dynamicMethod = new DynamicMethod (name, returnType, parameterTypes, methodInfo.DeclaringType.DeclaringType, false);
+        else
+          dynamicMethod = new DynamicMethod (name, returnType, parameterTypes, methodInfo.DeclaringType.Module, false);
       }
       else
       {
-        dynamicMethod = new DynamicMethod (methodInfo.Name + "_" + Guid.NewGuid(), returnType, parameterTypes, methodInfo.DeclaringType, false);
+        dynamicMethod = new DynamicMethod (name, returnType, parameterTypes, methodInfo.DeclaringType, false);
       }
 
       var ilGenerator = dynamicMethod.GetILGenerator();

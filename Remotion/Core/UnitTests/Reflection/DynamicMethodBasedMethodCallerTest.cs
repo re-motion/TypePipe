@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -25,15 +26,32 @@ namespace Remotion.UnitTests.Reflection
   [TestFixture]
   public class DynamicMethodBasedMethodCallerTest
   {
-// ReSharper disable MemberCanBePrivate.Global
-    public interface IInterfaceWithMethods
-// ReSharper restore MemberCanBePrivate.Global
+    // ReSharper disable MemberCanBePrivate.Global
+    // ReSharper disable UnusedMember.Local
+    // ReSharper disable MemberCanBePrivate.Local
+    // ReSharper disable UnusedMember.Global
+    public interface IPublicInterfaceWithMethods
     {
       string ImplicitInterfaceMethod (string value);
       string ExplicitInterfaceMethod (string value);
     }
 
-    private class ClassWithMethods : IInterfaceWithMethods
+    private interface IPrivateInterfaceWithMethods
+    {
+      string ExplicitInterfaceMethod (string value);
+    }
+
+    internal interface IInternalInterfaceWithMethods
+    {
+      string ExplicitInterfaceMethod (string value);
+    }
+
+    protected interface IProtectedInterfaceWithMethods
+    {
+      string ExplicitInterfaceMethod (string value);
+    }
+
+    private class ClassWithMethods : IPublicInterfaceWithMethods, IPrivateInterfaceWithMethods, IProtectedInterfaceWithMethods, IInternalInterfaceWithMethods
     {
       public static string StaticValue { get; set; }
 
@@ -69,7 +87,25 @@ namespace Remotion.UnitTests.Reflection
         return value;
       }
 
-      string IInterfaceWithMethods.ExplicitInterfaceMethod (string value)
+      string IPublicInterfaceWithMethods.ExplicitInterfaceMethod (string value)
+      {
+        InstanceValue = value;
+        return value;
+      }
+
+      string IPrivateInterfaceWithMethods.ExplicitInterfaceMethod (string value)
+      {
+        InstanceValue = value;
+        return value;
+      }
+
+      string IProtectedInterfaceWithMethods.ExplicitInterfaceMethod (string value)
+      {
+        InstanceValue = value;
+        return value;
+      }
+
+      string IInternalInterfaceWithMethods.ExplicitInterfaceMethod (string value)
       {
         InstanceValue = value;
         return value;
@@ -105,9 +141,9 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    public void GetMethodDelegate_ImplicitInterfaceMethod ()
+    public void GetMethodDelegate_PublicInterface_ImplicitInterfaceMethod ()
     {
-      Type declaringType = typeof (IInterfaceWithMethods);
+      Type declaringType = typeof (IPublicInterfaceWithMethods);
       var methodInfo = declaringType.GetMethod ("ImplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
 
       var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
@@ -119,15 +155,70 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    public void GetMethodDelegate_ExplicitInterfaceMethod ()
+    public void GetMethodDelegate_PublicInterface_ExplicitInterfaceMethod ()
     {
-      Type declaringType = typeof (IInterfaceWithMethods);
+      Type declaringType = typeof (IList);
+      var methodInfo = declaringType.GetMethod ("Contains", BindingFlags.Public | BindingFlags.Instance);
+
+      var @delegate = (Func<object, object, bool>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
+          methodInfo, typeof (Func<object, object, bool>));
+
+      var obj = new[] { new object() };
+      Assert.That (@delegate (obj, obj[0]), Is.True);
+    }
+
+    [Test]
+    public void GetMethodDelegate_NestedPublicInterface_ExplicitInterfaceMethod ()
+    {
+      Type declaringType = typeof (IPublicInterfaceWithMethods);
       var methodInfo = declaringType.GetMethod ("ExplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
 
       var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
           methodInfo, typeof (Func<object, string, string>));
 
       var obj = new ClassWithMethods();
+      Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
+      Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
+    }
+
+    [Test]
+    public void GetMethodDelegate_NestedPrivateInterface_ExplicitInterfaceMethod ()
+    {
+      Type declaringType = typeof (IPrivateInterfaceWithMethods);
+      var methodInfo = declaringType.GetMethod ("ExplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
+
+      var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
+          methodInfo, typeof (Func<object, string, string>));
+
+      var obj = new ClassWithMethods ();
+      Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
+      Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
+    }
+
+    [Test]
+    public void GetMethodDelegate_NestedInternalInterface_ExplicitInterfaceMethod ()
+    {
+      Type declaringType = typeof (IInternalInterfaceWithMethods);
+      var methodInfo = declaringType.GetMethod ("ExplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
+
+      var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
+          methodInfo, typeof (Func<object, string, string>));
+
+      var obj = new ClassWithMethods ();
+      Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
+      Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
+    }
+
+    [Test]
+    public void GetMethodDelegate_NestedProtectedInterface_ExplicitInterfaceMethod ()
+    {
+      Type declaringType = typeof (IProtectedInterfaceWithMethods);
+      var methodInfo = declaringType.GetMethod ("ExplicitInterfaceMethod", BindingFlags.Public | BindingFlags.Instance);
+
+      var @delegate = (Func<object, string, string>) DynamicMethodBasedMethodCallerFactory.CreateMethodCallerDelegate (
+          methodInfo, typeof (Func<object, string, string>));
+
+      var obj = new ClassWithMethods ();
       Assert.That (@delegate (obj, "TheValue"), Is.EqualTo ("TheValue"));
       Assert.That (obj.InstanceValue, Is.EqualTo ("TheValue"));
     }
