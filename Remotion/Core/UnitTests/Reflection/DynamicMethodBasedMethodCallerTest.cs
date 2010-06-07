@@ -24,6 +24,7 @@ using Remotion.Reflection;
 namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
+  [Explicit ("Bug search")]
   public class DynamicMethodBasedMethodCallerTest
   {
     // ReSharper disable MemberCanBePrivate.Global
