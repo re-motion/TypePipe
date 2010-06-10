@@ -36,7 +36,9 @@ namespace Remotion.Reflection
     /// The <see cref="Delegate"/> type. The signature must always include the instance-parameter as first parameter even if the 
     /// <paramref name="methodInfo"/> refers to a static method.
     /// </param>
-    /// <returns></returns>
+    /// <returns>
+    /// An instance of the <paramref name="delegateType"/> that can be used to invoke the method identified by the <paramref name="methodInfo"/>.
+    /// </returns>
     public static Delegate CreateMethodCallerDelegate (MethodInfo methodInfo, Type delegateType)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
@@ -51,10 +53,14 @@ namespace Remotion.Reflection
       DynamicMethod dynamicMethod;
       if (methodInfo.DeclaringType.IsInterface)
       {
+        // Using the owner-less version for non-nested interfaces helps circumvent issues in the CLR regarding the combination of 
+        // DynamicMethods and domain-neutrally loaded assemblies. This case could happen if the interface is from mscorlib, e.g. ICollection. 
+        // See http://support.microsoft.com/kb/971030/en-us for details.
+
         if (methodInfo.DeclaringType.IsNested)
           dynamicMethod = new DynamicMethod (name, returnType, parameterTypes, methodInfo.DeclaringType.DeclaringType, false);
         else
-          dynamicMethod = new DynamicMethod (name, returnType, parameterTypes, methodInfo.DeclaringType.Module, false);
+          dynamicMethod = new DynamicMethod (name, returnType, parameterTypes, false);
       }
       else
       {

@@ -127,7 +127,6 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [Explicit ("Bug search")]
     public void GetMethodDelegate_NonPublicInstanceMethod ()
     {
       Type declaringType = typeof (ClassWithMethods);
@@ -156,7 +155,6 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [Explicit ("Bug search")]
     public void GetMethodDelegate_PublicInterface_ExplicitInterfaceMethod ()
     {
       Type declaringType = typeof (IList);
@@ -170,7 +168,6 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [Explicit ("Bug search")]
     public void GetMethodDelegate_NestedPublicInterface_ExplicitInterfaceMethod ()
     {
       Type declaringType = typeof (IPublicInterfaceWithMethods);
@@ -185,7 +182,6 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [Explicit ("Bug search")]
     public void GetMethodDelegate_NestedPrivateInterface_ExplicitInterfaceMethod ()
     {
       Type declaringType = typeof (IPrivateInterfaceWithMethods);
@@ -200,7 +196,6 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [Explicit ("Bug search")]
     public void GetMethodDelegate_NestedInternalInterface_ExplicitInterfaceMethod ()
     {
       Type declaringType = typeof (IInternalInterfaceWithMethods);
@@ -215,7 +210,6 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [Explicit ("Bug search")]
     public void GetMethodDelegate_NestedProtectedInterface_ExplicitInterfaceMethod ()
     {
       Type declaringType = typeof (IProtectedInterfaceWithMethods);
