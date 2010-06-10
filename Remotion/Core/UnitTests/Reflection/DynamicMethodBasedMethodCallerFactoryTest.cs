@@ -24,7 +24,7 @@ using Remotion.Reflection;
 namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
-  public class DynamicMethodBasedMethodCallerTest
+  public class DynamicMethodBasedMethodCallerFactoryTest
   {
     // ReSharper disable MemberCanBePrivate.Global
     // ReSharper disable UnusedMember.Local
