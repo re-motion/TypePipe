@@ -28,9 +28,12 @@ namespace Remotion
   /// This class stores a single instance of <typeparamref name="T"/> in the <see cref="SafeContext"/>. Use it to ensure that exactly one 
   /// instance of <typeparamref name="T"/> exists per thread, web context, or the respective current <see cref="SafeContext"/> policy.
   /// </remarks>
+  /// <threadsafety>
+  /// The data managed by this class is held in the <see cref="SafeContext"/> and therefore thread-local. The class is safe to be used from multiple
+  /// threads at the same time, but each thread will have its own copy of the data.
+  /// </threadsafety>
   public class SafeContextSingleton<T> where T : class
   {
-    private readonly object _currentLock = new object ();
     private readonly string _currentKey;
     private readonly Func<T> _creator;
 
@@ -47,10 +50,7 @@ namespace Remotion
     {
       get
       {
-        lock (_currentLock)
-        {
-          return GetCurrentInternal() != null;
-        }
+        return GetCurrentInternal() != null;
       }
     }
 
@@ -58,28 +58,22 @@ namespace Remotion
     {
       get
       {
-        lock (_currentLock)
-        {
-          // Performancetuning: SafeContext.Instance.GetData is quite expensive, so only called once
-          T current = GetCurrentInternal();
+        // Performancetuning: SafeContext.Instance.GetData is quite expensive, so only called once
+        T current = GetCurrentInternal();
           
-          if (current == null)
-          {
-            current = _creator();
-            SetCurrent(current);
-          }
-
-          return current;
+        if (current == null)
+        {
+          current = _creator();
+          SetCurrent(current);
         }
+
+        return current;
       }
     }
 
     public void SetCurrent (T value)
     {
-      lock (_currentLock)
-      {
-        SafeContext.Instance.SetData (_currentKey, value);
-      }
+      SafeContext.Instance.SetData (_currentKey, value);
     }
 
     private T GetCurrentInternal ()
