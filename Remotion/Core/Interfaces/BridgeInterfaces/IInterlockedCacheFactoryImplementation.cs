@@ -23,7 +23,8 @@ namespace Remotion.BridgeInterfaces
   /// This interface is used to separate the <see cref="T:Remotion.BridgeImplementations.InterlockedCacheFactoryImplementation"/>
   /// from it's instantiation in the <see cref="VersionDependentImplementationBridge{T}"/>.
   /// </summary>
-  [ConcreteImplementation ("Remotion.BridgeImplementations.InterlockedCacheFactoryImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>")]
+  [ConcreteImplementation ("Remotion.BridgeImplementations.InterlockedCacheFactoryImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
+    LifeTime = LifetimeKind.Singleton)]
   public interface IInterlockedCacheFactoryImplementation
   {
     ICache<TKey, TValue> CreateCache<TKey, TValue> ();

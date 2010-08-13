@@ -19,7 +19,8 @@ using Remotion.Implementation;
 
 namespace Remotion.BridgeInterfaces
 {
-  [ConcreteImplementation ("Remotion.Context.CallContextStorageProvider, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>")]
+  [ConcreteImplementation ("Remotion.Context.CallContextStorageProvider, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
+    LifeTime = LifetimeKind.Singleton)]
   public interface ICallContextStorageProvider : ISafeContextStorageProvider
   {
   }

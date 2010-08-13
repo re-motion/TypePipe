@@ -22,7 +22,8 @@ namespace Remotion.BridgeInterfaces
 {
   // @begin-skip
   [ConcreteImplementation (
-      "Remotion.BridgeImplementations.ParamListCreateImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>")]
+      "Remotion.BridgeImplementations.ParamListCreateImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
+      LifeTime = LifetimeKind.Singleton)]
   // @end-skip
   public partial interface IParamListCreateImplementation
   {
