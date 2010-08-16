@@ -24,6 +24,7 @@
 using System;
 using Remotion.BridgeInterfaces;
 using Remotion.Implementation;
+using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
 {
@@ -34,96 +35,96 @@ namespace Remotion.Reflection
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2> (A1 a1, A2 a2) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2 ); }
+    public static ParamList Create<A1, A2> (A1 a1, A2 a2) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3> (A1 a1, A2 a2, A3 a3) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3 ); }
+    public static ParamList Create<A1, A2, A3> (A1 a1, A2 a2, A3 a3) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4 ); }
+    public static ParamList Create<A1, A2, A3, A4> (A1 a1, A2 a2, A3 a3, A4 a4) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18, A19 a19) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18, A19 a19) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19 ); }
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18, A19 a19, A20 a20) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20 ); }
+    public static ParamList Create<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> (A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12, A13 a13, A14 a14, A15 a15, A16 a16, A17 a17, A18 a18, A19 a19, A20 a20) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20 ); }
   }
 }

@@ -17,6 +17,7 @@
 using System;
 using Remotion.BridgeInterfaces;
 using Remotion.Implementation;
+using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
 {
@@ -33,9 +34,9 @@ namespace Remotion.Reflection
     /// </summary>
     public static ParamList Empty 
     { 
-      // Must be a property rather than a static field; otherwise, VersionDependentImplementationBridge will be initialized too eagerly, leading to 
+      // Must be a property rather than a static field 
       // stupid exception messages!
-      get { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.GetEmpty(); } 
+      get { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().GetEmpty (); } 
     }
     // @end-skip
 
@@ -47,7 +48,7 @@ namespace Remotion.Reflection
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1> (A1 a1) { return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.Create ( a1 ); }
+    public static ParamList Create<A1> (A1 a1) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1 ); }
     // @end-template
     // @begin-skip
 
@@ -66,7 +67,7 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
 
-      return VersionDependentImplementationBridge<IParamListCreateImplementation>.Implementation.CreateDynamic (parameterTypes, parameterValues);
+      return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().CreateDynamic (parameterTypes, parameterValues);
     }
 
     /// <summary>

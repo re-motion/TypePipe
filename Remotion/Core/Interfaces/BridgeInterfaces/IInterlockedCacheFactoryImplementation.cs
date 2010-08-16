@@ -21,7 +21,7 @@ namespace Remotion.BridgeInterfaces
 {
   /// <summary>
   /// This interface is used to separate the <see cref="T:Remotion.BridgeImplementations.InterlockedCacheFactoryImplementation"/>
-  /// from it's instantiation in the <see cref="VersionDependentImplementationBridge{T}"/>.
+  /// from it's instantiation in the current service locator.
   /// </summary>
   [ConcreteImplementation ("Remotion.BridgeImplementations.InterlockedCacheFactoryImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
     LifeTime = LifetimeKind.Singleton)]
