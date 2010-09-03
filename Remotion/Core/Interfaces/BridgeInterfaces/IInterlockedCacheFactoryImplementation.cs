@@ -24,7 +24,7 @@ namespace Remotion.BridgeInterfaces
   /// from it's instantiation in the current service locator.
   /// </summary>
   [ConcreteImplementation ("Remotion.BridgeImplementations.InterlockedCacheFactoryImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
-    LifeTime = LifetimeKind.Singleton)]
+    Lifetime = LifetimeKind.Singleton)]
   public interface IInterlockedCacheFactoryImplementation
   {
     ICache<TKey, TValue> CreateCache<TKey, TValue> ();
