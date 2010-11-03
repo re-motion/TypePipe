@@ -58,7 +58,6 @@ namespace Remotion
     {
       get
       {
-        // Performancetuning: SafeContext.Instance.GetData is quite expensive, so only called once
         T current = GetCurrentInternal();
           
         if (current == null)
