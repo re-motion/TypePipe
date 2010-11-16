@@ -29,6 +29,23 @@ namespace Remotion.Reflection
   public abstract partial class ParamList
   {
     // @begin-skip
+
+    // This class holds lazy, readonly static fields. It relies on the fact that the .NET runtime will reliably initialize fields in a nested static
+    // class with a static constructor as lazily as possible on first access of the static field.
+    // Singleton implementations with nested classes are documented here: http://csharpindepth.com/Articles/General/Singleton.aspx.
+    static class LazyStaticFields
+    {
+      public static readonly IParamListCreateImplementation ParamListCreateImplementation =
+          SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation> ();
+
+      // ReSharper disable EmptyConstructor
+      // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit; this will make the static fields as lazy as possible.
+      static LazyStaticFields ()
+      {
+      }
+      // ReSharper restore EmptyConstructor
+    }
+
     /// <summary>
     /// Represents an empty parameter list. This is equivalent to calling the <see cref="Create()"/> overload without parameters.
     /// </summary>
@@ -36,7 +53,7 @@ namespace Remotion.Reflection
     { 
       // Must be a property rather than a static field 
       // stupid exception messages!
-      get { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().GetEmpty (); } 
+      get { return LazyStaticFields.ParamListCreateImplementation.GetEmpty (); } 
     }
     // @end-skip
 
@@ -48,7 +65,7 @@ namespace Remotion.Reflection
     /// Creates a strongly typed list of parameters to be passed to a function or action.
     /// </summary>
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1> (A1 a1) { return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().Create ( a1 ); }
+    public static ParamList Create<A1> (A1 a1) { return LazyStaticFields.ParamListCreateImplementation.Create ( a1 ); }
     // @end-template
     // @begin-skip
 
@@ -67,7 +84,7 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
       ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
 
-      return SafeServiceLocator.Current.GetInstance<IParamListCreateImplementation>().CreateDynamic (parameterTypes, parameterValues);
+      return LazyStaticFields.ParamListCreateImplementation.CreateDynamic (parameterTypes, parameterValues);
     }
 
     /// <summary>
