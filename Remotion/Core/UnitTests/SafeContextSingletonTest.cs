@@ -25,6 +25,12 @@ namespace Remotion.UnitTests
   [TestFixture]
   public class SafeContextSingletonTest
   {
+    [Test]
+    public void FailingTest ()
+    {
+      Assert.Fail ("test failure");
+    }
+
     [SetUp]
     public void SetUp ()
     {
