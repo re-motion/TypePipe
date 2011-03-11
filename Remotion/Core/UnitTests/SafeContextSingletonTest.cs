@@ -28,7 +28,7 @@ namespace Remotion.UnitTests
     [Test]
     public void FailingTest ()
     {
-      Assert.Fail ("test failure");
+      Assert.Equals ("test", "failure");
     }
 
     [SetUp]
