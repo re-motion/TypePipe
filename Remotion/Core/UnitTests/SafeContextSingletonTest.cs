@@ -26,6 +26,7 @@ namespace Remotion.UnitTests
   public class SafeContextSingletonTest
   {
     [Test]
+    [Ignore]
     public void FailingTest ()
     {
       Assert.Equals ("test", "failure");
