@@ -59,8 +59,8 @@ SQL Server 2005. You might need to create C:\Databases and
 C:\Databases\ftdata directories by hand to make the unit tests work.
 
 
-Building re-motion with NAnt
-----------------------------
+Building re-motion with MSBuild
+-------------------------------
 
 After getting the sources and a remotion.snk, run Build-RemotionLocal.cmd
 from the re-motion trunk directory:
@@ -68,15 +68,10 @@ from the re-motion trunk directory:
 cd c:\Remotion
 Build-RemotionLocal.cmd
 
-re-motion contains a customized version of NAnt which is used for the build
-in the prereq\Tools\NAnt folder.
-
 As with the Visual Studio build, you need a local installation of 
 SQL Server 2005 to run the full build. You might also need to create 
 C:\Databases and C:\Databases\ftdata directories by hand to make the unit 
 tests work.
-
-The build scripts will create temporary files in your C:\Temp directory.
 
 To generate documentation files for re-motion, run Build-RemotionLocalDoc.cmd.
 
