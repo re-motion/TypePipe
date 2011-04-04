@@ -16,7 +16,6 @@
 // 
 using System;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
 using Remotion.UnitTests.Reflection.TestDomain;
 using Remotion.Utilities;
@@ -147,7 +146,7 @@ namespace Remotion.UnitTests.Reflection
       var info = new ConstructorLookupInfo (typeof (List<int>));
       var list = _implementation1.InvokeConstructor (info);
 
-      Assert.That (list, Is.InstanceOfType (typeof (List<int>)));
+      Assert.That (list, Is.InstanceOf (typeof (List<int>)));
       Assert.That (((List<int>) list).Capacity, Is.EqualTo (_implementation1.GetParameterValues ()[0]));
     }
 
@@ -182,7 +181,7 @@ namespace Remotion.UnitTests.Reflection
       var info = new ConstructorLookupInfo (typeof (ClassWithManyConstructorArguments));
       var instance = implementation.InvokeConstructor (info);
 
-      Assert.That (instance, Is.InstanceOfType (typeof (ClassWithManyConstructorArguments)));
+      Assert.That (instance, Is.InstanceOf (typeof (ClassWithManyConstructorArguments)));
       Assert.That (((ClassWithManyConstructorArguments)instance).Values, Is.EqualTo (values));
     }
 

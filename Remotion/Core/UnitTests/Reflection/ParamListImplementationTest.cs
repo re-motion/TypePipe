@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
@@ -116,7 +115,7 @@ namespace Remotion.UnitTests.Reflection
       var info = new ConstructorLookupInfo (typeof (List<int>));
       var list = _implementation1.InvokeConstructor (info);
 
-      Assert.That (list, Is.InstanceOfType (typeof (List<int>)));
+      Assert.That (list, Is.InstanceOf (typeof (List<int>)));
       Assert.That (((List<int>)list).Capacity, Is.EqualTo (_implementation1.GetParameterValues()[0]));
     }
 

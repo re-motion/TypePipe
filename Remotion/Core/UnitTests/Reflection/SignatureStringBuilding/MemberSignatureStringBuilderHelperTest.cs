@@ -17,7 +17,6 @@
 using System;
 using System.Text;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.Reflection.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain;
 

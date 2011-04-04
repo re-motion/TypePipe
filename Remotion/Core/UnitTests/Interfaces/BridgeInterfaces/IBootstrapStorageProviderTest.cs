@@ -16,7 +16,6 @@
 // 
 using System;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.BridgeInterfaces;
 using Remotion.Context;
 using Remotion.ServiceLocation;
