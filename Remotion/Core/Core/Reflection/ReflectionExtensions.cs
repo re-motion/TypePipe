@@ -19,13 +19,30 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
+  /// <summary>
+  /// Extension methods for <see cref="IMemberInformation"/>.
+  /// </summary>
   public static class ReflectionExtensions
   {
+    /// <summary>
+    /// Evaluates whether the <see cref="IMemberInformation"/> instance represents to orignal declaration of the member in the type hierarchy.
+    /// </summary>
+    /// <returns>
+    ///   <see langword="true" /> if <see cref="IMemberInformation.DeclaringType"/> and <see cref="IMemberInformation.GetOriginalDeclaringType"/> are equal.
+    /// </returns>
     public static bool IsOriginalDeclaration (this IMemberInformation memberInfo)
     {
       ArgumentUtility.CheckNotNull ("memberInfo", memberInfo);
 
-      return memberInfo.DeclaringType.Equals (memberInfo.GetOriginalDeclaringType());
+      var declaringType = memberInfo.DeclaringType;
+      var originalDeclaringType = memberInfo.GetOriginalDeclaringType ();
+      if (declaringType == null && originalDeclaringType == null)
+        return true;
+      if (declaringType == null)
+        return false;
+      if (originalDeclaringType == null)
+        return false;
+      return memberInfo.DeclaringType.Equals (originalDeclaringType);
     }
   }
 }
