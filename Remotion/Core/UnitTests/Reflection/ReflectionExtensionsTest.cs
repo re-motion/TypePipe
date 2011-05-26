@@ -28,8 +28,9 @@ namespace Remotion.UnitTests.Reflection
     public void IsOriginalDeclaration_DeclaringTypeEqualsOrignalDeclaringType_True ()
     {
       var memberInfoStub = MockRepository.GenerateStub<IMemberInformation>();
-      memberInfoStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
-      memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType()).Return (typeof (string));
+      var typeInformationStub = MockRepository.GenerateStub<ITypeInformation>();
+      memberInfoStub.Stub (stub => stub.DeclaringType).Return (typeInformationStub);
+      memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType()).Return (typeInformationStub);
       Assert.That (memberInfoStub.IsOriginalDeclaration(), Is.True);
     }
 
@@ -37,8 +38,8 @@ namespace Remotion.UnitTests.Reflection
     public void IsOriginalDeclaration_DeclaringTypeNotEqualToOrignalDeclaringType_False ()
     {
       var memberInfoStub = MockRepository.GenerateStub<IMemberInformation> ();
-      memberInfoStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
-      memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType ()).Return (typeof (object));
+      memberInfoStub.Stub (stub => stub.DeclaringType).Return (MockRepository.GenerateStub<ITypeInformation>());
+      memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType()).Return (MockRepository.GenerateStub<ITypeInformation>());
 
       Assert.That (memberInfoStub.IsOriginalDeclaration (), Is.False);
     }
@@ -48,7 +49,7 @@ namespace Remotion.UnitTests.Reflection
     {
       var memberInfoStub = MockRepository.GenerateStub<IMemberInformation> ();
       memberInfoStub.Stub (stub => stub.DeclaringType).Return (null);
-      memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType ()).Return (typeof (object));
+      memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType()).Return (MockRepository.GenerateStub<ITypeInformation>());
 
       Assert.That (memberInfoStub.IsOriginalDeclaration (), Is.False);
     }
@@ -57,7 +58,7 @@ namespace Remotion.UnitTests.Reflection
     public void IsOriginalDeclaration_OrignalDeclaringTypeIsNull_False ()
     {
       var memberInfoStub = MockRepository.GenerateStub<IMemberInformation> ();
-      memberInfoStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
+      memberInfoStub.Stub (stub => stub.DeclaringType).Return (MockRepository.GenerateStub<ITypeInformation>());
       memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType ()).Return (null);
 
       Assert.That (memberInfoStub.IsOriginalDeclaration (), Is.False);
