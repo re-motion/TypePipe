@@ -22,13 +22,13 @@ namespace Remotion.BridgeImplementations
 {
   /// <summary>
   /// The <see cref="InterlockedCacheFactoryImplementation"/> is a factory class that creates instances of type 
-  /// <see cref="InterlockedCache{TKey,TValue}"/>.
+  /// <see cref="LockingCacheDecorator{TKey,TValue}"/>.
   /// </summary>
   public class InterlockedCacheFactoryImplementation : IInterlockedCacheFactoryImplementation
   {
     public ICache<TKey, TValue> CreateCache<TKey, TValue> ()
     {
-      return new InterlockedCache<TKey, TValue> ();
+      return new LockingCacheDecorator<TKey, TValue> ();
     }
   }
 }
