@@ -26,7 +26,7 @@ namespace Remotion.Reflection
 {
   public class ConstructorLookupInfo: MemberLookupInfo, IConstructorLookupInfo
   {
-    private static readonly ICache<object, Delegate> s_delegateCache = Cache<object, Delegate>.CreateWithLocking();
+    private static readonly ICache<object, Delegate> s_delegateCache = CacheFactory.CreateWithLocking<object, Delegate>();
     private readonly Type _definingType;
 
     public ConstructorLookupInfo (Type definingType, BindingFlags bindingFlags)

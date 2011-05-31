@@ -28,7 +28,7 @@ namespace Remotion.BridgeImplementations
   {
     public ICache<TKey, TValue> CreateCache<TKey, TValue> ()
     {
-      return Cache<TKey, TValue>.CreateWithLocking();
+      return CacheFactory.CreateWithLocking<TKey, TValue>();
     }
   }
 }
