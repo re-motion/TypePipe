@@ -29,17 +29,13 @@ namespace Remotion.Reflection
   /// </summary>
   public class MemberSignatureEqualityComparer : IEqualityComparer<MemberInfo>
   {
-    private static readonly MethodSignatureStringBuilder s_methodSignatureBuilder = new MethodSignatureStringBuilder ();
-    private static readonly PropertySignatureStringBuilder s_propertySignatureBuilder = new PropertySignatureStringBuilder ();
-    private static readonly EventSignatureStringBuilder s_eventSignatureBuilder = new EventSignatureStringBuilder ();
-    
     public bool Equals (MemberInfo x, MemberInfo y)
     {
       ArgumentUtility.CheckNotNull ("x", x);
       ArgumentUtility.CheckNotNull ("y", y);
 
-      var signatureBuilderX = GetSignatureBuilder (x.MemberType);
-      var signatureBuilderY = GetSignatureBuilder (y.MemberType);
+      var signatureBuilderX = GetSignatureStringBuilder (x.MemberType);
+      var signatureBuilderY = GetSignatureStringBuilder (y.MemberType);
 
       if (signatureBuilderX != signatureBuilderY)
         return false;
@@ -49,31 +45,28 @@ namespace Remotion.Reflection
 
       return signatureX == signatureY;
     }
-
+    
     public int GetHashCode (MemberInfo obj)
     {
       ArgumentUtility.CheckNotNull ("obj", obj);
 
-      var signatureBuilder = GetSignatureBuilder (obj.MemberType);
+      var signatureBuilder = GetSignatureStringBuilder (obj.MemberType);
       var signatureString = signatureBuilder.BuildSignatureString (obj);
       return signatureString.GetHashCode ();
     }
 
-    private IMemberSignatureStringBuilder GetSignatureBuilder (MemberTypes memberType)
+    private IMemberSignatureStringBuilder GetSignatureStringBuilder (MemberTypes memberType)
     {
-      switch (memberType)
+      try
       {
-        case MemberTypes.Method:
-          return s_methodSignatureBuilder;
-        case MemberTypes.Property:
-          return s_propertySignatureBuilder;
-        case MemberTypes.Event:
-          return s_eventSignatureBuilder;
-        default:
-          var message = string.Format (
+        return MemberSignatureStringBuilderProvider.GetSignatureBuilder (memberType);
+      }
+      catch (NotSupportedException ex)
+      {
+        var message = String.Format (
               "MemberSignatureEqualityComparer does not support member type '{0}', only methods, properties, and events are supported.", 
               memberType);
-          throw new NotSupportedException (message);
+          throw new NotSupportedException (message, ex);
       }
     }
   }
