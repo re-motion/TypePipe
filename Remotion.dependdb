@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<VisualStudioIntegrationConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" IsActive="true" xmlns="http://rubicon.eu/DepXML_VisualStudioIntegration">
+  <WcfServiceEndpointAddress>http://s0350/DependDBServer/DependDBServer.svc</WcfServiceEndpointAddress>
+  <Level2VertThreshold>5</Level2VertThreshold>
+  <Level3VertThreshold>10</Level3VertThreshold>
+  <Level2HorizThreshold>25</Level2HorizThreshold>
+  <Level3HorizThreshold>50</Level3HorizThreshold>
+</VisualStudioIntegrationConfig>
