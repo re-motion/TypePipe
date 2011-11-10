@@ -5,7 +5,7 @@
 
 re-motion Framework
 www.re-motion.org
-Copyright (C) 2005 - 2009 rubicon informationstechnologie gmbh, www.rubicon.eu
+Copyright (c) rubicon IT GmbH, www.rubicon.eu
 
 This software includes the following libraries:
 
