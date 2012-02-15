@@ -26,6 +26,8 @@ using Remotion.BridgeInterfaces;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
+// TODO Type Pipe: If we don't introduce a TypePipe.Interfaces.dll, we don't need to keep the implementation of CreateDynamic separate from the 
+// interface. In this case, remove the ParamList bridge interface/implementation separation.
 namespace Remotion.BridgeImplementations
 {
   public partial class ParamListCreateImplementation
