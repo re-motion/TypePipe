@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Reflection;
 using Remotion.UnitTests.Reflection.TestDomain;
@@ -52,6 +53,26 @@ namespace Remotion.UnitTests.Reflection
 
       TestClass instance = actual (null);
       Assert.That (instance.InvocationType, Is.SameAs (typeof (Derived)));
+    }
+
+    [Test]
+    public void GetDelegate_WithAbstractType_Throws ()
+    {
+      var info = new ConstructorLookupInfo (typeof (AbstractClass), BindingFlags.NonPublic | BindingFlags.Instance);
+      Assert.That (
+          () => info.GetDelegate (typeof (Func<AbstractClass>)),
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Cannot create an instance of 'Remotion.UnitTests.Reflection.TestDomain.AbstractClass' because it is an abstract type."));
+    }
+
+    [Test]
+    public void DynamicInvoke ()
+    {
+      var info = new ConstructorLookupInfo (typeof (AbstractClass), BindingFlags.NonPublic | BindingFlags.Instance);
+      Assert.That (
+          () => info.DynamicInvoke (new Type[0], new object[0]),
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Cannot create an instance of 'Remotion.UnitTests.Reflection.TestDomain.AbstractClass' because it is an abstract type."));
     }
   }
 }

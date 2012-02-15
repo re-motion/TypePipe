@@ -57,11 +57,24 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom("delegateType", delegateType, typeof (Delegate));
 
+      CheckNotAbstract();
+
       object key = GetCacheKey(delegateType);
       Delegate result;
       if (! s_delegateCache.TryGetValue (key, out result))
         result = s_delegateCache.GetOrCreateValue (key, arg => CreateDelegate (delegateType));
       return result;
+    }
+
+    public object DynamicInvoke (Type[] parameterTypes, object[] parameterValues)
+    {
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+
+      CheckNotAbstract();
+
+      var ctor = GetConstructor (parameterTypes);
+      return ctor.Invoke (parameterValues);
     }
 
     protected virtual object GetCacheKey (Type delegateType)
@@ -110,6 +123,18 @@ namespace Remotion.Reflection
       }
     }
 
+    protected virtual ConstructorInfo GetConstructor (Type[] parameterTypes)
+    {
+      ConstructorInfo ctor = _definingType.GetConstructor (BindingFlags, Binder, CallingConvention, parameterTypes, ParameterModifiers);
+      if (ctor == null)
+      {
+        string message = string.Format ("Type '{0}' does not contain a constructor with the following arguments types: {1}.",
+                                        _definingType, SeparatedStringBuilder.Build (", ", parameterTypes));
+        throw new MissingMethodException (message);
+      }
+      return ctor;
+    }
+
     /// <summary>
     /// Since value types do not have default constructors, an activation with zero parameters must create the object with the initobj IL opcode.
     /// </summary>
@@ -127,25 +152,13 @@ namespace Remotion.Reflection
       return method.CreateDelegate (delegateType);
     }
 
-    public object DynamicInvoke (Type[] parameterTypes, object[] parameterValues)
+    private void CheckNotAbstract ()
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
-
-      var ctor = GetConstructor (parameterTypes);
-      return ctor.Invoke (parameterValues);
-    }
-
-    protected virtual ConstructorInfo GetConstructor (Type[] parameterTypes)
-    {
-      ConstructorInfo ctor = _definingType.GetConstructor (BindingFlags, Binder, CallingConvention, parameterTypes, ParameterModifiers);
-      if (ctor == null)
+      if (_definingType.IsAbstract)
       {
-        string message = string.Format ("Type '{0}' does not contain a constructor with the following arguments types: {1}.",
-                                        _definingType, SeparatedStringBuilder.Build (", ", parameterTypes));
-        throw new MissingMethodException (message);
+        var message = string.Format ("Cannot create an instance of '{0}' because it is an abstract type.", _definingType);
+        throw new InvalidOperationException (message);
       }
-      return ctor;
     }
   }
 }
