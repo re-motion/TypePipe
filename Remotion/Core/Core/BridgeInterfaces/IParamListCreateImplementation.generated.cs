@@ -23,6 +23,7 @@
 // 
 using System;
 using Remotion.Reflection;
+using Remotion.ServiceLocation;
 
 namespace Remotion.BridgeInterfaces
 {
