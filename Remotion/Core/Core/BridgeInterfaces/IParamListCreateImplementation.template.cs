@@ -15,20 +15,30 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using Remotion.BridgeInterfaces;
-using Remotion.Collections;
+using Remotion.Reflection;
+using Remotion.ServiceLocation;
 
-namespace Remotion.BridgeImplementations
+namespace Remotion.BridgeInterfaces
 {
-  /// <summary>
-  /// The <see cref="InterlockedCacheFactoryImplementation"/> is a factory class that creates instances of type 
-  /// <see cref="LockingCacheDecorator{TKey,TValue}"/>.
-  /// </summary>
-  public class InterlockedCacheFactoryImplementation : IInterlockedCacheFactoryImplementation
+  // @begin-skip
+  [ConcreteImplementation (
+      "Remotion.BridgeImplementations.ParamListCreateImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
+      Lifetime = LifetimeKind.Singleton)]
+  // @end-skip
+  public partial interface IParamListCreateImplementation
   {
-    public ICache<TKey, TValue> CreateCache<TKey, TValue> ()
-    {
-      return CacheFactory.CreateWithLocking<TKey, TValue>();
-    }
+    // @begin-skip
+    ParamList GetEmpty ();
+    // @end-skip
+
+    // @begin-template first=1 generate=1..20 suppressTemplate=true
+    // @replace "A<n>" ", " "<" ">"
+    // @replace "A<n> a<n>" ", "
+    ParamList Create<A1> (A1 a1);
+    // @end-template
+
+    // @begin-skip
+    ParamList CreateDynamic (Type[] parameterTypes, object[] parameterValues);
+    // @end-skip
   }
 }

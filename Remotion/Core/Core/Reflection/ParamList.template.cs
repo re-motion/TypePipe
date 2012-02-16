@@ -16,7 +16,7 @@
 // 
 using System;
 using Remotion.BridgeInterfaces;
-using Remotion.Implementation;
+using Remotion.Utilities;
 using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
@@ -130,6 +130,8 @@ namespace Remotion.Reflection
     /// <param name="constructorLookupInfo">An object looking up the constructor to be invoked. The lookup is performed with the signature defined 
     /// by the parameters encapsulated by this <see cref="ParamList"/>.</param>
     /// <returns>The result of the constructor invocation.</returns>
+    // Note: This is not equivalent to calling constructorLookupInfo with GetDelegate because the DynamicParamList implementation should support more
+    // arguments than possible are with the Func delegates.
     public abstract object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo);
 
     /// <summary>

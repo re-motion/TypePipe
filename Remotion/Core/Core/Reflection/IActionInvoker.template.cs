@@ -45,42 +45,4 @@ namespace Remotion.Reflection
     void With<A1> (A1 a1);
     // @end-template
   }
-
-  // @begin-skip
-  /// <summary>
-  /// Used to wrap an <see cref="IActionInvoker"/> object rather than returning it directly.
-  /// </summary>
-  // @end-skip
-  public partial struct ActionInvokerWrapper : IActionInvoker
-  {
-    // @begin-skip
-    private readonly IActionInvoker _invoker;
-
-    public ActionInvokerWrapper (IActionInvoker invoker)
-    {
-      _invoker = invoker;
-    }
-
-    public void Invoke (Type[] valueTypes, object[] values)
-    {
-      _invoker.Invoke (valueTypes, values);
-    }
-
-    public void Invoke (object[] values)
-    {
-      _invoker.Invoke (values);
-    }
-    // @end-skip
-
-    // @begin-template first=1 generate=0..17 suppressTemplate=true
-
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    public void With<A1> (A1 a1)
-    {
-      // @replace "a<n>" ", "
-      _invoker.With (a1);
-    }
-    // @end-template
-  }
 }

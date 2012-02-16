@@ -15,30 +15,44 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using Remotion.Implementation;
-using Remotion.Reflection;
 
-namespace Remotion.BridgeInterfaces
+namespace Remotion.Reflection
 {
   // @begin-skip
-  [ConcreteImplementation (
-      "Remotion.BridgeImplementations.ParamListCreateImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
-      Lifetime = LifetimeKind.Singleton)]
+  /// <summary>
+  /// Used to wrap an <see cref="IActionInvoker"/> object rather than returning it directly.
+  /// </summary>
   // @end-skip
-  public partial interface IParamListCreateImplementation
+  public partial struct ActionInvokerWrapper : IActionInvoker
   {
     // @begin-skip
-    ParamList GetEmpty ();
+    private readonly IActionInvoker _invoker;
+
+    public ActionInvokerWrapper (IActionInvoker invoker)
+    {
+      _invoker = invoker;
+    }
+
+    public void Invoke (Type[] valueTypes, object[] values)
+    {
+      _invoker.Invoke (valueTypes, values);
+    }
+
+    public void Invoke (object[] values)
+    {
+      _invoker.Invoke (values);
+    }
     // @end-skip
 
-    // @begin-template first=1 generate=1..20 suppressTemplate=true
+    // @begin-template first=1 generate=0..17 suppressTemplate=true
+
     // @replace "A<n>" ", " "<" ">"
     // @replace "A<n> a<n>" ", "
-    ParamList Create<A1> (A1 a1);
+    public void With<A1> (A1 a1)
+    {
+      // @replace "a<n>" ", "
+      _invoker.With (a1);
+    }
     // @end-template
-
-    // @begin-skip
-    ParamList CreateDynamic (Type[] parameterTypes, object[] parameterValues);
-    // @end-skip
   }
 }

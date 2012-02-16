@@ -23,7 +23,7 @@
 // 
 using System;
 using Remotion.BridgeInterfaces;
-using Remotion.Implementation;
+using Remotion.Utilities;
 using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
