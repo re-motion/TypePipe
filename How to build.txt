@@ -74,5 +74,25 @@ C:\Databases and C:\Databases\ftdata directories by hand to make the unit
 tests work.
 
 To generate documentation files for re-motion, run Build-RemotionLocalDoc.cmd.
+This requires Sandcastle Help File Builder to be installed, see below. 
 
 
+Installing Sandcastle Help File Builder for the documentation build
+-------------------------------------------------------------------
+The installation package of the version of Sandcastle Help File Builder used by
+re-motion is located in the prereq folder, under the following path: 
+
+prereq\Tools\SandcastleHelpFileBuilderInstall\
+
+Run Sandcastle Installer and click through the wizard.
+- When asked whether to proceed without the Microsoft Help 2 Compiler 
+  installed, click "Yes".
+- When asked to install the Sandcastle Tools, click "Install Sandcastle".
+- Also install the Sandcastle Patch by clicking "Apply Patch" from the
+  appropriate wizard page.
+- No additional language packs are required to build the re-motion
+  documentation.
+- The MAML guide, Web Project Custom Code Providers, HTML to MAML converter,
+  and MAML Schema Intellisense may be helpful for writing documentation, but
+  are NOT required for the re-motion build.
+- When asked to install the Sandcastle Help File Builder, click "Install SHFB".
