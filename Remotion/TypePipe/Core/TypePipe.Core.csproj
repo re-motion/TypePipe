@@ -19,11 +19,13 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Remotion.TypePipe.XML</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -49,6 +51,119 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
+    <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
+    <Compile Include="Dlr\Actions\CallInfo.cs" />
+    <Compile Include="Dlr\Actions\CallSite.cs" />
+    <Compile Include="Dlr\Actions\CallSiteBinder.cs" />
+    <Compile Include="Dlr\Actions\CallSiteHelpers.cs" />
+    <Compile Include="Dlr\Actions\CallSiteOps.cs" />
+    <Compile Include="Dlr\Actions\ConvertBinder.cs" />
+    <Compile Include="Dlr\Actions\CreateInstanceBinder.cs" />
+    <Compile Include="Dlr\Actions\DeleteIndexBinder.cs" />
+    <Compile Include="Dlr\Actions\DeleteMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\DynamicMetaObject.cs" />
+    <Compile Include="Dlr\Actions\DynamicMetaObjectBinder.cs" />
+    <Compile Include="Dlr\Actions\DynamicObject.cs" />
+    <Compile Include="Dlr\Actions\ExpandoClass.cs" />
+    <Compile Include="Dlr\Actions\ExpandoObject.cs" />
+    <Compile Include="Dlr\Actions\GetIndexBinder.cs" />
+    <Compile Include="Dlr\Actions\GetMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\IDynamicMetaObjectProvider.cs" />
+    <Compile Include="Dlr\Actions\IInvokeOnGetBinder.cs" />
+    <Compile Include="Dlr\Actions\InvokeBinder.cs" />
+    <Compile Include="Dlr\Actions\InvokeMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\RuleCache.cs" />
+    <Compile Include="Dlr\Actions\SetIndexBinder.cs" />
+    <Compile Include="Dlr\Actions\SetMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\UnaryOperationBinder.cs" />
+    <Compile Include="Dlr\Actions\UpdateDelegates.Generated.cs" />
+    <Compile Include="Dlr\Ast\BinaryExpression.cs" />
+    <Compile Include="Dlr\Ast\BlockExpression.cs" />
+    <Compile Include="Dlr\Ast\CatchBlock.cs" />
+    <Compile Include="Dlr\Ast\ConditionalExpression.cs" />
+    <Compile Include="Dlr\Ast\ConstantExpression.cs" />
+    <Compile Include="Dlr\Ast\DebugInfoExpression.cs" />
+    <Compile Include="Dlr\Ast\DebugViewWriter.cs" />
+    <Compile Include="Dlr\Ast\DefaultExpression.cs" />
+    <Compile Include="Dlr\Ast\DynamicExpression.cs" />
+    <Compile Include="Dlr\Ast\ElementInit.cs" />
+    <Compile Include="Dlr\Ast\Expression.cs" />
+    <Compile Include="Dlr\Ast\Expression.DebuggerProxy.cs" />
+    <Compile Include="Dlr\Ast\ExpressionStringBuilder.cs" />
+    <Compile Include="Dlr\Ast\ExpressionType.cs" />
+    <Compile Include="Dlr\Ast\ExpressionVisitor.cs" />
+    <Compile Include="Dlr\Ast\GotoExpression.cs" />
+    <Compile Include="Dlr\Ast\IArgumentProvider.cs" />
+    <Compile Include="Dlr\Ast\IndexExpression.cs" />
+    <Compile Include="Dlr\Ast\InvocationExpression.cs" />
+    <Compile Include="Dlr\Ast\LabelExpression.cs" />
+    <Compile Include="Dlr\Ast\LabelTarget.cs" />
+    <Compile Include="Dlr\Ast\LambdaExpression.cs" />
+    <Compile Include="Dlr\Ast\ListArgumentProvider.cs" />
+    <Compile Include="Dlr\Ast\ListInitExpression.cs" />
+    <Compile Include="Dlr\Ast\LoopExpression.cs" />
+    <Compile Include="Dlr\Ast\MemberAssignment.cs" />
+    <Compile Include="Dlr\Ast\MemberBinding.cs" />
+    <Compile Include="Dlr\Ast\MemberExpression.cs" />
+    <Compile Include="Dlr\Ast\MemberInitExpression.cs" />
+    <Compile Include="Dlr\Ast\MemberListBinding.cs" />
+    <Compile Include="Dlr\Ast\MemberMemberBinding.cs" />
+    <Compile Include="Dlr\Ast\MethodCallExpression.cs" />
+    <Compile Include="Dlr\Ast\NewArrayExpression.cs" />
+    <Compile Include="Dlr\Ast\NewExpression.cs" />
+    <Compile Include="Dlr\Ast\ParameterExpression.cs" />
+    <Compile Include="Dlr\Ast\RuntimeVariablesExpression.cs" />
+    <Compile Include="Dlr\Ast\SwitchCase.cs" />
+    <Compile Include="Dlr\Ast\SwitchExpression.cs" />
+    <Compile Include="Dlr\Ast\SymbolDocumentInfo.cs" />
+    <Compile Include="Dlr\Ast\TryExpression.cs" />
+    <Compile Include="Dlr\Ast\TypeBinaryExpression.cs" />
+    <Compile Include="Dlr\Ast\TypeUtils.cs" />
+    <Compile Include="Dlr\Ast\UnaryExpression.cs" />
+    <Compile Include="Dlr\Compiler\AnalyzedTree.cs" />
+    <Compile Include="Dlr\Compiler\AssemblyGen.cs" />
+    <Compile Include="Dlr\Compiler\BoundConstants.cs" />
+    <Compile Include="Dlr\Compiler\Closure.cs" />
+    <Compile Include="Dlr\Compiler\CompilerScope.cs" />
+    <Compile Include="Dlr\Compiler\CompilerScope.Storage.cs" />
+    <Compile Include="Dlr\Compiler\ConstantCheck.cs" />
+    <Compile Include="Dlr\Compiler\DebugInfoGenerator.cs" />
+    <Compile Include="Dlr\Compiler\DelegateHelpers.cs" />
+    <Compile Include="Dlr\Compiler\DelegateHelpers.Generated.cs" />
+    <Compile Include="Dlr\Compiler\ExpressionQuoter.cs" />
+    <Compile Include="Dlr\Compiler\HoistedLocals.cs" />
+    <Compile Include="Dlr\Compiler\ILGen.cs" />
+    <Compile Include="Dlr\Compiler\KeyedQueue.cs" />
+    <Compile Include="Dlr\Compiler\LabelInfo.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Address.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Binary.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.ControlFlow.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Expressions.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Generated.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Lambda.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Logical.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Statements.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Unary.cs" />
+    <Compile Include="Dlr\Compiler\OffsetTrackingILGenerator.cs" />
+    <Compile Include="Dlr\Compiler\RuntimeVariableList.cs" />
+    <Compile Include="Dlr\Compiler\Set.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.Bindings.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.Generated.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.Temps.cs" />
+    <Compile Include="Dlr\Compiler\SymbolDocumentGenerator.cs" />
+    <Compile Include="Dlr\Compiler\VariableBinder.cs" />
+    <Compile Include="Dlr\Utils\CacheDict.cs" />
+    <Compile Include="Dlr\Utils\CollectionExtensions.cs" />
+    <Compile Include="Dlr\Utils\ContractUtils.cs" />
+    <Compile Include="Dlr\Utils\ExceptionFactory.Generated.cs" />
+    <Compile Include="Dlr\Utils\Helpers.cs" />
+    <Compile Include="Dlr\Utils\ReadOnlyDictionary.cs" />
+    <Compile Include="Dlr\Utils\ReferenceEqualityComparer.cs" />
+    <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />
+    <Compile Include="Dlr\Utils\TypeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
