@@ -1,25 +1,24 @@
-// This file is part of the re-motion Core Framework (www.re-motion.org)
+// This file is part of the re-motion TypePipe project (typepipe.codeplex.com)
 // Copyright (c) rubicon IT GmbH, www.rubicon.eu
 // 
-// The re-motion Core Framework is free software; you can redistribute it 
-// and/or modify it under the terms of the GNU Lesser General Public License 
-// as published by the Free Software Foundation; either version 2.1 of the 
-// License, or (at your option) any later version.
+// re-motion TypePipe is free software; you can redistribute it 
+// and/or modify it under the terms of the Apache License, Version 2.0
+// as published by the Apache Software Foundation.
 // 
-// re-motion is distributed in the hope that it will be useful, 
+// re-motion TypePipe is distributed in the hope that it will be useful, 
 // but WITHOUT ANY WARRANTY; without even the implied warranty of 
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// GNU Lesser General Public License for more details.
+// Apache License, Version 2.0 for more details.
 // 
-// You should have received a copy of the GNU Lesser General Public License
-// along with re-motion; if not, see http://www.gnu.org/licenses.
+// You should have received a copy of the Apache License, Version 2.0
+// along with re-motion; if not, see http://www.apache.org/licenses.
 // 
+using System;
 using System.Reflection;
 //
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("Remotion Type Pipe Library Unit Tests")]
-[assembly: AssemblyCulture("")]		
-
+[assembly: AssemblyTitle ("Remotion Type Pipe Library Unit Tests")]
+[assembly: AssemblyCulture ("")]
