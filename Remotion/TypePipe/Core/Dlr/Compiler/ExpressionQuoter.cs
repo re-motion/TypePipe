@@ -16,6 +16,11 @@
 #if CLR2
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
+#elif REMOTION_TYPEPIPE
+using System;
+using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -26,7 +31,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic.Utils;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Compiler {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
     public partial class RuntimeOps {
         /// <summary>
         /// Quotes the provided expression tree.

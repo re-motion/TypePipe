@@ -27,6 +27,8 @@ using System.Diagnostics.SymbolStore;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
+#elif REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif
@@ -57,7 +59,7 @@ namespace System.Linq.Expressions.Compiler {
             }
         }
 
-        #region Simple Instructions
+#region Simple Instructions
 
         internal void Emit(OpCode opcode) {
             _ilg.Emit(opcode);
@@ -225,7 +227,7 @@ namespace System.Linq.Expressions.Compiler {
 
         #endregion
 
-        #region Exception Handling
+#region Exception Handling
         
         private enum ExceptionState {
             Try = 0,
@@ -308,7 +310,7 @@ namespace System.Linq.Expressions.Compiler {
 
         #endregion
 
-        #region Labels and Locals
+#region Labels and Locals
 
         internal Label DefineLabel() {
             return _ilg.DefineLabel();
@@ -328,7 +330,7 @@ namespace System.Linq.Expressions.Compiler {
 
         #endregion
 
-        #region Assertions
+#region Assertions
 
 #if STRESS_DEBUG
         private FieldInfo _ilgOffsetField;

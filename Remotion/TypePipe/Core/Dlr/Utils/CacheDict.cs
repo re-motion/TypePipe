@@ -18,7 +18,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Utils {
+#else
 namespace System.Dynamic.Utils {
+#endif
     /// <summary>
     /// Provides a dictionary-like object used for caches which holds onto a maximum
     /// number of elements specified at construction time.

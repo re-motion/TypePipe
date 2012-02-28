@@ -22,6 +22,9 @@ using System.Reflection.Emit;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
+#elif REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Ast;
+namespace Remotion.TypePipe.Dlr.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

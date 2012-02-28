@@ -20,7 +20,12 @@ using Microsoft.Scripting.Utils;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+#if REMOTION_TYPEPIPE
+using System;
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
     internal static partial class UpdateDelegates {
 
         //

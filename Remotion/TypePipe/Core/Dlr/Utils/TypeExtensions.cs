@@ -18,7 +18,13 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
+#if REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Ast;
+namespace Remotion.TypePipe.Dlr.Utils {
+#else
 namespace System.Dynamic.Utils {
+#endif
 
     // Extensions on System.Type and friends
     internal static class TypeExtensions {

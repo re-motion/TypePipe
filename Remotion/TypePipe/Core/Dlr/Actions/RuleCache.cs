@@ -17,7 +17,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic.Utils;
 
+#if REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Utils;
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
     /// <summary>
     /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.
     /// Represents a cache of runtime binding rules.

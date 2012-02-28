@@ -13,7 +13,11 @@
  *
  * ***************************************************************************/
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
     /// <summary>
     /// Represents information about a dynamic get member operation, indicating
     /// if the get member should invoke properties when performing the get.

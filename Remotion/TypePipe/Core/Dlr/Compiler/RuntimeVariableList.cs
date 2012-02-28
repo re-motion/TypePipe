@@ -15,6 +15,9 @@
 
 #if CLR2
 using Microsoft.Scripting.Ast.Compiler;
+#elif REMOTION_TYPEPIPE
+using System;
+using System.Runtime.CompilerServices;
 #else
 using System.Linq.Expressions.Compiler;
 #endif
@@ -22,7 +25,11 @@ using System.Linq.Expressions.Compiler;
 using System.ComponentModel;
 using System.Diagnostics;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Compiler {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
 
     /// <summary>
     /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.

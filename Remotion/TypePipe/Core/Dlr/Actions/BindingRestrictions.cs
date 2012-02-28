@@ -15,6 +15,10 @@
 
 #if CLR2
 using Microsoft.Scripting.Ast;
+#elif REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Compiler;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
@@ -25,7 +29,11 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Runtime.CompilerServices;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
 
     /// <summary>
     /// Represents a set of binding restrictions on the <see cref="DynamicMetaObject"/>under which the dynamic binding is valid.

@@ -16,7 +16,11 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Compiler {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
 
     /// <summary>
     /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.

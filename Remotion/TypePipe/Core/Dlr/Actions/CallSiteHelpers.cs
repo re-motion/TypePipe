@@ -14,7 +14,13 @@
  * ***************************************************************************/
 
 using System.Reflection;
+
+#if REMOTION_TYPEPIPE
+using System;
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
     /// <summary>
     /// Class that contains helper methods for DLR CallSites.
     /// </summary>
@@ -42,7 +48,11 @@ namespace System.Runtime.CompilerServices {
             }
 
             //Filter out the helper methods.
+#if REMOTION_TYPEPIPE
+            if (mb.DeclaringType == typeof(Remotion.TypePipe.Dlr.Actions.UpdateDelegates)) {
+#else
             if (mb.DeclaringType == typeof(System.Dynamic.UpdateDelegates)) {
+#endif
                 return true;
             }
 

@@ -15,6 +15,8 @@
 
 #if CLR2
 namespace Microsoft.Scripting.Ast {
+#elif REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

@@ -15,6 +15,8 @@
 // 
 #if CLR2
 using Microsoft.Scripting.Ast;
+#elif REMOTION_TYPEPIPE
+using System;
 #else
 using System.Linq.Expressions;
 #endif
@@ -25,7 +27,11 @@ using System.Core;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Utils {
+#else
 namespace System.Dynamic.Utils {
+#endif
 
     // Will be replaced with CLRv4 managed contracts
     internal static class ContractUtils {

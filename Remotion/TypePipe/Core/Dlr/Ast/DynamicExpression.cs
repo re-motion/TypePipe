@@ -19,7 +19,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
+
+#if REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Actions;
+using Remotion.TypePipe.Dlr.Utils;
+#else
 using System.Runtime.CompilerServices;
+#endif
 
 #if SILVERLIGHT
 using System.Core;
@@ -27,6 +33,8 @@ using System.Core;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast {
+#elif REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

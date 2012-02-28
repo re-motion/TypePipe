@@ -16,16 +16,24 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
-using System.Dynamic.Utils;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
+
+#if REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Actions;
+using Remotion.TypePipe.Dlr.Utils;
+#else
+using System.Dynamic;
+using System.Dynamic.Utils;
+using System.Runtime.CompilerServices;
+#endif
 
 #if CLR2
 namespace Microsoft.Scripting.Ast {
+#elif REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

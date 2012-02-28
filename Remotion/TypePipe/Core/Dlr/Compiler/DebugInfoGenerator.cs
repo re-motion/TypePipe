@@ -16,6 +16,8 @@
 #if CLR2
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
+#elif REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -29,7 +31,11 @@ using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.Reflection;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Compiler {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
 #if CLR2 || SILVERLIGHT
     using ILGenerator = OffsetTrackingILGenerator;
 #endif

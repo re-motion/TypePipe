@@ -16,6 +16,10 @@
 #if CLR2
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
+#elif REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
@@ -30,7 +34,11 @@ using System.Dynamic;
 using System.Dynamic.Utils;
 using System.Runtime.CompilerServices;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
     /// <summary>
     /// Represents an object with members that can be dynamically added and removed at runtime.
     /// </summary>
@@ -1019,7 +1027,11 @@ namespace System.Dynamic {
     }
 }
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
 
     //
     // Note: these helpers are kept as simple wrappers so they have a better 

@@ -17,7 +17,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic.Utils;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Utils {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
     sealed class TrueReadOnlyCollection<T> : ReadOnlyCollection<T> {
         /// <summary>
         /// Creates instnace of TrueReadOnlyCollection, wrapping passed in array.

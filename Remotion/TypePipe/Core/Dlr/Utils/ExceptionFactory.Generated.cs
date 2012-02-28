@@ -17,6 +17,8 @@ using System;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast {
+#elif REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Utils {
 #else
 namespace System.Linq.Expressions {
 #endif

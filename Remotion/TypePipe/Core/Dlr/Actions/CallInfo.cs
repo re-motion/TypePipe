@@ -15,6 +15,8 @@
 
 #if CLR2
 using Microsoft.Scripting.Ast;
+#elif REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
@@ -26,7 +28,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic.Utils;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
 
     /// <summary>
     /// Describes arguments in the dynamic binding process.

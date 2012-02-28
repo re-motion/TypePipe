@@ -13,25 +13,9 @@
 // You should have received a copy of the Apache License, Version 2.0
 // along with re-motion; if not, see http://www.apache.org/licenses.
 // 
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-#if REMOTION_TYPEPIPE
-namespace Remotion.TypePipe.Dlr.Utils {
-#else
-namespace System.Dynamic.Utils {
-#endif
-    internal sealed class ReferenceEqualityComparer<T> : IEqualityComparer<T> {
-        internal static readonly ReferenceEqualityComparer<T> Instance = new ReferenceEqualityComparer<T>();
-
-        private ReferenceEqualityComparer() { }
-
-        public bool Equals(T x, T y) {
-            return object.ReferenceEquals(x, y);
-        }
-
-        public int GetHashCode(T obj) {
-            return RuntimeHelpers.GetHashCode(obj);
-        }
-    }
+namespace System.Dynamic.Utils
+{
+  // This file is only here to span the 'System.Dynamic.Utils' namespace
+  // so we can avoid the need for further modifications in the DLR source files
+  // (remove using directives)
 }

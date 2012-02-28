@@ -15,6 +15,11 @@
 
 #if CLR2
 using Microsoft.Scripting.Ast;
+#elif REMOTION_TYPEPIPE
+using System;
+using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
@@ -30,7 +35,11 @@ using System.Dynamic.Utils;
 using System.Threading;
 using System.Reflection;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
     /// <summary>
     /// Class responsible for runtime binding of the dynamic operations on the dynamic call site.
     /// </summary>

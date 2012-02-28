@@ -21,6 +21,10 @@ using System.Dynamic.Utils;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
+#elif REMOTION_TYPEPIPE
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Utils;
+namespace Remotion.TypePipe.Dlr.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

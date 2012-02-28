@@ -16,6 +16,11 @@
 #if CLR2
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
+#elif REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Compiler;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -32,7 +37,11 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Runtime.CompilerServices;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
     /// <summary>
     /// The dynamic call site binder that participates in the <see cref="DynamicMetaObject"/> binding protocol.
     /// </summary>

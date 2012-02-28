@@ -18,7 +18,12 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.Collections.Generic;
 
+#if REMOTION_TYPEPIPE
+using System;
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
 
     // Conceptually these are instance methods on CallSite<T> but
     // we don't want users to see them

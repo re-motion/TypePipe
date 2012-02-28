@@ -17,6 +17,11 @@
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Microsoft.Scripting.Utils;
+#elif REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Compiler;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -33,7 +38,11 @@ using System.Dynamic;
 using System.Dynamic.Utils;
 using System.Reflection;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Runtime.CompilerServices {
+#endif
 
     //
     // A CallSite provides a fast mechanism for call-site caching of dynamic dispatch

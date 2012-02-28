@@ -16,13 +16,20 @@
 #if CLR2
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
+#elif REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Compiler;
 #else
 using System.Linq.Expressions;
 #endif
 
 using System.Collections.Generic;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Utils {
+#else
 namespace System.Dynamic.Utils {
+#endif
     // Miscellaneous helpers that don't belong anywhere else
     internal static class Helpers {
 

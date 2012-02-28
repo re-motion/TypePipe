@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;REMOTION_TYPEPIPE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Remotion.TypePipe.XML</DocumentationFile>
@@ -31,7 +31,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;REMOTION_TYPEPIPE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -159,7 +159,11 @@
     <Compile Include="Dlr\Utils\CollectionExtensions.cs" />
     <Compile Include="Dlr\Utils\ContractUtils.cs" />
     <Compile Include="Dlr\Utils\ExceptionFactory.Generated.cs" />
+    <Compile Include="Dlr\Utils\Extension.cs" />
     <Compile Include="Dlr\Utils\Helpers.cs" />
+    <Compile Include="Dlr\Utils\NamespacePreserver.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Dlr\Utils\ReadOnlyDictionary.cs" />
     <Compile Include="Dlr\Utils\ReferenceEqualityComparer.cs" />
     <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />

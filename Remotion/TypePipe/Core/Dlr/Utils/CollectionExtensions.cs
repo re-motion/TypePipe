@@ -16,6 +16,9 @@
 #if CLR2
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Ast;
+#elif REMOTION_TYPEPIPE
+using System;
+using System.Diagnostics.Contracts;
 #else
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
@@ -26,7 +29,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Utils {
+#else
 namespace System.Dynamic.Utils {
+#endif
     internal static class CollectionExtensions {
         /// <summary>
         /// Wraps the provided enumerable into a ReadOnlyCollection{T}

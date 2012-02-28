@@ -15,7 +15,13 @@
 
 using System.Dynamic.Utils;
 
+#if REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Utils;
+namespace Remotion.TypePipe.Dlr.Actions {
+#else
 namespace System.Dynamic {
+#endif
 
     /// <summary>
     /// Represents the invoke member dynamic operation at the call site,

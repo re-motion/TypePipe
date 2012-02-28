@@ -15,6 +15,9 @@
 
 #if CLR2
 using Microsoft.Scripting.Ast;
+#elif REMOTION_TYPEPIPE
+using System;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
@@ -26,7 +29,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
+#if REMOTION_TYPEPIPE
+namespace Remotion.TypePipe.Dlr.Ast {
+#else
 namespace System.Dynamic.Utils {
+#endif
 
     internal static class TypeUtils {
         private const BindingFlags AnyStatic = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
