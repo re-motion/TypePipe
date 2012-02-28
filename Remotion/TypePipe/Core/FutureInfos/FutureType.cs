@@ -26,12 +26,31 @@ namespace Remotion.TypePipe.FutureInfos
   {
     private readonly Slot<TypeBuilder> _typeBuilder = Slot.New<TypeBuilder> ("TypeBuilder");
 
+    internal FutureType ()
+    {
+    }
+
     public void SetTypeBuilder (TypeBuilder typeBuilder)
     {
       _typeBuilder.Set (typeBuilder);
     }
 
-    #region NotImplemented
+    #region Type interface
+
+    public override Type BaseType
+    {
+      get { return typeof (object); }
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (
+      BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      return new FutureConstructor();
+    }
+
+    #endregion
+
+    #region Not Implemented from Type interface
 
     public override object[] GetCustomAttributes (bool inherit)
     {
@@ -173,12 +192,6 @@ namespace Remotion.TypePipe.FutureInfos
       get { throw new NotImplementedException(); }
     }
 
-    protected override ConstructorInfo GetConstructorImpl (
-        BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      throw new NotImplementedException();
-    }
-
     public override string Name
     {
       get { throw new NotImplementedException(); }
@@ -210,11 +223,6 @@ namespace Remotion.TypePipe.FutureInfos
     }
 
     public override string AssemblyQualifiedName
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Type BaseType
     {
       get { throw new NotImplementedException(); }
     }

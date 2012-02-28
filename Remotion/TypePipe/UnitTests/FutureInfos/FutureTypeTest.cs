@@ -49,10 +49,34 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     }
 
     [Test]
-    public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
+    public void BaseType ()
+    {
+      Assert.That (new FutureType().BaseType, Is.EqualTo (typeof (object)));
+    }
+
+    [Test]
+    public void GetConstructor ()
     {
       // Arrange
       var futureType = new FutureType();
+
+      BindingFlags bindingFlags = (BindingFlags) (-1);  // Does not matter
+      Binder binder = null;                             // Does not matter
+      Type[] parameterTypes = Type.EmptyTypes;          // Does not matter, cannot be null
+      ParameterModifier[] parameterModifiers = null;    // Does not matter
+
+      // Act
+      var constructor = futureType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
+
+      // Assert
+      Assert.That (constructor, Is.TypeOf<FutureConstructor>());
+    }
+
+    [Test]
+    public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
+    {
+      // Arrange
+      var futureType = new FutureType ();
       var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
 
       // Act
@@ -65,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     }
 
     //// TODO: Maybe move this test into separate integration test file?
-    [Ignore("Implement finer tests first")]
+    [Ignore ("Implement finer tests first")]
     [Test]
     public void FutureType_CanBeUsedInExpressionTrees ()
     {

@@ -168,6 +168,7 @@
     <Compile Include="Dlr\Utils\ReferenceEqualityComparer.cs" />
     <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />
     <Compile Include="Dlr\Utils\TypeExtensions.cs" />
+    <Compile Include="FutureInfos\FutureConstructor.cs" />
     <Compile Include="FutureInfos\FutureType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\Slot.cs" />
