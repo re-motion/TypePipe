@@ -1037,7 +1037,11 @@ namespace System.Runtime.CompilerServices {
     // Note: these helpers are kept as simple wrappers so they have a better 
     // chance of being inlined.
     //
+#if REMOTION_TYPEPIPE
+    internal static partial class RuntimeOps {
+#else
     public static partial class RuntimeOps {
+#endif
 
         /// <summary>
         /// Gets the value of an item in an expando object.
