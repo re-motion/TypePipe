@@ -19,20 +19,22 @@ using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
+using Remotion.TypePipe.UnitTests.Utilities;
+using Remotion.TypePipe.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.FutureInfos
 {
   [TestFixture]
   public class FutureTypeTest
   {
-    private ModuleBuilder _moduleBuilder;
+    //private ModuleBuilder _moduleBuilder;
 
-    [TestFixtureSetUp]
-    public void GenerateAssembly ()
-    {
-      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("FutureTypeTest"), AssemblyBuilderAccess.RunAndSave);
-      _moduleBuilder = assemblyBuilder.DefineDynamicModule ("FutureTypeTest.dll");
-    }
+    //[TestFixtureSetUp]
+    //public void GenerateAssembly ()
+    //{
+    //  var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("FutureTypeTest"), AssemblyBuilderAccess.RunAndSave);
+    //  _moduleBuilder = assemblyBuilder.DefineDynamicModule ("FutureTypeTest.dll");
+    //}
 
     //[Test]
     //public void Initialization ()
@@ -108,7 +110,8 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     {
       // Arrange
       var futureType = new FutureType ();
-      var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
+      var typeBuilder = new FakeAdapter<TypeBuilder>();
+      //var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
 
       // Act
       TestDelegate action = () => futureType.SetTypeBuilder (typeBuilder);
@@ -119,9 +122,9 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
         .With.Message.EqualTo ("TypeBuilder already set"));
     }
 
-    private TypeBuilder CreateTypeBuilder (string typeName)
-    {
-      return _moduleBuilder.DefineType (typeName);
-    }
+    //private TypeBuilder CreateTypeBuilder (string typeName)
+    //{
+    //  return _moduleBuilder.DefineType (typeName);
+    //}
   }
 }

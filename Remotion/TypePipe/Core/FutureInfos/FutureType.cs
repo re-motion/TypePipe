@@ -24,13 +24,13 @@ namespace Remotion.TypePipe.FutureInfos
 {
   public class FutureType : Type
   {
-    private readonly Slot<TypeBuilder> _typeBuilder = Slot.New<TypeBuilder> ("TypeBuilder");
+    private readonly Slot<Adapter<TypeBuilder>> _typeBuilder = Slot.New<Adapter<TypeBuilder>> ("TypeBuilder");
 
     internal FutureType ()
     {
     }
 
-    public void SetTypeBuilder (TypeBuilder typeBuilder)
+    public void SetTypeBuilder (Adapter<TypeBuilder> typeBuilder)
     {
       _typeBuilder.Set (typeBuilder);
     }

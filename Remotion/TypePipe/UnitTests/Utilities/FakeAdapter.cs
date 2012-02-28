@@ -15,37 +15,16 @@
 // under the License.
 // 
 using System;
-using System.Diagnostics;
+using Remotion.TypePipe.Utilities;
 
-namespace Remotion.TypePipe.Utilities
+namespace Remotion.TypePipe.UnitTests.Utilities
 {
-  [DebuggerStepThrough]
-  public static class Adapter
+  public class FakeAdapter<T> : Adapter<T>
+      where T: class
   {
-    public static Adapter<T> New<T> (T item)
-      where T : class 
+    public FakeAdapter ()
+        : base (null)
     {
-      if (item == null)
-        throw new ArgumentNullException ("item");
-
-      return new Adapter<T> (item);
-    }
-  }
-
-  [DebuggerStepThrough]
-  public class Adapter<T>
-    where T : class
-  {
-    private readonly T _item;
-
-    public Adapter (T item)
-    {
-      _item = item;
-    }
-
-    public T Item
-    {
-      get { return _item; }
     }
   }
 }

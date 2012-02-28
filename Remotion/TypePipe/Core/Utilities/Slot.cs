@@ -20,7 +20,7 @@ using System.Diagnostics;
 namespace Remotion.TypePipe.Utilities
 {
   [DebuggerStepThrough]
-  internal static class Slot
+  public static class Slot
   {
     public static Slot<T> New<T> (string itemName = "Item", bool allowsNull = false)
     {
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.Utilities
   }
 
   [DebuggerStepThrough]
-  internal class Slot<T>
+  public class Slot<T>
   {
     private readonly string _itemName;
     private T _item;
