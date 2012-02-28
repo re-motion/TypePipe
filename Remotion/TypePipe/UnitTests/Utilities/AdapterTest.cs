@@ -15,45 +15,52 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureInfos;
+using Remotion.TypePipe.Utilities;
 
-namespace Remotion.TypePipe.UnitTests.FutureInfos
+namespace Remotion.TypePipe.UnitTests.Utilities
 {
   [TestFixture]
-  public class FutureConstructorTest
+  public class AdapterTest
   {
-
     [Test]
     public void Initialization ()
     {
       // Arrange
-      var futureType = new FutureType();
+      var item = new object();
 
       // Act
-      var futureConstructor = new FutureConstructor(futureType);
+      var adapter = new Adapter<object> (item);
 
       // Assert
-      Assert.That (futureConstructor.DeclaringType, Is.SameAs (futureType));
+      Assert.That (adapter.Item, Is.SameAs (item));
     }
 
     [Test]
-    public void FutureConstructorIsAConstructorInfo ()
+    public void New ()
     {
-      Assert.That (NewFutureCtor(), Is.InstanceOf<ConstructorInfo>());
-      Assert.That (NewFutureCtor(), Is.AssignableTo<ConstructorInfo>());
+      // Arrange
+      var item = new object ();
+
+      // Act
+      var adapter = Adapter.New (item);
+
+      // Assert
+      Assert.That (adapter.Item, Is.SameAs (item));
     }
 
     [Test]
-    public void GetParameters ()
+    public void New_ThrowsForNull ()
     {
-      Assert.That (NewFutureCtor().GetParameters(), Is.EqualTo (new ParameterInfo[0]));
-    }
+      // Arrange
+      object item = null;
 
-    private FutureConstructor NewFutureCtor ()
-    {
-      return new FutureConstructor (null);
+      // Act
+      TestDelegate action = () => Adapter.New (item);
+
+      // Assert
+      Assert.That (action, Throws.TypeOf<ArgumentNullException> ()
+        .With.Property ("ParamName").EqualTo ("item"));
     }
   }
 }

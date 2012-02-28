@@ -171,6 +171,7 @@
     <Compile Include="FutureInfos\FutureConstructor.cs" />
     <Compile Include="FutureInfos\FutureType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\Adapter.cs" />
     <Compile Include="Utilities\Slot.cs" />
   </ItemGroup>
   <ItemGroup>
