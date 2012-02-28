@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     }
 
     [Test]
-    public void GetConstructor ()
+    public void GetConstructorImpl ()
     {
       // Arrange
       var futureType = new FutureType();
@@ -70,6 +70,13 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
 
       // Assert
       Assert.That (constructor, Is.TypeOf<FutureConstructor>());
+      Assert.That (constructor.DeclaringType, Is.SameAs (futureType));
+    }
+
+    [Test]
+    public void HasElementTypeImpl ()
+    {
+      Assert.That (new FutureType().HasElementType, Is.False);
     }
 
     [Test]
@@ -89,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     }
 
     //// TODO: Maybe move this test into separate integration test file?
-    //[Ignore ("Implement finer tests first")]
+    [Ignore ("Implement finer tests first")]
     [Test]
     public void FutureType_CanBeUsedInExpressionTrees ()
     {

@@ -45,7 +45,12 @@ namespace Remotion.TypePipe.FutureInfos
     protected override ConstructorInfo GetConstructorImpl (
       BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      return new FutureConstructor(null);
+      return new FutureConstructor(this);
+    }
+
+    protected override bool HasElementTypeImpl ()
+    {
+      return false;
     }
 
     #endregion
@@ -98,11 +103,6 @@ namespace Remotion.TypePipe.FutureInfos
     }
 
     public override Type GetElementType ()
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override bool HasElementTypeImpl ()
     {
       throw new NotImplementedException();
     }
@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.FutureInfos
 
     public override string Name
     {
-      get { throw new NotImplementedException(); }
+      get { return null; }
     }
 
     public override Guid GUID
