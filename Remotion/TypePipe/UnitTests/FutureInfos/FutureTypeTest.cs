@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
 
@@ -43,18 +44,39 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     [Test]
     public void FutureTypeIsAType ()
     {
-      Assert.That (new FutureType(), Is.AssignableTo<Type>());
+      Assert.That (new FutureType(), Is.InstanceOf<Type> ());
+      Assert.That (typeof (FutureType), Is.AssignableTo<Type> ());
     }
 
     [Test]
     public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
     {
+      // Arrange
       var futureType = new FutureType();
       var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
 
-      Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.Nothing);
-      Assert.That (() => futureType.SetTypeBuilder (typeBuilder),
-        Throws.InvalidOperationException.With.Message.EqualTo ("TypeBuilder already set"));
+      // Act
+      TestDelegate action = () => futureType.SetTypeBuilder (typeBuilder);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
+      Assert.That (action, Throws.InvalidOperationException
+        .With.Message.EqualTo ("TypeBuilder already set"));
+    }
+
+    //// TODO: Maybe move this test into separate integration test file?
+    [Ignore("Implement finer tests first")]
+    [Test]
+    public void FutureType_CanBeUsedInExpressionTrees ()
+    {
+      // Arrange
+      var futureType = new FutureType();
+
+      // Act
+      TestDelegate action = () => Expression.New (futureType);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
     }
 
     private TypeBuilder CreateTypeBuilder (string typeName)
