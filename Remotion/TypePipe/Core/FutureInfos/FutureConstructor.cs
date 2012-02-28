@@ -36,6 +36,11 @@ namespace Remotion.TypePipe.FutureInfos
       get { return _futureType; }
     }
 
+    public override ParameterInfo[] GetParameters ()
+    {
+      return new ParameterInfo[0];
+    }
+
     #endregion
 
     #region Not Implemented from ConstructorInfo interface
@@ -46,11 +51,6 @@ namespace Remotion.TypePipe.FutureInfos
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override ParameterInfo[] GetParameters ()
     {
       throw new NotImplementedException();
     }

@@ -39,8 +39,19 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     [Test]
     public void FutureConstructorIsAConstructorInfo ()
     {
-      Assert.That (new FutureConstructor (null), Is.InstanceOf<ConstructorInfo> ());
-      Assert.That (new FutureConstructor (null), Is.AssignableTo<ConstructorInfo> ());
+      Assert.That (NewFutureCtor(), Is.InstanceOf<ConstructorInfo>());
+      Assert.That (NewFutureCtor(), Is.AssignableTo<ConstructorInfo>());
+    }
+
+    [Test]
+    public void GetParameters ()
+    {
+      Assert.That (NewFutureCtor().GetParameters(), Is.EqualTo (new ParameterInfo[0]));
+    }
+
+    private FutureConstructor NewFutureCtor ()
+    {
+      return new FutureConstructor (null);
     }
   }
 }

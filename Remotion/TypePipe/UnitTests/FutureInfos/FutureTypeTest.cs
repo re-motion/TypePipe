@@ -55,6 +55,24 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     }
 
     [Test]
+    public void Name ()
+    {
+      Assert.That (new FutureType().Name, Is.Null);
+    }
+
+    [Test]
+    public void HasElementTypeImpl ()
+    {
+      Assert.That (new FutureType ().HasElementType, Is.False);
+    }
+
+    [Test]
+    public void Assembly ()
+    {
+      Assert.That (new FutureType ().Assembly, Is.Null);
+    }
+
+    [Test]
     public void GetConstructorImpl ()
     {
       // Arrange
@@ -73,10 +91,18 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
       Assert.That (constructor.DeclaringType, Is.SameAs (futureType));
     }
 
+    //// TODO: Maybe move this test into separate integration test file?
     [Test]
-    public void HasElementTypeImpl ()
+    public void FutureType_CanBeUsedInNewExpression ()
     {
-      Assert.That (new FutureType().HasElementType, Is.False);
+      // Arrange
+      var futureType = new FutureType();
+
+      // Act
+      TestDelegate action = () => Expression.New (futureType);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
     }
 
     [Test]
@@ -93,21 +119,6 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
       Assert.That (action, Throws.Nothing);
       Assert.That (action, Throws.InvalidOperationException
         .With.Message.EqualTo ("TypeBuilder already set"));
-    }
-
-    //// TODO: Maybe move this test into separate integration test file?
-    [Ignore ("Implement finer tests first")]
-    [Test]
-    public void FutureType_CanBeUsedInExpressionTrees ()
-    {
-      // Arrange
-      var futureType = new FutureType();
-
-      // Act
-      TestDelegate action = () => Expression.New (futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
     }
 
     private TypeBuilder CreateTypeBuilder (string typeName)

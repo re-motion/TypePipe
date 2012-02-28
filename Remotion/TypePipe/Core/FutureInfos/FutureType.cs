@@ -42,15 +42,25 @@ namespace Remotion.TypePipe.FutureInfos
       get { return typeof (object); }
     }
 
-    protected override ConstructorInfo GetConstructorImpl (
-      BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    public override string Name
     {
-      return new FutureConstructor(this);
+      get { return null; }
     }
 
     protected override bool HasElementTypeImpl ()
     {
       return false;
+    }
+
+    public override Assembly Assembly
+    {
+      get { return null; }
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (
+      BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      return new FutureConstructor(this);
     }
 
     #endregion
@@ -192,22 +202,12 @@ namespace Remotion.TypePipe.FutureInfos
       get { throw new NotImplementedException(); }
     }
 
-    public override string Name
-    {
-      get { return null; }
-    }
-
     public override Guid GUID
     {
       get { throw new NotImplementedException(); }
     }
 
     public override Module Module
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Assembly Assembly
     {
       get { throw new NotImplementedException(); }
     }
