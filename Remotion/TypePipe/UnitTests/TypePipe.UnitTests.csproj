@@ -53,6 +53,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="FutureInfos\FutureConstructorTest.cs" />
     <Compile Include="FutureInfos\FutureTypeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\SlotTest.cs" />

@@ -22,6 +22,22 @@ namespace Remotion.TypePipe.FutureInfos
 {
   public class FutureConstructor : ConstructorInfo
   {
+    private readonly FutureType _futureType;
+
+    internal FutureConstructor (FutureType futureType)
+    {
+      _futureType = futureType;
+    }
+
+    #region ConstructorInfo interface
+
+    public override Type DeclaringType
+    {
+      get { return _futureType; }
+    }
+
+    #endregion
+
     #region Not Implemented from ConstructorInfo interface
 
     public override object[] GetCustomAttributes (bool inherit)
@@ -50,11 +66,6 @@ namespace Remotion.TypePipe.FutureInfos
     }
 
     public override string Name
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Type DeclaringType
     {
       get { throw new NotImplementedException(); }
     }

@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     public void FutureTypeIsAType ()
     {
       Assert.That (new FutureType(), Is.InstanceOf<Type> ());
-      Assert.That (typeof (FutureType), Is.AssignableTo<Type> ());
+      Assert.That (new FutureType(), Is.AssignableTo<Type> ());
     }
 
     [Test]
@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     }
 
     //// TODO: Maybe move this test into separate integration test file?
-    [Ignore ("Implement finer tests first")]
+    //[Ignore ("Implement finer tests first")]
     [Test]
     public void FutureType_CanBeUsedInExpressionTrees ()
     {

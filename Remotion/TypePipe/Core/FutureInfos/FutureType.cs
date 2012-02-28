@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.FutureInfos
     protected override ConstructorInfo GetConstructorImpl (
       BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      return new FutureConstructor();
+      return new FutureConstructor(null);
     }
 
     #endregion
