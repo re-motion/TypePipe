@@ -63,6 +63,16 @@ namespace Remotion.TypePipe.FutureInfos
       return new FutureConstructor(this);
     }
 
+    protected override bool IsByRefImpl ()
+    {
+      return false;
+    }
+
+    public override Type UnderlyingSystemType
+    {
+      get { return this; }
+    }
+
     #endregion
 
     #region Not Implemented from Type interface
@@ -164,11 +174,6 @@ namespace Remotion.TypePipe.FutureInfos
       throw new NotImplementedException();
     }
 
-    protected override bool IsByRefImpl ()
-    {
-      throw new NotImplementedException();
-    }
-
     protected override bool IsPointerImpl ()
     {
       throw new NotImplementedException();
@@ -195,11 +200,6 @@ namespace Remotion.TypePipe.FutureInfos
         string[] namedParameters)
     {
       throw new NotImplementedException();
-    }
-
-    public override Type UnderlyingSystemType
-    {
-      get { throw new NotImplementedException(); }
     }
 
     public override Guid GUID

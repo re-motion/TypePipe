@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
   public class FutureTypeIntegration
   {
     [Test]
-    public void CanBeUsedInNewExpression ()
+    public void NewExpression ()
     {
       // Arrange
       var futureType = new FutureType ();
@@ -34,6 +34,21 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
 
       // Assert
       Assert.That (action, Throws.Nothing);
+    }
+
+    [Test]
+    public void ParameterAndVariableExpression ()
+    {
+      // Arrange
+      var futureType = new FutureType ();
+
+      // Act
+      TestDelegate parameterAction = () => Expression.Parameter (futureType);
+      TestDelegate variableAction = () => Expression.Parameter (futureType);
+
+      // Assert
+      Assert.That (parameterAction, Throws.Nothing);
+      Assert.That (variableAction, Throws.Nothing);
     }
   }
 }

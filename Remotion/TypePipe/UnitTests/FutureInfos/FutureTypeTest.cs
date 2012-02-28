@@ -17,7 +17,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
 
@@ -89,6 +88,19 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
       // Assert
       Assert.That (constructor, Is.TypeOf<FutureConstructor>());
       Assert.That (constructor.DeclaringType, Is.SameAs (futureType));
+    }
+
+    [Test]
+    public void IsByRefImpl ()
+    {
+      Assert.That (new FutureType().IsByRef, Is.False);
+    }
+
+    [Test]
+    public void UnderlyingSystemType ()
+    {
+      var futureType = new FutureType();
+      Assert.That (futureType.UnderlyingSystemType, Is.SameAs (futureType));
     }
 
     [Test]
