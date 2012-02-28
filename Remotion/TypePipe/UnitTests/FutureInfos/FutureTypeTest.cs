@@ -1,17 +1,18 @@
-// This file is part of the re-motion TypePipe project (typepipe.codeplex.com)
 // Copyright (c) rubicon IT GmbH, www.rubicon.eu
-// 
-// re-motion TypePipe is free software; you can redistribute it 
-// and/or modify it under the terms of the Apache License, Version 2.0
-// as published by the Apache Software Foundation.
-// 
-// re-motion TypePipe is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// Apache License, Version 2.0 for more details.
-// 
-// You should have received a copy of the Apache License, Version 2.0
-// along with re-motion; if not, see http://www.apache.org/licenses.
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
 // 
 using System;
 using System.Reflection;
@@ -48,12 +49,12 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     [Test]
     public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
     {
-      var futureType = new FutureType ();
+      var futureType = new FutureType();
       var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
 
       Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.Nothing);
-      Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.InvalidOperationException
-        .With.Message.EqualTo ("TypeBuilder already set"));
+      Assert.That (() => futureType.SetTypeBuilder (typeBuilder),
+        Throws.InvalidOperationException.With.Message.EqualTo ("TypeBuilder already set"));
     }
 
     private TypeBuilder CreateTypeBuilder (string typeName)
