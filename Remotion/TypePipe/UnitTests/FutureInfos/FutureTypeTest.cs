@@ -91,20 +91,6 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
       Assert.That (constructor.DeclaringType, Is.SameAs (futureType));
     }
 
-    //// TODO: Maybe move this test into separate integration test file?
-    [Test]
-    public void FutureType_CanBeUsedInNewExpression ()
-    {
-      // Arrange
-      var futureType = new FutureType();
-
-      // Act
-      TestDelegate action = () => Expression.New (futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
-    }
-
     [Test]
     public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
     {

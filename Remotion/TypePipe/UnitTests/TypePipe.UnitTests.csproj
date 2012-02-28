@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="FutureInfos\FutureConstructorTest.cs" />
     <Compile Include="FutureInfos\FutureTypeTest.cs" />
+    <Compile Include="FutureInfos\Integration\FutureTypeIntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\SlotTest.cs" />
   </ItemGroup>
