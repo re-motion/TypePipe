@@ -17,14 +17,17 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.Utilities;
 
-namespace Remotion.TypePipe.FutureInfos.Reflection
+namespace Remotion.TypePipe.FutureInfos
 {
-  internal class FutureType : Type, IFutureType
+  public class FutureType : Type
   {
+    private readonly Slot<TypeBuilder> _typeBuilder = Slot.New<TypeBuilder> ("TypeBuilder");
+
     public void SetTypeBuilder (TypeBuilder typeBuilder)
     {
-
+      _typeBuilder.Set (typeBuilder);
     }
 
     #region NotImplemented

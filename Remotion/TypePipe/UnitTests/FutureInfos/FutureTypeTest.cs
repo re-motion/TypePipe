@@ -17,9 +17,9 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureInfos.Reflection;
+using Remotion.TypePipe.FutureInfos;
 
-namespace Remotion.TypePipe.UnitTests.FutureInfos.Reflection
+namespace Remotion.TypePipe.UnitTests.FutureInfos
 {
   [TestFixture]
   public class FutureTypeTest
@@ -45,16 +45,16 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Reflection
       Assert.That (new FutureType(), Is.AssignableTo<Type>());
     }
 
-    //[Test]
-    //public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
-    //{
-    //  var futureType = new FutureType();
-    //  var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
+    [Test]
+    public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
+    {
+      var futureType = new FutureType ();
+      var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
 
-    //  Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.Nothing);
-    //  Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.InvalidOperationException.With.Message.EqualTo(
-    //    "ZZZ"));
-    //}
+      Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.Nothing);
+      Assert.That (() => futureType.SetTypeBuilder (typeBuilder), Throws.InvalidOperationException
+        .With.Message.EqualTo ("TypeBuilder already set"));
+    }
 
     private TypeBuilder CreateTypeBuilder (string typeName)
     {
