@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
@@ -21,59 +22,67 @@ using Remotion.TypePipe.FutureInfos;
 namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
 {
   [TestFixture]
-  public class FutureTypeIntegration
+  public class FutureTypeExpressionTreeIntegration
   {
+    private FutureType _futureType;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _futureType = new FutureType();
+    }
+
     [Test]
     public void NewExpression ()
     {
-      // Arrange
-      var futureType = new FutureType ();
-
       // Act
-      TestDelegate action = () => Expression.New (futureType);
+      TestDelegate action = () => Expression.New (_futureType);
 
       // Assert
       Assert.That (action, Throws.Nothing);
     }
 
     [Test]
-    public void ParameterAndVariableExpression ()
+    public void ParameterExpression ()
     {
-      // Arrange
-      var futureType = new FutureType ();
-
       // Act
-      TestDelegate parameterAction = () => Expression.Parameter (futureType);
-      TestDelegate variableAction = () => Expression.Parameter (futureType);
-
-      // Assert
-      Assert.That (parameterAction, Throws.Nothing);
-      Assert.That (variableAction, Throws.Nothing);
-    }
-
-    [Test] // Standard cast
-    public void ConvertExpression ()
-    {
-      // Arrange
-      var futureType = new FutureType ();
-      var expression = Expression.Constant (new object());
-
-      // Act
-      TestDelegate action = () => Expression.Convert (expression, futureType);
+      TestDelegate action = () => Expression.Parameter (_futureType);
 
       // Assert
       Assert.That (action, Throws.Nothing);
     }
 
-    [Test] // As cast
-    public void TypeAs ()
+    [Test]
+    public void VariableExpression ()
+    {
+      // Act
+      TestDelegate action = () => Expression.Parameter (_futureType);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
+    }
+
+    [Test]
+    public void ConvertExpression ()
     {
       // Arrange
-      var futureType = new FutureType ();
       var expression = Expression.Constant (new object());
 
       // Act
-      TestDelegate action = () => Expression.TypeAs (expression, futureType);
+      TestDelegate action = () => Expression.Convert (expression, _futureType);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
+    }
+
+    [Test]
+    public void TypeAs ()
+    {
+      // Arrange
+      var expression = Expression.Constant (new object());
+
+      // Act
+      TestDelegate action = () => Expression.TypeAs (expression, _futureType);
 
       // Assert
       Assert.That (action, Throws.Nothing);
@@ -83,11 +92,10 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
     public void TypeIs ()
     {
       // Arrange
-      var futureType = new FutureType ();
-      var expression = Expression.Constant (new object ());
+      var expression = Expression.Constant (new object());
 
       // Act
-      TestDelegate action = () => Expression.TypeIs (expression, futureType);
+      TestDelegate action = () => Expression.TypeIs (expression, _futureType);
 
       // Assert
       Assert.That (action, Throws.Nothing);
