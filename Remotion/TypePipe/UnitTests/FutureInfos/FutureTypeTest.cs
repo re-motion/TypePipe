@@ -107,8 +107,10 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      Assert.That (new FutureType ().Attributes, Is.EqualTo (attributes));
+      var standardAttributes = typeof (VeryStandardClass).Attributes;
+
+      Assert.That (standardAttributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      Assert.That (new FutureType().Attributes, Is.EqualTo (standardAttributes));
     }
 
     [Test]
@@ -133,4 +135,6 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     //  return _moduleBuilder.DefineType (typeName);
     //}
   }
+
+  public class VeryStandardClass { }
 }

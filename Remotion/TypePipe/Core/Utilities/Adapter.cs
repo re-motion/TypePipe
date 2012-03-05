@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.Utilities
   {
     private readonly T _item;
 
-    public Adapter (T item)
+    internal Adapter (T item)
     {
       _item = item;
     }
