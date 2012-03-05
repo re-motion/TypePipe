@@ -35,6 +35,11 @@ namespace Remotion.TypePipe.FutureInfos
       _typeBuilder.Set (typeBuilder);
     }
 
+    public Adapter<TypeBuilder> TypeBuilder
+    {
+      get { return _typeBuilder.Get(); }
+    }
+
     #region Type interface
 
     public override Type BaseType

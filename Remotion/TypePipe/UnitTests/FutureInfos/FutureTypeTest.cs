@@ -44,44 +44,44 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     [Test]
     public void FutureTypeIsAType ()
     {
-      Assert.That (new FutureType(), Is.InstanceOf<Type> ());
-      Assert.That (new FutureType(), Is.AssignableTo<Type> ());
+      Assert.That (NewFutureType(), Is.InstanceOf<Type>());
+      Assert.That (NewFutureType(), Is.AssignableTo<Type>());
     }
 
     [Test]
     public void BaseType ()
     {
-      Assert.That (new FutureType().BaseType, Is.EqualTo (typeof (object)));
+      Assert.That (NewFutureType().BaseType, Is.EqualTo (typeof (object)));
     }
 
     [Test]
     public void Name ()
     {
-      Assert.That (new FutureType().Name, Is.Null);
+      Assert.That (NewFutureType().Name, Is.Null);
     }
 
     [Test]
     public void HasElementTypeImpl ()
     {
-      Assert.That (new FutureType ().HasElementType, Is.False);
+      Assert.That (NewFutureType().HasElementType, Is.False);
     }
 
     [Test]
     public void Assembly ()
     {
-      Assert.That (new FutureType ().Assembly, Is.Null);
+      Assert.That (NewFutureType().Assembly, Is.Null);
     }
 
     [Test]
     public void GetConstructorImpl ()
     {
       // Arrange
-      var futureType = new FutureType();
+      var futureType = NewFutureType();
 
-      BindingFlags bindingFlags = (BindingFlags) (-1);  // Does not matter
-      Binder binder = null;                             // Does not matter
-      Type[] parameterTypes = Type.EmptyTypes;          // Does not matter, cannot be null
-      ParameterModifier[] parameterModifiers = null;    // Does not matter
+      BindingFlags bindingFlags = (BindingFlags) (-1); // Does not matter
+      Binder binder = null; // Does not matter
+      Type[] parameterTypes = Type.EmptyTypes; // Does not matter, cannot be null
+      ParameterModifier[] parameterModifiers = null; // Does not matter
 
       // Act
       var constructor = futureType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
@@ -94,13 +94,13 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     [Test]
     public void IsByRefImpl ()
     {
-      Assert.That (new FutureType().IsByRef, Is.False);
+      Assert.That (NewFutureType().IsByRef, Is.False);
     }
 
     [Test]
     public void UnderlyingSystemType ()
     {
-      var futureType = new FutureType();
+      var futureType = NewFutureType();
       Assert.That (futureType.UnderlyingSystemType, Is.SameAs (futureType));
     }
 
@@ -110,14 +110,14 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
       var standardAttributes = typeof (VeryStandardClass).Attributes;
 
       Assert.That (standardAttributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
-      Assert.That (new FutureType().Attributes, Is.EqualTo (standardAttributes));
+      Assert.That (NewFutureType().Attributes, Is.EqualTo (standardAttributes));
     }
 
     [Test]
     public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
     {
       // Arrange
-      var futureType = new FutureType ();
+      var futureType = NewFutureType();
       var typeBuilder = new FakeAdapter<TypeBuilder>();
       //var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
 
@@ -126,8 +126,34 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
 
       // Assert
       Assert.That (action, Throws.Nothing);
-      Assert.That (action, Throws.InvalidOperationException
-        .With.Message.EqualTo ("TypeBuilder already set"));
+      Assert.That (action, Throws.InvalidOperationException.With.Message.EqualTo ("TypeBuilder already set"));
+    }
+
+    [Test]
+    public void Typebuilder ()
+    {
+      // Arrange
+      var futureType = NewFutureType();
+      var typeBuilder = new FakeAdapter<TypeBuilder>();
+
+      // Act
+      futureType.SetTypeBuilder (typeBuilder);
+
+      // Assert
+      Assert.That (futureType.TypeBuilder, Is.SameAs (typeBuilder));
+    }
+
+    [Test]
+    public void TypeBuilder_ThrowsIfNotSet ()
+    {
+      Assert.That (
+          () => NewFutureType().TypeBuilder,
+          Throws.InvalidOperationException.With.Message.EqualTo ("TypeBuilder not set"));
+    }
+
+    private FutureType NewFutureType ()
+    {
+      return new FutureType();
     }
 
     //private TypeBuilder CreateTypeBuilder (string typeName)
@@ -136,5 +162,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     //}
   }
 
-  public class VeryStandardClass { }
+  public class VeryStandardClass
+  {
+  }
 }

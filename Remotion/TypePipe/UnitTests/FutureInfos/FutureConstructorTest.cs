@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
 using Remotion.TypePipe.UnitTests.Utilities;
@@ -26,7 +25,6 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
   [TestFixture]
   public class FutureConstructorTest
   {
-
     [Test]
     public void Initialization ()
     {
@@ -34,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
       var futureType = new FutureType();
 
       // Act
-      var futureConstructor = new FutureConstructor(futureType);
+      var futureConstructor = new FutureConstructor (futureType);
 
       // Assert
       Assert.That (futureConstructor.DeclaringType, Is.SameAs (futureType));
@@ -58,15 +56,36 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     {
       // Arrange
       var futureConstructor = NewFutureCtor();
-      var constructorInfo = new FakeAdapter<ConstructorInfo> ();
+      var constructorInfo = new FakeAdapter<ConstructorInfo>();
 
       // Act
       TestDelegate action = () => futureConstructor.SetConstructorInfo (constructorInfo);
 
       // Assert
       Assert.That (action, Throws.Nothing);
-      Assert.That (action, Throws.InvalidOperationException
-        .With.Message.EqualTo ("ConstructorInfo already set"));
+      Assert.That (action, Throws.InvalidOperationException.With.Message.EqualTo ("ConstructorInfo already set"));
+    }
+
+    [Test]
+    public void ConstructorInfo ()
+    {
+      // Arrange
+      var futureConstructor = NewFutureCtor();
+      var constructorInfo = new FakeAdapter<ConstructorInfo>();
+
+      // Act
+      futureConstructor.SetConstructorInfo (constructorInfo);
+
+      // Assert
+      Assert.That (futureConstructor.ConstructorInfo, Is.SameAs (constructorInfo));
+    }
+
+    [Test]
+    public void ConstructorInfo_ThrowsIfNotSet ()
+    {
+      Assert.That (
+          () => NewFutureCtor().ConstructorInfo,
+          Throws.InvalidOperationException.With.Message.EqualTo ("ConstructorInfo not set"));
     }
 
     private FutureConstructor NewFutureCtor ()

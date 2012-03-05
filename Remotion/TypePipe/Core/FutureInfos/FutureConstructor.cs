@@ -36,6 +36,11 @@ namespace Remotion.TypePipe.FutureInfos
       _constructorInfo.Set (constructorInfo);
     }
 
+    public Adapter<ConstructorInfo> ConstructorInfo
+    {
+      get { return _constructorInfo.Get(); }
+    }
+
     #region ConstructorInfo interface
 
     public override Type DeclaringType
