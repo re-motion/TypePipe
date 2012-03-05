@@ -16,8 +16,10 @@
 // 
 using System;
 using System.Reflection;
+using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
+using Remotion.TypePipe.UnitTests.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.FutureInfos
 {
@@ -49,6 +51,22 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     public void GetParameters ()
     {
       Assert.That (NewFutureCtor().GetParameters(), Is.EqualTo (new ParameterInfo[0]));
+    }
+
+    [Test]
+    public void SetConstructorInfo_ThrowsIfCalledMoreThanOnce ()
+    {
+      // Arrange
+      var futureConstructor = NewFutureCtor();
+      var constructorInfo = new FakeAdapter<ConstructorInfo> ();
+
+      // Act
+      TestDelegate action = () => futureConstructor.SetConstructorInfo (constructorInfo);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
+      Assert.That (action, Throws.InvalidOperationException
+        .With.Message.EqualTo ("ConstructorInfo already set"));
     }
 
     private FutureConstructor NewFutureCtor ()

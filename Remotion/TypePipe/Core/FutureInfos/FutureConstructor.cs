@@ -17,16 +17,23 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using Remotion.TypePipe.Utilities;
 
 namespace Remotion.TypePipe.FutureInfos
 {
   public class FutureConstructor : ConstructorInfo
   {
+    private readonly Slot<Adapter<ConstructorInfo>> _constructorInfo = Slot.New<Adapter<ConstructorInfo>> ("ConstructorInfo");
     private readonly FutureType _futureType;
 
     internal FutureConstructor (FutureType futureType)
     {
       _futureType = futureType;
+    }
+
+    public void SetConstructorInfo (Adapter<ConstructorInfo> constructorInfo)
+    {
+      _constructorInfo.Set (constructorInfo);
     }
 
     #region ConstructorInfo interface
