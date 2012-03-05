@@ -22,7 +22,7 @@ using System.Reflection;
 using Remotion.Utilities;
 using System.Linq;
 
-namespace Remotion.TypePipe.FutureInfos
+namespace Remotion.TypePipe.FutureReflection
 {
   /// <summary>
   /// Represents a type that does not exist yet. This is used to represent references to types yet to be generated within an expression tree.

@@ -14,13 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureInfos;
+using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
+namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
 {
   [TestFixture]
   public class FutureTypeExpressionTreeIntegration

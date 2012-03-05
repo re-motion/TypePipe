@@ -17,9 +17,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureInfos;
+using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.UnitTests.FutureInfos
+namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
   [TestFixture]
   public class FutureTypeTest

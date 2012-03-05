@@ -19,7 +19,7 @@ using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.FutureInfos
+namespace Remotion.TypePipe.FutureReflection
 {
   /// <summary>
   /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.

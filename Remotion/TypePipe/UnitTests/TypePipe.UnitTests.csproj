@@ -53,9 +53,9 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="FutureInfos\FutureConstructorTest.cs" />
-    <Compile Include="FutureInfos\FutureTypeTest.cs" />
-    <Compile Include="FutureInfos\Integration\FutureTypeIntegrationTest.cs" />
+    <Compile Include="FutureReflection\FutureConstructorTest.cs" />
+    <Compile Include="FutureReflection\FutureTypeTest.cs" />
+    <Compile Include="FutureReflection\Integration\FutureTypeIntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
