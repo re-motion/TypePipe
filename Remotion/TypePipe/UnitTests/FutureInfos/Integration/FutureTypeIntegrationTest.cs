@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
   public class FutureTypeExpressionTreeIntegration
   {
     private FutureType _futureType;
+    private TestDelegate _testDelegate;
 
     [SetUp]
     public void SetUp ()
@@ -32,73 +33,49 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
       _futureType = new FutureType();
     }
 
-    [Test]
-    public void NewExpression ()
+    [TearDown]
+    public void TearDown ()
     {
-      // Act
-      TestDelegate action = () => Expression.New (_futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
+      Assert.That (_testDelegate, Throws.Nothing);
     }
 
     [Test]
-    public void ParameterExpression ()
+    public void New ()
     {
-      // Act
-      TestDelegate action = () => Expression.Parameter (_futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
+      _testDelegate = () => Expression.New (_futureType);
     }
 
     [Test]
-    public void VariableExpression ()
+    public void Parameter ()
     {
-      // Act
-      TestDelegate action = () => Expression.Parameter (_futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
+      _testDelegate = () => Expression.Parameter (_futureType);
     }
 
     [Test]
-    public void ConvertExpression ()
+    public void Variable ()
     {
-      // Arrange
+      _testDelegate = () => Expression.Parameter (_futureType);
+    }
+
+    [Test]
+    public void Convert ()
+    {
       var expression = Expression.Constant (new object());
-
-      // Act
-      TestDelegate action = () => Expression.Convert (expression, _futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
+      _testDelegate = () => Expression.Convert (expression, _futureType);
     }
 
     [Test]
     public void TypeAs ()
     {
-      // Arrange
       var expression = Expression.Constant (new object());
-
-      // Act
-      TestDelegate action = () => Expression.TypeAs (expression, _futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
+      _testDelegate = () => Expression.TypeAs (expression, _futureType);
     }
 
     [Test]
     public void TypeIs ()
     {
-      // Arrange
       var expression = Expression.Constant (new object());
-
-      // Act
-      TestDelegate action = () => Expression.TypeIs (expression, _futureType);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
+      _testDelegate = () => Expression.TypeIs (expression, _futureType);
     }
   }
 }
