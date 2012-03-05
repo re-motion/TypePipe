@@ -50,5 +50,19 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
       Assert.That (parameterAction, Throws.Nothing);
       Assert.That (variableAction, Throws.Nothing);
     }
+
+    [Test]
+    public void ConvertExpression ()
+    {
+      // Arrange
+      var futureType = new FutureType ();
+      var input = Expression.Constant (new object());
+
+      // Act
+      TestDelegate action = () => Expression.Convert (input, futureType);
+
+      // Assert
+      Assert.That (action, Throws.Nothing);
+    }
   }
 }

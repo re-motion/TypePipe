@@ -73,6 +73,11 @@ namespace Remotion.TypePipe.FutureInfos
       get { return this; }
     }
 
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
+    }
+
     #endregion
 
     #region Not Implemented from Type interface
@@ -160,11 +165,6 @@ namespace Remotion.TypePipe.FutureInfos
     }
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
     {
       throw new NotImplementedException();
     }

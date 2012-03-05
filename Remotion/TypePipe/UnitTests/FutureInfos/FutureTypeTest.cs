@@ -20,7 +20,6 @@ using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
 using Remotion.TypePipe.UnitTests.Utilities;
-using Remotion.TypePipe.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.FutureInfos
 {
@@ -103,6 +102,13 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos
     {
       var futureType = new FutureType();
       Assert.That (futureType.UnderlyingSystemType, Is.SameAs (futureType));
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
+      Assert.That (new FutureType ().Attributes, Is.EqualTo (attributes));
     }
 
     [Test]
