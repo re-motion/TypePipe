@@ -57,9 +57,6 @@
     <Compile Include="FutureInfos\FutureTypeTest.cs" />
     <Compile Include="FutureInfos\Integration\FutureTypeIntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\AdapterTest.cs" />
-    <Compile Include="Utilities\FakeAdapter.cs" />
-    <Compile Include="Utilities\SlotTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

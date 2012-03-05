@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
@@ -25,57 +26,59 @@ namespace Remotion.TypePipe.UnitTests.FutureInfos.Integration
   public class FutureTypeExpressionTreeIntegration
   {
     private FutureType _futureType;
-    private TestDelegate _testDelegate;
 
     [SetUp]
     public void SetUp ()
     {
-      _futureType = new FutureType();
-    }
-
-    [TearDown]
-    public void TearDown ()
-    {
-      Assert.That (_testDelegate, Throws.Nothing);
+      _futureType = new FutureType (TypeAttributes.Public);
     }
 
     [Test]
-    public void New ()
+    public void New_DefaultConstructor ()
     {
-      _testDelegate = () => Expression.New (_futureType);
+      var constructor = new FutureConstructor (_futureType);
+      _futureType.AddConstructor (constructor);
+
+      var expression = Expression.New (_futureType);
+      Assert.That (expression.Constructor, Is.SameAs (constructor));
     }
 
     [Test]
     public void Parameter ()
     {
-      _testDelegate = () => Expression.Parameter (_futureType);
+      var expression = Expression.Parameter (_futureType);
+      Assert.That (expression.Type, Is.SameAs (_futureType));
     }
 
     [Test]
     public void Variable ()
     {
-      _testDelegate = () => Expression.Parameter (_futureType);
+      var expression = Expression.Variable (_futureType);
+      Assert.That (expression.Type, Is.SameAs (_futureType));
     }
 
     [Test]
     public void Convert ()
     {
-      var expression = Expression.Constant (new object());
-      _testDelegate = () => Expression.Convert (expression, _futureType);
+      var operand = Expression.Constant (new object());
+      var expression = Expression.Convert (operand, _futureType);
+      Assert.That (expression.Type, Is.SameAs (_futureType));
     }
 
     [Test]
     public void TypeAs ()
     {
-      var expression = Expression.Constant (new object());
-      _testDelegate = () => Expression.TypeAs (expression, _futureType);
+      var operand = Expression.Constant (new object());
+      var expression = Expression.TypeAs (operand, _futureType);
+      Assert.That (expression.Type, Is.SameAs (_futureType));
     }
 
     [Test]
     public void TypeIs ()
     {
-      var expression = Expression.Constant (new object());
-      _testDelegate = () => Expression.TypeIs (expression, _futureType);
+      var operand = Expression.Constant (new object());
+      var expression = Expression.TypeIs (operand, _futureType);
+      Assert.That (expression.TypeOperand, Is.SameAs (_futureType));
     }
   }
 }

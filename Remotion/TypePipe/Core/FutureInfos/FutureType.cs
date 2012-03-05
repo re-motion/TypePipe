@@ -15,32 +15,38 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
-using System.Reflection.Emit;
-using Remotion.TypePipe.Utilities;
+using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.FutureInfos
 {
+  /// <summary>
+  /// Represents a type that does not exist yet. This is used to represent references to types yet to be generated within an expression tree.
+  /// </summary>
   public class FutureType : Type
   {
-    private readonly Slot<Adapter<TypeBuilder>> _typeBuilder = Slot.New<Adapter<TypeBuilder>> ("TypeBuilder");
+    private readonly TypeAttributes _attributeFlags;
+    private readonly List<FutureConstructor> _constructors = new List<FutureConstructor> ();
 
-    internal FutureType ()
+    public FutureType (TypeAttributes attributeFlags)
     {
+      _attributeFlags = attributeFlags;
     }
 
-    public void SetTypeBuilder (Adapter<TypeBuilder> typeBuilder)
+    public ReadOnlyCollection<FutureConstructor> Constructors
     {
-      _typeBuilder.Set (typeBuilder);
+      get { return _constructors.AsReadOnly(); }
     }
 
-    public Adapter<TypeBuilder> TypeBuilder
+    public void AddConstructor (FutureConstructor futureConstructor)
     {
-      get { return _typeBuilder.Get(); }
+      ArgumentUtility.CheckNotNull ("futureConstructor", futureConstructor);
+      _constructors.Add (futureConstructor);
     }
-
-    #region Type interface
 
     public override Type BaseType
     {
@@ -65,7 +71,7 @@ namespace Remotion.TypePipe.FutureInfos
     protected override ConstructorInfo GetConstructorImpl (
       BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      return new FutureConstructor(this);
+      return _constructors.SingleOrDefault();
     }
 
     protected override bool IsByRefImpl ()
@@ -80,10 +86,8 @@ namespace Remotion.TypePipe.FutureInfos
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
+      return _attributeFlags;
     }
-
-    #endregion
 
     #region Not Implemented from Type interface
 

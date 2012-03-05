@@ -16,153 +16,113 @@
 // 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
-using Remotion.TypePipe.UnitTests.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.FutureInfos
 {
   [TestFixture]
   public class FutureTypeTest
   {
-    //private ModuleBuilder _moduleBuilder;
+    private FutureType _futureType;
 
-    //[TestFixtureSetUp]
-    //public void GenerateAssembly ()
-    //{
-    //  var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("FutureTypeTest"), AssemblyBuilderAccess.RunAndSave);
-    //  _moduleBuilder = assemblyBuilder.DefineDynamicModule ("FutureTypeTest.dll");
-    //}
-
-    //[Test]
-    //public void Initialization ()
-    //{
-    //  // TODO
-    //}
+    [SetUp]
+    public void SetUp ()
+    {
+      _futureType = new FutureType (TypeAttributes.Public | TypeAttributes.BeforeFieldInit);
+    }
 
     [Test]
-    public void FutureTypeIsAType ()
+    public void FutureType_IsAType ()
     {
-      Assert.That (NewFutureType(), Is.InstanceOf<Type>());
-      Assert.That (NewFutureType(), Is.AssignableTo<Type>());
+      Assert.That (_futureType, Is.InstanceOf<Type>());
+    }
+
+    [Test]
+    public void AddConstructor ()
+    {
+      var futureConstructor = new FutureConstructor (_futureType);
+      _futureType.AddConstructor (futureConstructor);
+
+      Assert.That (_futureType.Constructors, Is.EqualTo (new[] { futureConstructor }));
     }
 
     [Test]
     public void BaseType ()
     {
-      Assert.That (NewFutureType().BaseType, Is.EqualTo (typeof (object)));
+      Assert.That (_futureType.BaseType, Is.EqualTo (typeof (object)));
     }
 
     [Test]
     public void Name ()
     {
-      Assert.That (NewFutureType().Name, Is.Null);
+      Assert.That (_futureType.Name, Is.Null);
     }
 
     [Test]
     public void HasElementTypeImpl ()
     {
-      Assert.That (NewFutureType().HasElementType, Is.False);
+      Assert.That (_futureType.HasElementType, Is.False);
     }
 
     [Test]
     public void Assembly ()
     {
-      Assert.That (NewFutureType().Assembly, Is.Null);
+      Assert.That (_futureType.Assembly, Is.Null);
     }
 
     [Test]
-    public void GetConstructorImpl ()
+    public void GetConstructorImpl_WithSingleAddedConstructor ()
     {
       // Arrange
-      var futureType = NewFutureType();
+      var futureConstructor = new FutureConstructor (_futureType);
+      _futureType.AddConstructor (futureConstructor);
 
-      BindingFlags bindingFlags = (BindingFlags) (-1); // Does not matter
-      Binder binder = null; // Does not matter
-      Type[] parameterTypes = Type.EmptyTypes; // Does not matter, cannot be null
-      ParameterModifier[] parameterModifiers = null; // Does not matter
+      BindingFlags bindingFlags = (BindingFlags) (-1);
+      Binder binder = null;
+      Type[] parameterTypes = Type.EmptyTypes; // Cannot be null
+      ParameterModifier[] parameterModifiers = null;
 
       // Act
-      var constructor = futureType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
+      var constructor = _futureType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
 
       // Assert
-      Assert.That (constructor, Is.TypeOf<FutureConstructor>());
-      Assert.That (constructor.DeclaringType, Is.SameAs (futureType));
+      Assert.That (constructor, Is.SameAs (futureConstructor));
+      Assert.That (constructor.DeclaringType, Is.SameAs (_futureType));
+    }
+
+    [Test]
+    public void GetConstructorImpl_WithoutAddedConstructor ()
+    {
+      // Arrange
+      BindingFlags bindingFlags = (BindingFlags) (-1);
+      Binder binder = null;
+      Type[] parameterTypes = Type.EmptyTypes; // Cannot be null
+      ParameterModifier[] parameterModifiers = null;
+
+      // Act
+      var constructor = _futureType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
+
+      // Assert
+      Assert.That (constructor, Is.Null);
     }
 
     [Test]
     public void IsByRefImpl ()
     {
-      Assert.That (NewFutureType().IsByRef, Is.False);
+      Assert.That (_futureType.IsByRef, Is.False);
     }
 
     [Test]
     public void UnderlyingSystemType ()
     {
-      var futureType = NewFutureType();
-      Assert.That (futureType.UnderlyingSystemType, Is.SameAs (futureType));
+      Assert.That (_futureType.UnderlyingSystemType, Is.SameAs (_futureType));
     }
 
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      var standardAttributes = typeof (VeryStandardClass).Attributes;
-
-      Assert.That (standardAttributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
-      Assert.That (NewFutureType().Attributes, Is.EqualTo (standardAttributes));
+      Assert.That (_futureType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
     }
-
-    [Test]
-    public void SetTypeBuilder_ThrowsIfCalledMoreThanOnce ()
-    {
-      // Arrange
-      var futureType = NewFutureType();
-      var typeBuilder = new FakeAdapter<TypeBuilder>();
-      //var typeBuilder = CreateTypeBuilder ("SetTypeBuilder_ThrowsIfCalledMoreThanOnce");
-
-      // Act
-      TestDelegate action = () => futureType.SetTypeBuilder (typeBuilder);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
-      Assert.That (action, Throws.InvalidOperationException.With.Message.EqualTo ("TypeBuilder already set"));
-    }
-
-    [Test]
-    public void Typebuilder ()
-    {
-      // Arrange
-      var futureType = NewFutureType();
-      var typeBuilder = new FakeAdapter<TypeBuilder>();
-
-      // Act
-      futureType.SetTypeBuilder (typeBuilder);
-
-      // Assert
-      Assert.That (futureType.TypeBuilder, Is.SameAs (typeBuilder));
-    }
-
-    [Test]
-    public void TypeBuilder_ThrowsIfNotSet ()
-    {
-      Assert.That (
-          () => NewFutureType().TypeBuilder,
-          Throws.InvalidOperationException.With.Message.EqualTo ("TypeBuilder not set"));
-    }
-
-    private FutureType NewFutureType ()
-    {
-      return new FutureType();
-    }
-
-    //private TypeBuilder CreateTypeBuilder (string typeName)
-    //{
-    //  return _moduleBuilder.DefineType (typeName);
-    //}
-  }
-
-  public class VeryStandardClass
-  {
   }
 }

@@ -18,79 +18,41 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureInfos;
-using Remotion.TypePipe.UnitTests.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.FutureInfos
 {
   [TestFixture]
   public class FutureConstructorTest
   {
+    private FutureConstructor _futureConstructor;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _futureConstructor = new FutureConstructor (typeof (string));
+    }
+
     [Test]
     public void Initialization ()
     {
-      // Arrange
-      var futureType = new FutureType();
+      var declaringType = typeof (string);
 
-      // Act
-      var futureConstructor = new FutureConstructor (futureType);
-
-      // Assert
-      Assert.That (futureConstructor.DeclaringType, Is.SameAs (futureType));
+      var futureConstructor = new FutureConstructor (declaringType);
+      
+      Assert.That (futureConstructor.DeclaringType, Is.SameAs (declaringType));
     }
 
     [Test]
-    public void FutureConstructorIsAConstructorInfo ()
+    public void FutureConstructor_IsAConstructorInfo ()
     {
-      Assert.That (NewFutureCtor(), Is.InstanceOf<ConstructorInfo>());
-      Assert.That (NewFutureCtor(), Is.AssignableTo<ConstructorInfo>());
+      Assert.That (_futureConstructor, Is.InstanceOf<ConstructorInfo>());
+      Assert.That (_futureConstructor, Is.AssignableTo<ConstructorInfo>());
     }
 
     [Test]
-    public void GetParameters ()
+    public void GetParameters_Empty ()
     {
-      Assert.That (NewFutureCtor().GetParameters(), Is.EqualTo (new ParameterInfo[0]));
-    }
-
-    [Test]
-    public void SetConstructorInfo_ThrowsIfCalledMoreThanOnce ()
-    {
-      // Arrange
-      var futureConstructor = NewFutureCtor();
-      var constructorInfo = new FakeAdapter<ConstructorInfo>();
-
-      // Act
-      TestDelegate action = () => futureConstructor.SetConstructorInfo (constructorInfo);
-
-      // Assert
-      Assert.That (action, Throws.Nothing);
-      Assert.That (action, Throws.InvalidOperationException.With.Message.EqualTo ("ConstructorInfo already set"));
-    }
-
-    [Test]
-    public void ConstructorInfo ()
-    {
-      // Arrange
-      var futureConstructor = NewFutureCtor();
-      var constructorInfo = new FakeAdapter<ConstructorInfo>();
-
-      // Act
-      futureConstructor.SetConstructorInfo (constructorInfo);
-
-      // Assert
-      Assert.That (futureConstructor.ConstructorInfo, Is.SameAs (constructorInfo));
-    }
-
-    [Test]
-    public void ConstructorInfo_ThrowsIfNotSet ()
-    {
-      Assert.That (
-          () => NewFutureCtor().ConstructorInfo,
-          Throws.InvalidOperationException.With.Message.EqualTo ("ConstructorInfo not set"));
-    }
-
-    private FutureConstructor NewFutureCtor ()
-    {
-      return new FutureConstructor (null);
+      Assert.That (_futureConstructor.GetParameters(), Is.EqualTo (new ParameterInfo[0]));
     }
   }
 }

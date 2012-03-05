@@ -17,43 +17,32 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Remotion.TypePipe.Utilities;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureInfos
 {
+  /// <summary>
+  /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
+  /// </summary>
   public class FutureConstructor : ConstructorInfo
   {
-    private readonly Slot<Adapter<ConstructorInfo>> _constructorInfo = Slot.New<Adapter<ConstructorInfo>> ("ConstructorInfo");
-    private readonly FutureType _futureType;
+    private readonly Type _declaringType;
 
-    internal FutureConstructor (FutureType futureType)
+    public FutureConstructor (Type declaringType)
     {
-      _futureType = futureType;
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      _declaringType = declaringType;
     }
-
-    public void SetConstructorInfo (Adapter<ConstructorInfo> constructorInfo)
-    {
-      _constructorInfo.Set (constructorInfo);
-    }
-
-    public Adapter<ConstructorInfo> ConstructorInfo
-    {
-      get { return _constructorInfo.Get(); }
-    }
-
-    #region ConstructorInfo interface
 
     public override Type DeclaringType
     {
-      get { return _futureType; }
+      get { return _declaringType; }
     }
 
     public override ParameterInfo[] GetParameters ()
     {
       return new ParameterInfo[0];
     }
-
-    #endregion
 
     #region Not Implemented from ConstructorInfo interface
 
