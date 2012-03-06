@@ -14,37 +14,32 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
-using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
-  [TestFixture]
-  public class FutureConstructorInfoTest
+  public static class New
   {
-    [Test]
-    public void Initialization ()
+    public static FutureType FutureType (TypeAttributes attributes = TypeAttributes.Public)
     {
-      var declaringType = typeof (string);
-      var futureConstructorInfo = New.FutureConstructorInfo (declaringType);
-      
-      Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
+      return new FutureType (attributes);
     }
 
-    [Test]
-    public void FutureConstructorInfo_IsAConstructorInfo ()
+    public static FutureConstructorInfo FutureConstructorInfo (Type declaringType = null, ParameterInfo[] parameters = null)
     {
-      Assert.That (New.FutureConstructorInfo(), Is.InstanceOf<ConstructorInfo>());
+      declaringType = declaringType ?? FutureType();
+      parameters = parameters ?? TypePipe.FutureReflection.FutureParameterInfo.EmptyParameters;
+
+      return new FutureConstructorInfo(declaringType, parameters);
     }
 
-    [Test]
-    public void GetParameters ()
+    public static FutureParameterInfo FutureParameterInfo (Type parameterType = null)
     {
-      var parameters = new[] { New.FutureParameterInfo(), New.FutureParameterInfo() };
-      var futureConstructor = New.FutureConstructorInfo (parameters: parameters);
+      parameterType = parameterType ?? typeof (string);
 
-      Assert.That (futureConstructor.GetParameters(), Is.SameAs (parameters));
+      return new FutureParameterInfo (parameterType);
     }
   }
 }

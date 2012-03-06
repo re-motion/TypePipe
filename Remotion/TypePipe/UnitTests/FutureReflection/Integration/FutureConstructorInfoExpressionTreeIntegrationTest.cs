@@ -14,37 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Reflection;
+using System.Linq;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection
+namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
 {
   [TestFixture]
-  public class FutureConstructorInfoTest
+  public class FutureConstructorInfoExpressionTreeIntegrationTest
   {
     [Test]
-    public void Initialization ()
+    public void Test ()
     {
-      var declaringType = typeof (string);
-      var futureConstructorInfo = New.FutureConstructorInfo (declaringType);
-      
-      Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
-    }
+      var arguments = new[] { "string", 3, new object() };
+      var argumentExpressions = arguments.Select (Expression.Constant).Cast<Expression>();
+      var parameters = arguments.Select (a => New.FutureParameterInfo (a.GetType())).ToArray();
+      var constructor = new FutureConstructorInfo (typeof (object), parameters);
 
-    [Test]
-    public void FutureConstructorInfo_IsAConstructorInfo ()
-    {
-      Assert.That (New.FutureConstructorInfo(), Is.InstanceOf<ConstructorInfo>());
-    }
+      var expression = Expression.New (constructor, argumentExpressions);
 
-    [Test]
-    public void GetParameters ()
-    {
-      var parameters = new[] { New.FutureParameterInfo(), New.FutureParameterInfo() };
-      var futureConstructor = New.FutureConstructorInfo (parameters: parameters);
-
-      Assert.That (futureConstructor.GetParameters(), Is.SameAs (parameters));
+      Assert.That (expression.Constructor, Is.SameAs (constructor));
     }
   }
 }

@@ -54,8 +54,11 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="FutureReflection\FutureConstructorInfoTest.cs" />
+    <Compile Include="FutureReflection\FutureParameterInfoTest.cs" />
     <Compile Include="FutureReflection\FutureTypeTest.cs" />
-    <Compile Include="FutureReflection\Integration\FutureTypeIntegrationTest.cs" />
+    <Compile Include="FutureReflection\Integration\FutureConstructorInfoExpressionTreeIntegrationTest.cs" />
+    <Compile Include="FutureReflection\Integration\FutureTypeExpressionTreeIntegrationTest.cs" />
+    <Compile Include="FutureReflection\New.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -22,7 +22,7 @@ using Remotion.TypePipe.FutureReflection;
 namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
 {
   [TestFixture]
-  public class FutureTypeExpressionTreeIntegration
+  public class FutureTypeExpressionTreeIntegrationTest
   {
     private FutureType _futureType;
 
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void New_DefaultConstructor ()
     {
-      var constructor = new FutureConstructorInfo (_futureType);
+      var constructor = new FutureConstructorInfo (_futureType, FutureParameterInfo.EmptyParameters);
       _futureType.AddConstructor (constructor);
 
       var expression = Expression.New (_futureType);

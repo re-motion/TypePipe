@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
@@ -27,11 +28,15 @@ namespace Remotion.TypePipe.FutureReflection
   public class FutureConstructorInfo : ConstructorInfo
   {
     private readonly Type _declaringType;
+    private readonly ParameterInfo[] _parameters;
 
-    public FutureConstructorInfo (Type declaringType)
+    public FutureConstructorInfo (Type declaringType, ParameterInfo[] parameters)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+
       _declaringType = declaringType;
+      _parameters = parameters;
     }
 
     public override Type DeclaringType
@@ -41,7 +46,7 @@ namespace Remotion.TypePipe.FutureReflection
 
     public override ParameterInfo[] GetParameters ()
     {
-      return new ParameterInfo[0];
+      return _parameters;
     }
 
     #region Not Implemented from ConstructorInfo interface
