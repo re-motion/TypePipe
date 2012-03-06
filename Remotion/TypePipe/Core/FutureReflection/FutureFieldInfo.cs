@@ -17,32 +17,24 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureReflection
 {
   /// <summary>
-  /// Represents a property that does not exist yet. This is used to represent properties yet to be generated within an expression tree.
+  /// Represents a field that does not exist yet. This is used to represent fields yet to be generated within an expression tree.
   /// </summary>
-  public class FuturePropertyInfo : PropertyInfo
+  public class FutureFieldInfo : FieldInfo
   {
     private readonly Type _declaringType;
-    private readonly Type _propertyType;
-    private readonly Maybe<MethodInfo> _getMethod;
-    private readonly Maybe<MethodInfo> _setMethod;
+    private readonly FieldAttributes _fieldAttributes;
 
-    public FuturePropertyInfo (Type declaringType, Type propertyType, Maybe<MethodInfo> getMethod, Maybe<MethodInfo> setMethod)
+    public FutureFieldInfo (Type declaringType, FieldAttributes fieldAttributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("propertyType", propertyType);
-      ArgumentUtility.CheckNotNull ("getMethod", getMethod);
-      ArgumentUtility.CheckNotNull ("setMethod", setMethod);
 
       _declaringType = declaringType;
-      _propertyType = propertyType;
-      _getMethod = getMethod;
-      _setMethod = setMethod;
+      _fieldAttributes = fieldAttributes;
     }
 
     public override Type DeclaringType
@@ -50,32 +42,12 @@ namespace Remotion.TypePipe.FutureReflection
       get { return _declaringType; }
     }
 
-    public override Type PropertyType
+    public override FieldAttributes Attributes
     {
-      get { return _propertyType; }
+      get { return _fieldAttributes; }
     }
 
-    public override MethodInfo GetGetMethod (bool nonPublic)
-    {
-      return _getMethod.ValueOrDefault();
-    }
-
-    public override MethodInfo GetSetMethod (bool nonPublic)
-    {
-      return _setMethod.ValueOrDefault();
-    }
-
-    public override bool CanRead
-    {
-      get { throw new NotImplementedException (); }
-    }
-
-    public override bool CanWrite
-    {
-      get { return true; }
-    }
-
-    #region Not Implemented from PropertyInfo interface
+    #region Not Implemented from FieldInfo interface
 
     public override object[] GetCustomAttributes (bool inherit)
     {
@@ -87,22 +59,12 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
-    public override object GetValue (object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
+    public override object GetValue (object obj)
     {
       throw new NotImplementedException();
     }
 
-    public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override MethodInfo[] GetAccessors (bool nonPublic)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override ParameterInfo[] GetIndexParameters ()
+    public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, CultureInfo culture)
     {
       throw new NotImplementedException();
     }
@@ -117,7 +79,12 @@ namespace Remotion.TypePipe.FutureReflection
       get { throw new NotImplementedException(); }
     }
 
-    public override PropertyAttributes Attributes
+    public override Type FieldType
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override RuntimeFieldHandle FieldHandle
     {
       get { throw new NotImplementedException(); }
     }

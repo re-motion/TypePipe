@@ -53,11 +53,6 @@ namespace Remotion.TypePipe.FutureReflection
       get { return typeof (object); }
     }
 
-    public override string Name
-    {
-      get { return null; }
-    }
-
     protected override bool HasElementTypeImpl ()
     {
       return false;
@@ -90,6 +85,11 @@ namespace Remotion.TypePipe.FutureReflection
     }
 
     #region Not Implemented from Type interface
+
+    public override string Name
+    {
+      get { throw new NotImplementedException (); }
+    }
 
     public override object[] GetCustomAttributes (bool inherit)
     {

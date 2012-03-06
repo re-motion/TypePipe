@@ -55,11 +55,13 @@
     </Compile>
     <Compile Include="FutureReflection\Arguments.cs" />
     <Compile Include="FutureReflection\FutureConstructorInfoTest.cs" />
+    <Compile Include="FutureReflection\FutureFieldInfoTest.cs" />
     <Compile Include="FutureReflection\FutureMethodInfoTest.cs" />
     <Compile Include="FutureReflection\FutureParameterInfoTest.cs" />
     <Compile Include="FutureReflection\FuturePropertyInfoTest.cs" />
     <Compile Include="FutureReflection\FutureTypeTest.cs" />
     <Compile Include="FutureReflection\Integration\FutureConstructorInfoExpressionTreeIntegrationTest.cs" />
+    <Compile Include="FutureReflection\Integration\FutureFieldInfoExpressionTreeIntegrationTest.cs" />
     <Compile Include="FutureReflection\Integration\FutureMethodInfoExpressionTreeIntegrationTest.cs" />
     <Compile Include="FutureReflection\Integration\FuturePropertyInfoExpressionTreeIntegrationTest.cs" />
     <Compile Include="FutureReflection\Integration\FutureTypeExpressionTreeIntegrationTest.cs" />

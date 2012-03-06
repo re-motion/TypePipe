@@ -63,6 +63,13 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       return new FuturePropertyInfo (declaringType, propertyType, Maybe.ForValue(getMethod), Maybe.ForValue(setMethod));
     }
 
+    public static FutureFieldInfo FutureFieldInfo (Type declaringType = null, FieldAttributes fieldAttributes = FieldAttributes.Private)
+    {
+      declaringType = declaringType ?? FutureType();
+
+      return new FutureFieldInfo(declaringType, fieldAttributes);
+    }
+
     public static FutureParameterInfo FutureParameterInfo (Type parameterType = null)
     {
       parameterType = parameterType ?? typeof (ExampleType);

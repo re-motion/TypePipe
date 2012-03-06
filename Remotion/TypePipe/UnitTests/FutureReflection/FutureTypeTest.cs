@@ -54,12 +54,6 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     }
 
     [Test]
-    public void Name ()
-    {
-      Assert.That (_futureType.Name, Is.Null);
-    }
-
-    [Test]
     public void HasElementTypeImpl ()
     {
       Assert.That (_futureType.HasElementType, Is.False);
