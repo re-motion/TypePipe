@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
   public class FutureConstructorInfoExpressionTreeIntegrationTest
   {
     [Test]
-    public void New_NoParameters ()
+    public void New_NoArguments ()
     {
       var constructor = New.FutureConstructorInfo ();
 
@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     }
 
     [Test]
-    public void New_WithParameters ()
+    public void New_WithArguments ()
     {
       var arguments = new Arguments ("string", 7, new object());
       var constructor = New.FutureConstructorInfo(parameters: arguments.Parameters);

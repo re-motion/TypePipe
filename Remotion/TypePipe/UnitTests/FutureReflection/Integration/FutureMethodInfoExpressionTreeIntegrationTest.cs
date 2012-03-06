@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
   public class FutureMethodInfoExpressionTreeIntegrationTest
   {
     [Test]
-    public void Call_Static_NoParameters ()
+    public void Call_Static_NoArguments ()
     {
       var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
 
@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     }
 
     [Test]
-    public void Call_Static_WithParameters ()
+    public void Call_Static_WithArguments ()
     {
       var arguments = new Arguments ("string", 7, new object());
       var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static, parameters: arguments.Parameters);
@@ -45,11 +45,11 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     }
 
     [Test]
-    public void Call_Instance_NoParameters ()
+    public void Call_Instance_NoArguments ()
     {
-      var type = New.FutureType();
-      var instance = Expression.Parameter (type);
-      var method = New.FutureMethodInfo (declaringType: type);
+      var declaringType = New.FutureType();
+      var instance = Expression.Variable (declaringType);
+      var method = New.FutureMethodInfo (declaringType: declaringType);
 
       var expression = Expression.Call (instance, method);
 
@@ -57,12 +57,12 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     }
 
     [Test]
-    public void Call_Instance_WithParameters ()
+    public void Call_Instance_WithArguments ()
     {
-      var type = New.FutureType();
-      var instance = Expression.Parameter (type);
+      var declaringType = New.FutureType();
+      var instance = Expression.Variable (declaringType);
       var arguments = new Arguments ("string", 7, new object());
-      var method = New.FutureMethodInfo (declaringType: type, parameters: arguments.Parameters);
+      var method = New.FutureMethodInfo (declaringType: declaringType, parameters: arguments.Parameters);
 
       var expression = Expression.Call (instance, method, arguments.Expressions);
 

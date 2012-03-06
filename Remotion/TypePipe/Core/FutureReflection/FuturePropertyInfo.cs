@@ -17,6 +17,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureReflection
@@ -24,16 +25,19 @@ namespace Remotion.TypePipe.FutureReflection
   public class FuturePropertyInfo : PropertyInfo
   {
     private readonly Type _declaringType;
-    private readonly MethodInfo _getMethod;
-    private readonly MethodInfo _setMethod;
+    private readonly Type _propertyType;
+    private readonly Maybe<MethodInfo> _getMethod;
+    private readonly Maybe<MethodInfo> _setMethod;
 
-    public FuturePropertyInfo (Type declaringType, MethodInfo getMethod, MethodInfo setMethod)
+    public FuturePropertyInfo (Type declaringType, Type propertyType, Maybe<MethodInfo> getMethod, Maybe<MethodInfo> setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("propertyType", propertyType);
       ArgumentUtility.CheckNotNull ("getMethod", getMethod);
       ArgumentUtility.CheckNotNull ("setMethod", setMethod);
 
       _declaringType = declaringType;
+      _propertyType = propertyType;
       _getMethod = getMethod;
       _setMethod = setMethod;
     }
@@ -43,9 +47,29 @@ namespace Remotion.TypePipe.FutureReflection
       get { return _declaringType; }
     }
 
+    public override Type PropertyType
+    {
+      get { return _propertyType; }
+    }
+
     public override MethodInfo GetGetMethod (bool nonPublic)
     {
-      return _getMethod;
+      return _getMethod.ValueOrDefault();
+    }
+
+    public override MethodInfo GetSetMethod (bool nonPublic)
+    {
+      return _setMethod.ValueOrDefault();
+    }
+
+    public override bool CanRead
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public override bool CanWrite
+    {
+      get { return true; }
     }
 
     #region Not Implemented from PropertyInfo interface
@@ -75,11 +99,6 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
-    public override MethodInfo GetSetMethod (bool nonPublic)
-    {
-      throw new NotImplementedException();
-    }
-
     public override ParameterInfo[] GetIndexParameters ()
     {
       throw new NotImplementedException();
@@ -95,22 +114,7 @@ namespace Remotion.TypePipe.FutureReflection
       get { throw new NotImplementedException(); }
     }
 
-    public override Type PropertyType
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override PropertyAttributes Attributes
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override bool CanRead
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override bool CanWrite
     {
       get { throw new NotImplementedException(); }
     }

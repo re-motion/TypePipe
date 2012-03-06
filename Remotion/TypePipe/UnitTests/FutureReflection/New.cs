@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.FutureReflection;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection
@@ -48,13 +49,18 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       return new FutureMethodInfo (declaringType, methodAttributes, parameters);
     }
 
-    public static FuturePropertyInfo FuturePropertyInfo (Type declaringType = null, MethodInfo getMethod = null, MethodInfo setMethod = null)
+    public static FuturePropertyInfo FuturePropertyInfo (
+      Type declaringType = null,
+      Type propertyType = null,
+      MethodInfo getMethod = null,
+      MethodInfo setMethod = null)
     {
       declaringType = declaringType ?? FutureType ();
-      getMethod = getMethod ?? FutureMethodInfo();
-      setMethod = setMethod ?? FutureMethodInfo();
+      propertyType = propertyType ?? FutureType ();
+      if (getMethod == null && setMethod == null)
+        getMethod = FutureMethodInfo ();
 
-      return new FuturePropertyInfo(declaringType, getMethod, setMethod);
+      return new FuturePropertyInfo (declaringType, propertyType, Maybe.ForValue(getMethod), Maybe.ForValue(setMethod));
     }
 
     public static FutureParameterInfo FutureParameterInfo (Type parameterType = null)

@@ -38,11 +38,33 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     }
 
     [Test]
+    public void PropertyType ()
+    {
+      var propertyType = New.FutureType ();
+      var futurePropertyInfo = New.FuturePropertyInfo (propertyType: propertyType);
+      Assert.That (futurePropertyInfo.PropertyType, Is.SameAs (propertyType));
+    }
+
+    [Test]
     public void GetGetMethod ()
     {
       var getMethod = New.FutureMethodInfo();
       var futurePropertyInfo = New.FuturePropertyInfo(getMethod: getMethod);
       Assert.That (futurePropertyInfo.GetGetMethod(), Is.SameAs(getMethod));
+    }
+
+    [Test]
+    public void GetSetMethod ()
+    {
+      var setMethod = New.FutureMethodInfo ();
+      var futurePropertyInfo = New.FuturePropertyInfo (setMethod: setMethod);
+      Assert.That (futurePropertyInfo.GetSetMethod (), Is.SameAs (setMethod));
+    }
+
+    [Test]
+    public void CanWrite ()
+    {
+      Assert.That (New.FuturePropertyInfo().CanWrite, Is.True);
     }
   }
 }

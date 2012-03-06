@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
   public class FuturePropertyInfoExpressionTreeIntegrationTest
   {
     [Test]
-    public void Property_Static ()
+    public void Property_Read_Static ()
     {
       var getMethod = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
       var property = New.FuturePropertyInfo (getMethod: getMethod);
@@ -35,15 +35,47 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     }
 
     [Test]
-    public void Property_Instance ()
+    public void Property_Read_Instance ()
     {
-      var type = New.FutureType();
-      var instance = Expression.Parameter (type);
-      var property = New.FuturePropertyInfo (type);
+      var declaringType = New.FutureType();
+      var instance = Expression.Variable (declaringType);
+      var property = New.FuturePropertyInfo (declaringType: declaringType);
 
       var expression = Expression.Property (instance, property);
 
       Assert.That (expression.Member, Is.SameAs (property));
+    }
+
+    [Test]
+    public void Property_Write_Static ()
+    {
+      var propertyType = New.FutureType();
+      var setMethod = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
+      var property = New.FuturePropertyInfo (propertyType: propertyType, setMethod: setMethod);
+      var value = Expression.Variable (propertyType);
+
+      var propertyExpression = Expression.Property (null, property);
+      var expression = Expression.Assign (propertyExpression, value);
+
+      Assert.That (propertyExpression.Member, Is.SameAs (property));
+      Assert.That (expression.Left, Is.SameAs (propertyExpression));
+    }
+
+    [Test]
+    public void Property_Write_Instance ()
+    {
+      var declaringType = New.FutureType();
+      var instance = Expression.Variable (declaringType);
+      var propertyType = New.FutureType ();
+      var setMethod = New.FutureMethodInfo ();
+      var property = New.FuturePropertyInfo (declaringType: declaringType, propertyType: propertyType, setMethod: setMethod);
+      var value = Expression.Variable (propertyType);
+
+      var propertyExpression = Expression.Property (instance, property);
+      var expression = Expression.Assign (propertyExpression, value);
+
+      Assert.That (propertyExpression.Member, Is.SameAs (property));
+      Assert.That (expression.Left, Is.SameAs (propertyExpression));
     }
   }
 }
