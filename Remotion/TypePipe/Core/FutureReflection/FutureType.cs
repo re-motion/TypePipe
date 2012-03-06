@@ -30,22 +30,22 @@ namespace Remotion.TypePipe.FutureReflection
   public class FutureType : Type
   {
     private readonly TypeAttributes _attributeFlags;
-    private readonly List<FutureConstructor> _constructors = new List<FutureConstructor> ();
+    private readonly List<FutureConstructorInfo> _constructors = new List<FutureConstructorInfo> ();
 
     public FutureType (TypeAttributes attributeFlags)
     {
       _attributeFlags = attributeFlags;
     }
 
-    public ReadOnlyCollection<FutureConstructor> Constructors
+    public ReadOnlyCollection<FutureConstructorInfo> Constructors
     {
       get { return _constructors.AsReadOnly(); }
     }
 
-    public void AddConstructor (FutureConstructor futureConstructor)
+    public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
     {
-      ArgumentUtility.CheckNotNull ("futureConstructor", futureConstructor);
-      _constructors.Add (futureConstructor);
+      ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
+      _constructors.Add (futureConstructorInfo);
     }
 
     public override Type BaseType

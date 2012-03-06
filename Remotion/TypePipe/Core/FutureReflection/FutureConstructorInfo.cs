@@ -24,11 +24,11 @@ namespace Remotion.TypePipe.FutureReflection
   /// <summary>
   /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
   /// </summary>
-  public class FutureConstructor : ConstructorInfo
+  public class FutureConstructorInfo : ConstructorInfo
   {
     private readonly Type _declaringType;
 
-    public FutureConstructor (Type declaringType)
+    public FutureConstructorInfo (Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       _declaringType = declaringType;

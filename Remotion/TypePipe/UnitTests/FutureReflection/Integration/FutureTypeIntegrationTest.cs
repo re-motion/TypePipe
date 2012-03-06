@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void New_DefaultConstructor ()
     {
-      var constructor = new FutureConstructor (_futureType);
+      var constructor = new FutureConstructorInfo (_futureType);
       _futureType.AddConstructor (constructor);
 
       var expression = Expression.New (_futureType);

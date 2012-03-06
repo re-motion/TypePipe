@@ -21,14 +21,14 @@ using Remotion.TypePipe.FutureReflection;
 namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
   [TestFixture]
-  public class FutureConstructorTest
+  public class FutureConstructorInfoTest
   {
-    private FutureConstructor _futureConstructor;
+    private FutureConstructorInfo _futureConstructorInfo;
 
     [SetUp]
     public void SetUp ()
     {
-      _futureConstructor = new FutureConstructor (typeof (string));
+      _futureConstructorInfo = new FutureConstructorInfo (typeof (string));
     }
 
     [Test]
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     {
       var declaringType = typeof (string);
 
-      var futureConstructor = new FutureConstructor (declaringType);
+      var futureConstructor = new FutureConstructorInfo (declaringType);
       
       Assert.That (futureConstructor.DeclaringType, Is.SameAs (declaringType));
     }
@@ -44,14 +44,14 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void FutureConstructor_IsAConstructorInfo ()
     {
-      Assert.That (_futureConstructor, Is.InstanceOf<ConstructorInfo>());
-      Assert.That (_futureConstructor, Is.AssignableTo<ConstructorInfo>());
+      Assert.That (_futureConstructorInfo, Is.InstanceOf<ConstructorInfo>());
+      Assert.That (_futureConstructorInfo, Is.AssignableTo<ConstructorInfo>());
     }
 
     [Test]
     public void GetParameters_Empty ()
     {
-      Assert.That (_futureConstructor.GetParameters(), Is.EqualTo (new ParameterInfo[0]));
+      Assert.That (_futureConstructorInfo.GetParameters(), Is.EqualTo (new ParameterInfo[0]));
     }
   }
 }
