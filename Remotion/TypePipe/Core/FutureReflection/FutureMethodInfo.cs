@@ -21,6 +21,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureReflection
 {
+  /// <summary>
+  /// Represents a method that does not exist yet. This is used to represent methods yet to be generated within an expression tree.
+  /// </summary>
   public class FutureMethodInfo : MethodInfo
   {
     private readonly Type _declaringType;

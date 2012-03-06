@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
@@ -29,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [SetUp]
     public void SetUp ()
     {
-      _futureType = new FutureType (TypeAttributes.Public);
+      _futureType = New.FutureType();
     }
 
     [Test]

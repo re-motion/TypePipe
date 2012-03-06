@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -37,12 +36,35 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Call_Static_WithParameters ()
     {
-      var arguments = new[] { "string", 3, new object() };
-      var argumentExpressions = arguments.Select (Expression.Constant).Cast<Expression>();
-      var parameters = arguments.Select (a => New.FutureParameterInfo (a.GetType())).ToArray();
-      var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static, parameters: parameters);
+      var arguments = new Arguments ("string", 7, new object());
+      var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static, parameters: arguments.Parameters);
 
-      var expression = Expression.Call (method, argumentExpressions);
+      var expression = Expression.Call (method, arguments.Expressions);
+
+      Assert.That (expression.Method, Is.SameAs (method));
+    }
+
+    [Test]
+    public void Call_Instance_NoParameters ()
+    {
+      var type = New.FutureType();
+      var instance = Expression.Parameter (type);
+      var method = New.FutureMethodInfo (declaringType: type);
+
+      var expression = Expression.Call (instance, method);
+
+      Assert.That (expression.Method, Is.SameAs (method));
+    }
+
+    [Test]
+    public void Call_Instance_WithParameters ()
+    {
+      var type = New.FutureType();
+      var instance = Expression.Parameter (type);
+      var arguments = new Arguments ("string", 7, new object());
+      var method = New.FutureMethodInfo (declaringType: type, parameters: arguments.Parameters);
+
+      var expression = Expression.Call (instance, method, arguments.Expressions);
 
       Assert.That (expression.Method, Is.SameAs (method));
     }

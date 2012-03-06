@@ -53,6 +53,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="FutureReflection\Arguments.cs" />
     <Compile Include="FutureReflection\FutureConstructorInfoTest.cs" />
     <Compile Include="FutureReflection\FutureMethodInfoTest.cs" />
     <Compile Include="FutureReflection\FutureParameterInfoTest.cs" />
@@ -72,6 +73,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
+      <Project>{2AA369EC-A4E7-4D75-9101-EFA90E902625}</Project>
+      <Name>Core.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\TypePipe.Core.csproj">
       <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>
       <Name>TypePipe.Core</Name>
