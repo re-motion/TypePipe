@@ -29,12 +29,12 @@ namespace Remotion.TypePipe.FutureReflection
   /// </summary>
   public class FutureType : Type
   {
-    private readonly TypeAttributes _attributeFlags;
+    private readonly TypeAttributes _typeAttributes;
     private readonly List<FutureConstructorInfo> _constructors = new List<FutureConstructorInfo> ();
 
-    public FutureType (TypeAttributes attributeFlags)
+    public FutureType (TypeAttributes typeAttributes)
     {
-      _attributeFlags = attributeFlags;
+      _typeAttributes = typeAttributes;
     }
 
     public ReadOnlyCollection<FutureConstructorInfo> Constructors
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.FutureReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return _attributeFlags;
+      return _typeAttributes;
     }
 
     #region Not Implemented from Type interface

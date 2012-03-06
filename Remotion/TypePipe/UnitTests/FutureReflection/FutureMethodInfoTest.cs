@@ -14,36 +14,42 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
   [TestFixture]
-  public class FutureConstructorInfoTest
+  public class FutureMethodInfoTest
   {
     [Test]
-    public void FutureConstructorInfo_IsAConstructorInfo ()
+    public void FutureMethodInfo_IsAMethodInfo ()
     {
-      Assert.That (New.FutureConstructorInfo(), Is.InstanceOf<ConstructorInfo>());
+      Assert.That (New.FutureMethodInfo(), Is.InstanceOf<MethodInfo> ());
     }
 
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = typeof (string);
-      var futureConstructorInfo = New.FutureConstructorInfo (declaringType);
+      var declaringType = New.FutureType();
+      var futureMethodInfo = New.FutureMethodInfo (declaringType: declaringType);
+      Assert.That(futureMethodInfo.DeclaringType, Is.SameAs(declaringType));
+    }
 
-      Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
+    [Test]
+    public void Attributes ()
+    {
+      var futureMethodInfo = New.FutureMethodInfo (methodAttributes: MethodAttributes.Final);
+      Assert.That (futureMethodInfo.Attributes, Is.EqualTo (MethodAttributes.Final));
     }
 
     [Test]
     public void GetParameters ()
     {
       var parameters = new[] { New.FutureParameterInfo(), New.FutureParameterInfo() };
-      var futureConstructor = New.FutureConstructorInfo (parameters: parameters);
-
-      Assert.That (futureConstructor.GetParameters(), Is.SameAs (parameters));
+      var futureMethodInfo = New.FutureMethodInfo (parameters: parameters);
+      Assert.That (futureMethodInfo.GetParameters(), Is.SameAs(parameters));
     }
   }
 }

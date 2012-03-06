@@ -169,6 +169,7 @@
     <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />
     <Compile Include="Dlr\Utils\TypeExtensions.cs" />
     <Compile Include="FutureReflection\FutureConstructorInfo.cs" />
+    <Compile Include="FutureReflection\FutureMethodInfo.cs" />
     <Compile Include="FutureReflection\FutureParameterInfo.cs" />
     <Compile Include="FutureReflection\FutureType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

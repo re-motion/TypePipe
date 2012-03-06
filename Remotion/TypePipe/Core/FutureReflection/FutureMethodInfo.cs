@@ -21,20 +21,20 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureReflection
 {
-  /// <summary>
-  /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
-  /// </summary>
-  public class FutureConstructorInfo : ConstructorInfo
+  public class FutureMethodInfo : MethodInfo
   {
     private readonly Type _declaringType;
+    private readonly MethodAttributes _methodAttributes;
     private readonly ParameterInfo[] _parameters;
 
-    public FutureConstructorInfo (Type declaringType, ParameterInfo[] parameters)
+    public FutureMethodInfo (Type declaringType, MethodAttributes methodAttributes, ParameterInfo[] parameters)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("methodAttributes", methodAttributes);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
 
       _declaringType = declaringType;
+      _methodAttributes = methodAttributes;
       _parameters = parameters;
     }
 
@@ -43,12 +43,17 @@ namespace Remotion.TypePipe.FutureReflection
       get { return _declaringType; }
     }
 
+    public override MethodAttributes Attributes
+    {
+      get { return _methodAttributes; }
+    }
+
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters;
     }
 
-    #region Not Implemented from ConstructorInfo interface
+    #region Not Implemented from MethodInfo interface
 
     public override object[] GetCustomAttributes (bool inherit)
     {
@@ -70,6 +75,16 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
+    public override MethodInfo GetBaseDefinition ()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override ICustomAttributeProvider ReturnTypeCustomAttributes
+    {
+      get { throw new NotImplementedException(); }
+    }
+
     public override string Name
     {
       get { throw new NotImplementedException(); }
@@ -85,21 +100,10 @@ namespace Remotion.TypePipe.FutureReflection
       get { throw new NotImplementedException(); }
     }
 
-    public override MethodAttributes Attributes
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       throw new NotImplementedException();
     }
-
-    public override object Invoke (BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
+    #endregion 
   }
 }

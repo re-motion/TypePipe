@@ -15,35 +15,36 @@
 // under the License.
 // 
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
 {
   [TestFixture]
-  public class FutureConstructorInfoExpressionTreeIntegrationTest
+  public class FutureMethodInfoExpressionTreeIntegrationTest
   {
     [Test]
-    public void New_NoParameters ()
+    public void Call_Static_NoParameters ()
     {
-      var constructor = New.FutureConstructorInfo ();
+      var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
 
-      var expression = Expression.New (constructor);
+      var expression = Expression.Call (method);
 
-      Assert.That (expression.Constructor, Is.SameAs (constructor));
+      Assert.That (expression.Method, Is.SameAs (method));
     }
 
     [Test]
-    public void New_WithParameters ()
+    public void Call_Static_WithParameters ()
     {
       var arguments = new[] { "string", 3, new object() };
       var argumentExpressions = arguments.Select (Expression.Constant).Cast<Expression>();
       var parameters = arguments.Select (a => New.FutureParameterInfo (a.GetType())).ToArray();
-      var constructor = New.FutureConstructorInfo(parameters: parameters);
+      var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static, parameters: parameters);
 
-      var expression = Expression.New (constructor, argumentExpressions);
+      var expression = Expression.Call (method, argumentExpressions);
 
-      Assert.That (expression.Constructor, Is.SameAs (constructor));
+      Assert.That (expression.Method, Is.SameAs (method));
     }
   }
 }
