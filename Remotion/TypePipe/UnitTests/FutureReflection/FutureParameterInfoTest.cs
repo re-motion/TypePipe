@@ -17,33 +17,24 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureReflection;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
   [TestFixture]
   public class FutureParameterInfoTest
   {
-    private FutureParameterInfo _futureParameterInfo;
-
-    [SetUp]
-    public void SetUp ()
-    {
-      _futureParameterInfo = new FutureParameterInfo(typeof(string));
-    }
-
     [Test]
     public void FutureParameterInfo_IsAParameterInfo ()
     {
-      Assert.That (_futureParameterInfo, Is.InstanceOf<ParameterInfo> ());
+      Assert.That (New.FutureParameterInfo(), Is.InstanceOf<ParameterInfo> ());
     }
 
     [Test]
     public void ParameterType ()
     {
-      var type = typeof (object);
-      var futureParameterInfo = new FutureParameterInfo (type);
-      Assert.That (futureParameterInfo.ParameterType, Is.SameAs (type));
+      var parameterType = typeof (object);
+      var futureParameterInfo = New.FutureParameterInfo (parameterType: parameterType);
+      Assert.That (futureParameterInfo.ParameterType, Is.SameAs (parameterType));
     }
   }
 }

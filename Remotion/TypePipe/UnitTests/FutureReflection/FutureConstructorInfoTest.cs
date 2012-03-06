@@ -16,7 +16,6 @@
 // 
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureReflection;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
