@@ -34,10 +34,11 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void New_DefaultConstructor ()
     {
-      var constructor = new FutureConstructorInfo (_futureType, FutureParameterInfo.EmptyParameters);
+      var constructor = New.FutureConstructorInfo (declaringType: _futureType);
       _futureType.AddConstructor (constructor);
 
       var expression = Expression.New (_futureType);
+
       Assert.That (expression.Constructor, Is.SameAs (constructor));
     }
 

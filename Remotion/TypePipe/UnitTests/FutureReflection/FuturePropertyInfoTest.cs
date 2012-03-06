@@ -16,28 +16,33 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.Utilities;
+using NUnit.Framework;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
-  /// <summary>
-  /// Represents a parameter for a member that does not exist yet. This is used to represent the signature of a member yet to be generatedwithin an
-  /// expression tree.
-  /// </summary>
-  public class FutureParameterInfo : ParameterInfo
+  [TestFixture]
+  public class FuturePropertyInfoTest
   {
-    private readonly Type _parameterType;
-
-    public FutureParameterInfo (Type parameterType)
+    [Test]
+    public void FuturePropertyInfo_IsAPropertyInfo ()
     {
-      ArgumentUtility.CheckNotNull ("parameterType", parameterType);
-
-      _parameterType = parameterType;
+      Assert.That (New.FuturePropertyInfo(), Is.InstanceOf<PropertyInfo>());
     }
 
-    public override Type ParameterType
+    [Test]
+    public void DeclaringType ()
     {
-      get { return _parameterType; }
+      var declaringType = New.FutureType ();
+      var futurePropertyInfo = New.FuturePropertyInfo (declaringType: declaringType);
+      Assert.That (futurePropertyInfo.DeclaringType, Is.SameAs(declaringType));
+    }
+
+    [Test]
+    public void GetGetMethod ()
+    {
+      var getMethod = New.FutureMethodInfo();
+      var futurePropertyInfo = New.FuturePropertyInfo(getMethod: getMethod);
+      Assert.That (futurePropertyInfo.GetGetMethod(), Is.SameAs(getMethod));
     }
   }
 }

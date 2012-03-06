@@ -22,6 +22,8 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
   public static class New
   {
+    private static readonly ParameterInfo[] EmptyParameters = new ParameterInfo[0];
+
     public static FutureType FutureType (TypeAttributes typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit)
     {
       return new FutureType (typeAttributes);
@@ -30,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public static FutureConstructorInfo FutureConstructorInfo (Type declaringType = null, ParameterInfo[] parameters = null)
     {
       declaringType = declaringType ?? FutureType();
-      parameters = parameters ?? TypePipe.FutureReflection.FutureParameterInfo.EmptyParameters;
+      parameters = parameters ?? EmptyParameters;
 
       return new FutureConstructorInfo (declaringType, parameters);
     }
@@ -41,9 +43,18 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       ParameterInfo[] parameters = null)
     {
       declaringType = declaringType ?? FutureType ();
-      parameters = parameters ?? TypePipe.FutureReflection.FutureParameterInfo.EmptyParameters;
+      parameters = parameters ?? EmptyParameters;
 
       return new FutureMethodInfo (declaringType, methodAttributes, parameters);
+    }
+
+    public static FuturePropertyInfo FuturePropertyInfo (Type declaringType = null, MethodInfo getMethod = null, MethodInfo setMethod = null)
+    {
+      declaringType = declaringType ?? FutureType ();
+      getMethod = getMethod ?? FutureMethodInfo();
+      setMethod = setMethod ?? FutureMethodInfo();
+
+      return new FuturePropertyInfo(declaringType, getMethod, setMethod);
     }
 
     public static FutureParameterInfo FutureParameterInfo (Type parameterType = null)
