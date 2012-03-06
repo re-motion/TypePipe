@@ -43,5 +43,13 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       var futureFieldInfo = New.FutureFieldInfo (fieldAttributes: FieldAttributes.InitOnly);
       Assert.That (futureFieldInfo.Attributes, Is.EqualTo (FieldAttributes.InitOnly));
     }
+
+    [Test]
+    public void FieldType ()
+    {
+      var fieldType = typeof (string);
+      var futureFieldInfo = New.FutureFieldInfo (fieldType: fieldType);
+      Assert.That (futureFieldInfo.FieldType, Is.SameAs (fieldType));
+    }
   }
 }

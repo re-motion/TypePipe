@@ -32,10 +32,9 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
 
     public static FutureConstructorInfo FutureConstructorInfo (Type declaringType = null, ParameterInfo[] parameters = null)
     {
-      declaringType = declaringType ?? FutureType();
       parameters = parameters ?? EmptyParameters;
 
-      return new FutureConstructorInfo (declaringType, parameters);
+      return new FutureConstructorInfo (declaringType.OrExample(), parameters);
     }
 
     public static FutureMethodInfo FutureMethodInfo (
@@ -43,10 +42,9 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
       ParameterInfo[] parameters = null)
     {
-      declaringType = declaringType ?? FutureType ();
       parameters = parameters ?? EmptyParameters;
 
-      return new FutureMethodInfo (declaringType, methodAttributes, parameters);
+      return new FutureMethodInfo (declaringType.OrExample(), methodAttributes, parameters);
     }
 
     public static FuturePropertyInfo FuturePropertyInfo (
@@ -55,26 +53,28 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       MethodInfo getMethod = null,
       MethodInfo setMethod = null)
     {
-      declaringType = declaringType ?? FutureType ();
-      propertyType = propertyType ?? FutureType ();
       if (getMethod == null && setMethod == null)
         getMethod = FutureMethodInfo ();
 
-      return new FuturePropertyInfo (declaringType, propertyType, Maybe.ForValue(getMethod), Maybe.ForValue(setMethod));
+      return new FuturePropertyInfo (declaringType.OrExample(), propertyType.OrExample(), Maybe.ForValue(getMethod), Maybe.ForValue(setMethod));
     }
 
-    public static FutureFieldInfo FutureFieldInfo (Type declaringType = null, FieldAttributes fieldAttributes = FieldAttributes.Private)
+    public static FutureFieldInfo FutureFieldInfo (
+      Type declaringType = null,
+      FieldAttributes fieldAttributes = FieldAttributes.Private,
+      Type fieldType = null)
     {
-      declaringType = declaringType ?? FutureType();
-
-      return new FutureFieldInfo(declaringType, fieldAttributes);
+      return new FutureFieldInfo(declaringType.OrExample(), fieldAttributes, fieldType.OrExample());
     }
 
     public static FutureParameterInfo FutureParameterInfo (Type parameterType = null)
     {
-      parameterType = parameterType ?? typeof (ExampleType);
+      return new FutureParameterInfo (parameterType.OrExample());
+    }
 
-      return new FutureParameterInfo (parameterType);
+    private static Type OrExample(this Type type)
+    {
+      return type ?? typeof (ExampleType);
     }
   }
 

@@ -44,5 +44,35 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
 
       Assert.That (expression.Member, Is.SameAs (field));
     }
+
+    [Test]
+    public void Field_Write_Static ()
+    {
+      var fieldType = New.FutureType();
+      var field = New.FutureFieldInfo (fieldAttributes: FieldAttributes.Static, fieldType: fieldType);
+      var value = Expression.Variable (fieldType);
+
+      var fieldExpression = Expression.Field (null, field);
+      var expression = Expression.Assign (fieldExpression, value);
+
+      Assert.That (fieldExpression.Member, Is.SameAs (field));
+      Assert.That (expression.Left, Is.SameAs (fieldExpression));
+    }
+
+    [Test]
+    public void Field_Write_Instance ()
+    {
+      var declaringType = New.FutureType();
+      var instance = Expression.Variable(declaringType);
+      var fieldType = New.FutureType ();
+      var field = New.FutureFieldInfo (declaringType: declaringType, fieldType: fieldType);
+      var value = Expression.Variable (fieldType);
+
+      var fieldExpression = Expression.Field (instance, field);
+      var expression = Expression.Assign (fieldExpression, value);
+
+      Assert.That (fieldExpression.Member, Is.SameAs (field));
+      Assert.That (expression.Left, Is.SameAs (fieldExpression));
+    }
   }
 }

@@ -28,13 +28,16 @@ namespace Remotion.TypePipe.FutureReflection
   {
     private readonly Type _declaringType;
     private readonly FieldAttributes _fieldAttributes;
+    private readonly Type _fieldType;
 
-    public FutureFieldInfo (Type declaringType, FieldAttributes fieldAttributes)
+    public FutureFieldInfo (Type declaringType, FieldAttributes fieldAttributes, Type fieldType)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
 
       _declaringType = declaringType;
       _fieldAttributes = fieldAttributes;
+      _fieldType = fieldType;
     }
 
     public override Type DeclaringType
@@ -45,6 +48,11 @@ namespace Remotion.TypePipe.FutureReflection
     public override FieldAttributes Attributes
     {
       get { return _fieldAttributes; }
+    }
+
+    public override Type FieldType
+    {
+      get { return _fieldType; }
     }
 
     #region Not Implemented from FieldInfo interface
@@ -75,11 +83,6 @@ namespace Remotion.TypePipe.FutureReflection
     }
 
     public override Type ReflectedType
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Type FieldType
     {
       get { throw new NotImplementedException(); }
     }
