@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.FutureReflection
     public FutureMethodInfo (Type declaringType, MethodAttributes methodAttributes, ParameterInfo[] parameters)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("methodAttributes", methodAttributes);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
 
       _declaringType = declaringType;

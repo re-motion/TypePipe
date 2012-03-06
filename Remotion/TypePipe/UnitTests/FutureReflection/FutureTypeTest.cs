@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [SetUp]
     public void SetUp ()
     {
-      _futureType = new FutureType (TypeAttributes.Public | TypeAttributes.BeforeFieldInit);
+      _futureType = New.FutureType();
     }
 
     [Test]
