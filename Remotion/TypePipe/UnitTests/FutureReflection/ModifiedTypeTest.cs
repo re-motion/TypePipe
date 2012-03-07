@@ -15,7 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
@@ -30,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [SetUp]
     public void SetUp ()
     {
-      _originalType = typeof (string);
+      _originalType = typeof (object);
       _modifiedType = new ModifiedType (_originalType); 
     }
 
@@ -40,7 +42,23 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       Assert.That (_modifiedType.OriginalType, Is.SameAs (_originalType));
     }
 
-     [Test]
+    [Test]
+    public void Initialization_ThrowsIfOriginalTypeCannotBeSubclassed ()
+    {
+      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic parameters and "
+              + "must have an accessible constructor.\r\nParameter name: originalType";
+      Assert.That (() => new ModifiedType (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg)); // sealed
+      Assert.That (() => new ModifiedType (typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg)); // interface
+      Assert.That (() => new ModifiedType (typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg)); // value type
+      Assert.That (() => new ModifiedType (typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg)); // enum
+      Assert.That (() => new ModifiedType (typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => new ModifiedType (typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => new ModifiedType (typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg)); // open generics
+      Assert.That (() => new ModifiedType (typeof (List<int>)), Throws.Nothing); // closed generics
+      Assert.That (() => new ModifiedType (typeof (BlockExpression)), Throws.ArgumentException.With.Message.EqualTo (msg)); // no accessible constructor 
+    }
+
+    [Test]
     public void BaseType ()
     {
       Assert.That (_modifiedType.BaseType, Is.EqualTo (typeof (object)));

@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModifiedType ()
     {
-      var originalType = typeof (string);
+      var originalType = typeof (object);
 
       var modifiedType =_reflectionEmitTypeModifier.CreateModifiedType (originalType);
 

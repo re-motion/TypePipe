@@ -31,11 +31,13 @@ namespace Remotion.TypePipe.FutureReflection
   {
     private readonly Type _originalType;
 
-    // TODO Type Pipe: throw exception if originalType is: sealed, interface, ctor not accessible, System.ValueType, System.Enum, System.Delegate, System.MulticastDelegate
-    // TODO Type Pipe: throw exception if originalType.ContainsGenericParameters is true
     public ModifiedType (Type originalType)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
+
+      if (CanNotBeSubclassed (originalType))
+        throw new ArgumentException ("Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic"
+          + " parameters and must have an accessible constructor.", "originalType");
 
       _originalType = originalType;
     }
@@ -79,6 +81,21 @@ namespace Remotion.TypePipe.FutureReflection
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
       return _originalType.Attributes;
+    }
+
+    private bool CanNotBeSubclassed (Type type)
+    {
+      return type.IsSealed
+          || type.IsInterface
+          || typeof(Delegate).IsAssignableFrom(type)
+          || type.ContainsGenericParameters
+          || !HasAccessibleConstructor(type);
+    }
+
+    private bool HasAccessibleConstructor (Type type)
+    {
+      return type.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+          .Any (ctor => ctor.IsPublic || ctor.IsFamily || ctor.IsFamilyOrAssembly);
     }
 
     #region Not Implemented from Type interface
