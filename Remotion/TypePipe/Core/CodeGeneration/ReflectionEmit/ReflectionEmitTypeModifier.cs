@@ -14,15 +14,28 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.TypeAssembly;
 
-namespace Remotion.TypePipe.TypeAssembly
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
+  /// Implements the <see cref="ITypeModifier"/> interface using Reflection.Emit.
   /// </summary>
-  public interface ITypeAssemblyParticipant
+  /// <remarks>
+  /// This class modifies the behavior of types by deriving runtime-generated subclass proxies that add or override members.
+  /// </remarks>
+  public class ReflectionEmitTypeModifier : ITypeModifier
   {
-    void ModifyType (MutableType mutableType);
+    public ModifiedType CreateModifiedType (Type originalType)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Type ApplyModifications (TypeModificationSpecification modificationSpecification)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

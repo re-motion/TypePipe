@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,15 +14,23 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+using System;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.TypeAssembly;
+
+namespace Remotion.TypePipe.FutureReflection
 {
   /// <summary>
-  /// Implements the <see cref="ICodeGenerator"/> interface using Reflection.Emit.
+  /// Represents an existing <see cref="Type"/> that can be changed. Changes are recorded and later applied to the existing type via an
+  /// instance of <see cref="ITypeModifier"/>.
   /// </summary>
-  /// <remarks>
-  /// This class modifies the behavior of types by deriving runtime-generated subclass proxies that add or override members.
-  /// </remarks>
-  public class ReflectionEmitCodeGenerator : ICodeGenerator
+  public abstract class ModifiedType : MutableType
   {
+    public Type OriginalType { get { throw new NotImplementedException (); } }
+
+    public virtual TypeModificationSpecification GetModificationSpecification ()
+    {
+      throw new NotImplementedException ();
+    }
   }
 }

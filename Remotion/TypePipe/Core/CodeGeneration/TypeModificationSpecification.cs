@@ -14,15 +14,21 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.TypeAssembly
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
+  /// Describes the changes that should be applied to a <see cref="RequestedType"/> as recorded by a <see cref="ModifiedType"/>.
   /// </summary>
-  public interface ITypeAssemblyParticipant
+  public class TypeModificationSpecification
   {
-    void ModifyType (MutableType mutableType);
+    public Type RequestedType
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    // public IEnumerable<Type> AddedInterfaces;
   }
 }

@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.FutureReflection;
 using Remotion.TypePipe.TypeAssembly;
 using Rhino.Mocks;
 
@@ -25,42 +26,42 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class AddMarkerInterfaceTest
   {
-    private ReflectionEmitCodeGenerator _codeGenerator;
+    private ReflectionEmitTypeModifier _typeModifier;
 
     [SetUp]
     public void SetUp ()
     {
-      _codeGenerator = new ReflectionEmitCodeGenerator ();
+      _typeModifier = new ReflectionEmitTypeModifier ();
     }
 
     [Test]
     [Ignore ("TODO Type Pipe")]
     public void AddMarkerInterface ()
     {
-      Assert.That (typeof (ModifiedType).GetInterfaces (), Has.No.Member (typeof (IMarkerInterface)));
+      Assert.That (typeof (OriginalType).GetInterfaces (), Has.No.Member (typeof (IMarkerInterface)));
       var participant = CreateTypeAssemblyParticipant (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
 
-      Type type = AssembleType (participant);
+      Type type = AssembleType (typeof (OriginalType), participant);
 
       Assert.That (type.GetInterfaces (), Has.Member (typeof (IMarkerInterface)));
     }
 
-    private Type AssembleType (ITypeAssemblyParticipant participantStub)
+    private Type AssembleType (Type requestedType, ITypeAssemblyParticipant participantStub)
     {
-      var typeAssembler = new TypeAssembler (new[] { participantStub }, _codeGenerator);
-      return typeAssembler.AssembleType (typeof (ModifiedType));
+      var typeAssembler = new TypeAssembler (new[] { participantStub }, _typeModifier);
+      return typeAssembler.AssembleType (requestedType);
     }
 
-    private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<IMutableType> typeModification)
+    private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();
       participantStub
-          .Stub (stub => stub.ModifyType (Arg<IMutableType>.Is.Anything))
+          .Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything))
           .Do (typeModification);
       return participantStub;
     }
 
-    public class ModifiedType
+    public class OriginalType
     {
     }
 

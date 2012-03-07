@@ -15,14 +15,17 @@
 // under the License.
 // 
 using System;
+using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.TypeAssembly;
 
-namespace Remotion.TypePipe.TypeAssembly
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Represents a type that is mutated by implementations of <see cref="ITypeAssemblyParticipant"/> during type assembly.
+  /// Defines an interface for code generation components which perform the modifications recorded by an <see cref="MutableType"/>.
   /// </summary>
-  public interface IMutableType
+  public interface ITypeModifier
   {
-    void AddInterface (Type interfaceType);
+    ModifiedType CreateModifiedType (Type originalType);
+    Type ApplyModifications (TypeModificationSpecification modificationSpecification);
   }
 }

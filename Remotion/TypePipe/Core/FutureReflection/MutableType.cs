@@ -14,12 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-namespace Remotion.TypePipe.CodeGeneration
+using System;
+
+namespace Remotion.TypePipe.FutureReflection
 {
   /// <summary>
-  /// Defines an interface for the Type Pipe's code generation backend.
+  /// Represents a <see cref="Type"/> that can be changed. Changes are recorded and, depending on the concrete <see cref="MutableType"/>, applied
+  /// to an existing type or to a newly created type.
   /// </summary>
-  public interface ICodeGenerator
+  public abstract class MutableType : Type
   {
+    public void AddInterface (Type interfaceType)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

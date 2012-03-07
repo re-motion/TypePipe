@@ -51,8 +51,10 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="CodeGeneration\ICodeGenerator.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\ITypeModifier.cs" />
+    <Compile Include="FutureReflection\ModifiedType.cs" />
+    <Compile Include="CodeGeneration\TypeModificationSpecification.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
     <Compile Include="Dlr\Actions\CallInfo.cs" />
@@ -176,9 +178,9 @@
     <Compile Include="FutureReflection\FutureParameterInfo.cs" />
     <Compile Include="FutureReflection\FuturePropertyInfo.cs" />
     <Compile Include="FutureReflection\FutureType.cs" />
+    <Compile Include="FutureReflection\MutableType.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeAssembly\IMutableType.cs" />
     <Compile Include="TypeAssembly\TypeAssembler.cs" />
   </ItemGroup>
   <ItemGroup>
