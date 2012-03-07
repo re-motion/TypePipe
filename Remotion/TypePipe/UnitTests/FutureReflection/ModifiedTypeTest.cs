@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
@@ -37,6 +38,78 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public void Initialization ()
     {
       Assert.That (_modifiedType.OriginalType, Is.SameAs (_originalType));
+    }
+
+     [Test]
+    public void BaseType ()
+    {
+      Assert.That (_modifiedType.BaseType, Is.EqualTo (typeof (object)));
+    }
+
+    [Test]
+    public void HasElementTypeImpl ()
+    {
+      Assert.That (_modifiedType.HasElementType, Is.False);
+    }
+
+    [Test]
+    public void Assembly ()
+    {
+      Assert.That (_modifiedType.Assembly, Is.Null);
+    }
+
+    [Test]
+    public void GetConstructorImpl_WithSingleAddedConstructor ()
+    {
+      // Arrange
+      var futureConstructor = FutureConstructorInfoObjectMother.Create (_modifiedType);
+      _modifiedType.AddConstructor (futureConstructor);
+
+      BindingFlags bindingFlags = (BindingFlags) (-1);
+      Binder binder = null;
+      Type[] parameterTypes = Type.EmptyTypes; // Cannot be null
+      ParameterModifier[] parameterModifiers = null;
+
+      // Act
+      var constructor = _modifiedType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
+
+      // Assert
+      Assert.That (constructor, Is.SameAs (futureConstructor));
+      Assert.That (constructor.DeclaringType, Is.SameAs (_modifiedType));
+    }
+
+    [Test]
+    public void GetConstructorImpl_WithoutAddedConstructor ()
+    {
+      // Arrange
+      BindingFlags bindingFlags = (BindingFlags) (-1);
+      Binder binder = null;
+      Type[] parameterTypes = Type.EmptyTypes; // Cannot be null
+      ParameterModifier[] parameterModifiers = null;
+
+      // Act
+      var constructor = _modifiedType.GetConstructor (bindingFlags, binder, parameterTypes, parameterModifiers);
+
+      // Assert
+      Assert.That (constructor, Is.Null);
+    }
+
+    [Test]
+    public void IsByRefImpl ()
+    {
+      Assert.That (_modifiedType.IsByRef, Is.False);
+    }
+
+    [Test]
+    public void UnderlyingSystemType ()
+    {
+      Assert.That (_modifiedType.UnderlyingSystemType, Is.SameAs (_modifiedType));
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      Assert.That (_modifiedType.Attributes, Is.EqualTo (_originalType.Attributes));
     }
   }
 }

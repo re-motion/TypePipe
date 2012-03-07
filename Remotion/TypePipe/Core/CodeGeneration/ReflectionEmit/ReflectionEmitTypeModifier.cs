@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Remotion.TypePipe.FutureReflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -28,6 +30,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class ReflectionEmitTypeModifier : ITypeModifier
   {
+    private readonly IModuleBuilder _moduleBuilder;
+    private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
+
+    public ReflectionEmitTypeModifier (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider)
+    {
+      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
+
+      _moduleBuilder = moduleBuilder;
+      _subclassProxyNameProvider = subclassProxyNameProvider;
+    }
+
     public ModifiedType CreateModifiedType (Type originalType)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
@@ -39,7 +53,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("modifiedType", modifiedType);
 
-      throw new NotImplementedException();
+      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (modifiedType);
+      var typeBuilder = _moduleBuilder.DefineType (
+          subclassProxyName,
+          TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
+          modifiedType.OriginalType,
+          modifiedType.AddedInterfaces.ToArray());
+      return typeBuilder.CreateType();
     }
   }
 }

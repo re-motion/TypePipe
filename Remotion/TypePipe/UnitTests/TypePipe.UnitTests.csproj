@@ -53,6 +53,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
     <Compile Include="FutureReflection\Arguments.cs" />
     <Compile Include="FutureReflection\FutureConstructorInfoTest.cs" />

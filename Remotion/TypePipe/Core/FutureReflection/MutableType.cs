@@ -28,10 +28,16 @@ namespace Remotion.TypePipe.FutureReflection
   public abstract class MutableType : Type
   {
     private readonly List<Type> _addedInterfaces = new List<Type>();
+    private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo> ();
 
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollection<FutureConstructorInfo> AddedConstructors
+    {
+      get { return _addedConstructors.AsReadOnly (); }
     }
 
     public void AddInterface (Type interfaceType)
@@ -42,6 +48,12 @@ namespace Remotion.TypePipe.FutureReflection
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
       _addedInterfaces.Add (interfaceType);
+    }
+
+    public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
+    {
+      ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
+      _addedConstructors.Add (futureConstructorInfo);
     }
   }
 }

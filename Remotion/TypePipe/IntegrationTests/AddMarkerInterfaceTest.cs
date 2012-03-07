@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.FutureReflection;
@@ -31,19 +33,20 @@ namespace TypePipe.IntegrationTests
     [SetUp]
     public void SetUp ()
     {
-      _typeModifier = new ReflectionEmitTypeModifier ();
+      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("Test"), AssemblyBuilderAccess.RunAndSave);
+      var moduleBuilder = assemblyBuilder.DefineDynamicModule ("Test.dll");
+      _typeModifier = new ReflectionEmitTypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
     }
 
     [Test]
-    [Ignore ("TODO Type Pipe")]
     public void AddMarkerInterface ()
     {
-      Assert.That (typeof (OriginalType).GetInterfaces (), Has.No.Member (typeof (IMarkerInterface)));
+      Assert.That (typeof (OriginalType).GetInterfaces (), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
       var participant = CreateTypeAssemblyParticipant (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
 
       Type type = AssembleType (typeof (OriginalType), participant);
 
-      Assert.That (type.GetInterfaces (), Has.Member (typeof (IMarkerInterface)));
+      Assert.That (type.GetInterfaces (), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
     }
 
     private Type AssembleType (Type requestedType, ITypeAssemblyParticipant participantStub)
@@ -61,7 +64,11 @@ namespace TypePipe.IntegrationTests
       return participantStub;
     }
 
-    public class OriginalType
+    public class OriginalType : IOriginalInterface
+    {
+    }
+
+    public interface IOriginalInterface
     {
     }
 

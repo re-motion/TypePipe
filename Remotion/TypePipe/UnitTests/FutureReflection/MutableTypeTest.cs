@@ -52,5 +52,14 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     {
       _mutableType.AddInterface (typeof (string));
     }
+
+    [Test]
+    public void AddConstructor ()
+    {
+      var futureConstructor = FutureConstructorInfoObjectMother.Create (_mutableType);
+      _mutableType.AddConstructor (futureConstructor);
+
+      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { futureConstructor }));
+    }
   }
 }

@@ -52,6 +52,12 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyNameProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ITypeBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\TypeBuilderAdapter.cs" />
     <Compile Include="FutureReflection\ModifiedType.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
