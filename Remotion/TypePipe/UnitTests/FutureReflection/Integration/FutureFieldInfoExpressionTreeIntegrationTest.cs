@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Field_Read_Static ()
     {
-      var field = New.FutureFieldInfo(fieldAttributes: FieldAttributes.Static);
+      var field = FutureFieldInfoObjectMother.Create(fieldAttributes: FieldAttributes.Static);
 
       var expression = Expression.Field (null, field);
 
@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Field_Read_Instance ()
     {
-      var declaringType = New.FutureType ();
+      var declaringType = FutureTypeObjectMother.Create ();
       var instance = Expression.Variable (declaringType);
-      var field = New.FutureFieldInfo (declaringType: declaringType);
+      var field = FutureFieldInfoObjectMother.Create (declaringType: declaringType);
 
       var expression = Expression.Field (instance, field);
 
@@ -48,8 +48,8 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Field_Write_Static ()
     {
-      var fieldType = New.FutureType();
-      var field = New.FutureFieldInfo (fieldAttributes: FieldAttributes.Static, fieldType: fieldType);
+      var fieldType = FutureTypeObjectMother.Create();
+      var field = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.Static, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
       var fieldExpression = Expression.Field (null, field);
@@ -62,10 +62,10 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Field_Write_Instance ()
     {
-      var declaringType = New.FutureType();
+      var declaringType = FutureTypeObjectMother.Create();
       var instance = Expression.Variable(declaringType);
-      var fieldType = New.FutureType ();
-      var field = New.FutureFieldInfo (declaringType: declaringType, fieldType: fieldType);
+      var fieldType = FutureTypeObjectMother.Create ();
+      var field = FutureFieldInfoObjectMother.Create (declaringType: declaringType, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
       var fieldExpression = Expression.Field (instance, field);

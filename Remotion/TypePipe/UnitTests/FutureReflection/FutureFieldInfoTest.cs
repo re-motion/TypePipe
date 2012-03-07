@@ -26,21 +26,21 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void FutureFieldInfo_IsAFieldInfo ()
     {
-      Assert.That (New.FutureFieldInfo(), Is.InstanceOf<FieldInfo>());
+      Assert.That (FutureFieldInfoObjectMother.Create(), Is.InstanceOf<FieldInfo>());
     }
 
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = New.FutureType();
-      var futureFieldInfo = New.FutureFieldInfo (declaringType: declaringType);
+      var declaringType = FutureTypeObjectMother.Create();
+      var futureFieldInfo = FutureFieldInfoObjectMother.Create (declaringType: declaringType);
       Assert.That (futureFieldInfo.DeclaringType, Is.SameAs (declaringType));
     }
 
     [Test]
     public void Attributes ()
     {
-      var futureFieldInfo = New.FutureFieldInfo (fieldAttributes: FieldAttributes.InitOnly);
+      var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.InitOnly);
       Assert.That (futureFieldInfo.Attributes, Is.EqualTo (FieldAttributes.InitOnly));
     }
 
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public void FieldType ()
     {
       var fieldType = typeof (string);
-      var futureFieldInfo = New.FutureFieldInfo (fieldType: fieldType);
+      var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldType: fieldType);
       Assert.That (futureFieldInfo.FieldType, Is.SameAs (fieldType));
     }
   }

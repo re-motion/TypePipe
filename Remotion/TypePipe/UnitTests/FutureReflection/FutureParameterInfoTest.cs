@@ -26,14 +26,14 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void FutureParameterInfo_IsAParameterInfo ()
     {
-      Assert.That (New.FutureParameterInfo(), Is.InstanceOf<ParameterInfo> ());
+      Assert.That (FutureParameterInfoObjectMother.Create(), Is.InstanceOf<ParameterInfo> ());
     }
 
     [Test]
     public void ParameterType ()
     {
       var parameterType = typeof (object);
-      var futureParameterInfo = New.FutureParameterInfo (parameterType: parameterType);
+      var futureParameterInfo = FutureParameterInfoObjectMother.Create (parameterType: parameterType);
       Assert.That (futureParameterInfo.ParameterType, Is.SameAs (parameterType));
     }
   }

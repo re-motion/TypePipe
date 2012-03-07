@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void New_NoArguments ()
     {
-      var constructor = New.FutureConstructorInfo ();
+      var constructor = FutureConstructorInfoObjectMother.Create ();
 
       var expression = Expression.New (constructor);
 
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     public void New_WithArguments ()
     {
       var arguments = new Arguments ("string", 7, new object());
-      var constructor = New.FutureConstructorInfo(parameters: arguments.Parameters);
+      var constructor = FutureConstructorInfoObjectMother.Create(parameters: arguments.Parameters);
 
       var expression = Expression.New (constructor, arguments.Expressions);
 

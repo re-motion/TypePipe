@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [SetUp]
     public void SetUp ()
     {
-      _futureType = New.FutureType();
+      _futureType = FutureTypeObjectMother.Create();
     }
 
     [Test]
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void AddConstructor ()
     {
-      var futureConstructor = New.FutureConstructorInfo (_futureType);
+      var futureConstructor = FutureConstructorInfoObjectMother.Create (_futureType);
       _futureType.AddConstructor (futureConstructor);
 
       Assert.That (_futureType.Constructors, Is.EqualTo (new[] { futureConstructor }));
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public void GetConstructorImpl_WithSingleAddedConstructor ()
     {
       // Arrange
-      var futureConstructor = New.FutureConstructorInfo (_futureType);
+      var futureConstructor = FutureConstructorInfoObjectMother.Create (_futureType);
       _futureType.AddConstructor (futureConstructor);
 
       BindingFlags bindingFlags = (BindingFlags) (-1);

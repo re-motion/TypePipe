@@ -26,29 +26,29 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void FutureMethodInfo_IsAMethodInfo ()
     {
-      Assert.That (New.FutureMethodInfo(), Is.InstanceOf<MethodInfo> ());
+      Assert.That (FutureMethodInfoObjectMother.Create(), Is.InstanceOf<MethodInfo> ());
     }
 
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = New.FutureType();
-      var futureMethodInfo = New.FutureMethodInfo (declaringType: declaringType);
+      var declaringType = FutureTypeObjectMother.Create();
+      var futureMethodInfo = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
       Assert.That(futureMethodInfo.DeclaringType, Is.SameAs(declaringType));
     }
 
     [Test]
     public void Attributes ()
     {
-      var futureMethodInfo = New.FutureMethodInfo (methodAttributes: MethodAttributes.Final);
+      var futureMethodInfo = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Final);
       Assert.That (futureMethodInfo.Attributes, Is.EqualTo (MethodAttributes.Final));
     }
 
     [Test]
     public void GetParameters ()
     {
-      var parameters = new[] { New.FutureParameterInfo(), New.FutureParameterInfo() };
-      var futureMethodInfo = New.FutureMethodInfo (parameters: parameters);
+      var parameters = new[] { FutureParameterInfoObjectMother.Create(), FutureParameterInfoObjectMother.Create() };
+      var futureMethodInfo = FutureMethodInfoObjectMother.Create (parameters: parameters);
       Assert.That (futureMethodInfo.GetParameters(), Is.SameAs(parameters));
     }
   }

@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Call_Static_NoArguments ()
     {
-      var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
+      var method = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
 
       var expression = Expression.Call (method);
 
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     public void Call_Static_WithArguments ()
     {
       var arguments = new Arguments ("string", 7, new object());
-      var method = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static, parameters: arguments.Parameters);
+      var method = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static, parameters: arguments.Parameters);
 
       var expression = Expression.Call (method, arguments.Expressions);
 
@@ -47,9 +47,9 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Call_Instance_NoArguments ()
     {
-      var declaringType = New.FutureType();
+      var declaringType = FutureTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var method = New.FutureMethodInfo (declaringType: declaringType);
+      var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
 
       var expression = Expression.Call (instance, method);
 
@@ -59,10 +59,10 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Call_Instance_WithArguments ()
     {
-      var declaringType = New.FutureType();
+      var declaringType = FutureTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var arguments = new Arguments ("string", 7, new object());
-      var method = New.FutureMethodInfo (declaringType: declaringType, parameters: arguments.Parameters);
+      var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType, parameters: arguments.Parameters);
 
       var expression = Expression.Call (instance, method, arguments.Expressions);
 

@@ -28,13 +28,13 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [SetUp]
     public void SetUp ()
     {
-      _futureType = New.FutureType();
+      _futureType = FutureTypeObjectMother.Create();
     }
 
     [Test]
     public void New_DefaultConstructor ()
     {
-      var constructor = New.FutureConstructorInfo (declaringType: _futureType);
+      var constructor = FutureConstructorInfoObjectMother.Create (declaringType: _futureType);
       _futureType.AddConstructor (constructor);
 
       var expression = Expression.New (_futureType);

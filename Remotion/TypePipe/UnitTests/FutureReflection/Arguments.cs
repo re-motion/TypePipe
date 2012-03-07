@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       ArgumentUtility.CheckNotNull ("instances", instances);
 
       _instances = instances;
-      _parameters = instances.Select (i => New.FutureParameterInfo (i.GetType())).ToArray();
+      _parameters = instances.Select (i => FutureParameterInfoObjectMother.Create (i.GetType())).ToArray();
       _expressions = instances.Select (Expression.Constant).Cast<Expression>();
     }
 

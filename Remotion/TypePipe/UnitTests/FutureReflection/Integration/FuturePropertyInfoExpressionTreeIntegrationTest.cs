@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Property_Read_Static ()
     {
-      var getMethod = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
-      var property = New.FuturePropertyInfo (getMethod: getMethod);
+      var getMethod = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
+      var property = FuturePropertyInfoObjectMother.Create (getMethod: getMethod);
 
       var expression = Expression.Property (null, property);
 
@@ -37,9 +37,9 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Property_Read_Instance ()
     {
-      var declaringType = New.FutureType();
+      var declaringType = FutureTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var property = New.FuturePropertyInfo (declaringType: declaringType);
+      var property = FuturePropertyInfoObjectMother.Create (declaringType: declaringType);
 
       var expression = Expression.Property (instance, property);
 
@@ -49,9 +49,9 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Property_Write_Static ()
     {
-      var propertyType = New.FutureType();
-      var setMethod = New.FutureMethodInfo (methodAttributes: MethodAttributes.Static);
-      var property = New.FuturePropertyInfo (propertyType: propertyType, setMethod: setMethod);
+      var propertyType = FutureTypeObjectMother.Create();
+      var setMethod = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
+      var property = FuturePropertyInfoObjectMother.Create (propertyType: propertyType, setMethod: setMethod);
       var value = Expression.Variable (propertyType);
 
       var propertyExpression = Expression.Property (null, property);
@@ -64,11 +64,11 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
     [Test]
     public void Property_Write_Instance ()
     {
-      var declaringType = New.FutureType();
+      var declaringType = FutureTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var propertyType = New.FutureType ();
-      var setMethod = New.FutureMethodInfo ();
-      var property = New.FuturePropertyInfo (declaringType: declaringType, propertyType: propertyType, setMethod: setMethod);
+      var propertyType = FutureTypeObjectMother.Create ();
+      var setMethod = FutureMethodInfoObjectMother.Create ();
+      var property = FuturePropertyInfoObjectMother.Create (declaringType: declaringType, propertyType: propertyType, setMethod: setMethod);
       var value = Expression.Variable (propertyType);
 
       var propertyExpression = Expression.Property (instance, property);

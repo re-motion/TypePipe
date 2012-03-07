@@ -26,45 +26,45 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void FuturePropertyInfo_IsAPropertyInfo ()
     {
-      Assert.That (New.FuturePropertyInfo(), Is.InstanceOf<PropertyInfo>());
+      Assert.That (FuturePropertyInfoObjectMother.Create(), Is.InstanceOf<PropertyInfo>());
     }
 
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = New.FutureType ();
-      var futurePropertyInfo = New.FuturePropertyInfo (declaringType: declaringType);
+      var declaringType = FutureTypeObjectMother.Create ();
+      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (declaringType: declaringType);
       Assert.That (futurePropertyInfo.DeclaringType, Is.SameAs(declaringType));
     }
 
     [Test]
     public void PropertyType ()
     {
-      var propertyType = New.FutureType ();
-      var futurePropertyInfo = New.FuturePropertyInfo (propertyType: propertyType);
+      var propertyType = FutureTypeObjectMother.Create ();
+      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (propertyType: propertyType);
       Assert.That (futurePropertyInfo.PropertyType, Is.SameAs (propertyType));
     }
 
     [Test]
     public void GetGetMethod ()
     {
-      var getMethod = New.FutureMethodInfo();
-      var futurePropertyInfo = New.FuturePropertyInfo(getMethod: getMethod);
+      var getMethod = FutureMethodInfoObjectMother.Create();
+      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create(getMethod: getMethod);
       Assert.That (futurePropertyInfo.GetGetMethod(), Is.SameAs(getMethod));
     }
 
     [Test]
     public void GetSetMethod ()
     {
-      var setMethod = New.FutureMethodInfo ();
-      var futurePropertyInfo = New.FuturePropertyInfo (setMethod: setMethod);
+      var setMethod = FutureMethodInfoObjectMother.Create ();
+      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (futurePropertyInfo.GetSetMethod (), Is.SameAs (setMethod));
     }
 
     [Test]
     public void CanWrite ()
     {
-      Assert.That (New.FuturePropertyInfo().CanWrite, Is.True);
+      Assert.That (FuturePropertyInfoObjectMother.Create().CanWrite, Is.True);
     }
   }
 }

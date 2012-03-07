@@ -25,14 +25,14 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void FutureConstructorInfo_IsAConstructorInfo ()
     {
-      Assert.That (New.FutureConstructorInfo(), Is.InstanceOf<ConstructorInfo>());
+      Assert.That (FutureConstructorInfoObjectMother.Create(), Is.InstanceOf<ConstructorInfo>());
     }
 
     [Test]
     public void DeclaringType ()
     {
       var declaringType = typeof (string);
-      var futureConstructorInfo = New.FutureConstructorInfo (declaringType);
+      var futureConstructorInfo = FutureConstructorInfoObjectMother.Create (declaringType);
 
       Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
     }
@@ -40,8 +40,8 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     [Test]
     public void GetParameters ()
     {
-      var parameters = new[] { New.FutureParameterInfo(), New.FutureParameterInfo() };
-      var futureConstructor = New.FutureConstructorInfo (parameters: parameters);
+      var parameters = new[] { FutureParameterInfoObjectMother.Create(), FutureParameterInfoObjectMother.Create() };
+      var futureConstructor = FutureConstructorInfoObjectMother.Create (parameters: parameters);
 
       Assert.That (futureConstructor.GetParameters(), Is.SameAs (parameters));
     }
