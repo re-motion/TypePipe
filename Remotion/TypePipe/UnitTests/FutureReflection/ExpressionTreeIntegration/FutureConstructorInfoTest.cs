@@ -17,10 +17,10 @@
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
+namespace Remotion.TypePipe.UnitTests.FutureReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FutureConstructorInfoExpressionTreeIntegrationTest
+  public class FutureConstructorInfoTest
   {
     [Test]
     public void New_NoArguments ()

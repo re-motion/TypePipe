@@ -18,10 +18,10 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
+namespace Remotion.TypePipe.UnitTests.FutureReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FutureFieldInfoExpressionTreeIntegrationTest
+  public class FutureFieldInfoTest
   {
     [Test]
     public void Field_Read_Static ()

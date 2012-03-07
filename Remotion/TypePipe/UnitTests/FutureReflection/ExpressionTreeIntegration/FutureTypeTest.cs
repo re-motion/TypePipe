@@ -18,10 +18,10 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection.Integration
+namespace Remotion.TypePipe.UnitTests.FutureReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FutureTypeExpressionTreeIntegrationTest
+  public class FutureTypeTest
   {
     private FutureType _futureType;
 

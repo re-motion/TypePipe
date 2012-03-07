@@ -60,11 +60,11 @@
     <Compile Include="FutureReflection\FutureParameterInfoTest.cs" />
     <Compile Include="FutureReflection\FuturePropertyInfoTest.cs" />
     <Compile Include="FutureReflection\FutureTypeTest.cs" />
-    <Compile Include="FutureReflection\Integration\FutureConstructorInfoExpressionTreeIntegrationTest.cs" />
-    <Compile Include="FutureReflection\Integration\FutureFieldInfoExpressionTreeIntegrationTest.cs" />
-    <Compile Include="FutureReflection\Integration\FutureMethodInfoExpressionTreeIntegrationTest.cs" />
-    <Compile Include="FutureReflection\Integration\FuturePropertyInfoExpressionTreeIntegrationTest.cs" />
-    <Compile Include="FutureReflection\Integration\FutureTypeExpressionTreeIntegrationTest.cs" />
+    <Compile Include="FutureReflection\ExpressionTreeIntegration\FutureConstructorInfoTest.cs" />
+    <Compile Include="FutureReflection\ExpressionTreeIntegration\FutureFieldInfoTest.cs" />
+    <Compile Include="FutureReflection\ExpressionTreeIntegration\FutureMethodInfoTest.cs" />
+    <Compile Include="FutureReflection\ExpressionTreeIntegration\FuturePropertyInfoTest.cs" />
+    <Compile Include="FutureReflection\ExpressionTreeIntegration\FutureTypeTest.cs" />
     <Compile Include="FutureReflection\FutureReflectionObjectMother.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
