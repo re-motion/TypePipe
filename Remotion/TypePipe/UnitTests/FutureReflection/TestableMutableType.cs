@@ -15,33 +15,15 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.Utilities;
+using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
-  /// <summary>
-  /// Represents an existing <see cref="Type"/> that can be changed. Changes are recorded and later applied to the existing type via an
-  /// instance of <see cref="ITypeModifier"/>.
-  /// </summary>
-  public class ModifiedType : MutableType
+  public class TestableMutableType : MutableType
   {
-    private readonly Type _originalType;
-
-    public ModifiedType (Type originalType)
-    {
-      ArgumentUtility.CheckNotNull ("originalType", originalType);
-
-      _originalType = originalType;
-    }
-
-    public Type OriginalType
-    {
-      get { return _originalType; }
-    }
-
     public override object[] GetCustomAttributes (bool inherit)
     {
       throw new NotImplementedException();

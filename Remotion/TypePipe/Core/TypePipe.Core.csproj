@@ -53,7 +53,6 @@
     </Compile>
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="FutureReflection\ModifiedType.cs" />
-    <Compile Include="CodeGeneration\TypeModificationSpecification.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />

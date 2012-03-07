@@ -39,8 +39,7 @@ namespace Remotion.TypePipe.TypeAssembly
       foreach (var participant in _participants)
         participant.ModifyType (modifiedType);
 
-      var modificationSpecification = modifiedType.GetModificationSpecification();
-      return _typeModifier.ApplyModifications (modificationSpecification);
+      return _typeModifier.ApplyModifications (modifiedType);
     }
   }
 }

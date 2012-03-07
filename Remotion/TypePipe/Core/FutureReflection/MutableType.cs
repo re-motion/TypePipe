@@ -15,6 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureReflection
 {
@@ -24,9 +27,21 @@ namespace Remotion.TypePipe.FutureReflection
   /// </summary>
   public abstract class MutableType : Type
   {
+    private readonly List<Type> _addedInterfaces = new List<Type>();
+
+    public ReadOnlyCollection<Type> AddedInterfaces
+    {
+      get { return _addedInterfaces.AsReadOnly(); }
+    }
+
     public void AddInterface (Type interfaceType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+
+      if (!interfaceType.IsInterface)
+        throw new ArgumentException ("Type must be an interface.", "interfaceType");
+
+      _addedInterfaces.Add (interfaceType);
     }
   }
 }

@@ -16,7 +16,7 @@
 // 
 using System;
 using Remotion.TypePipe.FutureReflection;
-using Remotion.TypePipe.TypeAssembly;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -30,11 +30,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     public ModifiedType CreateModifiedType (Type originalType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("originalType", originalType);
+
+      return new ModifiedType(originalType);
     }
 
-    public Type ApplyModifications (TypeModificationSpecification modificationSpecification)
+    public Type ApplyModifications (ModifiedType modifiedType)
     {
+      ArgumentUtility.CheckNotNull ("modifiedType", modifiedType);
+
       throw new NotImplementedException();
     }
   }

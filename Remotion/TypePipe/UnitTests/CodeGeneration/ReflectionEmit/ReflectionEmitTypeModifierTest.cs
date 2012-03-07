@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,20 +15,31 @@
 // under the License.
 // 
 using System;
+using NUnit.Framework;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
-  /// <summary>
-  /// Describes the changes that should be applied to a <see cref="RequestedType"/> as recorded by a <see cref="ModifiedType"/>.
-  /// </summary>
-  public class TypeModificationSpecification
+  [TestFixture]
+  public class ReflectionEmitTypeModifierTest
   {
-    public Type RequestedType
+    private ReflectionEmitTypeModifier _reflectionEmitTypeModifier;
+
+    [SetUp]
+    public void SetUp ()
     {
-      get { throw new NotImplementedException(); }
+      _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier();
     }
 
-    // public IEnumerable<Type> AddedInterfaces;
+    [Test]
+    public void CreateModifiedType ()
+    {
+      var originalType = typeof (string);
+
+      var modifiedType =_reflectionEmitTypeModifier.CreateModifiedType (originalType);
+
+      Assert.That (modifiedType.OriginalType, Is.SameAs (originalType));
+    }
   }
 }

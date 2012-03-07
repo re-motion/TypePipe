@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,16 +15,28 @@
 // under the License.
 // 
 using System;
+using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
-  /// <summary>
-  /// Defines an interface for code generation components which perform the modifications recorded by an <see cref="MutableType"/>.
-  /// </summary>
-  public interface ITypeModifier
+  [TestFixture]
+  public class ModifiedTypeTest
   {
-    ModifiedType CreateModifiedType (Type originalType);
-    Type ApplyModifications (ModifiedType modifiedType);
+    private Type _originalType;
+    private ModifiedType _modifiedType;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _originalType = typeof (string);
+      _modifiedType = new ModifiedType (_originalType); 
+    }
+
+    [Test]
+    public void Initialization ()
+    {
+      Assert.That (_modifiedType.OriginalType, Is.SameAs (_originalType));
+    }
   }
 }

@@ -53,6 +53,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
     <Compile Include="FutureReflection\Arguments.cs" />
     <Compile Include="FutureReflection\FutureConstructorInfoTest.cs" />
     <Compile Include="FutureReflection\FutureFieldInfoTest.cs" />
@@ -66,6 +67,9 @@
     <Compile Include="FutureReflection\ExpressionTreeIntegration\FuturePropertyInfoTest.cs" />
     <Compile Include="FutureReflection\ExpressionTreeIntegration\FutureTypeTest.cs" />
     <Compile Include="FutureReflection\FutureReflectionObjectMother.cs" />
+    <Compile Include="FutureReflection\ModifiedTypeTest.cs" />
+    <Compile Include="FutureReflection\MutableTypeTest.cs" />
+    <Compile Include="FutureReflection\TestableMutableType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
   </ItemGroup>
