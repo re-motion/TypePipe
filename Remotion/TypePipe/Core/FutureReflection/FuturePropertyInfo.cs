@@ -32,12 +32,16 @@ namespace Remotion.TypePipe.FutureReflection
     private readonly Maybe<MethodInfo> _getMethod;
     private readonly Maybe<MethodInfo> _setMethod;
 
+    // TODO: Discuss usage of Maybe with MK.
     public FuturePropertyInfo (Type declaringType, Type propertyType, Maybe<MethodInfo> getMethod, Maybe<MethodInfo> setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("propertyType", propertyType);
       ArgumentUtility.CheckNotNull ("getMethod", getMethod);
       ArgumentUtility.CheckNotNull ("setMethod", setMethod);
+
+      if (!getMethod.HasValue && !setMethod.HasValue)
+        throw new ArgumentException ("At least one of the accessors must be specified.");
 
       _declaringType = declaringType;
       _propertyType = propertyType;

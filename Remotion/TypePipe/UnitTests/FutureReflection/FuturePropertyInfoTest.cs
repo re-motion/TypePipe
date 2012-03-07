@@ -17,6 +17,8 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.FutureReflection;
 
 namespace Remotion.TypePipe.UnitTests.FutureReflection
 {
@@ -27,6 +29,18 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public void FuturePropertyInfo_IsAPropertyInfo ()
     {
       Assert.That (FuturePropertyInfoObjectMother.Create(), Is.InstanceOf<PropertyInfo>());
+    }
+
+    [Test]
+    [ExpectedException(typeof(ArgumentException), ExpectedMessage = "At least one of the accessors must be specified.")]
+    public void Initialization_ThrowsIfBothAccessorsAreNull()
+    {
+      var declaringType = typeof (object);
+      var propertyType = typeof (object);
+      var getMethod = Maybe<MethodInfo>.Nothing;
+      var setMethod = Maybe<MethodInfo>.Nothing;
+
+      new FuturePropertyInfo (declaringType, propertyType, getMethod, setMethod);
     }
 
     [Test]
