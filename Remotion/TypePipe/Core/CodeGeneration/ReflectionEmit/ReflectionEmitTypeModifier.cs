@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.FutureReflection;
 using Remotion.Utilities;
 using System.Linq;

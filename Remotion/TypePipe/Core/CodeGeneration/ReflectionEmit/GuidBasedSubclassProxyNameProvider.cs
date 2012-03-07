@@ -19,6 +19,10 @@ using Remotion.TypePipe.FutureReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
+  /// <summary>
+  /// Implements <see cref="ISubclassProxyNameProvider"/> by constructing unique names from the <see cref="ModifiedType.OriginalType"/>'s name and 
+  /// a <see cref="Guid"/>.
+  /// </summary>
   public class GuidBasedSubclassProxyNameProvider : ISubclassProxyNameProvider
   {
     public string GetSubclassProxyName (ModifiedType modifiedType)

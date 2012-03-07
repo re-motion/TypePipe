@@ -19,8 +19,11 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
+  /// <summary>
+  /// Adapts <see cref="ModuleBuilder"/> with the <see cref="IModuleBuilder"/> interface.
+  /// </summary>
   public class ModuleBuilderAdapter : IModuleBuilder
   {
     private readonly ModuleBuilder _moduleBuilder;

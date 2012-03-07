@@ -15,13 +15,27 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
-  public interface IModuleBuilder
+  /// <summary>
+  /// Adapts <see cref="TypeBuilder"/> with the <see cref="ITypeBuilder"/> interface.
+  /// </summary>
+  public class TypeBuilderAdapter : ITypeBuilder
   {
-    ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent, Type[] interfaces);
+    private readonly TypeBuilder _typeBuilder;
+
+    public TypeBuilderAdapter (TypeBuilder typeBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
+      _typeBuilder = typeBuilder;
+    }
+
+    public Type CreateType ()
+    {
+      return _typeBuilder.CreateType();
+    }
   }
 }

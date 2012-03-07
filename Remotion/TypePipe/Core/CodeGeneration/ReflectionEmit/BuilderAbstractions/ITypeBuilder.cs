@@ -16,8 +16,11 @@
 // 
 using System;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
+  /// <summary>
+  /// Defines an interface for <see cref="ITypeBuilder"/>.
+  /// </summary>
   public interface ITypeBuilder
   {
     Type CreateType ();
