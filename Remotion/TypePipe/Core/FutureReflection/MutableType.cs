@@ -47,12 +47,17 @@ namespace Remotion.TypePipe.FutureReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
+      // TODO: Ensure that interfaces + addedInterfaces does no already containt 'interfaceType'
+
       _addedInterfaces.Add (interfaceType);
     }
 
     public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
+
+      // TODO: Ensure that constructors + addedConstructors does not contain a constructor with same signature
+
       _addedConstructors.Add (futureConstructorInfo);
     }
   }
