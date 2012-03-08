@@ -76,13 +76,15 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
   {
     public static FutureFieldInfo Create (
         Type declaringType = null,
-        FieldAttributes fieldAttributes = FieldAttributes.Private,
-        Type fieldType = null)
+        string name = "_newField",
+        Type fieldType = null,
+        FieldAttributes fieldAttributes = FieldAttributes.Private)
     {
       return new FutureFieldInfo (
           declaringType ?? typeof (UnspecifiedType),
-          fieldAttributes,
-          fieldType ?? typeof (UnspecifiedType));
+          name,
+          fieldType ?? typeof (UnspecifiedType),
+          fieldAttributes);
     }
   }
 

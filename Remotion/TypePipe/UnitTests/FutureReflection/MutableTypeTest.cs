@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.FutureReflection;
 
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public void Initialization ()
     {
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
+      Assert.That (_mutableType.AddedFields, Is.Empty);
     }
 
     [Test]
@@ -51,6 +53,20 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     public void AddInterface_ThrowsIfNotAnInterface ()
     {
       _mutableType.AddInterface (typeof (string));
+    }
+
+    [Test]
+    public void AddField ()
+    {
+      var newField = _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
+
+      // Correct field info instance
+      Assert.That (newField, Is.TypeOf<FutureFieldInfo>());
+      Assert.That (newField.Name, Is.EqualTo ("_newField"));
+      Assert.That (newField.FieldType, Is.EqualTo (typeof (string)));
+      Assert.That (newField.Attributes, Is.EqualTo (FieldAttributes.Private));
+      // Field info is stored
+      Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { newField }));
     }
 
     [Test]

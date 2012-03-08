@@ -29,11 +29,18 @@ namespace Remotion.TypePipe.FutureReflection
   public abstract class MutableType : Type
   {
     private readonly List<Type> _addedInterfaces = new List<Type>();
+    private readonly List<FieldInfo> _addedFields = new List<FieldInfo>();
+
     private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo> ();
 
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollection<FieldInfo> AddedFields
+    {
+      get { return _addedFields.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<FutureConstructorInfo> AddedConstructors
@@ -48,9 +55,22 @@ namespace Remotion.TypePipe.FutureReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      // TODO: Ensure that interfaces + addedInterfaces does no already containt 'interfaceType'
+      // TODO: Ensure that interfaces + addedInterfaces does no already contain 'interfaceType'
 
       _addedInterfaces.Add (interfaceType);
+    }
+
+    public FieldInfo AddField (string name, Type type, FieldAttributes attributes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      // TODO: Ensure that fields + addedFields so not already contain this field
+
+      var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
+      _addedFields.Add (fieldInfo);
+
+      return fieldInfo;
     }
 
     // TODO: Don't take a futureconstructorinfo but a field type
@@ -61,10 +81,6 @@ namespace Remotion.TypePipe.FutureReflection
       // TODO: Ensure that constructors + addedConstructors does not contain a constructor with same signature
 
       _addedConstructors.Add (futureConstructorInfo);
-    }
-
-    public void AddField (string name, Type type, FieldAttributes attributes)
-    {
     }
   }
 }

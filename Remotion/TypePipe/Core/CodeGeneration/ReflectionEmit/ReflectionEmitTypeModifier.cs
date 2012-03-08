@@ -15,7 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.FutureReflection;
 using Remotion.Utilities;
@@ -60,7 +62,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           modifiedType.OriginalType,
           modifiedType.AddedInterfaces.ToArray());
+
+      // TODO: Ask why there is no ForEach or ApplySideEffects in EnumerableExtensions
+      // http://code.google.com/p/morelinq/source/browse/trunk/MoreLinq/ForEach.cs
+      ApplyFieldModifications(modifiedType, typeBuilder);
+
       return typeBuilder.CreateType();
+    }
+
+    private void ApplyFieldModifications (ModifiedType modifiedType, ITypeBuilder typeBuilder)
+    {
+      foreach (var field in modifiedType.AddedFields)
+      {
+        typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
+      }
     }
   }
 }

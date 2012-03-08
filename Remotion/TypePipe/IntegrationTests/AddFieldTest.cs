@@ -25,18 +25,17 @@ namespace TypePipe.IntegrationTests
   public class AddFieldTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore("TODO: Type Pipe")]
     public void AddField ()
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("_newField", typeof (object), FieldAttributes.Private));
+      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private));
 
-      Assert.That (GetAllFieldNames (type), Is.EqualTo (new[] { "OriginalField", "_newField" }));
+      Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_newField" }));
       
       var newField = type.GetField ("_newField", BindingFlags.Instance | BindingFlags.NonPublic);
       Assert.That (newField, Is.Not.Null);
-      Assert.That (newField.FieldType, Is.TypeOf<object>());
+      Assert.That (newField.FieldType, Is.EqualTo (typeof (string)));
       Assert.That (newField.Attributes, Is.EqualTo (FieldAttributes.Private));
     }
 
@@ -50,7 +49,7 @@ namespace TypePipe.IntegrationTests
     public class OriginalType
     {
       // private fields cannot be accessed in sub class proxies
-      protected string OriginalField;
+      protected object OriginalField;
     }
   }
 }

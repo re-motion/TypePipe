@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
@@ -31,6 +32,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     {
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       _typeBuilder = typeBuilder;
+    }
+
+    public FieldInfo DefineField (string name, Type type, FieldAttributes attributes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return _typeBuilder.DefineField (name, type, attributes);
     }
 
     public Type CreateType ()

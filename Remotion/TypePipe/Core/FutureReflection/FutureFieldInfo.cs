@@ -27,22 +27,30 @@ namespace Remotion.TypePipe.FutureReflection
   public class FutureFieldInfo : FieldInfo
   {
     private readonly Type _declaringType;
-    private readonly FieldAttributes _fieldAttributes;
+    private readonly string _name;
     private readonly Type _fieldType;
+    private readonly FieldAttributes _fieldAttributes;
 
-    public FutureFieldInfo (Type declaringType, FieldAttributes fieldAttributes, Type fieldType)
+    public FutureFieldInfo (Type declaringType, string name, Type fieldType, FieldAttributes fieldAttributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);
 
       _declaringType = declaringType;
-      _fieldAttributes = fieldAttributes;
+      _name = name;
       _fieldType = fieldType;
+      _fieldAttributes = fieldAttributes;
     }
 
     public override Type DeclaringType
     {
       get { return _declaringType; }
+    }
+
+    public override string Name
+    {
+      get { return _name; }
     }
 
     public override FieldAttributes Attributes
@@ -75,11 +83,6 @@ namespace Remotion.TypePipe.FutureReflection
     public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, CultureInfo culture)
     {
       throw new NotImplementedException();
-    }
-
-    public override string Name
-    {
-      get { throw new NotImplementedException(); }
     }
 
     public override Type ReflectedType

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
@@ -24,5 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   public interface ITypeBuilder
   {
     Type CreateType ();
+    FieldInfo DefineField (string name, Type type, FieldAttributes attributes);
   }
 }

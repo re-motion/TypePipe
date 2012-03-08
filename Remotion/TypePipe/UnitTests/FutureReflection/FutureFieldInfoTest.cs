@@ -38,10 +38,11 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
     }
 
     [Test]
-    public void Attributes ()
+    public void Name ()
     {
-      var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.InitOnly);
-      Assert.That (futureFieldInfo.Attributes, Is.EqualTo (FieldAttributes.InitOnly));
+      var name = "_fieldName";
+      var futureFieldInfo = FutureFieldInfoObjectMother.Create (name: name);
+      Assert.That (futureFieldInfo.Name, Is.SameAs (name));
     }
 
     [Test]
@@ -50,6 +51,13 @@ namespace Remotion.TypePipe.UnitTests.FutureReflection
       var fieldType = typeof (string);
       var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldType: fieldType);
       Assert.That (futureFieldInfo.FieldType, Is.SameAs (fieldType));
+    }
+
+    [Test]
+    public void Attributes ()
+    {
+      var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.InitOnly);
+      Assert.That (futureFieldInfo.Attributes, Is.EqualTo (FieldAttributes.InitOnly));
     }
   }
 }
