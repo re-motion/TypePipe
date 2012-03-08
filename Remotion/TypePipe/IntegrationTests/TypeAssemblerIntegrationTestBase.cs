@@ -18,6 +18,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
@@ -29,6 +31,16 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class TypeAssemblerIntegrationTestBase
   {
+    private AssemblyBuilder _assemblyBuilder;
+
+    [TearDown]
+    public void TearDown ()
+    {
+      var assemblyFileName = GetAssemblyNameForThisTest() + ".dll";
+      _assemblyBuilder.Save (assemblyFileName);
+      PEVerifier.CreateDefault ().VerifyPEFile (assemblyFileName);
+    }
+
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
       var participants = participantActions.Select (CreateTypeAssemblyParticipant).ToArray();
@@ -57,11 +69,17 @@ namespace TypePipe.IntegrationTests
 
     private ITypeModifier CreateReflectionEmitTypeModifier ()
     {
-      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("Test"), AssemblyBuilderAccess.RunAndSave);
-      var moduleBuilder = assemblyBuilder.DefineDynamicModule ("Test.dll");
+      var assemblyName = GetAssemblyNameForThisTest();
+      _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.RunAndSave);
+      var moduleBuilder = _assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
       var typeModifier = new ReflectionEmitTypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
 
       return typeModifier;
+    }
+
+    private string GetAssemblyNameForThisTest ()
+    {
+      return "TypeAssemblerIntegrationTest_" + GetType().Name;
     }
   }
 }
