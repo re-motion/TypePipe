@@ -52,30 +52,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return typeof (object); }
     }
 
-    protected override bool HasElementTypeImpl ()
-    {
-      return false;
-    }
-
-    public override Assembly Assembly
-    {
-      get { return null; }
-    }
-
+    // TODO
     protected override ConstructorInfo GetConstructorImpl (
       BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       return AddedConstructors.SingleOrDefault ();
-    }
-
-    protected override bool IsByRefImpl ()
-    {
-      return false;
-    }
-
-    public override Type UnderlyingSystemType
-    {
-      get { return this; }
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()

@@ -77,5 +77,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { futureConstructor }));
     }
+
+    [Test]
+    public void HasElementTypeImpl ()
+    {
+      Assert.That (_mutableType.HasElementType, Is.False);
+    }
+
+    [Test]
+    public void Assembly ()
+    {
+      Assert.That (_mutableType.Assembly, Is.Null);
+    }
+
+    [Test]
+    public void IsByRefImpl ()
+    {
+      Assert.That (_mutableType.IsByRef, Is.False);
+    }
+
+    [Test]
+    public void UnderlyingSystemType ()
+    {
+      Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
+    }
   }
 }

@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a type that does not exist yet. This is used to represent references to types yet to be generated within an expression tree.
   /// </summary>
-  public class FutureType : Type
+  public class FutureType : MutableType
   {
     private readonly TypeAttributes _typeAttributes;
     private readonly List<FutureConstructorInfo> _constructors = new List<FutureConstructorInfo> ();
@@ -42,7 +42,8 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _constructors.AsReadOnly(); }
     }
 
-    public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
+    // TODO
+    public new void AddConstructor (FutureConstructorInfo futureConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
       _constructors.Add (futureConstructorInfo);
@@ -53,30 +54,10 @@ namespace Remotion.TypePipe.MutableReflection
       get { return typeof (object); }
     }
 
-    protected override bool HasElementTypeImpl ()
-    {
-      return false;
-    }
-
-    public override Assembly Assembly
-    {
-      get { return null; }
-    }
-
     protected override ConstructorInfo GetConstructorImpl (
       BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       return _constructors.SingleOrDefault();
-    }
-
-    protected override bool IsByRefImpl ()
-    {
-      return false;
-    }
-
-    public override Type UnderlyingSystemType
-    {
-      get { return this; }
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()

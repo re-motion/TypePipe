@@ -82,5 +82,26 @@ namespace Remotion.TypePipe.MutableReflection
 
       _addedConstructors.Add (futureConstructorInfo);
     }
+
+    // Overrides are sealed to prevent confusion
+    protected sealed override bool HasElementTypeImpl ()
+    {
+      return false;
+    }
+
+    public sealed override Assembly Assembly
+    {
+      get { return null; }
+    }
+
+    protected sealed override bool IsByRefImpl ()
+    {
+      return false;
+    }
+
+    public sealed override Type UnderlyingSystemType
+    {
+      get { return this; }
+    }
   }
 }

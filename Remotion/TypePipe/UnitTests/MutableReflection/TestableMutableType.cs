@@ -73,11 +73,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       throw new NotImplementedException();
     }
 
-    protected override bool HasElementTypeImpl ()
-    {
-      throw new NotImplementedException();
-    }
-
     protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
     {
       throw new NotImplementedException();
@@ -123,11 +118,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       throw new NotImplementedException();
     }
 
-    protected override bool IsByRefImpl ()
-    {
-      throw new NotImplementedException();
-    }
-
     protected override bool IsPointerImpl ()
     {
       throw new NotImplementedException();
@@ -148,11 +138,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       throw new NotImplementedException();
     }
 
-    public override Type UnderlyingSystemType
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       throw new NotImplementedException();
@@ -169,11 +154,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public override Module Module
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Assembly Assembly
     {
       get { throw new NotImplementedException(); }
     }

@@ -65,18 +65,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void HasElementTypeImpl ()
-    {
-      Assert.That (_modifiedType.HasElementType, Is.False);
-    }
-
-    [Test]
-    public void Assembly ()
-    {
-      Assert.That (_modifiedType.Assembly, Is.Null);
-    }
-
-    [Test]
     public void GetConstructorImpl_WithSingleAddedConstructor ()
     {
       // Arrange
@@ -110,18 +98,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Assert
       Assert.That (constructor, Is.Null);
-    }
-
-    [Test]
-    public void IsByRefImpl ()
-    {
-      Assert.That (_modifiedType.IsByRef, Is.False);
-    }
-
-    [Test]
-    public void UnderlyingSystemType ()
-    {
-      Assert.That (_modifiedType.UnderlyingSystemType, Is.SameAs (_modifiedType));
     }
 
     [Test]
