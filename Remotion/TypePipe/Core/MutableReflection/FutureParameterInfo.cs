@@ -18,7 +18,7 @@ using System;
 using System.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Represents a parameter for a member that does not exist yet. This is used to represent the signature of a member yet to be generatedwithin an

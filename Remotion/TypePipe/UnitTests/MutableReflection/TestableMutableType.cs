@@ -15,82 +15,14 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
-using Remotion.Utilities;
-using System.Linq;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// Represents a type that does not exist yet. This is used to represent references to types yet to be generated within an expression tree.
-  /// </summary>
-  public class FutureType : Type
+  public class TestableMutableType : MutableType
   {
-    private readonly TypeAttributes _typeAttributes;
-    private readonly List<FutureConstructorInfo> _constructors = new List<FutureConstructorInfo> ();
-
-    public FutureType (TypeAttributes typeAttributes)
-    {
-      _typeAttributes = typeAttributes;
-    }
-
-    public ReadOnlyCollection<FutureConstructorInfo> Constructors
-    {
-      get { return _constructors.AsReadOnly(); }
-    }
-
-    public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
-    {
-      ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
-      _constructors.Add (futureConstructorInfo);
-    }
-
-    public override Type BaseType
-    {
-      get { return typeof (object); }
-    }
-
-    protected override bool HasElementTypeImpl ()
-    {
-      return false;
-    }
-
-    public override Assembly Assembly
-    {
-      get { return null; }
-    }
-
-    protected override ConstructorInfo GetConstructorImpl (
-      BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      return _constructors.SingleOrDefault();
-    }
-
-    protected override bool IsByRefImpl ()
-    {
-      return false;
-    }
-
-    public override Type UnderlyingSystemType
-    {
-      get { return this; }
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
-    {
-      return _typeAttributes;
-    }
-
-    #region Not Implemented from Type interface
-
-    public override string Name
-    {
-      get { throw new NotImplementedException (); }
-    }
-
     public override object[] GetCustomAttributes (bool inherit)
     {
       throw new NotImplementedException();
@@ -141,8 +73,12 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
-    protected override PropertyInfo GetPropertyImpl (
-        string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
+    protected override bool HasElementTypeImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
     {
       throw new NotImplementedException();
     }
@@ -152,8 +88,7 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
-    protected override MethodInfo GetMethodImpl (
-        string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       throw new NotImplementedException();
     }
@@ -178,7 +113,17 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
     protected override bool IsArrayImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override bool IsByRefImpl ()
     {
       throw new NotImplementedException();
     }
@@ -198,17 +143,24 @@ namespace Remotion.TypePipe.FutureReflection
       throw new NotImplementedException();
     }
 
-    public override object InvokeMember (
-        string name,
-        BindingFlags invokeAttr,
-        Binder binder,
-        object target,
-        object[] args,
-        ParameterModifier[] modifiers,
-        CultureInfo culture,
-        string[] namedParameters)
+    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
     {
       throw new NotImplementedException();
+    }
+
+    public override Type UnderlyingSystemType
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override string Name
+    {
+      get { throw new NotImplementedException(); }
     }
 
     public override Guid GUID
@@ -217,6 +169,11 @@ namespace Remotion.TypePipe.FutureReflection
     }
 
     public override Module Module
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override Assembly Assembly
     {
       get { throw new NotImplementedException(); }
     }
@@ -236,11 +193,14 @@ namespace Remotion.TypePipe.FutureReflection
       get { throw new NotImplementedException(); }
     }
 
+    public override Type BaseType
+    {
+      get { throw new NotImplementedException(); }
+    }
+
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       throw new NotImplementedException();
     }
-
-    #endregion
   }
 }

@@ -14,33 +14,26 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using Microsoft.Scripting.Ast;
+using System.Reflection;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection.ExpressionTreeIntegration
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FutureConstructorInfoTest
+  public class FutureParameterInfoTest
   {
     [Test]
-    public void New_NoArguments ()
+    public void FutureParameterInfo_IsAParameterInfo ()
     {
-      var constructor = FutureConstructorInfoObjectMother.Create ();
-
-      var expression = Expression.New (constructor);
-
-      Assert.That (expression.Constructor, Is.SameAs (constructor));
+      Assert.That (FutureParameterInfoObjectMother.Create(), Is.InstanceOf<ParameterInfo> ());
     }
 
     [Test]
-    public void New_WithArguments ()
+    public void ParameterType ()
     {
-      var arguments = new Arguments ("string", 7, new object());
-      var constructor = FutureConstructorInfoObjectMother.Create(parameters: arguments.Parameters);
-
-      var expression = Expression.New (constructor, arguments.Expressions);
-
-      Assert.That (expression.Constructor, Is.SameAs (constructor));
+      var parameterType = typeof (object);
+      var futureParameterInfo = FutureParameterInfoObjectMother.Create (parameterType: parameterType);
+      Assert.That (futureParameterInfo.ParameterType, Is.SameAs (parameterType));
     }
   }
 }

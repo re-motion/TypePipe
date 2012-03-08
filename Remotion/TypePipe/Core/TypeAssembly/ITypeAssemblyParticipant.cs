@@ -14,7 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.TypeAssembly
 {

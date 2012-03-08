@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using System.Linq;
 

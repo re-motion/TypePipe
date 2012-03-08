@@ -21,7 +21,7 @@ using System.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Represents an existing <see cref="Type"/> that can be changed. Changes are recorded and later applied to the existing type via an

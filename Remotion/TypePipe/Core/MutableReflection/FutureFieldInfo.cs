@@ -19,7 +19,7 @@ using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Represents a field that does not exist yet. This is used to represent fields yet to be generated within an expression tree.

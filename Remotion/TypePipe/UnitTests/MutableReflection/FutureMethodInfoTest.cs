@@ -17,33 +17,38 @@
 using System.Reflection;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FutureConstructorInfoTest
+  public class FutureMethodInfoTest
   {
     [Test]
-    public void FutureConstructorInfo_IsAConstructorInfo ()
+    public void FutureMethodInfo_IsAMethodInfo ()
     {
-      Assert.That (FutureConstructorInfoObjectMother.Create(), Is.InstanceOf<ConstructorInfo>());
+      Assert.That (FutureMethodInfoObjectMother.Create(), Is.InstanceOf<MethodInfo> ());
     }
 
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = typeof (string);
-      var futureConstructorInfo = FutureConstructorInfoObjectMother.Create (declaringType);
+      var declaringType = FutureTypeObjectMother.Create();
+      var futureMethodInfo = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
+      Assert.That(futureMethodInfo.DeclaringType, Is.SameAs(declaringType));
+    }
 
-      Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
+    [Test]
+    public void Attributes ()
+    {
+      var futureMethodInfo = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Final);
+      Assert.That (futureMethodInfo.Attributes, Is.EqualTo (MethodAttributes.Final));
     }
 
     [Test]
     public void GetParameters ()
     {
       var parameters = new[] { FutureParameterInfoObjectMother.Create(), FutureParameterInfoObjectMother.Create() };
-      var futureConstructor = FutureConstructorInfoObjectMother.Create (parameters: parameters);
-
-      Assert.That (futureConstructor.GetParameters(), Is.SameAs (parameters));
+      var futureMethodInfo = FutureMethodInfoObjectMother.Create (parameters: parameters);
+      Assert.That (futureMethodInfo.GetParameters(), Is.SameAs(parameters));
     }
   }
 }

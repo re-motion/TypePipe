@@ -17,7 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {

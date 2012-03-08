@@ -20,7 +20,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Represents a <see cref="Type"/> that can be changed. Changes are recorded and, depending on the concrete <see cref="MutableType"/>, applied

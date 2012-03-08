@@ -17,7 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
 using Rhino.Mocks;
 

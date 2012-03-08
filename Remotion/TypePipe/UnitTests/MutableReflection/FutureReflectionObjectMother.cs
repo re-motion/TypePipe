@@ -17,9 +17,9 @@
 using System;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class FutureTypeObjectMother
   {

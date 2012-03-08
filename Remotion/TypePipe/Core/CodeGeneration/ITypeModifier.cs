@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {

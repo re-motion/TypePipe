@@ -16,9 +16,9 @@
 // 
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.FutureReflection;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection.ExpressionTreeIntegration
+namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegration
 {
   [TestFixture]
   public class FutureTypeTest

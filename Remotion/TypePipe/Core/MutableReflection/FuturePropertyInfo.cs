@@ -20,7 +20,7 @@ using System.Reflection;
 using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.FutureReflection
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Represents a property that does not exist yet. This is used to represent properties yet to be generated within an expression tree.

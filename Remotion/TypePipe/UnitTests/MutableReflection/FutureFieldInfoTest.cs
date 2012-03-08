@@ -14,11 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class FutureFieldInfoTest

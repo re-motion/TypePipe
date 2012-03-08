@@ -14,42 +14,36 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.FutureReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FutureMethodInfoTest
+  public class FutureConstructorInfoTest
   {
     [Test]
-    public void FutureMethodInfo_IsAMethodInfo ()
+    public void FutureConstructorInfo_IsAConstructorInfo ()
     {
-      Assert.That (FutureMethodInfoObjectMother.Create(), Is.InstanceOf<MethodInfo> ());
+      Assert.That (FutureConstructorInfoObjectMother.Create(), Is.InstanceOf<ConstructorInfo>());
     }
 
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
-      var futureMethodInfo = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
-      Assert.That(futureMethodInfo.DeclaringType, Is.SameAs(declaringType));
-    }
+      var declaringType = typeof (string);
+      var futureConstructorInfo = FutureConstructorInfoObjectMother.Create (declaringType);
 
-    [Test]
-    public void Attributes ()
-    {
-      var futureMethodInfo = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Final);
-      Assert.That (futureMethodInfo.Attributes, Is.EqualTo (MethodAttributes.Final));
+      Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
     }
 
     [Test]
     public void GetParameters ()
     {
       var parameters = new[] { FutureParameterInfoObjectMother.Create(), FutureParameterInfoObjectMother.Create() };
-      var futureMethodInfo = FutureMethodInfoObjectMother.Create (parameters: parameters);
-      Assert.That (futureMethodInfo.GetParameters(), Is.SameAs(parameters));
+      var futureConstructor = FutureConstructorInfoObjectMother.Create (parameters: parameters);
+
+      Assert.That (futureConstructor.GetParameters(), Is.SameAs (parameters));
     }
   }
 }
