@@ -43,7 +43,7 @@
 //      get { return _constructors.AsReadOnly(); }
 //    }
 
-//    // TODO
+//    // TODO Add this to MutableType and remove the FutureType class
 //    public new void AddConstructor (FutureConstructorInfo futureConstructorInfo)
 //    {
 //      ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);

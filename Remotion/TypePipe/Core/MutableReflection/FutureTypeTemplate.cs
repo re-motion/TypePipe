@@ -20,6 +20,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  // TODO Docs
   public class FutureTypeTemplate : ITypeTemplate
   {
     private readonly Type _baseType;

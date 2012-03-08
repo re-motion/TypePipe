@@ -19,6 +19,7 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  // TODO Docs
   public interface ITypeTemplate
   {
     Type GetBaseType ();

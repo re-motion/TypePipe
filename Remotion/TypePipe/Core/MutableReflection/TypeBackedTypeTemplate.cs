@@ -20,6 +20,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  // TODO Docs
   public class TypeBackedTypeTemplate : ITypeTemplate
   {
     private readonly Type _originalType;
