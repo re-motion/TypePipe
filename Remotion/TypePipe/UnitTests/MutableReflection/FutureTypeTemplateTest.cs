@@ -21,7 +21,7 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FreshTypeTemplateTest
+  public class FutureTypeTemplateTest
   {
     [Test]
     public void GetBaseType ()

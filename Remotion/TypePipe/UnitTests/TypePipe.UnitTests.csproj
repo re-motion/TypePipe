@@ -57,8 +57,13 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
     <Compile Include="MutableReflection\Arguments.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
-    <Compile Include="MutableReflection\FreshTypeTemplateTest.cs" />
+    <Compile Include="MutableReflection\FutureTypeTemplateTest.cs" />
     <Compile Include="MutableReflection\FutureConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\FutureFieldInfoTest.cs" />
+    <Compile Include="MutableReflection\FutureMethodInfoTest.cs" />
+    <Compile Include="MutableReflection\FutureParameterInfoTest.cs" />
+    <Compile Include="MutableReflection\FuturePropertyInfoTest.cs" />
+    <Compile Include="MutableReflection\FutureTypeTest.cs" />
     <Compile Include="MutableReflection\MutableReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\ModifiedTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />

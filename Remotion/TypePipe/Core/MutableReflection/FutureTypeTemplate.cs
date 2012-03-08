@@ -20,14 +20,14 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  public class FreshTypeTemplate : ITypeTemplate
+  public class FutureTypeTemplate : ITypeTemplate
   {
     private readonly Type _baseType;
     private readonly TypeAttributes _attributes;
     private readonly Type[] _interfaces;
     private readonly FieldInfo[] _fields;
 
-    public FreshTypeTemplate (Type baseType, TypeAttributes attributes, Type[] interfaces, FieldInfo[] fields)
+    public FutureTypeTemplate (Type baseType, TypeAttributes attributes, Type[] interfaces, FieldInfo[] fields)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNull ("interfaces", interfaces);

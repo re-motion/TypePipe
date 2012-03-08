@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var futureMethodInfo = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
       Assert.That(futureMethodInfo.DeclaringType, Is.SameAs(declaringType));
     }

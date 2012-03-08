@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void DeclaringType ()
     {
-      var declaringType = FutureTypeObjectMother.Create ();
+      var declaringType = MutableTypeObjectMother.Create();
       var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (declaringType: declaringType);
       Assert.That (futurePropertyInfo.DeclaringType, Is.SameAs(declaringType));
     }
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void PropertyType ()
     {
-      var propertyType = FutureTypeObjectMother.Create ();
+      var propertyType = MutableTypeObjectMother.Create();
       var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (propertyType: propertyType);
       Assert.That (futurePropertyInfo.PropertyType, Is.SameAs (propertyType));
     }
