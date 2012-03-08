@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = new TestableMutableType();
+      _mutableType = MockRepository.GenerateStub<MutableType>();
     }
 
     [Test]
@@ -42,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
+      _mutableType.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
       _mutableType.AddInterface (typeof (IDisposable));
       _mutableType.AddInterface (typeof (IComparable));
 
@@ -56,8 +58,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Interface 'System.IDisposable' is already implemented.")]
+    public void AddInterface_ThrowsIfAlreadyImplemented ()
+    {
+      _mutableType.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
+
+      _mutableType.AddInterface (typeof (IDisposable));
+    }
+
+    [Test]
     public void AddField ()
     {
+      _mutableType.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+          .Return (new FieldInfo[0]);
+
       var newField = _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
 
       // Correct field info instance
@@ -67,6 +81,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (newField.Attributes, Is.EqualTo (FieldAttributes.Private));
       // Field info is stored
       Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { newField }));
+    }
+
+    [Test]
+    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Field with name '_bla' already exists.")]
+    public void AddField_ThrowsIfAlreadyExist ()
+    {
+      var fieldInfo = MockRepository.GenerateStub<FieldInfo>();
+      fieldInfo.Stub (stub => stub.Name).Return ("_bla");
+      _mutableType
+          .Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+          .Return (new[] { fieldInfo });
+
+      _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
     }
 
     [Test]

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -55,7 +56,8 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      // TODO: Ensure that interfaces + addedInterfaces does no already contain 'interfaceType'
+      if (GetInterfaces ().Contains (interfaceType))
+        throw new InvalidOperationException (string.Format ("Interface '{0}' is already implemented.", interfaceType));
 
       _addedInterfaces.Add (interfaceType);
     }
@@ -65,7 +67,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      // TODO: Ensure that fields + addedFields so not already contain this field
+      if (GetAllFields ().Any (field => field.Name == name))
+        throw new InvalidOperationException ("Field with name '_bla' already exists.");
 
       var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
       _addedFields.Add (fieldInfo);
@@ -102,6 +105,11 @@ namespace Remotion.TypePipe.MutableReflection
     public sealed override Type UnderlyingSystemType
     {
       get { return this; }
+    }
+
+    private FieldInfo[] GetAllFields ()
+    {
+      return GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
     }
   }
 }

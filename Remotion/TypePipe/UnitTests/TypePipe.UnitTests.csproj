@@ -70,7 +70,6 @@
     <Compile Include="MutableReflection\FutureReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\ModifiedTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
-    <Compile Include="MutableReflection\TestableMutableType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
   </ItemGroup>
