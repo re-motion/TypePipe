@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
@@ -25,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void New_NoArguments ()
     {
-      var constructor = FutureConstructorInfoObjectMother.Create ();
+      var constructor = FutureConstructorInfoObjectMother.Create();
 
       var expression = Expression.New (constructor);
 
@@ -36,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void New_WithArguments ()
     {
       var arguments = new Arguments ("string", 7, new object());
-      var constructor = FutureConstructorInfoObjectMother.Create(parameters: arguments.Parameters);
+      var constructor = FutureConstructorInfoObjectMother.Create (parameters: arguments.Parameters);
 
       var expression = Expression.New (constructor, arguments.Expressions);
 

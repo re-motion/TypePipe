@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Property_Read_Instance ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var property = FuturePropertyInfoObjectMother.Create (declaringType: declaringType);
 
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Property_Write_Static ()
     {
-      var propertyType = FutureTypeObjectMother.Create();
+      var propertyType = MutableTypeObjectMother.Create();
       var setMethod = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
       var property = FuturePropertyInfoObjectMother.Create (propertyType: propertyType, setMethod: setMethod);
       var value = Expression.Variable (propertyType);
@@ -64,10 +65,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Property_Write_Instance ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var propertyType = FutureTypeObjectMother.Create ();
-      var setMethod = FutureMethodInfoObjectMother.Create ();
+      var propertyType = MutableTypeObjectMother.Create();
+      var setMethod = FutureMethodInfoObjectMother.Create();
       var property = FuturePropertyInfoObjectMother.Create (declaringType: declaringType, propertyType: propertyType, setMethod: setMethod);
       var value = Expression.Variable (propertyType);
 

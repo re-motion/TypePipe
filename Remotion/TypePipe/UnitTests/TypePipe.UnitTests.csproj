@@ -56,6 +56,10 @@
     <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
     <Compile Include="MutableReflection\Arguments.cs" />
+    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureFieldInfoTest.cs" />
+    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureMethodInfoTest.cs" />
+    <Compile Include="MutableReflection\ExpressionTreeIntegration\FuturePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\FutureTypeTemplateTest.cs" />
     <Compile Include="MutableReflection\FutureConstructorInfoTest.cs" />

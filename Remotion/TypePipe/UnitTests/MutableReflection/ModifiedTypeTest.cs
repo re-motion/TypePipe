@@ -21,6 +21,7 @@
 //using NUnit.Framework;
 //using Remotion.TypePipe.MutableReflection;
 
+// TODO: Adapt this for BackedByTypeTemplate and MutableType
 //namespace Remotion.TypePipe.UnitTests.MutableReflection
 //{
 //  [TestFixture]

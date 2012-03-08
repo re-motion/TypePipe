@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -47,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Call_Instance_NoArguments ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
 
@@ -59,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Call_Instance_WithArguments ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var arguments = new Arguments ("string", 7, new object());
       var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType, parameters: arguments.Parameters);

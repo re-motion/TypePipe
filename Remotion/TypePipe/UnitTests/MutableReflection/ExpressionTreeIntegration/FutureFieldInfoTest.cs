@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -26,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Field_Read_Static ()
     {
-      var field = FutureFieldInfoObjectMother.Create(fieldAttributes: FieldAttributes.Static);
+      var field = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.Static);
 
       var expression = Expression.Field (null, field);
 
@@ -36,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Field_Read_Instance ()
     {
-      var declaringType = FutureTypeObjectMother.Create ();
+      var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var field = FutureFieldInfoObjectMother.Create (declaringType: declaringType);
 
@@ -48,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Field_Write_Static ()
     {
-      var fieldType = FutureTypeObjectMother.Create();
+      var fieldType = MutableTypeObjectMother.Create();
       var field = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.Static, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
@@ -62,9 +63,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Field_Write_Instance ()
     {
-      var declaringType = FutureTypeObjectMother.Create();
-      var instance = Expression.Variable(declaringType);
-      var fieldType = FutureTypeObjectMother.Create ();
+      var declaringType = MutableTypeObjectMother.Create();
+      var instance = Expression.Variable (declaringType);
+      var fieldType = MutableTypeObjectMother.Create();
       var field = FutureFieldInfoObjectMother.Create (declaringType: declaringType, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
