@@ -15,54 +15,22 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
-using System.Reflection.Emit;
 using NUnit.Framework;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
-using Remotion.TypePipe.FutureReflection;
-using Remotion.TypePipe.TypeAssembly;
-using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class AddMarkerInterfaceTest
+  public class AddMarkerInterfaceTest : TypeAssemblerIntegrationTestBase
   {
-    private ReflectionEmitTypeModifier _typeModifier;
-
-    [SetUp]
-    public void SetUp ()
-    {
-      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("Test"), AssemblyBuilderAccess.RunAndSave);
-      var moduleBuilder = assemblyBuilder.DefineDynamicModule ("Test.dll");
-      _typeModifier = new ReflectionEmitTypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
-    }
-
     [Test]
     public void AddMarkerInterface ()
     {
-      Assert.That (typeof (OriginalType).GetInterfaces (), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
+      Assert.That (typeof (OriginalType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
       var participant = CreateTypeAssemblyParticipant (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
 
       Type type = AssembleType (typeof (OriginalType), participant);
 
-      Assert.That (type.GetInterfaces (), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
-    }
-
-    private Type AssembleType (Type requestedType, ITypeAssemblyParticipant participantStub)
-    {
-      var typeAssembler = new TypeAssembler (new[] { participantStub }, _typeModifier);
-      return typeAssembler.AssembleType (requestedType);
-    }
-
-    private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
-    {
-      var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();
-      participantStub
-          .Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything))
-          .Do (typeModification);
-      return participantStub;
+      Assert.That (type.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
     }
 
     public class OriginalType : IOriginalInterface
@@ -76,7 +44,5 @@ namespace TypePipe.IntegrationTests
     public interface IMarkerInterface
     {
     }
-
-
   }
 }
