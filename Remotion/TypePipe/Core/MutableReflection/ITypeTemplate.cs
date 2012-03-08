@@ -21,6 +21,8 @@ namespace Remotion.TypePipe.MutableReflection
 {
   public interface ITypeTemplate
   {
+    Type GetBaseType ();
+    TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces();
     FieldInfo[] GetFields (BindingFlags bindingAttr);
   }

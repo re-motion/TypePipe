@@ -133,5 +133,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
     }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      _typeTemplate.Stub (stub => stub.GetAttributeFlags()).Return (TypeAttributes.Sealed);
+
+      Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Sealed));
+    }
+
+    [Test]
+    public void BaseType ()
+    {
+      var baseType = typeof (IDisposable);
+      _typeTemplate.Stub (stub => stub.GetBaseType()).Return(baseType);
+
+      Assert.That (_mutableType.BaseType, Is.SameAs(baseType));
+    }
   }
 }

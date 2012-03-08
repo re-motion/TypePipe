@@ -40,6 +40,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetBaseType ()
+    {
+      Assert.That (_typeTemplate.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      Assert.That (_typeTemplate.GetAttributeFlags(), Is.EqualTo (typeof(ExampleType).Attributes));
+    }
+
+    [Test]
     public void GetInterfaces ()
     {
       Assert.That (_typeTemplate.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IDisposable) }));

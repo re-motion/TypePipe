@@ -33,27 +33,6 @@
 //    }
 
 //    [Test]
-//    public void FutureType_IsAType ()
-//    {
-//      Assert.That (_futureType, Is.InstanceOf<Type>());
-//    }
-
-//    [Test]
-//    public void AddConstructor ()
-//    {
-//      var futureConstructor = FutureConstructorInfoObjectMother.Create (_futureType);
-//      _futureType.AddConstructor (futureConstructor);
-
-//      Assert.That (_futureType.Constructors, Is.EqualTo (new[] { futureConstructor }));
-//    }
-
-//    [Test]
-//    public void BaseType ()
-//    {
-//      Assert.That (_futureType.BaseType, Is.EqualTo (typeof (object)));
-//    }
-
-//    [Test]
 //    public void GetConstructorImpl_WithSingleAddedConstructor ()
 //    {
 //      // Arrange
@@ -89,10 +68,5 @@
 //      Assert.That (constructor, Is.Null);
 //    }
 
-//    [Test]
-//    public void GetAttributeFlagsImpl ()
-//    {
-//      Assert.That (_futureType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
-//    }
 //  }
 //}

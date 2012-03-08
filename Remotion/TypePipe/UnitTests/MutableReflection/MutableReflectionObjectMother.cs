@@ -21,12 +21,21 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class FutureTypeObjectMother
+  public static class FreshTypeTemplateObjectMother
   {
-    //public static FutureType Create (TypeAttributes typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit)
-    //{
-    //  return new FutureType (typeAttributes);
-    //}
+    public static FreshTypeTemplate Create (
+      Type baseType = null,
+      TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
+      Type[] interfaces = null,
+      FieldInfo[] fields = null)
+    {
+      return new FreshTypeTemplate (
+          baseType ?? typeof(object),
+          attributes,
+          interfaces ?? Type.EmptyTypes,
+          fields ?? new FieldInfo[0]
+          );
+    }
   }
 
   public static class FutureConstructorInfoObjectMother

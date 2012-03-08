@@ -20,40 +20,43 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  public class TypeBackedTypeTemplate : ITypeTemplate
+  public class FreshTypeTemplate : ITypeTemplate
   {
-    private readonly Type _originalType;
+    private readonly Type _baseType;
+    private readonly TypeAttributes _attributes;
+    private readonly Type[] _interfaces;
+    private readonly FieldInfo[] _fields;
 
-    public TypeBackedTypeTemplate (Type originalType)
+    public FreshTypeTemplate (Type baseType, TypeAttributes attributes, Type[] interfaces, FieldInfo[] fields)
     {
-      ArgumentUtility.CheckNotNull ("originalType", originalType);
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      ArgumentUtility.CheckNotNull ("interfaces", interfaces);
+      ArgumentUtility.CheckNotNull ("fields", fields);
 
-      _originalType = originalType;
-    }
-
-    public Type OriginalType
-    {
-      get { return _originalType; }
+      _baseType = baseType;
+      _attributes = attributes;
+      _interfaces = interfaces;
+      _fields = fields; 
     }
 
     public Type GetBaseType ()
     {
-      return _originalType.BaseType;
+      return _baseType;
     }
 
     public TypeAttributes GetAttributeFlags ()
     {
-      return _originalType.Attributes;
+      return _attributes;
     }
 
     public Type[] GetInterfaces ()
     {
-      return _originalType.GetInterfaces();
+      return _interfaces;
     }
 
     public FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _originalType.GetFields (bindingAttr);
+      return _fields;
     }
   }
 }

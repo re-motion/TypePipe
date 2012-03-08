@@ -155,12 +155,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type BaseType
     {
-      get { throw new NotImplementedException(); }
+      get { return _typeTemplate.GetBaseType(); }
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      throw new NotImplementedException();
+      return _typeTemplate.GetAttributeFlags();
     }
 
     protected override bool IsArrayImpl ()
