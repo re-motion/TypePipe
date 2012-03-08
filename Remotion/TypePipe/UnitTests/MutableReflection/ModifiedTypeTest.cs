@@ -105,5 +105,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_modifiedType.Attributes, Is.EqualTo (_originalType.Attributes));
     }
+
+    [Test]
+    public void GetInterfaces ()
+    {
+      // TODO: was reintun
+      Assert.That (_modifiedType.GetInterfaces(), Is.EqualTo (_originalType.GetInterfaces()));
+    }
+
+    [Test]
+    public void GetFields ()
+    {
+      // TODO: was reintun
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      Assert.That (_modifiedType.GetFields(bindingFlags), Is.EqualTo (_originalType.GetFields (bindingFlags)));
+    }
   }
 }

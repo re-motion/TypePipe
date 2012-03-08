@@ -52,6 +52,17 @@ namespace Remotion.TypePipe.MutableReflection
       get { return typeof (object); }
     }
 
+    public override Type[] GetInterfaces ()
+    {
+      return _originalType.GetInterfaces().Concat (AddedInterfaces).ToArray();
+    }
+
+    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      return _originalType.GetFields(bindingFlags).Concat (AddedFields).ToArray();
+    }
+
     // TODO
     protected override ConstructorInfo GetConstructorImpl (
       BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
@@ -106,11 +117,6 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException ();
     }
 
-    public override Type[] GetInterfaces ()
-    {
-      throw new NotImplementedException ();
-    }
-
     public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
     {
       throw new NotImplementedException ();
@@ -159,11 +165,6 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
       throw new NotImplementedException ();
     }
