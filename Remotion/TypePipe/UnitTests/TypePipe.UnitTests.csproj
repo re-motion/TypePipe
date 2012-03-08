@@ -57,19 +57,10 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
     <Compile Include="MutableReflection\Arguments.cs" />
     <Compile Include="MutableReflection\FutureConstructorInfoTest.cs" />
-    <Compile Include="MutableReflection\FutureFieldInfoTest.cs" />
-    <Compile Include="MutableReflection\FutureMethodInfoTest.cs" />
-    <Compile Include="MutableReflection\FutureParameterInfoTest.cs" />
-    <Compile Include="MutableReflection\FuturePropertyInfoTest.cs" />
-    <Compile Include="MutableReflection\FutureTypeTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureConstructorInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureFieldInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureMethodInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\FuturePropertyInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureTypeTest.cs" />
-    <Compile Include="MutableReflection\FutureReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\ModifiedTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
+    <Compile Include="MutableReflection\TypeBackedTypeTemplateTest.cs" />
+    <Compile Include="MutableReflection\TypeTemplateBaseTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
   </ItemGroup>
@@ -91,7 +82,9 @@
       <Name>TypePipe.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="MutableReflection\ExpressionTreeIntegration\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

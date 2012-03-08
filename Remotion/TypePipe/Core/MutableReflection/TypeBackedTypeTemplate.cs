@@ -15,18 +15,35 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.MutableReflection
 {
-  /// <summary>
-  /// Implements <see cref="ISubclassProxyNameProvider"/> by constructing unique names from the requested type <see cref="Type.FullName"/> and 
-  /// a <see cref="Guid"/>.
-  /// </summary>
-  public class GuidBasedSubclassProxyNameProvider : ISubclassProxyNameProvider
+  public class TypeBackedTypeTemplate : ITypeTemplate
   {
-    public string GetSubclassProxyName (Type requestedType)
+    private readonly Type _originalType;
+
+    public TypeBackedTypeTemplate (Type originalType)
     {
-      return string.Format ("{0}_Proxy_{1}", requestedType.FullName, Guid.NewGuid ().ToString ("N"));
+      ArgumentUtility.CheckNotNull ("originalType", originalType);
+
+      _originalType = originalType;
+    }
+
+    public Type OriginalType
+    {
+      get { return _originalType; }
+    }
+
+    public Type[] GetInterfaces ()
+    {
+      return _originalType.GetInterfaces();
+    }
+
+    public FieldInfo[] GetFields (BindingFlags bindingAttr)
+    {
+      return _originalType.GetFields (bindingAttr);
     }
   }
 }

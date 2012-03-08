@@ -45,34 +45,35 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _subclassProxyNameProvider = subclassProxyNameProvider;
     }
 
-    public ModifiedType CreateModifiedType (Type originalType)
+    public MutableType CreateMutableType (Type requestedType)
     {
-      ArgumentUtility.CheckNotNull ("originalType", originalType);
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return new ModifiedType(originalType);
+      return new MutableType (requestedType, new TypeBackedTypeTemplate(requestedType));
     }
 
-    public Type ApplyModifications (ModifiedType modifiedType)
+    public Type ApplyModifications (MutableType mutableType)
     {
-      ArgumentUtility.CheckNotNull ("modifiedType", modifiedType);
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (modifiedType);
+      var requesteType = mutableType.RequestedType;
+      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (requesteType);
       var typeBuilder = _moduleBuilder.DefineType (
           subclassProxyName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          modifiedType.OriginalType,
-          modifiedType.AddedInterfaces.ToArray());
+          requesteType,
+          mutableType.AddedInterfaces.ToArray());
 
       // TODO: Ask why there is no ForEach or ApplySideEffects in EnumerableExtensions
       // http://code.google.com/p/morelinq/source/browse/trunk/MoreLinq/ForEach.cs
-      ApplyFieldModifications(modifiedType, typeBuilder);
+      ApplyFieldModifications(mutableType, typeBuilder);
 
       return typeBuilder.CreateType();
     }
 
-    private void ApplyFieldModifications (ModifiedType modifiedType, ITypeBuilder typeBuilder)
+    private void ApplyFieldModifications (MutableType mutableType, ITypeBuilder typeBuilder)
     {
-      foreach (var field in modifiedType.AddedFields)
+      foreach (var field in mutableType.AddedFields)
       {
         typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
       }

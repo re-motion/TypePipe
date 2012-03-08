@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public Type AssembleType (Type requestedType)
     {
-      var modifiedType = _typeModifier.CreateModifiedType (requestedType);
+      var modifiedType = _typeModifier.CreateMutableType (requestedType);
       foreach (var participant in _participants)
         participant.ModifyType (modifiedType);
 

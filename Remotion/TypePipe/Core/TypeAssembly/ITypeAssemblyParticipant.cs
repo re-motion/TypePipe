@@ -23,6 +23,7 @@ namespace Remotion.TypePipe.TypeAssembly
   /// </summary>
   public interface ITypeAssemblyParticipant
   {
+    // TODO: relationship between requested type, original type, base type?
     void ModifyType (MutableType mutableType);
   }
 }

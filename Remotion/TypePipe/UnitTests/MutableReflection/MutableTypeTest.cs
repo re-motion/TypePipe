@@ -25,17 +25,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
+    private ITypeTemplate _typeTemplate;
     private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MockRepository.GenerateStub<MutableType>();
+      _typeTemplate = MockRepository.GenerateStub<ITypeTemplate>();
+      _mutableType = new MutableType (typeof (string), _typeTemplate);
     }
 
     [Test]
     public void Initialization ()
     {
+      Assert.That (_mutableType.RequestedType, Is.EqualTo (typeof (string)));
+      Assert.That (_mutableType.TypeTemplate, Is.SameAs (_typeTemplate));
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
     }
@@ -43,7 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
-      _mutableType.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
+      _typeTemplate.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
+
       _mutableType.AddInterface (typeof (IDisposable));
       _mutableType.AddInterface (typeof (IComparable));
 
@@ -61,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Interface 'System.IDisposable' is already implemented.")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
-      _mutableType.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
+      _typeTemplate.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
 
       _mutableType.AddInterface (typeof (IDisposable));
     }
@@ -69,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddField ()
     {
-      _mutableType.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+      _typeTemplate.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new FieldInfo[0]);
 
       var newField = _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
@@ -89,21 +94,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var fieldInfo = MockRepository.GenerateStub<FieldInfo>();
       fieldInfo.Stub (stub => stub.Name).Return ("_bla");
-      _mutableType
+      _typeTemplate
           .Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new[] { fieldInfo });
 
       _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
     }
 
-    [Test]
-    public void AddConstructor ()
-    {
-      var futureConstructor = FutureConstructorInfoObjectMother.Create (_mutableType);
-      _mutableType.AddConstructor (futureConstructor);
+    //[Test]
+    //public void AddConstructor ()
+    //{
+    //  var futureConstructor = FutureConstructorInfoObjectMother.Create (_mutableType);
+    //  _mutableType.AddConstructor (futureConstructor);
 
-      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { futureConstructor }));
-    }
+    //  Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { futureConstructor }));
+    //}
 
     [Test]
     public void HasElementTypeImpl ()

@@ -23,10 +23,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class FutureTypeObjectMother
   {
-    public static FutureType Create (TypeAttributes typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit)
-    {
-      return new FutureType (typeAttributes);
-    }
+    //public static FutureType Create (TypeAttributes typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit)
+    //{
+    //  return new FutureType (typeAttributes);
+    //}
   }
 
   public static class FutureConstructorInfoObjectMother

@@ -17,7 +17,6 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -25,27 +24,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class GuidBasedSubclassProxyNameProviderTest
   {
     private GuidBasedSubclassProxyNameProvider _provider;
-    private ModifiedType _modifiedType;
+    private Type _type;
 
     [SetUp]
     public void SetUp ()
     {
       _provider = new GuidBasedSubclassProxyNameProvider ();
-      _modifiedType = new ModifiedType (typeof (object));
+      _type = typeof (object);
     }
 
     [Test]
     public void GetSubclassProxyName ()
     {
-      var result = _provider.GetSubclassProxyName (_modifiedType);
+      var result = _provider.GetSubclassProxyName (_type);
       Assert.That (result, Is.StringMatching (@"System\.Object_Proxy_.{32}"));
     }
 
     [Test]
     public void GetSubclassProxyName_NameIsUnique ()
     {
-      var result1 = _provider.GetSubclassProxyName (_modifiedType);
-      var result2 = _provider.GetSubclassProxyName (_modifiedType);
+      var result1 = _provider.GetSubclassProxyName (_type);
+      var result2 = _provider.GetSubclassProxyName (_type);
       Assert.That (result1, Is.Not.EqualTo (result2));
     }
   }

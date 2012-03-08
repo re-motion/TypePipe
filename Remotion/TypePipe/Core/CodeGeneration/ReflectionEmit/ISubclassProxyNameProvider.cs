@@ -14,7 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using Remotion.TypePipe.MutableReflection;
+using System;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -23,6 +23,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyNameProvider
   {
-    string GetSubclassProxyName (ModifiedType modifiedType);
+    string GetSubclassProxyName (Type requestedType);
   }
 }

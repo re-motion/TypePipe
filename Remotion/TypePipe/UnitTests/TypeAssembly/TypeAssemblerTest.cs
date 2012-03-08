@@ -49,20 +49,21 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
 
       var requestedType = typeof (string);
-      var modifiedType = mockRepository.StrictMock<ModifiedType> (typeof(object));
+      var typeTemplate = mockRepository.StrictMock<ITypeTemplate>();
+      var mutableType = new MutableType (requestedType, typeTemplate);
       var fakeResult = typeof (DateTime);
 
       using (mockRepository.Ordered ())
       {
         typeModifierMock
-            .Expect (mock => mock.CreateModifiedType (requestedType))
-            .Return (modifiedType);
+            .Expect (mock => mock.CreateMutableType (requestedType))
+            .Return (mutableType);
 
-        participantMock1.Expect (mock => mock.ModifyType (modifiedType));
-        participantMock2.Expect (mock => mock.ModifyType (modifiedType));
+        participantMock1.Expect (mock => mock.ModifyType (mutableType));
+        participantMock2.Expect (mock => mock.ModifyType (mutableType));
 
         typeModifierMock
-            .Expect (mock => mock.ApplyModifications (modifiedType))
+            .Expect (mock => mock.ApplyModifications (mutableType))
             .Return (fakeResult);
       }
       mockRepository.ReplayAll();

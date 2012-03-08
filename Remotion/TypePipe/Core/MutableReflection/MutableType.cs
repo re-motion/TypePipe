@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
 using System.Linq;
@@ -27,12 +28,33 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="Type"/> that can be changed. Changes are recorded and, depending on the concrete <see cref="MutableType"/>, applied
   /// to an existing type or to a newly created type.
   /// </summary>
-  public abstract class MutableType : Type
+  public class MutableType : Type
   {
+    private readonly Type _requestedType;
+    private readonly ITypeTemplate _typeTemplate;
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<FieldInfo> _addedFields = new List<FieldInfo>();
-
+    // TODO: rework
     private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo> ();
+
+    public MutableType (Type requestedType, ITypeTemplate typeTemplate)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("typeTemplate", typeTemplate);
+
+      _requestedType = requestedType;
+      _typeTemplate = typeTemplate;
+    }
+
+    public Type RequestedType
+    {
+      get { return _requestedType; }
+    }
+
+    public ITypeTemplate TypeTemplate
+    {
+      get { return _typeTemplate; }
+    }
 
     public ReadOnlyCollection<Type> AddedInterfaces
     {
@@ -86,25 +108,184 @@ namespace Remotion.TypePipe.MutableReflection
       _addedConstructors.Add (futureConstructorInfo);
     }
 
-    // Overrides are sealed to prevent confusion
-    protected sealed override bool HasElementTypeImpl ()
+    public override Type[] GetInterfaces ()
+    {
+      return _typeTemplate.GetInterfaces().Concat(AddedInterfaces).ToArray();
+    }
+
+    public override Type GetElementType ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override bool HasElementTypeImpl ()
     {
       return false;
     }
 
-    public sealed override Assembly Assembly
+    public override Guid GUID
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override Module Module
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public  override Assembly Assembly
     {
       get { return null; }
     }
 
-    protected sealed override bool IsByRefImpl ()
+    public override string FullName
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override string Namespace
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override string AssemblyQualifiedName
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override Type BaseType
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override bool IsArrayImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected  override bool IsByRefImpl ()
     {
       return false;
     }
 
-    public sealed override Type UnderlyingSystemType
+    protected override bool IsPointerImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override bool IsPrimitiveImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override bool IsCOMObjectImpl ()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override Type GetInterface (string name, bool ignoreCase)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override Type[] GetNestedTypes (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override Type GetNestedType (string name, BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override FieldInfo GetField (string name, BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
+    {
+      return _typeTemplate.GetFields (bindingAttr).Concat (AddedFields).ToArray();
+    }
+
+    public  override Type UnderlyingSystemType
     {
       get { return this; }
+    }
+
+    public override object[] GetCustomAttributes (bool inherit)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override bool IsDefined (Type attributeType, bool inherit)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override string Name
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      throw new NotImplementedException();
     }
 
     private FieldInfo[] GetAllFields ()

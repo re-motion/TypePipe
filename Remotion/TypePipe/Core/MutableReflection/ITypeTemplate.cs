@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,18 +15,13 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.MutableReflection
 {
-  /// <summary>
-  /// Implements <see cref="ISubclassProxyNameProvider"/> by constructing unique names from the requested type <see cref="Type.FullName"/> and 
-  /// a <see cref="Guid"/>.
-  /// </summary>
-  public class GuidBasedSubclassProxyNameProvider : ISubclassProxyNameProvider
+  public interface ITypeTemplate
   {
-    public string GetSubclassProxyName (Type requestedType)
-    {
-      return string.Format ("{0}_Proxy_{1}", requestedType.FullName, Guid.NewGuid ().ToString ("N"));
-    }
+    Type[] GetInterfaces();
+    FieldInfo[] GetFields (BindingFlags bindingAttr);
   }
 }

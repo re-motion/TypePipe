@@ -15,18 +15,13 @@
 // under the License.
 // 
 using System;
+using NUnit.Framework;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// Implements <see cref="ISubclassProxyNameProvider"/> by constructing unique names from the requested type <see cref="Type.FullName"/> and 
-  /// a <see cref="Guid"/>.
-  /// </summary>
-  public class GuidBasedSubclassProxyNameProvider : ISubclassProxyNameProvider
+  [TestFixture]
+  public class TypeTemplateBaseTest
   {
-    public string GetSubclassProxyName (Type requestedType)
-    {
-      return string.Format ("{0}_Proxy_{1}", requestedType.FullName, Guid.NewGuid ().ToString ("N"));
-    }
+    
   }
 }
