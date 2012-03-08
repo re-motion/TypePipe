@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration;
@@ -28,10 +29,18 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class TypeAssemblerIntegrationTestBase
   {
-    protected Type AssembleType (Type requestedType, params ITypeAssemblyParticipant[] participants)
+    protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
+    {
+      var participants = participantActions.Select (CreateTypeAssemblyParticipant).ToArray();
+      var originalType = typeof (T);
+
+      return AssembleType (originalType, participants);
+    }
+
+    protected Type AssembleType (Type originalType, params ITypeAssemblyParticipant[] participants)
     {
       var typeAssembler = new TypeAssembler (participants, CreateReflectionEmitTypeModifier());
-      var assembledType = typeAssembler.AssembleType (requestedType);
+      var assembledType = typeAssembler.AssembleType (originalType);
 
       return assembledType;
     }

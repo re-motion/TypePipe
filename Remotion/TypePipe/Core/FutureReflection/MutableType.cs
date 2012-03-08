@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.FutureReflection
@@ -52,6 +53,7 @@ namespace Remotion.TypePipe.FutureReflection
       _addedInterfaces.Add (interfaceType);
     }
 
+    // TODO: Don't take a futureconstructorinfo but a field type
     public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
@@ -59,6 +61,10 @@ namespace Remotion.TypePipe.FutureReflection
       // TODO: Ensure that constructors + addedConstructors does not contain a constructor with same signature
 
       _addedConstructors.Add (futureConstructorInfo);
+    }
+
+    public void AddField (string name, Type type, FieldAttributes attributes)
+    {
     }
   }
 }

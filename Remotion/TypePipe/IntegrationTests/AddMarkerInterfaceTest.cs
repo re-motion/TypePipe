@@ -26,9 +26,8 @@ namespace TypePipe.IntegrationTests
     public void AddMarkerInterface ()
     {
       Assert.That (typeof (OriginalType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
-      var participant = CreateTypeAssemblyParticipant (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
 
-      Type type = AssembleType (typeof (OriginalType), participant);
+      var type = AssembleType<OriginalType> (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
 
       Assert.That (type.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
     }
