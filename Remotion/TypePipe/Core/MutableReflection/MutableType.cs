@@ -80,9 +80,8 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      // TODO Type Pipe: ArgumentException
       if (GetInterfaces ().Contains (interfaceType))
-        throw new InvalidOperationException (string.Format ("Interface '{0}' is already implemented.", interfaceType));
+        throw new ArgumentException (string.Format ("Interface '{0}' is already implemented.", interfaceType), "interfaceType");
 
       _addedInterfaces.Add (interfaceType);
     }
@@ -93,9 +92,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      // TODO Type Pipe: ArgumentException
       if (GetAllFields ().Any (field => field.Name == name))
-        throw new InvalidOperationException (string.Format ("Field with name '{0}' already exists.", name));
+        throw new ArgumentException (string.Format ("Field with name '{0}' already exists.", name), "name");
 
       var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
       _addedFields.Add (fieldInfo);
@@ -108,10 +106,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      // TODO Type Pipe: ArgumentException
       // TODO Type Pipe: Use MemberSignatureEqualityComparer to compare the signatures (create constructorInfo before checking).
       if (GetAllConstructors ().Any (ctor => ctor.GetParameters ().Select (p => p.ParameterType).SequenceEqual (parameterTypes)))
-        throw new InvalidOperationException (string.Format ("Constructor with same signature already exists."));
+        throw new ArgumentException (string.Format ("Constructor with same signature already exists."), "parameterTypes");
 
       var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray();
       var constructorInfo = new FutureConstructorInfo (this, parameters);

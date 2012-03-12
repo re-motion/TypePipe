@@ -64,7 +64,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Interface 'System.IDisposable' is already implemented.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Interface 'System.IDisposable' is already implemented.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
       _originalTypeInfoStub.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
@@ -100,7 +101,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Field with name '_bla' already exists.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Field with name '_bla' already exists.\r\nParameter name: name")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
       var fieldInfo = FutureFieldInfoObjectMother.Create(name: "_bla");
@@ -146,7 +148,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Constructor with same signature already exists.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
+      "Constructor with same signature already exists.\r\nParameter name: parameterTypes")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
       var constructorInfo = FutureConstructorInfoObjectMother.Create (parameters: new ParameterInfo[0]);
