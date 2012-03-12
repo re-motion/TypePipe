@@ -58,8 +58,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ITypeBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ModuleBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\TypeBuilderAdapter.cs" />
-    <Compile Include="MutableReflection\FutureTypeTemplate.cs" />
-    <Compile Include="MutableReflection\ITypeTemplate.cs" />
+    <Compile Include="MutableReflection\NewTypeInfo.cs" />
+    <Compile Include="MutableReflection\ITypeInfo.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
@@ -184,7 +184,7 @@
     <Compile Include="MutableReflection\FutureParameterInfo.cs" />
     <Compile Include="MutableReflection\FuturePropertyInfo.cs" />
     <Compile Include="MutableReflection\FutureType.cs" />
-    <Compile Include="MutableReflection\TypeBackedTypeTemplate.cs" />
+    <Compile Include="MutableReflection\ExistingTypeInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

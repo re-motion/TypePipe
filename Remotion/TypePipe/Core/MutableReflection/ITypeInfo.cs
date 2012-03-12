@@ -19,10 +19,16 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO Docs
-  public interface ITypeTemplate
+  /// <summary>
+  /// Defines the characteristics of a type.
+  /// </summary>
+  /// <remarks>
+  /// This is used by <see cref="MutableType"/> to represent the original type, before any mutations.
+  /// </remarks>
+  public interface ITypeInfo
   {
     Type GetBaseType ();
+    // TODO Type Pipe: Type GetRuntimeType ();
     TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces();
     FieldInfo[] GetFields (BindingFlags bindingAttr);

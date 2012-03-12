@@ -25,14 +25,14 @@ using System.Collections.Generic;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class TypeBackedTypeTemplateTest
+  public class ExistingTypeInfoTest
   {
-    private TypeBackedTypeTemplate _typeTemplate;
+    private ExistingTypeInfo _existingTypeInfo;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeTemplate = TypeBackedTypeTemplateObjectMother.Create (originalType: (typeof (ExampleType)));
+      _existingTypeInfo = ExistingTypeInfoObjectMother.Create (originalType: (typeof (ExampleType)));
     }
 
     [Test]
@@ -62,25 +62,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void OriginalType ()
     {
-      Assert.That (_typeTemplate.OriginalType, Is.SameAs (typeof (ExampleType)));
+      Assert.That (_existingTypeInfo.OriginalType, Is.SameAs (typeof (ExampleType)));
     }
 
     [Test]
     public void GetBaseType ()
     {
-      Assert.That (_typeTemplate.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
+      Assert.That (_existingTypeInfo.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
     }
 
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      Assert.That (_typeTemplate.GetAttributeFlags(), Is.EqualTo (typeof(ExampleType).Attributes));
+      Assert.That (_existingTypeInfo.GetAttributeFlags(), Is.EqualTo (typeof(ExampleType).Attributes));
     }
 
     [Test]
     public void GetInterfaces ()
     {
-      Assert.That (_typeTemplate.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IDisposable) }));
+      Assert.That (_existingTypeInfo.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IDisposable) }));
     }
 
     [Test]
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-      var fieldNames = _typeTemplate.GetFields (bindingFlags).Select(field => field.Name);
+      var fieldNames = _existingTypeInfo.GetFields (bindingFlags).Select(field => field.Name);
       Assert.That (fieldNames, Is.EquivalentTo (new[] { "_firstField", "_secondField" }));
     }
 
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-      var ctorSignatures = _typeTemplate.GetConstructors (bindingFlags).Select (ctor => ctor.GetParameters().Select (p => p.ParameterType));
+      var ctorSignatures = _existingTypeInfo.GetConstructors (bindingFlags).Select (ctor => ctor.GetParameters().Select (p => p.ParameterType));
       Assert.That (ctorSignatures, Is.EqualTo (new[] { new Type[0], new[] { typeof (int) } }));
     }
 
@@ -119,9 +119,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public static object _secondField;
     }
 
-    private TypeBackedTypeTemplate Create (Type originalType)
+    private ExistingTypeInfo Create (Type originalType)
     {
-      return TypeBackedTypeTemplateObjectMother.Create (originalType: originalType);
+      return ExistingTypeInfoObjectMother.Create (originalType: originalType);
     }
   }
 }

@@ -61,7 +61,7 @@
     <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureMethodInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\FuturePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
-    <Compile Include="MutableReflection\FutureTypeTemplateTest.cs" />
+    <Compile Include="MutableReflection\NewTypeInfoTest.cs" />
     <Compile Include="MutableReflection\FutureConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\FutureFieldInfoTest.cs" />
     <Compile Include="MutableReflection\FutureMethodInfoTest.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="MutableReflection\MutableReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\ModifiedTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
-    <Compile Include="MutableReflection\TypeBackedTypeTemplateTest.cs" />
+    <Compile Include="MutableReflection\ExistingTypeInfoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
   </ItemGroup>

@@ -31,28 +31,31 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : Type
   {
     private readonly Type _requestedType;
-    private readonly ITypeTemplate _typeTemplate;
+    private readonly ITypeInfo _originalTypeInfo;
     private readonly List<Type> _addedInterfaces = new List<Type>();
+    // TODO Type Pipe: Change to FutureFieldInfo, FutureConstructorInfo
     private readonly List<FieldInfo> _addedFields = new List<FieldInfo>();
     private readonly List<ConstructorInfo> _addedConstructors = new List<ConstructorInfo>();
 
-    public MutableType (Type requestedType, ITypeTemplate typeTemplate)
+    public MutableType (Type requestedType, ITypeInfo originalTypeInfo)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("typeTemplate", typeTemplate);
+      ArgumentUtility.CheckNotNull ("originalTypeInfo", originalTypeInfo);
 
       _requestedType = requestedType;
-      _typeTemplate = typeTemplate;
+      _originalTypeInfo = originalTypeInfo;
     }
 
+    // TODO Type Pipe: Type OriginalType - return _originalTypeInfo.GetRuntimeType() ?? this
     public Type RequestedType
     {
       get { return _requestedType; }
     }
 
-    public ITypeTemplate TypeTemplate
+    // TODO Type Pipe: Remove
+    public ITypeInfo OriginalTypeInfo
     {
-      get { return _typeTemplate; }
+      get { return _originalTypeInfo; }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -77,17 +80,20 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
+      // TODO Type Pipe: ArgumentException
       if (GetInterfaces ().Contains (interfaceType))
         throw new InvalidOperationException (string.Format ("Interface '{0}' is already implemented.", interfaceType));
 
       _addedInterfaces.Add (interfaceType);
     }
 
+    // TODO Type Pipe: Return FutureFieldInfo
     public FieldInfo AddField (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
+      // TODO Type Pipe: ArgumentException
       if (GetAllFields ().Any (field => field.Name == name))
         throw new InvalidOperationException (string.Format ("Field with name '{0}' already exists.", name));
 
@@ -97,11 +103,14 @@ namespace Remotion.TypePipe.MutableReflection
       return fieldInfo;
     }
 
+    // TODO Type Pipe: Add method attributes.
     public ConstructorInfo AddConstructor (Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      if (GetAllConstructors().Any (ctor => ctor.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes)))
+      // TODO Type Pipe: ArgumentException
+      // TODO Type Pipe: Use MemberSignatureEqualityComparer to compare the signatures (create constructorInfo before checking).
+      if (GetAllConstructors ().Any (ctor => ctor.GetParameters ().Select (p => p.ParameterType).SequenceEqual (parameterTypes)))
         throw new InvalidOperationException (string.Format ("Constructor with same signature already exists."));
 
       var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray();
@@ -113,7 +122,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type[] GetInterfaces ()
     {
-      return _typeTemplate.GetInterfaces().Concat(AddedInterfaces).ToArray();
+      return _originalTypeInfo.GetInterfaces().Concat(AddedInterfaces).ToArray();
     }
 
     public override Type GetElementType ()
@@ -158,12 +167,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type BaseType
     {
-      get { return _typeTemplate.GetBaseType(); }
+      get { return _originalTypeInfo.GetBaseType(); }
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return _typeTemplate.GetAttributeFlags();
+      return _originalTypeInfo.GetAttributeFlags();
     }
 
     protected override bool IsArrayImpl ()
@@ -238,34 +247,38 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
+      // TODO Type Pipe: Implement using GetConstructors, then call binder.SelectMethod or DefaultBinder.SelectMethod.
       throw new NotImplementedException();
     }
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      // TODO: BindingFlas should also affect which 'added' constructors are returned
-      return _typeTemplate.GetConstructors (bindingAttr).Concat (AddedConstructors).ToArray();
+      // TODO Type Pipe: BindingFlags should also affect which 'added' constructors are returned. Add BindingFlagsEvaluator.HasRightVisibility (MethodAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (MethodAttributes, BindingFlags)
+      return _originalTypeInfo.GetConstructors (bindingAttr).Concat (AddedConstructors).ToArray();
     }
 
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      throw new NotImplementedException();
+      // TODO Type Pipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
+      throw new NotImplementedException ();
     }
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      throw new NotImplementedException();
+      // TODO Type Pipe: Like GetConstructors.
+      throw new NotImplementedException ();
     }
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
-      throw new NotImplementedException();
+      // TODO Type Pipe: Like GetMethod, but filter on name only, no binder.
+      throw new NotImplementedException ();
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      // TODO: bindingAttr also should affect which 'added' fields are returned
-      return _typeTemplate.GetFields (bindingAttr).Concat (AddedFields).ToArray();
+      // TODO Type Pipe: bindingAttr should also affect which 'added' fields are returned. Add BindingFlagsEvaluator.HasRightVisibility (FieldAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (FieldAttributes, BindingFlags)
+      return _originalTypeInfo.GetFields (bindingAttr).Concat (AddedFields).ToArray ();
     }
 
     public  override Type UnderlyingSystemType

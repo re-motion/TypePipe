@@ -26,21 +26,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
-    private ITypeTemplate _typeTemplate;
+    private ITypeInfo _originalTypeInfoStub;
     private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeTemplate = MockRepository.GenerateStub<ITypeTemplate>();
-      _mutableType = new MutableType (typeof (string), _typeTemplate);
+      _originalTypeInfoStub = MockRepository.GenerateStub<ITypeInfo>();
+      _mutableType = new MutableType (typeof (string), _originalTypeInfoStub);
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_mutableType.RequestedType, Is.EqualTo (typeof (string)));
-      Assert.That (_mutableType.TypeTemplate, Is.SameAs (_typeTemplate));
+      Assert.That (_mutableType.OriginalTypeInfo, Is.SameAs (_originalTypeInfoStub));
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
     }
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
-      _typeTemplate.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
+      _originalTypeInfoStub.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
 
       _mutableType.AddInterface (typeof (IDisposable));
       _mutableType.AddInterface (typeof (IComparable));
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Interface 'System.IDisposable' is already implemented.")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
-      _typeTemplate.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
+      _originalTypeInfoStub.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
 
       _mutableType.AddInterface (typeof (IDisposable));
     }
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterfaces ()
     {
-      _typeTemplate.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
+      _originalTypeInfoStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
       _mutableType.AddInterface (typeof (IComparable));
 
       Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddField ()
     {
-      _typeTemplate.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new FieldInfo[0]);
 
       var newField = _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddField_ThrowsIfAlreadyExist ()
     {
       var fieldInfo = FutureFieldInfoObjectMother.Create(name: "_bla");
-      _typeTemplate
+      _originalTypeInfoStub
           .Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new[] { fieldInfo });
 
@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var fieldInfo1 = FutureFieldInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      _typeTemplate.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { fieldInfo1 });
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { fieldInfo1 });
       var fieldInfo2 = _mutableType.AddField ("field2", typeof (UnspecifiedType), 0);
 
       Assert.That (_mutableType.GetFields (bindingFlags), Is.EqualTo (new[] { fieldInfo1, fieldInfo2 }));
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddConstructor ()
     {
-      _typeTemplate.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+      _originalTypeInfoStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
         .Return (new ConstructorInfo[0]);
       var parameterTypes = new[] { typeof(string), typeof(int) };
       var newConstructor = _mutableType.AddConstructor (parameterTypes);
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
       var constructorInfo = FutureConstructorInfoObjectMother.Create (parameters: new ParameterInfo[0]);
-      _typeTemplate
+      _originalTypeInfoStub
           .Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
           .Return (new[] { constructorInfo });
 
@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var constructor1 = FutureConstructorInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
-      _typeTemplate.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
+      _originalTypeInfoStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
       var parameterTypes = new[] { typeof (int) }; // Need different signature
       var constructor2 = _mutableType.AddConstructor (parameterTypes);
 
@@ -196,7 +196,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      _typeTemplate.Stub (stub => stub.GetAttributeFlags()).Return (TypeAttributes.Sealed);
+      _originalTypeInfoStub.Stub (stub => stub.GetAttributeFlags()).Return (TypeAttributes.Sealed);
 
       Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Sealed));
     }
@@ -205,7 +205,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void BaseType ()
     {
       var baseType = typeof (IDisposable);
-      _typeTemplate.Stub (stub => stub.GetBaseType()).Return(baseType);
+      _originalTypeInfoStub.Stub (stub => stub.GetBaseType()).Return(baseType);
 
       Assert.That (_mutableType.BaseType, Is.SameAs(baseType));
     }

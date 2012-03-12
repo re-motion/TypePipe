@@ -48,7 +48,7 @@ namespace TypePipe.IntegrationTests
 
     public class OriginalType
     {
-      // private fields cannot be accessed in sub class proxies
+      // protected so that Reflection on the subclass proxy will return the field
       protected object OriginalField;
     }
   }

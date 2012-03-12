@@ -35,11 +35,11 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public Type AssembleType (Type requestedType)
     {
-      var modifiedType = _typeModifier.CreateMutableType (requestedType);
+      var mutableType = _typeModifier.CreateMutableType (requestedType);
       foreach (var participant in _participants)
-        participant.ModifyType (modifiedType);
+        participant.ModifyType (mutableType);
 
-      return _typeModifier.ApplyModifications (modifiedType);
+      return _typeModifier.ApplyModifications (mutableType);
     }
   }
 }

@@ -21,13 +21,13 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FutureTypeTemplateTest
+  public class NewTypeInfoTest
   {
     [Test]
     public void GetBaseType ()
     {
       var baseType = typeof (IDisposable);
-      var typeTemplate = FutureTypeTemplateObjectMother.Create (baseType: baseType);
+      var typeTemplate = NewTypeInfoObjectMother.Create (baseType: baseType);
 
       Assert.That (typeTemplate.GetBaseType(), Is.SameAs (baseType));
     }
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetAttributeFlags ()
     {
       var attributes = TypeAttributes.Sealed;
-      var typeTemplate = FutureTypeTemplateObjectMother.Create (attributes: attributes);
+      var typeTemplate = NewTypeInfoObjectMother.Create (attributes: attributes);
 
       Assert.That (typeTemplate.GetAttributeFlags(), Is.EqualTo (attributes));
     }
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetInterfaces ()
     {
       var interfaces = new Type[1];
-      var typeTemplate = FutureTypeTemplateObjectMother.Create (interfaces: interfaces);
+      var typeTemplate = NewTypeInfoObjectMother.Create (interfaces: interfaces);
 
       Assert.That (typeTemplate.GetInterfaces(), Is.SameAs (interfaces));
     }
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetFields ()
     {
       var fields = new FieldInfo[1];
-      var typeTemplate = FutureTypeTemplateObjectMother.Create (fields: fields);
+      var typeTemplate = NewTypeInfoObjectMother.Create (fields: fields);
 
       Assert.That (typeTemplate.GetFields(BindingFlags.Default), Is.SameAs (fields));
     }
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetConstructors ()
     {
       var constructors = new ConstructorInfo[1];
-      var typeTemplate = FutureTypeTemplateObjectMother.Create (constructors: constructors);
+      var typeTemplate = NewTypeInfoObjectMother.Create (constructors: constructors);
 
       Assert.That (typeTemplate.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
     }

@@ -4,8 +4,10 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO Docs
-  public class FutureTypeTemplate : ITypeTemplate
+  /// <summary>
+  /// Defines the characteristics of a newly defined type.
+  /// </summary>
+  public class NewTypeInfo : ITypeInfo
   {
     private readonly Type _baseType;
     private readonly TypeAttributes _attributes;
@@ -13,7 +15,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly FieldInfo[] _fields;
     private readonly ConstructorInfo[] _constructors;
 
-    public FutureTypeTemplate (Type baseType, TypeAttributes attributes, Type[] interfaces, FieldInfo[] fields, ConstructorInfo[] constructors)
+    public NewTypeInfo (Type baseType, TypeAttributes attributes, Type[] interfaces, FieldInfo[] fields, ConstructorInfo[] constructors)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNull ("interfaces", interfaces);

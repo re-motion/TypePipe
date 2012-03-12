@@ -21,12 +21,14 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO Docs
-  public class TypeBackedTypeTemplate : ITypeTemplate
+  /// <summary>
+  /// Defines the characteristics of an existing type.
+  /// </summary>
+  public class ExistingTypeInfo : ITypeInfo
   {
     private readonly Type _originalType;
 
-    public TypeBackedTypeTemplate (Type originalType)
+    public ExistingTypeInfo (Type originalType)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
 

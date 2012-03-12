@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
 
       var requestedType = typeof (string);
-      var typeTemplate = mockRepository.StrictMock<ITypeTemplate>();
+      var typeTemplate = mockRepository.StrictMock<ITypeInfo>();
       var mutableType = new MutableType (requestedType, typeTemplate);
       var fakeResult = typeof (DateTime);
 

@@ -23,33 +23,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
-    public static MutableType Create (Type requestedType = null, ITypeTemplate typeTemplate = null)
+    public static MutableType Create (Type requestedType = null, ITypeInfo typeInfo = null)
     {
       return new MutableType(
         requestedType ?? typeof(UnspecifiedType),
-        typeTemplate ?? FutureTypeTemplateObjectMother.Create());
+        typeInfo ?? NewTypeInfoObjectMother.Create());
     }
   }
 
-  public static class TypeBackedTypeTemplateObjectMother
+  public static class ExistingTypeInfoObjectMother
   {
-    public static TypeBackedTypeTemplate Create (Type originalType = null)
+    public static ExistingTypeInfo Create (Type originalType = null)
     {
-      return new TypeBackedTypeTemplate (
+      return new ExistingTypeInfo (
           originalType ?? typeof (UnspecifiedType));
     }
   }
 
-  public static class FutureTypeTemplateObjectMother
+  public static class NewTypeInfoObjectMother
   {
-    public static FutureTypeTemplate Create (
+    public static NewTypeInfo Create (
       Type baseType = null,
       TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
       Type[] interfaces = null,
       FieldInfo[] fields = null,
       ConstructorInfo[] constructors = null)
     {
-      return new FutureTypeTemplate (
+      return new NewTypeInfo (
           baseType ?? typeof(UnspecifiedType),
           attributes,
           interfaces ?? Type.EmptyTypes,
