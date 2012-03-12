@@ -103,8 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Field with name '_bla' already exists.")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
-      var fieldInfo = MockRepository.GenerateStub<FieldInfo>();
-      fieldInfo.Stub (stub => stub.Name).Return ("_bla");
+      var fieldInfo = FutureFieldInfoObjectMother.Create(name: "_bla");
       _typeTemplate
           .Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new[] { fieldInfo });
@@ -126,6 +125,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddConstructor ()
     {
+      _typeTemplate.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+        .Return (new ConstructorInfo[0]);
       var parameterTypes = new[] { typeof(string), typeof(int) };
       var newConstructor = _mutableType.AddConstructor (parameterTypes);
 
@@ -144,11 +145,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { newConstructor }));
     }
 
-    [Ignore]
     [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Constructor with same signature already exists.")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
-      Assert.Fail();
+      var constructorInfo = FutureConstructorInfoObjectMother.Create (parameters: new ParameterInfo[0]);
+      _typeTemplate
+          .Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+          .Return (new[] { constructorInfo });
+
+      _mutableType.AddConstructor (Type.EmptyTypes);
     }
 
     [Test]
@@ -157,7 +163,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var constructor1 = FutureConstructorInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
       _typeTemplate.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
-      var constructor2 = _mutableType.AddConstructor (Type.EmptyTypes);
+      var parameterTypes = new[] { typeof (int) }; // Need different signature
+      var constructor2 = _mutableType.AddConstructor (parameterTypes);
 
       Assert.That (_mutableType.GetConstructors (bindingFlags), Is.EqualTo (new[] { constructor1, constructor2 }));
     }

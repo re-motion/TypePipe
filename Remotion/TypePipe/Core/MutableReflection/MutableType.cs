@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
 
       if (GetAllFields ().Any (field => field.Name == name))
-        throw new InvalidOperationException ("Field with name '_bla' already exists.");
+        throw new InvalidOperationException (string.Format ("Field with name '{0}' already exists.", name));
 
       var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
       _addedFields.Add (fieldInfo);
@@ -101,7 +101,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      // TODO: Ensure that constructors + addedConstructors does not contain a constructor with same signature
+      if (GetAllConstructors().Any (ctor => ctor.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes)))
+        throw new InvalidOperationException (string.Format ("Constructor with same signature already exists."));
 
       var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray();
       var constructorInfo = new FutureConstructorInfo (this, parameters);
@@ -295,6 +296,11 @@ namespace Remotion.TypePipe.MutableReflection
     private FieldInfo[] GetAllFields ()
     {
       return GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+    }
+
+    private ConstructorInfo[] GetAllConstructors ()
+    {
+      return GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance); // Do not include type initializer
     }
   }
 }
