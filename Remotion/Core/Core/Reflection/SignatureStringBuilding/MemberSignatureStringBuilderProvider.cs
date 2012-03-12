@@ -32,6 +32,7 @@ namespace Remotion.Reflection.SignatureStringBuilding
     {
       switch (memberType)
       {
+        case MemberTypes.Constructor:
         case MemberTypes.Method:
           return s_methodSignatureBuilder;
         case MemberTypes.Property:

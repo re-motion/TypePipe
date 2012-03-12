@@ -20,6 +20,10 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain
 {
   public class ClassForMethodSignatureStringBuilding<TType1, TType2>
   {
+    public ClassForMethodSignatureStringBuilding (string p1, DateTime p2)
+    {
+    }
+
     public void MethodWithoutParameters ()
     {
     }

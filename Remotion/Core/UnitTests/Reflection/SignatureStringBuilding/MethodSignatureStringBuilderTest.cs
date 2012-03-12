@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Reflection.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain;
@@ -51,7 +52,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Closed generic methods are not supported.\r\nParameter name: methodInfo")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Closed generic methods are not supported.\r\nParameter name: methodBase")]
     public void BuildSignatureString_ClosedGenericMethod ()
     {
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithGenericParameters").MakeGenericMethod (typeof (int), typeof (int));
@@ -65,6 +66,33 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       var signature = _builder.BuildSignatureString (method);
 
       Assert.That (signature, Is.EqualTo ("System.Void(System.String,System.DateTime)`2"));
+    }
+
+    [Test]
+    public void BuildSignatureString_Constructor ()
+    {
+      var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetConstructors().Single();
+      var signature = _builder.BuildSignatureString (method);
+
+      Assert.That (signature, Is.EqualTo ("(System.String,System.DateTime)"));
+    }
+
+    [Test]
+    public void BuildSignatureString_InterfaceMember_Method ()
+    {
+      var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithoutParameters");
+      var signature = ((IMemberSignatureStringBuilder) _builder).BuildSignatureString (method);
+
+      Assert.That (signature, Is.EqualTo ("System.Void()"));
+    }
+
+    [Test]
+    public void BuildSignatureString_InterfaceMember_Constructor ()
+    {
+      var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetConstructors ().Single ();
+      var signature = ((IMemberSignatureStringBuilder) _builder).BuildSignatureString (method);
+
+      Assert.That (signature, Is.EqualTo ("(System.String,System.DateTime)"));
     }
   }
 }

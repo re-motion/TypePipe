@@ -25,6 +25,13 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
   public class MemberSignatureStringBuilderProviderTest
   {
     [Test]
+    public void GetSignatureStringBuilder_Constructor ()
+    {
+      var result = MemberSignatureStringBuilderProvider.GetSignatureBuilder (MemberTypes.Constructor);
+      Assert.That (result, Is.TypeOf<MethodSignatureStringBuilder> ());
+    }
+
+    [Test]
     public void GetSignatureStringBuilder_Method ()
     {
       var result = MemberSignatureStringBuilderProvider.GetSignatureBuilder (MemberTypes.Method);
