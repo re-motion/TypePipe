@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      throw new NotImplementedException();
+      return _originalType.GetConstructors (bindingAttr);
     }
 
     private bool CanNotBeSubclassed (Type type)

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterfaces ()
     {
-      var interfaces = new[] { typeof(IComparable), typeof(IDisposable) };
+      var interfaces = new Type[1];
       var typeTemplate = FutureTypeTemplateObjectMother.Create (interfaces: interfaces);
 
       Assert.That (typeTemplate.GetInterfaces(), Is.SameAs (interfaces));
@@ -53,10 +53,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields ()
     {
-      var fields = new[] { FutureFieldInfoObjectMother.Create() };
+      var fields = new FieldInfo[1];
       var typeTemplate = FutureTypeTemplateObjectMother.Create (fields: fields);
 
       Assert.That (typeTemplate.GetFields(BindingFlags.Default), Is.SameAs (fields));
+    }
+
+    [Test]
+    public void GetConstructors ()
+    {
+      var constructors = new ConstructorInfo[1];
+      var typeTemplate = FutureTypeTemplateObjectMother.Create (constructors: constructors);
+
+      Assert.That (typeTemplate.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
     }
   }
 }

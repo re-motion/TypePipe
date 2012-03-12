@@ -92,8 +92,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (fieldNames, Is.EquivalentTo (new[] { "_firstField", "_secondField" }));
     }
 
+    [Test]
+    public void GetConstructors ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+      var ctorSignatures = _typeTemplate.GetConstructors (bindingFlags).Select (ctor => ctor.GetParameters().Select (p => p.ParameterType));
+      Assert.That (ctorSignatures, Is.EqualTo (new[] { new Type[0], new[] { typeof (int) } }));
+    }
+
     public class ExampleType : IDisposable
     {
+      public ExampleType ()
+      {
+      }
+
+      private ExampleType (int i)
+      {
+      }
+
       public void Dispose ()
       {
       }
