@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void SetUp ()
     {
       var requestedType = typeof (string);
-      var typeTemplate = FreshTypeTemplateObjectMother.Create();
+      var typeTemplate = FutureTypeTemplateObjectMother.Create();
       _mutableType = new MutableType (requestedType, typeTemplate);
     }
 

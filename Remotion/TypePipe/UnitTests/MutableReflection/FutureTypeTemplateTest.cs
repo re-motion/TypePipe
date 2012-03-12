@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetBaseType ()
     {
       var baseType = typeof (IDisposable);
-      var typeTemplate = FreshTypeTemplateObjectMother.Create (baseType: baseType);
+      var typeTemplate = FutureTypeTemplateObjectMother.Create (baseType: baseType);
 
       Assert.That (typeTemplate.GetBaseType(), Is.SameAs (baseType));
     }
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetAttributeFlags ()
     {
       var attributes = TypeAttributes.Sealed;
-      var typeTemplate = FreshTypeTemplateObjectMother.Create (attributes: attributes);
+      var typeTemplate = FutureTypeTemplateObjectMother.Create (attributes: attributes);
 
       Assert.That (typeTemplate.GetAttributeFlags(), Is.EqualTo (attributes));
     }
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetInterfaces ()
     {
       var interfaces = new[] { typeof(IComparable), typeof(IDisposable) };
-      var typeTemplate = FreshTypeTemplateObjectMother.Create (interfaces: interfaces);
+      var typeTemplate = FutureTypeTemplateObjectMother.Create (interfaces: interfaces);
 
       Assert.That (typeTemplate.GetInterfaces(), Is.SameAs (interfaces));
     }
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetFields ()
     {
       var fields = new[] { FutureFieldInfoObjectMother.Create() };
-      var typeTemplate = FreshTypeTemplateObjectMother.Create (fields: fields);
+      var typeTemplate = FutureTypeTemplateObjectMother.Create (fields: fields);
 
       Assert.That (typeTemplate.GetFields(BindingFlags.Default), Is.SameAs (fields));
     }

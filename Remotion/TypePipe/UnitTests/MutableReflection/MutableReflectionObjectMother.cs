@@ -27,11 +27,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return new MutableType(
         requestedType ?? typeof(UnspecifiedType),
-        typeTemplate ?? FreshTypeTemplateObjectMother.Create());
+        typeTemplate ?? FutureTypeTemplateObjectMother.Create());
     }
   }
 
-  public static class FreshTypeTemplateObjectMother
+  public static class TypeBackedTypeTemplateObjectMother
+  {
+    public static TypeBackedTypeTemplate Create (Type originalType = null)
+    {
+      return new TypeBackedTypeTemplate (
+          originalType ?? typeof (UnspecifiedType));
+    }
+  }
+
+  public static class FutureTypeTemplateObjectMother
   {
     public static FutureTypeTemplate Create (
       Type baseType = null,
