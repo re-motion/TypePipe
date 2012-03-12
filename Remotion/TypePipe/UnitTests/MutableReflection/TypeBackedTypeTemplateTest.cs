@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _typeTemplate = TypeBackedTypeTemplateObjectMother.Create (originalType: (typeof (ExampleType)));
     }
 
-    [Ignore]
     [Test]
     public void Initialization_ThrowsIfOriginalTypeCannotBeSubclassed ()
     {

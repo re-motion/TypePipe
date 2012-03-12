@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -28,6 +29,10 @@ namespace Remotion.TypePipe.MutableReflection
     public TypeBackedTypeTemplate (Type originalType)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
+
+      if (CanNotBeSubclassed (originalType))
+        throw new ArgumentException ("Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic"
+          + " parameters and must have an accessible constructor.", "originalType");
 
       _originalType = originalType;
     }
@@ -55,6 +60,21 @@ namespace Remotion.TypePipe.MutableReflection
     public FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
       return _originalType.GetFields (bindingAttr);
+    }
+
+    private bool CanNotBeSubclassed (Type type)
+    {
+      return type.IsSealed
+          || type.IsInterface
+          || typeof (Delegate).IsAssignableFrom (type)
+          || type.ContainsGenericParameters
+          || !HasAccessibleConstructor (type);
+    }
+
+    private bool HasAccessibleConstructor (Type type)
+    {
+      return type.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+          .Any (ctor => ctor.IsPublic || ctor.IsFamily || ctor.IsFamilyOrAssembly);
     }
   }
 }

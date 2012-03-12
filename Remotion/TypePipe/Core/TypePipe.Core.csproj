@@ -60,7 +60,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\TypeBuilderAdapter.cs" />
     <Compile Include="MutableReflection\FutureTypeTemplate.cs" />
     <Compile Include="MutableReflection\ITypeTemplate.cs" />
-    <Compile Include="MutableReflection\ModifiedType.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
