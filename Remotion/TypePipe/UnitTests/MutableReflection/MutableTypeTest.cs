@@ -71,6 +71,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddInterface (typeof (IDisposable));
     }
 
+    [Ignore]
+    [Test]
+    public void GetInterfaces ()
+    {
+      Assert.Fail ("TODO");
+    }
+
     [Test]
     public void AddField ()
     {
@@ -99,6 +106,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (new[] { fieldInfo });
 
       _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
+    }
+
+    [Ignore]
+    [Test]
+    public void GetFields ()
+    {
+      Assert.Fail ("TODO");
     }
 
     //[Test]

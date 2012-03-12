@@ -17,8 +17,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -30,7 +32,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _typeTemplate = new TypeBackedTypeTemplate (typeof (ExampleType));
+      _typeTemplate = TypeBackedTypeTemplateObjectMother.Create (originalType: (typeof (ExampleType)));
+    }
+
+    [Ignore]
+    [Test]
+    public void Initialization_ThrowsIfOriginalTypeCannotBeSubclassed ()
+    {
+      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic parameters and "
+              + "must have an accessible constructor.\r\nParameter name: originalType";
+      // sealed
+      Assert.That (() => Create (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // interface
+      Assert.That (() => Create (typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // value type
+      Assert.That (() => Create (typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // enum
+      Assert.That (() => Create (typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // delegate
+      Assert.That (() => Create (typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => Create (typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // open generics
+      Assert.That (() => Create (typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // closed generics
+      Assert.That (() => Create (typeof (List<int>)), Throws.Nothing);
+      // no accessible co
+      Assert.That (() => Create (typeof (BlockExpression)), Throws.ArgumentException.With.Message.EqualTo (msg));
     }
 
     [Test]
@@ -74,6 +101,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       protected string _firstField;
       public static object _secondField;
+    }
+
+    private TypeBackedTypeTemplate Create (Type originalType)
+    {
+      return TypeBackedTypeTemplateObjectMother.Create (originalType: originalType);
     }
   }
 }

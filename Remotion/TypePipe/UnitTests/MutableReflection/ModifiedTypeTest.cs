@@ -38,34 +38,6 @@
 //    }
 
 //    [Test]
-//    public void Initialization ()
-//    {
-//      Assert.That (_modifiedType.OriginalType, Is.SameAs (_originalType));
-//    }
-
-//    [Test]
-//    public void Initialization_ThrowsIfOriginalTypeCannotBeSubclassed ()
-//    {
-//      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic parameters and "
-//              + "must have an accessible constructor.\r\nParameter name: originalType";
-//      Assert.That (() => new MutableType (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg)); // sealed
-//      Assert.That (() => new MutableType (typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg)); // interface
-//      Assert.That (() => new MutableType (typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg)); // value type
-//      Assert.That (() => new MutableType (typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg)); // enum
-//      Assert.That (() => new MutableType (typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
-//      Assert.That (() => new MutableType (typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
-//      Assert.That (() => new MutableType (typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg)); // open generics
-//      Assert.That (() => new MutableType (typeof (List<int>)), Throws.Nothing); // closed generics
-//      Assert.That (() => new MutableType (typeof (BlockExpression)), Throws.ArgumentException.With.Message.EqualTo (msg)); // no accessible constructor 
-//    }
-
-//    [Test]
-//    public void BaseType ()
-//    {
-//      Assert.That (_modifiedType.BaseType, Is.EqualTo (typeof (object)));
-//    }
-
-//    [Test]
 //    public void GetConstructorImpl_WithSingleAddedConstructor ()
 //    {
 //      // Arrange
@@ -101,25 +73,5 @@
 //      Assert.That (constructor, Is.Null);
 //    }
 
-//    [Test]
-//    public void GetAttributeFlagsImpl ()
-//    {
-//      Assert.That (_modifiedType.Attributes, Is.EqualTo (_originalType.Attributes));
-//    }
-
-//    [Test]
-//    public void GetInterfaces ()
-//    {
-//      // TODO: was reintun
-//      Assert.That (_modifiedType.GetInterfaces(), Is.EqualTo (_originalType.GetInterfaces()));
-//    }
-
-//    [Test]
-//    public void GetFields ()
-//    {
-//      // TODO: was reintun
-//      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-//      Assert.That (_modifiedType.GetFields(bindingFlags), Is.EqualTo (_originalType.GetFields (bindingFlags)));
-//    }
 //  }
 //}
