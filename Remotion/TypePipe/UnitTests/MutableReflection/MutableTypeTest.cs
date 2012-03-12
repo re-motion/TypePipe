@@ -71,11 +71,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddInterface (typeof (IDisposable));
     }
 
-    [Ignore]
     [Test]
     public void GetInterfaces ()
     {
-      Assert.Fail ("TODO");
+      _typeTemplate.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
+      _mutableType.AddInterface (typeof (IComparable));
+
+      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
     }
 
     [Test]
@@ -108,11 +110,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
     }
 
-    [Ignore]
     [Test]
     public void GetFields ()
     {
-      Assert.Fail ("TODO");
+      var fieldInfo1 = FutureFieldInfoObjectMother.Create();
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      _typeTemplate.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { fieldInfo1 });
+      var fieldInfo2 = _mutableType.AddField ("field2", typeof (UnspecifiedType), 0);
+
+      Assert.That (_mutableType.GetFields (bindingFlags), Is.EqualTo (new[] { fieldInfo1, fieldInfo2 }));
     }
 
     //[Test]

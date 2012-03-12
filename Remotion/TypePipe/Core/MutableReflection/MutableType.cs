@@ -260,6 +260,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
+      // TODO: bindingAttr also should affect which 'added' fields are returned
       return _typeTemplate.GetFields (bindingAttr).Concat (AddedFields).ToArray();
     }
 
