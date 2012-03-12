@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void New_DefaultConstructor ()
     {
       var constructor = FutureConstructorInfoObjectMother.Create (declaringType: _mutableType);
-      _mutableType.AddConstructor (constructor);
+      //_mutableType.AddConstructor (constructor);
 
       var expression = Expression.New (_mutableType);
 

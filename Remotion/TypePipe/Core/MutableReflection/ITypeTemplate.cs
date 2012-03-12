@@ -26,5 +26,6 @@ namespace Remotion.TypePipe.MutableReflection
     TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces();
     FieldInfo[] GetFields (BindingFlags bindingAttr);
+    ConstructorInfo[] GetConstructors (BindingFlags bindingAttr);
   }
 }

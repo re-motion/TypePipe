@@ -62,6 +62,11 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalType.GetFields (bindingAttr);
     }
 
+    public ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
+
     private bool CanNotBeSubclassed (Type type)
     {
       return type.IsSealed

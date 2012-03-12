@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
@@ -90,6 +91,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Correct field info instance
       Assert.That (newField, Is.TypeOf<FutureFieldInfo>());
+      Assert.That (newField.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (newField.Name, Is.EqualTo ("_newField"));
       Assert.That (newField.FieldType, Is.EqualTo (typeof (string)));
       Assert.That (newField.Attributes, Is.EqualTo (FieldAttributes.Private));
@@ -121,14 +123,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.GetFields (bindingFlags), Is.EqualTo (new[] { fieldInfo1, fieldInfo2 }));
     }
 
-    //[Test]
-    //public void AddConstructor ()
-    //{
-    //  var futureConstructor = FutureConstructorInfoObjectMother.Create (_mutableType);
-    //  _mutableType.AddConstructor (futureConstructor);
+    [Test]
+    public void AddConstructor ()
+    {
+      var parameterTypes = new[] { typeof(string), typeof(int) };
+      var newConstructor = _mutableType.AddConstructor (parameterTypes);
 
-    //  Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { futureConstructor }));
-    //}
+      // Correct constroctur info instance
+      Assert.That (newConstructor, Is.TypeOf<FutureConstructorInfo>());
+      Assert.That (newConstructor.DeclaringType, Is.SameAs (_mutableType));
+      // Correct parameters
+      var parameters = newConstructor.GetParameters().ToArray();
+      Assert.That (parameters, Has.Length.EqualTo (2));
+      Assert.That (parameters.Select (p => p.ParameterType), Is.EqualTo (parameterTypes));
+      Assert.That (parameters[0], Is.TypeOf<FutureParameterInfo>());
+      Assert.That (parameters[1], Is.TypeOf<FutureParameterInfo>());
+      Assert.That (parameters[0].ParameterType, Is.EqualTo (typeof (string)));
+      Assert.That (parameters[1].ParameterType, Is.EqualTo (typeof (int)));
+      // Constructor info is stored
+      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { newConstructor }));
+    }
+
+    [Ignore]
+    [Test]
+    public void AddConstructor_ThrowsIfAlreadyExists ()
+    {
+      Assert.Fail();
+    }
+
+    [Test]
+    public void GetConstructors ()
+    {
+      var constructor1 = FutureConstructorInfoObjectMother.Create();
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
+      _typeTemplate.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
+      var constructor2 = _mutableType.AddConstructor (Type.EmptyTypes);
+
+      Assert.That (_mutableType.GetConstructors (bindingFlags), Is.EqualTo (new[] { constructor1, constructor2 }));
+    }
 
     [Test]
     public void HasElementTypeImpl ()

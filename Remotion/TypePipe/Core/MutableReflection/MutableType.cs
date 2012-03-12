@@ -34,8 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ITypeTemplate _typeTemplate;
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<FieldInfo> _addedFields = new List<FieldInfo>();
-    // TODO: rework
-    private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo> ();
+    private readonly List<ConstructorInfo> _addedConstructors = new List<ConstructorInfo>();
 
     public MutableType (Type requestedType, ITypeTemplate typeTemplate)
     {
@@ -66,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedFields.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<FutureConstructorInfo> AddedConstructors
+    public ReadOnlyCollection<ConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly (); }
     }
@@ -98,14 +97,17 @@ namespace Remotion.TypePipe.MutableReflection
       return fieldInfo;
     }
 
-    // TODO: Don't take a futureconstructorinfo but a field type
-    public void AddConstructor (FutureConstructorInfo futureConstructorInfo)
+    public ConstructorInfo AddConstructor (Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("futureConstructorInfo", futureConstructorInfo);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
       // TODO: Ensure that constructors + addedConstructors does not contain a constructor with same signature
 
-      _addedConstructors.Add (futureConstructorInfo);
+      var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray();
+      var constructorInfo = new FutureConstructorInfo (this, parameters);
+      _addedConstructors.Add (constructorInfo);
+
+      return constructorInfo;
     }
 
     public override Type[] GetInterfaces ()
@@ -198,16 +200,6 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
     public override Type GetInterface (string name, bool ignoreCase)
     {
       throw new NotImplementedException();
@@ -241,6 +233,17 @@ namespace Remotion.TypePipe.MutableReflection
     public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
     {
       throw new NotImplementedException();
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
+    {
+      // TODO: BindingFlas should also affect which 'added' constructors are returned
+      return _typeTemplate.GetConstructors (bindingAttr).Concat (AddedConstructors).ToArray();
     }
 
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)

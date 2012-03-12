@@ -59,5 +59,10 @@ namespace Remotion.TypePipe.MutableReflection
     {
       return _fields;
     }
+
+    public ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
