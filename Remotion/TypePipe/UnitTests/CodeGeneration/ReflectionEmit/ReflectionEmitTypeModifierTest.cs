@@ -21,6 +21,7 @@ using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -45,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
       _originalType = typeof (OriginalType);
       _typeInfoMock = MockRepository.GenerateStrictMock<ITypeInfo> ();
-      _mutableType = new MutableType (_typeInfoMock);
+      _mutableType = MutableTypeObjectMother.Create (typeInfo: _typeInfoMock);
     }
 
     [Test]

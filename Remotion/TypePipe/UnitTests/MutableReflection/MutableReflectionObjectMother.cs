@@ -15,17 +15,21 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
+using Remotion.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
-    public static MutableType Create (ITypeInfo typeInfo = null)
+    public static MutableType Create (ITypeInfo typeInfo = null, IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null)
     {
-      return new MutableType(typeInfo ?? NewTypeInfoObjectMother.Create());
+      return new MutableType(
+        typeInfo ?? NewTypeInfoObjectMother.Create(),
+        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer());
     }
   }
 

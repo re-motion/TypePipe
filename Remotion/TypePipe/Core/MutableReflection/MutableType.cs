@@ -31,15 +31,18 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : Type
   {
     private readonly ITypeInfo _originalTypeInfo;
+    private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<FutureFieldInfo> _addedFields = new List<FutureFieldInfo>();
     private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo>();
 
-    public MutableType (ITypeInfo originalTypeInfo)
+    public MutableType (ITypeInfo originalTypeInfo, IEqualityComparer<MemberInfo> memberInfoEqualityComparer)
     {
       ArgumentUtility.CheckNotNull ("originalTypeInfo", originalTypeInfo);
+      ArgumentUtility.CheckNotNull ("memberInfoEqualityComparer", memberInfoEqualityComparer);
 
       _originalTypeInfo = originalTypeInfo;
+      _memberInfoEqualityComparer = memberInfoEqualityComparer;
     }
 
     public Type OriginalType
@@ -94,12 +97,12 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      // TODO Type Pipe: Use MemberSignatureEqualityComparer to compare the signatures (create constructorInfo before checking).
-      if (GetAllConstructors ().Any (ctor => ctor.GetParameters ().Select (p => p.ParameterType).SequenceEqual (parameterTypes)))
+      var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray ();
+      var constructorInfo = new FutureConstructorInfo (this, parameters);
+      
+      if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException (string.Format ("Constructor with same signature already exists."), "parameterTypes");
 
-      var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray();
-      var constructorInfo = new FutureConstructorInfo (this, parameters);
       _addedConstructors.Add (constructorInfo);
 
       return constructorInfo;

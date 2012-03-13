@@ -28,12 +28,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [SetUp]
     public void SetUp ()
     {
-      var typeTemplate = NewTypeInfoObjectMother.Create();
-      _mutableType = new MutableType (typeTemplate);
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
-    [Ignore("TODO")]
+    // TODO Type Pipe: Default Constructors
+    [Ignore("TODO Type Pipe")]
     public void New_DefaultConstructor ()
     {
       var constructor = FutureConstructorInfoObjectMother.Create (declaringType: _mutableType);

@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _originalTypeInfoStub = MockRepository.GenerateStub<ITypeInfo>();
-      _mutableType = new MutableType (_originalTypeInfoStub);
+      _mutableType = MutableTypeObjectMother.Create (typeInfo: _originalTypeInfoStub);
     }
 
     [Test]

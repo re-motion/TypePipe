@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -47,7 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
 
-      return new MutableType (new ExistingTypeInfo(originalType));
+      return new MutableType (new ExistingTypeInfo(originalType), new MemberSignatureEqualityComparer());
     }
 
     public Type ApplyModifications (MutableType mutableType)
