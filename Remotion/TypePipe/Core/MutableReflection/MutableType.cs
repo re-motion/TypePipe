@@ -90,10 +90,11 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      if (GetAllFields ().Any (field => field.Name == name))
-        throw new ArgumentException (string.Format ("Field with name '{0}' already exists.", name), "name");
-
       var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
+
+      if (GetAllFields ().Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
+        throw new ArgumentException ("Field with equal signature already exists.", "name and type");
+
       _addedFields.Add (fieldInfo);
 
       return fieldInfo;
@@ -110,7 +111,7 @@ namespace Remotion.TypePipe.MutableReflection
       var constructorInfo = new FutureConstructorInfo (this, attributes, parameters);
       
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
-        throw new ArgumentException ("Constructor with same signature already exists.", "parameterTypes");
+        throw new ArgumentException ("Constructor with equal signature already exists.", "parameterTypes");
 
       _addedConstructors.Add (constructorInfo);
 

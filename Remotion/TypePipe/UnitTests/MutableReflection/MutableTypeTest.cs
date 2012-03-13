@@ -112,13 +112,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Field with name '_bla' already exists.\r\nParameter name: name")]
+      "Field with equal signature already exists.\r\nParameter name: name and type")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
-      var field = FutureFieldInfoObjectMother.Create(name: "_bla");
+      var field = FutureFieldInfoObjectMother.Create (name: "_bla", fieldType: typeof (string));
       _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
+      _memberInfoEqualityComparerStub
+          .Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
+          .Return (true);
 
       _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
+    }
+
+    [Test]
+    public void AddField_ReliesOnFieldSignature ()
+    {
+      var field = FutureFieldInfoObjectMother.Create (name: "_foo", fieldType: typeof (object));
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
+      var attributes = FieldAttributes.Private;
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
+          .Return (false);
+      _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (attributes, bindingFlags)).Return (true);
+
+      _mutableType.AddField ("_foo", typeof (string), attributes);
+      var fields = _mutableType.GetFields (bindingFlags);
+
+      Assert.That (fields, Has.Length.EqualTo (2));
     }
 
     [Test]
@@ -221,7 +241,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
-      "Constructor with same signature already exists.\r\nParameter name: parameterTypes")]
+      "Constructor with equal signature already exists.\r\nParameter name: parameterTypes")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[1]);
