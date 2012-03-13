@@ -47,18 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void OriginalType ()
     {
-      var type = typeof (string);
-      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType ()).Return (Maybe.ForValue(type));
-
-      Assert.That (_mutableType.OriginalType, Is.SameAs (type));
-    }
-
-    [Test]
-    public void OriginalType_ForNull ()
-    {
-      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType()).Return (Maybe<Type>.Nothing);
-
-      Assert.That (_mutableType.OriginalType, Is.SameAs (_mutableType));
+      Assert.That (_mutableType.OriginalType, Is.SameAs (_mutableType.UnderlyingSystemType));
     }
 
     [Test]
@@ -209,6 +198,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemType ()
     {
+      var type = typeof (string);
+      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType ()).Return (Maybe.ForValue (type));
+
+      Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (type));
+    }
+
+    [Test]
+    public void UnderlyingSystemType_ForNull ()
+    {
+      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType ()).Return (Maybe<Type>.Nothing);
+
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
     }
 

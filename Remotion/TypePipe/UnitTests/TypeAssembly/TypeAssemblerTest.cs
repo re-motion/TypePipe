@@ -19,6 +19,7 @@ using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
@@ -48,8 +49,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
 
-      var typeTemplate = mockRepository.StrictMock<ITypeInfo>();
-      var mutableType = new MutableType (typeTemplate);
+      var mutableType = MutableTypeObjectMother.Create();
       var requestedType = typeof (string);
       var fakeResult = typeof (DateTime);
 

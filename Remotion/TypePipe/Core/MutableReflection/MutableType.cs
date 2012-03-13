@@ -44,11 +44,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Type OriginalType
     {
-      get
-      {
-        var runtimeType = _originalTypeInfo.GetRuntimeType();
-        return runtimeType.HasValue ? runtimeType.Value() : this;
-      }
+      get { return UnderlyingSystemType; }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -270,9 +266,13 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalTypeInfo.GetFields (bindingAttr).Concat (AddedFields.Cast<FieldInfo>()).ToArray();
     }
 
-    public  override Type UnderlyingSystemType
+    public override Type UnderlyingSystemType
     {
-      get { return this; }
+      get
+      {
+        var runtimeType = _originalTypeInfo.GetRuntimeType();
+        return runtimeType.HasValue ? runtimeType.Value() : this;
+      }
     }
 
     public override object[] GetCustomAttributes (bool inherit)
