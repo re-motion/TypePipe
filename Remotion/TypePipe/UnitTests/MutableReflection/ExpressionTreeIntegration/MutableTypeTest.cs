@@ -14,6 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
@@ -32,12 +34,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     }
 
     [Test]
-    // TODO Type Pipe: Default Constructors
-    [Ignore("TODO Type Pipe")]
     public void New_DefaultConstructor ()
     {
-      var constructor = FutureConstructorInfoObjectMother.Create (declaringType: _mutableType);
-      //_mutableType.AddConstructor (constructor);
+      var constructor = _mutableType.AddConstructor (MethodAttributes.Public, Type.EmptyTypes);
 
       var expression = Expression.New (_mutableType);
 
