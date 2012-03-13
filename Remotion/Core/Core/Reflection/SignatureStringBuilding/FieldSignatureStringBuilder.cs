@@ -15,25 +15,29 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Reflection;
+using System.Text;
+using Remotion.Utilities;
 
-namespace Remotion.UnitTests.Reflection.TestDomain
+namespace Remotion.Reflection.SignatureStringBuilding
 {
-  public class ClassForSignatureComparisons
+  // TODO: Docs
+  public class FieldSignatureStringBuilder : IMemberSignatureStringBuilder
   {
-    public int M1 () { return 0; }
-    public int M2 () { return 0; }
-    public int M3 (int i) { return 0; }
+    private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
 
-    public int P1 { get; set; }
-    public int P2 { get; set; }
-    public string P3 { get; set; }
+    public string BuildSignatureString (FieldInfo fieldInfo)
+    {
+      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
-    public event EventHandler E1;
-    public event EventHandler E2;
-    public event EventHandler<EventArgs> E3;
+      var sb = new StringBuilder();
+      _helper.AppendTypeString (sb, fieldInfo.FieldType);
+      return sb.ToString();
+    }
 
-    public string F1;
-    public string F2;
-    public object F3;
+    string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
+    {
+      return BuildSignatureString ((FieldInfo) memberInfo);
+    }
   }
 }

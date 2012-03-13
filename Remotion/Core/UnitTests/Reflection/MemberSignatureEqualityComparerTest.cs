@@ -40,6 +40,11 @@ namespace Remotion.UnitTests.Reflection
     private EventInfo _e2;
     private EventInfo _e3;
 
+    private FieldInfo _f1;
+    private FieldInfo _f2;
+    private FieldInfo _f3;
+
+
     [SetUp]
     public void SetUp ()
     {
@@ -56,6 +61,10 @@ namespace Remotion.UnitTests.Reflection
       _e1 = typeof (ClassForSignatureComparisons).GetEvent ("E1");
       _e2 = typeof (ClassForSignatureComparisons).GetEvent ("E2");
       _e3 = typeof (ClassForSignatureComparisons).GetEvent ("E3");
+
+      _f1 = typeof (ClassForSignatureComparisons).GetField ("F1");
+      _f2 = typeof (ClassForSignatureComparisons).GetField ("F2");
+      _f3 = typeof (ClassForSignatureComparisons).GetField ("F3");
     }
 
     [Test]
@@ -107,6 +116,18 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void Equals_Fields_True ()
+    {
+      Assert.That (_comparer.Equals (_f1, _f2), Is.True);
+    }
+
+    [Test]
+    public void Equals_fields_False ()
+    {
+      Assert.That (_comparer.Equals (_f1, _f3), Is.False);
+    }
+
+    [Test]
     public void GetHashCode_Events_Equal ()
     {
       Assert.That (_comparer.GetHashCode (_e1), Is.EqualTo (_comparer.GetHashCode (_e2)));
@@ -124,7 +145,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     [ExpectedException (typeof (NotSupportedException),
         ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
-        + "only constructors, methods, properties, and events are supported.")]
+        + "only constructors, methods, properties, events and fields are supported.")]
     public void Equals_InvalidMemberType ()
     {
       _comparer.Equals (_m1, typeof (object));
@@ -133,7 +154,7 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     [ExpectedException (typeof (NotSupportedException),
         ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
-        + "only constructors, methods, properties, and events are supported.")]
+        + "only constructors, methods, properties, events and fields are supported.")]
     public void GetHashCode_InvalidMemberType ()
     {
       _comparer.GetHashCode (typeof (object));
