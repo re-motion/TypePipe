@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   public interface ITypeInfo
   {
     Type GetBaseType ();
-    Maybe<Type> GetRuntimeType ();
+    Maybe<Type> GetUnderlyingSystemType ();
     TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces ();
     FieldInfo[] GetFields (BindingFlags bindingAttr);

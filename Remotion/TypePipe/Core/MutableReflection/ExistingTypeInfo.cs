@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalType.BaseType;
     }
 
-    public Maybe<Type> GetRuntimeType ()
+    public Maybe<Type> GetUnderlyingSystemType ()
     {
       return Maybe.ForValue (_originalType);
     }

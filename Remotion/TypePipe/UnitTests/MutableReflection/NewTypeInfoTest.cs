@@ -33,11 +33,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetRuntimeType ()
+    public void GetUnderlyingSystemType ()
     {
       var typeInfo = NewTypeInfoObjectMother.Create();
 
-      Assert.That (typeInfo.GetRuntimeType().HasValue, Is.False);
+      Assert.That (typeInfo.GetUnderlyingSystemType().HasValue, Is.False);
     }
 
     [Test]

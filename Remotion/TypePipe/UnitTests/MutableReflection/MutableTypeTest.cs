@@ -50,12 +50,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void OriginalType ()
-    {
-      Assert.That (_mutableType.OriginalType, Is.SameAs (_mutableType.UnderlyingSystemType));
-    }
-
-    [Test]
     public void AddInterface ()
     {
       _originalTypeInfoStub.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
@@ -326,7 +320,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemType ()
     {
       var type = typeof (string);
-      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType ()).Return (Maybe.ForValue (type));
+      _originalTypeInfoStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (Maybe.ForValue (type));
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (type));
     }
@@ -334,7 +328,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemType_ForNull ()
     {
-      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType ()).Return (Maybe<Type>.Nothing);
+      _originalTypeInfoStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (Maybe<Type>.Nothing);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
     }

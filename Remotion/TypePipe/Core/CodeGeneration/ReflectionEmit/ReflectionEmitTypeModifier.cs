@@ -55,12 +55,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      var originalType = mutableType.OriginalType;
-      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (originalType);
+      var underlyingSystemType = mutableType.UnderlyingSystemType;
+      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (underlyingSystemType);
       var typeBuilder = _moduleBuilder.DefineType (
           subclassProxyName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          originalType,
+          underlyingSystemType,
           mutableType.AddedInterfaces.ToArray());
 
       foreach (var field in mutableType.AddedFields)

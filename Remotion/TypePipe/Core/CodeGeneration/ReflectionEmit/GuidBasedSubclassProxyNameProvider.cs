@@ -24,9 +24,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class GuidBasedSubclassProxyNameProvider : ISubclassProxyNameProvider
   {
-    public string GetSubclassProxyName (Type requestedType)
+    public string GetSubclassProxyName (Type underlyingSystemType)
     {
-      return string.Format ("{0}_Proxy_{1}", requestedType.FullName, Guid.NewGuid ().ToString ("N"));
+      return string.Format ("{0}_Proxy_{1}", underlyingSystemType.FullName, Guid.NewGuid ().ToString ("N"));
     }
   }
 }

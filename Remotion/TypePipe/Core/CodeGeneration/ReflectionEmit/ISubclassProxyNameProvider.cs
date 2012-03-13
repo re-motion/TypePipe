@@ -23,6 +23,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyNameProvider
   {
-    string GetSubclassProxyName (Type requestedType);
+    string GetSubclassProxyName (Type underlyingSystemType);
   }
 }

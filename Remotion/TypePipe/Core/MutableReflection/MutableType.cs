@@ -51,12 +51,6 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    // TODO Type Pipe: Remove, clients should use UnderlyingSystemType instead.
-    public Type OriginalType
-    {
-      get { return UnderlyingSystemType; }
-    }
-
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
@@ -305,7 +299,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       get
       {
-        var runtimeType = _originalTypeInfo.GetRuntimeType();
+        var runtimeType = _originalTypeInfo.GetUnderlyingSystemType();
         return runtimeType.HasValue ? runtimeType.Value() : this;
       }
     }

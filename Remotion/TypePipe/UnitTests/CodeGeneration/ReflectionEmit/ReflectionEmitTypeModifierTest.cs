@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ReflectionEmitTypeModifier _reflectionEmitTypeModifier;
     private ITypeInfo _typeInfoMock;
     private MutableType _mutableType;
-    private Type _originalType;
+    private Type _underlyingSystemType;
 
     [SetUp]
     public void SetUp ()
@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyNameProviderMock = MockRepository.GenerateStrictMock<ISubclassProxyNameProvider> ();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
-      _originalType = typeof (OriginalType);
+      _underlyingSystemType = typeof (OriginalType);
       _typeInfoMock = MockRepository.GenerateStrictMock<ITypeInfo> ();
       _mutableType = MutableTypeObjectMother.Create (typeInfo: _typeInfoMock);
     }
@@ -52,9 +52,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateMutableType ()
     {
-      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (_originalType);
+      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (_underlyingSystemType);
 
-      Assert.That (mutableType.OriginalType, Is.SameAs (_originalType));
+      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
     }
 
     [Test]
@@ -87,10 +87,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var fakeResultType = typeof (string);
 
-      _typeInfoMock.Expect (mock => mock.GetRuntimeType ()).Return (Maybe.ForValue (_originalType));
-      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (_originalType)).Return ("foofoo");
+      _typeInfoMock.Expect (mock => mock.GetUnderlyingSystemType ()).Return (Maybe.ForValue (_underlyingSystemType));
+      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (_underlyingSystemType)).Return ("foofoo");
       _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _originalType, expectedInterfaces))
+          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _underlyingSystemType, expectedInterfaces))
           .Return (_typeBuilderMock);
       typeBuilderExpectations (_typeBuilderMock);
       _typeBuilderMock.Expect (mock => mock.CreateType()).Return (fakeResultType);
