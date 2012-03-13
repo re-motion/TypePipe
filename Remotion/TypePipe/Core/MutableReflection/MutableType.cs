@@ -244,7 +244,7 @@ namespace Remotion.TypePipe.MutableReflection
     protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       var binder = binderOrNull ?? DefaultBinder;
-      var candidates = GetConstructors().ToArray();
+      var candidates = GetConstructors(bindingAttr).ToArray();
 
       return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
     }
