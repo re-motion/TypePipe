@@ -43,23 +43,23 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _subclassProxyNameProvider = subclassProxyNameProvider;
     }
 
-    public MutableType CreateMutableType (Type requestedType)
+    public MutableType CreateMutableType (Type originalType)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("originalType", originalType);
 
-      return new MutableType (requestedType, new ExistingTypeInfo(requestedType));
+      return new MutableType (new ExistingTypeInfo(originalType));
     }
 
     public Type ApplyModifications (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      var requesteType = mutableType.RequestedType;
-      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (requesteType);
+      var originalType = mutableType.OriginalType;
+      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (originalType);
       var typeBuilder = _moduleBuilder.DefineType (
           subclassProxyName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          requesteType,
+          originalType,
           mutableType.AddedInterfaces.ToArray());
 
       foreach (var field in mutableType.AddedFields)

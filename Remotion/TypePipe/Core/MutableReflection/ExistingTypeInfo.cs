@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -39,14 +40,14 @@ namespace Remotion.TypePipe.MutableReflection
       _originalType = originalType;
     }
 
-    public Type OriginalType
-    {
-      get { return _originalType; }
-    }
-
     public Type GetBaseType ()
     {
       return _originalType.BaseType;
+    }
+
+    public Maybe<Type> GetRuntimeType ()
+    {
+      return Maybe.ForValue (_originalType);
     }
 
     public TypeAttributes GetAttributeFlags ()

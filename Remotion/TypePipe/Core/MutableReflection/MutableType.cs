@@ -30,32 +30,26 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableType : Type
   {
-    private readonly Type _requestedType;
     private readonly ITypeInfo _originalTypeInfo;
     private readonly List<Type> _addedInterfaces = new List<Type>();
     // TODO Type Pipe: Change to FutureFieldInfo, FutureConstructorInfo
     private readonly List<FieldInfo> _addedFields = new List<FieldInfo>();
     private readonly List<ConstructorInfo> _addedConstructors = new List<ConstructorInfo>();
 
-    public MutableType (Type requestedType, ITypeInfo originalTypeInfo)
+    public MutableType (ITypeInfo originalTypeInfo)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("originalTypeInfo", originalTypeInfo);
 
-      _requestedType = requestedType;
       _originalTypeInfo = originalTypeInfo;
     }
 
-    // TODO Type Pipe: Type OriginalType - return _originalTypeInfo.GetRuntimeType() ?? this
-    public Type RequestedType
+    public Type OriginalType
     {
-      get { return _requestedType; }
-    }
-
-    // TODO Type Pipe: Remove
-    public ITypeInfo OriginalTypeInfo
-    {
-      get { return _originalTypeInfo; }
+      get
+      {
+        var runtimeType = _originalTypeInfo.GetRuntimeType();
+        return runtimeType.HasValue ? runtimeType.Value() : this;
+      }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces

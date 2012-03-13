@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -32,6 +33,11 @@ namespace Remotion.TypePipe.MutableReflection
     public Type GetBaseType ()
     {
       return _baseType;
+    }
+
+    public Maybe<Type> GetRuntimeType ()
+    {
+      return Maybe<Type>.Nothing;
     }
 
     public TypeAttributes GetAttributeFlags ()

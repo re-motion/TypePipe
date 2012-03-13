@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
@@ -33,16 +34,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _originalTypeInfoStub = MockRepository.GenerateStub<ITypeInfo>();
-      _mutableType = new MutableType (typeof (string), _originalTypeInfoStub);
+      _mutableType = new MutableType (_originalTypeInfoStub);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_mutableType.RequestedType, Is.EqualTo (typeof (string)));
-      Assert.That (_mutableType.OriginalTypeInfo, Is.SameAs (_originalTypeInfoStub));
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
+    }
+
+    [Test]
+    public void OriginalType ()
+    {
+      var type = typeof (string);
+      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType ()).Return (Maybe.ForValue(type));
+
+      Assert.That (_mutableType.OriginalType, Is.SameAs (type));
+    }
+
+    [Test]
+    public void OriginalType_ForNull ()
+    {
+      _originalTypeInfoStub.Stub (stub => stub.GetRuntimeType()).Return (Maybe<Type>.Nothing);
+
+      Assert.That (_mutableType.OriginalType, Is.SameAs (_mutableType));
     }
 
     [Test]

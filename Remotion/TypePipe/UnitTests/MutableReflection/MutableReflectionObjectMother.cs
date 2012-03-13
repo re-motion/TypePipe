@@ -23,11 +23,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
-    public static MutableType Create (Type requestedType = null, ITypeInfo typeInfo = null)
+    public static MutableType Create (ITypeInfo typeInfo = null)
     {
-      return new MutableType(
-        requestedType ?? typeof(UnspecifiedType),
-        typeInfo ?? NewTypeInfoObjectMother.Create());
+      return new MutableType(typeInfo ?? NewTypeInfoObjectMother.Create());
     }
   }
 

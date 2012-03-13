@@ -60,15 +60,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void OriginalType ()
-    {
-      Assert.That (_existingTypeInfo.OriginalType, Is.SameAs (typeof (ExampleType)));
-    }
-
-    [Test]
     public void GetBaseType ()
     {
       Assert.That (_existingTypeInfo.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
+    }
+
+    [Test]
+    public void GetRuntimeType ()
+    {
+      Assert.That (_existingTypeInfo.GetRuntimeType().Value(), Is.SameAs (typeof (ExampleType)));
     }
 
     [Test]

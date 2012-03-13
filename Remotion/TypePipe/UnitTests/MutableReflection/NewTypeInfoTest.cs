@@ -27,45 +27,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetBaseType ()
     {
       var baseType = typeof (IDisposable);
-      var typeTemplate = NewTypeInfoObjectMother.Create (baseType: baseType);
+      var typeInfo = NewTypeInfoObjectMother.Create (baseType: baseType);
 
-      Assert.That (typeTemplate.GetBaseType(), Is.SameAs (baseType));
+      Assert.That (typeInfo.GetBaseType(), Is.SameAs (baseType));
+    }
+
+    [Test]
+    public void GetRuntimeType ()
+    {
+      var typeInfo = NewTypeInfoObjectMother.Create();
+
+      Assert.That (typeInfo.GetRuntimeType().HasValue, Is.False);
     }
 
     [Test]
     public void GetAttributeFlags ()
     {
       var attributes = TypeAttributes.Sealed;
-      var typeTemplate = NewTypeInfoObjectMother.Create (attributes: attributes);
+      var typeInfo = NewTypeInfoObjectMother.Create (attributes: attributes);
 
-      Assert.That (typeTemplate.GetAttributeFlags(), Is.EqualTo (attributes));
+      Assert.That (typeInfo.GetAttributeFlags(), Is.EqualTo (attributes));
     }
 
     [Test]
     public void GetInterfaces ()
     {
       var interfaces = new Type[1];
-      var typeTemplate = NewTypeInfoObjectMother.Create (interfaces: interfaces);
+      var typeInfo = NewTypeInfoObjectMother.Create (interfaces: interfaces);
 
-      Assert.That (typeTemplate.GetInterfaces(), Is.SameAs (interfaces));
+      Assert.That (typeInfo.GetInterfaces(), Is.SameAs (interfaces));
     }
 
     [Test]
     public void GetFields ()
     {
       var fields = new FieldInfo[1];
-      var typeTemplate = NewTypeInfoObjectMother.Create (fields: fields);
+      var typeInfo = NewTypeInfoObjectMother.Create (fields: fields);
 
-      Assert.That (typeTemplate.GetFields(BindingFlags.Default), Is.SameAs (fields));
+      Assert.That (typeInfo.GetFields(BindingFlags.Default), Is.SameAs (fields));
     }
 
     [Test]
     public void GetConstructors ()
     {
       var constructors = new ConstructorInfo[1];
-      var typeTemplate = NewTypeInfoObjectMother.Create (constructors: constructors);
+      var typeInfo = NewTypeInfoObjectMother.Create (constructors: constructors);
 
-      Assert.That (typeTemplate.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
+      Assert.That (typeInfo.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
     }
   }
 }

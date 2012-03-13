@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -28,9 +29,9 @@ namespace Remotion.TypePipe.MutableReflection
   public interface ITypeInfo
   {
     Type GetBaseType ();
-    // TODO Type Pipe: Type GetRuntimeType ();
+    Maybe<Type> GetRuntimeType ();
     TypeAttributes GetAttributeFlags ();
-    Type[] GetInterfaces();
+    Type[] GetInterfaces ();
     FieldInfo[] GetFields (BindingFlags bindingAttr);
     ConstructorInfo[] GetConstructors (BindingFlags bindingAttr);
   }

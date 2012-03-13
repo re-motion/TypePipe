@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -33,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ReflectionEmitTypeModifier _reflectionEmitTypeModifier;
     private ITypeInfo _typeInfoMock;
     private MutableType _mutableType;
-    private Type _requestedType;
+    private Type _originalType;
 
     [SetUp]
     public void SetUp ()
@@ -42,17 +43,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyNameProviderMock = MockRepository.GenerateStrictMock<ISubclassProxyNameProvider> ();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
-      _requestedType = typeof (RequestedType);
+      _originalType = typeof (OriginalType);
       _typeInfoMock = MockRepository.GenerateStrictMock<ITypeInfo> ();
-      _mutableType = new MutableType (_requestedType, _typeInfoMock);
+      _mutableType = new MutableType (_typeInfoMock);
     }
 
     [Test]
     public void CreateMutableType ()
     {
-      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (_requestedType);
+      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (_originalType);
 
-      Assert.That (mutableType.RequestedType, Is.SameAs (_requestedType));
+      Assert.That (mutableType.OriginalType, Is.SameAs (_originalType));
     }
 
     [Test]
@@ -85,24 +86,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var fakeResultType = typeof (string);
 
-      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (_requestedType)).Return ("foofoo");
+      _typeInfoMock.Expect (mock => mock.GetRuntimeType ()).Return (Maybe.ForValue (_originalType));
+      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (_originalType)).Return ("foofoo");
       _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _requestedType, expectedInterfaces))
+          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _originalType, expectedInterfaces))
           .Return (_typeBuilderMock);
       typeBuilderExpectations (_typeBuilderMock);
-      _typeBuilderMock.Expect (mock => mock.CreateType ()).Return (fakeResultType);
+      _typeBuilderMock.Expect (mock => mock.CreateType()).Return (fakeResultType);
 
       var result = _reflectionEmitTypeModifier.ApplyModifications (_mutableType);
 
-      _moduleBuilderMock.VerifyAllExpectations ();
-      _subclassProxyNameProviderMock.VerifyAllExpectations ();
-      _typeBuilderMock.VerifyAllExpectations ();
-      _typeInfoMock.VerifyAllExpectations ();
+      _moduleBuilderMock.VerifyAllExpectations();
+      _subclassProxyNameProviderMock.VerifyAllExpectations();
+      _typeBuilderMock.VerifyAllExpectations();
+      _typeInfoMock.VerifyAllExpectations();
 
       Assert.That (result, Is.SameAs (fakeResultType));
     }
 
-    public class RequestedType
+    public class OriginalType
     {
     }
   }
