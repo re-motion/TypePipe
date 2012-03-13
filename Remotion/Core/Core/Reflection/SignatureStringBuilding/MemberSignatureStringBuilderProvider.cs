@@ -41,7 +41,7 @@ namespace Remotion.Reflection.SignatureStringBuilding
           return s_eventSignatureBuilder;
         default:
           var message = string.Format (
-              "Cannot return a signature builder for member type '{0}'; only methods, properties, and events are supported.", 
+              "Cannot return a signature builder for member type '{0}'; only constructors, methods, properties, and events are supported.", 
               memberType);
           throw new NotSupportedException (message);
       }
