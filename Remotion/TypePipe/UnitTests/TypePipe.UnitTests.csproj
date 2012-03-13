@@ -69,7 +69,6 @@
     <Compile Include="MutableReflection\FutureParameterInfoTest.cs" />
     <Compile Include="MutableReflection\FuturePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\MutableReflectionObjectMother.cs" />
-    <Compile Include="MutableReflection\ModifiedTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\ExistingTypeInfoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

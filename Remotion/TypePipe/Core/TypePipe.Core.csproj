@@ -185,7 +185,6 @@
     <Compile Include="MutableReflection\FutureMethodInfo.cs" />
     <Compile Include="MutableReflection\FutureParameterInfo.cs" />
     <Compile Include="MutableReflection\FuturePropertyInfo.cs" />
-    <Compile Include="MutableReflection\FutureType.cs" />
     <Compile Include="MutableReflection\ExistingTypeInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
