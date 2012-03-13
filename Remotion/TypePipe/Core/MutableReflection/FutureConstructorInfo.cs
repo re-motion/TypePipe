@@ -27,20 +27,27 @@ namespace Remotion.TypePipe.MutableReflection
   public class FutureConstructorInfo : ConstructorInfo
   {
     private readonly Type _declaringType;
+    private readonly MethodAttributes _attributes;
     private readonly ParameterInfo[] _parameters;
 
-    public FutureConstructorInfo (Type declaringType, ParameterInfo[] parameters)
+    public FutureConstructorInfo (Type declaringType, MethodAttributes attributes, ParameterInfo[] parameters)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
 
       _declaringType = declaringType;
+      _attributes = attributes;
       _parameters = parameters;
     }
 
     public override Type DeclaringType
     {
       get { return _declaringType; }
+    }
+
+    public override MethodAttributes Attributes
+    {
+      get { return _attributes; }
     }
 
     public override ParameterInfo[] GetParameters ()
@@ -81,11 +88,6 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public override RuntimeMethodHandle MethodHandle
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override MethodAttributes Attributes
     {
       get { throw new NotImplementedException(); }
     }

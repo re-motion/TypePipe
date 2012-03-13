@@ -32,17 +32,23 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly ITypeInfo _originalTypeInfo;
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
+    private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<FutureFieldInfo> _addedFields = new List<FutureFieldInfo>();
     private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo>();
 
-    public MutableType (ITypeInfo originalTypeInfo, IEqualityComparer<MemberInfo> memberInfoEqualityComparer)
+    public MutableType (
+      ITypeInfo originalTypeInfo,
+      IEqualityComparer<MemberInfo> memberInfoEqualityComparer,
+      IBindingFlagsEvaluator bindingFlagsEvaluator)
     {
       ArgumentUtility.CheckNotNull ("originalTypeInfo", originalTypeInfo);
       ArgumentUtility.CheckNotNull ("memberInfoEqualityComparer", memberInfoEqualityComparer);
+      ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
 
       _originalTypeInfo = originalTypeInfo;
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
+      _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
     public Type OriginalType
@@ -93,15 +99,18 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO Type Pipe: Add method attributes.
-    public FutureConstructorInfo AddConstructor (Type[] parameterTypes)
+    public FutureConstructorInfo AddConstructor (MethodAttributes attributes, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
+      if ((attributes & MethodAttributes.Static) != 0)
+        throw new ArgumentException ("Static constructors are not (yet) supported.", "attributes");
+
       var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray ();
-      var constructorInfo = new FutureConstructorInfo (this, parameters);
+      var constructorInfo = new FutureConstructorInfo (this, attributes, parameters);
       
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
-        throw new ArgumentException (string.Format ("Constructor with same signature already exists."), "parameterTypes");
+        throw new ArgumentException ("Constructor with same signature already exists.", "parameterTypes");
 
       _addedConstructors.Add (constructorInfo);
 
@@ -242,7 +251,13 @@ namespace Remotion.TypePipe.MutableReflection
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
       // TODO Type Pipe: BindingFlags should also affect which 'added' constructors are returned. Add BindingFlagsEvaluator.HasRightVisibility (MethodAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (MethodAttributes, BindingFlags)
-      return _originalTypeInfo.GetConstructors (bindingAttr).Concat (AddedConstructors.Cast<ConstructorInfo>()).ToArray();
+
+      return _originalTypeInfo.GetConstructors (bindingAttr)
+          .Concat (
+              AddedConstructors
+                  .Where (ctor => _bindingFlagsEvaluator.HasRightVisibility (ctor.Attributes, bindingAttr))
+                  .Cast<ConstructorInfo>()
+          ).ToArray();
     }
 
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)

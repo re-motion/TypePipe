@@ -58,6 +58,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ITypeBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ModuleBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\TypeBuilderAdapter.cs" />
+    <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
+    <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\NewTypeInfo.cs" />
     <Compile Include="MutableReflection\ITypeInfo.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />

@@ -32,18 +32,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void DeclaringType ()
     {
       var declaringType = typeof (string);
-      var futureConstructorInfo = FutureConstructorInfoObjectMother.Create (declaringType);
+      var constructorInfo = FutureConstructorInfoObjectMother.Create (declaringType: declaringType);
 
-      Assert.That (futureConstructorInfo.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (constructorInfo.DeclaringType, Is.SameAs (declaringType));
+    }
+
+    [Test]
+    public void Attributes ()
+    {
+      var attributes = MethodAttributes.Family;
+      var constructorInfo = FutureConstructorInfoObjectMother.Create (attributes: attributes);
+
+      Assert.That (constructorInfo.Attributes, Is.EqualTo (attributes));
     }
 
     [Test]
     public void GetParameters ()
     {
       var parameters = new[] { FutureParameterInfoObjectMother.Create (), FutureParameterInfoObjectMother.Create () };
-      var futureConstructor = FutureConstructorInfoObjectMother.Create (parameters: parameters);
+      var constructorInfo = FutureConstructorInfoObjectMother.Create (parameters: parameters);
 
-      Assert.That (futureConstructor.GetParameters (), Is.SameAs (parameters));
+      Assert.That (constructorInfo.GetParameters (), Is.SameAs (parameters));
     }
   }
 }

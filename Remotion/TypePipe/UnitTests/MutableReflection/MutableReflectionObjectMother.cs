@@ -25,11 +25,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
-    public static MutableType Create (ITypeInfo typeInfo = null, IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null)
+    public static MutableType Create (
+      ITypeInfo typeInfo = null,
+      IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
+      IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return new MutableType(
         typeInfo ?? NewTypeInfoObjectMother.Create(),
-        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer());
+        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
+        bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
   }
 
@@ -62,10 +66,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
   public static class FutureConstructorInfoObjectMother
   {
-    public static FutureConstructorInfo Create (Type declaringType = null, ParameterInfo[] parameters = null)
+    public static FutureConstructorInfo Create (
+      Type declaringType = null,
+      MethodAttributes attributes = MethodAttributes.Public,
+      ParameterInfo[] parameters = null)
     {
       return new FutureConstructorInfo (
           declaringType ?? typeof (UnspecifiedType),
+          attributes,
           parameters ?? new ParameterInfo[0]);
     }
   }

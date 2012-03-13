@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -28,13 +29,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableTypeTest
   {
     private ITypeInfo _originalTypeInfoStub;
+    private IEqualityComparer<MemberInfo> _memberInfoEqualityComparerStub;
+    private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
     private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
       _originalTypeInfoStub = MockRepository.GenerateStub<ITypeInfo>();
-      _mutableType = MutableTypeObjectMother.Create (typeInfo: _originalTypeInfoStub);
+      _memberInfoEqualityComparerStub = MockRepository.GenerateStub<IEqualityComparer<MemberInfo>>();
+      _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator>();
+      _mutableType = MutableTypeObjectMother.Create (_originalTypeInfoStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
     }
 
     [Test]
@@ -111,9 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddField_ThrowsIfAlreadyExist ()
     {
       var fieldInfo = FutureFieldInfoObjectMother.Create(name: "_bla");
-      _originalTypeInfoStub
-          .Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-          .Return (new[] { fieldInfo });
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { fieldInfo });
 
       _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
     }
@@ -134,8 +137,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
         .Return (new ConstructorInfo[0]);
+      var attributes = MethodAttributes.Public;
       var parameterTypes = new[] { typeof(string), typeof(int) };
-      var newConstructor = _mutableType.AddConstructor (parameterTypes);
+      var newConstructor = _mutableType.AddConstructor (attributes, parameterTypes);
 
       // Correct constroctur info instance
       Assert.That (newConstructor, Is.TypeOf<FutureConstructorInfo>());
@@ -153,16 +157,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Static constructors are not (yet) supported.\r\nParameter name: attributes")]
+    public void AddConstructor_ThrowsForStatic ()
+    {
+      _mutableType.AddConstructor (MethodAttributes.Static, Type.EmptyTypes);
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
       "Constructor with same signature already exists.\r\nParameter name: parameterTypes")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
-      var constructorInfo = FutureConstructorInfoObjectMother.Create (parameters: new ParameterInfo[0]);
-      _originalTypeInfoStub
-          .Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-          .Return (new[] { constructorInfo });
+      _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[1]);
+      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (null, null)).IgnoreArguments().Return (true);
 
-      _mutableType.AddConstructor (Type.EmptyTypes);
+      _mutableType.AddConstructor (0, Type.EmptyTypes);
     }
 
     [Test]
@@ -171,10 +181,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var constructor1 = FutureConstructorInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
+      var attributes = MethodAttributes.Public;
       var parameterTypes = new[] { typeof (int) }; // Need different signature
-      var constructor2 = _mutableType.AddConstructor (parameterTypes);
+      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightVisibility (0, 0)).IgnoreArguments().Return (true);
 
-      Assert.That (_mutableType.GetConstructors (bindingFlags), Is.EqualTo (new[] { constructor1, constructor2 }));
+      var constructor2 = _mutableType.AddConstructor (attributes, parameterTypes);
+      var constructors = _mutableType.GetConstructors (bindingFlags);
+
+      Assert.That (constructors, Is.EqualTo (new[] { constructor1, constructor2 }));
+    }
+
+    [Test]
+    public void GetConstructors_FilterWithUtility () 
+    {
+      _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightVisibility (MethodAttributes.Public, BindingFlags.NonPublic)).Return (false);
+
+      _mutableType.AddConstructor (MethodAttributes.Public, Type.EmptyTypes);
+      var constructors = _mutableType.GetConstructors (BindingFlags.NonPublic);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (constructors, Is.Empty);
     }
 
     [Test]

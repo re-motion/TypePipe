@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
 
-      return new MutableType (new ExistingTypeInfo(originalType), new MemberSignatureEqualityComparer());
+      return new MutableType (new ExistingTypeInfo(originalType), new MemberSignatureEqualityComparer(), new BindingFlagsEvaluator());
     }
 
     public Type ApplyModifications (MutableType mutableType)
