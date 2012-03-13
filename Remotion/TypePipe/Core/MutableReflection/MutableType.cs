@@ -100,6 +100,7 @@ namespace Remotion.TypePipe.MutableReflection
       return fieldInfo;
     }
 
+    // TODO Type Pipe: Change parameterTypes parameter to be ParameterDeclaration, holding parameter name, type, attributes.
     public FutureConstructorInfo AddConstructor (MethodAttributes attributes, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);

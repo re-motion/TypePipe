@@ -69,12 +69,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static FutureConstructorInfo Create (
       Type declaringType = null,
       MethodAttributes attributes = MethodAttributes.Public,
-      ParameterInfo[] parameters = null)
+      FutureParameterInfo[] parameters = null)
     {
       return new FutureConstructorInfo (
           declaringType ?? typeof (UnspecifiedType),
           attributes,
-          parameters ?? new ParameterInfo[0]);
+          parameters ?? new FutureParameterInfo[0]);
     }
   }
 
@@ -83,12 +83,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static FutureMethodInfo Create (
         Type declaringType = null,
         MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
-        ParameterInfo[] parameters = null)
+        FutureParameterInfo[] parameters = null)
     {
       return new FutureMethodInfo (
           declaringType ?? typeof (UnspecifiedType), 
-          methodAttributes, 
-          parameters ?? new ParameterInfo[0]);
+          methodAttributes,
+          parameters ?? new FutureParameterInfo[0]);
     }
   }
 

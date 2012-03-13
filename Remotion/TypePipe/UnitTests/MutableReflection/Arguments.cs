@@ -17,8 +17,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private readonly object[] _instances;
     private readonly Type[] _types;
-    private readonly ParameterInfo[] _parameters;
+    private readonly FutureParameterInfo[] _parameters;
     private readonly IEnumerable<Expression> _expressions;
 
     public Arguments (params object[] instances)
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       get { return _types; }
     }
 
-    public ParameterInfo[] Parameters
+    public FutureParameterInfo[] Parameters
     {
       get { return _parameters; }
     }

@@ -28,9 +28,9 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly Type _declaringType;
     private readonly MethodAttributes _attributes;
-    private readonly ParameterInfo[] _parameters;
+    private readonly FutureParameterInfo[] _parameters;
 
-    public FutureConstructorInfo (Type declaringType, MethodAttributes attributes, ParameterInfo[] parameters)
+    public FutureConstructorInfo (Type declaringType, MethodAttributes attributes, FutureParameterInfo[] parameters)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
