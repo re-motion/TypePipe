@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class Arguments
   {
     private readonly object[] _instances;
+    private readonly Type[] _types;
     private readonly ParameterInfo[] _parameters;
     private readonly IEnumerable<Expression> _expressions;
 
@@ -34,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       ArgumentUtility.CheckNotNull ("instances", instances);
 
       _instances = instances;
+      _types = instances.Select (i => i.GetType()).ToArray();
       _parameters = instances.Select (i => FutureParameterInfoObjectMother.Create (i.GetType())).ToArray();
       _expressions = instances.Select (Expression.Constant).Cast<Expression>();
     }
@@ -41,6 +43,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public object[] Instances
     {
       get { return _instances; }
+    }
+
+    public Type[] Types
+    {
+      get { return _types; }
     }
 
     public ParameterInfo[] Parameters

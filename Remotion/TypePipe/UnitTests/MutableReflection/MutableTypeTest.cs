@@ -206,6 +206,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetConstructorImpl ()
+    {
+      var constructor1 = FutureConstructorInfoObjectMother.Create();
+      var arguments = new Arguments (typeof (int));
+      var constructor2 = FutureConstructorInfoObjectMother.Create (parameters: arguments.Parameters);
+      _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { constructor1, constructor2 });
+      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (0, 0)).IgnoreArguments().Return (true);
+
+      var resultCtor = _mutableType.GetConstructor (arguments.Types);
+
+      Assert.That (resultCtor, Is.SameAs (constructor2));
+    }
+
+    [Test]
     public void HasElementTypeImpl ()
     {
       Assert.That (_mutableType.HasElementType, Is.False);

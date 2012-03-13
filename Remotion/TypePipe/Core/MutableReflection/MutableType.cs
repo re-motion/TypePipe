@@ -201,7 +201,7 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
+    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binderOrNull, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
     {
       throw new NotImplementedException();
     }
@@ -231,7 +231,7 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
+    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
     {
       throw new NotImplementedException();
     }
@@ -241,10 +241,12 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      // TODO Type Pipe: Implement using GetConstructors, then call binder.SelectMethod or DefaultBinder.SelectMethod.
-      throw new NotImplementedException();
+      var binder = binderOrNull ?? DefaultBinder;
+      var candidates = GetConstructors().ToArray();
+
+      return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
     }
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
@@ -257,7 +259,7 @@ namespace Remotion.TypePipe.MutableReflection
           ).ToArray();
     }
 
-    protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       // TODO Type Pipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
       throw new NotImplementedException ();
