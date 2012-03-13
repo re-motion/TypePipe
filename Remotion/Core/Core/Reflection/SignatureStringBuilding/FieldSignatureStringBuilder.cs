@@ -21,7 +21,22 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection.SignatureStringBuilding
 {
-  // TODO: Docs
+  /// <summary>
+  /// Builds a string representing the signature of a given <see cref="FieldInfo"/> object. This is similar to the string returned by 
+  /// <see cref="object.ToString"/> as it contains a textual representation of the fields's type.
+  /// It's different from <see cref="object.ToString"/>, though, because it does not contain the fields's name.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The signature string does currently not hold custom modifiers.
+  /// </para>
+  /// <para>
+  /// For simplicity, this class assumes that type or namespace names cannot contain the character "[". 
+  /// It also assumes that the full name of a type (namespace, enclosing type (if any), 
+  /// and simple type name) is enough to identify a type - assembly information is not encoded. The 1:1 mapping of signature strings to field 
+  /// signatures is only guaranteed for fiels that adhere to these assumptions.
+  /// </para>
+  /// </remarks>
   public class FieldSignatureStringBuilder : IMemberSignatureStringBuilder
   {
     private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
