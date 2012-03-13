@@ -14,29 +14,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System;
-
 namespace Remotion.UnitTests.Reflection.TestDomain
 {
-  public class ClassForSignatureComparisons
+  public class ClassForSignatureComparisons2
   {
-    public ClassForSignatureComparisons () { }
-    public ClassForSignatureComparisons (int i) { }
-
-    public int M1 () { return 0; }
-    public int M2 () { return 0; }
-    public int M3 (int i) { return 0; }
-
-    public int P1 { get; set; }
-    public int P2 { get; set; }
-    public string P3 { get; set; }
-
-    public event EventHandler E1;
-    public event EventHandler E2;
-    public event EventHandler<EventArgs> E3;
-
-    public string F1;
-    public string F2;
-    public object F3;
+    public ClassForSignatureComparisons2 () { }
   }
 }
