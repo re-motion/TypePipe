@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Field with equal signature already exists.\r\nParameter name: name and type")]
+      "Field with equal signature already exists.\r\nParameter name: name, type")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
       var field = FutureFieldInfoObjectMother.Create (name: "_bla", fieldType: typeof (string));

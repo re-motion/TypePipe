@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
       var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
 
       if (GetAllFields ().Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
-        throw new ArgumentException ("Field with equal signature already exists.", "name and type");
+        throw new ArgumentException ("Field with equal signature already exists.", "name, type");
 
       _addedFields.Add (fieldInfo);
 
@@ -281,14 +281,13 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      try
-      {
-        return GetFields (bindingAttr).SingleOrDefault (field => field.Name == name);
-      }
-      catch (InvalidOperationException)
-      {
+      var fieldInfos = GetFields (bindingAttr).Where (field => field.Name == name).ToArray();
+      if (fieldInfos.Length == 0)
+        return null;
+      if (fieldInfos.Length > 1)
         throw new AmbiguousMatchException (string.Format ("Ambiguous field name '{0}'.", name));
-      }
+
+      return fieldInfos[0];
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
