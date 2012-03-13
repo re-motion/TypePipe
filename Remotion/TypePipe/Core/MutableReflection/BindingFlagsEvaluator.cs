@@ -21,12 +21,28 @@ namespace Remotion.TypePipe.MutableReflection
 {
   public class BindingFlagsEvaluator : IBindingFlagsEvaluator
   {
+    public bool HasRightAttributes (MethodAttributes methodAttributes, BindingFlags bindingFlags)
+    {
+      return HasRightVisibility (methodAttributes, bindingFlags) && HasRightInstanceOrStaticFlag (methodAttributes, bindingFlags);
+    }
+
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
       var isPublic = ((methodAttributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public);
       var shoudBePublic = (bindingFlags & BindingFlags.Public) != 0;
 
       return isPublic == shoudBePublic;
+    }
+
+    public bool HasRightInstanceOrStaticFlag (MethodAttributes methodAttributes, BindingFlags bindingFlags)
+    {
+      if ((bindingFlags & (BindingFlags.Instance | BindingFlags.Static)) == 0)
+        return false;
+
+      var isStatic = (methodAttributes & MethodAttributes.Static) != 0;
+      var shouldBeStatic = (bindingFlags & BindingFlags.Static) != 0;
+
+      return isStatic == shouldBeStatic;
     }
   }
 }

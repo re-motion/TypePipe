@@ -183,7 +183,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
       var attributes = MethodAttributes.Public;
       var parameterTypes = new[] { typeof (int) }; // Need different signature
-      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightVisibility (0, 0)).IgnoreArguments().Return (true);
+      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (0, 0)).IgnoreArguments().Return (true);
 
       var constructor2 = _mutableType.AddConstructor (attributes, parameterTypes);
       var constructors = _mutableType.GetConstructors (bindingFlags);
@@ -195,10 +195,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetConstructors_FilterWithUtility () 
     {
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightVisibility (MethodAttributes.Public, BindingFlags.NonPublic)).Return (false);
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (false);
 
       _mutableType.AddConstructor (MethodAttributes.Public, Type.EmptyTypes);
-      var constructors = _mutableType.GetConstructors (BindingFlags.NonPublic);
+      var constructors = _mutableType.GetConstructors (bindingFlags);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (constructors, Is.Empty);

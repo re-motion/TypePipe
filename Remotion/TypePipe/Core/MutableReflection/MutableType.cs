@@ -98,7 +98,6 @@ namespace Remotion.TypePipe.MutableReflection
       return fieldInfo;
     }
 
-    // TODO Type Pipe: Add method attributes.
     public FutureConstructorInfo AddConstructor (MethodAttributes attributes, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
@@ -250,12 +249,10 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      // TODO Type Pipe: BindingFlags should also affect which 'added' constructors are returned. Add BindingFlagsEvaluator.HasRightVisibility (MethodAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (MethodAttributes, BindingFlags)
-
       return _originalTypeInfo.GetConstructors (bindingAttr)
           .Concat (
               AddedConstructors
-                  .Where (ctor => _bindingFlagsEvaluator.HasRightVisibility (ctor.Attributes, bindingAttr))
+                  .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes(ctor.Attributes, bindingAttr))
                   .Cast<ConstructorInfo>()
           ).ToArray();
     }
