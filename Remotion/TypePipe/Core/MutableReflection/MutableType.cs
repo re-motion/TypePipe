@@ -247,6 +247,9 @@ namespace Remotion.TypePipe.MutableReflection
       var binder = binderOrNull ?? DefaultBinder;
       var candidates = GetConstructors(bindingAttr).ToArray();
 
+      if (candidates.Length == 0)
+        return null;
+
       Assertion.IsNotNull (binder, "DefaultBinder is never null.");
       return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
     }
@@ -275,8 +278,16 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
-      // TODO Type Pipe: Like GetMethod, but filter on name only, no binder.
-      throw new NotImplementedException ();
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      try
+      {
+        return GetFields (bindingAttr).SingleOrDefault (field => field.Name == name);
+      }
+      catch (InvalidOperationException)
+      {
+        throw new AmbiguousMatchException (string.Format ("Ambiguous field name '{0}'.", name));
+      }
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)

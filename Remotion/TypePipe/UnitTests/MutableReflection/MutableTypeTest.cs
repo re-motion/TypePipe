@@ -151,6 +151,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetField ()
+    {
+      var field1 = FutureFieldInfoObjectMother.Create (name: "field1", fieldType: typeof (string));
+      var field2 = FutureFieldInfoObjectMother.Create (name: "field2", fieldType: typeof (int));
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
+      _bindingFlagsEvaluatorMock
+        .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+        .Return (true);
+
+      var resultField = _mutableType.GetField ("field2", BindingFlags.NonPublic | BindingFlags.Instance);
+
+      Assert.That (resultField, Is.SameAs (field2));
+    }
+
+    [Test]
+    public void GetField_NoMatch ()
+    {
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
+
+      Assert.That (_mutableType.GetField ("field"), Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'foo'.")]
+    public void GetField_Ambigious ()
+    {
+      var field1 = FutureFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (string));
+      var field2 = FutureFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (int));
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
+      _bindingFlagsEvaluatorMock
+        .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+        .Return (true);
+
+      _mutableType.GetField ("foo", 0);
+    }
+
+    [Test]
     public void AddConstructor ()
     {
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
@@ -237,6 +274,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var resultCtor = _mutableType.GetConstructor (arguments.Types);
 
       Assert.That (resultCtor, Is.SameAs (constructor2));
+    }
+
+    [Test]
+    public void GetConstructorImpl_NoMatch ()
+    {
+      _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+
+      Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
     }
 
     [Test]
