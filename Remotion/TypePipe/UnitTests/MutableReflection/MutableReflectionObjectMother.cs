@@ -117,13 +117,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type declaringType = null,
         string name = "_newField",
         Type fieldType = null,
-        FieldAttributes fieldAttributes = FieldAttributes.Private)
+        FieldAttributes attributes = FieldAttributes.Private)
     {
       return new FutureFieldInfo (
           declaringType ?? typeof (UnspecifiedType),
           name,
           fieldType ?? typeof (UnspecifiedType),
-          fieldAttributes);
+          attributes);
     }
   }
 

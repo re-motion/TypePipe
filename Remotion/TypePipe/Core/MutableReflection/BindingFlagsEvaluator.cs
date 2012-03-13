@@ -26,6 +26,11 @@ namespace Remotion.TypePipe.MutableReflection
       return HasRightVisibility (methodAttributes, bindingFlags) && HasRightInstanceOrStaticFlag (methodAttributes, bindingFlags);
     }
 
+    public bool HasRightAttributes (FieldAttributes fieldAttributes, BindingFlags bindingFlags)
+    {
+      return HasRightAttributes ((MethodAttributes) fieldAttributes, bindingFlags);
+    }
+
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
       var isPublic = ((methodAttributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public);

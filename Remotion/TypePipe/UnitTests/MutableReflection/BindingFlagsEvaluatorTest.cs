@@ -33,13 +33,37 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void HasRightAttributes ()
+    public void HasRightAttributes_MethodAttributes ()
     {
       Assert.That (_bindingFlagsEvaluator.HasRightAttributes (MethodAttributes.Public, BindingFlags.Public | BindingFlags.Instance), Is.True);
       Assert.That (_bindingFlagsEvaluator.HasRightAttributes (MethodAttributes.Public, BindingFlags.NonPublic | BindingFlags.Instance), Is.False);
       Assert.That (_bindingFlagsEvaluator.HasRightAttributes (MethodAttributes.Public, BindingFlags.Public | BindingFlags.Static), Is.False);
       Assert.That (_bindingFlagsEvaluator.HasRightAttributes (MethodAttributes.Public, BindingFlags.NonPublic | BindingFlags.Static), Is.False);
       Assert.That (_bindingFlagsEvaluator.HasRightAttributes (MethodAttributes.Public, BindingFlags.Public), Is.False);
+    }
+
+    [Test]
+    public void HasRightAttributes_FieldAttributes ()
+    {
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (FieldAttributes.Public, BindingFlags.Public | BindingFlags.Instance), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (FieldAttributes.Public, BindingFlags.NonPublic | BindingFlags.Instance), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (FieldAttributes.Public, BindingFlags.Public | BindingFlags.Static), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (FieldAttributes.Public, BindingFlags.NonPublic | BindingFlags.Static), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (FieldAttributes.Public, BindingFlags.Public), Is.False);
+    }
+
+    [Test]
+    public void HasRightAttributes_AssertThatFieldAttributesHaveSameValuesAsMethodAttributes ()
+    {
+      Assert.That ((int) FieldAttributes.Public, Is.EqualTo((int) MethodAttributes.Public));
+      Assert.That ((int) FieldAttributes.FamORAssem, Is.EqualTo ((int) MethodAttributes.FamORAssem));
+      Assert.That ((int) FieldAttributes.Family, Is.EqualTo ((int) MethodAttributes.Family));
+      Assert.That ((int) FieldAttributes.Assembly, Is.EqualTo ((int) MethodAttributes.Assembly));
+      Assert.That ((int) FieldAttributes.FamANDAssem, Is.EqualTo ((int) MethodAttributes.FamANDAssem));
+      Assert.That ((int) FieldAttributes.Private, Is.EqualTo ((int) MethodAttributes.Private));
+      Assert.That ((int) FieldAttributes.PrivateScope, Is.EqualTo ((int) MethodAttributes.PrivateScope));
+
+      Assert.That ((int) FieldAttributes.Static, Is.EqualTo ((int) MethodAttributes.Static));
     }
 
     [Test]

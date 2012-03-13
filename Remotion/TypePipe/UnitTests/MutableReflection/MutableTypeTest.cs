@@ -115,8 +115,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Field with name '_bla' already exists.\r\nParameter name: name")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
-      var fieldInfo = FutureFieldInfoObjectMother.Create(name: "_bla");
-      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { fieldInfo });
+      var field = FutureFieldInfoObjectMother.Create(name: "_bla");
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
 
       _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
     }
@@ -124,12 +124,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields ()
     {
-      var fieldInfo1 = FutureFieldInfoObjectMother.Create();
+      var field1 = FutureFieldInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      _originalTypeInfoStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { fieldInfo1 });
-      var fieldInfo2 = _mutableType.AddField ("field2", typeof (UnspecifiedType), 0);
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { field1 });
+      var attributes = FieldAttributes.Private;
+      _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
-      Assert.That (_mutableType.GetFields (bindingFlags), Is.EqualTo (new[] { fieldInfo1, fieldInfo2 }));
+      var field2 = _mutableType.AddField ("field2", typeof (UnspecifiedType), attributes);
+      var fields = _mutableType.GetFields (bindingFlags);
+
+      Assert.That (fields, Is.EqualTo (new[] { field1, field2 }));
+    }
+
+    [Test]
+    public void GetFields_FilterAddedWithUtility ()
+    {
+      _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (FieldAttributes.Public, bindingFlags)).Return (false);
+
+      _mutableType.AddField ("_newField", typeof (int), FieldAttributes.Public);
+      var fields = _mutableType.GetFields (bindingFlags);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (fields, Is.Empty);
     }
 
     [Test]
@@ -183,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
       var attributes = MethodAttributes.Public;
       var parameterTypes = new[] { typeof (int) }; // Need different signature
-      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (0, 0)).IgnoreArguments().Return (true);
+      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
       var constructor2 = _mutableType.AddConstructor (attributes, parameterTypes);
       var constructors = _mutableType.GetConstructors (bindingFlags);
@@ -192,7 +210,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetConstructors_FilterWithUtility () 
+    public void GetConstructors_FilterAddedWithUtility () 
     {
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
@@ -212,7 +230,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var arguments = new Arguments (typeof (int));
       var constructor2 = FutureConstructorInfoObjectMother.Create (parameters: arguments.Parameters);
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { constructor1, constructor2 });
-      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (0, 0)).IgnoreArguments().Return (true);
+      _bindingFlagsEvaluatorMock
+        .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+        .Return (true);
 
       var resultCtor = _mutableType.GetConstructor (arguments.Types);
 

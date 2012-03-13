@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Field_Read_Static ()
     {
-      var field = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.Static);
+      var field = FutureFieldInfoObjectMother.Create (attributes: FieldAttributes.Static);
 
       var expression = Expression.Field (null, field);
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void Field_Write_Static ()
     {
       var fieldType = MutableTypeObjectMother.Create();
-      var field = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.Static, fieldType: fieldType);
+      var field = FutureFieldInfoObjectMother.Create (attributes: FieldAttributes.Static, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
       var fieldExpression = Expression.Field (null, field);

@@ -29,9 +29,9 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly Type _declaringType;
     private readonly string _name;
     private readonly Type _fieldType;
-    private readonly FieldAttributes _fieldAttributes;
+    private readonly FieldAttributes _attributes;
 
-    public FutureFieldInfo (Type declaringType, string name, Type fieldType, FieldAttributes fieldAttributes)
+    public FutureFieldInfo (Type declaringType, string name, Type fieldType, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _name = name;
       _fieldType = fieldType;
-      _fieldAttributes = fieldAttributes;
+      _attributes = attributes;
     }
 
     public override Type DeclaringType
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldAttributes Attributes
     {
-      get { return _fieldAttributes; }
+      get { return _attributes; }
     }
 
     public override Type FieldType

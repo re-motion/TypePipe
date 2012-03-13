@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Attributes ()
     {
-      var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldAttributes: FieldAttributes.InitOnly);
+      var futureFieldInfo = FutureFieldInfoObjectMother.Create (attributes: FieldAttributes.InitOnly);
       Assert.That (futureFieldInfo.Attributes, Is.EqualTo (FieldAttributes.InitOnly));
     }
   }

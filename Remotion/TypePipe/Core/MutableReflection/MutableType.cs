@@ -51,6 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
+    // TODO Type Pipe: Remove, clients should use UnderlyingSystemType instead.
     public Type OriginalType
     {
       get { return UnderlyingSystemType; }
@@ -246,6 +247,7 @@ namespace Remotion.TypePipe.MutableReflection
       var binder = binderOrNull ?? DefaultBinder;
       var candidates = GetConstructors(bindingAttr).ToArray();
 
+      Assertion.IsNotNull (binder, "DefaultBinder is never null.");
       return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
     }
 
@@ -279,8 +281,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      // TODO Type Pipe: bindingAttr should also affect which 'added' fields are returned. Add BindingFlagsEvaluator.HasRightVisibility (FieldAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (FieldAttributes, BindingFlags)
-      return _originalTypeInfo.GetFields (bindingAttr).Concat (AddedFields.Cast<FieldInfo>()).ToArray();
+      return _originalTypeInfo.GetFields (bindingAttr)
+          .Concat (
+              AddedFields
+                  .Where (field => _bindingFlagsEvaluator.HasRightAttributes(field.Attributes, bindingAttr))
+                  .Cast<FieldInfo>()
+          ).ToArray();
     }
 
     public override Type UnderlyingSystemType
