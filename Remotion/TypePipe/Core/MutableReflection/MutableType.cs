@@ -32,9 +32,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly ITypeInfo _originalTypeInfo;
     private readonly List<Type> _addedInterfaces = new List<Type>();
-    // TODO Type Pipe: Change to FutureFieldInfo, FutureConstructorInfo
-    private readonly List<FieldInfo> _addedFields = new List<FieldInfo>();
-    private readonly List<ConstructorInfo> _addedConstructors = new List<ConstructorInfo>();
+    private readonly List<FutureFieldInfo> _addedFields = new List<FutureFieldInfo>();
+    private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo>();
 
     public MutableType (ITypeInfo originalTypeInfo)
     {
@@ -57,12 +56,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedInterfaces.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<FieldInfo> AddedFields
+    public ReadOnlyCollection<FutureFieldInfo> AddedFields
     {
       get { return _addedFields.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<ConstructorInfo> AddedConstructors
+    public ReadOnlyCollection<FutureConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly (); }
     }
@@ -80,8 +79,7 @@ namespace Remotion.TypePipe.MutableReflection
       _addedInterfaces.Add (interfaceType);
     }
 
-    // TODO Type Pipe: Return FutureFieldInfo
-    public FieldInfo AddField (string name, Type type, FieldAttributes attributes)
+    public FutureFieldInfo AddField (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
@@ -96,7 +94,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO Type Pipe: Add method attributes.
-    public ConstructorInfo AddConstructor (Type[] parameterTypes)
+    public FutureConstructorInfo AddConstructor (Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
@@ -245,7 +243,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
       // TODO Type Pipe: BindingFlags should also affect which 'added' constructors are returned. Add BindingFlagsEvaluator.HasRightVisibility (MethodAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (MethodAttributes, BindingFlags)
-      return _originalTypeInfo.GetConstructors (bindingAttr).Concat (AddedConstructors).ToArray();
+      return _originalTypeInfo.GetConstructors (bindingAttr).Concat (AddedConstructors.Cast<ConstructorInfo>()).ToArray();
     }
 
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
@@ -269,7 +267,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
       // TODO Type Pipe: bindingAttr should also affect which 'added' fields are returned. Add BindingFlagsEvaluator.HasRightVisibility (FieldAttributes, BindingFlags), BindingFlagsEvaluator.HasRightInstanceOrStaticFlag (FieldAttributes, BindingFlags)
-      return _originalTypeInfo.GetFields (bindingAttr).Concat (AddedFields).ToArray ();
+      return _originalTypeInfo.GetFields (bindingAttr).Concat (AddedFields.Cast<FieldInfo>()).ToArray();
     }
 
     public  override Type UnderlyingSystemType
