@@ -29,14 +29,24 @@ namespace TypePipe.IntegrationTests
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private));
+      var type = AssembleType<OriginalType> (
+          mutableType =>
+          {
+            mutableType.AddField ("_privateInstanceField", typeof (string), FieldAttributes.Private);
+            mutableType.AddField ("PublicStaticField", typeof (int), FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.InitOnly);
+          });
 
-      Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_newField" }));
-      
-      var newField = type.GetField ("_newField", BindingFlags.Instance | BindingFlags.NonPublic);
-      Assert.That (newField, Is.Not.Null);
-      Assert.That (newField.FieldType, Is.EqualTo (typeof (string)));
-      Assert.That (newField.Attributes, Is.EqualTo (FieldAttributes.Private));
+      Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField", "PublicStaticField" }));
+
+      var field1 = type.GetField ("_privateInstanceField", BindingFlags.Instance | BindingFlags.NonPublic);
+      Assert.That (field1, Is.Not.Null);
+      Assert.That (field1.FieldType, Is.EqualTo (typeof (string)));
+      Assert.That (field1.Attributes, Is.EqualTo (FieldAttributes.Private));
+
+      var field2 = type.GetField ("PublicStaticField");
+      Assert.That (field2, Is.Not.Null);
+      Assert.That (field2.FieldType, Is.EqualTo (typeof (int)));
+      Assert.That (field2.Attributes, Is.EqualTo (FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.InitOnly));
     }
 
     private string[] GetAllFieldNames (Type type)
