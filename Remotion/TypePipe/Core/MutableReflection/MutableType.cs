@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
-using System.Reflection.Emit;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -67,6 +66,25 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedConstructors.AsReadOnly (); }
     }
 
+    public override Type UnderlyingSystemType
+    {
+      get
+      {
+        var runtimeType = _originalTypeInfo.GetUnderlyingSystemType ();
+        return runtimeType.HasValue ? runtimeType.Value () : this;
+      }
+    }
+
+    public override Assembly Assembly
+    {
+      get { return null; }
+    }
+
+    public override Type BaseType
+    {
+      get { return _originalTypeInfo.GetBaseType (); }
+    }
+
     public void AddInterface (Type interfaceType)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
@@ -78,6 +96,11 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (string.Format ("Interface '{0}' is already implemented.", interfaceType), "interfaceType");
 
       _addedInterfaces.Add (interfaceType);
+    }
+
+    public override Type[] GetInterfaces ()
+    {
+      return _originalTypeInfo.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
     }
 
     public FutureFieldInfo AddField (string name, Type type, FieldAttributes attributes)
@@ -94,6 +117,30 @@ namespace Remotion.TypePipe.MutableReflection
 
       return fieldInfo;
     }
+
+    public override FieldInfo GetField (string name, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var fieldInfos = GetFields (bindingAttr).Where (field => field.Name == name).ToArray ();
+      if (fieldInfos.Length == 0)
+        return null;
+      if (fieldInfos.Length > 1)
+        throw new AmbiguousMatchException (string.Format ("Ambiguous field name '{0}'.", name));
+
+      return fieldInfos[0];
+    }
+
+    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
+    {
+      return _originalTypeInfo.GetFields (bindingAttr)
+          .Concat (
+              AddedFields
+                  .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
+                  .Cast<FieldInfo> ()
+          ).ToArray ();
+    }
+
 
     public MutableConstructorInfo AddConstructor (MethodAttributes attributes, params ParameterDeclaration[] parameterDeclarations)
     {
@@ -112,19 +159,58 @@ namespace Remotion.TypePipe.MutableReflection
       return constructorInfo;
     }
 
-    public override Type[] GetInterfaces ()
+    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return _originalTypeInfo.GetInterfaces().Concat(AddedInterfaces).ToArray();
-    }
-
-    public override Type GetElementType ()
-    {
-      throw new NotImplementedException();
+      return _originalTypeInfo.GetConstructors (bindingAttr)
+          .Concat (
+              AddedConstructors
+                  .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr))
+                  .Cast<ConstructorInfo> ()
+          ).ToArray ();
     }
 
     protected override bool HasElementTypeImpl ()
     {
       return false;
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return _originalTypeInfo.GetAttributeFlags ();
+    }
+
+    protected override bool IsByRefImpl ()
+    {
+      return false;
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    {
+      var binder = binderOrNull ?? DefaultBinder;
+      var candidates = GetConstructors (bindingAttr).ToArray ();
+
+      if (candidates.Length == 0)
+        return null;
+
+      Assertion.IsNotNull (binder, "DefaultBinder is never null.");
+      return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
+    }
+
+    private FieldInfo[] GetAllFields ()
+    {
+      return GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+    }
+
+    private ConstructorInfo[] GetAllConstructors ()
+    {
+      return GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance); // Do not include type initializer
+    }
+
+    #region Not implemented abstract members of Type class
+
+    public override Type GetElementType ()
+    {
+      throw new NotImplementedException();
     }
 
     public override Guid GUID
@@ -135,11 +221,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override Module Module
     {
       get { throw new NotImplementedException(); }
-    }
-
-    public  override Assembly Assembly
-    {
-      get { return null; }
     }
 
     public override string FullName
@@ -157,24 +238,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException(); }
     }
 
-    public override Type BaseType
-    {
-      get { return _originalTypeInfo.GetBaseType(); }
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
-    {
-      return _originalTypeInfo.GetAttributeFlags();
-    }
-
     protected override bool IsArrayImpl ()
     {
       throw new NotImplementedException();
-    }
-
-    protected  override bool IsByRefImpl ()
-    {
-      return false;
     }
 
     protected override bool IsPointerImpl ()
@@ -237,28 +303,6 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      var binder = binderOrNull ?? DefaultBinder;
-      var candidates = GetConstructors(bindingAttr).ToArray();
-
-      if (candidates.Length == 0)
-        return null;
-
-      Assertion.IsNotNull (binder, "DefaultBinder is never null.");
-      return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
-    }
-
-    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
-    {
-      return _originalTypeInfo.GetConstructors (bindingAttr)
-          .Concat (
-              AddedConstructors
-                  .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes(ctor.Attributes, bindingAttr))
-                  .Cast<ConstructorInfo>()
-          ).ToArray();
-    }
-
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       // TODO Type Pipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
@@ -270,39 +314,7 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO Type Pipe: Like GetConstructors.
       throw new NotImplementedException ();
     }
-
-    public override FieldInfo GetField (string name, BindingFlags bindingAttr)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-
-      var fieldInfos = GetFields (bindingAttr).Where (field => field.Name == name).ToArray();
-      if (fieldInfos.Length == 0)
-        return null;
-      if (fieldInfos.Length > 1)
-        throw new AmbiguousMatchException (string.Format ("Ambiguous field name '{0}'.", name));
-
-      return fieldInfos[0];
-    }
-
-    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
-    {
-      return _originalTypeInfo.GetFields (bindingAttr)
-          .Concat (
-              AddedFields
-                  .Where (field => _bindingFlagsEvaluator.HasRightAttributes(field.Attributes, bindingAttr))
-                  .Cast<FieldInfo>()
-          ).ToArray();
-    }
-
-    public override Type UnderlyingSystemType
-    {
-      get
-      {
-        var runtimeType = _originalTypeInfo.GetUnderlyingSystemType();
-        return runtimeType.HasValue ? runtimeType.Value() : this;
-      }
-    }
-
+    
     public override object[] GetCustomAttributes (bool inherit)
     {
       throw new NotImplementedException();
@@ -323,14 +335,6 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    private FieldInfo[] GetAllFields ()
-    {
-      return GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-    }
-
-    private ConstructorInfo[] GetAllConstructors ()
-    {
-      return GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance); // Do not include type initializer
-    }
+    #endregion
   }
 }
