@@ -24,7 +24,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// </summary>
   public interface ITypeBuilder
   {
-    Type CreateType ();
+    void AddInterfaceImplementation (Type interfaceType);
     FieldInfo DefineField (string name, Type type, FieldAttributes attributes);
+    Type CreateType ();
   }
 }

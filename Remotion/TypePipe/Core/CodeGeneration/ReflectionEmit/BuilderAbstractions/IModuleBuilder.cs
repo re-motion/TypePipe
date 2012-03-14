@@ -25,6 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// </summary>
   public interface IModuleBuilder
   {
-    ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent, Type[] interfaces);
+    ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent);
   }
 }

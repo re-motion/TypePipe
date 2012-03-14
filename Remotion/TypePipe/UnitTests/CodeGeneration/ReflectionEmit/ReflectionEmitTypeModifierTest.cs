@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder>();
+      _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderMock = MockRepository.GenerateStrictMock<ISubclassProxyNameProvider> ();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications_NoModifications ()
     {
-      CheckApplyModifications (Type.EmptyTypes, tb => { });
+      CheckApplyModifications (tb => { });
     }
 
     [Test]
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeInfoMock.Expect (mock => mock.GetInterfaces ()).Return (Type.EmptyTypes);
       _mutableType.AddInterface (typeof (IDisposable));
 
-      CheckApplyModifications (new[] { typeof (IDisposable) }, tb => { });
+      CheckApplyModifications (tb => tb.Expect (mock => mock.AddInterfaceImplementation (typeof (IDisposable))));
     }
 
     [Test]
@@ -78,29 +78,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeInfoMock.Expect (mock => mock.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
       _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
 
-      CheckApplyModifications (
-          Type.EmptyTypes, 
-          tb => _typeBuilderMock.Expect (mock => mock.DefineField ("_newField", typeof (string), FieldAttributes.Private)));
+      CheckApplyModifications (tb => _typeBuilderMock.Expect (mock => mock.DefineField ("_newField", typeof (string), FieldAttributes.Private)));
     }
 
-    private void CheckApplyModifications (Type[] expectedInterfaces, Action<ITypeBuilder> typeBuilderExpectations)
+    private void CheckApplyModifications (Action<ITypeBuilder> typeBuilderExpectations)
     {
       var fakeResultType = typeof (string);
 
       _typeInfoMock.Expect (mock => mock.GetUnderlyingSystemType ()).Return (Maybe.ForValue (_underlyingSystemType));
       _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (_underlyingSystemType)).Return ("foofoo");
       _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _underlyingSystemType, expectedInterfaces))
+          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _underlyingSystemType))
           .Return (_typeBuilderMock);
       typeBuilderExpectations (_typeBuilderMock);
-      _typeBuilderMock.Expect (mock => mock.CreateType()).Return (fakeResultType);
+      _typeBuilderMock.Expect (mock => mock.CreateType ()).Return (fakeResultType);
 
       var result = _reflectionEmitTypeModifier.ApplyModifications (_mutableType);
 
-      _moduleBuilderMock.VerifyAllExpectations();
-      _subclassProxyNameProviderMock.VerifyAllExpectations();
-      _typeBuilderMock.VerifyAllExpectations();
-      _typeInfoMock.VerifyAllExpectations();
+      _moduleBuilderMock.VerifyAllExpectations ();
+      _subclassProxyNameProviderMock.VerifyAllExpectations ();
+      _typeBuilderMock.VerifyAllExpectations ();
+      _typeInfoMock.VerifyAllExpectations ();
 
       Assert.That (result, Is.SameAs (fakeResultType));
     }

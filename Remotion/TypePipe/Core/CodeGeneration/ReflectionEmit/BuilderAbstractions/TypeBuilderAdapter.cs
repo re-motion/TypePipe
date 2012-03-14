@@ -34,6 +34,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       _typeBuilder = typeBuilder;
     }
 
+    public void AddInterfaceImplementation (Type interfaceType)
+    {
+      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      _typeBuilder.AddInterfaceImplementation (interfaceType);
+    }
+
     public FieldInfo DefineField (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

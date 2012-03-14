@@ -34,13 +34,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       _moduleBuilder = moduleBuilder;
     }
 
-    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent, Type[] interfaces)
+    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("parent", parent);
-      ArgumentUtility.CheckNotNull ("interfaces", interfaces);
 
-      return new TypeBuilderAdapter (_moduleBuilder.DefineType (name, attr, parent, interfaces));
+      return new TypeBuilderAdapter (_moduleBuilder.DefineType (name, attr, parent));
     }
   }
 }

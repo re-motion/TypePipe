@@ -20,7 +20,6 @@ using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -60,11 +59,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var typeBuilder = _moduleBuilder.DefineType (
           subclassProxyName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          underlyingSystemType,
-          mutableType.AddedInterfaces.ToArray());
+          underlyingSystemType);
 
-      foreach (var field in mutableType.AddedFields)
-        typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
+      foreach (var addedInterface in mutableType.AddedInterfaces)
+        typeBuilder.AddInterfaceImplementation (addedInterface);
+
+      foreach (var addedField in mutableType.AddedFields)
+        typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
 
       return typeBuilder.CreateType();
     }
