@@ -103,12 +103,12 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalTypeInfo.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
     }
 
-    public FutureFieldInfo AddField (string name, Type type, FieldAttributes attributes)
+    public FutureFieldInfo AddField (Type type, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var fieldInfo = new FutureFieldInfo (this, name, type, attributes);
+      var fieldInfo = new FutureFieldInfo (this, type, name, attributes);
 
       if (GetAllFields ().Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
         throw new ArgumentException ("Field with equal signature already exists.", "name, type");
@@ -140,8 +140,7 @@ namespace Remotion.TypePipe.MutableReflection
                   .Cast<FieldInfo> ()
           ).ToArray ();
     }
-
-
+    
     public MutableConstructorInfo AddConstructor (MethodAttributes attributes, params ParameterDeclaration[] parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
@@ -168,6 +167,12 @@ namespace Remotion.TypePipe.MutableReflection
                   .Cast<ConstructorInfo> ()
           ).ToArray ();
     }
+
+    //public void Accept (ITypeModificationHandler modificationHandler)
+    //{
+    //  ArgumentUtility.CheckNotNull ("modificationHandler", modificationHandler);
+
+    //}
 
     protected override bool HasElementTypeImpl ()
     {

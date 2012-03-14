@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void ApplyModifications_AddField ()
     {
       _typeInfoMock.Expect (mock => mock.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
-      _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
+      _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
 
       CheckApplyModifications (
           Type.EmptyTypes, 

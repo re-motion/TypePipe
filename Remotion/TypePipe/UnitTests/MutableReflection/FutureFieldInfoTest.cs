@@ -14,8 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -23,40 +25,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class FutureFieldInfoTest
   {
     [Test]
-    public void FutureFieldInfo_IsAFieldInfo ()
+    public void Initialization ()
     {
-      Assert.That (FutureFieldInfoObjectMother.Create(), Is.InstanceOf<FieldInfo>());
-    }
-
-    [Test]
-    public void DeclaringType ()
-    {
-      var declaringType = MutableTypeObjectMother.Create();
-      var futureFieldInfo = FutureFieldInfoObjectMother.Create (declaringType: declaringType);
-      Assert.That (futureFieldInfo.DeclaringType, Is.SameAs (declaringType));
-    }
-
-    [Test]
-    public void Name ()
-    {
+      var declaringType = ReflectionObjectMother.GetSomeType();
+      var fieldType = ReflectionObjectMother.GetSomeType ();
       var name = "_fieldName";
-      var futureFieldInfo = FutureFieldInfoObjectMother.Create (name: name);
-      Assert.That (futureFieldInfo.Name, Is.SameAs (name));
-    }
+      var attributes = FieldAttributes.InitOnly;
 
-    [Test]
-    public void FieldType ()
-    {
-      var fieldType = typeof (string);
-      var futureFieldInfo = FutureFieldInfoObjectMother.Create (fieldType: fieldType);
+      var futureFieldInfo = new FutureFieldInfo (declaringType, fieldType, name, attributes);
+      
+      Assert.That (futureFieldInfo.DeclaringType, Is.SameAs (declaringType));
       Assert.That (futureFieldInfo.FieldType, Is.SameAs (fieldType));
-    }
-
-    [Test]
-    public void Attributes ()
-    {
-      var futureFieldInfo = FutureFieldInfoObjectMother.Create (attributes: FieldAttributes.InitOnly);
-      Assert.That (futureFieldInfo.Attributes, Is.EqualTo (FieldAttributes.InitOnly));
+      Assert.That (futureFieldInfo.Name, Is.EqualTo (name));
+      Assert.That (futureFieldInfo.Attributes, Is.EqualTo (attributes));
     }
   }
 }

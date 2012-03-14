@@ -27,15 +27,15 @@ namespace Remotion.TypePipe.MutableReflection
   public class FutureFieldInfo : FieldInfo
   {
     private readonly Type _declaringType;
-    private readonly string _name;
     private readonly Type _fieldType;
+    private readonly string _name;
     private readonly FieldAttributes _attributes;
 
-    public FutureFieldInfo (Type declaringType, string name, Type fieldType, FieldAttributes attributes)
+    public FutureFieldInfo (Type declaringType, Type fieldType, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       _declaringType = declaringType;
       _name = name;
@@ -48,6 +48,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
+    public override Type FieldType
+    {
+      get { return _fieldType; }
+    }
+
     public override string Name
     {
       get { return _name; }
@@ -56,11 +61,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override FieldAttributes Attributes
     {
       get { return _attributes; }
-    }
-
-    public override Type FieldType
-    {
-      get { return _fieldType; }
     }
 
     #region Not Implemented from FieldInfo interface

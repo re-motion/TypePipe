@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _originalTypeInfoStub.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new FieldInfo[0]);
 
-      var newField = _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
+      var newField = _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
 
       // Correct field info instance
       Assert.That (newField.DeclaringType, Is.SameAs (_mutableType));
@@ -147,7 +147,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
           .Return (true);
 
-      _mutableType.AddField ("_bla", typeof (string), FieldAttributes.Private);
+      _mutableType.AddField (typeof (string), "_bla", FieldAttributes.Private);
     }
 
     [Test]
@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (false);
       _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
-      _mutableType.AddField ("_foo", typeof (string), attributes);
+      _mutableType.AddField (typeof (string), "_foo", attributes);
       var fields = _mutableType.GetFields (bindingFlags);
 
       Assert.That (fields, Has.Length.EqualTo (2));
@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = FieldAttributes.Private;
       _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
-      var field2 = _mutableType.AddField ("field2", ReflectionObjectMother.GetSomeType(), attributes);
+      var field2 = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "field2", attributes);
       var fields = _mutableType.GetFields (bindingFlags);
 
       Assert.That (fields, Is.EqualTo (new[] { field1, field2 }));
@@ -189,7 +189,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (FieldAttributes.Public, bindingFlags)).Return (false);
 
-      _mutableType.AddField ("_newField", typeof (int), FieldAttributes.Public);
+      _mutableType.AddField (typeof (int), "_newField", FieldAttributes.Public);
       var fields = _mutableType.GetFields (bindingFlags);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
@@ -301,6 +301,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (constructors, Is.Empty);
     }
+
+    //[Test]
+    //public void Accept ()
+    //{
+    //  var addedInterface = ReflectionObjectMother.GetSomeType ();
+    //  _mutableType.AddInterface (addedInterface);
+    //  var addedConstructorInfo = _mutableType.AddConstructor (MethodAttributes.Public);
+    //  var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "name", FieldAttributes.Private);
+
+
+    //}
 
     [Test]
     public void HasElementTypeImpl ()

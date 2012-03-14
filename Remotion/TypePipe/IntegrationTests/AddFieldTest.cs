@@ -29,7 +29,7 @@ namespace TypePipe.IntegrationTests
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("_privateInstanceField", typeof (string), FieldAttributes.Private));
+      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField (typeof (string), "_privateInstanceField", FieldAttributes.Private));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField" }));
 
@@ -45,7 +45,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
       var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.InitOnly;
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("PublicStaticField", typeof (int), fieldAttributes));
+      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField (typeof (int), "PublicStaticField", fieldAttributes));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "PublicStaticField" }));
 
