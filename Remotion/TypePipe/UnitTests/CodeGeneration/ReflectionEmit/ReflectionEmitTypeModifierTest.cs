@@ -61,15 +61,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       bool acceptCalled = false;
+
+      mutableTypeMock
+          .Stub (stub => stub.UnderlyingSystemType)
+          .Return (fakeUnderlyingSystemType);
       _moduleBuilderMock
           .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, fakeUnderlyingSystemType))
           .Return (typeBuilderMock);
       mutableTypeMock
           .Expect (mock => mock.Accept (Arg<TypeModificationHandler>.Matches (handler => handler.SubclassProxyBuilder == typeBuilderMock)))
           .WhenCalled (mi => acceptCalled = true);
-      mutableTypeMock
-          .Stub (stub => stub.UnderlyingSystemType)
-          .Return (fakeUnderlyingSystemType);
       typeBuilderMock
           .Expect (mock => mock.CreateType ()).Return (fakeResultType)
           .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
