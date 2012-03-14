@@ -22,12 +22,12 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FutureFieldInfoTest
+  public class MutableFieldInfoTest
   {
     [Test]
     public void Field_Read_Static ()
     {
-      var field = FutureFieldInfoObjectMother.Create (attributes: FieldAttributes.Static);
+      var field = MutableFieldInfoObjectMother.Create (attributes: FieldAttributes.Static);
 
       var expression = Expression.Field (null, field);
 
@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     {
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var field = FutureFieldInfoObjectMother.Create (declaringType: declaringType);
+      var field = MutableFieldInfoObjectMother.Create (declaringType: declaringType);
 
       var expression = Expression.Field (instance, field);
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void Field_Write_Static ()
     {
       var fieldType = MutableTypeObjectMother.Create();
-      var field = FutureFieldInfoObjectMother.Create (attributes: FieldAttributes.Static, fieldType: fieldType);
+      var field = MutableFieldInfoObjectMother.Create (attributes: FieldAttributes.Static, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
       var fieldExpression = Expression.Field (null, field);
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var fieldType = MutableTypeObjectMother.Create();
-      var field = FutureFieldInfoObjectMother.Create (declaringType: declaringType, fieldType: fieldType);
+      var field = MutableFieldInfoObjectMother.Create (declaringType: declaringType, fieldType: fieldType);
       var value = Expression.Variable (fieldType);
 
       var fieldExpression = Expression.Field (instance, field);

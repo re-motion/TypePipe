@@ -141,7 +141,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Field with equal name and signature already exists.\r\nParameter name: name")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
-      var field = FutureFieldInfoObjectMother.Create (name: "_bla", fieldType: typeof (string));
+      var field = MutableFieldInfoObjectMother.Create (name: "_bla", fieldType: typeof (string));
       _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
       _memberInfoEqualityComparerStub
           .Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddField_ReliesOnFieldSignature ()
     {
-      var field = FutureFieldInfoObjectMother.Create (name: "_foo", fieldType: typeof (object));
+      var field = MutableFieldInfoObjectMother.Create (name: "_foo", fieldType: typeof (object));
       _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
       var attributes = FieldAttributes.Private;
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
@@ -170,7 +170,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields ()
     {
-      var field1 = FutureFieldInfoObjectMother.Create();
+      var field1 = MutableFieldInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
       _originalTypeInfoStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { field1 });
       var attributes = FieldAttributes.Private;
@@ -199,8 +199,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetField ()
     {
-      var field1 = FutureFieldInfoObjectMother.Create (name: "field1", fieldType: typeof (string));
-      var field2 = FutureFieldInfoObjectMother.Create (name: "field2", fieldType: typeof (int));
+      var field1 = MutableFieldInfoObjectMother.Create (name: "field1", fieldType: typeof (string));
+      var field2 = MutableFieldInfoObjectMother.Create (name: "field2", fieldType: typeof (int));
       _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
@@ -223,8 +223,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'foo'.")]
     public void GetField_Ambigious ()
     {
-      var field1 = FutureFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (string));
-      var field2 = FutureFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (int));
+      var field1 = MutableFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (string));
+      var field2 = MutableFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (int));
       _originalTypeInfoStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))

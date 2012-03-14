@@ -23,12 +23,12 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FuturePropertyInfoTest
+  public class MutablePropertyInfoTest
   {
     [Test]
     public void FuturePropertyInfo_IsAPropertyInfo ()
     {
-      Assert.That (FuturePropertyInfoObjectMother.Create(), Is.InstanceOf<PropertyInfo>());
+      Assert.That (MutablePropertyInfoObjectMother.Create(), Is.InstanceOf<PropertyInfo>());
     }
 
     [Test]
@@ -40,14 +40,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var getMethod = Maybe<MethodInfo>.Nothing;
       var setMethod = Maybe<MethodInfo>.Nothing;
 
-      new FuturePropertyInfo (declaringType, propertyType, getMethod, setMethod);
+      new MutablePropertyInfo (declaringType, propertyType, getMethod, setMethod);
     }
 
     [Test]
     public void DeclaringType ()
     {
       var declaringType = MutableTypeObjectMother.Create();
-      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (declaringType: declaringType);
+      var futurePropertyInfo = MutablePropertyInfoObjectMother.Create (declaringType: declaringType);
       Assert.That (futurePropertyInfo.DeclaringType, Is.SameAs(declaringType));
     }
 
@@ -55,30 +55,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void PropertyType ()
     {
       var propertyType = MutableTypeObjectMother.Create();
-      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (propertyType: propertyType);
+      var futurePropertyInfo = MutablePropertyInfoObjectMother.Create (propertyType: propertyType);
       Assert.That (futurePropertyInfo.PropertyType, Is.SameAs (propertyType));
     }
 
     [Test]
     public void GetGetMethod ()
     {
-      var getMethod = FutureMethodInfoObjectMother.Create();
-      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create(getMethod: getMethod);
+      var getMethod = MutableMethodInfoObjectMother.Create();
+      var futurePropertyInfo = MutablePropertyInfoObjectMother.Create(getMethod: getMethod);
       Assert.That (futurePropertyInfo.GetGetMethod(), Is.SameAs(getMethod));
     }
 
     [Test]
     public void GetSetMethod ()
     {
-      var setMethod = FutureMethodInfoObjectMother.Create ();
-      var futurePropertyInfo = FuturePropertyInfoObjectMother.Create (setMethod: setMethod);
+      var setMethod = MutableMethodInfoObjectMother.Create ();
+      var futurePropertyInfo = MutablePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (futurePropertyInfo.GetSetMethod (), Is.SameAs (setMethod));
     }
 
     [Test]
     public void CanWrite ()
     {
-      Assert.That (FuturePropertyInfoObjectMother.Create().CanWrite, Is.True);
+      Assert.That (MutablePropertyInfoObjectMother.Create().CanWrite, Is.True);
     }
   }
 }

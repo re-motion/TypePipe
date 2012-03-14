@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,28 +16,24 @@
 // 
 using System;
 using System.Reflection;
-using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  [TestFixture]
-  public class FutureFieldInfoTest
+  public static class MutableFieldInfoObjectMother
   {
-    [Test]
-    public void Initialization ()
-    {
-      var declaringType = ReflectionObjectMother.GetSomeType();
-      var fieldType = ReflectionObjectMother.GetSomeType ();
-      var name = "_fieldName";
-      var attributes = FieldAttributes.InitOnly;
+    private class UnspecifiedType { }
 
-      var futureFieldInfo = new FutureFieldInfo (declaringType, fieldType, name, attributes);
-      
-      Assert.That (futureFieldInfo.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (futureFieldInfo.FieldType, Is.SameAs (fieldType));
-      Assert.That (futureFieldInfo.Name, Is.EqualTo (name));
-      Assert.That (futureFieldInfo.Attributes, Is.EqualTo (attributes));
+    public static MutableFieldInfo Create (
+        Type declaringType = null,
+        Type fieldType = null,
+        string name = "_newField",
+        FieldAttributes attributes = FieldAttributes.Private)
+    {
+      return new MutableFieldInfo (
+          declaringType ?? typeof (UnspecifiedType),
+          fieldType ?? typeof (UnspecifiedType),
+          name, attributes);
     }
   }
 }

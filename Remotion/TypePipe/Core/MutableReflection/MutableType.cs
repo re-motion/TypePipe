@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
     private readonly List<Type> _addedInterfaces = new List<Type>();
-    private readonly List<FutureFieldInfo> _addedFields = new List<FutureFieldInfo>();
+    private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
     public MutableType (
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedInterfaces.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<FutureFieldInfo> AddedFields
+    public ReadOnlyCollection<MutableFieldInfo> AddedFields
     {
       get { return _addedFields.AsReadOnly(); }
     }
@@ -103,12 +103,12 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalTypeInfo.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
     }
 
-    public FutureFieldInfo AddField (Type type, string name, FieldAttributes attributes)
+    public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var fieldInfo = new FutureFieldInfo (this, type, name, attributes);
+      var fieldInfo = new MutableFieldInfo (this, type, name, attributes);
 
       if (GetAllFields ().Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");

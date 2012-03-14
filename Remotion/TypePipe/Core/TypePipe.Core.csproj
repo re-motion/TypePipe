@@ -183,10 +183,10 @@
     <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />
     <Compile Include="Dlr\Utils\TypeExtensions.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfo.cs" />
-    <Compile Include="MutableReflection\FutureFieldInfo.cs" />
-    <Compile Include="MutableReflection\FutureMethodInfo.cs" />
+    <Compile Include="MutableReflection\MutableFieldInfo.cs" />
+    <Compile Include="MutableReflection\MutableMethodInfo.cs" />
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
-    <Compile Include="MutableReflection\FuturePropertyInfo.cs" />
+    <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\ExistingTypeInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />

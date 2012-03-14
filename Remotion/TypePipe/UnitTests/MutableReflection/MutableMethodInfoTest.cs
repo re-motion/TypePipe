@@ -22,7 +22,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FutureMethodInfoTest
+  public class MutableMethodInfoTest
   {
     [Test]
     public void Initialization ()
@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameter1 = ParameterDeclarationObjectMother.Create();
       var parameter2 = ParameterDeclarationObjectMother.Create();
 
-      var methodInfo = new FutureMethodInfo (declaringType, methodAttributes, returnType, new[] { parameter1, parameter2});
+      var methodInfo = new MutableMethodInfo (declaringType, methodAttributes, returnType, new[] { parameter1, parameter2});
 
       Assert.That (methodInfo.DeclaringType, Is.SameAs (declaringType));
       Assert.That (methodInfo.Attributes, Is.EqualTo (methodAttributes));
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = FutureMethodInfoObjectMother.Create (parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create () });
+      var ctorInfo = MutableMethodInfoObjectMother.Create (parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create () });
 
       var parameters = ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);

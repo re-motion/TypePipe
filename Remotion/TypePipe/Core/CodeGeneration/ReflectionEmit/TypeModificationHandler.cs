@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _subclassProxyBuilder.AddInterfaceImplementation (addedInterface);
     }
 
-    public void HandleAddedField (FutureFieldInfo addedField)
+    public void HandleAddedField (MutableFieldInfo addedField)
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
       _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);

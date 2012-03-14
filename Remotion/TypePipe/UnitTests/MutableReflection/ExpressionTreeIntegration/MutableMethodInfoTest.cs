@@ -22,12 +22,12 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FutureMethodInfoTest
+  public class MutableMethodInfoTest
   {
     [Test]
     public void Call_Static_NoArguments ()
     {
-      var method = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
+      var method = MutableMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
 
       var expression = Expression.Call (method);
 
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void Call_Static_WithArguments ()
     {
       var arguments = new ArgumentTestHelper ("string", 7, new object());
-      var method = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static, parameterDeclarations: arguments.ParameterDeclarations);
+      var method = MutableMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static, parameterDeclarations: arguments.ParameterDeclarations);
 
       var expression = Expression.Call (method, arguments.Expressions);
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     {
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType);
+      var method = MutableMethodInfoObjectMother.Create (declaringType: declaringType);
 
       var expression = Expression.Call (instance, method);
 
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var arguments = new ArgumentTestHelper ("string", 7, new object());
-      var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType, parameterDeclarations: arguments.ParameterDeclarations);
+      var method = MutableMethodInfoObjectMother.Create (declaringType: declaringType, parameterDeclarations: arguments.ParameterDeclarations);
 
       var expression = Expression.Call (instance, method, arguments.Expressions);
 

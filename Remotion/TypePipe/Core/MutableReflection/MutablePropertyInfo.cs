@@ -15,39 +15,38 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a method that does not exist yet. This is used to represent methods yet to be generated within an expression tree.
+  /// Represents a property that does not exist yet. This is used to represent properties yet to be generated within an expression tree.
   /// </summary>
-  public class FutureMethodInfo : MethodInfo
+  public class MutablePropertyInfo : PropertyInfo
   {
     private readonly Type _declaringType;
-    private readonly MethodAttributes _methodAttributes;
-    private readonly Type _returnType;
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly Type _propertyType;
+    private readonly Maybe<MethodInfo> _getMethod;
+    private readonly Maybe<MethodInfo> _setMethod;
 
-    public FutureMethodInfo (
-        Type declaringType,
-        MethodAttributes methodAttributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations)
+    // TODO: Discuss usage of Maybe with MK.
+    public MutablePropertyInfo (Type declaringType, Type propertyType, Maybe<MethodInfo> getMethod, Maybe<MethodInfo> setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("propertyType", propertyType);
+      ArgumentUtility.CheckNotNull ("getMethod", getMethod);
+      ArgumentUtility.CheckNotNull ("setMethod", setMethod);
+
+      if (!getMethod.HasValue && !setMethod.HasValue)
+        throw new ArgumentException ("At least one of the accessors must be specified.");
 
       _declaringType = declaringType;
-      _methodAttributes = methodAttributes;
-      _returnType = returnType;
-      _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
+      _propertyType = propertyType;
+      _getMethod = getMethod;
+      _setMethod = setMethod;
     }
 
     public override Type DeclaringType
@@ -55,22 +54,32 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public override MethodAttributes Attributes
+    public override Type PropertyType
     {
-      get { return _methodAttributes; }
+      get { return _propertyType; }
     }
 
-    public override Type ReturnType
+    public override MethodInfo GetGetMethod (bool nonPublic)
     {
-      get { return _returnType; }
+      return _getMethod.ValueOrDefault();
     }
 
-    public override ParameterInfo[] GetParameters ()
+    public override MethodInfo GetSetMethod (bool nonPublic)
     {
-      return _parameters.ToArray();
+      return _setMethod.ValueOrDefault();
     }
 
-    #region Not Implemented from MethodInfo interface
+    public override bool CanRead
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public override bool CanWrite
+    {
+      get { return true; }
+    }
+
+    #region Not Implemented from PropertyInfo interface
 
     public override object[] GetCustomAttributes (bool inherit)
     {
@@ -82,24 +91,24 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    public override MethodImplAttributes GetMethodImplementationFlags ()
+    public override object GetValue (object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
     {
       throw new NotImplementedException();
     }
 
-    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
+    public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
     {
       throw new NotImplementedException();
     }
 
-    public override MethodInfo GetBaseDefinition ()
+    public override MethodInfo[] GetAccessors (bool nonPublic)
     {
       throw new NotImplementedException();
     }
 
-    public override ICustomAttributeProvider ReturnTypeCustomAttributes
+    public override ParameterInfo[] GetIndexParameters ()
     {
-      get { throw new NotImplementedException(); }
+      throw new NotImplementedException();
     }
 
     public override string Name
@@ -112,7 +121,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException(); }
     }
 
-    public override RuntimeMethodHandle MethodHandle
+    public override PropertyAttributes Attributes
     {
       get { throw new NotImplementedException(); }
     }
@@ -121,6 +130,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       throw new NotImplementedException();
     }
-    #endregion 
+
+    #endregion
   }
 }

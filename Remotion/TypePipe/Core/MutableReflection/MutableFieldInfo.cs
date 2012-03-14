@@ -24,14 +24,14 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a field that does not exist yet. This is used to represent fields yet to be generated within an expression tree.
   /// </summary>
-  public class FutureFieldInfo : FieldInfo
+  public class MutableFieldInfo : FieldInfo
   {
     private readonly Type _declaringType;
     private readonly Type _fieldType;
     private readonly string _name;
     private readonly FieldAttributes _attributes;
 
-    public FutureFieldInfo (Type declaringType, Type fieldType, string name, FieldAttributes attributes)
+    public MutableFieldInfo (Type declaringType, Type fieldType, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);

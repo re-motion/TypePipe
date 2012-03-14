@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedField ()
     {
-      var addedField = FutureFieldInfoObjectMother.Create();
+      var addedField = MutableFieldInfoObjectMother.Create();
 
       _handler.HandleAddedField (addedField);
 

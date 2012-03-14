@@ -5,20 +5,20 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class FuturePropertyInfoObjectMother
+  public static class MutablePropertyInfoObjectMother
   {
     private class UnspecifiedType { }
 
-    public static FuturePropertyInfo Create (
+    public static MutablePropertyInfo Create (
         Type declaringType = null,
         Type propertyType = null,
         MethodInfo getMethod = null,
         MethodInfo setMethod = null)
     {
       if (getMethod == null && setMethod == null)
-        getMethod = FutureMethodInfoObjectMother.Create();
+        getMethod = MutableMethodInfoObjectMother.Create();
 
-      return new FuturePropertyInfo (
+      return new MutablePropertyInfo (
           declaringType ?? typeof (UnspecifiedType),
           propertyType ?? typeof (UnspecifiedType),
           Maybe.ForValue (getMethod),

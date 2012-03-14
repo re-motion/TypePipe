@@ -22,13 +22,13 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FuturePropertyInfoTest
+  public class MutablePropertyInfoTest
   {
     [Test]
     public void Property_Read_Static ()
     {
-      var getMethod = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
-      var property = FuturePropertyInfoObjectMother.Create (getMethod: getMethod);
+      var getMethod = MutableMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
+      var property = MutablePropertyInfoObjectMother.Create (getMethod: getMethod);
 
       var expression = Expression.Property (null, property);
 
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     {
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var property = FuturePropertyInfoObjectMother.Create (declaringType: declaringType);
+      var property = MutablePropertyInfoObjectMother.Create (declaringType: declaringType);
 
       var expression = Expression.Property (instance, property);
 
@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void Property_Write_Static ()
     {
       var propertyType = MutableTypeObjectMother.Create();
-      var setMethod = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
-      var property = FuturePropertyInfoObjectMother.Create (propertyType: propertyType, setMethod: setMethod);
+      var setMethod = MutableMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static);
+      var property = MutablePropertyInfoObjectMother.Create (propertyType: propertyType, setMethod: setMethod);
       var value = Expression.Variable (propertyType);
 
       var propertyExpression = Expression.Property (null, property);
@@ -68,8 +68,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
       var propertyType = MutableTypeObjectMother.Create();
-      var setMethod = FutureMethodInfoObjectMother.Create();
-      var property = FuturePropertyInfoObjectMother.Create (declaringType: declaringType, propertyType: propertyType, setMethod: setMethod);
+      var setMethod = MutableMethodInfoObjectMother.Create();
+      var property = MutablePropertyInfoObjectMother.Create (declaringType: declaringType, propertyType: propertyType, setMethod: setMethod);
       var value = Expression.Variable (propertyType);
 
       var propertyExpression = Expression.Property (instance, property);
