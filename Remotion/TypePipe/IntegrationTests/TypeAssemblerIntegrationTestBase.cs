@@ -106,7 +106,7 @@ namespace TypePipe.IntegrationTests
       _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
       _generatedFileName = assemblyName.Name + ".dll";
       var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
-      var typeModifier = new ReflectionEmitTypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
+      var typeModifier = new TypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
 
       return typeModifier;
     }

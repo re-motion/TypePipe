@@ -64,7 +64,7 @@
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\NewTypeInfo.cs" />
     <Compile Include="MutableReflection\ITypeInfo.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifier.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
     <Compile Include="Dlr\Actions\CallInfo.cs" />

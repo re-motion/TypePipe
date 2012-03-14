@@ -25,12 +25,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class ReflectionEmitTypeModifierTest
+  public class TypeModifierTest
   {
     private IModuleBuilder _moduleBuilderMock;
     private ISubclassProxyNameProvider _subclassProxyNameProviderMock;
 
-    private ReflectionEmitTypeModifier _reflectionEmitTypeModifier;
+    private TypeModifier _typeModifier;
 
     [SetUp]
     public void SetUp ()
@@ -38,14 +38,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderMock = MockRepository.GenerateStrictMock<ISubclassProxyNameProvider> ();
 
-      _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
+      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
     }
 
     [Test]
     public void CreateMutableType ()
     {
       var underlyingSystemType = ReflectionObjectMother.GetSomeUnsealedType ();
-      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (underlyingSystemType);
+      var mutableType = _typeModifier.CreateMutableType (underlyingSystemType);
 
       Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (underlyingSystemType));
     }
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.CreateType ()).Return (fakeResultType)
           .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
 
-      var result = _reflectionEmitTypeModifier.ApplyModifications (mutableTypeMock);
+      var result = _typeModifier.ApplyModifications (mutableTypeMock);
 
       _subclassProxyNameProviderMock.VerifyAllExpectations ();
       _moduleBuilderMock.VerifyAllExpectations ();

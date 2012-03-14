@@ -29,12 +29,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks>
   /// This class modifies the behavior of types by deriving runtime-generated subclass proxies that add or override members.
   /// </remarks>
-  public class ReflectionEmitTypeModifier : ITypeModifier
+  public class TypeModifier : ITypeModifier
   {
     private readonly IModuleBuilder _moduleBuilder;
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
 
-    public ReflectionEmitTypeModifier (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider)
+    public TypeModifier (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);

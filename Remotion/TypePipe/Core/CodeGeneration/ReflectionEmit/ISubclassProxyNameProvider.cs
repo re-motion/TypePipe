@@ -19,7 +19,7 @@ using System;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Used by <see cref="ReflectionEmitTypeModifier"/> to determine the name of the generated subclass proxy classes.
+  /// Used by <see cref="TypeModifier"/> to determine the name of the generated subclass proxy classes.
   /// </summary>
   public interface ISubclassProxyNameProvider
   {
