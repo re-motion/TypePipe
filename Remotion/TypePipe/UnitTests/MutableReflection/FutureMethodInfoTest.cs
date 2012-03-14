@@ -27,21 +27,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var parameterDeclarations =
-          new[]
-          {
-              new ParameterDeclaration (typeof (int), "p1", ParameterAttributes.Out),
-              new ParameterDeclaration (typeof (string), "p2")
-          };
-      var methodInfo = new FutureMethodInfo (typeof (object), MethodAttributes.Public, parameterDeclarations);
+      var declaringType = ReflectionObjectMother.GetSomeType();
+      var methodAttributes = MethodAttributes.Public;
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var parameter1 = ParameterDeclarationObjectMother.Create();
+      var parameter2 = ParameterDeclarationObjectMother.Create();
 
-      Assert.That (methodInfo.DeclaringType, Is.EqualTo (typeof (object)));
-      Assert.That (methodInfo.Attributes, Is.EqualTo (MethodAttributes.Public));
+      var methodInfo = new FutureMethodInfo (declaringType, methodAttributes, returnType, new[] { parameter1, parameter2});
+
+      Assert.That (methodInfo.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (methodInfo.Attributes, Is.EqualTo (methodAttributes));
+      Assert.That (methodInfo.ReturnType, Is.SameAs (returnType));
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = typeof (int), Name = "p1", Attributes = ParameterAttributes.Out },
-              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = typeof (string), Name = "p2", Attributes = ParameterAttributes.In }
+              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
+              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
           };
       var actualParameterInfos = methodInfo.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));

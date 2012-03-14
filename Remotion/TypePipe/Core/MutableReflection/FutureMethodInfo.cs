@@ -31,15 +31,22 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly Type _declaringType;
     private readonly MethodAttributes _methodAttributes;
+    private readonly Type _returnType;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    public FutureMethodInfo (Type declaringType, MethodAttributes methodAttributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public FutureMethodInfo (
+        Type declaringType,
+        MethodAttributes methodAttributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       _declaringType = declaringType;
       _methodAttributes = methodAttributes;
+      _returnType = returnType;
       _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
     }
 
@@ -51,6 +58,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override MethodAttributes Attributes
     {
       get { return _methodAttributes; }
+    }
+
+    public override Type ReturnType
+    {
+      get { return _returnType; }
     }
 
     public override ParameterInfo[] GetParameters ()

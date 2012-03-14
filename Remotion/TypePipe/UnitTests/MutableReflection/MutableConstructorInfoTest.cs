@@ -28,24 +28,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var parameterDeclarations =
-          new[]
-          {
-              new ParameterDeclaration (typeof (int), "p1", ParameterAttributes.Out),
-              new ParameterDeclaration (typeof (string), "p2")
-          };
-      var ctorInfo = new MutableConstructorInfo (typeof (object), MethodAttributes.Public, parameterDeclarations);
+      var declaringType = ReflectionObjectMother.GetSomeType ();
+      var methodAttributes = MethodAttributes.Public;
+      var parameter1 = ParameterDeclarationObjectMother.Create ();
+      var parameter2 = ParameterDeclarationObjectMother.Create ();
 
-      Assert.That (ctorInfo.DeclaringType, Is.EqualTo (typeof (object)));
-      Assert.That (ctorInfo.Attributes, Is.EqualTo (MethodAttributes.Public));
-      var expectedParameterInfo =
+      var ctorInfo = new MutableConstructorInfo (declaringType, methodAttributes, new[] { parameter1, parameter2 });
+
+      Assert.That (ctorInfo.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (ctorInfo.Attributes, Is.EqualTo (methodAttributes));
+      var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = typeof (int), Name = "p1", Attributes = ParameterAttributes.Out },
-              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = typeof (string), Name = "p2", Attributes = ParameterAttributes.In }
+              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
           };
-      var actualParameterInfo = ctorInfo.GetParameters().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
-      Assert.That (actualParameterInfo, Is.EqualTo (expectedParameterInfo));
+      var actualParameterInfos = ctorInfo.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
+      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
     }
 
     [Test]
