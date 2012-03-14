@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\TypeModificationHandlerTest.cs" />
     <Compile Include="MutableReflection\ArgumentTestHelper.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
     <Compile Include="MutableReflection\ExistingTypeInfoObjectMother.cs" />
