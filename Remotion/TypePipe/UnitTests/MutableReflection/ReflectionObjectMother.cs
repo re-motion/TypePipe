@@ -15,19 +15,36 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class ReflectionObjectMother
   {
     private static readonly Random s_random = new Random();
-    private static readonly Type[] s_types = new[] { typeof (DateTime), typeof (string) };
-    private static readonly MemberInfo[] s_members = new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") };
 
+    private static readonly Type[] s_types = EnsureNoNulls (new[] { typeof (DateTime), typeof (string) });
+    private static readonly Type[] s_interfaceTypes = EnsureNoNulls (new[] { typeof (IDisposable), typeof (IServiceProvider) });
+    private static readonly Type[] s_otherInterfaceTypes = EnsureNoNulls (new[] { typeof (IComparable), typeof (ICloneable) });
+    private static readonly MemberInfo[] s_members = EnsureNoNulls (new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") });
+    private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
+    private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
+    
     public static Type GetSomeType ()
     {
       return GetRandomElement (s_types);
+    }
+
+    public static Type GetSomeInterfaceType ()
+    {
+      return GetRandomElement (s_interfaceTypes);
+    }
+
+    public static Type GetSomeDifferentInterfaceType ()
+    {
+      return GetRandomElement (s_otherInterfaceTypes);
     }
 
     public static MemberInfo GetSomeMember ()
@@ -35,10 +52,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_members);
     }
 
+    public static FieldInfo GetSomeField ()
+    {
+      return GetRandomElement (s_fields);
+    }
+
+    public static ConstructorInfo GetSomeDefaultConstructor ()
+    {
+      return GetRandomElement (s_defaultCtors);
+    }
+
     private static T GetRandomElement<T> (T[] array)
     {
       var index = s_random.Next(array.Length);
       return array[index];
+    }
+
+    private static T[] EnsureNoNulls<T> (T[] items)
+    {
+      foreach (var item in items)
+        Assertion.IsNotNull (item);
+      return items;
     }
   }
 }

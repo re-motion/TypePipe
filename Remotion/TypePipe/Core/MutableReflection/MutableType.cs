@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.MutableReflection
       var fieldInfo = new FutureFieldInfo (this, type, name, attributes);
 
       if (GetAllFields ().Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
-        throw new ArgumentException ("Field with equal signature already exists.", "name, type");
+        throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
       _addedFields.Add (fieldInfo);
 
@@ -168,11 +168,19 @@ namespace Remotion.TypePipe.MutableReflection
           ).ToArray ();
     }
 
-    //public void Accept (ITypeModificationHandler modificationHandler)
-    //{
-    //  ArgumentUtility.CheckNotNull ("modificationHandler", modificationHandler);
+    public void Accept (ITypeModificationHandler modificationHandler)
+    {
+      ArgumentUtility.CheckNotNull ("modificationHandler", modificationHandler);
 
-    //}
+      foreach (var addedInterface in _addedInterfaces)
+        modificationHandler.HandleAddedInterface (addedInterface);
+
+      foreach (var addedField in _addedFields)
+        modificationHandler.HandleAddedField (addedField);
+
+      foreach (var addedConstructor in _addedConstructors)
+        modificationHandler.HandleAddedConstructor (addedConstructor);
+    }
 
     protected override bool HasElementTypeImpl ()
     {
@@ -189,7 +197,8 @@ namespace Remotion.TypePipe.MutableReflection
       return false;
     }
 
-    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+    protected override ConstructorInfo GetConstructorImpl (
+        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       var binder = binderOrNull ?? DefaultBinder;
       var candidates = GetConstructors (bindingAttr).ToArray ();

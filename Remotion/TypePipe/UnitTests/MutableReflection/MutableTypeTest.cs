@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Field with equal signature already exists.\r\nParameter name: name, type")]
+        "Field with equal name and signature already exists.\r\nParameter name: name")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
       var field = FutureFieldInfoObjectMother.Create (name: "_bla", fieldType: typeof (string));
@@ -302,16 +302,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (constructors, Is.Empty);
     }
 
-    //[Test]
-    //public void Accept ()
-    //{
-    //  var addedInterface = ReflectionObjectMother.GetSomeType ();
-    //  _mutableType.AddInterface (addedInterface);
-    //  var addedConstructorInfo = _mutableType.AddConstructor (MethodAttributes.Public);
-    //  var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "name", FieldAttributes.Private);
+    [Test]
+    public void Accept ()
+    {
+      _originalTypeInfoStub
+          .Stub (stub => stub.GetInterfaces())
+          .Return (new[] { ReflectionObjectMother.GetSomeInterfaceType() });
+      var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType ();
+      _mutableType.AddInterface (addedInterface);
 
+      _originalTypeInfoStub
+          .Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything))
+          .Return (new[] { ReflectionObjectMother.GetSomeField() });
+      var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
-    //}
+      _originalTypeInfoStub
+          .Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything))
+          .Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
+      var addedConstructorInfo = _mutableType.AddConstructor (MethodAttributes.Public, ParameterDeclarationObjectMother.Create());
+
+      var handlerMock = MockRepository.GenerateMock<ITypeModificationHandler>();
+      
+      _mutableType.Accept (handlerMock);
+
+      handlerMock.AssertWasCalled (mock => mock.HandleAddedInterface (addedInterface));
+      handlerMock.AssertWasCalled (mock => mock.HandleAddedField (addedFieldInfo));
+      handlerMock.AssertWasCalled (mock => mock.HandleAddedConstructor (addedConstructorInfo));
+    }
 
     [Test]
     public void HasElementTypeImpl ()
