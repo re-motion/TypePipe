@@ -20,10 +20,10 @@ using NUnit.Framework;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class AddMarkerInterfaceTest : TypeAssemblerIntegrationTestBase
+  public class AddInterfaceTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void AddMarkerInterface ()
+    public void MarkerInterface ()
     {
       Assert.That (typeof (OriginalType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
 

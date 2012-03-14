@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -25,6 +27,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests
@@ -32,13 +35,43 @@ namespace TypePipe.IntegrationTests
   public abstract class TypeAssemblerIntegrationTestBase
   {
     private AssemblyBuilder _assemblyBuilder;
+    private bool _shouldDeleteGeneratedFiles;
+    private string _generatedFileName;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _shouldDeleteGeneratedFiles = true;
+      _generatedFileName = null;
+    }
 
     [TearDown]
     public void TearDown ()
     {
-      var assemblyFileName = GetAssemblyNameForThisTest() + ".dll";
-      _assemblyBuilder.Save (assemblyFileName);
-      PEVerifier.CreateDefault ().VerifyPEFile (assemblyFileName);
+      if (_assemblyBuilder == null)
+        return;
+
+      Assertion.IsNotNull (_generatedFileName);
+      var assemblyPath = Path.Combine (GeneratedFileDirectory, _generatedFileName);
+
+      _assemblyBuilder.Save (_generatedFileName);
+      PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+
+      if (_shouldDeleteGeneratedFiles)
+      {
+        File.Delete (assemblyPath);
+        File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
+      }
+    }
+
+    private string GeneratedFileDirectory
+    {
+      get { return SetupFixture.GeneratedFileDirectory; }
+    }
+
+    protected void SkipDeletion ()
+    {
+      _shouldDeleteGeneratedFiles = false;
     }
 
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
@@ -46,18 +79,10 @@ namespace TypePipe.IntegrationTests
       var participants = participantActions.Select (CreateTypeAssemblyParticipant).ToArray();
       var originalType = typeof (T);
 
-      return AssembleType (originalType, participants);
+      return AssembleType (originalType, GetNameForThisTest (1), participants);
     }
 
-    protected Type AssembleType (Type originalType, params ITypeAssemblyParticipant[] participants)
-    {
-      var typeAssembler = new TypeAssembler (participants, CreateReflectionEmitTypeModifier());
-      var assembledType = typeAssembler.AssembleType (originalType);
-
-      return assembledType;
-    }
-
-    protected ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
+    private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();
       participantStub
@@ -67,19 +92,30 @@ namespace TypePipe.IntegrationTests
       return participantStub;
     }
 
-    private ITypeModifier CreateReflectionEmitTypeModifier ()
+    private Type AssembleType (Type originalType, string testName, params ITypeAssemblyParticipant[] participants)
     {
-      var assemblyName = GetAssemblyNameForThisTest();
-      _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.RunAndSave);
-      var moduleBuilder = _assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
+      var typeAssembler = new TypeAssembler (participants, CreateReflectionEmitTypeModifier (testName));
+      var assembledType = typeAssembler.AssembleType (originalType);
+
+      return assembledType;
+    }
+
+    private ITypeModifier CreateReflectionEmitTypeModifier (string testName)
+    {
+      var assemblyName = new AssemblyName (testName);
+      _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
+      _generatedFileName = assemblyName.Name + ".dll";
+      var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
       var typeModifier = new ReflectionEmitTypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
 
       return typeModifier;
     }
 
-    private string GetAssemblyNameForThisTest ()
+    private string GetNameForThisTest (int stackFramesToSkip)
     {
-      return "TypeAssemblerIntegrationTest_" + GetType().Name;
+      var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
+      var method = stackFrame.GetMethod ();
+      return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
   }
 }
