@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,22 +14,24 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class ParameterDeclarationObjectMother
+  public static class MutableTypeObjectMother
   {
-    private class UnspecifiedType { }
-
-    public static ParameterDeclaration Create (Type type = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
+    public static MutableType Create (
+      ITypeInfo typeInfo = null,
+      IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
+      IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
-      return new ParameterDeclaration (
-          type ?? typeof (UnspecifiedType),
-          name,
-          attributes);
+      return new MutableType(
+        typeInfo ?? NewTypeInfoObjectMother.Create(),
+        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
+        bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
   }
 }

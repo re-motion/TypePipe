@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = FieldAttributes.Private;
       _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
-      var field2 = _mutableType.AddField ("field2", typeof (UnspecifiedType), attributes);
+      var field2 = _mutableType.AddField ("field2", ReflectionObjectMother.GetSomeType(), attributes);
       var fields = _mutableType.GetFields (bindingFlags);
 
       Assert.That (fields, Is.EqualTo (new[] { field1, field2 }));
