@@ -14,15 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Linq;
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class FutureMethodInfoTest
+  public class MutableConstructorInfoTest
   {
     [Test]
     public void Initialization ()
@@ -33,30 +34,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new ParameterDeclaration (typeof (int), "p1", ParameterAttributes.Out),
               new ParameterDeclaration (typeof (string), "p2")
           };
-      var methodInfo = new FutureMethodInfo (typeof (object), MethodAttributes.Public, parameterDeclarations);
+      var ctorInfo = new MutableConstructorInfo (typeof (object), MethodAttributes.Public, parameterDeclarations);
 
-      Assert.That (methodInfo.DeclaringType, Is.EqualTo (typeof (object)));
-      Assert.That (methodInfo.Attributes, Is.EqualTo (MethodAttributes.Public));
-      var expectedParameterInfos =
+      Assert.That (ctorInfo.DeclaringType, Is.EqualTo (typeof (object)));
+      Assert.That (ctorInfo.Attributes, Is.EqualTo (MethodAttributes.Public));
+      var expectedParameterInfo =
           new[]
           {
-              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = typeof (int), Name = "p1", Attributes = ParameterAttributes.Out },
-              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = typeof (string), Name = "p2", Attributes = ParameterAttributes.In }
+              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = typeof (int), Name = "p1", Attributes = ParameterAttributes.Out },
+              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = typeof (string), Name = "p2", Attributes = ParameterAttributes.In }
           };
-      var actualParameterInfos = methodInfo.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
-      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+      var actualParameterInfo = ctorInfo.GetParameters().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
+      Assert.That (actualParameterInfo, Is.EqualTo (expectedParameterInfo));
     }
 
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = FutureMethodInfoObjectMother.Create (parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create () });
+      var ctorInfo = MutableConstructorInfoObjectMother.Create (parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create() });
 
-      var parameters = ctorInfo.GetParameters ();
+      var parameters = ctorInfo.GetParameters();
       Assert.That (parameters[0], Is.Not.Null);
       parameters[0] = null;
 
-      var parametersAgain = ctorInfo.GetParameters ();
+      var parametersAgain = ctorInfo.GetParameters();
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
   }

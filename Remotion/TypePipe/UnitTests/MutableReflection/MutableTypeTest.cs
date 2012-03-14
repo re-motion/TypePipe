@@ -1,19 +1,3 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
-//
-// See the NOTICE file distributed with this work for additional information
-// regarding copyright ownership.  rubicon licenses this file to you under 
-// the Apache License, Version 2.0 (the "License"); you may not use this 
-// file except in compliance with the License.  You may obtain a copy of the 
-// License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software 
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
-// License for the specific language governing permissions and limitations
-// under the License.
-// 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +79,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var newField = _mutableType.AddField ("_newField", typeof (string), FieldAttributes.Private);
 
       // Correct field info instance
-      Assert.That (newField, Is.TypeOf<FutureFieldInfo>());
       Assert.That (newField.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (newField.Name, Is.EqualTo ("_newField"));
       Assert.That (newField.FieldType, Is.EqualTo (typeof (string)));
@@ -207,22 +190,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
         .Return (new ConstructorInfo[0]);
       var attributes = MethodAttributes.Public;
-      var parameterTypes = new[] { typeof(string), typeof(int) };
-      var newConstructor = _mutableType.AddConstructor (attributes, parameterTypes);
+      var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create (), ParameterDeclarationObjectMother.Create () };
+      var ctorInfo = _mutableType.AddConstructor (attributes, parameterDeclarations);
 
       // Correct constroctur info instance
-      Assert.That (newConstructor, Is.TypeOf<FutureConstructorInfo>());
-      Assert.That (newConstructor.DeclaringType, Is.SameAs (_mutableType));
-      // Correct parameters
-      var parameters = newConstructor.GetParameters().ToArray();
-      Assert.That (parameters, Has.Length.EqualTo (2));
-      Assert.That (parameters.Select (p => p.ParameterType), Is.EqualTo (parameterTypes));
-      Assert.That (parameters[0], Is.TypeOf<FutureParameterInfo>());
-      Assert.That (parameters[1], Is.TypeOf<FutureParameterInfo>());
-      Assert.That (parameters[0].ParameterType, Is.EqualTo (typeof (string)));
-      Assert.That (parameters[1].ParameterType, Is.EqualTo (typeof (int)));
+      Assert.That (ctorInfo.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (ctorInfo.Attributes, Is.EqualTo (attributes));
+      var expectedParameterInfos = new[] { new { ParameterType = parameterDeclarations[0].Type }, new { ParameterType = parameterDeclarations[1].Type } };
+      var actualParameterInfos = ctorInfo.GetParameters().Select (pi => new { pi.ParameterType });
+      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
       // Constructor info is stored
-      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { newConstructor }));
+      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { ctorInfo }));
     }
 
     [Test]
@@ -230,31 +208,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Static constructors are not (yet) supported.\r\nParameter name: attributes")]
     public void AddConstructor_ThrowsForStatic ()
     {
-      _mutableType.AddConstructor (MethodAttributes.Static, Type.EmptyTypes);
+      _mutableType.AddConstructor (MethodAttributes.Static);
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
-      "Constructor with equal signature already exists.\r\nParameter name: parameterTypes")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[1]);
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (null, null)).IgnoreArguments().Return (true);
 
-      _mutableType.AddConstructor (0, Type.EmptyTypes);
+      _mutableType.AddConstructor (0);
     }
 
     [Test]
     public void GetConstructors ()
     {
-      var constructor1 = FutureConstructorInfoObjectMother.Create();
+      var constructor1 = MutableConstructorInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
       var attributes = MethodAttributes.Public;
-      var parameterTypes = new[] { typeof (int) }; // Need different signature
+      var parameterDeclarations = new ArgumentTestHelper(7).ParameterDeclarations; // Need different signature
       _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
-      var constructor2 = _mutableType.AddConstructor (attributes, parameterTypes);
+      var constructor2 = _mutableType.AddConstructor (attributes, parameterDeclarations);
       var constructors = _mutableType.GetConstructors (bindingFlags);
 
       Assert.That (constructors, Is.EqualTo (new[] { constructor1, constructor2 }));
@@ -267,7 +245,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (false);
 
-      _mutableType.AddConstructor (MethodAttributes.Public, Type.EmptyTypes);
+      _mutableType.AddConstructor (MethodAttributes.Public);
       var constructors = _mutableType.GetConstructors (bindingFlags);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
@@ -277,9 +255,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorImpl ()
     {
-      var constructor1 = FutureConstructorInfoObjectMother.Create();
-      var arguments = new Arguments (typeof (int));
-      var constructor2 = FutureConstructorInfoObjectMother.Create (parameters: arguments.Parameters);
+      var constructor1 = MutableConstructorInfoObjectMother.Create();
+      var arguments = new ArgumentTestHelper (typeof (int));
+      var constructor2 = MutableConstructorInfoObjectMother.Create (parameterDeclarations: arguments.ParameterDeclarations);
       _originalTypeInfoStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { constructor1, constructor2 });
       _bindingFlagsEvaluatorMock
         .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))

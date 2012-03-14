@@ -23,26 +23,26 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class Arguments
+  public class ArgumentTestHelper
   {
-    private readonly object[] _instances;
+    private readonly object[] _values;
     private readonly Type[] _types;
-    private readonly FutureParameterInfo[] _parameters;
-    private readonly IEnumerable<Expression> _expressions;
+    private readonly ParameterDeclaration[] _parameterDeclarations;
+    private readonly IEnumerable<ConstantExpression> _constantExpressions;
 
-    public Arguments (params object[] instances)
+    public ArgumentTestHelper (params object[] values)
     {
-      ArgumentUtility.CheckNotNull ("instances", instances);
+      ArgumentUtility.CheckNotNull ("values", values);
 
-      _instances = instances;
-      _types = instances.Select (i => i.GetType()).ToArray();
-      _parameters = instances.Select (i => FutureParameterInfoObjectMother.Create (i.GetType())).ToArray();
-      _expressions = instances.Select (Expression.Constant).Cast<Expression>();
+      _values = values;
+      _types = values.Select (value => value.GetType()).ToArray();
+      _parameterDeclarations = _types.Select ((t, i) => new ParameterDeclaration (t, "p" + i)).ToArray ();
+      _constantExpressions = values.Select (Expression.Constant);
     }
 
-    public object[] Instances
+    public object[] Values
     {
-      get { return _instances; }
+      get { return _values; }
     }
 
     public Type[] Types
@@ -50,14 +50,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       get { return _types; }
     }
 
-    public FutureParameterInfo[] Parameters
+    public ParameterDeclaration[] ParameterDeclarations
     {
-      get { return _parameters; }
+      get { return _parameterDeclarations; }
+    }
+
+    public IEnumerable<ConstantExpression> ConstantExpressions
+    {
+      get { return _constantExpressions; }
     }
 
     public IEnumerable<Expression> Expressions
     {
-      get { return _expressions; }
+      get { return _constantExpressions.Cast<Expression>(); }
     }
   }
 }

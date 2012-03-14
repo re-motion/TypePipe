@@ -180,13 +180,14 @@
     <Compile Include="Dlr\Utils\ReferenceEqualityComparer.cs" />
     <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />
     <Compile Include="Dlr\Utils\TypeExtensions.cs" />
-    <Compile Include="MutableReflection\FutureConstructorInfo.cs" />
+    <Compile Include="MutableReflection\MutableConstructorInfo.cs" />
     <Compile Include="MutableReflection\FutureFieldInfo.cs" />
     <Compile Include="MutableReflection\FutureMethodInfo.cs" />
-    <Compile Include="MutableReflection\FutureParameterInfo.cs" />
+    <Compile Include="MutableReflection\MutableParameterInfo.cs" />
     <Compile Include="MutableReflection\FuturePropertyInfo.cs" />
     <Compile Include="MutableReflection\ExistingTypeInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
+    <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssembler.cs" />

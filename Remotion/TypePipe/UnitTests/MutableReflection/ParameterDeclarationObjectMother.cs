@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,28 +16,18 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.Utilities;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// Represents a parameter for a member that does not exist yet. This is used to represent the signature of a member yet to be generatedwithin an
-  /// expression tree.
-  /// </summary>
-  public class FutureParameterInfo : ParameterInfo
+  public static class ParameterDeclarationObjectMother
   {
-    private readonly Type _parameterType;
-
-    public FutureParameterInfo (Type parameterType)
+    public static ParameterDeclaration Create (Type type = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
     {
-      ArgumentUtility.CheckNotNull ("parameterType", parameterType);
-
-      _parameterType = parameterType;
-    }
-
-    public override Type ParameterType
-    {
-      get { return _parameterType; }
+      return new ParameterDeclaration (
+          type ?? typeof (UnspecifiedType),
+          name,
+          attributes);
     }
   }
 }

@@ -15,7 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -28,16 +31,16 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly Type _declaringType;
     private readonly MethodAttributes _methodAttributes;
-    private readonly FutureParameterInfo[] _parameters;
+    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    public FutureMethodInfo (Type declaringType, MethodAttributes methodAttributes, FutureParameterInfo[] parameters)
+    public FutureMethodInfo (Type declaringType, MethodAttributes methodAttributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       _declaringType = declaringType;
       _methodAttributes = methodAttributes;
-      _parameters = parameters;
+      _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
     }
 
     public override Type DeclaringType
@@ -52,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ParameterInfo[] GetParameters ()
     {
-      return _parameters;
+      return _parameters.ToArray();
     }
 
     #region Not Implemented from MethodInfo interface

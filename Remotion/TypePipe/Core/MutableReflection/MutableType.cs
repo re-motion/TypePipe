@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
+using System.Reflection.Emit;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -35,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<FutureFieldInfo> _addedFields = new List<FutureFieldInfo>();
-    private readonly List<FutureConstructorInfo> _addedConstructors = new List<FutureConstructorInfo>();
+    private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
     public MutableType (
       ITypeInfo originalTypeInfo,
@@ -61,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedFields.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<FutureConstructorInfo> AddedConstructors
+    public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly (); }
     }
@@ -94,19 +95,17 @@ namespace Remotion.TypePipe.MutableReflection
       return fieldInfo;
     }
 
-    // TODO Type Pipe: Change parameterTypes parameter to be ParameterDeclaration, holding parameter name, type, attributes.
-    public FutureConstructorInfo AddConstructor (MethodAttributes attributes, Type[] parameterTypes)
+    public MutableConstructorInfo AddConstructor (MethodAttributes attributes, params ParameterDeclaration[] parameterDeclarations)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Static constructors are not (yet) supported.", "attributes");
 
-      var parameters = parameterTypes.Select (type => new FutureParameterInfo (type)).ToArray ();
-      var constructorInfo = new FutureConstructorInfo (this, attributes, parameters);
+      var constructorInfo = new MutableConstructorInfo (this, attributes, parameterDeclarations);
       
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
-        throw new ArgumentException ("Constructor with equal signature already exists.", "parameterTypes");
+        throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       _addedConstructors.Add (constructorInfo);
 

@@ -55,22 +55,25 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitTypeModifierTest.cs" />
-    <Compile Include="MutableReflection\Arguments.cs" />
+    <Compile Include="MutableReflection\ArgumentTestHelper.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureFieldInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\FutureMethodInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\FuturePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\NewTypeInfoTest.cs" />
-    <Compile Include="MutableReflection\FutureConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\FutureFieldInfoTest.cs" />
     <Compile Include="MutableReflection\FutureMethodInfoTest.cs" />
-    <Compile Include="MutableReflection\FutureParameterInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableParameterInfoTest.cs" />
     <Compile Include="MutableReflection\FuturePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\MutableReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\ExistingTypeInfoTest.cs" />
+    <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
+    <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
+    <Compile Include="MutableReflection\ReflectionObjectMother.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
   </ItemGroup>

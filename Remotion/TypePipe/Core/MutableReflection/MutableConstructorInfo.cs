@@ -15,29 +15,32 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
   /// </summary>
-  public class FutureConstructorInfo : ConstructorInfo
+  public class MutableConstructorInfo : ConstructorInfo
   {
     private readonly Type _declaringType;
     private readonly MethodAttributes _attributes;
-    private readonly FutureParameterInfo[] _parameters;
+    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    public FutureConstructorInfo (Type declaringType, MethodAttributes attributes, FutureParameterInfo[] parameters)
+    public MutableConstructorInfo (Type declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       _declaringType = declaringType;
       _attributes = attributes;
-      _parameters = parameters;
+      _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration(this, i, pd)).ToList().AsReadOnly();
     }
 
     public override Type DeclaringType
@@ -52,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ParameterInfo[] GetParameters ()
     {
-      return _parameters;
+      return _parameters.ToArray();
     }
 
     #region Not Implemented from ConstructorInfo interface

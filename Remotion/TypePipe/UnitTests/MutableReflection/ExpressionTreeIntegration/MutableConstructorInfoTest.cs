@@ -14,26 +14,34 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Reflection;
+using System;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegration
 {
   [TestFixture]
-  public class FutureParameterInfoTest
+  public class MutableConstructorInfoTest
   {
     [Test]
-    public void FutureParameterInfo_IsAParameterInfo ()
+    public void New_NoArguments ()
     {
-      Assert.That (FutureParameterInfoObjectMother.Create(), Is.InstanceOf<ParameterInfo> ());
+      var constructor = MutableConstructorInfoObjectMother.Create();
+
+      var expression = Expression.New (constructor);
+
+      Assert.That (expression.Constructor, Is.SameAs (constructor));
     }
 
     [Test]
-    public void ParameterType ()
+    public void New_WithArguments ()
     {
-      var parameterType = typeof (object);
-      var futureParameterInfo = FutureParameterInfoObjectMother.Create (parameterType: parameterType);
-      Assert.That (futureParameterInfo.ParameterType, Is.SameAs (parameterType));
+      var arguments = new ArgumentTestHelper ("string", 7, new object());
+      var constructor = MutableConstructorInfoObjectMother.Create (parameterDeclarations: arguments.ParameterDeclarations);
+
+      var expression = Expression.New (constructor, arguments.Expressions);
+
+      Assert.That (expression.Constructor, Is.SameAs (constructor));
     }
   }
 }

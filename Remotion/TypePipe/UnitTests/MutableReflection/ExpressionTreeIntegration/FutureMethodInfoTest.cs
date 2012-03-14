@@ -37,8 +37,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [Test]
     public void Call_Static_WithArguments ()
     {
-      var arguments = new Arguments ("string", 7, new object());
-      var method = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static, parameters: arguments.Parameters);
+      var arguments = new ArgumentTestHelper ("string", 7, new object());
+      var method = FutureMethodInfoObjectMother.Create (methodAttributes: MethodAttributes.Static, parameterDeclarations: arguments.ParameterDeclarations);
 
       var expression = Expression.Call (method, arguments.Expressions);
 
@@ -62,8 +62,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     {
       var declaringType = MutableTypeObjectMother.Create();
       var instance = Expression.Variable (declaringType);
-      var arguments = new Arguments ("string", 7, new object());
-      var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType, parameters: arguments.Parameters);
+      var arguments = new ArgumentTestHelper ("string", 7, new object());
+      var method = FutureMethodInfoObjectMother.Create (declaringType: declaringType, parameterDeclarations: arguments.ParameterDeclarations);
 
       var expression = Expression.Call (instance, method, arguments.Expressions);
 

@@ -15,33 +15,30 @@
 // under the License.
 // 
 using System;
-using Microsoft.Scripting.Ast;
-using NUnit.Framework;
+using System.Reflection;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegration
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  [TestFixture]
-  public class FutureConstructorInfoTest
+  public static class ReflectionObjectMother
   {
-    [Test]
-    public void New_NoArguments ()
+    private static readonly Random s_random = new Random();
+    private static readonly Type[] s_types = new[] { typeof (DateTime), typeof (string) };
+    private static readonly MemberInfo[] s_members = new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") };
+
+    public static Type GetSomeType ()
     {
-      var constructor = FutureConstructorInfoObjectMother.Create();
-
-      var expression = Expression.New (constructor);
-
-      Assert.That (expression.Constructor, Is.SameAs (constructor));
+      return GetRandomElement (s_types);
     }
 
-    [Test]
-    public void New_WithArguments ()
+    public static MemberInfo GetSomeMember ()
     {
-      var arguments = new Arguments ("string", 7, new object());
-      var constructor = FutureConstructorInfoObjectMother.Create (parameters: arguments.Parameters);
+      return GetRandomElement (s_members);
+    }
 
-      var expression = Expression.New (constructor, arguments.Expressions);
-
-      Assert.That (expression.Constructor, Is.SameAs (constructor));
+    private static T GetRandomElement<T> (T[] array)
+    {
+      var index = s_random.Next(array.Length);
+      return array[index];
     }
   }
 }

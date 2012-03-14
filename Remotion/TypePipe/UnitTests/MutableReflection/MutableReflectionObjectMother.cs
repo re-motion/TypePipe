@@ -64,17 +64,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
   }
 
-  public static class FutureConstructorInfoObjectMother
+  public static class MutableConstructorInfoObjectMother
   {
-    public static FutureConstructorInfo Create (
+    public static MutableConstructorInfo Create (
       Type declaringType = null,
       MethodAttributes attributes = MethodAttributes.Public,
-      FutureParameterInfo[] parameters = null)
+      ParameterDeclaration[] parameterDeclarations = null)
     {
-      return new FutureConstructorInfo (
+      return new MutableConstructorInfo (
           declaringType ?? typeof (UnspecifiedType),
           attributes,
-          parameters ?? new FutureParameterInfo[0]);
+          parameterDeclarations ?? new ParameterDeclaration[0]);
     }
   }
 
@@ -83,12 +83,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static FutureMethodInfo Create (
         Type declaringType = null,
         MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
-        FutureParameterInfo[] parameters = null)
+        ParameterDeclaration[] parameterDeclarations = null)
     {
       return new FutureMethodInfo (
           declaringType ?? typeof (UnspecifiedType), 
           methodAttributes,
-          parameters ?? new FutureParameterInfo[0]);
+          parameterDeclarations ?? new ParameterDeclaration[0]);
     }
   }
 
@@ -124,14 +124,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           name,
           fieldType ?? typeof (UnspecifiedType),
           attributes);
-    }
-  }
-
-  public static class FutureParameterInfoObjectMother
-  {
-    public static FutureParameterInfo Create (Type parameterType = null)
-    {
-      return new FutureParameterInfo (parameterType ?? typeof (UnspecifiedType));
     }
   }
 
