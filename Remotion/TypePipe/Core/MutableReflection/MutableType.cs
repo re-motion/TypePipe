@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.MutableReflection
           ).ToArray ();
     }
 
-    public void Accept (ITypeModificationHandler modificationHandler)
+    public virtual void Accept (ITypeModificationHandler modificationHandler)
     {
       ArgumentUtility.CheckNotNull ("modificationHandler", modificationHandler);
 

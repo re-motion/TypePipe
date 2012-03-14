@@ -17,10 +17,8 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -31,80 +29,59 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private IModuleBuilder _moduleBuilderMock;
     private ISubclassProxyNameProvider _subclassProxyNameProviderMock;
-    private ITypeBuilder _typeBuilderMock;
+
     private ReflectionEmitTypeModifier _reflectionEmitTypeModifier;
-    private ITypeInfo _typeInfoMock;
-    private MutableType _mutableType;
-    private Type _underlyingSystemType;
 
     [SetUp]
     public void SetUp ()
     {
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderMock = MockRepository.GenerateStrictMock<ISubclassProxyNameProvider> ();
-      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
+
       _reflectionEmitTypeModifier = new ReflectionEmitTypeModifier (_moduleBuilderMock, _subclassProxyNameProviderMock);
-      _underlyingSystemType = typeof (OriginalType);
-      _typeInfoMock = MockRepository.GenerateStrictMock<ITypeInfo> ();
-      _mutableType = MutableTypeObjectMother.Create (typeInfo: _typeInfoMock);
     }
 
     [Test]
     public void CreateMutableType ()
     {
-      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (_underlyingSystemType);
+      var underlyingSystemType = ReflectionObjectMother.GetSomeUnsealedType ();
+      var mutableType = _reflectionEmitTypeModifier.CreateMutableType (underlyingSystemType);
 
-      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
+      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (underlyingSystemType));
     }
 
     [Test]
-    public void ApplyModifications_NoModifications ()
+    public void ApplyModifications ()
     {
-      CheckApplyModifications (tb => { });
-    }
+      var mutableTypeMock = MutableTypeObjectMother.CreateStrictMock();
+      var fakeResultType = ReflectionObjectMother.GetSomeType ();
+      var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
 
-    [Test]
-    public void ApplyModifications_Interfaces ()
-    {
-      _typeInfoMock.Expect (mock => mock.GetInterfaces ()).Return (Type.EmptyTypes);
-      _mutableType.AddInterface (typeof (IDisposable));
+      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (fakeUnderlyingSystemType)).Return ("foofoo");
 
-      CheckApplyModifications (tb => tb.Expect (mock => mock.AddInterfaceImplementation (typeof (IDisposable))));
-    }
-
-    [Test]
-    public void ApplyModifications_AddField ()
-    {
-      _typeInfoMock.Expect (mock => mock.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
-      _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
-
-      CheckApplyModifications (tb => _typeBuilderMock.Expect (mock => mock.DefineField ("_newField", typeof (string), FieldAttributes.Private)));
-    }
-
-    private void CheckApplyModifications (Action<ITypeBuilder> typeBuilderExpectations)
-    {
-      var fakeResultType = typeof (string);
-
-      _typeInfoMock.Expect (mock => mock.GetUnderlyingSystemType ()).Return (Maybe.ForValue (_underlyingSystemType));
-      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (_underlyingSystemType)).Return ("foofoo");
+      var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
+      bool acceptCalled = false;
       _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, _underlyingSystemType))
-          .Return (_typeBuilderMock);
-      typeBuilderExpectations (_typeBuilderMock);
-      _typeBuilderMock.Expect (mock => mock.CreateType ()).Return (fakeResultType);
+          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, fakeUnderlyingSystemType))
+          .Return (typeBuilderMock);
+      mutableTypeMock
+          .Expect (mock => mock.Accept (Arg<TypeModificationHandler>.Matches (handler => handler.SubclassProxyBuilder == typeBuilderMock)))
+          .WhenCalled (mi => acceptCalled = true);
+      mutableTypeMock
+          .Stub (stub => stub.UnderlyingSystemType)
+          .Return (fakeUnderlyingSystemType);
+      typeBuilderMock
+          .Expect (mock => mock.CreateType ()).Return (fakeResultType)
+          .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
 
-      var result = _reflectionEmitTypeModifier.ApplyModifications (_mutableType);
+      var result = _reflectionEmitTypeModifier.ApplyModifications (mutableTypeMock);
 
-      _moduleBuilderMock.VerifyAllExpectations ();
       _subclassProxyNameProviderMock.VerifyAllExpectations ();
-      _typeBuilderMock.VerifyAllExpectations ();
-      _typeInfoMock.VerifyAllExpectations ();
+      _moduleBuilderMock.VerifyAllExpectations ();
+      typeBuilderMock.VerifyAllExpectations ();
+      mutableTypeMock.VerifyAllExpectations();
 
       Assert.That (result, Is.SameAs (fakeResultType));
-    }
-
-    public class OriginalType
-    {
     }
   }
 }

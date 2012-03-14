@@ -14,10 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -32,6 +34,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         typeInfo ?? NewTypeInfoObjectMother.Create(),
         memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
         bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
+    }
+
+    public static MutableType CreateStrictMock (ITypeInfo typeInfo = null,
+      IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
+      IBindingFlagsEvaluator bindingFlagsEvaluator = null)
+    {
+      return MockRepository.GenerateStrictMock<MutableType> (
+        typeInfo ?? NewTypeInfoObjectMother.Create (),
+        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer (),
+        bindingFlagsEvaluator ?? new BindingFlagsEvaluator ());
     }
   }
 }

@@ -61,11 +61,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           underlyingSystemType);
 
-      foreach (var addedInterface in mutableType.AddedInterfaces)
-        typeBuilder.AddInterfaceImplementation (addedInterface);
-
-      foreach (var addedField in mutableType.AddedFields)
-        typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
+      var modificationHandler = new TypeModificationHandler (typeBuilder);
+      mutableType.Accept (modificationHandler);
 
       return typeBuilder.CreateType();
     }

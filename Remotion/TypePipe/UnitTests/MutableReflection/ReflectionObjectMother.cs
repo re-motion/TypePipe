@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly Random s_random = new Random();
 
     private static readonly Type[] s_types = EnsureNoNulls (new[] { typeof (DateTime), typeof (string) });
+    private static readonly Type[] s_unsealedTypes = EnsureNoNulls (new[] { typeof (object), typeof (List<int>) });
     private static readonly Type[] s_interfaceTypes = EnsureNoNulls (new[] { typeof (IDisposable), typeof (IServiceProvider) });
     private static readonly Type[] s_otherInterfaceTypes = EnsureNoNulls (new[] { typeof (IComparable), typeof (ICloneable) });
     private static readonly MemberInfo[] s_members = EnsureNoNulls (new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") });
@@ -35,6 +36,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static Type GetSomeType ()
     {
       return GetRandomElement (s_types);
+    }
+
+    public static Type GetSomeUnsealedType ()
+    {
+      return GetRandomElement (s_unsealedTypes);
     }
 
     public static Type GetSomeInterfaceType ()
