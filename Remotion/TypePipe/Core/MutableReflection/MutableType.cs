@@ -319,13 +319,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      // TODO Type Pipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
+      // TODO TypePipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
       throw new NotImplementedException ();
     }
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      // TODO Type Pipe: Like GetConstructors.
+      // TODO TypePipe: Like GetConstructors.
       throw new NotImplementedException ();
     }
     

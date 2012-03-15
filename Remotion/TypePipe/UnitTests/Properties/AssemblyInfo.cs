@@ -20,5 +20,5 @@ using System.Reflection;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle ("Remotion Type Pipe Library Unit Tests")]
+[assembly: AssemblyTitle ("Remotion TypePipe Library Unit Tests")]
 [assembly: AssemblyCulture ("")]
