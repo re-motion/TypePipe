@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -41,13 +40,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
-    }
-
-    public MutableType CreateMutableType (Type originalType)
-    {
-      ArgumentUtility.CheckNotNull ("originalType", originalType);
-
-      return new MutableType (new ExistingTypeInfo(originalType), new MemberSignatureEqualityComparer(), new BindingFlagsEvaluator());
     }
 
     public Type ApplyModifications (MutableType mutableType)

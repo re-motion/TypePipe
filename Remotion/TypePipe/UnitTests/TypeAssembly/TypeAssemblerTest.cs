@@ -49,21 +49,21 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
 
-      var mutableType = MutableTypeObjectMother.Create();
-      var requestedType = typeof (string);
-      var fakeResult = typeof (DateTime);
+      var requestedType = ReflectionObjectMother.GetSomeUnsealedType();
+      MutableType mutableType = null;
+      var fakeResult = ReflectionObjectMother.GetSomeType();
 
       using (mockRepository.Ordered ())
       {
-        typeModifierMock
-            .Expect (mock => mock.CreateMutableType (requestedType))
-            .Return (mutableType);
+        participantMock1
+            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == requestedType)))
+            .WhenCalled (mi => mutableType = (MutableType) mi.Arguments[0]);
+        participantMock2
+            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt == mutableType)))
+            .WhenCalled (mi => Assert.That (mi.Arguments[0], Is.SameAs (mutableType)));
 
-        participantMock1.Expect (mock => mock.ModifyType (mutableType));
-        participantMock2.Expect (mock => mock.ModifyType (mutableType));
-
         typeModifierMock
-            .Expect (mock => mock.ApplyModifications (mutableType))
+            .Expect (mock => mock.ApplyModifications (Arg<MutableType>.Matches (mt => mt == mutableType)))
             .Return (fakeResult);
       }
       mockRepository.ReplayAll();
@@ -72,6 +72,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var result = typeAssembler.AssembleType (requestedType);
 
       mockRepository.VerifyAll();
+      Assert.That (mutableType, Is.Not.Null);
       Assert.That (result, Is.SameAs (fakeResult));
     }
   }

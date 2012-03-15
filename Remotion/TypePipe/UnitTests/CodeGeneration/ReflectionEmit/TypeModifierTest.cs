@@ -42,15 +42,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void CreateMutableType ()
-    {
-      var underlyingSystemType = ReflectionObjectMother.GetSomeUnsealedType ();
-      var mutableType = _typeModifier.CreateMutableType (underlyingSystemType);
-
-      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (underlyingSystemType));
-    }
-
-    [Test]
     public void ApplyModifications ()
     {
       var mutableTypeMock = MutableTypeObjectMother.CreateStrictMock ();

@@ -24,7 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public interface ITypeModifier
   {
-    MutableType CreateMutableType (Type originalType);
     Type ApplyModifications (MutableType mutableTpe);
   }
 }
