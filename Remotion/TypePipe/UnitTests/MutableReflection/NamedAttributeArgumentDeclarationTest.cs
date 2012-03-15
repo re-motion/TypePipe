@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -27,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_Property ()
     {
-      var propertyInfo = typeof (ClassWithMembers).GetProperty ("Property");
+      var propertyInfo = ReflectionObjectMother.GetPropertyWithType(typeof(ValueType));
       int value = 7;
 
       var declaration = new NamedAttributeArgumentDeclaration (propertyInfo, value);
@@ -41,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
     public void Initialization_Property_ValueNotAssignable ()
     {
-      var propertyInfo = typeof (ClassWithMembers).GetProperty ("Property");
+      var propertyInfo = ReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
       string value = "not assignable";
 
       new NamedAttributeArgumentDeclaration (propertyInfo, value);
@@ -50,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_Field ()
     {
-      var fieldInfo = typeof (ClassWithMembers).GetField ("Field");
+      var fieldInfo = ReflectionObjectMother.GetFieldWithType(typeof (ValueType));
       int value = 7;
 
       var declaration = new NamedAttributeArgumentDeclaration (fieldInfo, value);
@@ -64,17 +65,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
     public void Initialization_Field_ValueNotAssignable ()
     {
-      var fieldInfo = typeof (ClassWithMembers).GetField ("Field");
+      var fieldInfo = ReflectionObjectMother.GetFieldWithType (typeof (ValueType));
       string value = "not assignable";
 
       new NamedAttributeArgumentDeclaration (fieldInfo, value);
-    }
-
-    private class ClassWithMembers
-    {
-      public ValueType Field = null;
-
-      public ValueType Property { get; set; }
     }
   }
 }
