@@ -68,6 +68,7 @@
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoObjectMother.cs" />
+    <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
     <Compile Include="MutableReflection\NewTypeInfoObjectMother.cs" />
     <Compile Include="MutableReflection\NewTypeInfoTest.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />

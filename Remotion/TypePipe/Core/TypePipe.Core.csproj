@@ -62,6 +62,7 @@
     <Compile Include="MutableReflection\ITypeModificationHandler.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
+    <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
     <Compile Include="MutableReflection\NewTypeInfo.cs" />
     <Compile Include="MutableReflection\ITypeInfo.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
