@@ -24,6 +24,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableFieldInfoTest
   {
+    private MutableFieldInfo _fieldInfo;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _fieldInfo = MutableFieldInfoObjectMother.Create ();
+    }
+
     [Test]
     public void Initialization ()
     {
@@ -32,12 +40,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var name = "_fieldName";
       var attributes = FieldAttributes.InitOnly;
 
-      var futureFieldInfo = new MutableFieldInfo (declaringType, fieldType, name, attributes);
+      var fieldInfo = new MutableFieldInfo (declaringType, fieldType, name, attributes);
       
-      Assert.That (futureFieldInfo.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (futureFieldInfo.FieldType, Is.SameAs (fieldType));
-      Assert.That (futureFieldInfo.Name, Is.EqualTo (name));
-      Assert.That (futureFieldInfo.Attributes, Is.EqualTo (attributes));
+      Assert.That (fieldInfo.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (fieldInfo.FieldType, Is.SameAs (fieldType));
+      Assert.That (fieldInfo.Name, Is.EqualTo (name));
+      Assert.That (fieldInfo.Attributes, Is.EqualTo (attributes));
+      Assert.That (fieldInfo.AddedCustomAttributeDeclarations, Is.Empty);
+    }
+
+    [Test]
+    public void AddCustomAttribute ()
+    {
+      var customAttribute = CustomAttributeDeclarationObjectMother.Create();
+
+      _fieldInfo.AddCustomAttribute (customAttribute);
+
+      Assert.That (_fieldInfo.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { customAttribute }));
+    }
+
+    // TODO More checks for AddCustomAttribute errors?
+
+    [Ignore ("TODO 4672")]
+    [Test]
+    public void GetCustomAttribute ()
+    {
     }
   }
 }

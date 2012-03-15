@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
@@ -55,17 +56,73 @@ namespace TypePipe.IntegrationTests
       Assert.That (fieldInfo.Attributes, Is.EqualTo (fieldAttributes));
     }
 
+    [Ignore("TODO 4672")]
+    [Test]
+    public void WithCustomAttribute ()
+    {
+      var type = AssembleType<OriginalType> (
+          mutableType =>
+          {
+            var mutableFieldInfo = mutableType.AddField (typeof (int), "_fieldWithCustomAttributes");
+
+            var attributeCtor = typeof (AddedAttribute).GetConstructor (new[] { typeof (string) });
+            var namedProperty = typeof (AddedAttribute).GetProperty ("NamedPropertyArg");
+            var namedField = typeof (AddedAttribute).GetField ("NamedFieldArg");
+            var customAttributeDeclaration = new CustomAttributeDeclaration (
+                attributeCtor,
+                new[] { "ctorArg" },
+                new NamedAttributeArgumentDeclaration (namedProperty, 7),
+                new NamedAttributeArgumentDeclaration (namedField, new[] { MyEnum.Other, MyEnum.Default }));
+            mutableFieldInfo.AddCustomAttribute (customAttributeDeclaration);
+          });
+
+      var fieldInfo = type.GetField ("_fieldWithCustomAttributes", BindingFlags.Instance | BindingFlags.NonPublic);
+      Assert.IsNotNull (fieldInfo);
+      var customAttributes = fieldInfo.GetCustomAttributes (false);
+      Assert.That (customAttributes, Has.Length.EqualTo (1));
+
+      var customAttribute = (AddedAttribute) customAttributes.Single();
+      Assert.That(customAttribute.CtorArg, Is.EqualTo("ctoArg"));
+      Assert.That (customAttribute.NamedPropertyArg, Is.EqualTo (7));
+      Assert.That (customAttribute.NamedFieldArg, Is.EqualTo (new[] { MyEnum.Other, MyEnum.Default }));
+    }
+
     private string[] GetAllFieldNames (Type type)
     {
       return type.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
           .Select (field => field.Name)
-          .ToArray(); // better error message
+          .ToArray (); // better error message
     }
 
     public class OriginalType
     {
       // protected so that Reflection on the subclass proxy will return the field
       protected object OriginalField;
+    }
+
+    public class AddedAttribute : Attribute
+    {
+      public BindingFlags[] NamedFieldArg;
+
+      private readonly string _ctorArg;
+
+      public AddedAttribute (string ctorArg)
+      {
+        _ctorArg = ctorArg;
+      }
+
+      public string CtorArg
+      {
+        get { return _ctorArg; }
+      }
+
+      public int NamedPropertyArg { get; set; }
+    }
+
+    public enum MyEnum
+    {
+      Default,
+      Other
     }
   }
 }

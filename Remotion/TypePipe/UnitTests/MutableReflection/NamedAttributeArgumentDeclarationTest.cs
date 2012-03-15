@@ -70,5 +70,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       new NamedAttributeArgumentDeclaration (fieldInfo, value);
     }
+
+    [Ignore ("TODO 4672")]
+    [Test]
+    public void Initialization_WithNullArgument ()
+    {
+    }
+
+    [Ignore ("TODO 4672")]
+    [Test]
+    public void Initialization_WithInvalidNullArgument ()
+    {
+    }
+
+    [Ignore ("TODO 4672")]
+    [Test]
+    public void Initialization_MemberMustBeWritable ()
+    {
+    }
   }
 }

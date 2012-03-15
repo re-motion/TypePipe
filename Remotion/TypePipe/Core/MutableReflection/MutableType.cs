@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalTypeInfo.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
     }
 
-    public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes)
+    public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);

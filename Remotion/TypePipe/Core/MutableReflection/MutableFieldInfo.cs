@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
@@ -30,6 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly Type _fieldType;
     private readonly string _name;
     private readonly FieldAttributes _attributes;
+    private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
     public MutableFieldInfo (Type declaringType, Type fieldType, string name, FieldAttributes attributes)
     {
@@ -61,6 +64,18 @@ namespace Remotion.TypePipe.MutableReflection
     public override FieldAttributes Attributes
     {
       get { return _attributes; }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+
+      _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
     }
 
     #region Not Implemented from FieldInfo interface
