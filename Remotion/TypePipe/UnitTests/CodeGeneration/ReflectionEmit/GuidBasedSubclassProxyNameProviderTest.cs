@@ -17,6 +17,8 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -24,28 +26,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class GuidBasedSubclassProxyNameProviderTest
   {
     private GuidBasedSubclassProxyNameProvider _provider;
-    private Type _type;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
       _provider = new GuidBasedSubclassProxyNameProvider ();
-      _type = typeof (object);
+      _mutableType = MutableTypeObjectMother.Create (typeInfo: ExistingTypeInfoObjectMother.Create (typeof (object)));
     }
 
     [Test]
     public void GetSubclassProxyName ()
     {
-      var result = _provider.GetSubclassProxyName (_type);
+      var result = _provider.GetSubclassProxyName (_mutableType);
+
       Assert.That (result, Is.StringMatching (@"System\.Object_Proxy_.{32}"));
     }
 
     [Test]
     public void GetSubclassProxyName_NameIsUnique ()
     {
-      var result1 = _provider.GetSubclassProxyName (_type);
-      var result2 = _provider.GetSubclassProxyName (_type);
+      var result1 = _provider.GetSubclassProxyName (_mutableType);
+      var result2 = _provider.GetSubclassProxyName (_mutableType);
+
       Assert.That (result1, Is.Not.EqualTo (result2));
     }
+
+
   }
 }

@@ -53,15 +53,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications ()
     {
-      var mutableTypeMock = MutableTypeObjectMother.CreateStrictMock();
-      var fakeResultType = ReflectionObjectMother.GetSomeType ();
+      var mutableTypeMock = MutableTypeObjectMother.CreateStrictMock ();
       var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
-
-      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (fakeUnderlyingSystemType)).Return ("foofoo");
-
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
+      var fakeResultType = ReflectionObjectMother.GetSomeType ();
       bool acceptCalled = false;
 
+      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (mutableTypeMock)).Return ("foofoo");
       mutableTypeMock
           .Stub (stub => stub.UnderlyingSystemType)
           .Return (fakeUnderlyingSystemType);

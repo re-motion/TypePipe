@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -23,6 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyNameProvider
   {
-    string GetSubclassProxyName (Type underlyingSystemType);
+    string GetSubclassProxyName (MutableType mutableType);
   }
 }
