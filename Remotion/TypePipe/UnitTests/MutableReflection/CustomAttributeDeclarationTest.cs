@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Initialization_MemberDeclaringAreAssignable ()
+    public void Initialization_MemberDeclaringTypesAreAssignable ()
     {
       var constructor = typeof (DerivedCustomAttribute).GetConstructor (Type.EmptyTypes);
       var property = typeof (CustomAttribute).GetProperty ("Property");

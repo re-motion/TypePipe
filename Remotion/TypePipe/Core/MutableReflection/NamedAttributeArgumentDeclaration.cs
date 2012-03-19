@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
     public NamedAttributeArgumentDeclaration (PropertyInfo propertyInfo, object value)
     {
       ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
-      ArgumentUtility.CheckNotNullAndType ("value", value, propertyInfo.PropertyType);
+      ArgumentUtility.CheckType ("value", value, propertyInfo.PropertyType);
 
       _memberInfo = propertyInfo;
       _value = value;
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
     public NamedAttributeArgumentDeclaration (FieldInfo fieldInfo, object value)
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
-      ArgumentUtility.CheckNotNullAndType ("value", value, fieldInfo.FieldType);
+      ArgumentUtility.CheckType ("value", value, fieldInfo.FieldType);
 
       _memberInfo = fieldInfo;
       _value = value;

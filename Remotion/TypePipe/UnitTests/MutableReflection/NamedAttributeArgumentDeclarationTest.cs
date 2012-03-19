@@ -37,20 +37,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
-      "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
-    public void Initialization_Property_ValueNotAssignable ()
-    {
-      var propertyInfo = ReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
-      string value = "not assignable";
-
-      new NamedAttributeArgumentDeclaration (propertyInfo, value);
-    }
-
-    [Test]
     public void Initialization_Field ()
     {
-      var fieldInfo = ReflectionObjectMother.GetFieldWithType(typeof (ValueType));
+      var fieldInfo = ReflectionObjectMother.GetFieldWithType (typeof (ValueType));
       int value = 7;
 
       var declaration = new NamedAttributeArgumentDeclaration (fieldInfo, value);
@@ -62,24 +51,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
       "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
-    public void Initialization_Field_ValueNotAssignable ()
+    public void Initialization_ValueNotAssignable ()
     {
-      var fieldInfo = ReflectionObjectMother.GetFieldWithType (typeof (ValueType));
+      var propertyInfo = ReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
       string value = "not assignable";
 
-      new NamedAttributeArgumentDeclaration (fieldInfo, value);
+      new NamedAttributeArgumentDeclaration (propertyInfo, value);
     }
 
-    [Ignore ("TODO 4672")]
+    [Test]
+    public void Initialization_ValueAssignable ()
+    {
+      var propertyInfo = ReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
+      int value = 7;
+
+      new NamedAttributeArgumentDeclaration (propertyInfo, value);
+    }
+
     [Test]
     public void Initialization_WithNullArgument ()
     {
+      var nullableMember2 = ReflectionObjectMother.GetPropertyWithType (typeof (object));
+      var nullableMember1 = ReflectionObjectMother.GetPropertyWithType (typeof (int?));
+
+      new NamedAttributeArgumentDeclaration (nullableMember1, null);
+      new NamedAttributeArgumentDeclaration (nullableMember2, null);
     }
 
-    [Ignore ("TODO 4672")]
     [Test]
+    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
+      "Argument value has type <null> when type System.Int32 was expected.\r\nParameter name: value")]
     public void Initialization_WithInvalidNullArgument ()
     {
+      var nonNullMember = ReflectionObjectMother.GetPropertyWithType (typeof (int));
+
+      new NamedAttributeArgumentDeclaration (nonNullMember, null);
     }
 
     [Ignore ("TODO 4672")]

@@ -30,6 +30,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public ValueType VaueTypeField = null;
       public ValueType ValueTypeProperty { get; set; }
       public string StringProperty { get; set; }
+      public object ObjectProperty { get; set; }
+      public int? NullableIntProperty { get; set; }
+      public int IntProperty { get; set; }
     }
 
     private static readonly Random s_random = new Random();
