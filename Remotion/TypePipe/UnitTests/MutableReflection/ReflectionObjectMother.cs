@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public object ObjectProperty { get; set; }
       public int? NullableIntProperty { get; set; }
       public int IntProperty { get; set; }
+      public double DoubleReadOnlyProperty { get { return 7.0; } }
     }
 
     private static readonly Random s_random = new Random();
@@ -83,12 +84,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_defaultCtors);
     }
 
-    public static PropertyInfo GetPropertyWithType (Type propertyType)
+    public static PropertyInfo GetReadWritePropertyWithType (Type propertyType)
     {
       var property = s_propertiesByType.GetValueOrDefault (propertyType);
       if (property == null)
       {
         var message = string.Format ("There is no property with type '{0}'. Please add it to '{1}'.", propertyType, typeof (ClassWithMembers));
+        throw new NotSupportedException (message);
+      }
+
+      return property;
+    }
+
+    public static PropertyInfo GetReadonlyProperyWithType (Type propertyType)
+    {
+      var property = GetReadWritePropertyWithType (propertyType);
+      if (property.CanWrite)
+      {
+        var message = string.Format ("There is no readonly property with type '{0}'. Please add it to '{1}'.", propertyType, typeof (ClassWithMembers));
         throw new NotSupportedException (message);
       }
 

@@ -33,6 +33,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
       ArgumentUtility.CheckType ("value", value, propertyInfo.PropertyType);
 
+      if (!propertyInfo.CanWrite)
+      {
+        var message = string.Format ("Property '{0}' is not writable.", propertyInfo.Name);
+        throw new ArgumentException (message, "propertyInfo");
+      }
+
       _memberInfo = propertyInfo;
       _value = value;
     }
@@ -41,6 +47,12 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
       ArgumentUtility.CheckType ("value", value, fieldInfo.FieldType);
+
+      if (fieldInfo.IsLiteral || fieldInfo.IsInitOnly)
+      {
+        var message = string.Format ("Field '{0}' is not writable.", fieldInfo.Name);
+        throw new ArgumentException (message, "fieldInfo");
+      }
 
       _memberInfo = fieldInfo;
       _value = value;

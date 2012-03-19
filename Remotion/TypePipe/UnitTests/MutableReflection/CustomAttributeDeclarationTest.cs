@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization_InvalidMemberDeclaringType ()
     {
       var constructor = ReflectionObjectMother.GetSomeDefaultConstructor();
-      var property = ReflectionObjectMother.GetPropertyWithType(typeof(string));
+      var property = ReflectionObjectMother.GetReadWritePropertyWithType(typeof(string));
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, "propertyValue"));
     }

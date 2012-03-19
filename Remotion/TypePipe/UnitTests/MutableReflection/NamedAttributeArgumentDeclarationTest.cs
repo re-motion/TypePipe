@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.IO;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -27,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_Property ()
     {
-      var propertyInfo = ReflectionObjectMother.GetPropertyWithType(typeof(ValueType));
+      var propertyInfo = ReflectionObjectMother.GetReadWritePropertyWithType(typeof(ValueType));
       int value = 7;
 
       var declaration = new NamedAttributeArgumentDeclaration (propertyInfo, value);
@@ -53,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
     public void Initialization_ValueNotAssignable ()
     {
-      var propertyInfo = ReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
+      var propertyInfo = ReflectionObjectMother.GetReadWritePropertyWithType (typeof (ValueType));
       string value = "not assignable";
 
       new NamedAttributeArgumentDeclaration (propertyInfo, value);
@@ -62,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_ValueAssignable ()
     {
-      var propertyInfo = ReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
+      var propertyInfo = ReflectionObjectMother.GetReadWritePropertyWithType (typeof (ValueType));
       int value = 7;
 
       new NamedAttributeArgumentDeclaration (propertyInfo, value);
@@ -71,8 +72,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WithNullArgument ()
     {
-      var nullableMember2 = ReflectionObjectMother.GetPropertyWithType (typeof (object));
-      var nullableMember1 = ReflectionObjectMother.GetPropertyWithType (typeof (int?));
+      var nullableMember2 = ReflectionObjectMother.GetReadWritePropertyWithType (typeof (object));
+      var nullableMember1 = ReflectionObjectMother.GetReadWritePropertyWithType (typeof (int?));
 
       new NamedAttributeArgumentDeclaration (nullableMember1, null);
       new NamedAttributeArgumentDeclaration (nullableMember2, null);
@@ -83,15 +84,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Argument value has type <null> when type System.Int32 was expected.\r\nParameter name: value")]
     public void Initialization_WithInvalidNullArgument ()
     {
-      var nonNullMember = ReflectionObjectMother.GetPropertyWithType (typeof (int));
+      var nonNullMember = ReflectionObjectMother.GetReadWritePropertyWithType (typeof (int));
 
       new NamedAttributeArgumentDeclaration (nonNullMember, null);
     }
 
-    [Ignore ("TODO 4672")]
     [Test]
-    public void Initialization_MemberMustBeWritable ()
+    [ExpectedException (typeof(ArgumentException), ExpectedMessage =
+      "Property 'DoubleReadOnlyProperty' is not writable.\r\nParameter name: propertyInfo")]
+    public void Initialization_Property_MustBeWritable ()
     {
+      var property = ReflectionObjectMother.GetReadonlyProperyWithType (typeof (double));
+
+      new NamedAttributeArgumentDeclaration (property, 7.7);
     }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Field 'EmptyTypes' is not writable.\r\nParameter name: fieldInfo")]
+    public void Initialization_Field_MustBeWritable_Readonly ()
+    {
+      var readonlyField = typeof (Type).GetField ("EmptyTypes");
+
+      new NamedAttributeArgumentDeclaration (readonlyField, Type.EmptyTypes);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Field 'c_string' is not writable.\r\nParameter name: fieldInfo")]
+    public void Initialization_Field_MustBeWritable_Literal ()
+    {
+      var literalField = GetType ().GetField ("c_string");
+
+      new NamedAttributeArgumentDeclaration (literalField, "value");
+    }
+
+    public const string c_string = "string";
   }
 }
