@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
       ArgumentUtility.CheckNotNull ("namedArguments", namedArguments);
 
+      CheckConstructor (attributeConstructorInfo);
       CheckConstructorArguments(attributeConstructorInfo, constructorArguments);
       CheckDeclaringTypes (attributeConstructorInfo, namedArguments);
 
@@ -59,6 +60,21 @@ namespace Remotion.TypePipe.MutableReflection
     public NamedAttributeArgumentDeclaration[] NamedArguments
     {
       get { return _namedArguments; }
+    }
+
+    private void CheckConstructor (ConstructorInfo attributeConstructorInfo)
+    {
+      if (!attributeConstructorInfo.IsPublic)
+      {
+        var message = string.Format ("The attribute constructor '{0}' is not a public instance constructor.", attributeConstructorInfo);
+        throw new ArgumentException (message, "attributeConstructorInfo");
+      }
+
+      if (!attributeConstructorInfo.DeclaringType.IsVisible)
+      {
+        var message = string.Format ("The attribute type '{0}' is not publicly visible.", attributeConstructorInfo.DeclaringType.FullName);
+        throw new ArgumentException (message, "attributeConstructorInfo");
+      }
     }
 
     private void CheckConstructorArguments (ConstructorInfo attributeConstructorInfo, object[] constructorArguments)

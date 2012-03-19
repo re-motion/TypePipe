@@ -59,8 +59,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_fieldInfo.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { customAttribute }));
     }
 
-    // TODO More checks for AddCustomAttribute errors?
-
     [Ignore ("TODO 4672")]
     [Test]
     public void GetCustomAttribute ()

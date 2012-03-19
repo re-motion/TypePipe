@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           new NamedAttributeArgumentDeclaration (typeof (CustomAttribute).GetField ("Field"), new object()));
     }
 
-    private class CustomAttribute
+    public class CustomAttribute
     {
       public object Field = null;
 

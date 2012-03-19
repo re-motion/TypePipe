@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (new[] { typeof (ValueType) });
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ((ValueType) null));
       var property = typeof (CustomAttribute).GetProperty ("Property");
       var field = typeof (CustomAttribute).GetField ("Field");
 
@@ -54,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WithNullArgument ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (new[] { typeof (ValueType) });
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ((ValueType) null));
 
       var declaration = new CustomAttributeDeclaration (constructor, new object[] { null });
 
@@ -63,10 +64,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: attributeConstructorInfo")]
+    public void Initialization_NonPublicConstructor ()
+    {
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ("internal"));
+
+      new CustomAttributeDeclaration (constructor, new object[] { "ctorArg" });
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "The attribute constructor 'Void .cctor()' is not a public instance constructor.\r\nParameter name: attributeConstructorInfo")]
+    public void Initialization_TypeInitializer ()
+    {
+      var constructor = typeof (CustomAttribute).GetConstructor (BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+      
+      new CustomAttributeDeclaration (constructor, new object[0]);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The attribute type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+PrivateCustomAttribute' is not publicly "
+        + "visible.\r\nParameter name: attributeConstructorInfo")]
+    public void Initialization_NonVisibleCustomAttributeType ()
+    {
+      var constructor = ReflectionObjectMother.GetConstructor (() => new PrivateCustomAttribute ());
+
+      new CustomAttributeDeclaration (constructor, new object[0]);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
       "Expected 1 constructor argument(s), but was 2.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidConstructorArgumentCount ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (new[] { typeof (ValueType) });
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ((ValueType) null));
 
       new CustomAttributeDeclaration (constructor, new object[] { 7, 8 });
     }
@@ -76,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Item 0 of argument constructorArguments has the type System.String instead of System.ValueType.")]
     public void Initialization_InvalidConstructorArgumentType ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (new[] { typeof (ValueType) });
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ((ValueType) null));
 
       new CustomAttributeDeclaration (constructor, new object[] { "string" });
     }
@@ -86,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Constructor parameter at 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidNullArgument ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (new[] { typeof (int) });
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute (0));
 
       new CustomAttributeDeclaration (constructor, new object[] { null });
     }
@@ -98,7 +130,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (Type.EmptyTypes);
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ());
       var property = ReflectionObjectMother.GetProperty ((DerivedCustomAttribute attr) => attr.PropertyInDerivedType);
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, 7));
@@ -107,17 +139,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_MemberDeclaringTypesAreAssignable ()
     {
-      var constructor = typeof (DerivedCustomAttribute).GetConstructor (Type.EmptyTypes);
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ());
       var property = typeof (CustomAttribute).GetProperty ("Property");
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
     }
 
-    private class CustomAttribute
+    public class CustomAttribute
     {
 #pragma warning disable 169
       public string Field = null;
 #pragma warning restore 169
+
+      static CustomAttribute ()
+      {
+        Dev.Null = null;
+      }
 
       public CustomAttribute ()
       {
@@ -131,6 +168,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       {
       }
 
+      internal CustomAttribute (string arg)
+      {
+      }
+
       public int Property { get; set;}
     }
 
@@ -139,6 +180,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 // ReSharper disable UnusedAutoPropertyAccessor.Local
       public int PropertyInDerivedType { get; set; }
 // ReSharper restore UnusedAutoPropertyAccessor.Local
+    }
+
+    private class PrivateCustomAttribute
+    {
     }
   }
 }
