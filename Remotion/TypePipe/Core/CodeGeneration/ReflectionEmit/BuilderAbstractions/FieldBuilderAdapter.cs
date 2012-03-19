@@ -14,43 +14,33 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
-  /// Adapts <see cref="TypeBuilder"/> with the <see cref="ITypeBuilder"/> interface.
+  /// Adapts <see cref="FieldBuilder"/> with the <see cref="IFieldBuilder"/> interface.
   /// </summary>
-  public class TypeBuilderAdapter : ITypeBuilder
+  public class FieldBuilderAdapter : IFieldBuilder
   {
-    private readonly TypeBuilder _typeBuilder;
+    private readonly FieldBuilder _fieldBuilder;
 
-    public TypeBuilderAdapter (TypeBuilder typeBuilder)
+    public FieldBuilderAdapter (FieldBuilder fieldBuilder)
     {
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-      _typeBuilder = typeBuilder;
+      ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
+      _fieldBuilder = fieldBuilder;
     }
 
-    public void AddInterfaceImplementation (Type interfaceType)
+    public FieldBuilder FieldBuilder
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
-      _typeBuilder.AddInterfaceImplementation (interfaceType);
+      get { return _fieldBuilder; }
     }
 
-    public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
+    public void SetCustomAttribute (CustomAttributeBuilder customBuilder)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      return new FieldBuilderAdapter (_typeBuilder.DefineField (name, type, attributes));
-    }
-
-    public Type CreateType ()
-    {
-      return _typeBuilder.CreateType();
+      ArgumentUtility.CheckNotNull ("customBuilder", customBuilder);
+      _fieldBuilder.SetCustomAttribute (customBuilder);
     }
   }
 }

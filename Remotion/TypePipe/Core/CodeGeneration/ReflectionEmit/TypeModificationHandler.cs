@@ -15,6 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -47,7 +50,24 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void HandleAddedField (MutableFieldInfo addedField)
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
-      _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
+      var fieldBuilder = _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
+
+      foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
+      {
+        var propertyArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property);
+        var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field);
+
+        var customAttributeBuilder = new CustomAttributeBuilder (
+            declaration.AttributeConstructorInfo, 
+            declaration.ConstructorArguments,
+            propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray(),
+            propertyArguments.Select (namedArg => namedArg.Value).ToArray(),
+            fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray(),
+            fieldArguments.Select (namedArg => namedArg.Value).ToArray()
+            );
+
+        fieldBuilder.SetCustomAttribute (customAttributeBuilder);
+      }
     }
 
     public void HandleAddedConstructor (MutableConstructorInfo addedConstructor)

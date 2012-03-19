@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -88,6 +87,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return items;
     }
 
+    public static ConstructorInfo GetConstructor<T> (Expression<Func<T>> newExpression)
+    {
+      Assertion.IsTrue (newExpression.Body is NewExpression, "Parameter newExpression must be a NewExpression.");
+      var constructor = ((NewExpression) newExpression.Body).Constructor;
+      return constructor;
+    }
+
     public static PropertyInfo GetProperty<T> (Expression<Func<T>> memberExpression)
     {
       Assertion.IsTrue (memberExpression.Body is MemberExpression, "Parameter memberExpression must be a MemberExpression.");
@@ -105,6 +111,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static FieldInfo GetField<T> (Expression<Func<T>> memberExpression)
+    {
+      Assertion.IsTrue (memberExpression.Body is MemberExpression, "Parameter memberExpression must be a MemberExpression.");
+      var member = ((MemberExpression) memberExpression.Body).Member;
+      Assertion.IsTrue (member is FieldInfo, "Parameter memberExpression must hold a field access expression.");
+      return (FieldInfo) member;
+    }
+
+    public static FieldInfo GetField<TSourceObject, TMemberType> (Expression<Func<TSourceObject, TMemberType>> memberExpression)
     {
       Assertion.IsTrue (memberExpression.Body is MemberExpression, "Parameter memberExpression must be a MemberExpression.");
       var member = ((MemberExpression) memberExpression.Body).Member;

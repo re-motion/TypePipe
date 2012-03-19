@@ -56,7 +56,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (fieldInfo.Attributes, Is.EqualTo (fieldAttributes));
     }
 
-    [Ignore]
     [Test]
     public void WithCustomAttribute ()
     {
@@ -82,7 +81,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (customAttributes, Has.Length.EqualTo (1));
 
       var customAttribute = (AddedAttribute) customAttributes.Single();
-      Assert.That(customAttribute.CtorArg, Is.EqualTo("ctoArg"));
+      Assert.That(customAttribute.CtorArg, Is.EqualTo("ctorArg"));
       Assert.That (customAttribute.NamedPropertyArg, Is.EqualTo (7));
       Assert.That (customAttribute.NamedFieldArg, Is.EqualTo (new[] { MyEnum.Other, MyEnum.Default }));
     }
@@ -102,7 +101,7 @@ namespace TypePipe.IntegrationTests
 
     public class AddedAttribute : Attribute
     {
-      public BindingFlags[] NamedFieldArg;
+      public MyEnum[] NamedFieldArg;
 
       private readonly string _ctorArg;
 

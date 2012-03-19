@@ -14,19 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="TypeBuilder"/>.
+  /// Defines an interface for <see cref="FieldBuilder"/>.
   /// </summary>
-  public interface ITypeBuilder
+  public interface IFieldBuilder
   {
-    void AddInterfaceImplementation (Type interfaceType);
-    IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
-    Type CreateType ();
+    void SetCustomAttribute (CustomAttributeBuilder customBuilder);
   }
 }

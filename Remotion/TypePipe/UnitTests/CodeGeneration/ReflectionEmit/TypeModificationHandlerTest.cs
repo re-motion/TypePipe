@@ -15,9 +15,13 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using System.Reflection.Emit;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -54,6 +58,76 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _handler.HandleAddedField (addedField);
 
       _subclassProxyBuilderMock.AssertWasCalled (mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes));
+    }
+
+    [Test]
+    public void HandleAddedField_WithCustomAttribute ()
+    {
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute(""));
+      var property = ReflectionObjectMother.GetProperty ((CustomAttribute attr) => attr.Property);
+      var field = ReflectionObjectMother.GetField ((CustomAttribute attr) => attr.Field);
+      var constructorArguments = new object[] { "ctorArgs" };
+      var declaration = new CustomAttributeDeclaration (
+          constructor,
+          constructorArguments,
+          new NamedAttributeArgumentDeclaration (property, 7),
+          new NamedAttributeArgumentDeclaration (field, "test"));
+      var addedField = MutableFieldInfoObjectMother.Create ();
+      addedField.AddCustomAttribute (declaration);
+
+      var fieldBuilderMock = MockRepository.GenerateMock<IFieldBuilder>();
+      _subclassProxyBuilderMock
+          .Stub (stub => stub.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
+          .Return (fieldBuilderMock);
+      fieldBuilderMock
+          .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeBuilder>.Is.Anything))
+          .WhenCalled (mi => CheckCustomAttributeBuilder (
+              (CustomAttributeBuilder) mi.Arguments[0], 
+              constructor,
+              constructorArguments,
+              new[] { property },
+              new object[]  { 7 },
+              new[] { field },
+              new[] { "test" }));
+      
+      _handler.HandleAddedField (addedField);
+
+      fieldBuilderMock.VerifyAllExpectations();
+    }
+
+    private void CheckCustomAttributeBuilder (
+        CustomAttributeBuilder builder,
+        ConstructorInfo expectedCtor,
+        object[] expectedCtorArgs,
+        PropertyInfo[] expectedPropertyInfos,
+        object[] expectedPropertyValues,
+        FieldInfo[] expectedFieldInfos,
+        object[] expectedFieldValues)
+    {
+      var actualConstructor = (ConstructorInfo) PrivateInvoke.GetNonPublicField (builder, "m_con");
+      var actualConstructorArgs = (object[]) PrivateInvoke.GetNonPublicField (builder, "m_constructorArgs");
+      var actualBlob = (byte[]) PrivateInvoke.GetNonPublicField (builder, "m_blob");
+
+      Assert.That (actualConstructor, Is.SameAs (expectedCtor));
+      Assert.That (actualConstructorArgs, Is.EqualTo (expectedCtorArgs));
+
+      var testBuilder = new CustomAttributeBuilder (
+          expectedCtor, expectedCtorArgs, expectedPropertyInfos, expectedPropertyValues, expectedFieldInfos, expectedFieldValues);
+      var expectedBlob = (byte[]) PrivateInvoke.GetNonPublicField (testBuilder, "m_blob");
+      Assert.That (actualBlob, Is.EqualTo (expectedBlob));
+    }
+
+    public class CustomAttribute : Attribute
+    {
+      public string Field;
+
+      public CustomAttribute (string ctorArgument)
+      {
+        CtorArgument = ctorArgument;
+      }
+
+      public string CtorArgument { get; private set; }
+      public int Property { get; set; }
     }
   }
 }
