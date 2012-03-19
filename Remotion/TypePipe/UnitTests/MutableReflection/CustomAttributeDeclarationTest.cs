@@ -20,6 +20,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -97,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
-      var constructor = ReflectionObjectMother.GetSomeDefaultConstructor();
+      var constructor = typeof (List<int>).GetConstructor (Type.EmptyTypes);
       var property = ReflectionObjectMother.GetReadWritePropertyWithType(typeof(string));
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, "propertyValue"));
