@@ -62,6 +62,15 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _namedArguments; }
     }
 
+    public object CreateInstance ()
+    {
+      var instance = _attributeConstructorInfo.Invoke (_constructorArguments);
+      foreach (var namedArgument in _namedArguments)
+        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
+
+      return instance;
+    }
+
     private void CheckConstructor (ConstructorInfo attributeConstructorInfo)
     {
       if (!attributeConstructorInfo.IsPublic)

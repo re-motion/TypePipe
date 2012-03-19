@@ -59,9 +59,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_fieldInfo.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { customAttribute }));
     }
 
-    [Ignore ("TODO 4672")]
     [Test]
-    public void GetCustomAttribute ()
+    public void GetCustomAttributes_WithoutFilter ()
+    {
+      var customAttribute = CustomAttributeDeclarationObjectMother.Create ();
+      _fieldInfo.AddCustomAttribute (customAttribute);
+      
+      var result = _fieldInfo.GetCustomAttributes (false);
+      
+      Assert.That (result, Has.Length.EqualTo (1).And.Some.TypeOf (customAttribute.AttributeConstructorInfo.DeclaringType));
+    }
+
+    [Test]
+    public void GetCustomAttributes_WithFilter ()
+    {
+      var baseCustomAttribute = CustomAttributeDeclarationObjectMother.Create (typeof (CustomAttribute));
+      var derivedCustomAttribute = CustomAttributeDeclarationObjectMother.Create (typeof (DerivedCustomAttribute));
+
+      _fieldInfo.AddCustomAttribute (baseCustomAttribute);
+      _fieldInfo.AddCustomAttribute (derivedCustomAttribute);
+
+      var resultWithBaseFilter = _fieldInfo.GetCustomAttributes (typeof (CustomAttribute), false);
+      var resultWithDerivedFilter = _fieldInfo.GetCustomAttributes (typeof (DerivedCustomAttribute), false);
+
+      Assert.That (resultWithBaseFilter, Has.Length.EqualTo (2).And.Some.TypeOf<CustomAttribute> ().And.Some.TypeOf<DerivedCustomAttribute> ());
+      Assert.That (resultWithDerivedFilter, Has.Length.EqualTo (1).And.Some.TypeOf<DerivedCustomAttribute> ());
+    }
+
+    public class CustomAttribute : Attribute
+    {
+    }
+
+    public class DerivedCustomAttribute : CustomAttribute
     {
     }
   }

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -78,12 +79,23 @@ namespace Remotion.TypePipe.MutableReflection
       _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
     }
 
-    #region Not Implemented from FieldInfo interface
-
     public override object[] GetCustomAttributes (bool inherit)
     {
-      throw new NotImplementedException();
+      return AddedCustomAttributeDeclarations
+          .Select (attr => attr.CreateInstance())
+          .ToArray();
     }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      return AddedCustomAttributeDeclarations
+          .Where (attr => attributeType.IsAssignableFrom (attr.AttributeConstructorInfo.DeclaringType))
+          .Select (attr => attr.CreateInstance())
+          .ToArray();
+    }
+
+    #region Not Implemented from FieldInfo interface
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
@@ -108,11 +120,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override RuntimeFieldHandle FieldHandle
     {
       get { throw new NotImplementedException(); }
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
     }
 
     #endregion

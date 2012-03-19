@@ -145,6 +145,46 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
     }
 
+    [Test]
+    public void CreateInstance ()
+    {
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ());
+      var declaration = new CustomAttributeDeclaration (constructor, new object[0]);
+
+      var instance = declaration.CreateInstance();
+
+      Assert.That (instance, Is.TypeOf<CustomAttribute>());
+    }
+
+    [Test]
+    public void CreateInstance_WithCtorArgs ()
+    {
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute (0));
+      var declaration = new CustomAttributeDeclaration (constructor, new object[] { 7 });
+
+      var instance = (CustomAttribute) declaration.CreateInstance ();
+
+      Assert.That (instance.CtorIntArg, Is.EqualTo (7));
+    }
+
+    [Test]
+    public void CreateInstance_WithNamedArgs ()
+    {
+      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute ());
+      var property = ReflectionObjectMother.GetProperty ((CustomAttribute attr) => attr.Property);
+      var field = ReflectionObjectMother.GetField ((CustomAttribute attr) => attr.Field);
+      var declaration = new CustomAttributeDeclaration (
+          constructor, 
+          new object[0], 
+          new NamedAttributeArgumentDeclaration (property, 4711),
+          new NamedAttributeArgumentDeclaration (field, "1676"));
+
+      var instance = (CustomAttribute) declaration.CreateInstance ();
+
+      Assert.That (instance.Property, Is.EqualTo (4711));
+      Assert.That (instance.Field, Is.EqualTo ("1676"));
+    }
+
     public class CustomAttribute
     {
 #pragma warning disable 169
@@ -166,13 +206,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public CustomAttribute (int arg)
       {
+        CtorIntArg = arg;
       }
 
       internal CustomAttribute (string arg)
       {
       }
 
-      public int Property { get; set;}
+      public int CtorIntArg { get; set; }
+      public int Property { get; set; }
     }
 
     private class DerivedCustomAttribute : CustomAttribute
