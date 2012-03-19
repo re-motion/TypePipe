@@ -56,7 +56,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (fieldInfo.Attributes, Is.EqualTo (fieldAttributes));
     }
 
-    [Ignore("TODO 4672")]
+    [Ignore]
     [Test]
     public void WithCustomAttribute ()
     {

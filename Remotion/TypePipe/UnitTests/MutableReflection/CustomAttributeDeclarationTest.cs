@@ -20,7 +20,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -93,15 +92,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof(ArgumentException), ExpectedMessage = "Constructor declaring type 'System.Collections.Generic.List`1[System.Int32]' "
-      + "cannot be assigned to named argument declaring type 'Remotion.TypePipe.UnitTests.MutableReflection.ReflectionObjectMother+ClassWithMembers'."
+    [ExpectedException (typeof(ArgumentException), ExpectedMessage =
+      "Named argument 'PropertyInDerivedType' cannot be used with custom attribute type "
+      + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+CustomAttribute'."
       + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
-      var constructor = typeof (List<int>).GetConstructor (Type.EmptyTypes);
-      var property = ReflectionObjectMother.GetReadWritePropertyWithType(typeof(string));
+      var constructor = typeof (CustomAttribute).GetConstructor (Type.EmptyTypes);
+      var property = ReflectionObjectMother.GetProperty ((DerivedCustomAttribute attr) => attr.PropertyInDerivedType);
 
-      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, "propertyValue"));
+      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, 7));
     }
 
     [Test]
@@ -136,6 +136,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private class DerivedCustomAttribute : CustomAttribute
     {
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+      public int PropertyInDerivedType { get; set; }
+// ReSharper restore UnusedAutoPropertyAccessor.Local
     }
   }
 }

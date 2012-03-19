@@ -92,14 +92,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     private void CheckDeclaringTypes (ConstructorInfo attributeConstructorInfo, NamedAttributeArgumentDeclaration[] namedArguments)
     {
-      var ctorDeclaringType = attributeConstructorInfo.DeclaringType;
+      var attributeType = attributeConstructorInfo.DeclaringType;
       foreach (var namedArgument in namedArguments)
       {
         var memberDeclaringType = namedArgument.MemberInfo.DeclaringType;
-        if (!memberDeclaringType.IsAssignableFrom (ctorDeclaringType))
+        if (!memberDeclaringType.IsAssignableFrom (attributeType))
         {
           var message = string.Format (
-              "Constructor declaring type '{0}' cannot be assigned to named argument declaring type '{1}'.", ctorDeclaringType, memberDeclaringType);
+            "Named argument '{0}' cannot be used with custom attribute type '{1}'.", namedArgument.MemberInfo.Name, attributeType);
           throw new ArgumentException (message, "namedArguments");
         }
       }

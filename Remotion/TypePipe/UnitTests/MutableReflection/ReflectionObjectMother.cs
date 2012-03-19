@@ -16,26 +16,15 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using Remotion.Utilities;
 using System.Linq;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class ReflectionObjectMother
   {
-    private class ClassWithMembers
-    {
-      public ValueType VaueTypeField = null;
-      public ValueType ValueTypeProperty { get; set; }
-      public string StringProperty { get; set; }
-      public object ObjectProperty { get; set; }
-      public int? NullableIntProperty { get; set; }
-      public int IntProperty { get; set; }
-      public double DoubleReadOnlyProperty { get { return 7.0; } }
-    }
-
     private static readonly Random s_random = new Random();
 
     private static readonly Type[] s_types = EnsureNoNulls (new[] { typeof (DateTime), typeof (string) });
@@ -46,9 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
 
-    private static readonly Dictionary<Type, PropertyInfo> s_propertiesByType = typeof (ClassWithMembers).GetProperties().ToDictionary (pi => pi.PropertyType);
-    private static readonly Dictionary<Type, FieldInfo> s_fieldsByType = typeof (ClassWithMembers).GetFields ().ToDictionary (fi => fi.FieldType);
-    
     public static Type GetSomeType ()
     {
       return GetRandomElement (s_types);
@@ -84,40 +70,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_defaultCtors);
     }
 
-    public static PropertyInfo GetReadWritePropertyWithType (Type propertyType)
+    public static object GetDefaultValue (Type type)
     {
-      var property = s_propertiesByType.GetValueOrDefault (propertyType);
-      if (property == null)
-      {
-        var message = string.Format ("There is no property with type '{0}'. Please add it to '{1}'.", propertyType, typeof (ClassWithMembers));
-        throw new NotSupportedException (message);
-      }
-
-      return property;
-    }
-
-    public static PropertyInfo GetReadonlyProperyWithType (Type propertyType)
-    {
-      var property = GetReadWritePropertyWithType (propertyType);
-      if (property.CanWrite)
-      {
-        var message = string.Format ("There is no readonly property with type '{0}'. Please add it to '{1}'.", propertyType, typeof (ClassWithMembers));
-        throw new NotSupportedException (message);
-      }
-
-      return property;
-    }
-
-    public static FieldInfo GetFieldWithType (Type fieldType)
-    {
-      var field = s_fieldsByType.GetValueOrDefault (fieldType);
-      if (field == null)
-      {
-        var message = string.Format ("There is no field with type '{0}'. Please add it to '{1}'.", fieldType, typeof (ClassWithMembers));
-        throw new NotSupportedException (message);
-      }
-
-      return field;
+      return type.IsValueType ? Activator.CreateInstance (type) : null;
     }
 
     private static T GetRandomElement<T> (T[] array)
@@ -131,6 +86,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       foreach (var item in items)
         Assertion.IsNotNull (item);
       return items;
+    }
+
+    public static PropertyInfo GetProperty<T> (Expression<Func<T>> memberExpression)
+    {
+      Assertion.IsTrue (memberExpression.Body is MemberExpression, "Parameter memberExpression must be a MemberExpression.");
+      var member = ((MemberExpression) memberExpression.Body).Member;
+      Assertion.IsTrue (member is PropertyInfo, "Parameter memberExpression must hold a property access expression.");
+      return (PropertyInfo) member;
+    }
+
+    public static PropertyInfo GetProperty<TSourceObject, TMemberType> (Expression<Func<TSourceObject, TMemberType>> memberExpression)
+    {
+      Assertion.IsTrue (memberExpression.Body is MemberExpression, "Parameter memberExpression must be a MemberExpression.");
+      var member = ((MemberExpression) memberExpression.Body).Member;
+      Assertion.IsTrue (member is PropertyInfo, "Parameter memberExpression must hold a property access expression.");
+      return (PropertyInfo) member;
+    }
+
+    public static FieldInfo GetField<T> (Expression<Func<T>> memberExpression)
+    {
+      Assertion.IsTrue (memberExpression.Body is MemberExpression, "Parameter memberExpression must be a MemberExpression.");
+      var member = ((MemberExpression) memberExpression.Body).Member;
+      Assertion.IsTrue (member is FieldInfo, "Parameter memberExpression must hold a field access expression.");
+      return (FieldInfo) member;
     }
   }
 }
