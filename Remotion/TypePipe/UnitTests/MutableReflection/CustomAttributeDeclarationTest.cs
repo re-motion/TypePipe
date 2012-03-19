@@ -91,16 +91,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       new CustomAttributeDeclaration (constructor, new object[] { null });
     }
 
-    [Ignore("TODO 4672")]
     [Test]
+    [ExpectedException (typeof(ArgumentException), ExpectedMessage = "Constructor declaring type 'System.Collections.Generic.List`1[System.Int32]' "
+      + "cannot be assigned to named argument declaring type 'Remotion.TypePipe.UnitTests.MutableReflection.ReflectionObjectMother+ClassWithMembers'."
+      + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
-      // Constructor.DeclaringType must be assignable to all fields and properties.DeclaringType
+      var constructor = ReflectionObjectMother.GetSomeDefaultConstructor();
+      var property = ReflectionObjectMother.GetPropertyWithType(typeof(string));
+
+      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, "propertyValue"));
+    }
+
+    [Test]
+    public void Initialization_MemberDeclaringAreAssignable ()
+    {
+      var constructor = typeof (DerivedCustomAttribute).GetConstructor (Type.EmptyTypes);
+      var property = typeof (CustomAttribute).GetProperty ("Property");
+
+      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
     }
 
     private class CustomAttribute
     {
+#pragma warning disable 169
       public string Field = null;
+#pragma warning restore 169
+
+      public CustomAttribute ()
+      {
+      }
 
       public CustomAttribute (ValueType valueType)
       {
@@ -111,6 +131,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
 
       public int Property { get; set;}
+    }
+
+    private class DerivedCustomAttribute : CustomAttribute
+    {
     }
   }
 }

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Dynamic.Utils;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -39,6 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("namedArguments", namedArguments);
 
       CheckConstructorArguments(attributeConstructorInfo, constructorArguments);
+      CheckDeclaringTypes (attributeConstructorInfo, namedArguments);
 
       _attributeConstructorInfo = attributeConstructorInfo;
       _constructorArguments = constructorArguments;
@@ -85,6 +87,21 @@ namespace Remotion.TypePipe.MutableReflection
         else if (!parameterType.IsInstanceOfType (argument))
         {
           throw new ArgumentItemTypeException ("constructorArguments", i, parameterType, argument.GetType ());
+        }
+      }
+    }
+
+    private void CheckDeclaringTypes (ConstructorInfo attributeConstructorInfo, NamedAttributeArgumentDeclaration[] namedArguments)
+    {
+      var ctorDeclaringType = attributeConstructorInfo.DeclaringType;
+      foreach (var namedArgument in namedArguments)
+      {
+        var memberDeclaringType = namedArgument.MemberInfo.DeclaringType;
+        if (!memberDeclaringType.IsAssignableFrom (ctorDeclaringType))
+        {
+          var message = string.Format (
+              "Constructor declaring type '{0}' cannot be assigned to named argument declaring type '{1}'.", ctorDeclaringType, memberDeclaringType);
+          throw new ArgumentException (message, "namedArguments");
         }
       }
     }
