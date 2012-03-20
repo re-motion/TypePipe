@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
@@ -46,6 +47,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       _visitor.VisitThisExpression (thisExpression);
 
       _ilGeneratorMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void VisitTypeAsUnderlyingSystemTypeExpression ()
+    {
+      var typeWithUnderlyingSystemType = MutableTypeObjectMother.CreateForExistingType();
+      var innerExpression = Expression.Constant (null, typeWithUnderlyingSystemType);
+      var expression = new TypeAsUnderlyingSystemTypeExpression (innerExpression);
+
+      // No calls to _ilGeneratorMock expected.
+
+      _visitor.VisitTypeAsUnderlyingSystemTypeExpression (expression);
     }
   }
 }

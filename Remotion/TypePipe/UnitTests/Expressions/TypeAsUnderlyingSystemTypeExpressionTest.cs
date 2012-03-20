@@ -17,30 +17,41 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class ThisExpressionTest
+  public class TypeAsUnderlyingSystemTypeExpressionTest
   {
-    private Type _type;
-    private ThisExpression _expression;
+    private MutableType _typeWithUnderlyingSystemType;
+    private Expression _innerExpression;
+
+    private TypeAsUnderlyingSystemTypeExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
-      _type = ReflectionObjectMother.GetSomeType ();
-      _expression = new ThisExpression (_type);
+      _typeWithUnderlyingSystemType = MutableTypeObjectMother.CreateForExistingType();
+      Assert.That (_typeWithUnderlyingSystemType.UnderlyingSystemType, Is.Not.Null.And.Not.SameAs (_typeWithUnderlyingSystemType));
+      _innerExpression = Expression.Constant (null, _typeWithUnderlyingSystemType);
+
+      _expression = new TypeAsUnderlyingSystemTypeExpression (_innerExpression);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expression.Type, Is.SameAs (_type));
+      Assert.That (_expression.InnerExpression, Is.SameAs (_innerExpression));
+    }
+
+    [Test]
+    public void Type ()
+    {
+      Assert.That (_expression.Type, Is.SameAs (_typeWithUnderlyingSystemType.UnderlyingSystemType));
     }
 
     [Test]
@@ -52,17 +63,17 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Accept ()
     {
-      var visitorMock = MockRepository.GenerateMock<ITypePipeExpressionVisitor>();
+      var visitorMock = MockRepository.GenerateMock<ITypePipeExpressionVisitor> ();
 
       _expression.Accept (visitorMock);
 
-      visitorMock.AssertWasCalled (mock => mock.VisitThisExpression (_expression));
+      visitorMock.AssertWasCalled (mock => mock.VisitTypeAsUnderlyingSystemTypeExpression (_expression));
     }
 
     [Test]
     public void VisitChildren ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
 
       // Expectation: No calls to expressionVisitorMock.
       var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);

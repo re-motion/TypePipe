@@ -14,35 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using NUnit.Framework;
+using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.UnitTests.Expressions
 {
-  [TestFixture]
-  [Ignore ("TODO 4694")]
-  public class AddInterfaceTest : TypeAssemblerIntegrationTestBase
+  public static class ExpressionTestHelper
   {
-    [Test]
-    public void MarkerInterface ()
+    public static Expression CallVisitChildren (Expression expression, ExpressionVisitor expressionVisitorMock)
     {
-      Assert.That (typeof (OriginalType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
-
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
-
-      Assert.That (type.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
-    }
-
-    public class OriginalType : IOriginalInterface
-    {
-    }
-
-    public interface IOriginalInterface
-    {
-    }
-
-    public interface IMarkerInterface
-    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "VisitChildren", expressionVisitorMock);
     }
   }
 }

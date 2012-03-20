@@ -16,6 +16,8 @@
 // 
 using System;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
@@ -24,5 +26,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// </summary>
   public interface IConstructorBuilder
   {
+    void SetBody (LambdaExpression body, DebugInfoGenerator debugInfoGeneratorOrNull);
   }
 }

@@ -38,10 +38,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _ilGenerator; }
     }
 
-    public void VisitThisExpression (ThisExpression thisExpression)
+    public void VisitThisExpression (ThisExpression expression)
     {
-      ArgumentUtility.CheckNotNull ("thisExpression", thisExpression);
+      ArgumentUtility.CheckNotNull ("expression", expression);
       _ilGenerator.Emit (OpCodes.Ldarg_0);
+    }
+
+    public void VisitTypeAsUnderlyingSystemTypeExpression (TypeAsUnderlyingSystemTypeExpression expression)
+    {
     }
   }
 }

@@ -908,6 +908,9 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private Result RewriteExtensionExpression(Expression expr, Stack stack) {
+            if (expr is Remotion.TypePipe.Expressions.ITypePipeExpression)
+                return new Result (RewriteAction.None, expr);
+
             Result result = RewriteExpression(expr.ReduceExtensions(), stack);
             // it's at least Copy because we reduced the node
             return new Result(result.Action | RewriteAction.Copy, result.Node);

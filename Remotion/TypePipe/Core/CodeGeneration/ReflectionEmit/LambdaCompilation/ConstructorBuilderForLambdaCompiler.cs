@@ -45,7 +45,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void SetReturnType (Type returnType)
     {
-      Assertion.IsTrue (returnType == _constructorBuilder.ReturnType);
+      // Constructors must always have void return type.
+      Assertion.IsTrue (returnType == typeof (void));
     }
 
     public void SetParameters (Type[] parameterType)

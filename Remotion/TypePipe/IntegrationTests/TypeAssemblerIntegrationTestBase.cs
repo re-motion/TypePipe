@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
@@ -105,10 +106,13 @@ namespace TypePipe.IntegrationTests
       var assemblyName = new AssemblyName (testName);
       _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
       _generatedFileName = assemblyName.Name + ".dll";
+      
       var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
-      var typeModifier = new TypeModifier (new ModuleBuilderAdapter (moduleBuilder), new GuidBasedSubclassProxyNameProvider());
+      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
+      var guidBasedSubclassProxyNameProvider = new GuidBasedSubclassProxyNameProvider ();
+      var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
 
-      return typeModifier;
+      return new TypeModifier (moduleBuilderAdapter, guidBasedSubclassProxyNameProvider, debugInfoGenerator);
     }
 
     private string GetNameForThisTest (int stackFramesToSkip)

@@ -16,26 +16,32 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Represents the "this" instance within an instance method body.
+  /// Represents an <see cref="Expression"/> of a <see cref="MutableType"/> as its <see cref="MutableType.UnderlyingSystemType"/>.
   /// </summary>
-  public class ThisExpression : Expression, ITypePipeExpression
+  public class TypeAsUnderlyingSystemTypeExpression : Expression, ITypePipeExpression
   {
-    private readonly Type _type;
+    private readonly Expression _innerExpression;
 
-    public ThisExpression (Type type)
+    public TypeAsUnderlyingSystemTypeExpression (Expression innerExpression)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
-      _type = type;
+      ArgumentUtility.CheckNotNull ("innerExpression", innerExpression);
+      _innerExpression = innerExpression;
+    }
+
+    public Expression InnerExpression
+    {
+      get { return _innerExpression; }
     }
 
     public override Type Type
     {
-      get { return _type; }
+      get { return _innerExpression.Type.UnderlyingSystemType; }
     }
 
     public override ExpressionType NodeType
@@ -46,9 +52,9 @@ namespace Remotion.TypePipe.Expressions
     public void Accept (ITypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
-      visitor.VisitThisExpression (this);
+      visitor.VisitTypeAsUnderlyingSystemTypeExpression (this);
     }
-
+    
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);

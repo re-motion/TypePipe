@@ -23,11 +23,11 @@ using NUnit.Framework;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
+  [Ignore ("TODO 4694")]
   public class KeepConstructorsTest : TypeAssemblerIntegrationTestBase
   {
     private const BindingFlags CtorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-    [Ignore("TODO 4694")]
     [Test]
     public void KeepPublicAndProtectedConstructors ()
     {

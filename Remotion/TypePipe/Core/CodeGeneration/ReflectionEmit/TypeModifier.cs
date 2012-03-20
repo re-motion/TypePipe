@@ -16,9 +16,14 @@
 // 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -32,14 +37,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly IModuleBuilder _moduleBuilder;
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
+    private readonly DebugInfoGenerator _debugInfoGenerator;
 
-    public TypeModifier (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider)
+    public TypeModifier (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider, DebugInfoGenerator debugInfoGenerator)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
+      ArgumentUtility.CheckNotNull ("debugInfoGenerator", debugInfoGenerator);
 
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
+      _debugInfoGenerator = debugInfoGenerator;
     }
 
     public Type ApplyModifications (MutableType mutableType)
@@ -52,12 +60,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      // TODO 4694
-      // foreach ctor in mutableType.GetConstructors(BindingFlags.Public | NonPublic)
-      //   var ctorBuilder = typeBuilder.DefineCtor (...);
-      //   var parameters = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name);
-      //   var baseCallExpression = Expression.Lambda (Expression.Call (new ThisExpression (...), ctor, parameters), parameters);
-      //   ctorBuilder.SetBody (baseCallExpression);
+      foreach (var ctor in mutableType.GetConstructors ()) // TODO 4694: NonPublic, no statics
+      {
+        var ctorParameters = ctor.GetParameters();
+        var methodAttributes = MethodAttributes.RTSpecialName | MethodAttributes.SpecialName | MethodAttributes.Public;
+        var parameterTypes = ctorParameters.Select (pi => pi.ParameterType).ToArray();
+        var ctorBuilder = typeBuilder.DefineConstructor (methodAttributes, CallingConventions.HasThis, parameterTypes);
+
+        var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
+        var baseCallExpression = Expression.Call (
+            new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)), 
+            new BaseConstructorMethodInfo (ctor), 
+            parameterExpressions.Cast<Expression>());
+        var body = Expression.Lambda (baseCallExpression, parameterExpressions);
+        ctorBuilder.SetBody (body, _debugInfoGenerator);
+      }
 
       var modificationHandler = new TypeModificationHandler (typeBuilder);
       mutableType.Accept (modificationHandler);

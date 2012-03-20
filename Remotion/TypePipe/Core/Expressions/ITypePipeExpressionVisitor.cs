@@ -5,6 +5,7 @@
   /// </summary>
   public interface ITypePipeExpressionVisitor
   {
-    void VisitThisExpression (ThisExpression thisExpression);
+    void VisitThisExpression (ThisExpression expression);
+    void VisitTypeAsUnderlyingSystemTypeExpression (TypeAsUnderlyingSystemTypeExpression expression);
   }
 }

@@ -23,6 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
+  [Ignore ("TODO 4694")]
   public class AddFieldTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
