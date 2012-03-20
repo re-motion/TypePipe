@@ -19,40 +19,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class KeepBaseClassConstructorsTest : TypeAssemblerIntegrationTestBase
+  public class KeepConstructorsTest : TypeAssemblerIntegrationTestBase
   {
+    private const BindingFlags CtorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
     [Ignore("TODO 4694")]
     [Test]
-    // TODO: Keep all or only accessible?
-    public void KeepAllCtors ()
+    public void KeepPublicAndProtectedConstructors ()
     {
       Assert.That (
           GetCtorSignatures (typeof (BaseClass)),
-          Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
+          Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
 
       var type = AssembleType<BaseClass> (mutableType => { });
 
       Assert.That (type, Is.Not.SameAs (typeof (BaseClass))); // no shortcut for zero modifications (yet)
-      //Assert.That (
-      //    GetCtorSignatures (type),
-      //    Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
+      Assert.That (
+          GetCtorSignatures (type),
+          Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
 
-      //AssertConstructorUsage ("public", -10, type, true, "public");
-      AssertConstructorUsage ("protected", -20, type, true);
-      //AssertConstructorUsage ("interal", 37, type, false, 37);
-      //AssertConstructorUsage ("private", 47, type, false, "private", 47);
+      AssertConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
+      AssertConstructorUsage ("protected", -20, MethodAttributes.Family, type);
+      AssertConstructorUsage ("protected internal", -30, MethodAttributes.Family, type, 17.7);
     }
 
-    public void AssertConstructorUsage (string expectedVal1, int expectedVal2, Type type, bool isPublic, params object[] ctorArguments)
+    public void AssertConstructorUsage (string expectedVal1, int expectedVal2, MethodAttributes visibility, Type type, params object[] ctorArguments)
     {
-      var baseClass = (BaseClass) (isPublic
-                                       ? PrivateInvoke.CreateInstancePublicCtor (type, ctorArguments)
-                                       : PrivateInvoke.CreateInstanceNonPublicCtor (type, ctorArguments));
+      var ctorParameterTypes = ctorArguments.Select (arg => arg.GetType()).ToArray();
+      var constructor = type.GetConstructor (CtorBindingFlags, null, ctorParameterTypes, null);
+
+      Assert.That (constructor.Attributes, Is.EqualTo (visibility | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
+
+      var baseClass = (BaseClass) constructor.Invoke (ctorArguments);
 
       Assert.That (baseClass, Is.Not.Null);
       Assert.That (baseClass.GetType(), Is.SameAs (type));
@@ -62,7 +64,7 @@ namespace TypePipe.IntegrationTests
 
     private IEnumerable<string> GetCtorSignatures (Type type)
     {
-      return type.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+      return type.GetConstructors (CtorBindingFlags)
           .Select (ctor => ctor.ToString().Replace("Void ", ""))
           .ToArray(); // better error message
     }
@@ -82,6 +84,12 @@ namespace TypePipe.IntegrationTests
       {
         StringProperty = "protected";
         IntProperty = -20;
+      }
+
+      protected internal BaseClass (double x)
+      {
+        StringProperty = "protected internal";
+        IntProperty = -30;
       }
 
       internal BaseClass (int i)
