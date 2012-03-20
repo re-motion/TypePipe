@@ -33,7 +33,7 @@ using System.Reflection.Emit;
 
 namespace System.Runtime.CompilerServices {
 #if CLR2 || SILVERLIGHT
-    using ILGenerator = OffsetTrackingILGenerator;
+    using ILGenerator = Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.IILGenerator;
 #endif
 
     /// <summary>

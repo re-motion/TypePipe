@@ -57,7 +57,14 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGenerator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />
     <Compile Include="Expressions\ITypePipeExpression.cs" />
     <Compile Include="Expressions\ITypePipeExpressionVisitor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\MethodBuilderForLambdaCompiler.cs" />

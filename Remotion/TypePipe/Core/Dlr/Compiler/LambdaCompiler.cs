@@ -22,7 +22,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 #if CLR2
@@ -31,7 +30,7 @@ namespace Microsoft.Scripting.Ast.Compiler {
 namespace System.Linq.Expressions.Compiler {
 #endif
 #if CLR2 || SILVERLIGHT
-    using ILGenerator = OffsetTrackingILGenerator;
+    using ILGenerator = IILGenerator;
 #endif
 
     /// <summary>
@@ -100,7 +99,7 @@ namespace System.Linq.Expressions.Compiler {
             _method = method;
 
 #if CLR2 || SILVERLIGHT
-            _ilg = new OffsetTrackingILGenerator(method.GetILGenerator());
+            _ilg = new OffsetTrackingILGeneratorAdapter (new OffsetTrackingILGenerator(method.GetILGenerator()));
 #else
             _ilg = method.GetILGenerator();
 #endif
@@ -139,7 +138,7 @@ namespace System.Linq.Expressions.Compiler {
             _method = method.AsMethodBase();
 
 #if CLR2 || SILVERLIGHT
-            _ilg = new OffsetTrackingILGenerator(method.GetILGenerator());
+            _ilg = new OffsetTrackingILGeneratorAdapter (new OffsetTrackingILGenerator(method.GetILGenerator()));
 #else
             _ilg = method.GetILGenerator();
 #endif

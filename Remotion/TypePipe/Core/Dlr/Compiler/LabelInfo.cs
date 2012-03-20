@@ -29,7 +29,7 @@ namespace Microsoft.Scripting.Ast.Compiler {
 namespace System.Linq.Expressions.Compiler {
 #endif
 #if CLR2 || SILVERLIGHT
-    using ILGenerator = OffsetTrackingILGenerator;
+    using ILGenerator = Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.IILGenerator;
 #endif
 
     /// <summary>

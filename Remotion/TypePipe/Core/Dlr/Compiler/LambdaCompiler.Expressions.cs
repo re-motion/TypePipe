@@ -764,8 +764,15 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "expr")]
-        private static void EmitExtensionExpression(Expression expr) {
-            throw Error.ExtensionNotReduced();
+        private void EmitExtensionExpression(Expression expr) {
+            var typePipeExpression = expr as Remotion.TypePipe.Expressions.ITypePipeExpression;
+            if (typePipeExpression != null)
+            {
+              var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingTypePipeExpressionVisitor (_ilg);
+              typePipeExpression.Accept (visitor);
+            }
+            else
+              throw Error.ExtensionNotReduced ();
         }
 
         #region ListInit, MemberInit
