@@ -52,7 +52,9 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ConstructorBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyNameProvider.cs" />

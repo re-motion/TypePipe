@@ -48,6 +48,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       return new FieldBuilderAdapter (_typeBuilder.DefineField (name, type, attributes));
     }
 
+    public IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      return new ConstructorBuilderAdapter (_typeBuilder.DefineConstructor (attributes, callingConvention, parameterTypes));
+    }
+
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
