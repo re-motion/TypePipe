@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -29,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   public interface ITypeInfo
   {
     Type GetBaseType ();
-    Maybe<Type> GetUnderlyingSystemType ();
+    Type GetUnderlyingSystemType ();
     TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces ();
     FieldInfo[] GetFields (BindingFlags bindingAttr);

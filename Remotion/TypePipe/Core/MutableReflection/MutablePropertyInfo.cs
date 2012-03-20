@@ -17,7 +17,6 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -29,24 +28,21 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly Type _declaringType;
     private readonly Type _propertyType;
-    private readonly Maybe<MethodInfo> _getMethod;
-    private readonly Maybe<MethodInfo> _setMethod;
+    private readonly MethodInfo _getMethod;
+    private readonly MethodInfo _setMethod;
 
-    // TODO: Discuss usage of Maybe with MK.
-    public MutablePropertyInfo (Type declaringType, Type propertyType, Maybe<MethodInfo> getMethod, Maybe<MethodInfo> setMethod)
+    public MutablePropertyInfo (Type declaringType, Type propertyType, MethodInfo getMethodOrNull, MethodInfo setMethodOrNull)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("propertyType", propertyType);
-      ArgumentUtility.CheckNotNull ("getMethod", getMethod);
-      ArgumentUtility.CheckNotNull ("setMethod", setMethod);
 
-      if (!getMethod.HasValue && !setMethod.HasValue)
+      if (getMethodOrNull == null && setMethodOrNull == null)
         throw new ArgumentException ("At least one of the accessors must be specified.");
 
       _declaringType = declaringType;
       _propertyType = propertyType;
-      _getMethod = getMethod;
-      _setMethod = setMethod;
+      _getMethod = getMethodOrNull;
+      _setMethod = setMethodOrNull;
     }
 
     public override Type DeclaringType
@@ -61,12 +57,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo GetGetMethod (bool nonPublic)
     {
-      return _getMethod.ValueOrDefault();
+      return _getMethod;
     }
 
     public override MethodInfo GetSetMethod (bool nonPublic)
     {
-      return _setMethod.ValueOrDefault();
+      return _setMethod;
     }
 
     public override bool CanRead

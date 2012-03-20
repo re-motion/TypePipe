@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException(typeof(ArgumentException), ExpectedMessage = "At least one of the accessors must be specified.")]
     public void Initialization_ThrowsIfBothAccessorsAreNull()
     {
-      var declaringType = typeof (object);
-      var propertyType = typeof (object);
-      var getMethod = Maybe<MethodInfo>.Nothing;
-      var setMethod = Maybe<MethodInfo>.Nothing;
+      var declaringType = ReflectionObjectMother.GetSomeType();
+      var propertyType = ReflectionObjectMother.GetSomeType ();
+      MethodInfo getMethod = null;
+      MethodInfo setMethod = null;
 
       new MutablePropertyInfo (declaringType, propertyType, getMethod, setMethod);
     }

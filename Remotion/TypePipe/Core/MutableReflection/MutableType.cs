@@ -68,11 +68,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type UnderlyingSystemType
     {
-      get
-      {
-        var runtimeType = _originalTypeInfo.GetUnderlyingSystemType ();
-        return runtimeType.HasValue ? runtimeType.Value () : this;
-      }
+      get { return _originalTypeInfo.GetUnderlyingSystemType() ?? this; }
     }
 
     public override Assembly Assembly

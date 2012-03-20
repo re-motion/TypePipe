@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetUnderlyingSystemType ()
     {
-      Assert.That (_existingTypeInfo.GetUnderlyingSystemType().Value(), Is.SameAs (typeof (ExampleType)));
+      Assert.That (_existingTypeInfo.GetUnderlyingSystemType(), Is.SameAs (typeof (ExampleType)));
     }
 
     [Test]

@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var typeInfo = NewTypeInfoObjectMother.Create();
 
-      Assert.That (typeInfo.GetUnderlyingSystemType().HasValue, Is.False);
+      Assert.That (typeInfo.GetUnderlyingSystemType(), Is.Null);
     }
 
     [Test]

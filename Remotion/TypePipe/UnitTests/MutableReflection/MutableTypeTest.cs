@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemType ()
     {
       var type = typeof (string);
-      _originalTypeInfoStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (Maybe.ForValue (type));
+      _originalTypeInfoStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (type);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (type));
     }
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemType_ForNull ()
     {
-      _originalTypeInfoStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (Maybe<Type>.Nothing);
+      _originalTypeInfoStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (null);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -21,8 +20,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutablePropertyInfo (
           declaringType ?? typeof (UnspecifiedType),
           propertyType ?? typeof (UnspecifiedType),
-          Maybe.ForValue (getMethod),
-          Maybe.ForValue (setMethod));
+          getMethod,
+          setMethod);
     }
   }
 }
