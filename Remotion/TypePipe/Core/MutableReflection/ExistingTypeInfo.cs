@@ -32,6 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
 
+      // TODO 4695
       if (CanNotBeSubclassed (originalType))
         throw new ArgumentException ("Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic"
           + " parameters and must have an accessible constructor.", "originalType");
