@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
 
 #if SILVERLIGHT
 using System.Core;
@@ -163,7 +164,7 @@ namespace System.Linq.Expressions {
             var type = method.DeclaringType as TypeBuilder;
             if (type == null) throw Error.MethodBuilderDoesNotHaveTypeBuilder();
 
-            LambdaCompiler.Compile(this, method, debugInfoGenerator);
+            LambdaCompiler.Compile(this, new MethodBuilderForLambdaCompiler(method), debugInfoGenerator);
         }
 
         internal abstract LambdaExpression Accept(StackSpiller spiller);

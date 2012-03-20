@@ -17,17 +17,26 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Ast.Compiler;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation
 {
   /// <summary>
-  /// Defines an interface for <see cref="TypeBuilder"/>.
+  /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/> to be used by <see cref="LambdaCompiler"/>.
   /// </summary>
-  public interface ITypeBuilder
+  /// <remarks>
+  /// This class is internal because it should only be used from <see cref="TypeModifier"/> and <see cref="TypeModificationHandler"/>.
+  /// </remarks>
+  internal interface IMethodBuilderForLambdaCompiler
   {
-    void AddInterfaceImplementation (Type interfaceType);
-    IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
-    IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
-    Type CreateType ();
+    Type DeclaringType { get; }
+
+    void SetReturnType (Type returnType);
+    void SetParameters (Type[] parameterType);
+    ParameterBuilder DefineParameter (int position, ParameterAttributes parameterAttributes, string parameterName);
+
+    ILGenerator GetILGenerator ();
+
+    MethodBase AsMethodBase ();
   }
 }

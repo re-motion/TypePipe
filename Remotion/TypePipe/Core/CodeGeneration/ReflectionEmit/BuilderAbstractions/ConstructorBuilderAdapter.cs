@@ -14,7 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
@@ -36,6 +41,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     public ConstructorBuilder ConstructorBuilder
     {
       get { return _constructorBuilder; }
+    }
+
+    public void SetBody (LambdaExpression body, DebugInfoGenerator debugInfoGeneratorOrNull)
+    {
+      ArgumentUtility.CheckNotNull ("body", body);
+
+      LambdaCompiler.Compile (body, new ConstructorBuilderForLambdaCompiler(_constructorBuilder), debugInfoGeneratorOrNull);
     }
   }
 }

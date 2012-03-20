@@ -52,6 +52,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
+      // TODO 4694
+      // foreach ctor in mutableType.GetConstructors(BindingFlags.Public | NonPublic)
+      //   var ctorBuilder = typeBuilder.DefineCtor (...);
+      //   var parameters = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name);
+      //   var baseCallExpression = Expression.Lambda (Expression.Call (new ThisExpression (...), ctor, parameters), parameters);
+      //   ctorBuilder.SetBody (baseCallExpression);
+
       var modificationHandler = new TypeModificationHandler (typeBuilder);
       mutableType.Accept (modificationHandler);
 

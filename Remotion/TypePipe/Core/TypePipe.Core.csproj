@@ -56,6 +56,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\LambdaCompilation\MethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyNameProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IModuleBuilder.cs" />

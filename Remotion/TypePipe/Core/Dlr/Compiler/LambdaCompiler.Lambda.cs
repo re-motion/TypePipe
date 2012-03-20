@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
@@ -118,7 +119,7 @@ namespace System.Linq.Expressions.Compiler {
                 // When the lambda does not have a name or the name is empty, generate a unique name for it.
                 string name = String.IsNullOrEmpty(lambda.Name) ? GetUniqueMethodName() : lambda.Name;
                 MethodBuilder mb = _typeBuilder.DefineMethod(name, MethodAttributes.Private | MethodAttributes.Static);
-                impl = new LambdaCompiler(_tree, lambda, mb);
+                impl = new LambdaCompiler(_tree, lambda, new MethodBuilderForLambdaCompiler(mb));
             }
 
             // 2. emit the lambda

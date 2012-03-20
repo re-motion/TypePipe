@@ -22,6 +22,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
@@ -50,7 +52,7 @@ namespace System.Linq.Expressions.Compiler {
         // The TypeBuilder backing this method, if any
         private readonly TypeBuilder _typeBuilder;
 
-        private readonly MethodInfo _method;
+        private readonly MethodBase _method;
 
         // Currently active LabelTargets and their mapping to IL labels
         private LabelScopeInfo _labelBlock = new LabelScopeInfo(null, LabelScopeKind.Lambda);
@@ -115,7 +117,7 @@ namespace System.Linq.Expressions.Compiler {
         /// <summary>
         /// Creates a lambda compiler that will compile into the provided Methodbuilder
         /// </summary>
-        private LambdaCompiler(AnalyzedTree tree, LambdaExpression lambda, MethodBuilder method) {
+        private LambdaCompiler(AnalyzedTree tree, LambdaExpression lambda, IMethodBuilderForLambdaCompiler method) {
             _hasClosureArgument = tree.Scopes[lambda].NeedsClosure;
             Type[] paramTypes = GetParameterTypes(lambda);
             if (_hasClosureArgument) {
@@ -134,7 +136,7 @@ namespace System.Linq.Expressions.Compiler {
             _tree = tree;
             _lambda = lambda;
             _typeBuilder = (TypeBuilder)method.DeclaringType;
-            _method = method;
+            _method = method.AsMethodBase();
 
 #if CLR2 || SILVERLIGHT
             _ilg = new OffsetTrackingILGenerator(method.GetILGenerator());
@@ -215,7 +217,7 @@ namespace System.Linq.Expressions.Compiler {
         /// 
         /// (probably shouldn't be modifying parameters/return type...)
         /// </summary>
-        internal static void Compile(LambdaExpression lambda, MethodBuilder method, DebugInfoGenerator debugInfoGenerator) {
+        internal static void Compile(LambdaExpression lambda, IMethodBuilderForLambdaCompiler method, DebugInfoGenerator debugInfoGenerator) {
             // 1. Bind lambda
             AnalyzedTree tree = AnalyzeLambda(ref lambda);
 
@@ -293,7 +295,7 @@ namespace System.Linq.Expressions.Compiler {
         private Delegate CreateDelegate() {
             Debug.Assert(_method is DynamicMethod);
 
-            return _method.CreateDelegate(_lambda.Type, new Closure(_boundConstants.ToArray(), null));
+            return ((MethodInfo) _method).CreateDelegate(_lambda.Type, new Closure(_boundConstants.ToArray(), null));
         }
 
         private FieldBuilder CreateStaticField(string name, Type type) {
