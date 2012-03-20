@@ -19,7 +19,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast.Compiler;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
   /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/> to be used by <see cref="LambdaCompiler"/>.

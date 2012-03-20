@@ -19,7 +19,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
   /// Adapts <see cref="MethodBuilder"/> for the <see cref="IMethodBuilderForLambdaCompiler"/> interface.

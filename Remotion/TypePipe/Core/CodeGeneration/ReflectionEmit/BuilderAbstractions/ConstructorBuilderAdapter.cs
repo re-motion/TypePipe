@@ -19,7 +19,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions

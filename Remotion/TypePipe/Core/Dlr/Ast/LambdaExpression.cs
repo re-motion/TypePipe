@@ -22,7 +22,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 #if SILVERLIGHT
 using System.Core;

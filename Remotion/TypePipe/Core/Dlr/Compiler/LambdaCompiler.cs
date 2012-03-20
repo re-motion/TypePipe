@@ -23,7 +23,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions.LambdaCompilation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
