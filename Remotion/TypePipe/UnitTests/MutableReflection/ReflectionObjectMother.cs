@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly MemberInfo[] s_members = EnsureNoNulls (new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") });
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
+    private static readonly MethodInfo[] s_methodInfos = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (ReflectionObjectMother).GetMethod ("GetRandomElement", BindingFlags.NonPublic | BindingFlags.Static) });
 
     public static Type GetSomeType ()
     {
@@ -69,22 +70,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_defaultCtors);
     }
 
+    public static MethodInfo GetSomeMethod ()
+    {
+      return GetRandomElement (s_methodInfos);
+    }
+
     public static object GetDefaultValue (Type type)
     {
       return type.IsValueType ? Activator.CreateInstance (type) : null;
-    }
-
-    private static T GetRandomElement<T> (T[] array)
-    {
-      var index = s_random.Next(array.Length);
-      return array[index];
-    }
-
-    private static T[] EnsureNoNulls<T> (T[] items)
-    {
-      foreach (var item in items)
-        Assertion.IsNotNull (item);
-      return items;
     }
 
     public static ConstructorInfo GetConstructor<T> (Expression<Func<T>> newExpression)
@@ -124,6 +117,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = ((MemberExpression) memberExpression.Body).Member;
       Assertion.IsTrue (member is FieldInfo, "Parameter memberExpression must hold a field access expression.");
       return (FieldInfo) member;
+    }
+
+    private static T GetRandomElement<T> (T[] array)
+    {
+      var index = s_random.Next (array.Length);
+      return array[index];
+    }
+
+    private static T[] EnsureNoNulls<T> (T[] items)
+    {
+      foreach (var item in items)
+        Assertion.IsNotNull (item);
+      return items;
     }
   }
 }

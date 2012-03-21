@@ -63,6 +63,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\BaseConstructorMethodInfo.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />
