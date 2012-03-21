@@ -20,7 +20,6 @@ using NUnit.Framework;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 4694")]
   public class AddInterfaceTest : TypeAssemblerIntegrationTestBase
   {
     [Test]

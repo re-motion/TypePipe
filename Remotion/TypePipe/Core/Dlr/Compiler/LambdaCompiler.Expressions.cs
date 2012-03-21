@@ -764,11 +764,12 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "expr")]
-        private void EmitExtensionExpression(Expression expr) {
+        private void EmitExtensionExpression(Expression expr, CompilationFlags flags) {
             var typePipeExpression = expr as Remotion.TypePipe.Expressions.ITypePipeExpression;
             if (typePipeExpression != null)
             {
-              var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingTypePipeExpressionVisitor (_ilg);
+              var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingTypePipeExpressionVisitor (
+                  _ilg, childExpr => EmitExpression (childExpr, flags));
               typePipeExpression.Accept (visitor);
             }
             else

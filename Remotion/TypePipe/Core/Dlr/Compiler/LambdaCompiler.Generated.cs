@@ -196,7 +196,7 @@ namespace System.Linq.Expressions.Compiler {
                     EmitDefaultExpression(node);
                     break;
                 case ExpressionType.Extension:
-                    EmitExtensionExpression(node);
+                    EmitExtensionExpression(node, flags);
                     break;
                 case ExpressionType.Goto:
                     EmitGotoExpression(node, flags);

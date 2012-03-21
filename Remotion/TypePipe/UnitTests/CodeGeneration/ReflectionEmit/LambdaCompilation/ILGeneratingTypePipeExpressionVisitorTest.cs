@@ -28,14 +28,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
   [TestFixture]
   public class ILGeneratingTypePipeExpressionVisitorTest
   {
+    public interface IChildExpressionEmitter
+    {
+      void EmitChildExpression (Expression childExpression);
+    }
+
     private IILGenerator _ilGeneratorMock;
     private ILGeneratingTypePipeExpressionVisitor _visitor;
+    private IChildExpressionEmitter _childExpressionEmitterMock;
 
     [SetUp]
     public void SetUp ()
     {
       _ilGeneratorMock = MockRepository.GenerateStrictMock<IILGenerator>();
-      _visitor = new ILGeneratingTypePipeExpressionVisitor (_ilGeneratorMock);
+      _childExpressionEmitterMock = MockRepository.GenerateStrictMock<IChildExpressionEmitter>();
+      _visitor = new ILGeneratingTypePipeExpressionVisitor (_ilGeneratorMock, _childExpressionEmitterMock.EmitChildExpression);
     }
 
     [Test]
@@ -57,10 +64,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var innerExpression = Expression.Constant (null, typeWithUnderlyingSystemType);
       var expression = new TypeAsUnderlyingSystemTypeExpression (innerExpression);
 
+      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (innerExpression));
+
       // No calls to _ilGeneratorMock expected.
 
       var result = _visitor.VisitTypeAsUnderlyingSystemTypeExpression (expression);
 
+      _childExpressionEmitterMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expression));
     }
   }

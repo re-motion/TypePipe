@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Expressions;
 
 #if SILVERLIGHT
 using System.Core;
@@ -137,7 +138,7 @@ namespace System.Linq.Expressions.Compiler {
             Debug.Assert((result.Action == RewriteAction.None) ^ (node != result.Node), "rewrite action does not match node object identity");
 
             // if the original node is an extension node, it should have been rewritten
-            Debug.Assert(result.Node.NodeType != ExpressionType.Extension, "extension nodes must be rewritten");
+            Debug.Assert(result.Node.NodeType != ExpressionType.Extension || result.Node is ITypePipeExpression, "extension nodes must be rewritten");
 
             // if we have Copy, then node type must match
             Debug.Assert(
