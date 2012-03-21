@@ -83,6 +83,7 @@
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModificationHandler.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
+    <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\ITypeModificationHandler.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
@@ -215,6 +216,7 @@
     <Compile Include="MutableReflection\ExistingTypeInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
+    <Compile Include="MutableReflection\ReflectionEmit\MemberFilter.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssembler.cs" />
