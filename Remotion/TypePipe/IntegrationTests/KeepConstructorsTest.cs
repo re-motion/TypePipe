@@ -28,6 +28,7 @@ namespace TypePipe.IntegrationTests
     private const BindingFlags CtorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
     [Test]
+    [Ignore ("TODO 4694")]
     public void KeepPublicAndProtectedConstructors ()
     {
       Assert.That (
