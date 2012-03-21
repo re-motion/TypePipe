@@ -44,9 +44,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var thisExpression = new ThisExpression (ReflectionObjectMother.GetSomeType ());
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldarg_0));
 
-      _visitor.VisitThisExpression (thisExpression);
+      var result = _visitor.VisitThisExpression (thisExpression);
 
       _ilGeneratorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (thisExpression));
     }
 
     [Test]
@@ -58,7 +59,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       // No calls to _ilGeneratorMock expected.
 
-      _visitor.VisitTypeAsUnderlyingSystemTypeExpression (expression);
+      var result = _visitor.VisitTypeAsUnderlyingSystemTypeExpression (expression);
+
+      Assert.That (result, Is.SameAs (expression));
     }
   }
 }

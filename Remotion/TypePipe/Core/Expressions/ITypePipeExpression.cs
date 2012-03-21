@@ -8,6 +8,6 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public interface ITypePipeExpression
   {
-    void Accept (ITypePipeExpressionVisitor visitor);
+    Expression Accept (ITypePipeExpressionVisitor visitor);
   }
 }

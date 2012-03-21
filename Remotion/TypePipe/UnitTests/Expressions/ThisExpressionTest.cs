@@ -53,10 +53,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void Accept ()
     {
       var visitorMock = MockRepository.GenerateMock<ITypePipeExpressionVisitor>();
+      var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
+      visitorMock
+          .Expect (mock => mock.VisitThisExpression (_expression))
+          .Return (visitorResult);
 
-      _expression.Accept (visitorMock);
+      var result = _expression.Accept (visitorMock);
 
-      visitorMock.AssertWasCalled (mock => mock.VisitThisExpression (_expression));
+      Assert.That (result, Is.SameAs (visitorResult));
     }
 
     [Test]

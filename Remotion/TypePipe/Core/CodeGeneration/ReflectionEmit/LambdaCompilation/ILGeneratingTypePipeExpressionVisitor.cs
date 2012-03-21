@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
@@ -38,14 +39,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _ilGenerator; }
     }
 
-    public void VisitThisExpression (ThisExpression expression)
+    public Expression VisitThisExpression (ThisExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
       _ilGenerator.Emit (OpCodes.Ldarg_0);
+      return expression;
     }
 
-    public void VisitTypeAsUnderlyingSystemTypeExpression (TypeAsUnderlyingSystemTypeExpression expression)
+    public Expression VisitTypeAsUnderlyingSystemTypeExpression (TypeAsUnderlyingSystemTypeExpression expression)
     {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+      return expression;
     }
   }
 }

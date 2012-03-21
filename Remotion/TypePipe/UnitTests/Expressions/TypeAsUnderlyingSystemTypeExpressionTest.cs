@@ -64,21 +64,41 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void Accept ()
     {
       var visitorMock = MockRepository.GenerateMock<ITypePipeExpressionVisitor> ();
+      var visitorResult = ExpressionTreeObjectMother.GetSomeExpression ();
+      visitorMock
+          .Expect (mock => mock.VisitTypeAsUnderlyingSystemTypeExpression (_expression))
+          .Return (visitorResult);
 
-      _expression.Accept (visitorMock);
+      var result = _expression.Accept (visitorMock);
 
-      visitorMock.AssertWasCalled (mock => mock.VisitTypeAsUnderlyingSystemTypeExpression (_expression));
+      Assert.That (result, Is.SameAs (visitorResult));
     }
 
     [Test]
-    public void VisitChildren ()
+    public void VisitChildren_NoChanges ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.InnerExpression)).Return (_expression.InnerExpression);
 
-      // Expectation: No calls to expressionVisitorMock.
       var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
 
+      expressionVisitorMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_expression));
+    }
+
+    [Test]
+    public void VisitChildren_WithChanges ()
+    {
+      var newInnerExpression = ExpressionTreeObjectMother.GetSomeExpression();
+
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.InnerExpression)).Return (newInnerExpression);
+
+      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
+
+      expressionVisitorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.Not.SameAs (_expression));
+      Assert.That (result, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression>().With.Property ("InnerExpression").SameAs (newInnerExpression));
     }
   }
 }

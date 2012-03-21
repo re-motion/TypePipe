@@ -43,10 +43,10 @@ namespace Remotion.TypePipe.Expressions
       get { return ExpressionType.Extension; }
     }
 
-    public void Accept (ITypePipeExpressionVisitor visitor)
+    public Expression Accept (ITypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
-      visitor.VisitThisExpression (this);
+      return visitor.VisitThisExpression (this);
     }
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)

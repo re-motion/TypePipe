@@ -49,17 +49,21 @@ namespace Remotion.TypePipe.Expressions
       get { return ExpressionType.Extension; }
     }
 
-    public void Accept (ITypePipeExpressionVisitor visitor)
+    public Expression Accept (ITypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
-      visitor.VisitTypeAsUnderlyingSystemTypeExpression (this);
+      return visitor.VisitTypeAsUnderlyingSystemTypeExpression (this);
     }
     
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
-      // Do nothing here - visitors must use Accept (ITypePipeExpressionVisitor)
-      return this;
+      
+      var newInnerExpression = visitor.Visit (_innerExpression);
+      if (newInnerExpression != _innerExpression)
+        return new TypeAsUnderlyingSystemTypeExpression (newInnerExpression);
+      else
+        return this;
     }
   }
 }
