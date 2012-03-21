@@ -63,12 +63,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      foreach (var ctor in mutableType.GetConstructors ()) // TODO 4694: NonPublic, no statics
+      CopyConstructorsFromBaseClass(mutableType, typeBuilder);
+
+      var modificationHandler = new TypeModificationHandler (typeBuilder);
+      mutableType.Accept (modificationHandler);
+
+      return typeBuilder.CreateType();
+    }
+
+    private void CopyConstructorsFromBaseClass (MutableType mutableType, ITypeBuilder typeBuilder)
+    {
+      var ctorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      foreach (var ctor in mutableType.GetConstructors (ctorBindingFlags))
       {
-        var ctorParameters = ctor.GetParameters();
-        var methodAttributes = MethodAttributes.RTSpecialName | MethodAttributes.SpecialName | MethodAttributes.Public;
-        var parameterTypes = ctorParameters.Select (pi => pi.ParameterType).ToArray();
-        var ctorBuilder = typeBuilder.DefineConstructor (methodAttributes, CallingConventions.HasThis, parameterTypes);
+        var attributes = ctor.IsFamilyOrAssembly ? (ctor.Attributes & ~MethodAttributes.MemberAccessMask) | MethodAttributes.Family : ctor.Attributes;
+        var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
+        var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
 
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
@@ -80,11 +90,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var ilGeneratorProvider = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
         ctorBuilder.SetBody (body, ilGeneratorProvider, _debugInfoGenerator);
       }
-
-      var modificationHandler = new TypeModificationHandler (typeBuilder);
-      mutableType.Accept (modificationHandler);
-
-      return typeBuilder.CreateType();
     }
   }
 }

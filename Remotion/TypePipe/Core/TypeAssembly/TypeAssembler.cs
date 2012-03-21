@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly
@@ -62,7 +63,10 @@ namespace Remotion.TypePipe.TypeAssembly
 
     private MutableType CreateMutableType (Type requestedType)
     {
-      return new MutableType (new ExistingTypeInfo (requestedType), new MemberSignatureEqualityComparer(), new BindingFlagsEvaluator());
+      return new MutableType (
+          new ExistingTypeInfo (requestedType, new MemberFilter ()), // TODO 4695 RefEmit dependent!
+          new MemberSignatureEqualityComparer(),
+          new BindingFlagsEvaluator());
     }
   }
 }

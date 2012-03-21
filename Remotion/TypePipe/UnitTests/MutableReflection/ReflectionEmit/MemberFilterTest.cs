@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
       var filteredFields = _memberFilter.FilterFields(allFields);
 
       Assert.That (
-          GetMemberNames (filteredFields.Cast<MemberInfo>()),
+          GetMemberNames (filteredFields),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField" }));
     }
 
