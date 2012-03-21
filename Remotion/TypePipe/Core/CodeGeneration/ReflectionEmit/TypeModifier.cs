@@ -76,7 +76,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ctorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       foreach (var ctor in mutableType.GetConstructors (ctorBindingFlags))
       {
-        var attributes = ctor.IsFamilyOrAssembly ? (ctor.Attributes & ~MethodAttributes.MemberAccessMask) | MethodAttributes.Family : ctor.Attributes;
+        // Prevent loosening of visibility if the ctor visibility is FamilyOrAssembly (change to Family because the assembly of the generated 
+        // subclass is different from the assembly of the original class).
+        var attributes = ctor.IsFamilyOrAssembly ? ChangeVisibility (ctor.Attributes, MethodAttributes.Family) : ctor.Attributes;
+
         var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
         var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
 
@@ -90,6 +93,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var ilGeneratorProvider = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
         ctorBuilder.SetBody (body, ilGeneratorProvider, _debugInfoGenerator);
       }
+    }
+
+    private MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
+    {
+      return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
     }
   }
 }
