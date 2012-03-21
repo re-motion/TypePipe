@@ -37,13 +37,28 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<BaseClass> (mutableType => { });
 
       Assert.That (type, Is.Not.SameAs (typeof (BaseClass))); // no shortcut for zero modifications (yet)
-      Assert.That (
-          GetCtorSignatures (type),
-          Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
+      Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
 
       CheckConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
       CheckConstructorUsage ("protected", -20, MethodAttributes.Family, type);
       CheckConstructorUsage ("protected internal", -30, MethodAttributes.Family, type, 17.7);
+    }
+
+    [Test]
+    public void ConstructorWithOutAndRefParameters ()
+    {
+      var type = AssembleType<BaseClassWithWeirdCtor> (mutableType => { });
+
+      Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(Int32 ByRef, System.String ByRef)" }));
+      
+      var ctor = type.GetConstructors().Single();
+      var parameters = new object[] { null, "in" };
+      var instance = ctor.Invoke (parameters);
+
+      Assert.That (instance, Is.Not.Null);
+      Assert.That (instance.GetType (), Is.SameAs (type));
+      Assert.That (parameters[0], Is.EqualTo (88));
+      Assert.That (parameters[1], Is.EqualTo ("in and out"));
     }
 
     public void CheckConstructorUsage (string expectedVal1, int expectedVal2, MethodAttributes visibility, Type type, params object[] ctorArguments)
@@ -54,12 +69,12 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (constructor.Attributes, Is.EqualTo (visibility | additionalMethodAttributes));
 
-      var baseClass = (BaseClass) constructor.Invoke (ctorArguments);
+      var instance = (BaseClass) constructor.Invoke (ctorArguments);
 
-      Assert.That (baseClass, Is.Not.Null);
-      Assert.That (baseClass.GetType(), Is.SameAs (type));
-      Assert.That (baseClass.StringProperty, Is.EqualTo (expectedVal1));
-      Assert.That (baseClass.IntProperty, Is.EqualTo (expectedVal2));
+      Assert.That (instance, Is.Not.Null);
+      Assert.That (instance.GetType(), Is.SameAs (type));
+      Assert.That (instance.StringProperty, Is.EqualTo (expectedVal1));
+      Assert.That (instance.IntProperty, Is.EqualTo (expectedVal2));
     }
 
     private IEnumerable<string> GetCtorSignatures (Type type)
@@ -102,6 +117,15 @@ namespace TypePipe.IntegrationTests
       {
         StringProperty = s;
         IntProperty = i;
+      }
+    }
+
+    public class BaseClassWithWeirdCtor
+    {
+      public BaseClassWithWeirdCtor (out int i, ref string s)
+      {
+        i = 88;
+        s = s + " and out";
       }
     }
   }
