@@ -28,7 +28,6 @@ namespace TypePipe.IntegrationTests
     private const BindingFlags CtorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
     [Test]
-    [Ignore ("TODO 4694")]
     public void KeepPublicAndProtectedConstructors ()
     {
       Assert.That (
@@ -42,17 +41,18 @@ namespace TypePipe.IntegrationTests
           GetCtorSignatures (type),
           Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
 
-      AssertConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
-      AssertConstructorUsage ("protected", -20, MethodAttributes.Family, type);
-      AssertConstructorUsage ("protected internal", -30, MethodAttributes.Family, type, 17.7);
+      CheckConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
+      CheckConstructorUsage ("protected", -20, MethodAttributes.Family, type);
+      CheckConstructorUsage ("protected internal", -30, MethodAttributes.Family, type, 17.7);
     }
 
-    public void AssertConstructorUsage (string expectedVal1, int expectedVal2, MethodAttributes visibility, Type type, params object[] ctorArguments)
+    public void CheckConstructorUsage (string expectedVal1, int expectedVal2, MethodAttributes visibility, Type type, params object[] ctorArguments)
     {
       var ctorParameterTypes = ctorArguments.Select (arg => arg.GetType()).ToArray();
       var constructor = type.GetConstructor (CtorBindingFlags, null, ctorParameterTypes, null);
+      var additionalMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
 
-      Assert.That (constructor.Attributes, Is.EqualTo (visibility | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
+      Assert.That (constructor.Attributes, Is.EqualTo (visibility | additionalMethodAttributes));
 
       var baseClass = (BaseClass) constructor.Invoke (ctorArguments);
 
