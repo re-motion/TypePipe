@@ -82,6 +82,7 @@
     <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpression.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModificationHandler.cs" />
+    <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\ITypeModificationHandler.cs" />

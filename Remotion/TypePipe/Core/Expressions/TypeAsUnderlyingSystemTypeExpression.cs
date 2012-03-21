@@ -24,13 +24,13 @@ namespace Remotion.TypePipe.Expressions
   /// <summary>
   /// Represents an <see cref="Expression"/> of a <see cref="MutableType"/> as its <see cref="MutableType.UnderlyingSystemType"/>.
   /// </summary>
-  public class TypeAsUnderlyingSystemTypeExpression : Expression, ITypePipeExpression
+  public class TypeAsUnderlyingSystemTypeExpression : TypePipeExpressionBase
   {
     private readonly Expression _innerExpression;
 
     public TypeAsUnderlyingSystemTypeExpression (Expression innerExpression)
+      : base (ArgumentUtility.CheckNotNull ("innerExpression", innerExpression).Type.UnderlyingSystemType)
     {
-      ArgumentUtility.CheckNotNull ("innerExpression", innerExpression);
       _innerExpression = innerExpression;
     }
 
@@ -39,17 +39,7 @@ namespace Remotion.TypePipe.Expressions
       get { return _innerExpression; }
     }
 
-    public override Type Type
-    {
-      get { return _innerExpression.Type.UnderlyingSystemType; }
-    }
-
-    public override ExpressionType NodeType
-    {
-      get { return ExpressionType.Extension; }
-    }
-
-    public Expression Accept (ITypePipeExpressionVisitor visitor)
+    public override Expression Accept (ITypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
       return visitor.VisitTypeAsUnderlyingSystemTypeExpression (this);

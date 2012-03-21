@@ -24,16 +24,16 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class ThisExpressionTest
+  public class TypePipeExpressionBaseTest
   {
     private Type _type;
-    private ThisExpression _expression;
+    private TypePipeExpressionBase _expression;
 
     [SetUp]
     public void SetUp ()
     {
       _type = ReflectionObjectMother.GetSomeType ();
-      _expression = new ThisExpression (_type);
+      _expression = new TestableTypePipeExpressionBase (_type);
     }
 
     [Test]
@@ -43,28 +43,22 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void Accept ()
+    public void NodeType ()
     {
-      var visitorMock = MockRepository.GenerateMock<ITypePipeExpressionVisitor>();
-      var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
-      visitorMock
-          .Expect (mock => mock.VisitThisExpression (_expression))
-          .Return (visitorResult);
-
-      var result = _expression.Accept (visitorMock);
-
-      Assert.That (result, Is.SameAs (visitorResult));
+      Assert.That (_expression.NodeType, Is.EqualTo (ExpressionType.Extension));
     }
 
-    [Test]
-    public void VisitChildren ()
+    public class TestableTypePipeExpressionBase : TypePipeExpressionBase
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      public TestableTypePipeExpressionBase (Type type)
+        : base (type)
+      {
+      }
 
-      // Expectation: No calls to expressionVisitorMock.
-      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
-
-      Assert.That (result, Is.SameAs (_expression));
+      public override Expression Accept (ITypePipeExpressionVisitor visitor)
+      {
+        throw new NotImplementedException ();
+      }
     }
   }
 }

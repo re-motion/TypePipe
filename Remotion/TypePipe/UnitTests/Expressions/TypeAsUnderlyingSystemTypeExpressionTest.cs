@@ -46,18 +46,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void Initialization ()
     {
       Assert.That (_expression.InnerExpression, Is.SameAs (_innerExpression));
-    }
-
-    [Test]
-    public void Type ()
-    {
       Assert.That (_expression.Type, Is.SameAs (_typeWithUnderlyingSystemType.UnderlyingSystemType));
-    }
-
-    [Test]
-    public void NodeType ()
-    {
-      Assert.That (_expression.NodeType, Is.EqualTo (ExpressionType.Extension));
     }
 
     [Test]

@@ -21,26 +21,28 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Represents the "this" instance within an instance method body.
+  /// Base class for custom expressions that also implement the <see cref="ITypePipeExpression"/> interface.
   /// </summary>
-  public class ThisExpression : TypePipeExpressionBase
+  public abstract class TypePipeExpressionBase : Expression, ITypePipeExpression
   {
-    public ThisExpression (Type type)
-      : base (ArgumentUtility.CheckNotNull ("type", type))
+    private readonly Type _type;
+
+    protected TypePipeExpressionBase (Type type)
     {
+      ArgumentUtility.CheckNotNull ("type", type);
+      _type = type;
     }
 
-    public override Expression Accept (ITypePipeExpressionVisitor visitor)
+    public override Type Type
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-      return visitor.VisitThisExpression (this);
+      get { return _type; }
     }
 
-    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
+    public override ExpressionType NodeType
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-      // Do nothing here - visitors must use Accept (ITypePipeExpressionVisitor)
-      return this;
+      get { return ExpressionType.Extension; }
     }
+
+    public abstract Expression Accept (ITypePipeExpressionVisitor visitor);
   }
 }

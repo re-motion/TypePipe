@@ -64,6 +64,7 @@
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpressionTest.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
+    <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ArgumentTestHelper.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
