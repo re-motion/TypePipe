@@ -164,7 +164,7 @@ namespace System.Linq.Expressions {
             var type = method.DeclaringType as TypeBuilder;
             if (type == null) throw Error.MethodBuilderDoesNotHaveTypeBuilder();
 
-            LambdaCompiler.Compile(this, new MethodBuilderForLambdaCompiler(method), debugInfoGenerator);
+            LambdaCompiler.Compile(this, new MethodBuilderForLambdaCompiler(method, new OffsetTrackingILGeneratorFactory()), debugInfoGenerator);
         }
 
         internal abstract LambdaExpression Accept(StackSpiller spiller);

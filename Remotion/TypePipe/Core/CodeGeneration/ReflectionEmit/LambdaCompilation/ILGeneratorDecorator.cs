@@ -28,104 +28,114 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   [CLSCompliant(false)]
   public class ILGeneratorDecorator : IILGenerator
   {
-    private readonly IILGenerator _ilGenerator;
+    private readonly IILGenerator _innerILGenerator;
 
-    public ILGeneratorDecorator (IILGenerator ilGenerator)
+    public ILGeneratorDecorator (IILGenerator innerIlGenerator)
     {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
-      _ilGenerator = ilGenerator;
+      ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
+      _innerILGenerator = innerIlGenerator;
+    }
+
+    public IILGenerator InnerILGenerator
+    {
+      get { return _innerILGenerator; }
     }
 
     public int ILOffset
     {
-      get { return _ilGenerator.ILOffset; }
+      get { return _innerILGenerator.ILOffset; }
+    }
+
+    public IILGeneratorFactory GetFactory ()
+    {
+      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory());
     }
 
     public void BeginCatchBlock (Type exceptionType)
     {
-      _ilGenerator.BeginCatchBlock (exceptionType);
+      _innerILGenerator.BeginCatchBlock (exceptionType);
     }
 
     public void BeginExceptFilterBlock ()
     {
-      _ilGenerator.BeginExceptFilterBlock();
+      _innerILGenerator.BeginExceptFilterBlock();
     }
 
     public void BeginExceptionBlock ()
     {
-      _ilGenerator.BeginExceptionBlock();
+      _innerILGenerator.BeginExceptionBlock();
     }
 
     public void BeginFaultBlock ()
     {
-      _ilGenerator.BeginFaultBlock();
+      _innerILGenerator.BeginFaultBlock();
     }
 
     public void BeginFinallyBlock ()
     {
-      _ilGenerator.BeginFinallyBlock();
+      _innerILGenerator.BeginFinallyBlock();
     }
 
     public LocalBuilder DeclareLocal (Type localType)
     {
-      return _ilGenerator.DeclareLocal (localType);
+      return _innerILGenerator.DeclareLocal (localType);
     }
 
     public Label DefineLabel ()
     {
-      return _ilGenerator.DefineLabel();
+      return _innerILGenerator.DefineLabel();
     }
 
     public void Emit (OpCode opcode, sbyte arg)
     {
-      _ilGenerator.Emit (opcode, arg);
+      _innerILGenerator.Emit (opcode, arg);
     }
 
     public void Emit (OpCode opcode, long arg)
     {
-      _ilGenerator.Emit (opcode, arg);
+      _innerILGenerator.Emit (opcode, arg);
     }
 
     public void Emit (OpCode opcode, int arg)
     {
-      _ilGenerator.Emit (opcode, arg);
+      _innerILGenerator.Emit (opcode, arg);
     }
 
     public void Emit (OpCode opcode, byte arg)
     {
-      _ilGenerator.Emit (opcode, arg);
+      _innerILGenerator.Emit (opcode, arg);
     }
 
     public void Emit (OpCode opcode, ConstructorInfo con)
     {
       // If this method is chaged to perform unwrapping of the ConstructorInfo, also add unit tests proving that Emit (..., MethodInfo) 
-      // and EmitCall (..., MethodInfo, ...) call this method rather than directly invoking _ilGenerator.Emit.
-      _ilGenerator.Emit (opcode, con);
+      // and EmitCall (..., MethodInfo, ...) call this method rather than directly invoking _innerILGenerator.Emit.
+      _innerILGenerator.Emit (opcode, con);
     }
 
     public void Emit (OpCode opcode, Type cls)
     {
-      _ilGenerator.Emit (opcode, cls);
+      _innerILGenerator.Emit (opcode, cls);
     }
 
     public void Emit (OpCode opcode, float arg)
     {
-      _ilGenerator.Emit (opcode, arg);
+      _innerILGenerator.Emit (opcode, arg);
     }
 
     public void Emit (OpCode opcode, double arg)
     {
-      _ilGenerator.Emit (opcode, arg);
+      _innerILGenerator.Emit (opcode, arg);
     }
 
     public void Emit (OpCode opcode, Label label)
     {
-      _ilGenerator.Emit (opcode, label);
+      _innerILGenerator.Emit (opcode, label);
     }
 
     public void Emit (OpCode opcode, FieldInfo field)
     {
-      _ilGenerator.Emit (opcode, field);
+      _innerILGenerator.Emit (opcode, field);
     }
 
     public void Emit (OpCode opcode, MethodInfo meth)
@@ -134,27 +144,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       if (baseConstructorMethodInfo != null)
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
       else
-        _ilGenerator.Emit (opcode, meth);
+        _innerILGenerator.Emit (opcode, meth);
     }
 
     public void Emit (OpCode opcode, Label[] labels)
     {
-      _ilGenerator.Emit (opcode, labels);
+      _innerILGenerator.Emit (opcode, labels);
     }
 
     public void Emit (OpCode opcode)
     {
-      _ilGenerator.Emit (opcode);
+      _innerILGenerator.Emit (opcode);
     }
 
     public void Emit (OpCode opcode, string str)
     {
-      _ilGenerator.Emit (opcode, str);
+      _innerILGenerator.Emit (opcode, str);
     }
 
     public void Emit (OpCode opcode, LocalBuilder local)
     {
-      _ilGenerator.Emit (opcode, local);
+      _innerILGenerator.Emit (opcode, local);
     }
 
     public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
@@ -168,22 +178,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
       }
       else
-        _ilGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
+        _innerILGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
     }
 
     public void EndExceptionBlock ()
     {
-      _ilGenerator.EndExceptionBlock();
+      _innerILGenerator.EndExceptionBlock();
     }
 
     public void MarkLabel (Label loc)
     {
-      _ilGenerator.MarkLabel (loc);
+      _innerILGenerator.MarkLabel (loc);
     }
 
     public void MarkSequencePoint (ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-      _ilGenerator.MarkSequencePoint (document, startLine, startColumn, endLine, endColumn);
+      _innerILGenerator.MarkSequencePoint (document, startLine, startColumn, endLine, endColumn);
     }
   }
 }

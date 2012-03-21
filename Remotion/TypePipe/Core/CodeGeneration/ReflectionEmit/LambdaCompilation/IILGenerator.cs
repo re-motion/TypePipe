@@ -29,6 +29,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     int ILOffset { get; }
 
+    IILGeneratorFactory GetFactory ();
+
     void BeginCatchBlock (Type exceptionType);
     void BeginExceptFilterBlock ();
     void BeginExceptionBlock ();

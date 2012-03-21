@@ -31,11 +31,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly ITypeBuilder _subclassProxyBuilder;
 
+    [CLSCompliant (false)]
     public TypeModificationHandler (ITypeBuilder subclassProxyBuilder)
     {
       _subclassProxyBuilder = ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
     }
 
+    [CLSCompliant (false)]
     public ITypeBuilder SubclassProxyBuilder
     {
       get { return _subclassProxyBuilder; }

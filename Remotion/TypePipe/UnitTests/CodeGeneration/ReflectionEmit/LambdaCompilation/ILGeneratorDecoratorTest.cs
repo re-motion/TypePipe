@@ -37,6 +37,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    public void GetFactory ()
+    {
+      var fakeFactory = MockRepository.GenerateStub<IILGeneratorFactory>();
+      _innerILGeneratorMock.Stub (stub => stub.GetFactory()).Return (fakeFactory);
+
+      var result = _decorator.GetFactory();
+
+      Assert.That (result, Is.TypeOf<ILGeneratorDecoratorFactory>().With.Property ("InnerFactory").SameAs (fakeFactory));
+    }
+
+    [Test]
     public void Emit_MethodInfo_Standard ()
     {
       var methodInfo = ReflectionObjectMother.GetSomeMethod();

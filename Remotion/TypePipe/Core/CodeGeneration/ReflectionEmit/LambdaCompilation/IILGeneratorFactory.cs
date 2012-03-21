@@ -15,17 +15,16 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// Defines an interface for <see cref="ModuleBuilder"/>.
+  /// Creates customized <see cref="IILGenerator"/> adapters for <see cref="ILGenerator"/> Reflection.Emit objects.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IModuleBuilder
+  public interface IILGeneratorFactory
   {
-    ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent);
+    IILGenerator CreateAdaptedILGenerator (ILGenerator realILGenerator);
   }
 }

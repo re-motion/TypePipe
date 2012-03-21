@@ -43,11 +43,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       get { return _constructorBuilder; }
     }
 
-    public void SetBody (LambdaExpression body, DebugInfoGenerator debugInfoGeneratorOrNull)
+    [CLSCompliant (false)]
+    public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("body", body);
+      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
-      LambdaCompiler.Compile (body, new ConstructorBuilderForLambdaCompiler(_constructorBuilder), debugInfoGeneratorOrNull);
+      var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
+      LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
     }
   }
 }

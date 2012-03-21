@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private IModuleBuilder _moduleBuilderMock;
     private ISubclassProxyNameProvider _subclassProxyNameProviderStub;
-    private DebugInfoGenerator _debugInfoGenerator;
+    private DebugInfoGenerator _debugInfoGeneratorStub;
 
     private TypeModifier _typeModifier;
 
@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderStub = MockRepository.GenerateStub<ISubclassProxyNameProvider>();
-      _debugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
+      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
 
-      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _debugInfoGenerator);
+      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _debugInfoGeneratorStub);
     }
 
     [Test]
@@ -110,7 +110,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (nonDefaultConstructorBuilderMock);
 
       nonDefaultConstructorBuilderMock
-          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_debugInfoGenerator)))
+          .Expect (
+              mock =>
+              mock.SetBody (
+                  Arg<LambdaExpression>.Is.Anything,
+                  Arg<ILGeneratorDecoratorFactory>.Matches (p => p.InnerFactory is OffsetTrackingILGeneratorFactory),
+                  Arg.Is (_debugInfoGeneratorStub)))
           .WhenCalled (mi => CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableTypeStub));
 
       _typeModifier.ApplyModifications (mutableTypeStub);

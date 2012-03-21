@@ -15,28 +15,27 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast.Compiler;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/> to be used by <see cref="LambdaCompiler"/>.
+  /// Creates an instance of <see cref="OffsetTrackingILGenerator"/>, adapted to implement <see cref="IILGenerator"/>.
   /// </summary>
-  /// <remarks>
-  /// This class is internal because it should only be used from <see cref="TypeModifier"/> and <see cref="TypeModificationHandler"/>.
-  /// </remarks>
-  internal interface IMethodBuilderForLambdaCompiler
+  [CLSCompliant (false)]
+  public class OffsetTrackingILGeneratorFactory : IILGeneratorFactory
   {
-    Type DeclaringType { get; }
-
-    void SetReturnType (Type returnType);
-    void SetParameters (Type[] parameterType);
-    ParameterBuilder DefineParameter (int position, ParameterAttributes parameterAttributes, string parameterName);
-
-    IILGenerator GetILGenerator ();
-
-    MethodBase AsMethodBase ();
+    public IILGenerator CreateAdaptedILGenerator (ILGenerator realILGenerator)
+    {
+      ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);
+      
+      // The OffsetTrackingILGenerator is defined by the DLR to add an ILOffsetProperty to ILGenerator under the CLR version 2 or Silverlight.
+      // With .NET 4, the ILGenerator already has this property. When upgrading, we _could_ implement different ILGeneratorProvider and 
+      // ILGeneratorAdapter classes that directly use ILGenerator.
+      var offsetTrackingILGenerator = new OffsetTrackingILGenerator (realILGenerator);
+      return new OffsetTrackingILGeneratorAdapter (offsetTrackingILGenerator);
+    }
   }
 }

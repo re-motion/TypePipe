@@ -23,6 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// <summary>
   /// Defines an interface for <see cref="TypeBuilder"/>.
   /// </summary>
+  [CLSCompliant (false)]
   public interface ITypeBuilder
   {
     void AddInterfaceImplementation (Type interfaceType);

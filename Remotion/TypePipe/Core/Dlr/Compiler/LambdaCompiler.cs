@@ -99,7 +99,7 @@ namespace System.Linq.Expressions.Compiler {
             _method = method;
 
 #if CLR2 || SILVERLIGHT
-            _ilg = new OffsetTrackingILGeneratorAdapter (new OffsetTrackingILGenerator(method.GetILGenerator()));
+            _ilg = new OffsetTrackingILGeneratorFactory().CreateAdaptedILGenerator (method.GetILGenerator());
 #else
             _ilg = method.GetILGenerator();
 #endif
@@ -137,11 +137,7 @@ namespace System.Linq.Expressions.Compiler {
             _typeBuilder = (TypeBuilder)method.DeclaringType;
             _method = method.AsMethodBase();
 
-#if CLR2 || SILVERLIGHT
-            _ilg = new OffsetTrackingILGeneratorAdapter (new OffsetTrackingILGenerator(method.GetILGenerator()));
-#else
             _ilg = method.GetILGenerator();
-#endif
 
             // These are populated by AnalyzeTree/VariableBinder
             _scope = tree.Scopes[lambda];

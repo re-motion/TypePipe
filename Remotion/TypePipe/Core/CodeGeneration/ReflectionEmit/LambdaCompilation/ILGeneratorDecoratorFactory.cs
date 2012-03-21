@@ -15,34 +15,36 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// Adapts <see cref="ModuleBuilder"/> with the <see cref="IModuleBuilder"/> interface.
+  /// Decorates another <see cref="IILGeneratorFactory"/> in order to create <see cref="ILGeneratorDecorator"/> instances.
   /// </summary>
   [CLSCompliant (false)]
-  public class ModuleBuilderAdapter : IModuleBuilder
+  public class ILGeneratorDecoratorFactory : IILGeneratorFactory
   {
-    private readonly ModuleBuilder _moduleBuilder;
+    private readonly IILGeneratorFactory _innerFactory;
 
-    public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
+    public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
-
-      _moduleBuilder = moduleBuilder;
+      ArgumentUtility.CheckNotNull ("innerFactory", innerFactory);
+      _innerFactory = innerFactory;
     }
 
-    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
+    public IILGeneratorFactory InnerFactory
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("parent", parent);
+      get { return _innerFactory; }
+    }
 
-      var typeBuilder = _moduleBuilder.DefineType (name, attr, parent);
-      return new TypeBuilderAdapter (typeBuilder);
+    public IILGenerator CreateAdaptedILGenerator (ILGenerator realILGenerator)
+    {
+      ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);
+
+      var innerILGenerator = _innerFactory.CreateAdaptedILGenerator (realILGenerator);
+      return new ILGeneratorDecorator (innerILGenerator);
     }
   }
 }

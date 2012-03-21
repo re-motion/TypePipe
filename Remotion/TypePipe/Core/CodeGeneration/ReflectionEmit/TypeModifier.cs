@@ -39,11 +39,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
-    public TypeModifier (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider, DebugInfoGenerator debugInfoGenerator)
+    [CLSCompliant (false)]
+    public TypeModifier (
+        IModuleBuilder moduleBuilder,
+        ISubclassProxyNameProvider subclassProxyNameProvider,
+        DebugInfoGenerator debugInfoGenerator)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
-      ArgumentUtility.CheckNotNull ("debugInfoGenerator", debugInfoGenerator);
 
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
@@ -69,11 +72,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
-            new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)), 
-            new BaseConstructorMethodInfo (ctor), 
+            new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)),
+            new BaseConstructorMethodInfo (ctor),
             parameterExpressions.Cast<Expression>());
         var body = Expression.Lambda (baseCallExpression, parameterExpressions);
-        ctorBuilder.SetBody (body, _debugInfoGenerator);
+
+        var ilGeneratorProvider = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
+        ctorBuilder.SetBody (body, ilGeneratorProvider, _debugInfoGenerator);
       }
 
       var modificationHandler = new TypeModificationHandler (typeBuilder);

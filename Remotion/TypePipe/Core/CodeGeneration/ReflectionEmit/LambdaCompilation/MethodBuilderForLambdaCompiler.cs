@@ -30,12 +30,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   internal class MethodBuilderForLambdaCompiler : IMethodBuilderForLambdaCompiler
   {
     private readonly MethodBuilder _methodBuilder;
+    private readonly IILGeneratorFactory _ilGeneratorFactory;
 
-    public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder)
+    public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder, IILGeneratorFactory ilGeneratorFactory)
     {
       ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
+      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
       _methodBuilder = methodBuilder;
+      _ilGeneratorFactory = ilGeneratorFactory;
     }
 
     public Type DeclaringType
@@ -58,9 +61,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _methodBuilder.SetReturnType (returnType);
     }
 
-    public ILGenerator GetILGenerator ()
+    public IILGenerator GetILGenerator ()
     {
-      return _methodBuilder.GetILGenerator();
+      return _ilGeneratorFactory.CreateAdaptedILGenerator (_methodBuilder.GetILGenerator ());
     }
 
     public MethodBase AsMethodBase ()

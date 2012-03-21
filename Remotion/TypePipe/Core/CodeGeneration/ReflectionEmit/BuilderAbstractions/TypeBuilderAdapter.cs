@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// <summary>
   /// Adapts <see cref="TypeBuilder"/> with the <see cref="ITypeBuilder"/> interface.
   /// </summary>
+  [CLSCompliant (false)]
   public class TypeBuilderAdapter : ITypeBuilder
   {
     private readonly TypeBuilder _typeBuilder;
@@ -31,6 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     public TypeBuilderAdapter (TypeBuilder typeBuilder)
     {
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
+
       _typeBuilder = typeBuilder;
     }
 
@@ -52,7 +54,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      return new ConstructorBuilderAdapter (_typeBuilder.DefineConstructor (attributes, callingConvention, parameterTypes));
+      var constructorBuilder = _typeBuilder.DefineConstructor (attributes, callingConvention, parameterTypes);
+      return new ConstructorBuilderAdapter (constructorBuilder);
     }
 
     public Type CreateType ()

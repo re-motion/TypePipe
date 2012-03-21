@@ -18,14 +18,16 @@ using System;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
   /// Defines an interface for <see cref="ConstructorBuilder"/>.
   /// </summary>
+  [CLSCompliant (false)]
   public interface IConstructorBuilder
   {
-    void SetBody (LambdaExpression body, DebugInfoGenerator debugInfoGeneratorOrNull);
+    void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);
   }
 }

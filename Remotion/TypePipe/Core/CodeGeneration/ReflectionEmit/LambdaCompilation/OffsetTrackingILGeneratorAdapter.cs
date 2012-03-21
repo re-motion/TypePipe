@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// <summary>
   /// Adapts <see cref="OffsetTrackingILGenerator"/> to implement the <see cref="IILGenerator"/> interface.
   /// </summary>
+  [CLSCompliant (false)]
   public class OffsetTrackingILGeneratorAdapter : IILGenerator
   {
     private readonly OffsetTrackingILGenerator _ilGenerator;
@@ -36,9 +37,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _ilGenerator = ilGenerator;
     }
 
+    internal OffsetTrackingILGenerator ILGenerator
+    {
+      get { return _ilGenerator; }
+    }
+
     public int ILOffset
     {
       get { return _ilGenerator.ILOffset; }
+    }
+
+    public IILGeneratorFactory GetFactory ()
+    {
+      return new OffsetTrackingILGeneratorFactory();
     }
 
     public void BeginCatchBlock (Type exceptionType)
