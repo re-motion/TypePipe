@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMemberFilter
   {
-    IEnumerable<FieldInfo> FilterFields (IEnumerable<FieldInfo> fieldInfos);
-    IEnumerable<ConstructorInfo> FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos);
+    FieldInfo[] FilterFields (IEnumerable<FieldInfo> fieldInfos);
+    ConstructorInfo[] FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos);
   }
 }

@@ -21,18 +21,21 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Collections.Generic;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class ExistingTypeInfoTest
   {
+    private IMemberFilter _memberFilterStub;
     private ExistingTypeInfo _existingTypeInfo;
 
     [SetUp]
     public void SetUp ()
     {
-      _existingTypeInfo = ExistingTypeInfoObjectMother.Create (originalType: (typeof (ExampleType)));
+      _memberFilterStub = MockRepository.GenerateStub<IMemberFilter>();
+      _existingTypeInfo = ExistingTypeInfoObjectMother.Create (originalType: typeof (ExampleType), memberFilter: _memberFilterStub);
     }
 
     [Test]
@@ -87,36 +90,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetFields ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      var allFields = typeof (ExampleType).GetFields(bindingFlags);
+      var filteredFields = new FieldInfo[0];
+      _memberFilterStub.Stub (stub => stub.FilterFields (allFields)).Return (filteredFields);
 
-      var fieldNames = _existingTypeInfo.GetFields (bindingFlags).Select(field => field.Name);
-      Assert.That (fieldNames, Is.EquivalentTo (new[] { "_firstField", "_secondField" }));
+      var fields = _existingTypeInfo.GetFields (bindingFlags);
+
+      Assert.That (fields, Is.SameAs (filteredFields));
     }
 
     [Test]
     public void GetConstructors ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var allConstructors = typeof (ExampleType).GetConstructors(bindingFlags);
+      var filteredCtors = new ConstructorInfo[0];
+      _memberFilterStub.Stub (stub => stub.FilterConstructors (allConstructors)).Return (filteredCtors);
 
-      var ctorSignatures = _existingTypeInfo.GetConstructors (bindingFlags).Select (ctor => ctor.GetParameters().Select (p => p.ParameterType));
-      Assert.That (ctorSignatures, Is.EqualTo (new[] { new Type[0], new[] { typeof (int) } }));
+      var fields = _existingTypeInfo.GetConstructors (bindingFlags);
+
+      Assert.That (fields, Is.SameAs (filteredCtors));
     }
 
     public class ExampleType : IDisposable
     {
-      public ExampleType ()
-      {
-      }
-
-      private ExampleType (int i)
-      {
-      }
+      public int SomeField;
 
       public void Dispose ()
       {
       }
-
-      protected string _firstField;
-      public static object _secondField;
     }
 
     private ExistingTypeInfo Create (Type originalType)

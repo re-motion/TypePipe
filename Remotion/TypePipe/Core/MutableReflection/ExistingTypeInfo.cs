@@ -27,10 +27,12 @@ namespace Remotion.TypePipe.MutableReflection
   public class ExistingTypeInfo : ITypeInfo
   {
     private readonly Type _originalType;
+    private readonly IMemberFilter _memberFilter;
 
-    public ExistingTypeInfo (Type originalType)
+    public ExistingTypeInfo (Type originalType, IMemberFilter memberFilter)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
+      ArgumentUtility.CheckNotNull ("memberFilter", memberFilter);
 
       // TODO 4695
       if (CanNotBeSubclassed (originalType))
@@ -38,6 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
           + " parameters and must have an accessible constructor.", "originalType");
 
       _originalType = originalType;
+      _memberFilter = memberFilter;
     }
 
     public Type GetBaseType ()
@@ -62,12 +65,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     public FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _originalType.GetFields (bindingAttr);
+      var fieldInfos = _originalType.GetFields (bindingAttr);
+      return _memberFilter.FilterFields (fieldInfos);
     }
 
     public ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return _originalType.GetConstructors (bindingAttr);
+      var constructorInfos = _originalType.GetConstructors (bindingAttr);
+      return _memberFilter.FilterConstructors (constructorInfos);
     }
 
     private bool CanNotBeSubclassed (Type type)

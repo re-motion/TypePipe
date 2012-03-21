@@ -1,5 +1,6 @@
 ﻿using System;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -7,9 +8,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private class UnspecifiedType { }
 
-    public static ExistingTypeInfo Create (Type originalType = null)
+    public static ExistingTypeInfo Create (Type originalType = null, IMemberFilter memberFilter = null)
     {
-      return new ExistingTypeInfo (originalType ?? typeof (UnspecifiedType));
+      return new ExistingTypeInfo (
+        originalType ?? typeof (UnspecifiedType),
+        memberFilter ?? new MemberFilter());
     }
   }
 }
