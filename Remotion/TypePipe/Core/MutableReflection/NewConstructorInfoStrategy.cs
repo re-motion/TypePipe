@@ -30,10 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MethodAttributes _attributes;
     private readonly IEnumerable<ParameterDeclaration> _parameterDeclarations;
 
-    public NewConstructorInfoStrategy (
-        Type declaringType,
-        MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public NewConstructorInfoStrategy (Type declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);

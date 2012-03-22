@@ -16,8 +16,9 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Dynamic.Utils;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -26,24 +27,32 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class ExistingConstructorInfoStrategy : IUnderlyingConstructorInfoStrategy
   {
+    private readonly ConstructorInfo _originalConstructorInfo;
+
+    public ExistingConstructorInfoStrategy (ConstructorInfo originalConstructorInfo)
+    {
+      ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
+      _originalConstructorInfo = originalConstructorInfo;
+    }
+
     public Type GetDeclaringType ()
     {
-      throw new NotImplementedException();
+      return _originalConstructorInfo.DeclaringType;
     }
 
     public ConstructorInfo GetUnderlyingSystemConstructorInfo ()
     {
-      throw new NotImplementedException();
+      return _originalConstructorInfo;
     }
 
     public MethodAttributes GetAttributes ()
     {
-      throw new NotImplementedException();
+      return _originalConstructorInfo.Attributes;
     }
 
     public IEnumerable<ParameterDeclaration> GetParameterDeclarations ()
     {
-      throw new NotImplementedException();
+      return _originalConstructorInfo.GetParameters().Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes));
     }
   }
 }

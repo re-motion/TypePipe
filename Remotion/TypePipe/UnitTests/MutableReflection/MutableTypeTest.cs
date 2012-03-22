@@ -358,20 +358,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.SameAs (ctor));
     }
 
-    //[Test]
-    //public void GetMutableConstructor_StandardConstructorInfo ()
-    //{
-    //  var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
-    //  ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
-    //  ctorStub.Stub (stub => stub.Name).Return ("foo");
+    [Ignore("4704")]
+    [Test]
+    public void GetMutableConstructor_StandardConstructorInfo ()
+    {
+      var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
+      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
+      ctorStub.Stub (stub => stub.Name).Return ("foo");
 
-    //  _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
-    //  var ctor = _mutableType.AddConstructor (0);
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
+      var ctor = _mutableType.AddConstructor (0);
 
-    //  var result = _mutableType.GetMutableConstructor (ctor);
+      var result = _mutableType.GetMutableConstructor (ctor);
 
-    //  Assert.That (result.Name, Is.EqualTo("foo"));
-    //}
+      Assert.That (result.UnderlyingSystemConsructorInfo, Is.SameAs(ctorStub));
+    }
 
     //[Test]
     //public void GetMutableConstructor_StandardConstructorInfo_Twice ()

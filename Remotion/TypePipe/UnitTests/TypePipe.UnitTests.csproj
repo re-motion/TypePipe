@@ -70,6 +70,7 @@
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeReflectionObjectMother.cs" />
+    <Compile Include="MutableReflection\ExistingConstructorInfoStrategyTest.cs" />
     <Compile Include="MutableReflection\ExistingTypeStrategyObjectMother.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableFieldInfoTest.cs" />

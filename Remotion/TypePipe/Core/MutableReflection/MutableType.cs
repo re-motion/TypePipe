@@ -185,6 +185,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (constructor is MutableConstructorInfo)
         return (MutableConstructorInfo) constructor;
+
+      return new MutableConstructorInfo (new ExistingConstructorInfoStrategy (constructor));
       
       // if (constructor is MutableConstructorInfo) 
       // {
@@ -200,8 +202,6 @@ namespace Remotion.TypePipe.MutableReflection
       //MutableConstructorInfo mutableCtor = CastAndCheckDeclaringTypeAndCheckPresence (constructor, "constructor", _addedConstructors);
       //if (mutableCtor != null)
       //  return mutableCtor;
-
-      return null;
     }
 
     private void CheckDeclaringType (MemberInfo member, string parameterName)
