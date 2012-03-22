@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting;
 
@@ -24,6 +25,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public static Expression CallVisitChildren (Expression expression, ExpressionVisitor expressionVisitorMock)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "VisitChildren", expressionVisitorMock);
+    }
+
+    public static Expression CallAccept (Expression expression, ExpressionVisitor expressionVisitorMock)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "Accept", expressionVisitorMock);
     }
   }
 }

@@ -44,5 +44,16 @@ namespace Remotion.TypePipe.Expressions
     }
 
     public abstract Expression Accept (ITypePipeExpressionVisitor visitor);
+
+    protected internal override Expression Accept (ExpressionVisitor visitor)
+    {
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      var typePipeExpressionVisitor = visitor as ITypePipeExpressionVisitor;
+      if (typePipeExpressionVisitor != null)
+        return Accept (typePipeExpressionVisitor);
+
+      return base.Accept (visitor);
+    }
   }
 }

@@ -22,7 +22,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
   {
     public static Expression GetSomeExpression ()
     {
-      return Expression.Constant (null);
+      return Expression.Constant ("some expression");
     }
   }
 }
