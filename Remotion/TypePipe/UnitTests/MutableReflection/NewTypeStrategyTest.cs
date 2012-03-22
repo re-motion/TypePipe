@@ -21,59 +21,59 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class NewTypeInfoTest
+  public class NewTypeStrategyTest
   {
     [Test]
     public void GetBaseType ()
     {
       var baseType = typeof (IDisposable);
-      var typeInfo = NewTypeInfoObjectMother.Create (baseType: baseType);
+      var typeStrategy = NewTypeStrategyObjectMother.Create (baseType: baseType);
 
-      Assert.That (typeInfo.GetBaseType(), Is.SameAs (baseType));
+      Assert.That (typeStrategy.GetBaseType(), Is.SameAs (baseType));
     }
 
     [Test]
     public void GetUnderlyingSystemType ()
     {
-      var typeInfo = NewTypeInfoObjectMother.Create();
+      var typeStrategy = NewTypeStrategyObjectMother.Create();
 
-      Assert.That (typeInfo.GetUnderlyingSystemType(), Is.Null);
+      Assert.That (typeStrategy.GetUnderlyingSystemType(), Is.Null);
     }
 
     [Test]
     public void GetAttributeFlags ()
     {
       var attributes = TypeAttributes.Sealed;
-      var typeInfo = NewTypeInfoObjectMother.Create (attributes: attributes);
+      var typeStrategy = NewTypeStrategyObjectMother.Create (attributes: attributes);
 
-      Assert.That (typeInfo.GetAttributeFlags(), Is.EqualTo (attributes));
+      Assert.That (typeStrategy.GetAttributeFlags(), Is.EqualTo (attributes));
     }
 
     [Test]
     public void GetInterfaces ()
     {
       var interfaces = new Type[1];
-      var typeInfo = NewTypeInfoObjectMother.Create (interfaces: interfaces);
+      var typeStrategy = NewTypeStrategyObjectMother.Create (interfaces: interfaces);
 
-      Assert.That (typeInfo.GetInterfaces(), Is.SameAs (interfaces));
+      Assert.That (typeStrategy.GetInterfaces(), Is.SameAs (interfaces));
     }
 
     [Test]
     public void GetFields ()
     {
       var fields = new FieldInfo[1];
-      var typeInfo = NewTypeInfoObjectMother.Create (fields: fields);
+      var typeStrategy = NewTypeStrategyObjectMother.Create (fields: fields);
 
-      Assert.That (typeInfo.GetFields(BindingFlags.Default), Is.SameAs (fields));
+      Assert.That (typeStrategy.GetFields(BindingFlags.Default), Is.SameAs (fields));
     }
 
     [Test]
     public void GetConstructors ()
     {
       var constructors = new ConstructorInfo[1];
-      var typeInfo = NewTypeInfoObjectMother.Create (constructors: constructors);
+      var typeStrategy = NewTypeStrategyObjectMother.Create (constructors: constructors);
 
-      Assert.That (typeInfo.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
+      Assert.That (typeStrategy.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
     }
   }
 }

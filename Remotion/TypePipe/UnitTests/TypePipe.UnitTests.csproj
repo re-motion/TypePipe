@@ -70,7 +70,7 @@
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeReflectionObjectMother.cs" />
-    <Compile Include="MutableReflection\ExistingTypeInfoObjectMother.cs" />
+    <Compile Include="MutableReflection\ExistingTypeStrategyObjectMother.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableMethodInfoTest.cs" />
@@ -81,8 +81,8 @@
     <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
-    <Compile Include="MutableReflection\NewTypeInfoObjectMother.cs" />
-    <Compile Include="MutableReflection\NewTypeInfoTest.cs" />
+    <Compile Include="MutableReflection\NewTypeStrategyObjectMother.cs" />
+    <Compile Include="MutableReflection\NewTypeStrategyTest.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />
@@ -90,7 +90,7 @@
     <Compile Include="MutableReflection\MutablePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
-    <Compile Include="MutableReflection\ExistingTypeInfoTest.cs" />
+    <Compile Include="MutableReflection\ExistingTypeStrategyTest.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\MemberFilterTest.cs" />

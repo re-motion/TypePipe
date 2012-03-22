@@ -24,12 +24,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Defines the characteristics of an existing type.
   /// </summary>
-  public class ExistingTypeInfo : ITypeInfo
+  public class ExistingTypeStrategy : IUnderlyingTypeStrategy
   {
     private readonly Type _originalType;
     private readonly IMemberFilter _memberFilter;
 
-    public ExistingTypeInfo (Type originalType, IMemberFilter memberFilter)
+    public ExistingTypeStrategy (Type originalType, IMemberFilter memberFilter)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
       ArgumentUtility.CheckNotNull ("memberFilter", memberFilter);

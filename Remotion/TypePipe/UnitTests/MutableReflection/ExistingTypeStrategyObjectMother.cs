@@ -4,13 +4,13 @@ using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class ExistingTypeInfoObjectMother
+  public static class ExistingTypeStrategyObjectMother
   {
     private class UnspecifiedType { }
 
-    public static ExistingTypeInfo Create (Type originalType = null, IMemberFilter memberFilter = null)
+    public static ExistingTypeStrategy Create (Type originalType = null, IMemberFilter memberFilter = null)
     {
-      return new ExistingTypeInfo (
+      return new ExistingTypeStrategy (
         originalType ?? typeof (UnspecifiedType),
         memberFilter ?? new MemberFilter());
     }

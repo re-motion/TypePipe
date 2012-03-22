@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableType : Type
   {
-    private readonly ITypeInfo _originalTypeInfo;
+    private readonly IUnderlyingTypeStrategy _underlyingTypeStrategy;
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
     private readonly List<Type> _addedInterfaces = new List<Type>();
@@ -38,15 +38,15 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
     public MutableType (
-      ITypeInfo originalTypeInfo,
+      IUnderlyingTypeStrategy underlyingTypeStrategy,
       IEqualityComparer<MemberInfo> memberInfoEqualityComparer,
       IBindingFlagsEvaluator bindingFlagsEvaluator)
     {
-      ArgumentUtility.CheckNotNull ("originalTypeInfo", originalTypeInfo);
+      ArgumentUtility.CheckNotNull ("underlyingTypeStrategy", underlyingTypeStrategy);
       ArgumentUtility.CheckNotNull ("memberInfoEqualityComparer", memberInfoEqualityComparer);
       ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
 
-      _originalTypeInfo = originalTypeInfo;
+      _underlyingTypeStrategy = underlyingTypeStrategy;
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type UnderlyingSystemType
     {
-      get { return _originalTypeInfo.GetUnderlyingSystemType() ?? this; }
+      get { return _underlyingTypeStrategy.GetUnderlyingSystemType() ?? this; }
     }
 
     public override Assembly Assembly
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type BaseType
     {
-      get { return _originalTypeInfo.GetBaseType (); }
+      get { return _underlyingTypeStrategy.GetBaseType (); }
     }
 
     public void AddInterface (Type interfaceType)
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type[] GetInterfaces ()
     {
-      return _originalTypeInfo.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
+      return _underlyingTypeStrategy.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
     }
 
     public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _originalTypeInfo.GetFields (bindingAttr)
+      return _underlyingTypeStrategy.GetFields (bindingAttr)
           .Concat (
               AddedFields
                   .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return _originalTypeInfo.GetConstructors (bindingAttr)
+      return _underlyingTypeStrategy.GetConstructors (bindingAttr)
           .Concat (
               AddedConstructors
                   .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr))
@@ -185,7 +185,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return _originalTypeInfo.GetAttributeFlags ();
+      return _underlyingTypeStrategy.GetAttributeFlags ();
     }
 
     protected override bool IsByRefImpl ()

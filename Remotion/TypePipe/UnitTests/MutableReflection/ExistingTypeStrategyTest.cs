@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -26,16 +25,16 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class ExistingTypeInfoTest
+  public class ExistingTypeStrategyTest
   {
     private IMemberFilter _memberFilterStub;
-    private ExistingTypeInfo _existingTypeInfo;
+    private ExistingTypeStrategy _existingTypeStrategy;
 
     [SetUp]
     public void SetUp ()
     {
       _memberFilterStub = MockRepository.GenerateStub<IMemberFilter>();
-      _existingTypeInfo = ExistingTypeInfoObjectMother.Create (originalType: typeof (ExampleType), memberFilter: _memberFilterStub);
+      _existingTypeStrategy = ExistingTypeStrategyObjectMother.Create (originalType: typeof (ExampleType), memberFilter: _memberFilterStub);
     }
 
     [Test]
@@ -65,25 +64,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseType ()
     {
-      Assert.That (_existingTypeInfo.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
+      Assert.That (_existingTypeStrategy.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
     }
 
     [Test]
     public void GetUnderlyingSystemType ()
     {
-      Assert.That (_existingTypeInfo.GetUnderlyingSystemType(), Is.SameAs (typeof (ExampleType)));
+      Assert.That (_existingTypeStrategy.GetUnderlyingSystemType(), Is.SameAs (typeof (ExampleType)));
     }
 
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      Assert.That (_existingTypeInfo.GetAttributeFlags(), Is.EqualTo (typeof(ExampleType).Attributes));
+      Assert.That (_existingTypeStrategy.GetAttributeFlags(), Is.EqualTo (typeof(ExampleType).Attributes));
     }
 
     [Test]
     public void GetInterfaces ()
     {
-      Assert.That (_existingTypeInfo.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IDisposable) }));
+      Assert.That (_existingTypeStrategy.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IDisposable) }));
     }
 
     [Test]
@@ -94,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredFields = new FieldInfo[0];
       _memberFilterStub.Stub (stub => stub.FilterFields (allFields)).Return (filteredFields);
 
-      var fields = _existingTypeInfo.GetFields (bindingFlags);
+      var fields = _existingTypeStrategy.GetFields (bindingFlags);
 
       Assert.That (fields, Is.SameAs (filteredFields));
     }
@@ -107,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredCtors = new ConstructorInfo[0];
       _memberFilterStub.Stub (stub => stub.FilterConstructors (allConstructors)).Return (filteredCtors);
 
-      var fields = _existingTypeInfo.GetConstructors (bindingFlags);
+      var fields = _existingTypeStrategy.GetConstructors (bindingFlags);
 
       Assert.That (fields, Is.SameAs (filteredCtors));
     }
@@ -121,9 +120,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
     }
 
-    private ExistingTypeInfo Create (Type originalType)
+    private ExistingTypeStrategy Create (Type originalType)
     {
-      return ExistingTypeInfoObjectMother.Create (originalType: originalType);
+      return ExistingTypeStrategyObjectMother.Create (originalType: originalType);
     }
   }
 }

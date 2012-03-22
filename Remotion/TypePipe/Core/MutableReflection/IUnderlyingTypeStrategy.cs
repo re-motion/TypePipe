@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableType"/> to represent the original type, before any mutations.
   /// </remarks>
-  public interface ITypeInfo
+  public interface IUnderlyingTypeStrategy
   {
     Type GetBaseType ();
     Type GetUnderlyingSystemType ();

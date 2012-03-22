@@ -26,40 +26,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableTypeObjectMother
   {
     public static MutableType Create (
-      ITypeInfo typeInfo = null,
+      IUnderlyingTypeStrategy underlyingTypeStrategy = null,
       IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
       IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return new MutableType(
-        typeInfo ?? NewTypeInfoObjectMother.Create(),
+        underlyingTypeStrategy ?? NewTypeStrategyObjectMother.Create(),
         memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
         bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
-    public static MutableType CreateStrictMock (ITypeInfo typeInfo = null,
+    public static MutableType CreateStrictMock (IUnderlyingTypeStrategy underlyingTypeStrategy = null,
       IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
       IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return MockRepository.GenerateStrictMock<MutableType> (
-        typeInfo ?? NewTypeInfoObjectMother.Create (),
+        underlyingTypeStrategy ?? NewTypeStrategyObjectMother.Create (),
         memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer (),
         bindingFlagsEvaluator ?? new BindingFlagsEvaluator ());
     }
 
-    public static MutableType CreateStub (ITypeInfo typeInfo = null,
+    public static MutableType CreateStub (IUnderlyingTypeStrategy underlyingTypeStrategy = null,
       IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
       IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return MockRepository.GenerateStub<MutableType> (
-        typeInfo ?? NewTypeInfoObjectMother.Create (),
+        underlyingTypeStrategy ?? NewTypeStrategyObjectMother.Create (),
         memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer (),
         bindingFlagsEvaluator ?? new BindingFlagsEvaluator ());
     }
 
     public static MutableType CreateForExistingType (Type originalType = null)
     {
-      var typeInfo = ExistingTypeInfoObjectMother.Create (originalType);
-      return Create (typeInfo: typeInfo);
+      return Create (underlyingTypeStrategy: ExistingTypeStrategyObjectMother.Create (originalType));
     }
   }
 }

@@ -20,7 +20,7 @@ using System.Reflection;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Used by <see cref="ExistingTypeInfo"/> to filter the returned members.
+  /// Used by <see cref="ExistingTypeStrategy"/> to filter the returned members.
   /// </summary>
   public interface IMemberFilter
   {
