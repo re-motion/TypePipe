@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
-    private IUnderlyingTypeStrategy _underlyingTypeStrategyStub;
+    private IUnderlyingTypeStrategy _typeStrategyStub;
     private IEqualityComparer<MemberInfo> _memberInfoEqualityComparerStub;
     private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
     private MutableType _mutableType;
@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _underlyingTypeStrategyStub = MockRepository.GenerateStub<IUnderlyingTypeStrategy>();
+      _typeStrategyStub = MockRepository.GenerateStub<IUnderlyingTypeStrategy>();
       _memberInfoEqualityComparerStub = MockRepository.GenerateStub<IEqualityComparer<MemberInfo>>();
       _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator>();
-      _mutableType = MutableTypeObjectMother.Create (_underlyingTypeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
+      _mutableType = MutableTypeObjectMother.Create (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
     }
 
     [Test]
@@ -52,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemType ()
     {
-      var type = typeof (string);
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (type);
+      var type = ReflectionObjectMother.GetSomeType();
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (type);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (type));
     }
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemType_ForNull ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (null);
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (null);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
     }
@@ -76,15 +76,50 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void BaseType ()
     {
       var baseType = typeof (IDisposable);
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetBaseType()).Return (baseType);
+      _typeStrategyStub.Stub (stub => stub.GetBaseType()).Return (baseType);
 
       Assert.That (_mutableType.BaseType, Is.SameAs (baseType));
     }
 
     [Test]
+    public void IsEquivalentTo_Type_True ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (type);
+
+      Assert.That (_mutableType.IsEquivalentTo (type), Is.True);
+    }
+
+    [Test]
+    public void IsEquivalentTo_Type_False ()
+    {
+      var underlyingType = ReflectionObjectMother.GetSomeType();
+      var type = ReflectionObjectMother.GetSomeDifferentType();
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (underlyingType);
+
+      Assert.That (_mutableType.IsEquivalentTo (type), Is.False);
+    }
+
+    [Test]
+    public void IsEquivalentTo_MutableType_True ()
+    {
+      var mutableType = _mutableType;
+
+      Assert.That (_mutableType.IsEquivalentTo (mutableType), Is.True);
+    }
+
+    [Test]
+    public void IsEquivalentTo_MutableType_False ()
+    {
+      var mutableType = MutableTypeObjectMother.Create();
+
+      Assert.That (_mutableType.IsEquivalentTo(mutableType), Is.False);
+    }
+
+    [Test]
     public void AddInterface ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
+      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
 
       _mutableType.AddInterface (typeof (IDisposable));
       _mutableType.AddInterface (typeof (IComparable));
@@ -104,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Interface 'System.IDisposable' is already implemented.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
+      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
 
       _mutableType.AddInterface (typeof (IDisposable));
     }
@@ -112,7 +147,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterfaces ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
+      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
       _mutableType.AddInterface (typeof (IComparable));
 
       Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
@@ -121,7 +156,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddField ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+      _typeStrategyStub.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
           .Return (new FieldInfo[0]);
 
       var newField = _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
@@ -141,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddField_ThrowsIfAlreadyExist ()
     {
       var field = MutableFieldInfoObjectMother.Create (name: "_bla", fieldType: typeof (string));
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
       _memberInfoEqualityComparerStub
           .Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
           .Return (true);
@@ -153,7 +188,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddField_ReliesOnFieldSignature ()
     {
       var field = MutableFieldInfoObjectMother.Create (name: "_foo", fieldType: typeof (object));
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field });
       var attributes = FieldAttributes.Private;
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
@@ -171,7 +206,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var field1 = MutableFieldInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { field1 });
+      _typeStrategyStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { field1 });
       var attributes = FieldAttributes.Private;
       _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (attributes, bindingFlags)).Return (true);
 
@@ -184,7 +219,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields_FilterAddedWithUtility ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (FieldAttributes.Public, bindingFlags)).Return (false);
 
@@ -200,7 +235,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var field1 = MutableFieldInfoObjectMother.Create (name: "field1", fieldType: typeof (string));
       var field2 = MutableFieldInfoObjectMother.Create (name: "field2", fieldType: typeof (int));
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
@@ -213,7 +248,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetField_NoMatch ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]);
 
       Assert.That (_mutableType.GetField ("field"), Is.Null);
     }
@@ -224,7 +259,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var field1 = MutableFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (string));
       var field2 = MutableFieldInfoObjectMother.Create (name: "foo", fieldType: typeof (int));
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new[] { field1, field2 });
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
@@ -235,7 +270,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddConstructor ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
           .Return (new ConstructorInfo[0]);
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create(), ParameterDeclarationObjectMother.Create() };
@@ -265,7 +300,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[1]);
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[1]);
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (null, null)).IgnoreArguments().Return (true);
 
       _mutableType.AddConstructor (0);
@@ -276,7 +311,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var constructor1 = MutableConstructorInfoObjectMother.Create();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = new ArgumentTestHelper (7).ParameterDeclarations; // Need different signature
       _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (attributes, bindingFlags)).Return (true);
@@ -290,7 +325,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructors_FilterAddedWithUtility ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (false);
 
@@ -302,20 +337,60 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Constructor is declared by a different type: 'System.String'.\r\nParameter name: constructor")]
+    public void GetMutableConstructor_NotEquivalentDeclaringType ()
+    {
+      var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
+      ctorStub.Stub (stub => stub.DeclaringType).Return (typeof(string));
+
+      _mutableType.GetMutableConstructor (ctorStub);
+    }
+
+    [Test]
+    public void GetMutableConstructor_MutableConstructorInfo ()
+    {
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+      var ctor = _mutableType.AddConstructor (0);
+
+      var result = _mutableType.GetMutableConstructor (ctor);
+
+      Assert.That (result, Is.SameAs (ctor));
+    }
+
+    //[Test]
+    //public void GetMutableConstructor_StandardConstructorInfo ()
+    //{
+    //  var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
+    //  ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
+    //  ctorStub.Stub (stub => stub.Name).Return ("foo");
+
+    //  _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
+    //  var ctor = _mutableType.AddConstructor (0);
+
+    //  var result = _mutableType.GetMutableConstructor (ctor);
+
+    //  Assert.That (result.Name, Is.EqualTo("foo"));
+    //}
+
+    //[Test]
+    //public void GetMutableConstructor_StandardConstructorInfo_Twice ()
+
+    [Test]
     public void Accept ()
     {
-      _underlyingTypeStrategyStub
+      _typeStrategyStub
           .Stub (stub => stub.GetInterfaces())
           .Return (new[] { ReflectionObjectMother.GetSomeInterfaceType() });
       var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType ();
       _mutableType.AddInterface (addedInterface);
 
-      _underlyingTypeStrategyStub
+      _typeStrategyStub
           .Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything))
           .Return (new[] { ReflectionObjectMother.GetSomeField() });
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
-      _underlyingTypeStrategyStub
+      _typeStrategyStub
           .Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything))
           .Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
       var addedConstructorInfo = _mutableType.AddConstructor (MethodAttributes.Public, ParameterDeclarationObjectMother.Create());
@@ -344,7 +419,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetAttributeFlags()).Return (TypeAttributes.Sealed);
+      _typeStrategyStub.Stub (stub => stub.GetAttributeFlags()).Return (TypeAttributes.Sealed);
 
       Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Sealed));
     }
@@ -354,8 +429,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var constructor1 = MutableConstructorInfoObjectMother.Create();
       var arguments = new ArgumentTestHelper (typeof (int));
-      var constructor2 = MutableConstructorInfoObjectMother.Create (parameterDeclarations: arguments.ParameterDeclarations);
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { constructor1, constructor2 });
+      var constructor2 = MutableConstructorInfoObjectMother.CreateWithParameters (parameterDeclarations: arguments.ParameterDeclarations);
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { constructor1, constructor2 });
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
@@ -368,7 +443,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorImpl_NoMatch ()
     {
-      _underlyingTypeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
 
       Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
     }

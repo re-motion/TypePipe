@@ -15,12 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -29,33 +27,35 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableConstructorInfo : ConstructorInfo
   {
-    private readonly Type _declaringType;
-    private readonly MethodAttributes _attributes;
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly IUnderlyingConstructorInfoStrategy _underlyingConstructorInfoStrategy;
 
-    public MutableConstructorInfo (Type declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public MutableConstructorInfo (IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("underlyingConstructorInfoStrategy", underlyingConstructorInfoStrategy);
 
-      _declaringType = declaringType;
-      _attributes = attributes;
-      _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration(this, i, pd)).ToList().AsReadOnly();
+      _underlyingConstructorInfoStrategy = underlyingConstructorInfoStrategy;
+    }
+
+    public ConstructorInfo UnderlyingSystemConsructorInfo
+    {
+      get { return _underlyingConstructorInfoStrategy.GetUnderlyingSystemConstructorInfo() ?? this; }
     }
 
     public override Type DeclaringType
     {
-      get { return _declaringType; }
+      get { return _underlyingConstructorInfoStrategy.GetDeclaringType(); }
     }
 
     public override MethodAttributes Attributes
     {
-      get { return _attributes; }
+      get { return _underlyingConstructorInfoStrategy.GetAttributes(); }
     }
 
     public override ParameterInfo[] GetParameters ()
     {
-      return _parameters.ToArray();
+      return _underlyingConstructorInfoStrategy.GetParameterDeclarations()
+          .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
+          .ToArray();
     }
 
     #region Not Implemented from ConstructorInfo interface

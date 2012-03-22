@@ -22,32 +22,28 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class NewTypeStrategyTest
+  public class NewConstructorInfoStrategyTest
   {
     [Test]
     public void Initialization ()
     {
-      var baseType = ReflectionObjectMother.GetSomeType();
-      var attributes = TypeAttributes.Abstract;
-      var interfaces = new Type[0];
-      var fields = new FieldInfo[0];
-      var constructors = new ConstructorInfo[0];
+      var declaringType = ReflectionObjectMother.GetSomeType();
+      var attributes = MethodAttributes.Abstract;
+      var parameterDeclarations = new ParameterDeclaration[0];
 
-      var typeStrategy = new NewTypeStrategy (baseType, attributes, interfaces, fields, constructors);
+      var ctorInfoStrategy = new NewConstructorInfoStrategy (declaringType, attributes, parameterDeclarations);
 
-      Assert.That (typeStrategy.GetBaseType (), Is.SameAs (baseType));
-      Assert.That (typeStrategy.GetInterfaces (), Is.SameAs (interfaces));
-      Assert.That (typeStrategy.GetFields (BindingFlags.Default), Is.SameAs (fields));
-      Assert.That (typeStrategy.GetConstructors (BindingFlags.Default), Is.SameAs (constructors));
-      Assert.That (typeStrategy.GetAttributeFlags (), Is.EqualTo (attributes));
+      Assert.That (ctorInfoStrategy.GetDeclaringType(), Is.SameAs (declaringType));
+      Assert.That (ctorInfoStrategy.GetAttributes(), Is.EqualTo (attributes));
+      Assert.That (ctorInfoStrategy.GetParameterDeclarations(), Is.SameAs (parameterDeclarations));
     }
 
     [Test]
-    public void GetUnderlyingSystemType ()
+    public void GetUnderlyingSystemConstructorInfo ()
     {
-      var typeStrategy = NewTypeStrategyObjectMother.Create();
+      var ctorInfoStrategy = NewConstructorInfoStrategyObjectMother.Create();
 
-      Assert.That (typeStrategy.GetUnderlyingSystemType(), Is.Null);
+      Assert.That (ctorInfoStrategy.GetUnderlyingSystemConstructorInfo(), Is.Null);
     }
   }
 }

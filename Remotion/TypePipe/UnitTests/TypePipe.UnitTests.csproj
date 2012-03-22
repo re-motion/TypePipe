@@ -78,9 +78,12 @@
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
+    <Compile Include="MutableReflection\MutableParameterInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
+    <Compile Include="MutableReflection\NewConstructorInfoStrategyObjectMother.cs" />
+    <Compile Include="MutableReflection\NewConstructorInfoStrategyTest.cs" />
     <Compile Include="MutableReflection\NewTypeStrategyObjectMother.cs" />
     <Compile Include="MutableReflection\NewTypeStrategyTest.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />

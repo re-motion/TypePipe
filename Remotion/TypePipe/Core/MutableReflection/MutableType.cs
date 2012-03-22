@@ -81,6 +81,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingTypeStrategy.GetBaseType (); }
     }
 
+    public bool IsEquivalentTo (Type type)
+    {
+      return type == this || type == UnderlyingSystemType;
+    }
+
     public void AddInterface (Type interfaceType)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
@@ -144,8 +149,9 @@ namespace Remotion.TypePipe.MutableReflection
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Static constructors are not (yet) supported.", "attributes");
 
-      var constructorInfo = new MutableConstructorInfo (this, attributes, parameterDeclarations);
-      
+      var constructorInfoStrategy = new NewConstructorInfoStrategy (this, attributes, parameterDeclarations);
+      var constructorInfo = new MutableConstructorInfo (constructorInfoStrategy);
+
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
@@ -156,6 +162,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
+      //return _underlyingTypeStrategy.GetConstructors (bindingAttr).Select (ctor => _mutatedConstructors.GetValueOrDefault (ctor) ?? ctor)
+      //    .Concat (
+      //        AddedConstructors
+      //            .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr))
+      //            .Cast<ConstructorInfo> ()
+      //    ).ToArray ();
+
       return _underlyingTypeStrategy.GetConstructors (bindingAttr)
           .Concat (
               AddedConstructors
@@ -163,6 +176,63 @@ namespace Remotion.TypePipe.MutableReflection
                   .Cast<ConstructorInfo> ()
           ).ToArray ();
     }
+
+    public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
+    {
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      CheckDeclaringType (constructor, "constructor");
+
+      if (constructor is MutableConstructorInfo)
+        return (MutableConstructorInfo) constructor;
+      
+      // if (constructor is MutableConstructorInfo) 
+      // {
+      //   return (MutableConstructorInfo) constructor;
+      // }
+      // else
+      // { 
+      //   
+      //   return _mutatedConstructors.GetValueOrDefault (constructor) ?? AddMutableConstructor (constructor);
+      // }
+
+
+      //MutableConstructorInfo mutableCtor = CastAndCheckDeclaringTypeAndCheckPresence (constructor, "constructor", _addedConstructors);
+      //if (mutableCtor != null)
+      //  return mutableCtor;
+
+      return null;
+    }
+
+    private void CheckDeclaringType (MemberInfo member, string parameterName)
+    {
+      if (!IsEquivalentTo (member.DeclaringType))
+      {
+        var memberKind = char.ToUpper (parameterName[0]) + parameterName.Substring (1);
+        var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
+        throw new ArgumentException (message, parameterName);
+      }
+    }
+
+    //private T CastAndCheckDeclaringTypeAndCheckPresence<T> (MemberInfo member, string parameterName, List<T> addedMembers)
+    //  where T : MemberInfo
+    //{
+    //  var memberKind = char.ToUpper (parameterName[0]) + parameterName.Substring (1);
+    //  if (member.DeclaringType != this)
+    //  {
+    //    var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
+    //    throw new ArgumentException (message, parameterName);
+    //  }
+
+    //  var mutableMember = member as T;
+    //  if (mutableMember != null && !addedMembers.Contains (mutableMember))
+    //  {
+    //    var message = string.Format ("{0} was not added to this type.", memberKind);
+    //    throw new ArgumentException (message, parameterName);
+    //  }
+
+    //  return mutableMember;
+    //}
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
     {

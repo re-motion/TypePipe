@@ -15,20 +15,31 @@
 // under the License.
 // 
 using System;
+using System.Linq;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class MutableConstructorInfoObjectMother
+  public static class MutableParameterInfoObjectMother
   {
-    public static MutableConstructorInfo Create (IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy = null)
-    {
-      return new MutableConstructorInfo (underlyingConstructorInfoStrategy ?? NewConstructorInfoStrategyObjectMother.Create());
+    private class UnspecifiedType {
+      public void M () { }
     }
 
-    public static MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    public static MutableParameterInfo Create (
+        MemberInfo member = null,
+        int position = 0,
+        Type parameterType = null,
+        string name = "p0",
+        ParameterAttributes attributes = ParameterAttributes.In)
     {
-      return new MutableConstructorInfo (NewConstructorInfoStrategyObjectMother.Create (parameterDeclarations: parameterDeclarations));
+      return new MutableParameterInfo (
+          member ?? typeof (UnspecifiedType).GetMember ("M").Single(),
+          position,
+          parameterType ?? typeof (UnspecifiedType),
+          name,
+          attributes);
     }
   }
 }
