@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -33,9 +34,15 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IUnderlyingTypeStrategy _underlyingTypeStrategy;
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
+
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
+
+    private readonly Dictionary<ConstructorInfo, MutableConstructorInfo> _mutatedConstructors =
+        new Dictionary<ConstructorInfo, MutableConstructorInfo>();
+    //private readonly AutoInitDictionary<ConstructorInfo, MutableConstructorInfo> _mutatedConstructorsAutoInit =
+    //  new AutoInitDictionary<ConstructorInfo, MutableConstructorInfo> (this.Bla);
 
     public MutableType (
       IUnderlyingTypeStrategy underlyingTypeStrategy,
@@ -49,6 +56,8 @@ namespace Remotion.TypePipe.MutableReflection
       _underlyingTypeStrategy = underlyingTypeStrategy;
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
+
+      //_mutatedConstructorsAutoInit = new AutoInitDictionary<ConstructorInfo, MutableConstructorInfo> (this.Bla);
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -162,6 +171,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
+      // TODO: 4704 -> test first get ctors, then make mutable, then get ctors again -> should return mutable
       //return _underlyingTypeStrategy.GetConstructors (bindingAttr).Select (ctor => _mutatedConstructors.GetValueOrDefault (ctor) ?? ctor)
       //    .Concat (
       //        AddedConstructors
@@ -186,53 +196,14 @@ namespace Remotion.TypePipe.MutableReflection
       if (constructor is MutableConstructorInfo)
         return (MutableConstructorInfo) constructor;
 
-      return new MutableConstructorInfo (new ExistingConstructorInfoStrategy (constructor));
-      
-      // if (constructor is MutableConstructorInfo) 
-      // {
-      //   return (MutableConstructorInfo) constructor;
-      // }
-      // else
-      // { 
-      //   
-      //   return _mutatedConstructors.GetValueOrDefault (constructor) ?? AddMutableConstructor (constructor);
-      // }
-
-
-      //MutableConstructorInfo mutableCtor = CastAndCheckDeclaringTypeAndCheckPresence (constructor, "constructor", _addedConstructors);
-      //if (mutableCtor != null)
-      //  return mutableCtor;
-    }
-
-    private void CheckDeclaringType (MemberInfo member, string parameterName)
-    {
-      if (!IsEquivalentTo (member.DeclaringType))
+      MutableConstructorInfo mutableConstructor;
+      if (!_mutatedConstructors.TryGetValue (constructor, out mutableConstructor))
       {
-        var memberKind = char.ToUpper (parameterName[0]) + parameterName.Substring (1);
-        var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
-        throw new ArgumentException (message, parameterName);
+        mutableConstructor = CreateMutableConstructor (constructor);
+        _mutatedConstructors.Add (constructor, mutableConstructor);
       }
+      return mutableConstructor;
     }
-
-    //private T CastAndCheckDeclaringTypeAndCheckPresence<T> (MemberInfo member, string parameterName, List<T> addedMembers)
-    //  where T : MemberInfo
-    //{
-    //  var memberKind = char.ToUpper (parameterName[0]) + parameterName.Substring (1);
-    //  if (member.DeclaringType != this)
-    //  {
-    //    var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
-    //    throw new ArgumentException (message, parameterName);
-    //  }
-
-    //  var mutableMember = member as T;
-    //  if (mutableMember != null && !addedMembers.Contains (mutableMember))
-    //  {
-    //    var message = string.Format ("{0} was not added to this type.", memberKind);
-    //    throw new ArgumentException (message, parameterName);
-    //  }
-
-    //  return mutableMember;
-    //}
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
     {
@@ -284,6 +255,21 @@ namespace Remotion.TypePipe.MutableReflection
     private ConstructorInfo[] GetAllConstructors ()
     {
       return GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance); // Do not include type initializer
+    }
+
+    private void CheckDeclaringType (MemberInfo member, string parameterName)
+    {
+      if (!IsEquivalentTo (member.DeclaringType))
+      {
+        var memberKind = char.ToUpper (parameterName[0]) + parameterName.Substring (1);
+        var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
+        throw new ArgumentException (message, parameterName);
+      }
+    }
+
+    private MutableConstructorInfo CreateMutableConstructor (ConstructorInfo originalConstructor)
+    {
+      return new MutableConstructorInfo (new ExistingConstructorInfoStrategy (originalConstructor));
     }
 
     #region Not implemented abstract members of Type class
