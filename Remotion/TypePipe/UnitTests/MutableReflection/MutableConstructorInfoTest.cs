@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringTypeStub = MutableTypeObjectMother.CreateStub();
       _ctorInfoStrategyStub = MockRepository.GenerateStub<IUnderlyingConstructorInfoStrategy>();
+      _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (Enumerable.Empty<ParameterDeclaration>());
       _ctorInfo = new MutableConstructorInfo(_declaringTypeStub, _ctorInfoStrategyStub);
     }
 
@@ -74,30 +75,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var paramDecl1 = ParameterDeclarationObjectMother.Create();
       var paramDecl2 = ParameterDeclarationObjectMother.Create();
-      _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (new[] { paramDecl1, paramDecl2 });
+      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (paramDecl1, paramDecl2);
 
-      var result = _ctorInfo.GetParameters();
+      var result = ctorInfo.GetParameters();
 
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) _ctorInfo, Position = 0, ParameterType = paramDecl1.Type, paramDecl1.Name, paramDecl1.Attributes },
-              new { Member = (MemberInfo) _ctorInfo, Position = 1, ParameterType = paramDecl2.Type, paramDecl2.Name, paramDecl2.Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = paramDecl1.Type, paramDecl1.Name, paramDecl1.Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = paramDecl2.Type, paramDecl2.Name, paramDecl2.Attributes },
           };
-      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
+      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+    }
+
+    [Test]
+    public void GetParameters_ReturnsSameParameterInfoInstances()
+    {
+      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (ParameterDeclarationObjectMother.Create());
+
+      var result1 = ctorInfo.GetParameters().Single();
+      var result2 = ctorInfo.GetParameters().Single();
+
+      Assert.That (result1, Is.SameAs (result2));
     }
 
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (new[] { ParameterDeclarationObjectMother.Create() });
+      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (ParameterDeclarationObjectMother.Create ());
 
-      var parameters = _ctorInfo.GetParameters ();
+      var parameters = ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
       parameters[0] = null;
 
-      var parametersAgain = _ctorInfo.GetParameters ();
+      var parametersAgain = ctorInfo.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
   }

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly IUnderlyingConstructorInfoStrategy _underlyingConstructorInfoStrategy;
+    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
     public MutableConstructorInfo (MutableType declaringType, IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy)
     {
@@ -37,6 +39,10 @@ namespace Remotion.TypePipe.MutableReflection
 
       _declaringType = declaringType;
       _underlyingConstructorInfoStrategy = underlyingConstructorInfoStrategy;
+
+      _parameters = _underlyingConstructorInfoStrategy.GetParameterDeclarations()
+          .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
+          .ToList().AsReadOnly();
     }
 
     public override Type DeclaringType
@@ -56,9 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ParameterInfo[] GetParameters ()
     {
-      return _underlyingConstructorInfoStrategy.GetParameterDeclarations()
-          .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
-          .ToArray();
+      return _parameters.ToArray();
     }
 
     #region Not Implemented from ConstructorInfo interface

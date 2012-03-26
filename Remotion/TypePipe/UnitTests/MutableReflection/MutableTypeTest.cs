@@ -363,6 +363,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
       ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType.UnderlyingSystemType);
+      ctorStub.Stub (stub => stub.GetParameters()).Return (new ParameterInfo[0]);
       _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
 
       var result = _mutableType.GetMutableConstructor (ctorStub);
@@ -376,6 +377,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
       ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType.UnderlyingSystemType);
+      ctorStub.Stub (stub => stub.GetParameters ()).Return (new ParameterInfo[0]);
       _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
 
       var result1 = _mutableType.GetMutableConstructor (ctorStub);
