@@ -270,13 +270,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddConstructor ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-          .Return (new ConstructorInfo[0]);
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create(), ParameterDeclarationObjectMother.Create() };
+
       var ctorInfo = _mutableType.AddConstructor (attributes, parameterDeclarations);
 
-      // Correct constroctur info instance
+      // Correct constructor info instance
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (ctorInfo.Attributes, Is.EqualTo (attributes));
       var expectedParameterInfos = new[]
@@ -289,7 +289,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Static constructors are not (yet) supported.\r\nParameter name: attributes")]
+        "Adding static constructors are not (yet) supported.\r\nParameter name: attributes")]
     public void AddConstructor_ThrowsForStatic ()
     {
       _mutableType.AddConstructor (MethodAttributes.Static);

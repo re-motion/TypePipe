@@ -41,7 +41,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       Assert.That (_ctorInfo.DeclaringType, Is.SameAs (_declaringTypeStub));
-      Assert.That (_ctorInfo.MutableDeclaringType, Is.SameAs (_declaringTypeStub));
     }
 
     [Test]
