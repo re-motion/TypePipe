@@ -21,14 +21,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableConstructorInfoObjectMother
   {
-    public static MutableConstructorInfo Create (IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy = null)
+    public static MutableConstructorInfo Create (
+        MutableType declaringType = null,
+        IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy = null)
     {
-      return new MutableConstructorInfo (underlyingConstructorInfoStrategy ?? NewConstructorInfoStrategyObjectMother.Create());
+      return new MutableConstructorInfo (
+          declaringType ?? MutableTypeObjectMother.Create(),
+          underlyingConstructorInfoStrategy ?? NewConstructorInfoStrategyObjectMother.Create());
     }
 
-    public static MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    public static MutableConstructorInfo CreateWithParameters (
+        params ParameterDeclaration[] parameterDeclarations)
     {
-      return new MutableConstructorInfo (NewConstructorInfoStrategyObjectMother.Create (parameterDeclarations: parameterDeclarations));
+      return new MutableConstructorInfo (
+          MutableTypeObjectMother.Create(),
+          NewConstructorInfoStrategyObjectMother.Create (parameterDeclarations: parameterDeclarations));
     }
   }
 }

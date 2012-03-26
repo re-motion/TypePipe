@@ -27,13 +27,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = ReflectionObjectMother.GetSomeType();
       var attributes = MethodAttributes.Abstract;
       var parameterDeclarations = new ParameterDeclaration[0];
 
-      var ctorInfoStrategy = new NewConstructorInfoStrategy (declaringType, attributes, parameterDeclarations);
+      var ctorInfoStrategy = new NewConstructorInfoStrategy (attributes, parameterDeclarations);
 
-      Assert.That (ctorInfoStrategy.GetDeclaringType(), Is.SameAs (declaringType));
       Assert.That (ctorInfoStrategy.GetAttributes(), Is.EqualTo (attributes));
       Assert.That (ctorInfoStrategy.GetParameterDeclarations(), Is.SameAs (parameterDeclarations));
     }

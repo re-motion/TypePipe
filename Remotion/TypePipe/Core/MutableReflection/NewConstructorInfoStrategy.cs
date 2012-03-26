@@ -26,23 +26,15 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class NewConstructorInfoStrategy : IUnderlyingConstructorInfoStrategy
   {
-    private readonly Type _declaringType;
     private readonly MethodAttributes _attributes;
     private readonly IEnumerable<ParameterDeclaration> _parameterDeclarations;
 
-    public NewConstructorInfoStrategy (Type declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public NewConstructorInfoStrategy (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
-      _declaringType = declaringType;
       _attributes = attributes;
       _parameterDeclarations = parameterDeclarations;
-    }
-
-    public Type GetDeclaringType ()
-    {
-      return _declaringType;
     }
 
     public ConstructorInfo GetUnderlyingSystemConstructorInfo ()

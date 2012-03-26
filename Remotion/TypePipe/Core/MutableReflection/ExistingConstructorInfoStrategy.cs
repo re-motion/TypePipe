@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Collections.Generic;
 using System.Dynamic.Utils;
 using System.Reflection;
@@ -33,11 +32,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
       _originalConstructorInfo = originalConstructorInfo;
-    }
-
-    public Type GetDeclaringType ()
-    {
-      return _originalConstructorInfo.DeclaringType;
     }
 
     public ConstructorInfo GetUnderlyingSystemConstructorInfo ()

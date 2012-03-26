@@ -27,23 +27,31 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableConstructorInfo : ConstructorInfo
   {
+    private readonly MutableType _declaringType;
     private readonly IUnderlyingConstructorInfoStrategy _underlyingConstructorInfoStrategy;
 
-    public MutableConstructorInfo (IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy)
+    public MutableConstructorInfo (MutableType declaringType, IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("underlyingConstructorInfoStrategy", underlyingConstructorInfoStrategy);
 
+      _declaringType = declaringType;
       _underlyingConstructorInfoStrategy = underlyingConstructorInfoStrategy;
+    }
+
+    public override Type DeclaringType
+    {
+      get { return _declaringType; }
+    }
+
+    public MutableType MutableDeclaringType
+    {
+      get { return _declaringType; }
     }
 
     public ConstructorInfo UnderlyingSystemConsructorInfo
     {
       get { return _underlyingConstructorInfoStrategy.GetUnderlyingSystemConstructorInfo() ?? this; }
-    }
-
-    public override Type DeclaringType
-    {
-      get { return _underlyingConstructorInfoStrategy.GetDeclaringType(); }
     }
 
     public override MethodAttributes Attributes

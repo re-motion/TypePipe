@@ -36,12 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetDeclaringType ()
-    {
-      Assert.That (_ctorInfoStrategy.GetDeclaringType(), Is.SameAs (_originalCtor.DeclaringType));
-    }
-
-    [Test]
     public void GetUnderlyingSystemConstructorInfo ()
     {
       Assert.That (_ctorInfoStrategy.GetUnderlyingSystemConstructorInfo(), Is.SameAs (_originalCtor));

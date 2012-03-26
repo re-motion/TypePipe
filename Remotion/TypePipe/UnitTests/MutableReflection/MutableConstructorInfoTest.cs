@@ -25,14 +25,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableConstructorInfoTest
   {
+    private MutableType _declaringTypeStub;
     private IUnderlyingConstructorInfoStrategy _ctorInfoStrategyStub;
-    private MutableConstructorInfo _mutableCtorInfo;
+    private MutableConstructorInfo _ctorInfo;
 
     [SetUp]
     public void SetUp ()
     {
+      _declaringTypeStub = MutableTypeObjectMother.CreateStub();
       _ctorInfoStrategyStub = MockRepository.GenerateStub<IUnderlyingConstructorInfoStrategy>();
-      _mutableCtorInfo = MutableConstructorInfoObjectMother.Create(underlyingConstructorInfoStrategy: _ctorInfoStrategyStub);
+      _ctorInfo = new MutableConstructorInfo(_declaringTypeStub, _ctorInfoStrategyStub);
+    }
+
+    [Test]
+    public void Initialization ()
+    {
+      Assert.That (_ctorInfo.DeclaringType, Is.SameAs (_declaringTypeStub));
+      Assert.That (_ctorInfo.MutableDeclaringType, Is.SameAs (_declaringTypeStub));
     }
 
     [Test]
@@ -41,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
       _ctorInfoStrategyStub.Stub (stub => stub.GetUnderlyingSystemConstructorInfo()).Return (ctorInfo);
 
-      Assert.That (_mutableCtorInfo.UnderlyingSystemConsructorInfo, Is.SameAs (ctorInfo));
+      Assert.That (_ctorInfo.UnderlyingSystemConsructorInfo, Is.SameAs (ctorInfo));
     }
 
     [Test]
@@ -49,16 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _ctorInfoStrategyStub.Stub (stub => stub.GetUnderlyingSystemConstructorInfo()).Return(null);
 
-      Assert.That (_mutableCtorInfo.UnderlyingSystemConsructorInfo, Is.SameAs (_mutableCtorInfo));
-    }
-
-    [Test]
-    public void DeclaringType ()
-    {
-      var type = ReflectionObjectMother.GetSomeType();
-      _ctorInfoStrategyStub.Stub (stub => stub.GetDeclaringType()).Return (type);
-
-      Assert.That (_mutableCtorInfo.DeclaringType, Is.SameAs (type));
+      Assert.That (_ctorInfo.UnderlyingSystemConsructorInfo, Is.SameAs (_ctorInfo));
     }
 
     [Test]
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = MethodAttributes.Abstract;
       _ctorInfoStrategyStub.Stub (stub => stub.GetAttributes()).Return (attributes);
 
-      Assert.That (_mutableCtorInfo.Attributes, Is.EqualTo (attributes));
+      Assert.That (_ctorInfo.Attributes, Is.EqualTo (attributes));
     }
 
     [Test]
@@ -77,13 +77,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var paramDecl2 = ParameterDeclarationObjectMother.Create();
       _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (new[] { paramDecl1, paramDecl2 });
 
-      var result = _mutableCtorInfo.GetParameters();
+      var result = _ctorInfo.GetParameters();
 
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) _mutableCtorInfo, Position = 0, ParameterType = paramDecl1.Type, paramDecl1.Name, paramDecl1.Attributes },
-              new { Member = (MemberInfo) _mutableCtorInfo, Position = 1, ParameterType = paramDecl2.Type, paramDecl2.Name, paramDecl2.Attributes },
+              new { Member = (MemberInfo) _ctorInfo, Position = 0, ParameterType = paramDecl1.Type, paramDecl1.Name, paramDecl1.Attributes },
+              new { Member = (MemberInfo) _ctorInfo, Position = 1, ParameterType = paramDecl2.Type, paramDecl2.Name, paramDecl2.Attributes },
           };
       var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
@@ -94,11 +94,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (new[] { ParameterDeclarationObjectMother.Create() });
 
-      var parameters = _mutableCtorInfo.GetParameters ();
+      var parameters = _ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
       parameters[0] = null;
 
-      var parametersAgain = _mutableCtorInfo.GetParameters ();
+      var parametersAgain = _ctorInfo.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
   }

@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -158,8 +157,8 @@ namespace Remotion.TypePipe.MutableReflection
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Static constructors are not (yet) supported.", "attributes");
 
-      var constructorInfoStrategy = new NewConstructorInfoStrategy (this, attributes, parameterDeclarations);
-      var constructorInfo = new MutableConstructorInfo (constructorInfoStrategy);
+      var constructorInfoStrategy = new NewConstructorInfoStrategy (attributes, parameterDeclarations);
+      var constructorInfo = new MutableConstructorInfo (this, constructorInfoStrategy);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
@@ -269,7 +268,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableConstructorInfo CreateMutableConstructor (ConstructorInfo originalConstructor)
     {
-      return new MutableConstructorInfo (new ExistingConstructorInfoStrategy (originalConstructor));
+      return new MutableConstructorInfo (this, new ExistingConstructorInfoStrategy (originalConstructor));
     }
 
     #region Not implemented abstract members of Type class

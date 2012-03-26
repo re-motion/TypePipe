@@ -23,16 +23,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class NewConstructorInfoStrategyObjectMother
   {
-    private class UnspecifiedType { }
-
     public static NewConstructorInfoStrategy Create (
-        Type declaringType = null,
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null)
     {
       return new NewConstructorInfoStrategy (
-          declaringType ?? typeof (UnspecifiedType),
           attributes,
           parameterDeclarations ?? new ParameterDeclaration[0]);
     }
