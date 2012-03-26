@@ -73,8 +73,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void CopyConstructorsFromBaseClass (MutableType mutableType, ITypeBuilder typeBuilder)
     {
-      var ctorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      foreach (var ctor in mutableType.GetConstructors (ctorBindingFlags))
+      foreach (var ctor in mutableType.ExistingConstructors)
       {
         // Prevent loosening of visibility if the ctor visibility is FamilyOrAssembly (change to Family because the assembly of the generated 
         // subclass is different from the assembly of the original class).
@@ -86,7 +85,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
             new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)),
-            new BaseConstructorMethodInfo (ctor),
+            new BaseConstructorMethodInfo (ctor.UnderlyingSystemConstructorInfo),
             parameterExpressions.Cast<Expression>());
         var body = Expression.Lambda (baseCallExpression, parameterExpressions);
 

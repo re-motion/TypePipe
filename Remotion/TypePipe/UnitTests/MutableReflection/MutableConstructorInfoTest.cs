@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringTypeStub = MutableTypeObjectMother.CreateStub();
+      _declaringTypeStub = MutableTypeObjectMother.Create();
       _ctorInfoStrategyStub = MockRepository.GenerateStub<IUnderlyingConstructorInfoStrategy>();
       _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (Enumerable.Empty<ParameterDeclaration>()).Repeat.Once();
       _ctorInfo = new MutableConstructorInfo(_declaringTypeStub, _ctorInfoStrategyStub);

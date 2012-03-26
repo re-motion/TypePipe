@@ -46,16 +46,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         bindingFlagsEvaluator ?? new BindingFlagsEvaluator ());
     }
 
-    public static MutableType CreateStub (IUnderlyingTypeStrategy underlyingTypeStrategy = null,
-      IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
-      IBindingFlagsEvaluator bindingFlagsEvaluator = null)
-    {
-      return MockRepository.GenerateStub<MutableType> (
-        underlyingTypeStrategy ?? NewTypeStrategyObjectMother.Create (),
-        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer (),
-        bindingFlagsEvaluator ?? new BindingFlagsEvaluator ());
-    }
-
     public static MutableType CreateForExistingType (Type originalType = null)
     {
       return Create (underlyingTypeStrategy: ExistingTypeStrategyObjectMother.Create (originalType));

@@ -94,21 +94,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var constructor1 = ReflectionObjectMother.GetConstructor (() => new ClassWithConstructors ("string"));
       var constructor2 = ReflectionObjectMother.GetConstructor (() => new ClassWithConstructors ());
-      var mutableTypeStub = MutableTypeObjectMother.CreateStub ();
-      mutableTypeStub
-          .Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-          .Return (new[] { constructor1, constructor2 });
-      mutableTypeStub
-          .Stub (stub => stub.UnderlyingSystemType)
-          .Return (typeof (ClassWithConstructors));
+
+      var mutableType = CreateMutableTypeWithConstructors (constructor1, constructor2);
 
       _moduleBuilderMock
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
-      SetupCtorExpectations (mutableTypeStub, constructor1, typeBuilderMock, constructorBuilderMock1, MethodAttributes.Public, new[] { typeof (string) });
-      SetupCtorExpectations (mutableTypeStub, constructor2, typeBuilderMock, constructorBuilderMock2, MethodAttributes.Assembly, Type.EmptyTypes);
-      
-      _typeModifier.ApplyModifications (mutableTypeStub);
+      SetupCtorExpectations (mutableType, constructor1, typeBuilderMock, constructorBuilderMock1, MethodAttributes.Public, new[] { typeof (string) });
+      SetupCtorExpectations (mutableType, constructor2, typeBuilderMock, constructorBuilderMock2, MethodAttributes.Assembly, Type.EmptyTypes);
+
+      _typeModifier.ApplyModifications (mutableType);
 
       typeBuilderMock.VerifyAllExpectations ();
       constructorBuilderMock1.VerifyAllExpectations();
@@ -122,27 +117,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
 
       var constructor = ReflectionObjectMother.GetConstructor (() => new ClassWithConstructors (7));
-      var mutableTypeStub = MutableTypeObjectMother.CreateStub ();
-      mutableTypeStub
-          .Stub (stub => stub.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-          .Return (new[] { constructor });
-      mutableTypeStub
-          .Stub (stub => stub.UnderlyingSystemType)
-          .Return (typeof (ClassWithConstructors));
+      var mutableType = CreateMutableTypeWithConstructors (constructor);
 
       _moduleBuilderMock
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
-      SetupCtorExpectations (mutableTypeStub, constructor, typeBuilderMock, constructorBuilderMock, MethodAttributes.Family , new[] { typeof (int) });
+      SetupCtorExpectations (mutableType, constructor, typeBuilderMock, constructorBuilderMock, MethodAttributes.Family , new[] { typeof (int) });
 
-      _typeModifier.ApplyModifications (mutableTypeStub);
+      _typeModifier.ApplyModifications (mutableType);
 
       typeBuilderMock.VerifyAllExpectations ();
       constructorBuilderMock.VerifyAllExpectations ();
     }
 
     private void SetupCtorExpectations (
-        MutableType mutableTypeStub,
+        MutableType mutableType,
         ConstructorInfo constructor,
         ITypeBuilder typeBuilderMock,
         IConstructorBuilder constructorBuilderMock,
@@ -160,7 +149,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                   Arg<LambdaExpression>.Is.Anything,
                   Arg<ILGeneratorDecoratorFactory>.Matches (p => p.InnerFactory is OffsetTrackingILGeneratorFactory),
                   Arg.Is (_debugInfoGeneratorStub)))
-          .WhenCalled (mi => CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableTypeStub));
+          .WhenCalled (mi => CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableType));
     }
 
     private void CheckBaseCtorCallExpression (LambdaExpression lambdaExpression, ConstructorInfo baseConstructor, Type expectedThisType)
@@ -178,6 +167,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (typeAsUnderlyingSystemTypeExpression.InnerExpression, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (expectedThisType));
       Assert.That (methodCallExpression.Arguments, Is.EqualTo (lambdaExpression.Parameters));
     }
+
+    private MutableType CreateMutableTypeWithConstructors (params ConstructorInfo[] constructors)
+    {
+      var underlyingTypeStrategy = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
+      underlyingTypeStrategy.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (constructors);
+      underlyingTypeStrategy.Stub (stub => stub.GetUnderlyingSystemType ()).Return (typeof (ClassWithConstructors));
+
+      return MutableTypeObjectMother.Create (underlyingTypeStrategy: underlyingTypeStrategy);
+    }
+
 
     public class ClassWithConstructors
     {
