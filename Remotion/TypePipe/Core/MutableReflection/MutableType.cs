@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -195,13 +196,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (constructor is MutableConstructorInfo)
         return (MutableConstructorInfo) constructor;
 
-      MutableConstructorInfo mutableConstructor;
-      if (!_mutatedConstructors.TryGetValue (constructor, out mutableConstructor))
-      {
-        mutableConstructor = CreateMutableConstructor (constructor);
-        _mutatedConstructors.Add (constructor, mutableConstructor);
-      }
-      return mutableConstructor;
+      return _mutatedConstructors.GetValueOrDefault (constructor) ?? AddMutableConstructor (constructor);
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
@@ -264,6 +259,13 @@ namespace Remotion.TypePipe.MutableReflection
         var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
         throw new ArgumentException (message, parameterName);
       }
+    }
+
+    private MutableConstructorInfo AddMutableConstructor (ConstructorInfo originalConstructor)
+    {
+      var mutableConstructor = CreateMutableConstructor (originalConstructor);
+      _mutatedConstructors.Add (originalConstructor, mutableConstructor);
+      return mutableConstructor;
     }
 
     private MutableConstructorInfo CreateMutableConstructor (ConstructorInfo originalConstructor)
