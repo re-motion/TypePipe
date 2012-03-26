@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringTypeStub = MutableTypeObjectMother.CreateStub();
       _ctorInfoStrategyStub = MockRepository.GenerateStub<IUnderlyingConstructorInfoStrategy>();
-      _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (Enumerable.Empty<ParameterDeclaration>());
+      _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (Enumerable.Empty<ParameterDeclaration>()).Repeat.Once();
       _ctorInfo = new MutableConstructorInfo(_declaringTypeStub, _ctorInfoStrategyStub);
     }
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
       _ctorInfoStrategyStub.Stub (stub => stub.GetUnderlyingSystemConstructorInfo()).Return (ctorInfo);
 
-      Assert.That (_ctorInfo.UnderlyingSystemConsructorInfo, Is.SameAs (ctorInfo));
+      Assert.That (_ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (ctorInfo));
     }
 
     [Test]
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _ctorInfoStrategyStub.Stub (stub => stub.GetUnderlyingSystemConstructorInfo()).Return(null);
 
-      Assert.That (_ctorInfo.UnderlyingSystemConsructorInfo, Is.SameAs (_ctorInfo));
+      Assert.That (_ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (_ctorInfo));
     }
 
     [Test]

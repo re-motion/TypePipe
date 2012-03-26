@@ -37,16 +37,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _typeStrategyStub = MockRepository.GenerateStub<IUnderlyingTypeStrategy>();
       _memberInfoEqualityComparerStub = MockRepository.GenerateStub<IEqualityComparer<MemberInfo>>();
-      _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator>();
-      _mutableType = MutableTypeObjectMother.Create (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
+      _bindingFlagsEvaluatorMock = MockRepository.GenerateMock<IBindingFlagsEvaluator>();
+      
+      _mutableType = CreateMutableType();
     }
 
     [Test]
-    public void Initialization ()
+    public void Initialization_WithoutConstructors ()
     {
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
+      Assert.That (_mutableType.ExistingConstructors, Is.Empty);
+    }
+
+    [Test]
+    public void Initialization_WithConstructors ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
+      var ctorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { ctorInfo });
+
+      var mutableType = CreateMutableType();
+
+      Assert.That (mutableType.ExistingConstructors, Has.Count.EqualTo (1));
+      var existingCtor = mutableType.ExistingConstructors.Single();
+
+      Assert.That (existingCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (ctorInfo));
+      Assert.That (existingCtor.DeclaringType, Is.SameAs (mutableType));
     }
 
     [Test]
@@ -75,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void BaseType ()
     {
-      var baseType = typeof (IDisposable);
+      var baseType = ReflectionObjectMother.GetSomeType();
       _typeStrategyStub.Stub (stub => stub.GetBaseType()).Return (baseType);
 
       Assert.That (_mutableType.BaseType, Is.SameAs (baseType));
@@ -270,7 +288,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddConstructor ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create(), ParameterDeclarationObjectMother.Create() };
 
@@ -279,8 +296,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // Correct constructor info instance
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (ctorInfo.Attributes, Is.EqualTo (attributes));
-      var expectedParameterInfos = new[]
-                                   { new { ParameterType = parameterDeclarations[0].Type }, new { ParameterType = parameterDeclarations[1].Type } };
+      var expectedParameterInfos =
+          new[]
+          {
+              new { ParameterType = parameterDeclarations[0].Type },
+              new { ParameterType = parameterDeclarations[1].Type }
+          };
       var actualParameterInfos = ctorInfo.GetParameters().Select (pi => new { pi.ParameterType });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
       // Constructor info is stored
@@ -300,39 +321,67 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[1]);
-      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (null, null)).IgnoreArguments().Return (true);
+      var existingCtor = ReflectionObjectMother.GetSomeDefaultConstructor();
+      var mutableType = CreateMutableType (existingCtor);
 
-      _mutableType.AddConstructor (0);
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
+
+      mutableType.AddConstructor (0);
     }
 
     [Test]
     public void GetConstructors ()
     {
-      var constructor1 = MutableConstructorInfoObjectMother.Create();
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { constructor1 });
+      var existingConstructor = ReflectionObjectMother.GetSomeDefaultConstructor();
+      var mutableType = CreateMutableType (existingConstructor);
+
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = new ArgumentTestHelper (7).ParameterDeclarations; // Need different signature
-      _bindingFlagsEvaluatorMock.Stub (mock => mock.HasRightAttributes (attributes, bindingFlags)).Return (true);
+      var addedConstructor = mutableType.AddConstructor (attributes, parameterDeclarations);
 
-      var constructor2 = _mutableType.AddConstructor (attributes, parameterDeclarations);
-      var constructors = _mutableType.GetConstructors (bindingFlags);
+      _bindingFlagsEvaluatorMock
+          .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
 
-      Assert.That (constructors, Is.EqualTo (new[] { constructor1, constructor2 }));
+      var constructors = mutableType.GetConstructors (0);
+
+      Assert.That (constructors, Has.Length.EqualTo (2));
+      Assert.That (constructors[0], Is.TypeOf<MutableConstructorInfo> ());
+      var mutatedConstructorInfo = (MutableConstructorInfo) constructors[0];
+      Assert.That (mutatedConstructorInfo.UnderlyingSystemConstructorInfo, Is.EqualTo (existingConstructor));
+
+      Assert.That (constructors[1], Is.SameAs (addedConstructor));
     }
 
     [Test]
-    public void GetConstructors_FilterAddedWithUtility ()
+    public void GetConstructors_FilterWithUtility_ExistingConstructor ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (false);
+      var existingCtorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
+      var mutableType = CreateMutableType (existingCtorInfo);
 
-      _mutableType.AddConstructor (MethodAttributes.Public);
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (existingCtorInfo.Attributes, bindingFlags)).Return (false);
+
+      var constructors = mutableType.GetConstructors (bindingFlags);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (constructors, Is.Empty);
+    }
+
+    [Test]
+    public void GetConstructors_FilterWithUtility_AddedConstructor ()
+    {
+      var addedCtorInfo = _mutableType.AddConstructor (MethodAttributes.Public);
+
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (addedCtorInfo.Attributes, bindingFlags)).Return (false);
+      
       var constructors = _mutableType.GetConstructors (bindingFlags);
 
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       Assert.That (constructors, Is.Empty);
     }
 
@@ -350,7 +399,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableConstructor_MutableConstructorInfo ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
       var ctor = _mutableType.AddConstructor (0);
 
       var result = _mutableType.GetMutableConstructor (ctor);
@@ -361,29 +409,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableConstructor_StandardConstructorInfo ()
     {
-      var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
-      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType.UnderlyingSystemType);
-      ctorStub.Stub (stub => stub.GetParameters()).Return (new ParameterInfo[0]);
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
+      var someCtor = ReflectionObjectMother.GetSomeDefaultConstructor ();
+      var mutableType = CreateMutableType (someCtor);
 
-      var result = _mutableType.GetMutableConstructor (ctorStub);
+      // Stub underlying type so that declaring type check in GetMutableConstructor succeeds
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (someCtor.DeclaringType);
 
-      Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (result.UnderlyingSystemConsructorInfo, Is.SameAs(ctorStub));
+      var result = mutableType.GetMutableConstructor (someCtor);
+
+      Assert.That (result.DeclaringType, Is.SameAs (mutableType));
+      Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (someCtor));
     }
 
     [Test]
     public void GetMutableConstructor_StandardConstructorInfo_Twice ()
     {
-      var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
-      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType.UnderlyingSystemType);
-      ctorStub.Stub (stub => stub.GetParameters ()).Return (new ParameterInfo[0]);
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { ctorStub });
+      var someCtor = ReflectionObjectMother.GetSomeDefaultConstructor ();
+      var mutableType = CreateMutableType (someCtor);
+     
+      // Stub underlying type so that declaring type check in GetMutableConstructor succeeds
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (someCtor.DeclaringType);
 
-      var result1 = _mutableType.GetMutableConstructor (ctorStub);
-      var result2 = _mutableType.GetMutableConstructor (ctorStub);
+      var result1 = mutableType.GetMutableConstructor (someCtor);
+      var result2 = mutableType.GetMutableConstructor (someCtor);
 
       Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given constructor cannot be mutated.")]
+    public void GetMutableConstructor_StandardConstructorInfo_Unknown ()
+    {
+      var someCtor = ReflectionObjectMother.GetSomeDefaultConstructor ();
+      var mutableType = CreateMutableType();
+
+      // Stub underlying type so that declaring type check in GetMutableConstructor succeeds
+      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (someCtor.DeclaringType);
+
+      mutableType.GetMutableConstructor (someCtor);
     }
 
     [Test]
@@ -440,22 +503,37 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var constructor1 = MutableConstructorInfoObjectMother.Create();
       var arguments = new ArgumentTestHelper (typeof (int));
       var constructor2 = MutableConstructorInfoObjectMother.CreateWithParameters (parameterDeclarations: arguments.ParameterDeclarations);
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new[] { constructor1, constructor2 });
+      var mutableType = CreateMutableType (constructor1, constructor2);
+      var mutableConstructor2 = mutableType.ExistingConstructors.Single (c => c.UnderlyingSystemConstructorInfo == constructor2);
+      
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
 
-      var resultCtor = _mutableType.GetConstructor (arguments.Types);
-
-      Assert.That (resultCtor, Is.SameAs (constructor2));
+      var resultCtor = mutableType.GetConstructor (arguments.Types);
+      Assert.That (resultCtor, Is.SameAs (mutableConstructor2));
     }
 
     [Test]
     public void GetConstructorImpl_NoMatch ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
-
       Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
+    }
+
+    private MutableType CreateMutableType ()
+    {
+      // Setup default values as needed by MutableType's ctor. If callers have already prepared return values these members, the following 
+      // expectations will have no effect. (With RhinoMocks, a second stub/expectation does not override the first one.)
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]).Repeat.Once();
+
+      return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
+    }
+
+    private MutableType CreateMutableType (params ConstructorInfo[] existingConstructors)
+    {
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors);
+
+      return CreateMutableType ();
     }
   }
 }

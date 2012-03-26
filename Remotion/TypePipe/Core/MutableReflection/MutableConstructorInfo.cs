@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public ConstructorInfo UnderlyingSystemConsructorInfo
+    public ConstructorInfo UnderlyingSystemConstructorInfo
     {
       get { return _underlyingConstructorInfoStrategy.GetUnderlyingSystemConstructorInfo() ?? this; }
     }

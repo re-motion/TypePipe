@@ -20,6 +20,8 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
+[assembly: Ignore ("TODO 4686")]
+
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]

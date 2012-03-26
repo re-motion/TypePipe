@@ -39,10 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
-    private readonly Dictionary<ConstructorInfo, MutableConstructorInfo> _mutatedConstructors =
-        new Dictionary<ConstructorInfo, MutableConstructorInfo>();
-    //private readonly AutoInitDictionary<ConstructorInfo, MutableConstructorInfo> _mutatedConstructorsAutoInit =
-    //  new AutoInitDictionary<ConstructorInfo, MutableConstructorInfo> (this.Bla);
+    private readonly Dictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
 
     public MutableType (
       IUnderlyingTypeStrategy underlyingTypeStrategy,
@@ -57,22 +54,28 @@ namespace Remotion.TypePipe.MutableReflection
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
-      //_mutatedConstructorsAutoInit = new AutoInitDictionary<ConstructorInfo, MutableConstructorInfo> (this.Bla);
+      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      _existingConstructors = _underlyingTypeStrategy.GetConstructors (bindingAttr).ToDictionary (ctor => ctor, CreateExistingMutableConstructor);
     }
 
-    public ReadOnlyCollection<Type> AddedInterfaces
+    public IEnumerable<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<MutableFieldInfo> AddedFields
+    public IEnumerable<MutableFieldInfo> AddedFields
     {
       get { return _addedFields.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
+    public IEnumerable<MutableConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly (); }
+    }
+
+    public IEnumerable<MutableConstructorInfo> ExistingConstructors
+    {
+      get { return _existingConstructors.Values; }
     }
 
     public override Type UnderlyingSystemType
@@ -171,20 +174,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      // TODO: 4704 -> test first get ctors, then make mutable, then get ctors again -> should return mutable
-      //return _underlyingTypeStrategy.GetConstructors (bindingAttr).Select (ctor => _mutatedConstructors.GetValueOrDefault (ctor) ?? ctor)
-      //    .Concat (
-      //        AddedConstructors
-      //            .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr))
-      //            .Cast<ConstructorInfo> ()
-      //    ).ToArray ();
-
-      return _underlyingTypeStrategy.GetConstructors (bindingAttr)
-          .Concat (
-              AddedConstructors
-                  .Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr))
-                  .Cast<ConstructorInfo> ()
-          ).ToArray ();
+      var allConstructors = ExistingConstructors.Concat (AddedConstructors);
+      return allConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
@@ -196,7 +187,11 @@ namespace Remotion.TypePipe.MutableReflection
       if (constructor is MutableConstructorInfo)
         return (MutableConstructorInfo) constructor;
 
-      return _mutatedConstructors.GetValueOrDefault (constructor) ?? AddMutableConstructor (constructor);
+      var matchingMutableConstructorInfo = _existingConstructors.GetValueOrDefault (constructor);
+      if (matchingMutableConstructorInfo == null)
+        throw new NotSupportedException ("The given constructor cannot be mutated.");
+      
+      return matchingMutableConstructorInfo;
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
@@ -261,14 +256,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
-    private MutableConstructorInfo AddMutableConstructor (ConstructorInfo originalConstructor)
-    {
-      var mutableConstructor = CreateMutableConstructor (originalConstructor);
-      _mutatedConstructors.Add (originalConstructor, mutableConstructor);
-      return mutableConstructor;
-    }
-
-    private MutableConstructorInfo CreateMutableConstructor (ConstructorInfo originalConstructor)
+    private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
       return new MutableConstructorInfo (this, new ExistingConstructorInfoStrategy (originalConstructor));
     }
