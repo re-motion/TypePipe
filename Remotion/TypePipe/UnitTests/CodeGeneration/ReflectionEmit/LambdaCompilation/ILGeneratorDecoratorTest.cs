@@ -18,6 +18,7 @@ using System;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -62,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void Emit_MethodInfo_BaseConstructorMethodInfo ()
     {
-      var methodInfo = new BaseConstructorMethodInfo (ReflectionObjectMother.GetSomeDefaultConstructor());
+      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor());
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
 
       _decorator.Emit (OpCodes.Call, methodInfo);
@@ -85,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo_EmptyOptionalParameters ()
     {
-      var methodInfo = new BaseConstructorMethodInfo (ReflectionObjectMother.GetSomeDefaultConstructor ());
+      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, Type.EmptyTypes);
@@ -96,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo_NullOptionalParameters ()
     {
-      var methodInfo = new BaseConstructorMethodInfo (ReflectionObjectMother.GetSomeDefaultConstructor ());
+      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, null);
@@ -108,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Constructor calls cannot have optional parameters.")]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo_WithOptionalParameters ()
     {
-      var methodInfo = new BaseConstructorMethodInfo (ReflectionObjectMother.GetSomeDefaultConstructor ());
+      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, new[] { ReflectionObjectMother.GetSomeType() });
     }

@@ -20,17 +20,17 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
+namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 {
   /// <summary>
-  /// Represents a base constructor as a <see cref="MethodInfo"/>. This is required for calling a constructor using a 
+  /// Represents a constructor as a <see cref="MethodInfo"/>. This is required for calling a constructor using a 
   /// <see cref="MethodCallExpression"/>.
   /// </summary>
-  public class BaseConstructorMethodInfo : MethodInfo
+  public class ConstructorAsMethodInfoAdapter : MethodInfo
   {
     private readonly ConstructorInfo _constructorInfo;
 
-    public BaseConstructorMethodInfo (ConstructorInfo constructorInfo)
+    public ConstructorAsMethodInfoAdapter (ConstructorInfo constructorInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
       _constructorInfo = constructorInfo;
@@ -114,6 +114,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       return _constructorInfo.GetCustomAttributes (attributeType, inherit);
+    }
+
+    public override string ToString ()
+    {
+      return _constructorInfo.ToString();
     }
   }
 }

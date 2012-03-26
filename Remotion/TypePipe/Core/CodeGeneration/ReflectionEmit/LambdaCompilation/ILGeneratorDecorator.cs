@@ -18,12 +18,13 @@ using System;
 using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// A decorator which adapts emit calls for <see cref="BaseConstructorMethodInfo"/>.
+  /// A decorator which adapts emit calls for <see cref="ConstructorAsMethodInfoAdapter"/>.
   /// </summary>
   [CLSCompliant(false)]
   public class ILGeneratorDecorator : IILGenerator
@@ -140,7 +141,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, MethodInfo meth)
     {
-      var baseConstructorMethodInfo = meth as BaseConstructorMethodInfo;
+      var baseConstructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
       if (baseConstructorMethodInfo != null)
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
       else
@@ -169,7 +170,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
     {
-      var baseConstructorMethodInfo = methodInfo as BaseConstructorMethodInfo;
+      var baseConstructorMethodInfo = methodInfo as ConstructorAsMethodInfoAdapter;
       if (baseConstructorMethodInfo != null)
       {
         if (!ArrayUtility.IsNullOrEmpty (optionalParameterTypes))

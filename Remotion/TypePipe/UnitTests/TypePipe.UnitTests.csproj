@@ -65,6 +65,7 @@
     <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpressionTest.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
+    <Compile Include="MutableReflection\ConstructorAdditionContextTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ArgumentTestHelper.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableMethodInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutablePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
+    <Compile Include="MutableReflection\MemberNotFoundExceptionTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoObjectMother.cs" />

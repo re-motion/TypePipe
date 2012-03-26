@@ -21,6 +21,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using System.Linq;
@@ -85,7 +86,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
             new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)),
-            new BaseConstructorMethodInfo (ctor.UnderlyingSystemConstructorInfo),
+            new ConstructorAsMethodInfoAdapter (ctor.UnderlyingSystemConstructorInfo),
             parameterExpressions.Cast<Expression>());
         var body = Expression.Lambda (baseCallExpression, parameterExpressions);
 

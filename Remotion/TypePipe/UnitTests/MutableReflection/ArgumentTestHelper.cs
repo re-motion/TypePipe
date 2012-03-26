@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private readonly object[] _values;
     private readonly Type[] _types;
     private readonly ParameterDeclaration[] _parameterDeclarations;
-    private readonly IEnumerable<ConstantExpression> _constantExpressions;
+    private readonly ConstantExpression[] _constantExpressions;
 
     public ArgumentTestHelper (params object[] values)
     {
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _values = values;
       _types = values.Select (value => value.GetType()).ToArray();
       _parameterDeclarations = _types.Select ((t, i) => new ParameterDeclaration (t, "p" + i)).ToArray ();
-      _constantExpressions = values.Select (Expression.Constant);
+      _constantExpressions = values.Select (Expression.Constant).ToArray();
     }
 
     public object[] Values
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public IEnumerable<Expression> Expressions
     {
-      get { return _constantExpressions.Cast<Expression>(); }
+      get { return _constantExpressions; }
     }
   }
 }

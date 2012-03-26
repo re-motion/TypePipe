@@ -23,6 +23,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -161,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (lambdaExpression.Body, Is.AssignableTo<MethodCallExpression> ());
       Assert.That (lambdaExpression.Body.Type, Is.SameAs (typeof (void)));
       var methodCallExpression = (MethodCallExpression) lambdaExpression.Body;
-      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseConstructorMethodInfo>().With.Property ("ConstructorInfo").EqualTo (baseConstructor));
+      Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter>().With.Property ("ConstructorInfo").EqualTo (baseConstructor));
       Assert.That (methodCallExpression.Object, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression>());
       var typeAsUnderlyingSystemTypeExpression = (TypeAsUnderlyingSystemTypeExpression) methodCallExpression.Object;
       Assert.That (typeAsUnderlyingSystemTypeExpression.InnerExpression, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (expectedThisType));
