@@ -520,20 +520,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
     }
 
-    private MutableType CreateMutableType ()
-    {
-      // Setup default values as needed by MutableType's ctor. If callers have already prepared return values these members, the following 
-      // expectations will have no effect. (With RhinoMocks, a second stub/expectation does not override the first one.)
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]).Repeat.Once();
-
-      return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
-    }
-
     private MutableType CreateMutableType (params ConstructorInfo[] existingConstructors)
     {
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors);
-
-      return CreateMutableType ();
+      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors).Repeat.Once();
+      
+      return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
     }
   }
 }
