@@ -55,13 +55,24 @@ namespace TypePipe.IntegrationTests
       Assertion.IsNotNull (_generatedFileName);
       var assemblyPath = Path.Combine (GeneratedFileDirectory, _generatedFileName);
 
-      _assemblyBuilder.Save (_generatedFileName);
-      PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
-
-      if (_shouldDeleteGeneratedFiles)
+      try
       {
-        File.Delete (assemblyPath);
-        File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
+        _assemblyBuilder.Save (_generatedFileName);
+
+        PEVerifier.CreateDefault ().VerifyPEFile (assemblyPath);
+
+        if (_shouldDeleteGeneratedFiles)
+        {
+          File.Delete (assemblyPath);
+          File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
+        }
+      }
+      catch
+      {
+        if (TestContext.CurrentContext.Result.Status != TestStatus.Failed)
+          throw;
+        
+        // Else: Swallow exception if test already had failed state in order to avoid overwriting any exceptions.
       }
     }
 
