@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override string ToString ()
     {
       var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));
-      return string.Format ("{0} {1}({2})", typeof (void), Name, parameterTypes);
+      return typeof (void) + " " + Name + "(" + parameterTypes + ")";
     }
 
     public override ParameterInfo[] GetParameters ()
