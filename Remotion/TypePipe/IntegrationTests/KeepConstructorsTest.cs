@@ -31,12 +31,12 @@ namespace TypePipe.IntegrationTests
     public void KeepPublicAndProtectedConstructors ()
     {
       Assert.That (
-          GetCtorSignatures (typeof (BaseClass)),
+          GetCtorSignatures (typeof (DomainType)),
           Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
 
-      var type = AssembleType<BaseClass> (mutableType => { });
+      var type = AssembleType<DomainType> (mutableType => { });
 
-      Assert.That (type, Is.Not.SameAs (typeof (BaseClass))); // no shortcut for zero modifications (yet)
+      Assert.That (type, Is.Not.SameAs (typeof (DomainType))); // no shortcut for zero modifications (yet)
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
 
       CheckConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
@@ -47,7 +47,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ConstructorWithOutAndRefParameters ()
     {
-      var type = AssembleType<BaseClassWithWeirdCtor> (mutableType => { });
+      var type = AssembleType<DomainTypeWithWeirdCtor> (mutableType => { });
 
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(Int32 ByRef, System.String ByRef)" }));
       
@@ -69,7 +69,7 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (constructor.Attributes, Is.EqualTo (visibility | additionalMethodAttributes));
 
-      var instance = (BaseClass) constructor.Invoke (ctorArguments);
+      var instance = (DomainType) constructor.Invoke (ctorArguments);
 
       Assert.That (instance, Is.Not.Null);
       Assert.That (instance.GetType(), Is.SameAs (type));
@@ -84,45 +84,45 @@ namespace TypePipe.IntegrationTests
           .ToArray(); // better error message
     }
 
-    public class BaseClass
+    public class DomainType
     {
       public string StringProperty { get; set; }
       public int IntProperty { get; set; }
 
-      public BaseClass (string s)
+      public DomainType (string s)
       {
         StringProperty = s;
         IntProperty = -10;
       }
 
-      protected BaseClass ()
+      protected DomainType ()
       {
         StringProperty = "protected";
         IntProperty = -20;
       }
 
-      protected internal BaseClass (double x)
+      protected internal DomainType (double x)
       {
         StringProperty = "protected internal";
         IntProperty = -30;
       }
 
-      internal BaseClass (int i)
+      internal DomainType (int i)
       {
         StringProperty = "internal";
         IntProperty = i;
       }
 
-      private BaseClass (string s, int i)
+      private DomainType (string s, int i)
       {
         StringProperty = s;
         IntProperty = i;
       }
     }
 
-    public class BaseClassWithWeirdCtor
+    public class DomainTypeWithWeirdCtor
     {
-      public BaseClassWithWeirdCtor (out int i, ref string s)
+      public DomainTypeWithWeirdCtor (out int i, ref string s)
       {
         i = 88;
         s = s + " and out";
