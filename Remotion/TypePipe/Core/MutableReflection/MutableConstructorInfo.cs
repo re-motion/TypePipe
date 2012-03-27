@@ -30,18 +30,18 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableConstructorInfo : ConstructorInfo
   {
     private readonly MutableType _declaringType;
-    private readonly IUnderlyingConstructorInfoStrategy _underlyingConstructorInfoStrategy;
+    private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    public MutableConstructorInfo (MutableType declaringType, IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy)
+    public MutableConstructorInfo (MutableType declaringType, UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("underlyingConstructorInfoStrategy", underlyingConstructorInfoStrategy);
+      ArgumentUtility.CheckNotNull ("underlyingConstructorInfoDescriptor", underlyingConstructorInfoDescriptor);
 
       _declaringType = declaringType;
-      _underlyingConstructorInfoStrategy = underlyingConstructorInfoStrategy;
+      _underlyingConstructorInfoDescriptor = underlyingConstructorInfoDescriptor;
 
-      _parameters = _underlyingConstructorInfoStrategy.GetParameterDeclarations()
+      _parameters = _underlyingConstructorInfoDescriptor.ParameterDeclarations
           .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
           .ToList().AsReadOnly();
       Assertion.IsFalse (IsStatic, "We do not yet support static constructors.");
@@ -54,12 +54,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ConstructorInfo UnderlyingSystemConstructorInfo
     {
-      get { return _underlyingConstructorInfoStrategy.GetUnderlyingSystemConstructorInfo() ?? this; }
+      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo ?? this; }
     }
 
     public override MethodAttributes Attributes
     {
-      get { return _underlyingConstructorInfoStrategy.GetAttributes(); }
+      get { return _underlyingConstructorInfoDescriptor.Attributes; }
     }
 
     public override string Name

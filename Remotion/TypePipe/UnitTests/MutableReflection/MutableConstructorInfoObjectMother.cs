@@ -23,11 +23,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static MutableConstructorInfo Create (
         MutableType declaringType = null,
-        IUnderlyingConstructorInfoStrategy underlyingConstructorInfoStrategy = null)
+        UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor = null)
     {
       return new MutableConstructorInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          underlyingConstructorInfoStrategy ?? NewConstructorInfoStrategyObjectMother.Create());
+          underlyingConstructorInfoDescriptor ?? UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew());
     }
 
     public static MutableConstructorInfo CreateWithParameters (
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return new MutableConstructorInfo (
           MutableTypeObjectMother.Create(),
-          NewConstructorInfoStrategyObjectMother.Create (parameterDeclarations: parameterDeclarations));
+          UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations));
     }
   }
 }

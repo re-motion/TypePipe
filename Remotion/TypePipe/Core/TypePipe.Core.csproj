@@ -86,15 +86,13 @@
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="MutableReflection\ConstructorAdditionContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
-    <Compile Include="MutableReflection\ExistingConstructorInfoStrategy.cs" />
     <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\ITypeModificationHandler.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
-    <Compile Include="MutableReflection\IUnderlyingConstructorInfoStrategy.cs" />
+    <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
-    <Compile Include="MutableReflection\NewConstructorInfoStrategy.cs" />
     <Compile Include="MutableReflection\IUnderlyingTypeStrategy.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />

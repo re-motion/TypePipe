@@ -19,75 +19,82 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class MutableConstructorInfoTest
   {
-    private MutableType _declaringTypeStub;
-    private IUnderlyingConstructorInfoStrategy _ctorInfoStrategyStub;
-    private MutableConstructorInfo _ctorInfo;
+    private MutableType _declaringType;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringTypeStub = MutableTypeObjectMother.Create();
-      _ctorInfoStrategyStub = MockRepository.GenerateStub<IUnderlyingConstructorInfoStrategy>();
-      _ctorInfoStrategyStub.Stub (stub => stub.GetParameterDeclarations()).Return (Enumerable.Empty<ParameterDeclaration>()).Repeat.Once();
-      _ctorInfo = new MutableConstructorInfo(_declaringTypeStub, _ctorInfoStrategyStub);
+      _declaringType = MutableTypeObjectMother.Create();
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_ctorInfo.DeclaringType, Is.SameAs (_declaringTypeStub));
+      var ctorInfo = new MutableConstructorInfo (_declaringType, UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew());
+      Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
     }
 
     [Test]
     public void UnderlyingSystemConsructorInfo ()
     {
-      var ctorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
-      _ctorInfoStrategyStub.Stub (stub => stub.GetUnderlyingSystemConstructorInfo()).Return (ctorInfo);
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
+      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
 
-      Assert.That (_ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (ctorInfo));
+      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo));
     }
 
     [Test]
     public void UnderlyingSystemConsructorInfo_ForNull ()
     {
-      _ctorInfoStrategyStub.Stub (stub => stub.GetUnderlyingSystemConstructorInfo()).Return(null);
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Null);
 
-      Assert.That (_ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (_ctorInfo));
+      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (ctorInfo));
     }
 
     [Test]
     public void Attributes ()
     {
-      var attributes = MethodAttributes.Abstract;
-      _ctorInfoStrategyStub.Stub (stub => stub.GetAttributes()).Return (attributes);
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract);
 
-      Assert.That (_ctorInfo.Attributes, Is.EqualTo (attributes));
+      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.Attributes, Is.EqualTo (MethodAttributes.Abstract));
     }
 
     [Test]
     public void Name ()
     {
-      Assert.That (_ctorInfo.Name, Is.EqualTo (".ctor"));
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
+      
+      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.Name, Is.EqualTo (".ctor"));
     }
 
     [Test]
     public new void ToString ()
     {
-      Assert.That (_ctorInfo.ToString(), Is.EqualTo ("System.Void .ctor()"));
+      var ctorInfo = CreateWithParameters ();
+      Assert.That (ctorInfo.ToString (), Is.EqualTo ("System.Void .ctor()"));
     }
 
     [Test]
     public void ToString_WithParameters ()
     {
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (
-          new ParameterDeclaration (typeof (int), "p1"), new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out));
+      var ctorInfo = CreateWithParameters (
+          ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
+          ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out));
 
       Assert.That (ctorInfo.ToString (), Is.EqualTo ("System.Void .ctor(System.Int32, System.String&)"));
     }
@@ -97,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var paramDecl1 = ParameterDeclarationObjectMother.Create();
       var paramDecl2 = ParameterDeclarationObjectMother.Create();
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (paramDecl1, paramDecl2);
+      var ctorInfo = CreateWithParameters (paramDecl1, paramDecl2);
 
       var result = ctorInfo.GetParameters();
 
@@ -114,7 +121,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_ReturnsSameParameterInfoInstances()
     {
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (ParameterDeclarationObjectMother.Create());
+      var ctorInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
 
       var result1 = ctorInfo.GetParameters().Single();
       var result2 = ctorInfo.GetParameters().Single();
@@ -125,7 +132,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (ParameterDeclarationObjectMother.Create ());
+      var ctorInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create ());
 
       var parameters = ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
@@ -133,6 +140,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var parametersAgain = ctorInfo.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
+    }
+
+    private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    {
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (
+          parameterDeclarations:
+              parameterDeclarations);
+
+      return new MutableConstructorInfo (_declaringType, descriptor);
     }
   }
 }

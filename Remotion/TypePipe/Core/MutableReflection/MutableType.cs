@@ -180,7 +180,7 @@ namespace Remotion.TypePipe.MutableReflection
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors are not (yet) supported.", "attributes");
 
-      var constructorInfoStrategy = new NewConstructorInfoStrategy (attributes, parameterDeclarations);
+      var constructorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
       var constructorInfo = new MutableConstructorInfo (this, constructorInfoStrategy);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
@@ -277,7 +277,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
-      return new MutableConstructorInfo (this, new ExistingConstructorInfoStrategy (originalConstructor));
+      return new MutableConstructorInfo (this, UnderlyingConstructorInfoDescriptor.Create (originalConstructor));
     }
 
     #region Not implemented abstract members of Type class

@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,33 +15,25 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
-using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  [TestFixture]
-  public class NewConstructorInfoStrategyTest
+  public static class UnderlyingConstructorInfoDescriptorObjectMother
   {
-    [Test]
-    public void Initialization ()
+    public static UnderlyingConstructorInfoDescriptor CreateForNew (
+        MethodAttributes attributes =
+            MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null)
     {
-      var attributes = MethodAttributes.Abstract;
-      var parameterDeclarations = new ParameterDeclaration[0];
-
-      var ctorInfoStrategy = new NewConstructorInfoStrategy (attributes, parameterDeclarations);
-
-      Assert.That (ctorInfoStrategy.GetAttributes(), Is.EqualTo (attributes));
-      Assert.That (ctorInfoStrategy.GetParameterDeclarations(), Is.SameAs (parameterDeclarations));
+      return UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations ?? new ParameterDeclaration[0]);
     }
 
-    [Test]
-    public void GetUnderlyingSystemConstructorInfo ()
+    public static UnderlyingConstructorInfoDescriptor CreateForExisting (ConstructorInfo originalConstructorInfo = null)
     {
-      var ctorInfoStrategy = NewConstructorInfoStrategyObjectMother.Create();
-
-      Assert.That (ctorInfoStrategy.GetUnderlyingSystemConstructorInfo(), Is.Null);
+      return UnderlyingConstructorInfoDescriptor.Create (originalConstructorInfo ?? ReflectionObjectMother.GetSomeDefaultConstructor());
     }
   }
 }

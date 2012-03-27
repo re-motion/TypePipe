@@ -72,7 +72,7 @@
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeReflectionObjectMother.cs" />
-    <Compile Include="MutableReflection\ExistingConstructorInfoStrategyTest.cs" />
+    <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\ExistingTypeStrategyObjectMother.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableFieldInfoTest.cs" />
@@ -86,8 +86,7 @@
     <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
-    <Compile Include="MutableReflection\NewConstructorInfoStrategyObjectMother.cs" />
-    <Compile Include="MutableReflection\NewConstructorInfoStrategyTest.cs" />
+    <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />

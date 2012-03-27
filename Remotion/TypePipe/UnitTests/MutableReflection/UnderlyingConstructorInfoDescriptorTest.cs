@@ -23,34 +23,31 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class ExistingConstructorInfoStrategyTest
+  public class UnderlyingConstructorInfoDescriptorTest
   {
-    private ConstructorInfo _originalCtor;
-    private ExistingConstructorInfoStrategy _ctorInfoStrategy;
-
-    [SetUp]
-    public void SetUp ()
+    [Test]
+    public void Create_ForNew ()
     {
-      _originalCtor = ReflectionObjectMother.GetConstructor (() => new ExampleType ("string", 7));
-      _ctorInfoStrategy = new ExistingConstructorInfoStrategy (_originalCtor);
+      var attributes = MethodAttributes.Abstract;
+      var parameterDeclarations = new ParameterDeclaration[0];
+
+      var ctorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
+
+      Assert.That (ctorInfoStrategy.UnderlyingSystemConstructorInfo, Is.Null);
+      Assert.That (ctorInfoStrategy.Attributes, Is.EqualTo (attributes));
+      Assert.That (ctorInfoStrategy.ParameterDeclarations, Is.SameAs (parameterDeclarations));
     }
 
     [Test]
-    public void GetUnderlyingSystemConstructorInfo ()
+    public void Create_ForExisting ()
     {
-      Assert.That (_ctorInfoStrategy.GetUnderlyingSystemConstructorInfo(), Is.SameAs (_originalCtor));
-    }
+      var originalCtor = ReflectionObjectMother.GetConstructor (() => new ExampleType ("string", 7));
+      var ctorInfoDescriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
 
-    [Test]
-    public void GetAttributes ()
-    {
-      Assert.That (_ctorInfoStrategy.GetAttributes(), Is.EqualTo (_originalCtor.Attributes));
-    }
+      Assert.That (ctorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.SameAs (originalCtor));
+      Assert.That (ctorInfoDescriptor.Attributes, Is.EqualTo (originalCtor.Attributes));
 
-    [Test]
-    public void GetParameterDeclarations ()
-    {
-      var result = _ctorInfoStrategy.GetParameterDeclarations();
+      var result = ctorInfoDescriptor.ParameterDeclarations;
 
       var expectedParamterDecls =
           new[]
@@ -58,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new { Type = typeof (string), Name = "s", Attributes = ParameterAttributes.None },
               new { Type = typeof (int), Name = "i", Attributes = ParameterAttributes.None }
           };
-      var actualParameterDecls = result.Select (pd => new { pd.Type, pd.Name, pd.Attributes }).ToArray();
+      var actualParameterDecls = result.Select (pd => new { pd.Type, pd.Name, pd.Attributes }).ToArray ();
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
     }
 
