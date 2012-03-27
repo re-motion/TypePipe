@@ -80,17 +80,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      Assert.That (_ctorInfo.ToString(), Is.EqualTo ("Void .ctor()"));
+      Assert.That (_ctorInfo.ToString(), Is.EqualTo ("System.Void .ctor()"));
     }
 
     [Test]
-    [Ignore("TODO 4726")]
     public void ToString_WithParameters ()
     {
       var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (
-          new ParameterDeclaration (typeof (int), "p1"), new ParameterDeclaration (typeof (string), "p2"));
+          new ParameterDeclaration (typeof (int), "p1"), new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out));
 
-      Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, System.String)"));
+      Assert.That (ctorInfo.ToString (), Is.EqualTo ("System.Void .ctor(System.Int32, System.String&)"));
     }
 
     [Test]

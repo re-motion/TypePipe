@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Remotion.Text;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -72,7 +73,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string ToString ()
     {
-      return "Void .ctor()";
+      var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));
+      return string.Format ("{0} {1}({2})", typeof (void), Name, parameterTypes);
     }
 
     public override ParameterInfo[] GetParameters ()
