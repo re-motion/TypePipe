@@ -58,5 +58,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _childExpressionEmitter (expression.InnerExpression);
       return expression;
     }
+
+    public Expression VisitOriginalBodyExpression (OriginalBodyExpression expression)
+    {
+      var message = string.Format ("{0} must be replaced before code generation.", typeof(OriginalBodyExpression).Name);
+      throw new NotSupportedException (message);
+    }
   }
 }

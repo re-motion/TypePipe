@@ -9,5 +9,6 @@ namespace Remotion.TypePipe.Expressions
   {
     Expression VisitThisExpression (ThisExpression expression);
     Expression VisitTypeAsUnderlyingSystemTypeExpression (TypeAsUnderlyingSystemTypeExpression expression);
+    Expression VisitOriginalBodyExpression (OriginalBodyExpression expression);
   }
 }

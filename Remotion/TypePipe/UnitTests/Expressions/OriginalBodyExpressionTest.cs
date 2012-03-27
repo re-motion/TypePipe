@@ -19,62 +19,63 @@ using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class TypeAsUnderlyingSystemTypeExpressionTest
+  public class OriginalBodyExpressionTest
   {
-    private MutableType _typeWithUnderlyingSystemType;
-    private Expression _innerExpression;
-
-    private TypeAsUnderlyingSystemTypeExpression _expression;
+    private Type _returnType;
+    private IEnumerable<Expression> _argumentExpressions;
+    private OriginalBodyExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeWithUnderlyingSystemType = MutableTypeObjectMother.CreateForExistingType();
-      Assert.That (_typeWithUnderlyingSystemType.UnderlyingSystemType, Is.Not.Null.And.Not.SameAs (_typeWithUnderlyingSystemType));
-      _innerExpression = Expression.Constant (null, _typeWithUnderlyingSystemType);
+      _returnType = ReflectionObjectMother.GetSomeType ();
+      _argumentExpressions = new ArgumentTestHelper (7, "string").Expressions;
 
-      _expression = new TypeAsUnderlyingSystemTypeExpression (_innerExpression);
+      _expression = new OriginalBodyExpression (_returnType, _argumentExpressions); 
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expression.InnerExpression, Is.SameAs (_innerExpression));
-      Assert.That (_expression.Type, Is.SameAs (_typeWithUnderlyingSystemType.UnderlyingSystemType));
+      Assert.That (_expression.Type, Is.SameAs (_returnType));
+      Assert.That (_expression.Arguments, Is.EqualTo (_argumentExpressions));
     }
 
     [Test]
     public void Accept ()
     {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitTypeAsUnderlyingSystemTypeExpression (_expression));
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitOriginalBodyExpression (_expression));
     }
 
     [Test]
     public void VisitChildren_NoChanges ()
     {
-      ExpressionTestHelper.CheckVisitChildren_NoChanges (_expression, _expression.InnerExpression);
+      ExpressionTestHelper.CheckVisitChildren_NoChanges (_expression, _expression.Arguments);
     }
 
     [Test]
     public void VisitChildren_WithChanges ()
     {
-      var newInnerExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      var newInnerExpression = ExpressionTreeObjectMother.GetSomeExpression ();
 
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
-      expressionVisitorMock.Expect (mock => mock.Visit (_expression.InnerExpression)).Return (newInnerExpression);
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Arguments[0])).Return (newInnerExpression);
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Arguments[1])).Return (_expression.Arguments[1]);
 
       var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
 
       expressionVisitorMock.VerifyAllExpectations ();
       Assert.That (result, Is.Not.SameAs (_expression));
-      Assert.That (result, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression>().With.Property ("InnerExpression").SameAs (newInnerExpression));
+      Assert.That (result.Type, Is.SameAs (_expression.Type));
+      Assert.That (
+          result, 
+          Is.TypeOf<OriginalBodyExpression> ().With.Property ("Arguments").EqualTo (new[] { newInnerExpression, _expression.Arguments[1] }));
     }
   }
 }

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -72,6 +73,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _childExpressionEmitterMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "OriginalBodyExpression must be replaced before code generation.")]
+    public void VisitOriginalBodyExpression ()
+    {
+      var expression = new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
+
+      _visitor.VisitOriginalBodyExpression (expression);
     }
   }
 }
