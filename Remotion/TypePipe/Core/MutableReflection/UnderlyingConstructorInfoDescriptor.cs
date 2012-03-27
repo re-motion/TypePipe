@@ -32,56 +32,48 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingConstructorInfoDescriptor
   {
-    public static UnderlyingConstructorInfoDescriptor Create (
-        MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
-        IEnumerable<Expression> arguments)
+    public static UnderlyingConstructorInfoDescriptor Create (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return CreateInternal(null, attributes, parameterDeclarations, arguments);
+      return CreateInternal(null, attributes, parameterDeclarations);
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
 
-      var parameterInfos = originalConstructorInfo.GetParameters();
-      var parameterDeclarations = parameterInfos.Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes));
-      var arguments = parameterInfos.Select (pi => Expression.Parameter (pi.ParameterType, pi.Name)).ToArray();
+      var parameterDeclarations =
+          originalConstructorInfo.GetParameters().Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes));
 
-      return CreateInternal (originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations, arguments);
+      return CreateInternal (originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations);
     }
 
     private static UnderlyingConstructorInfoDescriptor CreateInternal (
         ConstructorInfo originalConstructorInfo,
         MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
-        IEnumerable<Expression> arguments)
+        IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
-      var body = new OriginalBodyExpression (typeof (void), arguments);
-      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, attributes, parameterDeclarations, arguments, body);
+      var parameterExpressions = parameterDeclarations.Select (pd => Expression.Parameter (pd.Type, pd.Name));
+
+      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, attributes, parameterDeclarations, parameterExpressions);
     }
 
     private readonly ConstructorInfo _underlyingSystemConstructorInfo;
     private readonly MethodAttributes _attributes;
     private readonly IEnumerable<ParameterDeclaration> _parameterDeclarations;
-    private readonly IEnumerable<Expression> _arguments;
-    private readonly Expression _body;
+    private readonly IEnumerable<ParameterExpression> _parameterExpressions;
 
     private UnderlyingConstructorInfoDescriptor (
         ConstructorInfo underlyingSystemConstructorInfo,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        IEnumerable<Expression> arguments,
-        Expression body)
+        IEnumerable<ParameterExpression> parameterExpressions)
     {
       _underlyingSystemConstructorInfo = underlyingSystemConstructorInfo;
       _attributes = attributes;
       _parameterDeclarations = parameterDeclarations;
-      _arguments = arguments;
-      _body = body;
+      _parameterExpressions = parameterExpressions;
     }
 
     public ConstructorInfo UnderlyingSystemConstructorInfo
@@ -99,14 +91,14 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _parameterDeclarations; }
     }
 
-    public IEnumerable<Expression> Arguments
+    public IEnumerable<ParameterExpression> ParameterExpressions
     {
-      get { return _arguments; }
+      get { return _parameterExpressions; }
     }
 
-    public Expression Body
+    public Expression GetBody(IEnumerable<Expression> arguments)
     {
-      get { return _body; }
+      return null;
     }
   }
 }

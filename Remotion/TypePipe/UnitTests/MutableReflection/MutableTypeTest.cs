@@ -333,7 +333,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Adding static constructors are not (yet) supported.\r\nParameter name: attributes")]
+        "Adding static constructors is not (yet) supported.\r\nParameter name: attributes")]
     public void AddConstructor_ThrowsForStatic ()
     {
       _mutableType.AddConstructor (MethodAttributes.Static);

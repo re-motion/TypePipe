@@ -179,9 +179,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       if ((attributes & MethodAttributes.Static) != 0)
-        throw new ArgumentException ("Adding static constructors are not (yet) supported.", "attributes");
+        throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
-      var constructorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, new Expression[0]);
+      var constructorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
       var constructorInfo = new MutableConstructorInfo (this, constructorInfoStrategy);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection
       _parameters = _underlyingConstructorInfoDescriptor.ParameterDeclarations
           .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
           .ToList().AsReadOnly();
-      Assertion.IsFalse (IsStatic, "We do not yet support static constructors.");
+      Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
     }
 
     public override Type DeclaringType
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       get
       {
-        Assertion.IsFalse (IsStatic, "We do not yet support static constructors.");
+        Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
         return ".ctor";
       }
     }
