@@ -27,6 +27,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
+    private static readonly IEnumerable<ParameterDeclaration> s_emptyParamDecls = Enumerable.Empty<ParameterDeclaration>();
+
     private IUnderlyingTypeStrategy _typeStrategyStub;
     private IEqualityComparer<MemberInfo> _memberInfoEqualityComparerStub;
     private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
@@ -327,6 +329,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var actualParameterInfos = ctorInfo.GetParameters().Select (pi => new { pi.ParameterType });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+      //Assert.That (ctorInfo.Body, Is.SameAs (_body)); // TODO 4686
       // Constructor info is stored
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { ctorInfo }));
     }
@@ -336,7 +339,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Adding static constructors is not (yet) supported.\r\nParameter name: attributes")]
     public void AddConstructor_ThrowsForStatic ()
     {
-      _mutableType.AddConstructor (MethodAttributes.Static);
+      _mutableType.AddConstructor (MethodAttributes.Static, s_emptyParamDecls);
     }
 
     [Test]
@@ -352,7 +355,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (true);
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
-      mutableType.AddConstructor (0);
+      mutableType.AddConstructor (0, s_emptyParamDecls);
     }
 
     [Test]
@@ -397,7 +400,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructors_FilterWithUtility_AddedConstructor ()
     {
-      var addedCtorInfo = _mutableType.AddConstructor (MethodAttributes.Public);
+      var addedCtorInfo = _mutableType.AddConstructor (MethodAttributes.Public, s_emptyParamDecls);
 
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (addedCtorInfo.Attributes, bindingFlags)).Return (false);
@@ -422,7 +425,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableConstructor_MutableConstructorInfo ()
     {
-      var ctor = _mutableType.AddConstructor (0);
+      var ctor = _mutableType.AddConstructor (0, s_emptyParamDecls);
 
       var result = _mutableType.GetMutableConstructor (ctor);
 
@@ -489,7 +492,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _typeStrategyStub
           .Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything))
           .Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
-      var addedConstructorInfo = _mutableType.AddConstructor (MethodAttributes.Public, ParameterDeclarationObjectMother.Create());
+      var addedConstructorInfo = _mutableType.AddConstructor (MethodAttributes.Public, new[] { ParameterDeclarationObjectMother.Create() });
 
       var handlerMock = MockRepository.GenerateMock<ITypeModificationHandler>();
       

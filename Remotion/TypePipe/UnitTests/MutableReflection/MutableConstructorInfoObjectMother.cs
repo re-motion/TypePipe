@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -23,19 +24,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static MutableConstructorInfo Create (
         MutableType declaringType = null,
-        UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor = null)
+        UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor = null,
+        Expression body = null)
     {
       return new MutableConstructorInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          underlyingConstructorInfoDescriptor ?? UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew());
+          underlyingConstructorInfoDescriptor ?? UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew(),
+          body ?? Expression.Constant (null)); // TODO 4686
     }
 
     public static MutableConstructorInfo CreateWithParameters (
         params ParameterDeclaration[] parameterDeclarations)
     {
-      return new MutableConstructorInfo (
-          MutableTypeObjectMother.Create(),
-          UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations));
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      return Create (underlyingConstructorInfoDescriptor: descriptor);
     }
   }
 }

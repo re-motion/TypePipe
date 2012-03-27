@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Text;
 using Remotion.Utilities;
 
@@ -31,20 +32,32 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
+    private readonly Expression _initialBody;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    public MutableConstructorInfo (MutableType declaringType, UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
+    public MutableConstructorInfo (
+        MutableType declaringType,
+        UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor,
+        Expression initialBody)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("underlyingConstructorInfoDescriptor", underlyingConstructorInfoDescriptor);
+      ArgumentUtility.CheckNotNull ("initialBody", initialBody);
+
+      //if (initialBody.Type != typeof (void)) // TODO : 4686
+      //{
+      //  throw new ArgumentException("!!!");
+      //}
 
       _declaringType = declaringType;
       _underlyingConstructorInfoDescriptor = underlyingConstructorInfoDescriptor;
+      _initialBody = initialBody;
+
+      Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
 
       _parameters = _underlyingConstructorInfoDescriptor.ParameterDeclarations
           .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
           .ToList().AsReadOnly();
-      Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
     }
 
     public override Type DeclaringType
@@ -69,6 +82,11 @@ namespace Remotion.TypePipe.MutableReflection
         Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
         return ".ctor";
       }
+    }
+
+    public Expression Body
+    {
+      get { return _initialBody; }
     }
 
     public override string ToString ()

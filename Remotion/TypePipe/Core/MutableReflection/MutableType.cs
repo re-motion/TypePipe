@@ -173,16 +173,28 @@ namespace Remotion.TypePipe.MutableReflection
                   .Cast<FieldInfo> ()
           ).ToArray ();
     }
-    
-    public MutableConstructorInfo AddConstructor (MethodAttributes attributes, params ParameterDeclaration[] parameterDeclarations)
+
+    // TODO 4686 : Remove this overload
+    public MutableConstructorInfo AddConstructor (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    {
+      return AddConstructor (attributes, parameterDeclarations, ctx => Expression.Constant (null, typeof (void)));
+    }
+
+    public MutableConstructorInfo AddConstructor (
+        MethodAttributes attributes,
+        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        Func<ConstructorAdditionContext, Expression> bodyGenerator)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
-      var constructorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
-      var constructorInfo = new MutableConstructorInfo (this, constructorInfoStrategy);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
+      //var parameterExpressions = descriptor.ParameterExpressions.ToList().AsReadOnly();
+      //var context = new ConstructorAdditionContext (this, parameterExpressions);
+      //var body = bodyGenerator (context); // TODO 4686
+      var constructorInfo = new MutableConstructorInfo (this, descriptor, Expression.Constant(null));
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
@@ -278,7 +290,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
-      return new MutableConstructorInfo (this, UnderlyingConstructorInfoDescriptor.Create (originalConstructor));
+      // TODO 4686
+      return new MutableConstructorInfo(
+          this,
+          UnderlyingConstructorInfoDescriptor.Create (originalConstructor),
+          Expression.Constant (null));
     }
 
     #region Not implemented abstract members of Type class

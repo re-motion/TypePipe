@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
@@ -26,18 +27,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableConstructorInfoTest
   {
     private MutableType _declaringType;
+    private ConstantExpression _body;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
+      _body = Expression.Constant (null); // TODO: 4686
     }
 
     [Test]
     public void Initialization ()
     {
-      var ctorInfo = new MutableConstructorInfo (_declaringType, UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew());
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (ctorInfo.Body, Is.SameAs (_body));
     }
 
     [Test]
@@ -46,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
       Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
 
-      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo));
     }
@@ -57,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
       Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Null);
 
-      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (ctorInfo));
     }
@@ -67,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract);
 
-      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.Attributes, Is.EqualTo (MethodAttributes.Abstract));
     }
@@ -76,8 +83,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Name ()
     {
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
-      
-      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.Name, Is.EqualTo (".ctor"));
     }
@@ -142,13 +149,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
 
+    private MutableConstructorInfo Create (UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
+    {
+      return new MutableConstructorInfo (_declaringType, underlyingConstructorInfoDescriptor, _body);
+    }
+
     private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (
-          parameterDeclarations:
-              parameterDeclarations);
-
-      return new MutableConstructorInfo (_declaringType, descriptor);
+      return Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations));
     }
   }
 }
