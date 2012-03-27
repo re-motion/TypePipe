@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Utilities;
 using System.Linq;
@@ -180,7 +181,7 @@ namespace Remotion.TypePipe.MutableReflection
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors are not (yet) supported.", "attributes");
 
-      var constructorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
+      var constructorInfoStrategy = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, new Expression[0]);
       var constructorInfo = new MutableConstructorInfo (this, constructorInfoStrategy);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))

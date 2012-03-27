@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -26,12 +27,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static UnderlyingConstructorInfoDescriptor CreateForNew (
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null)
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        IEnumerable<Expression> arguments = null)
     {
-      return UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations ?? new ParameterDeclaration[0]);
+      return UnderlyingConstructorInfoDescriptor.Create (
+        attributes,
+        parameterDeclarations ?? new ParameterDeclaration[0],
+        arguments ?? new Expression[0]);
     }
 
-    public static UnderlyingConstructorInfoDescriptor CreateForExisting (ConstructorInfo originalConstructorInfo = null)
+    public static UnderlyingConstructorInfoDescriptor CreateForExisting (
+        ConstructorInfo originalConstructorInfo = null)
     {
       return UnderlyingConstructorInfoDescriptor.Create (originalConstructorInfo ?? ReflectionObjectMother.GetSomeDefaultConstructor());
     }
