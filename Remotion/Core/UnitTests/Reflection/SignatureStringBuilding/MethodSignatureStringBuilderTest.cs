@@ -74,7 +74,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetConstructors().Single();
       var signature = _builder.BuildSignatureString (method);
 
-      Assert.That (signature, Is.EqualTo ("(System.String,System.DateTime)"));
+      Assert.That (signature, Is.EqualTo ("System.Void(System.String,System.DateTime)"));
     }
 
     [Test]
@@ -92,7 +92,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetConstructors ().Single ();
       var signature = ((IMemberSignatureStringBuilder) _builder).BuildSignatureString (method);
 
-      Assert.That (signature, Is.EqualTo ("(System.String,System.DateTime)"));
+      Assert.That (signature, Is.EqualTo ("System.Void(System.String,System.DateTime)"));
     }
   }
 }

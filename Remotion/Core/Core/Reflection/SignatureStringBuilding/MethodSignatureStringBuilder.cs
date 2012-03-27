@@ -53,10 +53,15 @@ namespace Remotion.Reflection.SignatureStringBuilding
         throw new ArgumentException ("Closed generic methods are not supported.", "methodBase");
 
       var sb = new StringBuilder ();
-      
+
       if (methodBase is MethodInfo)
         _helper.AppendTypeString (sb, ((MethodInfo) methodBase).ReturnType);
-      
+      else
+      {
+        Assertion.IsTrue (methodBase is ConstructorInfo);
+        _helper.AppendTypeString (sb, typeof (void));
+      }
+
       sb.Append ("(");
       _helper.AppendSeparatedTypeStrings (sb, methodBase.GetParameters ().Select (p => p.ParameterType));
       sb.Append (")");
