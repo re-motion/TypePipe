@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using Remotion.Collections;
@@ -91,6 +90,26 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type BaseType
     {
       get { return _underlyingTypeStrategy.GetBaseType (); }
+    }
+
+    public override string Name
+    {
+      get { return _underlyingTypeStrategy.GetName(); }
+    }
+
+    public override string Namespace
+    {
+      get { return _underlyingTypeStrategy.GetNamespace(); }
+    }
+
+    public override string FullName
+    {
+      get { return _underlyingTypeStrategy.GetFullName(); }
+    }
+
+    public override string ToString ()
+    {
+      return _underlyingTypeStrategy.GetToStringRepresentation();
     }
 
     public bool IsEquivalentTo (Type type)
@@ -278,16 +297,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException(); }
     }
 
-    public override string FullName
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override string Namespace
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override string AssemblyQualifiedName
     {
       get { throw new NotImplementedException(); }
@@ -378,11 +387,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override bool IsDefined (Type attributeType, bool inherit)
     {
       throw new NotImplementedException();
-    }
-
-    public override string Name
-    {
-      get { throw new NotImplementedException(); }
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)

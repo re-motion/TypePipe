@@ -87,8 +87,6 @@
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
     <Compile Include="MutableReflection\NewConstructorInfoStrategyObjectMother.cs" />
     <Compile Include="MutableReflection\NewConstructorInfoStrategyTest.cs" />
-    <Compile Include="MutableReflection\NewTypeStrategyObjectMother.cs" />
-    <Compile Include="MutableReflection\NewTypeStrategyTest.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />

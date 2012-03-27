@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
       _parameters = _underlyingConstructorInfoStrategy.GetParameterDeclarations()
           .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
           .ToList().AsReadOnly();
+      Assertion.IsFalse (IsStatic, "We do not yet support static constructors.");
     }
 
     public override Type DeclaringType
@@ -58,6 +59,20 @@ namespace Remotion.TypePipe.MutableReflection
     public override MethodAttributes Attributes
     {
       get { return _underlyingConstructorInfoStrategy.GetAttributes(); }
+    }
+
+    public override string Name
+    {
+      get
+      {
+        Assertion.IsFalse (IsStatic, "We do not yet support static constructors.");
+        return ".ctor";
+      }
+    }
+
+    public override string ToString ()
+    {
+      return "Void .ctor()";
     }
 
     public override ParameterInfo[] GetParameters ()
@@ -85,11 +100,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
     {
       throw new NotImplementedException();
-    }
-
-    public override string Name
-    {
-      get { throw new NotImplementedException(); }
     }
 
     public override Type ReflectedType

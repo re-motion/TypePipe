@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
@@ -30,13 +29,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.Create();
+      _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
     }
 
     [Test]
     public void New_DefaultConstructor ()
     {
-      var constructor = _mutableType.AddConstructor (MethodAttributes.Public);
+      var constructor = _mutableType.GetConstructor (Type.EmptyTypes);
 
       var expression = Expression.New (_mutableType);
 
@@ -79,6 +78,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
       var operand = Expression.Constant (new object ());
       var expression = Expression.TypeIs (operand, _mutableType);
       Assert.That (expression.TypeOperand, Is.SameAs (_mutableType));
+    }
+
+    private class DomainClass
+    {
+      
     }
   }
 }

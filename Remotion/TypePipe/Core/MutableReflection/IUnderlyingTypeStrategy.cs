@@ -29,6 +29,10 @@ namespace Remotion.TypePipe.MutableReflection
   {
     Type GetBaseType ();
     Type GetUnderlyingSystemType ();
+    string GetName ();
+    string GetNamespace ();
+    string GetFullName ();
+    string GetToStringRepresentation ();
     TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces ();
     FieldInfo[] GetFields (BindingFlags bindingAttr);

@@ -26,24 +26,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableTypeObjectMother
   {
     public static MutableType Create (
-      IUnderlyingTypeStrategy underlyingTypeStrategy = null,
-      IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
-      IBindingFlagsEvaluator bindingFlagsEvaluator = null)
+        IUnderlyingTypeStrategy underlyingTypeStrategy = null,
+        IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
+        IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
-      return new MutableType(
-        underlyingTypeStrategy ?? NewTypeStrategyObjectMother.Create(),
-        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
-        bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
+      return new MutableType (
+          underlyingTypeStrategy ?? ExistingTypeStrategyObjectMother.Create(),
+          memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
+          bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
-    public static MutableType CreateStrictMock (IUnderlyingTypeStrategy underlyingTypeStrategy = null,
-      IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
-      IBindingFlagsEvaluator bindingFlagsEvaluator = null)
+    public static MutableType CreatePartialMock (
+        IUnderlyingTypeStrategy underlyingTypeStrategy = null,
+        IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
+        IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
-      return MockRepository.GenerateStrictMock<MutableType> (
-        underlyingTypeStrategy ?? NewTypeStrategyObjectMother.Create (),
-        memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer (),
-        bindingFlagsEvaluator ?? new BindingFlagsEvaluator ());
+      return MockRepository.GeneratePartialMock<MutableType> (
+          underlyingTypeStrategy ?? ExistingTypeStrategyObjectMother.Create(),
+          memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
+          bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
     public static MutableType CreateForExistingType (Type originalType = null)

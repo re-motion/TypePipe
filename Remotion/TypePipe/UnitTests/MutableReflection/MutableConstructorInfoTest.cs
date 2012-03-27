@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
@@ -68,6 +69,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _ctorInfoStrategyStub.Stub (stub => stub.GetAttributes()).Return (attributes);
 
       Assert.That (_ctorInfo.Attributes, Is.EqualTo (attributes));
+    }
+
+    [Test]
+    public void Name ()
+    {
+      Assert.That (_ctorInfo.Name, Is.EqualTo (".ctor"));
+    }
+
+    [Test]
+    public new void ToString ()
+    {
+      Assert.That (_ctorInfo.ToString(), Is.EqualTo ("Void .ctor()"));
+    }
+
+    [Test]
+    [Ignore("TODO 4726")]
+    public void ToString_WithParameters ()
+    {
+      var ctorInfo = MutableConstructorInfoObjectMother.CreateWithParameters (
+          new ParameterDeclaration (typeof (int), "p1"), new ParameterDeclaration (typeof (string), "p2"));
+
+      Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, System.String)"));
     }
 
     [Test]

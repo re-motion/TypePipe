@@ -50,6 +50,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public new void ToString ()
+    {
+      var expected = _fieldInfo.FieldType + " " + _fieldInfo.Name;
+
+      Assert.That (_fieldInfo.ToString(), Is.EqualTo (expected));
+    }
+
+    [Test]
     public void AddCustomAttribute ()
     {
       var customAttribute = CustomAttributeDeclarationObjectMother.Create();

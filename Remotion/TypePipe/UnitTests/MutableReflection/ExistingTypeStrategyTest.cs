@@ -28,13 +28,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class ExistingTypeStrategyTest
   {
     private IMemberFilter _memberFilterStub;
+    private Type _originalType;
     private ExistingTypeStrategy _existingTypeStrategy;
 
     [SetUp]
     public void SetUp ()
     {
       _memberFilterStub = MockRepository.GenerateStub<IMemberFilter>();
-      _existingTypeStrategy = ExistingTypeStrategyObjectMother.Create (originalType: typeof (ExampleType), memberFilter: _memberFilterStub);
+      _originalType = typeof (ExampleType);
+      _existingTypeStrategy = ExistingTypeStrategyObjectMother.Create (originalType: _originalType, memberFilter: _memberFilterStub);
     }
 
     [Test]
@@ -71,6 +73,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetUnderlyingSystemType ()
     {
       Assert.That (_existingTypeStrategy.GetUnderlyingSystemType(), Is.SameAs (typeof (ExampleType)));
+    }
+
+    [Test]
+    public void GetName ()
+    {
+      Assert.That (_existingTypeStrategy.GetName(), Is.EqualTo (_originalType.Name));
+    }
+
+    [Test]
+    public void GetNamespace ()
+    {
+      Assert.That (_existingTypeStrategy.GetNamespace (), Is.EqualTo (_originalType.Namespace));
+    }
+
+    [Test]
+    public void GetFullName ()
+    {
+      Assert.That (_existingTypeStrategy.GetFullName (), Is.EqualTo (_originalType.FullName));
+    }
+
+    [Test]
+    public void GetToStringRepresentation ()
+    {
+      Assert.That (_existingTypeStrategy.GetToStringRepresentation(), Is.EqualTo (_originalType.ToString()));
     }
 
     [Test]

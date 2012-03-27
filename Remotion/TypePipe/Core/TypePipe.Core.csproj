@@ -94,7 +94,6 @@
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
     <Compile Include="MutableReflection\NewConstructorInfoStrategy.cs" />
-    <Compile Include="MutableReflection\NewTypeStrategy.cs" />
     <Compile Include="MutableReflection\IUnderlyingTypeStrategy.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />

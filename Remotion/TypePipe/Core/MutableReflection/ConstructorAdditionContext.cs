@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (constructor == null)
       {
         var message = string.Format ("Could not find a constructor with signature ({0}) on type '{1}'.",
-          SeparatedStringBuilder.Build(", ", argumentTypes), _declaringType);
+            SeparatedStringBuilder.Build(", ", argumentTypes), _declaringType);
         throw new MemberNotFoundException (message);
       }
 

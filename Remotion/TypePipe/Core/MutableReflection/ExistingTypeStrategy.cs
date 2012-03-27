@@ -53,6 +53,26 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalType;
     }
 
+    public string GetName ()
+    {
+      return _originalType.Name;
+    }
+
+    public string GetNamespace ()
+    {
+      return _originalType.Namespace;
+    }
+
+    public string GetFullName ()
+    {
+      return _originalType.FullName;
+    }
+
+    public string GetToStringRepresentation ()
+    {
+      return _originalType.ToString();
+    }
+
     public TypeAttributes GetAttributeFlags ()
     {
       return _originalType.Attributes;

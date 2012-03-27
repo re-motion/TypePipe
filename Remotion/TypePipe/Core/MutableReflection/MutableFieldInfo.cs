@@ -67,6 +67,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributes; }
     }
 
+    public override string ToString ()
+    {
+      return FieldType + " " + Name;
+    }
+
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
       get { return _addedCustomAttributeDeclarations.AsReadOnly(); }

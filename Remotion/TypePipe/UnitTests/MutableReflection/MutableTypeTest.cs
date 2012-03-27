@@ -100,12 +100,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsEquivalentTo_Type_True ()
+    public void Name ()
     {
-      var type = ReflectionObjectMother.GetSomeType();
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (type);
+      _typeStrategyStub.Stub (stub => stub.GetName()).Return ("bar");
 
-      Assert.That (_mutableType.IsEquivalentTo (type), Is.True);
+      Assert.That (_mutableType.Name, Is.EqualTo ("bar"));
+    }
+
+    [Test]
+    public void Namespace ()
+    {
+      _typeStrategyStub.Stub (stub => stub.GetNamespace ()).Return ("foo");
+
+      Assert.That (_mutableType.Namespace, Is.EqualTo ("foo"));
+    }
+
+    [Test]
+    public void FullName ()
+    {
+      _typeStrategyStub.Stub (stub => stub.GetFullName ()).Return ("foo.bar");
+
+      Assert.That (_mutableType.FullName, Is.EqualTo ("foo.bar"));
+    }
+
+    [Test]
+    public new void ToString ()
+    {
+      _typeStrategyStub.Stub (stub => stub.GetToStringRepresentation ()).Return ("foo");
+
+      Assert.That (_mutableType.ToString(), Is.EqualTo ("foo"));
     }
 
     [Test]

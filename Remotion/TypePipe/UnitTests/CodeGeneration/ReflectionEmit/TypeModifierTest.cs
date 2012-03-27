@@ -53,20 +53,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications ()
     {
-      var mutableTypeMock = MutableTypeObjectMother.CreateStrictMock ();
-
       var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
+      var underlyingStrategyStub = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
+      underlyingStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+      underlyingStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (fakeUnderlyingSystemType);
+      
+      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeStrategy: underlyingStrategyStub);
+      
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       var fakeResultType = ReflectionObjectMother.GetSomeType ();
       bool acceptCalled = false;
 
       _subclassProxyNameProviderStub.Stub (stub => stub.GetSubclassProxyName (mutableTypeMock)).Return ("foofoo");
-      mutableTypeMock
-          .Stub (mock => mock.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-          .Return (new ConstructorInfo[0]);
-      mutableTypeMock
-          .Stub (stub => stub.UnderlyingSystemType)
-          .Return (fakeUnderlyingSystemType);
       _moduleBuilderMock
           .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, fakeUnderlyingSystemType))
           .Return (typeBuilderMock);

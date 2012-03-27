@@ -83,10 +83,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (methodCallExpression.Arguments, Is.EqualTo(argumentExpressions));
     }
 
-    [Ignore("TODO 4686")]
     [Test]
-    [ExpectedException(typeof(MemberNotFoundException), ExpectedMessage =
-      "Could not find a constructor with signature (Int32, Int32) on type 'ClassWithConstructors'.")]
+    [ExpectedException (typeof (MemberNotFoundException), ExpectedMessage =
+        "Could not find a constructor with signature (System.Int32, System.Int32) on type " +
+        "'Remotion.TypePipe.UnitTests.MutableReflection.ConstructorAdditionContextTest+ClassWithConstructors'.")]
     public void GetConstructorCallExpression_NoMatchingConstructor ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructors));
