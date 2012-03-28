@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -32,11 +33,14 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingConstructorInfoDescriptor
   {
-    public static UnderlyingConstructorInfoDescriptor Create (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    // TODO 4686: Remove default value for body
+    public static UnderlyingConstructorInfoDescriptor Create (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body = null)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("body", body);
 
-      return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarations.ToList().AsReadOnly());
+      var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList().AsReadOnly();
+      return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarationReadOnlyCollection, body);
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructorInfo)
@@ -48,24 +52,31 @@ namespace Remotion.TypePipe.MutableReflection
               .Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes))
               .ToList()
               .AsReadOnly();
+      var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
+      var body = new OriginalBodyExpression (typeof (void), parameterExpressions.Cast<Expression>());
 
-      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations);
+      return new UnderlyingConstructorInfoDescriptor (
+          originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations, body);
     }
 
     private readonly ConstructorInfo _underlyingSystemConstructorInfo;
     private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
-    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly Expression _body;
 
     private UnderlyingConstructorInfoDescriptor (
         ConstructorInfo underlyingSystemConstructorInfo,
         MethodAttributes attributes,
-        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations)
+        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations, 
+        Expression body)
     {
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("body", body);
+
       _underlyingSystemConstructorInfo = underlyingSystemConstructorInfo;
       _attributes = attributes;
       _parameterDeclarations = parameterDeclarations;
-      _parameterExpressions = parameterDeclarations.Select (pd => Expression.Parameter (pd.Type, pd.Name)).ToList().AsReadOnly();
+      _body = body;
     }
 
     public ConstructorInfo UnderlyingSystemConstructorInfo
@@ -83,14 +94,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _parameterDeclarations; }
     }
 
-    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
+    public Expression Body
     {
-      get { return _parameterExpressions; }
-    }
-
-    public Expression GetBody(IEnumerable<Expression> arguments)
-    {
-      return null;
+      get { return _body; }
     }
   }
 }

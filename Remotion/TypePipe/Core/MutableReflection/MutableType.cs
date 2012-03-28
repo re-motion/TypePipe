@@ -20,6 +20,7 @@ using System.Globalization;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
+using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -190,10 +191,11 @@ namespace Remotion.TypePipe.MutableReflection
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
-      //var parameterExpressions = descriptor.ParameterExpressions.ToList().AsReadOnly();
+      var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
+      //var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       //var context = new ConstructorAdditionContext (this, parameterExpressions);
       //var body = bodyGenerator (context); // TODO 4686
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, Expression.Empty ());
       var constructorInfo = new MutableConstructorInfo (this, descriptor, Expression.Constant(null));
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))

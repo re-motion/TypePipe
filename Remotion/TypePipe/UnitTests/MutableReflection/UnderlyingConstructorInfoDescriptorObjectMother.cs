@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null)
     {
-      return UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations ?? new ParameterDeclaration[0]);
+      return UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations ?? new ParameterDeclaration[0], Expression.Empty());
     }
 
     public static UnderlyingConstructorInfoDescriptor CreateForExisting (

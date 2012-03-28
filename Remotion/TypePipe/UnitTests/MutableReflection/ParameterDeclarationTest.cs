@@ -32,6 +32,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (declaration.Type, Is.EqualTo (typeof (string)));
       Assert.That (declaration.Name, Is.EqualTo ("parameterName"));
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.Out));
+      Assert.That (declaration.Expression.Name, Is.EqualTo ("parameterName"));
+      Assert.That (declaration.Expression.Type, Is.EqualTo (typeof (string)));
+      Assert.That (declaration.Expression.IsByRef, Is.False);
     }
 
     [Test]
@@ -39,9 +42,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var declaration = new ParameterDeclaration (typeof (object), "foo");
 
-      Assert.That (declaration.Type, Is.EqualTo (typeof (object)));
-      Assert.That (declaration.Name, Is.EqualTo ("foo"));
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.In));
+    }
+
+    [Test]
+    public void Initialization_WithByRefType ()
+    {
+      var declaration = new ParameterDeclaration (typeof (string).MakeByRefType(), "p");
+
+      Assert.That (declaration.Type, Is.EqualTo (typeof (string).MakeByRefType()));
+      Assert.That (declaration.Expression.Type, Is.EqualTo (typeof (string)));
+      Assert.That (declaration.Expression.IsByRef, Is.True);
     }
   }
 }

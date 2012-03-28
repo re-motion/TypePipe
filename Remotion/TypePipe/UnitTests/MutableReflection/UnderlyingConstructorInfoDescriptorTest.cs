@@ -18,7 +18,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -31,31 +33,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var attributes = MethodAttributes.Abstract;
       var parameterDeclarations = new[] { new ParameterDeclaration (typeof (object), "xxx") };
+      var fakeBody = Expression.Empty();
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, fakeBody);
 
       Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Null);
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
-     
-      var actualParameterExpressionData = descriptor.ParameterExpressions.Select (pe => new { pe.Name, pe.Type, pe.IsByRef });
-      var expectedParameterExpressionData = new[] { new { Name = "xxx", Type = typeof (object), IsByRef = false } };
-      Assert.That (actualParameterExpressionData, Is.EqualTo (expectedParameterExpressionData));
-    }
-
-    [Test]
-    public void Create_ForNew_WithByRefParameterType ()
-    {
-      var attributes = MethodAttributes.Abstract;
-      var parameterDeclarations = new[] { new ParameterDeclaration (typeof (object).MakeByRefType(), "xxx") };
-
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations);
-
-      Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
-
-      var actualParameterExpressionData = descriptor.ParameterExpressions.Select (pe => new { pe.Name, pe.Type, pe.IsByRef });
-      var expectedParameterExpressionData = new[] { new { Name = "xxx", Type = typeof (object), IsByRef = true } };
-      Assert.That (actualParameterExpressionData, Is.EqualTo (expectedParameterExpressionData));
+      Assert.That (descriptor.Body, Is.SameAs (fakeBody));
     }
 
     [Test]
@@ -79,20 +64,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
 
-      var actualParameterExpressionData = descriptor.ParameterExpressions.Select (pe => new { pe.Name, pe.Type, pe.IsByRef });
-      var expectedParameterExpressionData = new[]
-                                            {
-                                                new { Name = "s", Type = typeof (string), IsByRef = false },
-                                                new { Name = "i", Type = typeof (int), IsByRef = true },
-                                                new { Name = "d", Type = typeof (double), IsByRef = false },
-                                                new { Name = "o", Type = typeof (object), IsByRef = false },
-                                            };
-      Assert.That (actualParameterExpressionData, Is.EqualTo (expectedParameterExpressionData));
+      Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
+
+      var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
+      Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
+
     }
 
     private class ExampleType
     {
+// ReSharper disable UnusedParameter.Local
       public ExampleType (string s, out int i, [In] double d, [In, Out] object o)
+// ReSharper restore UnusedParameter.Local
       {
         i = 5;
       }
