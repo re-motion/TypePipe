@@ -175,27 +175,23 @@ namespace Remotion.TypePipe.MutableReflection
           ).ToArray ();
     }
 
-    // TODO 4686 : Remove this overload
-    public MutableConstructorInfo AddConstructor (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations)
-    {
-      return AddConstructor (attributes, parameterDeclarations, ctx => Expression.Constant (null, typeof (void)));
-    }
-
     public MutableConstructorInfo AddConstructor (
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
         Func<ConstructorAdditionContext, Expression> bodyGenerator)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("bodyGenerator", bodyGenerator);
 
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
-      //var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
-      //var context = new ConstructorAdditionContext (this, parameterExpressions);
-      //var body = bodyGenerator (context); // TODO 4686
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, Expression.Empty ());
+      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+      var context = new ConstructorAdditionContext (this, parameterExpressions);
+      var body = bodyGenerator (context);
+      
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))

@@ -33,7 +33,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingConstructorInfoDescriptor
   {
-    public static UnderlyingConstructorInfoDescriptor Create (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body)
+    public static UnderlyingConstructorInfoDescriptor Create (
+        MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("body", body);

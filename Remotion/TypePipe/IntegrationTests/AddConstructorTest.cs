@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 
@@ -31,12 +32,11 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public, 
-              new[] { new ParameterDeclaration (typeof (int), "i")} 
-              /*, context => Expression.Block (
-               *   context.GetConstructorCallExpression (Expression.Call (context.Parameters[0]), "ToString"),
-               *   Expression.Assign (Expression.Field (... _addedConstructorInitializedValue  ...), Expression.Constant ("hello"))
-               *   )*/
-              ));
+              new[] { new ParameterDeclaration (typeof (int), "i")}, 
+              context => Expression.Block (
+                 context.GetConstructorCallExpression (Expression.Call (context.ParameterExpressions[0], "ToString", Type.EmptyTypes)),
+                 Expression.Assign (Expression.Field (context.ThisExpression, "_addedConstructorInitializedValue"), Expression.Constant ("hello"))
+                 )));
 
       var addedCtor = type.GetConstructor (new[] { typeof (int) });
       Assert.That (addedCtor, Is.Not.Null);

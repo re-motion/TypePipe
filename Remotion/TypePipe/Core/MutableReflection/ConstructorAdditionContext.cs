@@ -34,15 +34,13 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _declaringType;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
 
-    public ConstructorAdditionContext (
-        MutableType declaringType,
-        ReadOnlyCollection<ParameterExpression> parameterExpressions)
+    public ConstructorAdditionContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
 
       _declaringType = declaringType;
-      _parameterExpressions = parameterExpressions;
+      _parameterExpressions = parameterExpressions.ToList().AsReadOnly();
     }
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
