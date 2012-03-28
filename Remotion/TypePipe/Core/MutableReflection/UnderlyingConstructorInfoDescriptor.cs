@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -35,44 +36,36 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
-      return CreateInternal(null, attributes, parameterDeclarations);
+      return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarations.ToList().AsReadOnly());
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
 
-      var parameterDeclarations =
-          originalConstructorInfo.GetParameters().Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes));
+      var parameterDeclarations = 
+          originalConstructorInfo.GetParameters()
+              .Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes))
+              .ToList()
+              .AsReadOnly();
 
-      return CreateInternal (originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations);
-    }
-
-    private static UnderlyingConstructorInfoDescriptor CreateInternal (
-        ConstructorInfo originalConstructorInfo,
-        MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations)
-    {
-      var parameterExpressions = parameterDeclarations.Select (pd => Expression.Parameter (pd.Type, pd.Name));
-
-      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, attributes, parameterDeclarations, parameterExpressions);
+      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations);
     }
 
     private readonly ConstructorInfo _underlyingSystemConstructorInfo;
     private readonly MethodAttributes _attributes;
-    private readonly IEnumerable<ParameterDeclaration> _parameterDeclarations;
-    private readonly IEnumerable<ParameterExpression> _parameterExpressions;
+    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
 
     private UnderlyingConstructorInfoDescriptor (
         ConstructorInfo underlyingSystemConstructorInfo,
         MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
-        IEnumerable<ParameterExpression> parameterExpressions)
+        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations)
     {
       _underlyingSystemConstructorInfo = underlyingSystemConstructorInfo;
       _attributes = attributes;
       _parameterDeclarations = parameterDeclarations;
-      _parameterExpressions = parameterExpressions;
+      _parameterExpressions = parameterDeclarations.Select (pd => Expression.Parameter (pd.Type, pd.Name)).ToList().AsReadOnly();
     }
 
     public ConstructorInfo UnderlyingSystemConstructorInfo
@@ -85,12 +78,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributes; }
     }
 
-    public IEnumerable<ParameterDeclaration> ParameterDeclarations
+    public ReadOnlyCollection<ParameterDeclaration> ParameterDeclarations
     {
       get { return _parameterDeclarations; }
     }
 
-    public IEnumerable<ParameterExpression> ParameterExpressions
+    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
       get { return _parameterExpressions; }
     }
