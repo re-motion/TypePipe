@@ -50,6 +50,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
       var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
+
+      // TODO 4686: Catch ArgumentException and wrap into ArgumentException with message: Arguments for OriginalBodyExpression don't match the 
+      // parameters fo the underlying constructor.
       var baseCall = Expression.Call (convertedThisExpression, baseMethod, expression.Arguments);
       return Visit (baseCall);
     }
