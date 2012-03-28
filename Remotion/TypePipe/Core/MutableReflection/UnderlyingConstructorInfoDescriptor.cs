@@ -33,8 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingConstructorInfoDescriptor
   {
-    // TODO 4686: Remove default value for body
-    public static UnderlyingConstructorInfoDescriptor Create (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body = null)
+    public static UnderlyingConstructorInfoDescriptor Create (MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("body", body);
