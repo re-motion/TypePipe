@@ -86,6 +86,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ParameterExpressions ()
+    {
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+    }
+
+    [Test]
     public void Body ()
     {
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();

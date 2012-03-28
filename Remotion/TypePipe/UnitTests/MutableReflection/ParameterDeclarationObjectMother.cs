@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -30,6 +31,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           type ?? typeof (UnspecifiedType),
           name,
           attributes);
+    }
+
+    public static ParameterDeclaration[] CreateMultiple (int count)
+    {
+      return Enumerable.Range (1, count).Select (i => Create()).ToArray();
     }
   }
 }

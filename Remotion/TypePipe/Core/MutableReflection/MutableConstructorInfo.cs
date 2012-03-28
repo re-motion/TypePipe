@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -71,6 +72,11 @@ namespace Remotion.TypePipe.MutableReflection
         Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
         return ".ctor";
       }
+    }
+
+    public IEnumerable<ParameterExpression> ParameterExpressions
+    {
+      get { return _underlyingConstructorInfoDescriptor.ParameterDeclarations.Select (pd => pd.Expression); }
     }
 
     public Expression Body

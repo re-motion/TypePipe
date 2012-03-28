@@ -315,7 +315,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddConstructor ()
     {
       var attributes = MethodAttributes.Public;
-      var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create(), ParameterDeclarationObjectMother.Create() };
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = Expression.Empty();
       Func<ConstructorAdditionContext, Expression> bodyGenerator = context =>
       {

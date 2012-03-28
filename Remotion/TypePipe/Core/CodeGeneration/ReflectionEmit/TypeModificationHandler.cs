@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -74,10 +75,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void HandleAddedConstructor (MutableConstructorInfo addedConstructor)
     {
-      //var visitor = new OriginalBodyReplacingExpressionVisitor(addedConstructor);
-      //var body = visitor.Visit (addedConstructor.Body);
+      ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
+
+      //var ctorBuilder = _subclassProxyBuilder.DefineConstructor ();
+      //var bodyLambda = _methodBodyPreprocessor.PrepareConstructorBody (addedConstructor);
+      //ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGeneratorOrNull);
 
       throw new NotImplementedException ("TODO 4686");
+
+      // MethodBodyProcessor:
+      //var visitor = new OriginalBodyReplacingExpressionVisitor(new ConstructorMethodInfoAdapter (addedConstructor.UnderlyingConstructorInfo));
+      //var body = visitor.Visit (addedConstructor.Body);
+      //return Expression.Lambda (body, addedConstructor.ParameterDeclarations.Select (pd => pd.Expression));
     }
   }
 }

@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = MutableMethodInfoObjectMother.Create (parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create () });
+      var ctorInfo = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclarationObjectMother.CreateMultiple (1));
 
       var parameters = ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
