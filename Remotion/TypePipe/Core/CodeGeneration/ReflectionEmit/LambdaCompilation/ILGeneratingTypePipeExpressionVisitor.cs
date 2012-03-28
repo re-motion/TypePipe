@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _ilGenerator; }
     }
 
-    public Expression VisitThisExpression (ThisExpression expression)
+    public Expression VisitThis (ThisExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return expression;
     }
 
-    public Expression VisitTypeAsUnderlyingSystemTypeExpression (TypeAsUnderlyingSystemTypeExpression expression)
+    public Expression VisitTypeAsUnderlyingSystemType (TypeAsUnderlyingSystemTypeExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return expression;
     }
 
-    public Expression VisitOriginalBodyExpression (OriginalBodyExpression expression)
+    public Expression VisitOriginalBody (OriginalBodyExpression expression)
     {
       var message = string.Format ("{0} must be replaced before code generation.", typeof(OriginalBodyExpression).Name);
       throw new NotSupportedException (message);

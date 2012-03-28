@@ -60,12 +60,15 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifierTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModificationHandlerTest.cs" />
+    <Compile Include="Expressions\TypePipeExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
+    <Compile Include="Expressions\ExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\OriginalBodyExpressionTest.cs" />
     <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpressionTest.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
+    <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
     <Compile Include="MutableReflection\ConstructorAdditionContextTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ArgumentTestHelper.cs" />

@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.Expressions
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 
-      return visitor.VisitOriginalBodyExpression (this);
+      return visitor.VisitOriginalBody (this);
     }
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)

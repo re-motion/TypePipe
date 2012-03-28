@@ -14,33 +14,29 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Linq;
+using System;
 using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
-  public static class ExpressionTreeObjectMother
+  public static class TypePipeExpressionVisitorTestHelper
   {
-    public static Expression GetSomeExpression ()
+    public static Expression CallVisitThis (TypePipeExpressionVisitorBase expressionVisitor, ThisExpression expression)
     {
-      return Expression.Constant ("some expression");
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitThis", expression);
     }
 
-    public static ThisExpression GetSomeThisExpression ()
+    public static Expression CallVisitTypeAsUnderlyingSystemType (
+        TypePipeExpressionVisitorBase expressionVisitor, TypeAsUnderlyingSystemTypeExpression expression)
     {
-      return new ThisExpression (ReflectionObjectMother.GetSomeType());
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitTypeAsUnderlyingSystemType", expression);
     }
 
-    public static TypeAsUnderlyingSystemTypeExpression GetSomeTypeAsUnderlyingSystemTypeExpression ()
+    public static Expression CallVisitOriginalBody (TypePipeExpressionVisitorBase expressionVisitor, OriginalBodyExpression expression)
     {
-      return new TypeAsUnderlyingSystemTypeExpression(GetSomeExpression());
-    }
-
-    public static OriginalBodyExpression GetSomeOriginalBodyExpression ()
-    {
-      return new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitOriginalBody", expression);
     }
   }
 }

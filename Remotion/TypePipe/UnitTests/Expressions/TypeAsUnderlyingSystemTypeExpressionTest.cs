@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Accept ()
     {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitTypeAsUnderlyingSystemTypeExpression (_expression));
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitTypeAsUnderlyingSystemType (_expression));
     }
 
     [Test]

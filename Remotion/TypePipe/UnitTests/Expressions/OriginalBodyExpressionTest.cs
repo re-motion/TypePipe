@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Accept ()
     {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitOriginalBodyExpression (_expression));
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitOriginalBody (_expression));
     }
 
     [Test]

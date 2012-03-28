@@ -14,33 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using Microsoft.Scripting.Ast;
-using Remotion.Utilities;
+using Remotion.Development.UnitTesting;
 
-namespace Remotion.TypePipe.Expressions
+namespace Remotion.TypePipe.UnitTests.Expressions
 {
-  /// <summary>
-  /// Represents the "this" instance within an instance method body.
-  /// </summary>
-  public class ThisExpression : TypePipeExpressionBase
+  public static class ExpressionVisitorTestHelper
   {
-    public ThisExpression (Type type)
-      : base (ArgumentUtility.CheckNotNull ("type", type))
+    public static Expression CallVisitExtension (ExpressionVisitor expressionVisitor, Expression expression)
     {
-    }
-
-    public override Expression Accept (ITypePipeExpressionVisitor visitor)
-    {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-      return visitor.VisitThis (this);
-    }
-
-    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
-    {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-      // Do nothing here - visitors must use Accept (ITypePipeExpressionVisitor)
-      return this;
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitExtension", expression);
     }
   }
 }

@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Accept ()
     {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitThisExpression (_expression));
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitThis (_expression));
     }
 
     [Test]

@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.Expressions
     public override Expression Accept (ITypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
-      return visitor.VisitTypeAsUnderlyingSystemTypeExpression (this);
+      return visitor.VisitTypeAsUnderlyingSystemType (this);
     }
     
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)

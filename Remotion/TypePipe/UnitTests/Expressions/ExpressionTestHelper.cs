@@ -26,14 +26,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 {
   public static class ExpressionTestHelper
   {
-    public static Expression CallVisitChildren (Expression expression, ExpressionVisitor expressionVisitorMock)
+    public static Expression CallVisitChildren (Expression expression, ExpressionVisitor expressionVisitor)
     {
-      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "VisitChildren", expressionVisitorMock);
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "VisitChildren", expressionVisitor);
     }
 
-    public static Expression CallAccept (Expression expression, ExpressionVisitor expressionVisitorMock)
+    public static Expression CallAccept (Expression expression, ExpressionVisitor expressionVisitor)
     {
-      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "Accept", expressionVisitorMock);
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "Accept", expressionVisitor);
     }
 
     public static void CheckAccept (ITypePipeExpression expression, Function<ITypePipeExpressionVisitor, Expression> expectation)
@@ -57,16 +57,16 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public static void CheckVisitChildren_NoChanges (Expression parentExpression, IEnumerable<Expression> childExpressions)
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      var expressionVisitor = MockRepository.GenerateStrictMock<ExpressionVisitor>();
       foreach (var childExpression in childExpressions)
       {
         var childExpressionCopy = childExpression;
-        expressionVisitorMock.Expect (mock => mock.Visit (childExpressionCopy)).Return (childExpressionCopy);
+        expressionVisitor.Expect (mock => mock.Visit (childExpressionCopy)).Return (childExpressionCopy);
       }
 
-      var result = CallVisitChildren (parentExpression, expressionVisitorMock);
+      var result = CallVisitChildren (parentExpression, expressionVisitor);
 
-      expressionVisitorMock.VerifyAllExpectations();
+      expressionVisitor.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (parentExpression));
     }
   }
