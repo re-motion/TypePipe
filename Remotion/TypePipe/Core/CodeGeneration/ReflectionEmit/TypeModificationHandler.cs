@@ -74,6 +74,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void HandleAddedConstructor (MutableConstructorInfo addedConstructor)
     {
+      //var visitor = new OriginalBodyReplacingExpressionVisitor(addedConstructor);
+      //var body = visitor.Visit (addedConstructor.Body);
+
       throw new NotImplementedException ("TODO 4686");
     }
   }

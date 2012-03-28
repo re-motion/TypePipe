@@ -125,6 +125,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return (FieldInfo) member;
     }
 
+    public static MethodInfo GetMethod<T> (Expression<Func<T>> methodCallExpression)
+    {
+      Assertion.IsTrue (methodCallExpression.Body is MethodCallExpression, "Parameter methodCallExpression must be a MethodCallExpression.");
+      return ((MethodCallExpression) methodCallExpression.Body).Method;
+    }
+
+    public static MethodInfo GetMethod<TSourceObject, TMemberType> (Expression<Func<TSourceObject, TMemberType>> methodCallExpression)
+    {
+      Assertion.IsTrue (methodCallExpression.Body is MethodCallExpression, "Parameter methodCallExpression must be a MethodCallExpression.");
+      return ((MethodCallExpression) methodCallExpression.Body).Method;
+    }
+
     private static T GetRandomElement<T> (T[] array)
     {
       var index = s_random.Next (array.Length);

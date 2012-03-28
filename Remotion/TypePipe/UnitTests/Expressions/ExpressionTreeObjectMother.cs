@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Linq;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
@@ -26,6 +27,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public static Expression GetSomeExpression ()
     {
       return Expression.Constant ("some expression");
+    }
+
+    public static Expression GetSomeExpression (Type type)
+    {
+      return Expression.Default (type);
     }
 
     public static ThisExpression GetSomeThisExpression ()
