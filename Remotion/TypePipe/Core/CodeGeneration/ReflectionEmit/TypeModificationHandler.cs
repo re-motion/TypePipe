@@ -18,8 +18,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -31,17 +33,47 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class TypeModificationHandler : ITypeModificationHandler
   {
     private readonly ITypeBuilder _subclassProxyBuilder;
+    private readonly IExpressionPreparer _expressionPreparer;
+    private readonly IILGeneratorFactory _ilGeneratorFactory;
+    private readonly DebugInfoGenerator _debugInfoGenerator;
 
     [CLSCompliant (false)]
-    public TypeModificationHandler (ITypeBuilder subclassProxyBuilder)
+    public TypeModificationHandler (
+        ITypeBuilder subclassProxyBuilder,
+        IExpressionPreparer expressionPreparer,
+        IILGeneratorFactory ilGeneratorFactory,
+        DebugInfoGenerator debugInfoGeneratorOrNull)
     {
-      _subclassProxyBuilder = ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
+      ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
+      ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
+      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+
+      _subclassProxyBuilder = subclassProxyBuilder;
+      _expressionPreparer = expressionPreparer;
+      _ilGeneratorFactory = ilGeneratorFactory;
+      _debugInfoGenerator = debugInfoGeneratorOrNull;
     }
 
     [CLSCompliant (false)]
     public ITypeBuilder SubclassProxyBuilder
     {
       get { return _subclassProxyBuilder; }
+    }
+
+    public IExpressionPreparer ExpressionPreparer
+    {
+      get { return _expressionPreparer; }
+    }
+
+    [CLSCompliant (false)]
+    public IILGeneratorFactory ILGeneratorFactory
+    {
+      get { return _ilGeneratorFactory; }
+    }
+
+    public DebugInfoGenerator DebugInfoGenerator
+    {
+      get { return _debugInfoGenerator; }
     }
 
     public void HandleAddedInterface (Type addedInterface)
@@ -77,16 +109,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
 
-      //var ctorBuilder = _subclassProxyBuilder.DefineConstructor ();
-      //var bodyLambda = _methodBodyPreprocessor.PrepareConstructorBody (addedConstructor);
-      //ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGeneratorOrNull);
-
-      throw new NotImplementedException ("TODO 4686");
-
-      // MethodBodyProcessor:
-      //var visitor = new OriginalBodyReplacingExpressionVisitor(new ConstructorMethodInfoAdapter (addedConstructor.UnderlyingConstructorInfo));
-      //var body = visitor.Visit (addedConstructor.Body);
-      //return Expression.Lambda (body, addedConstructor.ParameterDeclarations.Select (pd => pd.Expression));
+      var parameterTypes = addedConstructor.GetParameters().Select (pe => pe.ParameterType).ToArray();
+      var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
+      
+      var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
+      var bodyLambda = Expression.Lambda (body, addedConstructor.ParameterExpressions);
+      ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
     }
   }
 }

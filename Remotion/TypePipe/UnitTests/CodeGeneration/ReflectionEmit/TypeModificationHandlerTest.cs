@@ -17,47 +17,69 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class TypeModificationHandlerTest
   {
+    private IExpressionPreparer _expressionPreparerMock;
     private ITypeBuilder _subclassProxyBuilderMock;
+    private IILGeneratorFactory _ilGeneratorFactoryStub;
+    private DebugInfoGenerator _debugInfoGeneratorStub;
+
     private TypeModificationHandler _handler;
 
     [SetUp]
     public void SetUp ()
     {
-      _subclassProxyBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
-      _handler = new TypeModificationHandler (_subclassProxyBuilderMock);
+      _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer>();
+      _subclassProxyBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
+      _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
+      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
+
+      _handler = new TypeModificationHandler (_subclassProxyBuilderMock, _expressionPreparerMock, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+    }
+
+    [Test]
+    public void Initialization_NullDebugInfoGenerator ()
+    {
+      var handler = new TypeModificationHandler (_subclassProxyBuilderMock, _expressionPreparerMock, _ilGeneratorFactoryStub, null);
+      Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
 
     [Test]
     public void HandleAddedInterface ()
     {
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      _subclassProxyBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
       _handler.HandleAddedInterface (addedInterface);
 
-      _subclassProxyBuilderMock.AssertWasCalled (mock => mock.AddInterfaceImplementation (addedInterface));
+      _subclassProxyBuilderMock.VerifyAllExpectations();
     }
 
     [Test]
     public void HandleAddedField ()
     {
       var addedField = MutableFieldInfoObjectMother.Create();
+      _subclassProxyBuilderMock.Expect(mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes));
 
       _handler.HandleAddedField (addedField);
 
-      _subclassProxyBuilderMock.AssertWasCalled (mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes));
+      _subclassProxyBuilderMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -95,6 +117,70 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       fieldBuilderMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void HandleAddedConstructor ()
+    {
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple(2);
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      var addedConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+
+      var expectedAttributes = addedConstructor.Attributes;
+      var expectedCallingConvention = addedConstructor.CallingConvention;
+      var expectedParameterTypes = descriptor.ParameterDeclarations.Select (pd => pd.Type).ToArray();
+      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
+      _subclassProxyBuilderMock
+          .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
+          .Return (constructorBuilderMock);
+
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
+      _expressionPreparerMock
+          .Expect (mock => mock.PrepareConstructorBody (addedConstructor))
+          .Return (fakeBody);
+
+      constructorBuilderMock
+          .Expect (
+              mock => mock.SetBody (
+                  Arg<LambdaExpression>.Is.Anything,
+                  Arg.Is (_ilGeneratorFactoryStub),
+                  Arg.Is (_debugInfoGeneratorStub)))
+          .WhenCalled (mi =>
+          {
+            var lambdaExpression = (LambdaExpression) mi.Arguments[0];
+            Assert.That (lambdaExpression.Body, Is.SameAs (fakeBody));
+            Assert.That (lambdaExpression.Parameters, Is.EqualTo (addedConstructor.ParameterExpressions));
+          });
+      
+      _handler.HandleAddedConstructor (addedConstructor);
+
+      _subclassProxyBuilderMock.VerifyAllExpectations();
+      _expressionPreparerMock.VerifyAllExpectations();
+      constructorBuilderMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void HandleAddedConstructor_WithByRefParameters ()
+    {
+      var byRefType = typeof (object).MakeByRefType();
+      
+      var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create (byRefType) };
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      var addedConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+
+      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
+      _subclassProxyBuilderMock
+          .Expect (
+              mock => mock.DefineConstructor (
+                  Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.List.Equal (new[] { byRefType })))
+          .Return (constructorBuilderStub);
+
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
+      _expressionPreparerMock.Stub (stub => stub.PrepareConstructorBody (addedConstructor)).Return (fakeBody);
+
+      _handler.HandleAddedConstructor (addedConstructor);
+
+      _subclassProxyBuilderMock.VerifyAllExpectations ();
+    }
+
     private void CheckCustomAttributeBuilder (
         CustomAttributeBuilder builder,
         ConstructorInfo expectedCtor,
@@ -119,11 +205,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public class CustomAttribute : Attribute
     {
+// ReSharper disable UnassignedField.Global
       public string Field;
+// ReSharper restore UnassignedField.Global
 
       public CustomAttribute (string ctorArgument)
       {
         CtorArgument = ctorArgument;
+
+        Dev.Null = CtorArgument;
+        Dev.Null = Property;
+        Property = 0;
       }
 
       public string CtorArgument { get; private set; }

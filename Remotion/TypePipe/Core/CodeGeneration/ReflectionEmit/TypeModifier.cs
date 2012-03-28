@@ -40,18 +40,44 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
+    private readonly IILGeneratorFactory _ilGeneratorFactory;
+
     [CLSCompliant (false)]
     public TypeModifier (
         IModuleBuilder moduleBuilder,
         ISubclassProxyNameProvider subclassProxyNameProvider,
-        DebugInfoGenerator debugInfoGenerator)
+        DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
 
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
-      _debugInfoGenerator = debugInfoGenerator;
+      _debugInfoGenerator = debugInfoGeneratorOrNull;
+
+      _ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
+    }
+
+    [CLSCompliant (false)]
+    public IModuleBuilder ModuleBuilder
+    {
+      get { return _moduleBuilder; }
+    }
+
+    public ISubclassProxyNameProvider SubclassProxyNameProvider
+    {
+      get { return _subclassProxyNameProvider; }
+    }
+
+    public DebugInfoGenerator DebugInfoGenerator
+    {
+      get { return _debugInfoGenerator; }
+    }
+
+    [CLSCompliant (false)]
+    public IILGeneratorFactory ILGeneratorFactory
+    {
+      get { return _ilGeneratorFactory; }
     }
 
     public Type ApplyModifications (MutableType mutableType)
@@ -66,7 +92,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       CopyConstructorsFromBaseClass(mutableType, typeBuilder);
 
-      var modificationHandler = new TypeModificationHandler (typeBuilder);
+      var modificationHandler = new TypeModificationHandler (typeBuilder, new ExpandingExpressionPreparer(), _ilGeneratorFactory, _debugInfoGenerator);
       mutableType.Accept (modificationHandler);
 
       return typeBuilder.CreateType();
@@ -90,8 +116,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
             parameterExpressions.Cast<Expression>());
         var body = Expression.Lambda (baseCallExpression, parameterExpressions);
 
-        var ilGeneratorProvider = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
-        ctorBuilder.SetBody (body, ilGeneratorProvider, _debugInfoGenerator);
+        ctorBuilder.SetBody (body, _ilGeneratorFactory, _debugInfoGenerator);
       }
     }
 

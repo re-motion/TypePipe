@@ -65,6 +65,15 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingConstructorInfoDescriptor.Attributes; }
     }
 
+    public override CallingConventions CallingConvention
+    {
+      get
+      {
+        Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
+        return CallingConventions.HasThis;
+      }
+    }
+
     public override string Name
     {
       get

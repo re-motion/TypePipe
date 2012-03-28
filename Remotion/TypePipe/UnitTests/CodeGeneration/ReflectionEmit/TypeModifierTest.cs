@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -51,6 +52,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void Initialization_NullDebugInfoGenerator ()
+    {
+      var typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, null);
+      Assert.That (typeModifier.DebugInfoGenerator, Is.Null);
+    }
+
+    [Test]
     public void ApplyModifications ()
     {
       var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
@@ -69,8 +77,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, fakeUnderlyingSystemType))
           .Return (typeBuilderMock);
       mutableTypeMock
-          .Expect (mock => mock.Accept (Arg<TypeModificationHandler>.Matches (handler => handler.SubclassProxyBuilder == typeBuilderMock)))
-          .WhenCalled (mi => acceptCalled = true);
+          .Expect (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything))
+          .WhenCalled (mi =>
+          {
+            acceptCalled = true;
+            Assert.That (mi.Arguments[0], Is.TypeOf<TypeModificationHandler>());
+            var handler = (TypeModificationHandler) mi.Arguments[0];
+            Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderMock));
+            Assert.That (handler.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer> ());
+            Assert.That (handler.ILGeneratorFactory, Is.SameAs (_typeModifier.ILGeneratorFactory));
+            Assert.That (handler.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+          });
       typeBuilderMock
           .Expect (mock => mock.CreateType ()).Return (fakeResultType)
           .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
@@ -181,6 +198,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       public ClassWithConstructors (string s)
       {
+        Dev.Null = s;
       }
 
       internal ClassWithConstructors ()
@@ -190,6 +208,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       // Family OR Assembly
       protected internal ClassWithConstructors (int i)
       {
+        Dev.Null = i;
       }
     }
   }

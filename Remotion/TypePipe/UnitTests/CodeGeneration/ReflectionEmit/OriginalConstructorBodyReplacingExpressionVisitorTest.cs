@@ -20,6 +20,8 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -27,33 +29,29 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class OriginalBodyReplacingExpressionVisitorTest
+  public class OriginalConstructorBodyReplacingExpressionVisitorTest
   {
-    private MethodInfo _baseMethod;
-    private OriginalBodyReplacingExpressionVisitor _visitorPartialMock;
+    private MutableType _declaringType;
+    private ConstructorInfo _underlyingCtorInfo;
+    private MutableConstructorInfo _ctorInfo;
+
+    private OriginalConstructorBodyReplacingExpressionVisitor _visitorPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _baseMethod = ReflectionObjectMother.GetMethod ((DomainClass dc) => dc.M (7, "string"));
-      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor>(_baseMethod);
-    }
+      _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
+      _underlyingCtorInfo = ReflectionObjectMother.GetConstructor (() => new DomainClass (7, "string"));
+      _ctorInfo = _declaringType.GetMutableConstructor (_underlyingCtorInfo);
 
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Method must not be static.\r\nParameter name: baseMethod")]
-    public void Initialization_StaticMethod ()
-    {
-      var staticMethod = typeof (int).GetMethod ("Parse", new[] { typeof (string) });
-      Assert.That (staticMethod.IsStatic, Is.True);
-
-      new OriginalBodyReplacingExpressionVisitor (staticMethod);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalConstructorBodyReplacingExpressionVisitor> (_ctorInfo);
     }
 
     [Test]
     public void VisitOriginalBody ()
     {
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
-      var expression = new OriginalBodyExpression (_baseMethod.ReturnType, arguments);
+      var expression = new OriginalBodyExpression (typeof (void), arguments);
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
 
       _visitorPartialMock
@@ -62,8 +60,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .WhenCalled (mi =>
           {
             var methodCallExpression = (MethodCallExpression) mi.Arguments[0];
-            Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression> ().With.Property ("Type").SameAs (_baseMethod.DeclaringType));
-            Assert.That (methodCallExpression.Method, Is.SameAs (_baseMethod));
+            Assert.That (methodCallExpression.Object, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression> ());
+            var typeAsUnderlyingSystemTypeExpression = ((TypeAsUnderlyingSystemTypeExpression) methodCallExpression.Object);
+            Assert.That (
+                typeAsUnderlyingSystemTypeExpression.InnerExpression,
+                Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (_declaringType));
+            Assert.That (
+                methodCallExpression.Method, 
+                Is.TypeOf<ConstructorAsMethodInfoAdapter>().With.Property ("ConstructorInfo").SameAs (_underlyingCtorInfo));
             Assert.That (methodCallExpression.Arguments, Is.EqualTo (arguments));
           });
 
@@ -75,9 +79,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public class DomainClass
     {
-// ReSharper disable UnusedParameter.Global
-      public int M (int p1, string p2)
-// ReSharper restore UnusedParameter.Global
+// ReSharper disable UnusedParameter.Local
+      public DomainClass (int p1, string p2)
+// ReSharper restore UnusedParameter.Local
       {
         throw new NotImplementedException();
       }

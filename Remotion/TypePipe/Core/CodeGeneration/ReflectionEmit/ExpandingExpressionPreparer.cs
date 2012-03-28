@@ -14,36 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> with a base call to the original implementation of the respective method.
+  /// Prepares method bodies so that code can be generated for them by expanding all <see cref="ITypePipeExpression"/> nodes not understood by
+  /// <see cref="LambdaCompiler"/> and <see cref="ILGeneratingTypePipeExpressionVisitor"/>.
   /// </summary>
-  public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
+  public class ExpandingExpressionPreparer : IExpressionPreparer
   {
-    private readonly MethodInfo _baseMethod;
-
-    public OriginalBodyReplacingExpressionVisitor (MethodInfo baseMethod)
+    public Expression PrepareConstructorBody (MutableConstructorInfo mutableConstructorInfo)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
+      ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
 
-      if (baseMethod.IsStatic)
-        throw new ArgumentException ("Method must not be static.", "baseMethod");
-
-      _baseMethod = baseMethod;
-    }
-
-    protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      return Visit (Expression.Call (new ThisExpression (_baseMethod.DeclaringType), _baseMethod, expression.Arguments));
+      var visitor = new OriginalConstructorBodyReplacingExpressionVisitor (mutableConstructorInfo);
+      return visitor.Visit (mutableConstructorInfo.Body);
     }
   }
 }

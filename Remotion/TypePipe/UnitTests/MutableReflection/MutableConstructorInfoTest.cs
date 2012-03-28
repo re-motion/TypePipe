@@ -76,6 +76,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CallingConvention ()
+    {
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+    }
+
+    [Test]
     public void Name ()
     {
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
