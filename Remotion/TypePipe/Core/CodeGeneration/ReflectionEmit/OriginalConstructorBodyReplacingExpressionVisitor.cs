@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
       var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
 
-      // TODO 4686: Catch ArgumentException and wrap into ArgumentException with message: Arguments for OriginalBodyExpression don't match the 
-      // parameters fo the underlying constructor.
+      // TODO 4686: Catch ArgumentException and wrap into ArgumentException with message: The OriginalBodyExpression doesn't match the 
+      // underlying constructor.
       var baseCall = Expression.Call (convertedThisExpression, baseMethod, expression.Arguments);
       return Visit (baseCall);
     }
