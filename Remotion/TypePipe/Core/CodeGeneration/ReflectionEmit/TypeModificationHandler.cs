@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
       
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
-      var bodyLambda = Expression.Lambda (body, addedConstructor.ParameterExpressions);
+      var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
     }
   }

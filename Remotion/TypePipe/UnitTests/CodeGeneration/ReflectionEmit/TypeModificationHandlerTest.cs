@@ -146,7 +146,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .WhenCalled (mi =>
           {
             var lambdaExpression = (LambdaExpression) mi.Arguments[0];
-            Assert.That (lambdaExpression.Body, Is.SameAs (fakeBody));
+            Assert.That (lambdaExpression.Body, Is.AssignableTo<BlockExpression>());
+            var blockExpression = (BlockExpression) lambdaExpression.Body;
+            Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { fakeBody }));
+            Assert.That (blockExpression.Type, Is.SameAs (typeof (void)));
             Assert.That (lambdaExpression.Parameters, Is.EqualTo (addedConstructor.ParameterExpressions));
           });
       
