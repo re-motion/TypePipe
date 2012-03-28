@@ -32,26 +32,15 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
-    private readonly Expression _initialBody;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    public MutableConstructorInfo (
-        MutableType declaringType,
-        UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor,
-        Expression initialBody)
+    public MutableConstructorInfo (MutableType declaringType, UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("underlyingConstructorInfoDescriptor", underlyingConstructorInfoDescriptor);
-      ArgumentUtility.CheckNotNull ("initialBody", initialBody);
-
-      //if (initialBody.Type != typeof (void)) // TODO : 4686
-      //{
-      //  throw new ArgumentException("!!!");
-      //}
 
       _declaringType = declaringType;
       _underlyingConstructorInfoDescriptor = underlyingConstructorInfoDescriptor;
-      _initialBody = initialBody;
 
       Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
 
@@ -86,7 +75,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Expression Body
     {
-      get { return _initialBody; }
+      get { return _underlyingConstructorInfoDescriptor.Body; }
     }
 
     public override string ToString ()

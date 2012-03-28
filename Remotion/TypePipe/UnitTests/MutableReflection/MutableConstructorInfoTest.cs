@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
@@ -27,13 +26,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableConstructorInfoTest
   {
     private MutableType _declaringType;
-    private ConstantExpression _body;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
-      _body = Expression.Constant (null); // TODO: 4686
     }
 
     [Test]
@@ -44,7 +41,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = Create (underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (ctorInfo.Body, Is.SameAs (_body));
     }
 
     [Test]
@@ -87,6 +83,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = Create (underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.Name, Is.EqualTo (".ctor"));
+    }
+
+    [Test]
+    public void Body ()
+    {
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.Body, Is.SameAs (underlyingCtorInfoDescriptor.Body));
     }
 
     [Test]
@@ -151,7 +157,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableConstructorInfo Create (UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
     {
-      return new MutableConstructorInfo (_declaringType, underlyingConstructorInfoDescriptor, _body);
+      return new MutableConstructorInfo (_declaringType, underlyingConstructorInfoDescriptor);
     }
 
     private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)

@@ -196,7 +196,7 @@ namespace Remotion.TypePipe.MutableReflection
       //var context = new ConstructorAdditionContext (this, parameterExpressions);
       //var body = bodyGenerator (context); // TODO 4686
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, Expression.Empty ());
-      var constructorInfo = new MutableConstructorInfo (this, descriptor, Expression.Constant(null));
+      var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
@@ -292,11 +292,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
-      // TODO 4686
-      return new MutableConstructorInfo(
-          this,
-          UnderlyingConstructorInfoDescriptor.Create (originalConstructor),
-          Expression.Constant (null));
+      return new MutableConstructorInfo (this, UnderlyingConstructorInfoDescriptor.Create (originalConstructor));
     }
 
     #region Not implemented abstract members of Type class
