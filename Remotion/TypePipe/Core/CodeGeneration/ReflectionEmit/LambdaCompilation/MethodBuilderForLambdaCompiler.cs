@@ -31,14 +31,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     private readonly MethodBuilder _methodBuilder;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
+    private readonly bool _isTypePipeEntryPoint;
 
-    public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder, IILGeneratorFactory ilGeneratorFactory)
+    public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder, IILGeneratorFactory ilGeneratorFactory, bool isTypePipeEntryPoint)
     {
       ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
       _methodBuilder = methodBuilder;
       _ilGeneratorFactory = ilGeneratorFactory;
+      _isTypePipeEntryPoint = isTypePipeEntryPoint;
     }
 
     public Type DeclaringType
@@ -48,17 +50,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void SetReturnType (Type returnType)
     {
-      _methodBuilder.SetReturnType (returnType);
+      // If method builder was created by the TypePipe, ignore because return type should have been correctly set prior to this call.
+      if (!_isTypePipeEntryPoint)
+        _methodBuilder.SetReturnType (returnType);
+      else
+        Assertion.IsTrue (returnType == _methodBuilder.ReturnType);
     }
 
-    public void SetParameters (params Type[] parameterTypes)
+    public void SetParameters (Type[] parameterTypes)
     {
-      _methodBuilder.SetParameters (parameterTypes);
+      // If method builder was created by the TypePipe, ignore because parameters should have been correctly set prior to this call.
+      // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
+      if (!_isTypePipeEntryPoint)
+        _methodBuilder.SetParameters (parameterTypes);
     }
 
-    public ParameterBuilder DefineParameter (int position, ParameterAttributes attributes, string strParamName)
+    public void DefineParameter (int position, ParameterAttributes attributes, string strParamName)
     {
-      return _methodBuilder.DefineParameter (position, attributes, strParamName);
+      // If method builder was created by the TypePipe, ignore because parameters should have been correctly set prior to this call.
+      // (Prevent duplicate ParamTokens)
+      // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
+      if (!_isTypePipeEntryPoint)
+        _methodBuilder.DefineParameter (position, attributes, strParamName);
     }
 
     public IILGenerator GetILGenerator ()

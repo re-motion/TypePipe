@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     void SetReturnType (Type returnType);
     void SetParameters (Type[] parameterType);
-    ParameterBuilder DefineParameter (int position, ParameterAttributes parameterAttributes, string parameterName);
+    void DefineParameter (int position, ParameterAttributes parameterAttributes, string parameterName);
 
     IILGenerator GetILGenerator ();
 

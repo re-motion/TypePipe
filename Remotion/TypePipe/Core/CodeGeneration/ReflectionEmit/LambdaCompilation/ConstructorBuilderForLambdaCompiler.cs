@@ -54,13 +54,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void SetParameters (Type[] parameterType)
     {
-      // Ignore because parameters should have been correctly set prior to this call.
+      // Ignore because parameters should have been correctly set prior to this call. Constructors are always created by the TypePipe.
       // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
     }
 
-    public ParameterBuilder DefineParameter (int position, ParameterAttributes parameterAttributes, string parameterName)
+    public void DefineParameter (int position, ParameterAttributes parameterAttributes, string parameterName)
     {
-      return _constructorBuilder.DefineParameter (position, parameterAttributes, parameterName);
+      // Ignore because parameters should have been correctly set prior to this call. Constructors are always created by the TypePipe.
+      // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
     }
 
     public IILGenerator GetILGenerator ()
