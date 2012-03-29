@@ -40,8 +40,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
-    private readonly IILGeneratorFactory _ilGeneratorFactory;
-
     [CLSCompliant (false)]
     public TypeModifier (
         IModuleBuilder moduleBuilder,
@@ -54,8 +52,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
-
-      _ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
     }
 
     [CLSCompliant (false)]
@@ -74,12 +70,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
-    [CLSCompliant (false)]
-    public IILGeneratorFactory ILGeneratorFactory
-    {
-      get { return _ilGeneratorFactory; }
-    }
-
     public Type ApplyModifications (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
@@ -90,15 +80,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      CopyConstructorsFromBaseClass(mutableType, typeBuilder);
+      // TODO 4686: Create instance of MutableReflectionObjectMap, add mapping mutableType => typeBuilder, pass into ILGeneratorDecoratorFactory,
+      // CopyConstructorsFromBaseClass, TypeModificationHandler ctor.
+      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
+      CopyConstructorsFromBaseClass (mutableType, typeBuilder, ilGeneratorFactory);
 
-      var modificationHandler = new TypeModificationHandler (typeBuilder, new ExpandingExpressionPreparer(), _ilGeneratorFactory, _debugInfoGenerator);
+      var modificationHandler = new TypeModificationHandler (typeBuilder, new ExpandingExpressionPreparer (), ilGeneratorFactory, _debugInfoGenerator);
       mutableType.Accept (modificationHandler);
 
       return typeBuilder.CreateType();
     }
 
-    private void CopyConstructorsFromBaseClass (MutableType mutableType, ITypeBuilder typeBuilder)
+    private void CopyConstructorsFromBaseClass (MutableType mutableType, ITypeBuilder typeBuilder, ILGeneratorDecoratorFactory ilGeneratorFactory)
     {
       foreach (var ctor in mutableType.ExistingConstructors)
       {
@@ -109,6 +102,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
         var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
 
+        // TODO 4686: Add mapping ctor => ctorBuilder to MutableReflectionObjectMap.
+
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
             new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)),
@@ -116,7 +111,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
             parameterExpressions.Cast<Expression>());
         var body = Expression.Lambda (baseCallExpression, parameterExpressions);
 
-        ctorBuilder.SetBody (body, _ilGeneratorFactory, _debugInfoGenerator);
+        ctorBuilder.SetBody (body, ilGeneratorFactory, _debugInfoGenerator);
       }
     }
 

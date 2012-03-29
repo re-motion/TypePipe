@@ -86,6 +86,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
       var fieldBuilder = _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
+      // TODO 4686: Add mapping addedField => fieldBuilder to MutableReflectionObjectMap.
 
       foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
       {
@@ -111,6 +112,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = addedConstructor.GetParameters().Select (pe => pe.ParameterType).ToArray();
       var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
+      // TODO 4686: Add mapping addedConstructor => ctorBuilder to MutableReflectionObjectMap.
       
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
       var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);

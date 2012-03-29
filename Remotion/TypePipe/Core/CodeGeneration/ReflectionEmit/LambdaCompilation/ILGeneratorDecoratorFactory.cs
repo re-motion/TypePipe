@@ -44,6 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);
 
       var innerILGenerator = _innerFactory.CreateAdaptedILGenerator (realILGenerator);
+      // TODO 4686: Pass in MutableReflectionObjectMap.
       return new ILGeneratorDecorator (innerILGenerator);
     }
   }

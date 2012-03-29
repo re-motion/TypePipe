@@ -85,7 +85,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             var handler = (TypeModificationHandler) mi.Arguments[0];
             Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderMock));
             Assert.That (handler.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer> ());
-            Assert.That (handler.ILGeneratorFactory, Is.SameAs (_typeModifier.ILGeneratorFactory));
+            Assert.That (handler.ILGeneratorFactory, Is.TypeOf <ILGeneratorDecoratorFactory>());
+            var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) handler.ILGeneratorFactory;
+            Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
             Assert.That (handler.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
           });
       typeBuilderMock

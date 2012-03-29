@@ -31,6 +31,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     private readonly IILGenerator _innerILGenerator;
 
+    // TODO 4686: Use MutableReflectionObjectMap to unwrap mutable reflection objects.
+
     public ILGeneratorDecorator (IILGenerator innerIlGenerator)
     {
       ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
