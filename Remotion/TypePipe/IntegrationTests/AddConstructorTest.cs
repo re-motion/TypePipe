@@ -27,7 +27,6 @@ namespace TypePipe.IntegrationTests
   public class AddConstructorTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore ("TODO 4686")]
     public void AddConstructor ()
     {
       var type = AssembleType<DomainType> (
@@ -38,11 +37,11 @@ namespace TypePipe.IntegrationTests
                   context.GetConstructorCallExpression (Expression.Call (context.ParameterExpressions[0], "ToString", Type.EmptyTypes)),
                   Expression.Assign (Expression.Field (context.ThisExpression, "_addedConstructorInitializedValue"), Expression.Constant ("hello")))));
 
-      var addedCtor = type.GetConstructor (new[] { typeof (int), typeof (string).MakeByRefType() });
+      var addedCtor = type.GetConstructor (new[] { typeof (int) });
       Assert.That (addedCtor, Is.Not.Null);
       Assert.That (
           addedCtor.Attributes,
-          Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
+          Is.EqualTo (MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
 
       var arguments = new object[] { 7 };
       var instance = (DomainType) addedCtor.Invoke (arguments);

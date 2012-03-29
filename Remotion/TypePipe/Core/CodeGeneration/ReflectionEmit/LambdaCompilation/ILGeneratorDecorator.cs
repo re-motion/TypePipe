@@ -19,6 +19,7 @@ using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -31,8 +32,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     private readonly IILGenerator _innerILGenerator;
     private readonly MutableReflectionObjectMap _mutableReflectionObjectMap;
-
-    // TODO 4686: Use MutableReflectionObjectMap to unwrap mutable reflection objects.
 
     public ILGeneratorDecorator (IILGenerator innerIlGenerator, MutableReflectionObjectMap mutableReflectionObjectMap)
     {
@@ -120,6 +119,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, ConstructorInfo con)
     {
+      // TODO 4686
+      var mutableCtor = con as MutableConstructorInfo;
+      if (mutableCtor != null)
+        con = _mutableReflectionObjectMap.GetBuilder (mutableCtor);
+
+      // TODO 4686
       // If this method is chaged to perform unwrapping of the ConstructorInfo, also add unit tests proving that Emit (..., MethodInfo) 
       // and EmitCall (..., MethodInfo, ...) call this method rather than directly invoking _innerILGenerator.Emit.
       _innerILGenerator.Emit (opcode, con);

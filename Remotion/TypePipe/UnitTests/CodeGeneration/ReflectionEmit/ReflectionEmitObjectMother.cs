@@ -29,5 +29,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .DefineDynamicModule (typeof (ReflectionEmitObjectMother).Name + ".dll")
           .DefineType ("SomeType");
     }
+
+    public static void GetSomeConstructorBuilder ()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

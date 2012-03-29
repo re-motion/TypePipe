@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MutableReflectionObjectMap
   {
-    private readonly Dictionary<MemberInfo, MemberInfo> _mapping = new Dictionary<MemberInfo, MemberInfo>();
+    private readonly Dictionary<MemberInfo, MemberInfo> _mapping = new Dictionary<MemberInfo, MemberInfo> ();
 
     public void AddMapping (MutableType mutableType, TypeBuilder typeBuilder)
     {

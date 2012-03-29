@@ -55,6 +55,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    public void Emit_ConstructorInfo_Standard ()
+    {
+      var constructorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
+
+      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, constructorInfo));
+
+      _decorator.Emit (OpCodes.Call, constructorInfo);
+
+      _innerILGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    [Ignore ("TODO 4686") ]
+    public void Emit_ConstructorInfo_MutableConsructorInfo ()
+    {
+      Assert.Fail ("TODO 4686");
+      //var mutableConstructorInfo = MutableConstructorInfoObjectMother.Create();
+      //var constructorBuilder = ReflectionEmitObjectMother.GetSomeConstructorBuilder();
+
+      //_innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, mutableConstructorInfo));
+
+      //_decorator.Emit (OpCodes.Call, mutableConstructorInfo);
+
+      //_innerILGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     public void Emit_MethodInfo_Standard ()
     {
       var methodInfo = ReflectionObjectMother.GetSomeMethod();
