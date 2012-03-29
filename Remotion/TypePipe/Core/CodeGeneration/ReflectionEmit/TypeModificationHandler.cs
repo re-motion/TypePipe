@@ -124,6 +124,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
       _reflectionToBuilderMap.AddMapping (addedConstructor, ctorBuilder);
 
+      foreach (var parameterInfo in addedConstructor.GetParameters())
+        ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
+
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
       var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);

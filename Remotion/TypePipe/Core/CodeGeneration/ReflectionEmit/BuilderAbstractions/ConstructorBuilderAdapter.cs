@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
@@ -41,6 +42,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     public ConstructorBuilder ConstructorBuilder
     {
       get { return _constructorBuilder; }
+    }
+
+    public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
+    {
+      Assertion.IsTrue (
+          iSequence > 0,
+          "The iSequence parameter must be greater than zero (even though ParameterInfo.Position starts with zero). "
+          + "The DefineParameter method is documented to throw an exception for iSequence <= 0, but it doesn't.");
+      _constructorBuilder.DefineParameter (iSequence, attributes, strParamName);
     }
 
     [CLSCompliant (false)]

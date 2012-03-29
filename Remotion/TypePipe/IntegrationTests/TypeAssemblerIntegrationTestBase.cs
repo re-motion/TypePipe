@@ -40,14 +40,14 @@ namespace TypePipe.IntegrationTests
     private string _generatedFileName;
 
     [SetUp]
-    public void SetUp ()
+    public virtual void SetUp ()
     {
       _shouldDeleteGeneratedFiles = true;
       _generatedFileName = null;
     }
 
     [TearDown]
-    public void TearDown ()
+    public virtual void TearDown ()
     {
       if (_assemblyBuilder == null)
         return;

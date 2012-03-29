@@ -99,20 +99,24 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IILGeneratorFactory ilGeneratorFactory,
         ReflectionToBuilderMap reflectionToBuilderMap)
     {
-      foreach (var ctor in mutableType.ExistingConstructors)
+      foreach (var clonedCtor in mutableType.ExistingConstructors)
       {
         // Prevent loosening of visibility if the ctor visibility is FamilyOrAssembly (change to Family because the assembly of the generated 
         // subclass is different from the assembly of the original class).
-        var attributes = ctor.IsFamilyOrAssembly ? ChangeVisibility (ctor.Attributes, MethodAttributes.Family) : ctor.Attributes;
+        var attributes = clonedCtor.IsFamilyOrAssembly ? ChangeVisibility (clonedCtor.Attributes, MethodAttributes.Family) : clonedCtor.Attributes;
 
-        var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
+        var parameterTypes = clonedCtor.GetParameters().Select (pi => pi.ParameterType).ToArray();
         var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
-        reflectionToBuilderMap.AddMapping (ctor, ctorBuilder);
+        reflectionToBuilderMap.AddMapping (clonedCtor, ctorBuilder);
 
-        var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
+        foreach (MutableParameterInfo parameterInfo in clonedCtor.GetParameters())
+          ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
+
+        var parameterExpressions =
+            clonedCtor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
             new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)),
-            new ConstructorAsMethodInfoAdapter (ctor.UnderlyingSystemConstructorInfo),
+            new ConstructorAsMethodInfoAdapter (clonedCtor.UnderlyingSystemConstructorInfo),
             parameterExpressions.Cast<Expression>());
         var body = Expression.Lambda (baseCallExpression, parameterExpressions);
 

@@ -120,8 +120,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
 
-      SetupCtorExpectations (mutableType, constructor1, typeBuilderMock, constructorBuilderMock1, MethodAttributes.Public, new[] { typeof (string) });
-      SetupCtorExpectations (mutableType, constructor2, typeBuilderMock, constructorBuilderMock2, MethodAttributes.Assembly, Type.EmptyTypes);
+      SetupCtorExpectations (mutableType, constructor1, typeBuilderMock, constructorBuilderMock1, MethodAttributes.Public);
+      SetupCtorExpectations (mutableType, constructor2, typeBuilderMock, constructorBuilderMock2, MethodAttributes.Assembly);
 
       _typeModifier.ApplyModifications (mutableType);
 
@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
 
-      SetupCtorExpectations (mutableType, constructor, typeBuilderMock, constructorBuilderMock, MethodAttributes.Family , new[] { typeof (int) });
+      SetupCtorExpectations (mutableType, constructor, typeBuilderMock, constructorBuilderMock, MethodAttributes.Family);
 
       _typeModifier.ApplyModifications (mutableType);
 
@@ -153,16 +153,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void SetupCtorExpectations (
         MutableType mutableType,
-        ConstructorInfo constructor,
+        ConstructorInfo clonedCtor,
         ITypeBuilder typeBuilderMock,
         IConstructorBuilder constructorBuilderMock,
-        MethodAttributes expectedCtorVisibility,
-        Type[] expectedCtorParameterTypes)
+        MethodAttributes expectedCtorVisibility)
     {
-      var expectedCtorAttributes = constructor.Attributes & ~MethodAttributes.MemberAccessMask | expectedCtorVisibility;
+      var expectedCtorAttributes = clonedCtor.Attributes & ~MethodAttributes.MemberAccessMask | expectedCtorVisibility;
+
+      var clonedCtorParameterInfos = clonedCtor.GetParameters();
+      var clonedCtorParameterTypes = clonedCtorParameterInfos.Select (pi => pi.ParameterType).ToArray();
       typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (expectedCtorAttributes, CallingConventions.HasThis, expectedCtorParameterTypes))
+          .Expect (mock => mock.DefineConstructor (expectedCtorAttributes, CallingConventions.HasThis, clonedCtorParameterTypes))
           .Return (constructorBuilderMock);
+      foreach (var clonedCtorParameterInfo in clonedCtorParameterInfos)
+      {
+        ParameterInfo parameterInfo = clonedCtorParameterInfo;
+        constructorBuilderMock.Expect (mock => mock.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name));
+      }
       constructorBuilderMock
           .Expect (
               mock =>
@@ -172,10 +179,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                   Arg.Is (_debugInfoGeneratorStub)))
           .WhenCalled (mi =>
           {
-            CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableType);
+            CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], clonedCtor, mutableType);
             var mutableReflectionObjectMap = ((ILGeneratorDecoratorFactory) mi.Arguments[1]).ReflectionToBuilderMap;
             Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType), Is.Not.Null);
-            Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType.GetMutableConstructor (constructor)), Is.SameAs (constructorBuilderMock));
+            Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType.GetMutableConstructor (clonedCtor)), Is.SameAs (constructorBuilderMock));
           });
     }
 

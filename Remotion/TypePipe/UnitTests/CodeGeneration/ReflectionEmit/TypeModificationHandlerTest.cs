@@ -28,7 +28,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -129,13 +128,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedConstructor ()
     {
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple(2);
+      var parameterDeclarations =
+          new[]
+          {
+              ParameterDeclarationObjectMother.Create (typeof (string), "p1", ParameterAttributes.In),
+              ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out)
+          };
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
       var addedConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
 
       var expectedAttributes = addedConstructor.Attributes;
       var expectedCallingConvention = addedConstructor.CallingConvention;
-      var expectedParameterTypes = descriptor.ParameterDeclarations.Select (pd => pd.Type).ToArray();
+      var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
       _subclassProxyBuilderMock
           .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
@@ -145,6 +149,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _expressionPreparerMock
           .Expect (mock => mock.PrepareConstructorBody (addedConstructor))
           .Return (fakeBody);
+
+      constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
+      constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
       constructorBuilderMock
           .Expect (
