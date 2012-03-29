@@ -51,7 +51,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4686")]
     public void AddConstructor_ParameterMetadataAndOutParameter ()
     {
       var type = AssembleType<DomainType> (
