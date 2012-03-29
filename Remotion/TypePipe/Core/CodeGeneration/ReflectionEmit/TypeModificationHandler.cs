@@ -69,6 +69,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _expressionPreparer; }
     }
 
+    [CLSCompliant(false)]
     public MutableReflectionObjectMap MutableReflectionObjectMap
     {
       get { return _mutableReflectionObjectMap; }
@@ -95,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
       var fieldBuilder = _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
-      // TODO 4686: Add mapping addedField => fieldBuilder to MutableReflectionObjectMap.
+      _mutableReflectionObjectMap.AddMapping (addedField, fieldBuilder);
 
       foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
       {
@@ -121,8 +122,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = addedConstructor.GetParameters().Select (pe => pe.ParameterType).ToArray();
       var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
-      ctorBuilder.AddMappingTo (_mutableReflectionObjectMap, addedConstructor);
-      
+      _mutableReflectionObjectMap.AddMapping (addedConstructor, ctorBuilder);
+
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
       var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);

@@ -76,6 +76,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_defaultCtors);
     }
 
+    public static ConstructorInfo GetSomeConstructor ()
+    {
+      return GetSomeDefaultConstructor();
+    }
+
     public static MethodInfo GetSomeMethod ()
     {
       return GetRandomElement (s_methodInfos);

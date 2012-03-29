@@ -19,7 +19,6 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
@@ -29,8 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   [CLSCompliant (false)]
   public interface IConstructorBuilder
   {
-    void AddMappingTo (MutableReflectionObjectMap objectMap, MutableConstructorInfo mutableConstructorInfo);
-
     void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);
+    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }

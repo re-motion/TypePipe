@@ -79,11 +79,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedField ()
     {
       var addedField = MutableFieldInfoObjectMother.Create();
-      _subclassProxyBuilderMock.Expect(mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes));
+      var fieldBuilderStub = MockRepository.GenerateStub<IFieldBuilder>();
+
+      _subclassProxyBuilderMock
+          .Expect(mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
+          .Return (fieldBuilderStub);
 
       _handler.HandleAddedField (addedField);
 
       _subclassProxyBuilderMock.VerifyAllExpectations ();
+      Assert.That (_mutableReflectionObjectMap.GetBuilder (addedField), Is.SameAs (fieldBuilderStub));
     }
 
     [Test]
@@ -135,8 +140,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock
           .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
           .Return (constructorBuilderMock);
-      constructorBuilderMock
-          .Expect (mock => mock.AddMappingTo (_mutableReflectionObjectMap, addedConstructor));
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
       _expressionPreparerMock
@@ -164,6 +167,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock.VerifyAllExpectations();
       _expressionPreparerMock.VerifyAllExpectations();
       constructorBuilderMock.VerifyAllExpectations();
+
+      Assert.That (_mutableReflectionObjectMap.GetBuilder (addedConstructor), Is.SameAs (constructorBuilderMock));
     }
 
     [Test]

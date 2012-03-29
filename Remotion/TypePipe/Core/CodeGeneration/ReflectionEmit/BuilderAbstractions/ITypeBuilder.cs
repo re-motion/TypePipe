@@ -17,7 +17,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
@@ -27,8 +26,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   [CLSCompliant (false)]
   public interface ITypeBuilder
   {
-    void AddMappingTo (MutableReflectionObjectMap objectMap, MutableType mutableType);
-
     void AddInterfaceImplementation (Type interfaceType);
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
     IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);

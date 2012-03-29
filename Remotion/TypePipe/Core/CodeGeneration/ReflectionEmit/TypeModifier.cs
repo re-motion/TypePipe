@@ -81,9 +81,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           mutableType.UnderlyingSystemType);
 
       var mutableReflectionObjectMap = new MutableReflectionObjectMap ();
-      typeBuilder.AddMappingTo (mutableReflectionObjectMap, mutableType);
+      mutableReflectionObjectMap.AddMapping (mutableType, typeBuilder);
+
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), mutableReflectionObjectMap);
-      CopyConstructorsFromBaseClass (mutableType, typeBuilder, ilGeneratorFactory);
+      CopyConstructorsFromBaseClass (mutableType, typeBuilder, ilGeneratorFactory, mutableReflectionObjectMap);
 
       var modificationHandler = new TypeModificationHandler (
           typeBuilder, new ExpandingExpressionPreparer(), mutableReflectionObjectMap, ilGeneratorFactory, _debugInfoGenerator);
@@ -92,7 +93,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return typeBuilder.CreateType();
     }
 
-    private void CopyConstructorsFromBaseClass (MutableType mutableType, ITypeBuilder typeBuilder, ILGeneratorDecoratorFactory ilGeneratorFactory)
+    private void CopyConstructorsFromBaseClass (
+        MutableType mutableType,
+        ITypeBuilder typeBuilder,
+        IILGeneratorFactory ilGeneratorFactory,
+        MutableReflectionObjectMap mutableReflectionObjectMap)
     {
       foreach (var ctor in mutableType.ExistingConstructors)
       {
@@ -102,8 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
         var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
-
-        ctorBuilder.AddMappingTo (ilGeneratorFactory.MutableReflectionObjectMap, ctor);
+        mutableReflectionObjectMap.AddMapping (ctor, ctorBuilder);
 
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (

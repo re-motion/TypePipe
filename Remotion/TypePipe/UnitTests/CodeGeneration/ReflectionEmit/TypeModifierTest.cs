@@ -41,8 +41,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private TypeModifier _typeModifier;
 
-    private MutableReflectionObjectMap _mutableReflectionObjectMap;
-
     [SetUp]
     public void SetUp ()
     {
@@ -51,8 +49,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
 
       _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _debugInfoGeneratorStub);
-
-      _mutableReflectionObjectMap = null;
     }
 
     [Test]
@@ -80,9 +76,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock
           .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, fakeUnderlyingSystemType))
           .Return (typeBuilderMock);
-      typeBuilderMock
-          .Expect (mock => mock.AddMappingTo (Arg<MutableReflectionObjectMap>.Is.Anything, Arg.Is (mutableTypeMock)))
-          .WhenCalled (mi => _mutableReflectionObjectMap = (MutableReflectionObjectMap) mi.Arguments[0]);
       mutableTypeMock
           .Expect (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything))
           .WhenCalled (mi =>
@@ -92,7 +85,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             var handler = (TypeModificationHandler) mi.Arguments[0];
             Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderMock));
             Assert.That (handler.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer> ());
-            Assert.That (handler.MutableReflectionObjectMap, Is.SameAs (_mutableReflectionObjectMap).And.Not.Null);
+            Assert.That (handler.MutableReflectionObjectMap.GetBuilder (mutableTypeMock), Is.SameAs (typeBuilderMock));
             Assert.That (handler.ILGeneratorFactory, Is.TypeOf <ILGeneratorDecoratorFactory>());
             var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) handler.ILGeneratorFactory;
             Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
@@ -126,9 +119,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
-      typeBuilderMock
-          .Expect (mock => mock.AddMappingTo (Arg<MutableReflectionObjectMap>.Is.Anything,Arg<MutableType>.Is.Anything))
-          .WhenCalled (mi => _mutableReflectionObjectMap = (MutableReflectionObjectMap) mi.Arguments[0]);
 
       SetupCtorExpectations (mutableType, constructor1, typeBuilderMock, constructorBuilderMock1, MethodAttributes.Public, new[] { typeof (string) });
       SetupCtorExpectations (mutableType, constructor2, typeBuilderMock, constructorBuilderMock2, MethodAttributes.Assembly, Type.EmptyTypes);
@@ -152,9 +142,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
-      typeBuilderMock
-          .Expect (mock => mock.AddMappingTo (Arg<MutableReflectionObjectMap>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .WhenCalled (mi => _mutableReflectionObjectMap = (MutableReflectionObjectMap) mi.Arguments[0]);
 
       SetupCtorExpectations (mutableType, constructor, typeBuilderMock, constructorBuilderMock, MethodAttributes.Family , new[] { typeof (int) });
 
@@ -179,17 +166,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock
           .Expect (
               mock =>
-              mock.AddMappingTo (
-                  Arg<MutableReflectionObjectMap>.Matches(om => om == _mutableReflectionObjectMap), // Need lazy evaluation
-                  Arg<MutableConstructorInfo>.Matches (mci => mci.UnderlyingSystemConstructorInfo == constructor)));
-      constructorBuilderMock
-          .Expect (
-              mock =>
               mock.SetBody (
                   Arg<LambdaExpression>.Is.Anything,
                   Arg<ILGeneratorDecoratorFactory>.Matches (p => p.InnerFactory is OffsetTrackingILGeneratorFactory),
                   Arg.Is (_debugInfoGeneratorStub)))
-          .WhenCalled (mi => CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableType));
+          .WhenCalled (mi =>
+          {
+            CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableType);
+            var mutableReflectionObjectMap = ((ILGeneratorDecoratorFactory) mi.Arguments[1]).MutableReflectionObjectMap;
+            Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType), Is.Not.Null);
+            Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType.GetMutableConstructor (constructor)), Is.SameAs (constructorBuilderMock));
+          });
     }
 
     private void CheckBaseCtorCallExpression (LambdaExpression lambdaExpression, ConstructorInfo baseConstructor, Type expectedThisType)

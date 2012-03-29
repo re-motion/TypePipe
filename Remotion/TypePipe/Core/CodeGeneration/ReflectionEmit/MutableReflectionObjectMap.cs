@@ -17,10 +17,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -28,58 +28,73 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Maps mutable reflection objects to their associated <code>Reflection.Emit</code> builder objects, which can be used for code generation
   /// by <see cref="ILGeneratorDecorator"/>.
   /// </summary>
+  [CLSCompliant(false)]
   public class MutableReflectionObjectMap
   {
-    private readonly Dictionary<MemberInfo, MemberInfo> _mapping = new Dictionary<MemberInfo, MemberInfo> ();
+    private readonly Dictionary<Type, ITypeBuilder> _mappedTypes = new Dictionary<Type, ITypeBuilder> ();
+    private readonly Dictionary<ConstructorInfo, IConstructorBuilder> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IConstructorBuilder> ();
+    private readonly Dictionary<FieldInfo, IFieldBuilder> _mappedFieldInfos = new Dictionary<FieldInfo, IFieldBuilder> ();
 
-    public void AddMapping (MutableType mutableType, TypeBuilder typeBuilder)
+    public void AddMapping (Type mappedType, ITypeBuilder typeBuilder)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("mappedType", mappedType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
 
-      AddMappingInternal(mutableType, typeBuilder);
+      AddMapping (_mappedTypes, mappedType, typeBuilder);
     }
 
-    public TypeBuilder GetBuilder (MutableType mutableType)
+    public void AddMapping (ConstructorInfo mappedConstructorInfo, IConstructorBuilder constructorBuilder)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      return (TypeBuilder) GetInternal(mutableType);
-    }
-
-    public void AddMapping (MutableConstructorInfo mutableConstructorInfo, ConstructorBuilder constructorBuilder)
-    {
-      ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
+      ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
       ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
 
-      AddMappingInternal (mutableConstructorInfo, constructorBuilder);
+      AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorBuilder);
     }
 
-    public ConstructorBuilder GetBuilder (MutableConstructorInfo mutableConstructorInfo)
+    public void AddMapping (FieldInfo mappedFieldInfo, IFieldBuilder fieldBuilder)
     {
-      ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
+      ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
+      ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
 
-      return (ConstructorBuilder) GetInternal (mutableConstructorInfo);
+      AddMapping (_mappedFieldInfos, mappedFieldInfo, fieldBuilder);
     }
 
-    private void AddMappingInternal (MemberInfo mutableReflectionObject, MemberInfo reflectionEmitBuilder)
+    public ITypeBuilder GetBuilder (Type mappedType)
     {
-      _mapping.Add (mutableReflectionObject, reflectionEmitBuilder);
+      ArgumentUtility.CheckNotNull ("mappedType", mappedType);
+
+      return GetBuilder (_mappedTypes, mappedType);
     }
 
-    private MemberInfo GetInternal (MemberInfo mutableType)
+    public IConstructorBuilder GetBuilder (ConstructorInfo mappedConstructorInfo)
     {
-      return _mapping[mutableType];
+      ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
+
+      return GetBuilder (_mappedConstructorInfos, mappedConstructorInfo);
     }
 
+    public IFieldBuilder GetBuilder (FieldInfo mappedFieldInfo)
+    {
+      ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
 
-    //public T GetBuilder<T> (T mutableReflectionObject)
-    //    where T : MemberInfo
-    //{
-    //  ArgumentUtility.CheckNotNull ("mutableReflectionObject", mutableReflectionObject);
+      return GetBuilder (_mappedFieldInfos, mappedFieldInfo);
+    }
 
-    //  return (T) _mapping[mutableReflectionObject];
-    //}
-    
+    private void AddMapping<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem, TValue builder)
+    {
+      string itemNameType = typeof (TKey).Name;
+      if (mapping.ContainsKey (mappedItem))
+      {
+        var message = string.Format ("{0} is already mapped.", itemNameType);
+        throw new ArgumentException (message, "mapped" + itemNameType);
+      }
+
+      mapping.Add (mappedItem, builder);
+    }
+
+    private TValue GetBuilder<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem)
+    {
+      return mapping.GetValueOrDefault (mappedItem);
+    }
   }
 }

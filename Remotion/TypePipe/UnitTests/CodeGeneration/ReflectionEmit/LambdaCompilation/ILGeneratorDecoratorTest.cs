@@ -18,6 +18,7 @@ using System;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -57,8 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void Emit_ConstructorInfo_Standard ()
     {
-      var constructorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
-
+      var constructorInfo = ReflectionObjectMother.GetSomeConstructor();
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, constructorInfo));
 
       _decorator.Emit (OpCodes.Call, constructorInfo);
@@ -67,18 +67,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    [Ignore ("TODO 4686") ]
-    public void Emit_ConstructorInfo_MutableConsructorInfo ()
+    public void Emit_ConstructorInfo_MappedConstructorInfo ()
     {
-      Assert.Fail ("TODO 4686");
-      //var mutableConstructorInfo = MutableConstructorInfoObjectMother.Create();
-      //var constructorBuilder = ReflectionEmitObjectMother.GetSomeConstructorBuilder();
+      var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor();
+      var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder>();
+      constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
+      _mutableReflectionObjectMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
 
-      //_innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, mutableConstructorInfo));
+      _decorator.Emit (OpCodes.Call, mappedConstructorInfo);
 
-      //_decorator.Emit (OpCodes.Call, mutableConstructorInfo);
-
-      //_innerILGeneratorMock.VerifyAllExpectations ();
+      constructorBuilderMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -96,12 +94,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void Emit_MethodInfo_BaseConstructorMethodInfo ()
     {
-      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor());
+      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeConstructor());
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
 
       _decorator.Emit (OpCodes.Call, methodInfo);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void Emit_MethodInfo_BaseConstructorMethodInfo_WithMappedConstructor ()
+    {
+      var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
+      var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder> ();
+      constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
+      _mutableReflectionObjectMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
+
+      var methodInfo = new ConstructorAsMethodInfoAdapter (mappedConstructorInfo);
+
+      _decorator.Emit (OpCodes.Call, methodInfo);
+
+      constructorBuilderMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -136,6 +149,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       _decorator.EmitCall (OpCodes.Call, methodInfo, null);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void EmitCall_MethodInfo_BaseConstructorMethodInfo_WithMappedConstructor ()
+    {
+      var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
+      var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder> ();
+      constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
+      _mutableReflectionObjectMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
+
+      var methodInfo = new ConstructorAsMethodInfoAdapter (mappedConstructorInfo);
+
+      _decorator.EmitCall (OpCodes.Call, methodInfo, null);
+
+      constructorBuilderMock.VerifyAllExpectations ();
     }
 
     [Test]

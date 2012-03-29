@@ -20,7 +20,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
@@ -44,11 +43,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       get { return _constructorBuilder; }
     }
 
-    public void AddMappingTo (MutableReflectionObjectMap objectMap, MutableConstructorInfo mutableConstructorInfo)
-    {
-      objectMap.AddMapping (mutableConstructorInfo, _constructorBuilder);
-    }
-
     [CLSCompliant (false)]
     public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
@@ -57,6 +51,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 
       var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
+    }
+
+    [CLSCompliant (false)]
+    public void Emit (IILGenerator ilGenerator, OpCode opCode)
+    {
+      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
+
+      ilGenerator.Emit (opCode, _constructorBuilder);
     }
   }
 }
