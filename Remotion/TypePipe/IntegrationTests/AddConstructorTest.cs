@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using System.Linq;
 
 namespace TypePipe.IntegrationTests
 {
@@ -32,22 +33,39 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public, 
-              new[] { new ParameterDeclaration (typeof (int), "i")}, 
-              context => Expression.Block (
-                 context.GetConstructorCallExpression (Expression.Call (context.ParameterExpressions[0], "ToString", Type.EmptyTypes)),
-                 Expression.Assign (Expression.Field (context.ThisExpression, "_addedConstructorInitializedValue"), Expression.Constant ("hello"))
-                 )));
+              new[] { new ParameterDeclaration (typeof (int), "i"), new ParameterDeclaration (typeof (string).MakeByRefType(), "s", ParameterAttributes.Out)}, 
+              context =>
+              {
+                var toStringResultLocal = Expression.Variable (typeof (string), "toStringResult");
+                return Expression.Block (
+                    new[] { toStringResultLocal },
+                    Expression.Assign (toStringResultLocal, Expression.Call (context.ParameterExpressions[0], "ToString", Type.EmptyTypes)),
+                    context.GetConstructorCallExpression (toStringResultLocal),
+                    Expression.Assign (context.ParameterExpressions[1], toStringResultLocal),
+                    Expression.Assign (Expression.Field (context.ThisExpression, "_addedConstructorInitializedValue"), Expression.Constant ("hello")));
+              }));
 
-      var addedCtor = type.GetConstructor (new[] { typeof (int) });
+      var addedCtor = type.GetConstructor (new[] { typeof (int), typeof (string).MakeByRefType() });
       Assert.That (addedCtor, Is.Not.Null);
       Assert.That (
           addedCtor.Attributes,
           Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
 
-      var instance = (DomainType) addedCtor.Invoke (new object[] { 7 });
+      var actualParameterData = addedCtor.GetParameters().Select (pi => new { pi.Name, pi.ParameterType, pi.Attributes });
+      var expectedParameterData =
+          new[]
+          {
+              new { Name = "i", ParameterType = typeof (int), Attributes = ParameterAttributes.In },
+              new { Name = "s", ParameterType = typeof (string).MakeByRefType(), Attributes = ParameterAttributes.Out }
+          };
+      Assert.That (actualParameterData, Is.EqualTo (expectedParameterData));
+
+      var arguments = new object[] { 7, null };
+      var instance = (DomainType) addedCtor.Invoke (arguments);
 
       Assert.That (instance.ConstructorInitializedValue, Is.EqualTo ("7"));
       Assert.That (instance.AddedConstructorInitializedValue, Is.EqualTo ("hello"));
+      Assert.That (arguments[1], Is.EqualTo ("7"));
     }
 
     // TODO 4705: Add integration test proving that added ctor calls modified existing ctor on subclass proxy (not base ctor).
