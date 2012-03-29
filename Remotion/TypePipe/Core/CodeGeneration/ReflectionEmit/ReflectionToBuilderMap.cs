@@ -19,17 +19,22 @@ using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Maps mutable reflection objects to their associated <code>Reflection.Emit</code> builder objects, which can be used for code generation
-  /// by <see cref="ILGeneratorDecorator"/>.
+  /// Maps reflection objects to their associated builder objects, which can be used for code generation by <see cref="ILGeneratorDecorator"/>.
   /// </summary>
+  /// <remarks>
+  /// This class is mainly used to map instances of <see cref="MutableType"/>, <see cref="MutableConstructorInfo"/>, etc. to the respective
+  /// <see cref="ITypeBuilder"/>, <see cref="IConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
+  /// references to the mutable Reflection objects when it emits code.
+  /// </remarks>
   [CLSCompliant(false)]
-  public class MutableReflectionObjectMap
+  public class ReflectionToBuilderMap
   {
     private readonly Dictionary<Type, ITypeBuilder> _mappedTypes = new Dictionary<Type, ITypeBuilder> ();
     private readonly Dictionary<ConstructorInfo, IConstructorBuilder> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IConstructorBuilder> ();

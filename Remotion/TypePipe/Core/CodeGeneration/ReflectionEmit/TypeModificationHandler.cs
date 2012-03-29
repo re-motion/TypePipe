@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly ITypeBuilder _subclassProxyBuilder;
     private readonly IExpressionPreparer _expressionPreparer;
-    private readonly MutableReflectionObjectMap _mutableReflectionObjectMap;
+    private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
@@ -42,18 +42,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public TypeModificationHandler (
         ITypeBuilder subclassProxyBuilder,
         IExpressionPreparer expressionPreparer,
-        MutableReflectionObjectMap mutableReflectionObjectMap,
+        ReflectionToBuilderMap reflectionToBuilderMap,
         IILGeneratorFactory ilGeneratorFactory,
         DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
-      ArgumentUtility.CheckNotNull ("mutableReflectionObjectMap", mutableReflectionObjectMap);
+      ArgumentUtility.CheckNotNull ("reflectionToBuilderMap", reflectionToBuilderMap);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
       _subclassProxyBuilder = subclassProxyBuilder;
       _expressionPreparer = expressionPreparer;
-      _mutableReflectionObjectMap = mutableReflectionObjectMap;
+      _reflectionToBuilderMap = reflectionToBuilderMap;
       _ilGeneratorFactory = ilGeneratorFactory;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
     }
@@ -70,9 +70,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant(false)]
-    public MutableReflectionObjectMap MutableReflectionObjectMap
+    public ReflectionToBuilderMap ReflectionToBuilderMap
     {
-      get { return _mutableReflectionObjectMap; }
+      get { return _reflectionToBuilderMap; }
     }
 
     [CLSCompliant (false)]
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
       var fieldBuilder = _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
-      _mutableReflectionObjectMap.AddMapping (addedField, fieldBuilder);
+      _reflectionToBuilderMap.AddMapping (addedField, fieldBuilder);
 
       foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
       {
@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = addedConstructor.GetParameters().Select (pe => pe.ParameterType).ToArray();
       var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
-      _mutableReflectionObjectMap.AddMapping (addedConstructor, ctorBuilder);
+      _reflectionToBuilderMap.AddMapping (addedConstructor, ctorBuilder);
 
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
       var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);

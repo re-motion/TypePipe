@@ -25,9 +25,9 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class MutableReflectionObjectMapTest
+  public class ReflectionToBuilderMapTest
   {
-    private MutableReflectionObjectMap _mutableReflectionObjectMap;
+    private ReflectionToBuilderMap _reflectionToBuilderMap;
 
     private Type _someType;
     private ITypeBuilder _fakeTypeBuilder;
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _mutableReflectionObjectMap = new MutableReflectionObjectMap();
+      _reflectionToBuilderMap = new ReflectionToBuilderMap();
 
       _someType = ReflectionObjectMother.GetSomeType();
       _fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
@@ -56,8 +56,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping_Type ()
     {
-      _mutableReflectionObjectMap.AddMapping (_someType, _fakeTypeBuilder);
-      var result = _mutableReflectionObjectMap.GetBuilder (_someType);
+      _reflectionToBuilderMap.AddMapping (_someType, _fakeTypeBuilder);
+      var result = _reflectionToBuilderMap.GetBuilder (_someType);
 
       Assert.That (result, Is.SameAs (_fakeTypeBuilder));
     }
@@ -66,15 +66,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type is already mapped.\r\nParameter name: mappedType")]
     public void AddMapping_Type_Twice ()
     {
-      _mutableReflectionObjectMap.AddMapping (_someType, _fakeTypeBuilder);
-      _mutableReflectionObjectMap.AddMapping (_someType, _fakeTypeBuilder);
+      _reflectionToBuilderMap.AddMapping (_someType, _fakeTypeBuilder);
+      _reflectionToBuilderMap.AddMapping (_someType, _fakeTypeBuilder);
     }
 
     [Test]
     public void AddMapping_ConstructorInfo ()
     {
-      _mutableReflectionObjectMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
-      var result = _mutableReflectionObjectMap.GetBuilder (_someConstructorInfo);
+      _reflectionToBuilderMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
+      var result = _reflectionToBuilderMap.GetBuilder (_someConstructorInfo);
 
       Assert.That (result, Is.SameAs (_fakeConstructorBuilder));
     }
@@ -83,15 +83,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo")]
     public void AddMapping_ConstructorInfo_Twice ()
     {
-      _mutableReflectionObjectMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
-      _mutableReflectionObjectMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
+      _reflectionToBuilderMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
+      _reflectionToBuilderMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
     }
 
     [Test]
     public void AddMapping_FieldInfo ()
     {
-      _mutableReflectionObjectMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
-      var result = _mutableReflectionObjectMap.GetBuilder (_someFieldInfo);
+      _reflectionToBuilderMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
+      var result = _reflectionToBuilderMap.GetBuilder (_someFieldInfo);
 
       Assert.That (result, Is.SameAs (_fakeFieldBuilder));
     }
@@ -100,28 +100,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo")]
     public void AddMapping_FieldInfo_Twice ()
     {
-      _mutableReflectionObjectMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
-      _mutableReflectionObjectMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
+      _reflectionToBuilderMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
+      _reflectionToBuilderMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
     }
 
     [Test]
     public void GetBuilder_Type_NoMapping ()
     {
-      var result = _mutableReflectionObjectMap.GetBuilder (_someType);
+      var result = _reflectionToBuilderMap.GetBuilder (_someType);
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetBuilder_ConstructorInfo_NoMapping ()
     {
-      var result = _mutableReflectionObjectMap.GetBuilder (_someConstructorInfo);
+      var result = _reflectionToBuilderMap.GetBuilder (_someConstructorInfo);
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetBuilder_FieldInfo_NoMapping ()
     {
-      var result = _mutableReflectionObjectMap.GetBuilder (_someFieldInfo);
+      var result = _reflectionToBuilderMap.GetBuilder (_someFieldInfo);
       Assert.That (result, Is.Null);
     }
   }

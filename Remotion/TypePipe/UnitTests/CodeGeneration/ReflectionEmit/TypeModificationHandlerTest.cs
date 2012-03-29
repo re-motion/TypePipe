@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _subclassProxyBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
     private DebugInfoGenerator _debugInfoGeneratorStub;
-    private MutableReflectionObjectMap _mutableReflectionObjectMap;
+    private ReflectionToBuilderMap _reflectionToBuilderMap;
 
     private TypeModificationHandler _handler;
 
@@ -50,17 +50,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
-      _mutableReflectionObjectMap = new MutableReflectionObjectMap();
+      _reflectionToBuilderMap = new ReflectionToBuilderMap();
 
       _handler = new TypeModificationHandler (
-          _subclassProxyBuilderMock, _expressionPreparerMock, _mutableReflectionObjectMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+          _subclassProxyBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
       var handler = new TypeModificationHandler (
-          _subclassProxyBuilderMock, _expressionPreparerMock, _mutableReflectionObjectMap, _ilGeneratorFactoryStub, null);
+          _subclassProxyBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, null);
       Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
 
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _handler.HandleAddedField (addedField);
 
       _subclassProxyBuilderMock.VerifyAllExpectations ();
-      Assert.That (_mutableReflectionObjectMap.GetBuilder (addedField), Is.SameAs (fieldBuilderStub));
+      Assert.That (_reflectionToBuilderMap.GetBuilder (addedField), Is.SameAs (fieldBuilderStub));
     }
 
     [Test]
@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _expressionPreparerMock.VerifyAllExpectations();
       constructorBuilderMock.VerifyAllExpectations();
 
-      Assert.That (_mutableReflectionObjectMap.GetBuilder (addedConstructor), Is.SameAs (constructorBuilderMock));
+      Assert.That (_reflectionToBuilderMap.GetBuilder (addedConstructor), Is.SameAs (constructorBuilderMock));
     }
 
     [Test]

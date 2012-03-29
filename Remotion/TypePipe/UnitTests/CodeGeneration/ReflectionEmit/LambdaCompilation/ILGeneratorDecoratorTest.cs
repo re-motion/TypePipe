@@ -30,15 +30,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
   public class ILGeneratorDecoratorTest
   {
     private IILGenerator _innerILGeneratorMock;
-    private MutableReflectionObjectMap _mutableReflectionObjectMap;
+    private ReflectionToBuilderMap _reflectionToBuilderMap;
     private ILGeneratorDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
     {
       _innerILGeneratorMock = MockRepository.GenerateStrictMock<IILGenerator>();
-      _mutableReflectionObjectMap = new MutableReflectionObjectMap();
-      _decorator = new ILGeneratorDecorator (_innerILGeneratorMock, _mutableReflectionObjectMap);
+      _reflectionToBuilderMap = new ReflectionToBuilderMap();
+      _decorator = new ILGeneratorDecorator (_innerILGeneratorMock, _reflectionToBuilderMap);
     }
 
     [Test]
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       Assert.That (ilGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) ilGeneratorFactory;
       Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.SameAs (fakeFactory));
-      Assert.That (ilGeneratorDecoratorFactory.MutableReflectionObjectMap, Is.SameAs (_mutableReflectionObjectMap));
+      Assert.That (ilGeneratorDecoratorFactory.ReflectionToBuilderMap, Is.SameAs (_reflectionToBuilderMap));
     }
 
     [Test]
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor();
       var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder>();
       constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _mutableReflectionObjectMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
+      _reflectionToBuilderMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
 
       _decorator.Emit (OpCodes.Call, mappedConstructorInfo);
 
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
       var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder> ();
       constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _mutableReflectionObjectMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
+      _reflectionToBuilderMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
 
       var methodInfo = new ConstructorAsMethodInfoAdapter (mappedConstructorInfo);
 
@@ -157,7 +157,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
       var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder> ();
       constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _mutableReflectionObjectMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
+      _reflectionToBuilderMap.AddMapping (mappedConstructorInfo, constructorBuilderMock);
 
       var methodInfo = new ConstructorAsMethodInfoAdapter (mappedConstructorInfo);
 

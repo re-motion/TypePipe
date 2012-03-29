@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      var mutableReflectionObjectMap = new MutableReflectionObjectMap ();
+      var mutableReflectionObjectMap = new ReflectionToBuilderMap ();
       mutableReflectionObjectMap.AddMapping (mutableType, typeBuilder);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), mutableReflectionObjectMap);
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         MutableType mutableType,
         ITypeBuilder typeBuilder,
         IILGeneratorFactory ilGeneratorFactory,
-        MutableReflectionObjectMap mutableReflectionObjectMap)
+        ReflectionToBuilderMap reflectionToBuilderMap)
     {
       foreach (var ctor in mutableType.ExistingConstructors)
       {
@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
         var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
-        mutableReflectionObjectMap.AddMapping (ctor, ctorBuilder);
+        reflectionToBuilderMap.AddMapping (ctor, ctorBuilder);
 
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (

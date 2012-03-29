@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             var handler = (TypeModificationHandler) mi.Arguments[0];
             Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderMock));
             Assert.That (handler.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer> ());
-            Assert.That (handler.MutableReflectionObjectMap.GetBuilder (mutableTypeMock), Is.SameAs (typeBuilderMock));
+            Assert.That (handler.ReflectionToBuilderMap.GetBuilder (mutableTypeMock), Is.SameAs (typeBuilderMock));
             Assert.That (handler.ILGeneratorFactory, Is.TypeOf <ILGeneratorDecoratorFactory>());
             var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) handler.ILGeneratorFactory;
             Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
@@ -173,7 +173,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .WhenCalled (mi =>
           {
             CheckBaseCtorCallExpression ((LambdaExpression) mi.Arguments[0], constructor, mutableType);
-            var mutableReflectionObjectMap = ((ILGeneratorDecoratorFactory) mi.Arguments[1]).MutableReflectionObjectMap;
+            var mutableReflectionObjectMap = ((ILGeneratorDecoratorFactory) mi.Arguments[1]).ReflectionToBuilderMap;
             Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType), Is.Not.Null);
             Assert.That (mutableReflectionObjectMap.GetBuilder (mutableType.GetMutableConstructor (constructor)), Is.SameAs (constructorBuilderMock));
           });

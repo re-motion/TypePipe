@@ -30,15 +30,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratorDecorator : IILGenerator
   {
     private readonly IILGenerator _innerILGenerator;
-    private readonly MutableReflectionObjectMap _mutableReflectionObjectMap;
+    private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
 
-    public ILGeneratorDecorator (IILGenerator innerIlGenerator, MutableReflectionObjectMap mutableReflectionObjectMap)
+    public ILGeneratorDecorator (IILGenerator innerIlGenerator, ReflectionToBuilderMap reflectionToBuilderMap)
     {
       ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
-      ArgumentUtility.CheckNotNull ("mutableReflectionObjectMap", mutableReflectionObjectMap);
+      ArgumentUtility.CheckNotNull ("reflectionToBuilderMap", reflectionToBuilderMap);
 
       _innerILGenerator = innerIlGenerator;
-      _mutableReflectionObjectMap = mutableReflectionObjectMap;
+      _reflectionToBuilderMap = reflectionToBuilderMap;
     }
 
     public IILGenerator InnerILGenerator
@@ -46,9 +46,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerILGenerator; }
     }
 
-    public MutableReflectionObjectMap MutableReflectionObjectMap
+    public ReflectionToBuilderMap ReflectionToBuilderMap
     {
-      get { return _mutableReflectionObjectMap; }
+      get { return _reflectionToBuilderMap; }
     }
 
     public int ILOffset
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public IILGeneratorFactory GetFactory ()
     {
-      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory(), _mutableReflectionObjectMap);
+      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory(), _reflectionToBuilderMap);
     }
 
     public void BeginCatchBlock (Type exceptionType)
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, ConstructorInfo con)
     {
-      var constructorBuilder = _mutableReflectionObjectMap.GetBuilder (con);
+      var constructorBuilder = _reflectionToBuilderMap.GetBuilder (con);
       if (constructorBuilder != null)
         constructorBuilder.Emit (this, opcode);
       else
