@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _subclassProxyBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
     private DebugInfoGenerator _debugInfoGeneratorStub;
+    private MutableReflectionObjectMap _mutableReflectionObjectMap;
 
     private TypeModificationHandler _handler;
 
@@ -49,14 +50,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
+      _mutableReflectionObjectMap = new MutableReflectionObjectMap();
 
-      _handler = new TypeModificationHandler (_subclassProxyBuilderMock, _expressionPreparerMock, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+      _handler = new TypeModificationHandler (
+          _subclassProxyBuilderMock, _expressionPreparerMock, _mutableReflectionObjectMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handler = new TypeModificationHandler (_subclassProxyBuilderMock, _expressionPreparerMock, _ilGeneratorFactoryStub, null);
+      var handler = new TypeModificationHandler (
+          _subclassProxyBuilderMock, _expressionPreparerMock, _mutableReflectionObjectMap, _ilGeneratorFactoryStub, null);
       Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
 

@@ -20,6 +20,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
@@ -41,6 +42,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     public ConstructorBuilder ConstructorBuilder
     {
       get { return _constructorBuilder; }
+    }
+
+    public void AddMappingTo (MutableReflectionObjectMap objectMap, MutableConstructorInfo mutableConstructorInfo)
+    {
+      objectMap.AddMapping (mutableConstructorInfo, _constructorBuilder);
     }
 
     [CLSCompliant (false)]

@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
@@ -34,6 +35,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
 
       _typeBuilder = typeBuilder;
+    }
+
+    public TypeBuilder TypeBuilder
+    {
+      get { return _typeBuilder; }
+    }
+
+    public void AddMappingTo (MutableReflectionObjectMap objectMap, MutableType mutableType)
+    {
+      objectMap.AddMapping (mutableType, _typeBuilder);
     }
 
     public void AddInterfaceImplementation (Type interfaceType)

@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly ITypeBuilder _subclassProxyBuilder;
     private readonly IExpressionPreparer _expressionPreparer;
+    private readonly MutableReflectionObjectMap _mutableReflectionObjectMap;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
@@ -41,15 +42,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public TypeModificationHandler (
         ITypeBuilder subclassProxyBuilder,
         IExpressionPreparer expressionPreparer,
+        MutableReflectionObjectMap mutableReflectionObjectMap,
         IILGeneratorFactory ilGeneratorFactory,
         DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
+      ArgumentUtility.CheckNotNull ("mutableReflectionObjectMap", mutableReflectionObjectMap);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
       _subclassProxyBuilder = subclassProxyBuilder;
       _expressionPreparer = expressionPreparer;
+      _mutableReflectionObjectMap = mutableReflectionObjectMap;
       _ilGeneratorFactory = ilGeneratorFactory;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
     }
@@ -63,6 +67,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IExpressionPreparer ExpressionPreparer
     {
       get { return _expressionPreparer; }
+    }
+
+    public MutableReflectionObjectMap MutableReflectionObjectMap
+    {
+      get { return _mutableReflectionObjectMap; }
     }
 
     [CLSCompliant (false)]

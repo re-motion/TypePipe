@@ -70,6 +70,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ExpandingExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableReflectionObjectMap.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\OriginalConstructorBodyReplacingExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>

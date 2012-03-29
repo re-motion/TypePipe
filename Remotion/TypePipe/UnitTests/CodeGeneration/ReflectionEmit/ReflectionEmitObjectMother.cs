@@ -17,21 +17,17 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
-  /// <summary>
-  /// Defines an interface for <see cref="TypeBuilder"/>.
-  /// </summary>
-  [CLSCompliant (false)]
-  public interface ITypeBuilder
+  public static class ReflectionEmitObjectMother
   {
-    void AddMappingTo (MutableReflectionObjectMap objectMap, MutableType mutableType);
-
-    void AddInterfaceImplementation (Type interfaceType);
-    IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
-    IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
-    Type CreateType ();
+    public static TypeBuilder GetSomeTypeBuilder ()
+    {
+      return AppDomain.CurrentDomain
+          .DefineDynamicAssembly (new AssemblyName(), AssemblyBuilderAccess.ReflectionOnly)
+          .DefineDynamicModule (typeof (ReflectionEmitObjectMother).Name + ".dll")
+          .DefineType ("SomeType");
+    }
   }
 }

@@ -17,6 +17,7 @@
 using System;
 using System.Reflection.Emit;
 using NUnit.Framework;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -28,13 +29,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
   public class ILGeneratorDecoratorTest
   {
     private IILGenerator _innerILGeneratorMock;
+    private MutableReflectionObjectMap _mutableReflectionObjectMap;
     private ILGeneratorDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
     {
       _innerILGeneratorMock = MockRepository.GenerateStrictMock<IILGenerator>();
-      _decorator = new ILGeneratorDecorator (_innerILGeneratorMock);
+      _mutableReflectionObjectMap = new MutableReflectionObjectMap();
+      _decorator = new ILGeneratorDecorator (_innerILGeneratorMock, _mutableReflectionObjectMap);
     }
 
     [Test]
@@ -43,9 +46,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var fakeFactory = MockRepository.GenerateStub<IILGeneratorFactory>();
       _innerILGeneratorMock.Stub (stub => stub.GetFactory()).Return (fakeFactory);
 
-      var result = _decorator.GetFactory();
+      var ilGeneratorFactory = _decorator.GetFactory();
 
-      Assert.That (result, Is.TypeOf<ILGeneratorDecoratorFactory>().With.Property ("InnerFactory").SameAs (fakeFactory));
+      Assert.That (ilGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
+      var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) ilGeneratorFactory;
+      Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.SameAs (fakeFactory));
+      Assert.That (ilGeneratorDecoratorFactory.MutableReflectionObjectMap, Is.SameAs (_mutableReflectionObjectMap));
     }
 
     [Test]

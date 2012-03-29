@@ -30,18 +30,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratorDecorator : IILGenerator
   {
     private readonly IILGenerator _innerILGenerator;
+    private readonly MutableReflectionObjectMap _mutableReflectionObjectMap;
 
     // TODO 4686: Use MutableReflectionObjectMap to unwrap mutable reflection objects.
 
-    public ILGeneratorDecorator (IILGenerator innerIlGenerator)
+    public ILGeneratorDecorator (IILGenerator innerIlGenerator, MutableReflectionObjectMap mutableReflectionObjectMap)
     {
       ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
+      ArgumentUtility.CheckNotNull ("mutableReflectionObjectMap", mutableReflectionObjectMap);
+
       _innerILGenerator = innerIlGenerator;
+      _mutableReflectionObjectMap = mutableReflectionObjectMap;
     }
 
     public IILGenerator InnerILGenerator
     {
       get { return _innerILGenerator; }
+    }
+
+    public MutableReflectionObjectMap MutableReflectionObjectMap
+    {
+      get { return _mutableReflectionObjectMap; }
     }
 
     public int ILOffset
@@ -51,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public IILGeneratorFactory GetFactory ()
     {
-      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory());
+      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory(), _mutableReflectionObjectMap);
     }
 
     public void BeginCatchBlock (Type exceptionType)

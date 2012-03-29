@@ -80,12 +80,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      // TODO 4686: Create instance of MutableReflectionObjectMap, add mapping mutableType => typeBuilder, pass into ILGeneratorDecoratorFactory,
-      // CopyConstructorsFromBaseClass, TypeModificationHandler ctor.
-      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory ());
+      var mutableReflectionObjectMap = new MutableReflectionObjectMap ();
+      typeBuilder.AddMappingTo (mutableReflectionObjectMap, mutableType);
+      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), mutableReflectionObjectMap);
       CopyConstructorsFromBaseClass (mutableType, typeBuilder, ilGeneratorFactory);
 
-      var modificationHandler = new TypeModificationHandler (typeBuilder, new ExpandingExpressionPreparer (), ilGeneratorFactory, _debugInfoGenerator);
+      var modificationHandler = new TypeModificationHandler (
+          typeBuilder, new ExpandingExpressionPreparer(), mutableReflectionObjectMap, ilGeneratorFactory, _debugInfoGenerator);
       mutableType.Accept (modificationHandler);
 
       return typeBuilder.CreateType();
@@ -102,7 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var parameterTypes = ctor.GetParameters().Select (pi => pi.ParameterType).ToArray();
         var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
 
-        // TODO 4686: Add mapping ctor => ctorBuilder to MutableReflectionObjectMap.
+        ctorBuilder.AddMappingTo (ilGeneratorFactory.MutableReflectionObjectMap, ctor);
 
         var parameterExpressions = ctor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
         var baseCallExpression = Expression.Call (
