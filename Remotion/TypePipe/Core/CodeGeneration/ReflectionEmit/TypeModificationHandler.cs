@@ -128,7 +128,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
 
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
-      var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);
+      var voidBody = Expression.Block (typeof (void), body);
+      var bodyLambda = Expression.Lambda (voidBody, addedConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
     }
   }

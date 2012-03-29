@@ -58,6 +58,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     {
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      Assertion.IsTrue (body.ReturnType == typeof (void));
 
       var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
