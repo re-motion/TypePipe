@@ -46,9 +46,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _methodBuilder.DeclaringType; }
     }
 
-    public ParameterBuilder DefineParameter (int position, ParameterAttributes attributes, string strParamName)
+    public void SetReturnType (Type returnType)
     {
-      return _methodBuilder.DefineParameter (position, attributes, strParamName);
+      _methodBuilder.SetReturnType (returnType);
     }
 
     public void SetParameters (params Type[] parameterTypes)
@@ -56,9 +56,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _methodBuilder.SetParameters (parameterTypes);
     }
 
-    public void SetReturnType (Type returnType)
+    public ParameterBuilder DefineParameter (int position, ParameterAttributes attributes, string strParamName)
     {
-      _methodBuilder.SetReturnType (returnType);
+      return _methodBuilder.DefineParameter (position, attributes, strParamName);
     }
 
     public IILGenerator GetILGenerator ()
