@@ -135,6 +135,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock
           .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
           .Return (constructorBuilderMock);
+      constructorBuilderMock
+          .Expect (mock => mock.AddMappingTo (_mutableReflectionObjectMap, addedConstructor));
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
       _expressionPreparerMock

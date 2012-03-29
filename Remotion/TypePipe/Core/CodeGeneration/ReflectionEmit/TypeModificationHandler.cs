@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = addedConstructor.GetParameters().Select (pe => pe.ParameterType).ToArray();
       var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
-      // TODO 4686: Add mapping addedConstructor => ctorBuilder to MutableReflectionObjectMap.
+      ctorBuilder.AddMappingTo (_mutableReflectionObjectMap, addedConstructor);
       
       var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
       var bodyLambda = Expression.Lambda (Expression.Block (typeof (void), body), addedConstructor.ParameterExpressions);
