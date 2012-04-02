@@ -31,16 +31,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     private readonly MethodBuilder _methodBuilder;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
-    private readonly bool _isTypePipeEntryPoint;
+    private readonly bool _ignoreSignatureModifications;
 
-    public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder, IILGeneratorFactory ilGeneratorFactory, bool isTypePipeEntryPoint)
+    public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder, IILGeneratorFactory ilGeneratorFactory, bool ignoreSignatureModifications)
     {
       ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
       _methodBuilder = methodBuilder;
       _ilGeneratorFactory = ilGeneratorFactory;
-      _isTypePipeEntryPoint = isTypePipeEntryPoint;
+      _ignoreSignatureModifications = ignoreSignatureModifications;
     }
 
     public Type DeclaringType
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     public void SetReturnType (Type returnType)
     {
       // If method builder was created by the TypePipe, ignore because return type should have been correctly set prior to this call.
-      if (!_isTypePipeEntryPoint)
+      if (!_ignoreSignatureModifications)
         _methodBuilder.SetReturnType (returnType);
       else
         Assertion.IsTrue (returnType == _methodBuilder.ReturnType);
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       // If method builder was created by the TypePipe, ignore because parameters should have been correctly set prior to this call.
       // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
-      if (!_isTypePipeEntryPoint)
+      if (!_ignoreSignatureModifications)
         _methodBuilder.SetParameters (parameterTypes);
     }
 
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       // If method builder was created by the TypePipe, ignore because parameters should have been correctly set prior to this call.
       // (Prevent duplicate ParamTokens)
       // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
-      if (!_isTypePipeEntryPoint)
+      if (!_ignoreSignatureModifications)
         _methodBuilder.DefineParameter (position, attributes, strParamName);
     }
 
