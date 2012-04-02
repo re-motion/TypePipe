@@ -120,16 +120,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
 
-      var parameterTypes = addedConstructor.GetParameters().Select (pe => pe.ParameterType).ToArray();
-      var ctorBuilder = _subclassProxyBuilder.DefineConstructor (addedConstructor.Attributes, addedConstructor.CallingConvention, parameterTypes);
-      _reflectionToBuilderMap.AddMapping (addedConstructor, ctorBuilder);
+      AddConstructorToSubclassProxy (addedConstructor);
+    }
 
-      foreach (var parameterInfo in addedConstructor.GetParameters())
+    public void CloneExistingConstructor (MutableConstructorInfo existingConstructor)
+    {
+      ArgumentUtility.CheckNotNull ("existingConstructor", existingConstructor);
+
+      AddConstructorToSubclassProxy (existingConstructor);
+    }
+
+    private void AddConstructorToSubclassProxy (MutableConstructorInfo mutableConstructor)
+    {
+      var parameterTypes = mutableConstructor.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
+      var ctorBuilder = _subclassProxyBuilder.DefineConstructor (mutableConstructor.Attributes, mutableConstructor.CallingConvention, parameterTypes);
+      _reflectionToBuilderMap.AddMapping (mutableConstructor, ctorBuilder);
+
+      foreach (var parameterInfo in mutableConstructor.GetParameters ())
         ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
 
-      var body = _expressionPreparer.PrepareConstructorBody (addedConstructor);
+      var body = _expressionPreparer.PrepareConstructorBody (mutableConstructor);
       var voidBody = Expression.Block (typeof (void), body);
-      var bodyLambda = Expression.Lambda (voidBody, addedConstructor.ParameterExpressions);
+      var bodyLambda = Expression.Lambda (voidBody, mutableConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
     }
   }

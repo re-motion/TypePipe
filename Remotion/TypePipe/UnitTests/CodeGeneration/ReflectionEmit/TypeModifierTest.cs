@@ -201,12 +201,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       internal ClassWithConstructors ()
       {
       }
-
-      // Family OR Assembly
-      protected internal ClassWithConstructors (int i)
-      {
-        Dev.Null = i;
-      }
     }
   }
 }

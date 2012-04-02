@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -126,7 +127,40 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleAddedConstructor ()
+    public void HandleAddedConstructor_CallsAddConstructorToSubclassProxy ()
+    {
+      var addedCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
+
+      CheckThatMethodIsProperlyDelegated (addedCtorDescriptor);
+    }
+
+    private void CheckThatMethodIsProperlyDelegated (UnderlyingConstructorInfoDescriptor descriptor)
+    {
+      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+
+      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
+      _subclassProxyBuilderMock
+          .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Return (constructorBuilderStub);
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
+      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
+      
+      _handler.HandleAddedConstructor (mutableConstructor);
+
+      Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderStub));
+    }
+
+    [Test]
+    public void CloneExistingConstructor_CallsAddConstructorToSubclassProxy ()
+    {
+      var originalCtor = ReflectionObjectMother.GetSomeConstructor();
+      var existingCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (originalCtor);
+
+      CheckThatMethodIsProperlyDelegated (existingCtorDescriptor);
+    }
+
+    [Test]
+    public void AddConstructorToSubclassProxy ()
     {
       var parameterDeclarations =
           new[]
@@ -135,10 +169,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out)
           };
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-      var addedConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
 
-      var expectedAttributes = addedConstructor.Attributes;
-      var expectedCallingConvention = addedConstructor.CallingConvention;
+      var expectedAttributes = mutableConstructor.Attributes;
+      var expectedCallingConvention = mutableConstructor.CallingConvention;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
       _subclassProxyBuilderMock
@@ -146,46 +180,40 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (constructorBuilderMock);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
-      _expressionPreparerMock
-          .Expect (mock => mock.PrepareConstructorBody (addedConstructor))
-          .Return (fakeBody);
+      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
       constructorBuilderMock
-          .Expect (
-              mock => mock.SetBody (
-                  Arg<LambdaExpression>.Is.Anything,
-                  Arg.Is (_ilGeneratorFactoryStub),
-                  Arg.Is (_debugInfoGeneratorStub)))
+          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
           .WhenCalled (mi =>
           {
             var lambdaExpression = (LambdaExpression) mi.Arguments[0];
-            Assert.That (lambdaExpression.Body, Is.AssignableTo<BlockExpression>());
+            Assert.That (lambdaExpression.Body, Is.AssignableTo<BlockExpression> ());
             var blockExpression = (BlockExpression) lambdaExpression.Body;
             Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { fakeBody }));
             Assert.That (blockExpression.Type, Is.SameAs (typeof (void)));
-            Assert.That (lambdaExpression.Parameters, Is.EqualTo (addedConstructor.ParameterExpressions));
+            Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableConstructor.ParameterExpressions));
           });
-      
-      _handler.HandleAddedConstructor (addedConstructor);
+
+      CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations();
       _expressionPreparerMock.VerifyAllExpectations();
       constructorBuilderMock.VerifyAllExpectations();
 
-      Assert.That (_reflectionToBuilderMap.GetBuilder (addedConstructor), Is.SameAs (constructorBuilderMock));
+      Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderMock));
     }
 
     [Test]
-    public void HandleAddedConstructor_WithByRefParameters ()
+    public void AddConstructorToSubclassProxy_WithByRefParameters ()
     {
       var byRefType = typeof (object).MakeByRefType();
       
       var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create (byRefType) };
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-      var addedConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
 
       var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
       _subclassProxyBuilderMock
@@ -195,9 +223,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (constructorBuilderStub);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
-      _expressionPreparerMock.Stub (stub => stub.PrepareConstructorBody (addedConstructor)).Return (fakeBody);
+      _expressionPreparerMock.Stub (stub => stub.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
 
-      _handler.HandleAddedConstructor (addedConstructor);
+      CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations ();
     }
@@ -222,6 +250,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           expectedCtor, expectedCtorArgs, expectedPropertyInfos, expectedPropertyValues, expectedFieldInfos, expectedFieldValues);
       var expectedBlob = (byte[]) PrivateInvoke.GetNonPublicField (testBuilder, "m_blob");
       Assert.That (actualBlob, Is.EqualTo (expectedBlob));
+    }
+
+    private void CallAddConstructorToSubclassProxy (TypeModificationHandler handler, MutableConstructorInfo mutableConstructor)
+    {
+      PrivateInvoke.InvokeNonPublicMethod (handler, "AddConstructorToSubclassProxy", mutableConstructor);
     }
 
     public class CustomAttribute : Attribute
