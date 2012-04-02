@@ -131,23 +131,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var addedCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
 
-      CheckThatMethodIsProperlyDelegated (addedCtorDescriptor);
-    }
-
-    private void CheckThatMethodIsProperlyDelegated (UnderlyingConstructorInfoDescriptor descriptor)
-    {
-      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
-
-      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
-      _subclassProxyBuilderMock
-          .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
-          .Return (constructorBuilderStub);
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
-      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
-      
-      _handler.HandleAddedConstructor (mutableConstructor);
-
-      Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderStub));
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleAddedConstructor, addedCtorDescriptor);
     }
 
     [Test]
@@ -156,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalCtor = ReflectionObjectMother.GetSomeConstructor();
       var existingCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (originalCtor);
 
-      CheckThatMethodIsProperlyDelegated (existingCtorDescriptor);
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.CloneExistingConstructor, existingCtorDescriptor);
     }
 
     [Test]
@@ -255,6 +239,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void CallAddConstructorToSubclassProxy (TypeModificationHandler handler, MutableConstructorInfo mutableConstructor)
     {
       PrivateInvoke.InvokeNonPublicMethod (handler, "AddConstructorToSubclassProxy", mutableConstructor);
+    }
+
+    private void CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (
+        Action<MutableConstructorInfo> methodInvocation,
+        UnderlyingConstructorInfoDescriptor descriptor)
+    {
+      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+
+      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
+      _subclassProxyBuilderMock
+          .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Return (constructorBuilderStub);
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
+      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
+
+      methodInvocation (mutableConstructor);
+
+      Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderStub));
     }
 
     public class CustomAttribute : Attribute
