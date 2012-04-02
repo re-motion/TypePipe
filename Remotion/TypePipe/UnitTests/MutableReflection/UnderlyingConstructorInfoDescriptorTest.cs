@@ -48,6 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       int v;
       var originalCtor = ReflectionObjectMother.GetConstructor (() => new ExampleType ("string", out v, 1.0, null));
+
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
 
       Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.SameAs (originalCtor));
@@ -69,7 +70,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
+    }
 
+    [Test]
+    public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
+    {
+      var originalCtor = ReflectionObjectMother.GetConstructor (() => new ExampleType ());
+      Assert.That (originalCtor.IsFamilyOrAssembly, Is.True);
+
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
+
+      var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
+      Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
 
     private class ExampleType
@@ -79,6 +91,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 // ReSharper restore UnusedParameter.Local
       {
         i = 5;
+      }
+
+      protected internal ExampleType ()
+      {
       }
     }
   }

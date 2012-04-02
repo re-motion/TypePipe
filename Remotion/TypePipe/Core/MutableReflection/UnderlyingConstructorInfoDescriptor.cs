@@ -47,6 +47,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
 
+      var attributes = originalConstructorInfo.IsFamilyOrAssembly
+                           ? ChangeVisibility (originalConstructorInfo.Attributes, MethodAttributes.Family)
+                           : originalConstructorInfo.Attributes;
       var parameterDeclarations = 
           originalConstructorInfo.GetParameters()
               .Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes))
@@ -54,9 +57,13 @@ namespace Remotion.TypePipe.MutableReflection
               .AsReadOnly();
       var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
       var body = new OriginalBodyExpression (typeof (void), parameterExpressions.Cast<Expression>());
+      
+      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, attributes, parameterDeclarations, body);
+    }
 
-      return new UnderlyingConstructorInfoDescriptor (
-          originalConstructorInfo, originalConstructorInfo.Attributes, parameterDeclarations, body);
+    private static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
+    {
+      return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
     }
 
     private readonly ConstructorInfo _underlyingSystemConstructorInfo;
