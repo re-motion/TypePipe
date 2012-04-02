@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -40,7 +41,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
-    private readonly Dictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
+    private readonly ReadOnlyCollection<Type> _existingInterfaces;
+    private readonly ReadOnlyDictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
 
     public MutableType (
       IUnderlyingTypeStrategy underlyingTypeStrategy,
@@ -55,28 +57,37 @@ namespace Remotion.TypePipe.MutableReflection
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
+      _existingInterfaces = _underlyingTypeStrategy.GetInterfaces().ToList().AsReadOnly();
       var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      _existingConstructors = _underlyingTypeStrategy.GetConstructors (bindingAttr).ToDictionary (ctor => ctor, CreateExistingMutableConstructor);
+      _existingConstructors = _underlyingTypeStrategy.GetConstructors (bindingAttr)
+          .ToDictionary (ctor => ctor, CreateExistingMutableConstructor)
+          .AsReadOnly();
     }
 
-    public IEnumerable<Type> AddedInterfaces
+    public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
     }
 
-    public IEnumerable<MutableFieldInfo> AddedFields
+    public ReadOnlyCollection<MutableFieldInfo> AddedFields
     {
       get { return _addedFields.AsReadOnly(); }
     }
 
-    public IEnumerable<MutableConstructorInfo> AddedConstructors
+    public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
-      get { return _addedConstructors.AsReadOnly (); }
+      get { return _addedConstructors.AsReadOnly(); }
     }
 
-    public IEnumerable<MutableConstructorInfo> ExistingConstructors
+    public ReadOnlyCollection<Type> ExistingInterfaces
     {
-      get { return _existingConstructors.Values; }
+      get { return _existingInterfaces; }
+    }
+
+    public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingConstructors
+    {
+      // TODO 4737 replace with AsReadOnly
+      get { return new ReadOnlyCollectionDecorator<MutableConstructorInfo>(_existingConstructors.Values); }
     }
 
     public override Type UnderlyingSystemType
@@ -134,7 +145,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type[] GetInterfaces ()
     {
-      return _underlyingTypeStrategy.GetInterfaces ().Concat (AddedInterfaces).ToArray ();
+      return _existingInterfaces.Concat (AddedInterfaces).ToArray();
     }
 
     public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)

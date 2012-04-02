@@ -51,7 +51,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
+
+      Assert.That (_mutableType.ExistingInterfaces, Is.Empty);
       Assert.That (_mutableType.ExistingConstructors, Is.Empty);
+    }
+
+    [Test]
+    public void Initialization_WithInterfaces ()
+    {
+      var interfaces = new[] { ReflectionObjectMother.GetSomeInterfaceType(), ReflectionObjectMother.GetSomeDifferentInterfaceType() };
+      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (interfaces);
+
+      var mutableType = CreateMutableType();
+
+      Assert.That (mutableType.ExistingInterfaces, Is.EqualTo (interfaces));
     }
 
     [Test]
@@ -184,17 +197,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
       _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
+      var mutableType = CreateMutableType();
 
-      _mutableType.AddInterface (typeof (IDisposable));
+      mutableType.AddInterface (typeof (IDisposable));
     }
 
     [Test]
     public void GetInterfaces ()
     {
       _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (new[] { typeof (IDisposable) });
-      _mutableType.AddInterface (typeof (IComparable));
+      var mutableType = CreateMutableType();
+      mutableType.AddInterface (typeof (IComparable));
 
-      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
+      Assert.That (mutableType.GetInterfaces(), Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
     }
 
     [Test]
@@ -558,6 +573,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableType CreateMutableType (params ConstructorInfo[] existingConstructors)
     {
+      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes).Repeat.Once();
       _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors).Repeat.Once();
       
       return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);

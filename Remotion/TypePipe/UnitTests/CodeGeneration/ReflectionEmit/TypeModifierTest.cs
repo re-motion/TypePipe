@@ -59,8 +59,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
       var underlyingStrategyStub = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
+      underlyingStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (fakeUnderlyingSystemType);
+      underlyingStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
       underlyingStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
-      underlyingStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (fakeUnderlyingSystemType);
       
       var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeStrategy: underlyingStrategyStub);
       
@@ -127,8 +128,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MutableType CreateMutableTypeWithConstructors (params ConstructorInfo[] constructors)
     {
       var underlyingTypeStrategy = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
-      underlyingTypeStrategy.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (constructors);
+
       underlyingTypeStrategy.Stub (stub => stub.GetUnderlyingSystemType ()).Return (typeof (ClassWithConstructors));
+      underlyingTypeStrategy.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
+      underlyingTypeStrategy.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (constructors);
 
       return MutableTypeObjectMother.Create (underlyingTypeStrategy: underlyingTypeStrategy);
     }
