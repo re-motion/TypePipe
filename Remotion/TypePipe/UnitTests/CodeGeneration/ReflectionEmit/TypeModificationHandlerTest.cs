@@ -251,12 +251,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock
           .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderStub);
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
-      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
+      _expressionPreparerMock.Stub (mock => mock.PrepareConstructorBody (mutableConstructor));
 
       methodInvocation (mutableConstructor);
 
-      Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderStub));
+      _subclassProxyBuilderMock.VerifyAllExpectations();
     }
 
     public class CustomAttribute : Attribute
