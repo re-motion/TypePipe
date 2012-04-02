@@ -39,11 +39,6 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("body", body);
 
-      //if (initialBody.Type != typeof (void)) // TODO : 4686
-      //{
-      //  throw new ArgumentException("!!!");
-      //}
-
       var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList().AsReadOnly();
       return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarationReadOnlyCollection, body);
     }
