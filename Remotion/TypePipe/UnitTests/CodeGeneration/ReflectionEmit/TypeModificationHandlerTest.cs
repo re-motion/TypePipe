@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalCtor = ReflectionObjectMother.GetSomeConstructor();
       var existingCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (originalCtor);
 
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.CloneExistingConstructor, existingCtorDescriptor);
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleUnmodifiedConstructor, existingCtorDescriptor);
     }
 
     [Test]

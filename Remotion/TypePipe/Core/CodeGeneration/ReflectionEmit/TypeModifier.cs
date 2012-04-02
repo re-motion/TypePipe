@@ -17,14 +17,11 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -84,40 +81,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mutableReflectionObjectMap.AddMapping (mutableType, typeBuilder);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), mutableReflectionObjectMap);
-      CopyConstructorsFromBaseClass (mutableType, typeBuilder, ilGeneratorFactory, mutableReflectionObjectMap);
-
       var modificationHandler = new TypeModificationHandler (
           typeBuilder, new ExpandingExpressionPreparer(), mutableReflectionObjectMap, ilGeneratorFactory, _debugInfoGenerator);
+
+      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      foreach (var clonedCtor in mutableType.ExistingConstructors)
+      {
+        Assertion.IsTrue (clonedCtor.Body is OriginalBodyExpression);
+        modificationHandler.HandleUnmodifiedConstructor (clonedCtor);
+      }
+
       mutableType.Accept (modificationHandler);
 
       return typeBuilder.CreateType();
-    }
-
-    private void CopyConstructorsFromBaseClass (
-        MutableType mutableType,
-        ITypeBuilder typeBuilder,
-        IILGeneratorFactory ilGeneratorFactory,
-        ReflectionToBuilderMap reflectionToBuilderMap)
-    {
-      foreach (var clonedCtor in mutableType.ExistingConstructors)
-      {
-        var parameterTypes = clonedCtor.GetParameters().Select (pi => pi.ParameterType).ToArray();
-        var ctorBuilder = typeBuilder.DefineConstructor (clonedCtor.Attributes, CallingConventions.HasThis, parameterTypes);
-        reflectionToBuilderMap.AddMapping (clonedCtor, ctorBuilder);
-
-        foreach (MutableParameterInfo parameterInfo in clonedCtor.GetParameters())
-          ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
-
-        var parameterExpressions =
-            clonedCtor.GetParameters().Select (paramInfo => Expression.Parameter (paramInfo.ParameterType, paramInfo.Name)).ToArray();
-        var baseCallExpression = Expression.Call (
-            new TypeAsUnderlyingSystemTypeExpression (new ThisExpression (mutableType)),
-            new ConstructorAsMethodInfoAdapter (clonedCtor.UnderlyingSystemConstructorInfo),
-            parameterExpressions.Cast<Expression>());
-        var body = Expression.Lambda (baseCallExpression, parameterExpressions);
-
-        ctorBuilder.SetBody (body, ilGeneratorFactory, _debugInfoGenerator);
-      }
     }
   }
 }
