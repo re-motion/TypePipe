@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ExpressionTreeIntegratio
     public void New_WithArguments ()
     {
       var arguments = new ArgumentTestHelper ("string", 7, new object());
-      var constructor = MutableConstructorInfoObjectMother.CreateWithParameters(arguments.ParameterDeclarations);
+      var constructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters(arguments.ParameterDeclarations);
 
       var expression = Expression.New (constructor, arguments.Expressions);
 

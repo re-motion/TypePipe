@@ -43,7 +43,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      // TODO 4686: Check that _mutableConstructorInfo.UnderlyingSystemConstructorInfo is different from _mutableConstructorInfo.
+      if (_mutableConstructorInfo.IsAdded)
+      {
+        var message = string.Format (
+            "The body of an added constructor ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.", 
+            _mutableConstructorInfo, 
+            _mutableConstructorInfo.DeclaringType.Name);
+        throw new NotSupportedException (message);
+      }
+
       var baseMethod = new ConstructorAsMethodInfoAdapter (_mutableConstructorInfo.UnderlyingSystemConstructorInfo);
       var thisExpression = new ThisExpression (_mutableConstructorInfo.DeclaringType);
       // Since _mutableConstructorInfo.DeclaringType is a MutableType, we need to convert the ThisExpression to its underlying
@@ -51,8 +59,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
       var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
 
-      // TODO 4686: Catch ArgumentException and wrap into ArgumentException with message: The OriginalBodyExpression doesn't match the 
-      // underlying constructor.
       var baseCall = Expression.Call (convertedThisExpression, baseMethod, expression.Arguments);
       return Visit (baseCall);
     }

@@ -60,6 +60,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo ?? this; }
     }
 
+    public bool IsAdded
+    {
+      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo == null; }
+    }
+
     public override MethodAttributes Attributes
     {
       get { return _underlyingConstructorInfoDescriptor.Attributes; }

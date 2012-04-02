@@ -66,6 +66,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsAdded_True ()
+    {
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Null);
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.IsAdded, Is.True);
+    }
+
+    [Test]
+    public void IsAdded_False ()
+    {
+      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
+      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
+
+      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+
+      Assert.That (ctorInfo.IsAdded, Is.False);
+    }
+
+    [Test]
     public void Attributes ()
     {
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract);

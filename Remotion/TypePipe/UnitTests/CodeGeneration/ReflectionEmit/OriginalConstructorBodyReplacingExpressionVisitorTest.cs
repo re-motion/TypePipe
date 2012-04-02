@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -75,6 +76,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _visitorPartialMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The body of an added constructor ('System.Void .ctor(System.String)', declared for mutable type 'DomainClass') must not "
+        + "contain an OriginalBodyExpression.")]
+    public void VisitOriginalBody_WithAddedConstructor ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
+      var ctorInfo = mutableType.AddConstructor (
+          MethodAttributes.Public, 
+          new[] { new ParameterDeclaration (typeof (string), "p1") }, 
+          context => Expression.Empty());
+      var visitorPartialMock = new OriginalConstructorBodyReplacingExpressionVisitor (ctorInfo);
+
+      var expression = new OriginalBodyExpression (typeof (void), Enumerable.Empty<Expression>());
+
+      TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitorPartialMock, expression);
     }
 
     public class DomainClass

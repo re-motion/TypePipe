@@ -538,7 +538,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var constructor1 = MutableConstructorInfoObjectMother.Create();
       var arguments = new ArgumentTestHelper (typeof (int));
-      var constructor2 = MutableConstructorInfoObjectMother.CreateWithParameters (parameterDeclarations: arguments.ParameterDeclarations);
+      var constructor2 = MutableConstructorInfoObjectMother.CreateForNewWithParameters (parameterDeclarations: arguments.ParameterDeclarations);
       var mutableType = CreateMutableType (constructor1, constructor2);
       var mutableConstructor2 = mutableType.ExistingConstructors.Single (c => c.UnderlyingSystemConstructorInfo == constructor2);
       
