@@ -185,12 +185,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _underlyingTypeStrategy.GetFields (bindingAttr)
-          .Concat (
-              AddedFields
-                  .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
-                  .Cast<FieldInfo> ()
-          ).ToArray ();
+      return _existingFields.Concat (_addedFields.Cast<FieldInfo>())
+          .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
+          .ToArray();
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -286,12 +283,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     private FieldInfo[] GetAllFields ()
     {
-      return GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      return ExistingFields.Concat (AddedFields.Cast<FieldInfo>()).ToArray();
     }
 
     private ConstructorInfo[] GetAllConstructors ()
     {
-      return GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance); // Do not include type initializer
+      return ExistingConstructors.Concat (AddedConstructors).ToArray();
     }
 
     private void CheckDeclaringType (MemberInfo member, string parameterName)
