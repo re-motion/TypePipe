@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -34,6 +35,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         params ParameterDeclaration[] parameterDeclarations)
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      return Create (underlyingConstructorInfoDescriptor: descriptor);
+    }
+
+    public static MutableConstructorInfo CreateForExisting (ConstructorInfo originalConstructorInfo = null)
+    {
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (originalConstructorInfo);
+      return Create (underlyingConstructorInfoDescriptor: descriptor);
+    }
+
+    public static MutableConstructorInfo CreateForNew ()
+    {
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
       return Create (underlyingConstructorInfoDescriptor: descriptor);
     }
   }

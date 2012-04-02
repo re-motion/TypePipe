@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -129,18 +128,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedConstructor_CallsAddConstructorToSubclassProxy ()
     {
-      var addedCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
-
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleAddedConstructor, addedCtorDescriptor);
+      var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForNew();
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleAddedConstructor, mutableConstructorInfo);
     }
 
     [Test]
     public void CloneExistingConstructor_CallsAddConstructorToSubclassProxy ()
     {
-      var originalCtor = ReflectionObjectMother.GetSomeConstructor();
-      var existingCtorDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (originalCtor);
-
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleUnmodifiedConstructor, existingCtorDescriptor);
+      var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForExisting ();
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleUnmodifiedConstructor, mutableConstructorInfo);
     }
 
     [Test]
@@ -242,11 +238,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (
-        Action<MutableConstructorInfo> methodInvocation,
-        UnderlyingConstructorInfoDescriptor descriptor)
+        Action<MutableConstructorInfo> methodInvocation, MutableConstructorInfo mutableConstructor)
     {
-      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
-
       var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
       _subclassProxyBuilderMock
           .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
