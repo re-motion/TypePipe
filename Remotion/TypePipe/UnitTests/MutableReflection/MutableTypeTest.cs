@@ -53,6 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
 
       Assert.That (_mutableType.ExistingInterfaces, Is.Empty);
+      Assert.That (_mutableType.ExistingFields, Is.Empty);
       Assert.That (_mutableType.ExistingConstructors, Is.Empty);
     }
 
@@ -65,6 +66,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableType = CreateMutableType();
 
       Assert.That (mutableType.ExistingInterfaces, Is.EqualTo (interfaces));
+    }
+
+    [Test]
+    public void Initialization_WithFields ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      var field = ReflectionObjectMother.GetSomeField();
+      _typeStrategyStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { field });
+
+      var mutableType = CreateMutableType ();
+
+      Assert.That (mutableType.ExistingFields, Has.Count.EqualTo (1));
+      var existingField = mutableType.ExistingFields.Single ();
+
+      Assert.That (existingField, Is.EqualTo (field));
     }
 
     [Test]
@@ -574,6 +590,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableType CreateMutableType (params ConstructorInfo[] existingConstructors)
     {
       _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (new FieldInfo[0]).Repeat.Once();
       _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors).Repeat.Once();
       
       return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);

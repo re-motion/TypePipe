@@ -58,10 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void ApplyModifications ()
     {
       var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
-      var underlyingStrategyStub = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
-      underlyingStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (fakeUnderlyingSystemType);
-      underlyingStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
-      underlyingStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
+      var underlyingStrategyStub = CreateUnderlyingTypeStrategyStub (fakeUnderlyingSystemType);
       
       var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeStrategy: underlyingStrategyStub);
       
@@ -127,15 +124,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private MutableType CreateMutableTypeWithConstructors (params ConstructorInfo[] constructors)
     {
-      var underlyingTypeStrategy = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
-
-      underlyingTypeStrategy.Stub (stub => stub.GetUnderlyingSystemType ()).Return (typeof (ClassWithConstructors));
-      underlyingTypeStrategy.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
-      underlyingTypeStrategy.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (constructors);
+      IUnderlyingTypeStrategy underlyingTypeStrategy = CreateUnderlyingTypeStrategyStub(typeof (ClassWithConstructors), constructors: constructors);
 
       return MutableTypeObjectMother.Create (underlyingTypeStrategy: underlyingTypeStrategy);
     }
-    
+
+    private IUnderlyingTypeStrategy CreateUnderlyingTypeStrategyStub (
+        Type underlyingSystemType,
+        FieldInfo[] fields = null,
+        ConstructorInfo[] constructors = null)
+    {
+      var underlyingTypeStrategy = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
+
+      underlyingTypeStrategy.Stub (stub => stub.GetUnderlyingSystemType ()).Return (underlyingSystemType);
+      underlyingTypeStrategy.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
+      underlyingTypeStrategy.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (fields ?? new FieldInfo[0]);
+      underlyingTypeStrategy.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (constructors ?? new ConstructorInfo[0]);
+
+      return underlyingTypeStrategy;
+    }
+
     public class ClassWithConstructors
     {
       public ClassWithConstructors (string s)
