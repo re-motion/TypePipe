@@ -47,6 +47,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
 
+      // TODO 4695
+      // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = originalConstructorInfo.IsFamilyOrAssembly
                            ? ChangeVisibility (originalConstructorInfo.Attributes, MethodAttributes.Family)
                            : originalConstructorInfo.Attributes;

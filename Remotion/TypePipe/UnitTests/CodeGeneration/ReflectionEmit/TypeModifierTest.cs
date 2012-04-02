@@ -130,27 +130,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock2.VerifyAllExpectations ();
     }
 
-    [Test]
-    public void ApplyModifications_ClonesConstructors_ChangesVisibilityFromProtectedOrInternalToProtected ()
-    {
-      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
-      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
-
-      var constructor = ReflectionObjectMother.GetConstructor (() => new ClassWithConstructors (7));
-      var mutableType = CreateMutableTypeWithConstructors (constructor);
-
-      _moduleBuilderMock
-          .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
-          .Return (typeBuilderMock);
-
-      SetupCtorExpectations (mutableType, constructor, typeBuilderMock, constructorBuilderMock, MethodAttributes.Family);
-
-      _typeModifier.ApplyModifications (mutableType);
-
-      typeBuilderMock.VerifyAllExpectations ();
-      constructorBuilderMock.VerifyAllExpectations ();
-    }
-
     private void SetupCtorExpectations (
         MutableType mutableType,
         ConstructorInfo clonedCtor,

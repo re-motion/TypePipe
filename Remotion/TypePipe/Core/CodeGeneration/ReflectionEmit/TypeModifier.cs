@@ -101,12 +101,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       foreach (var clonedCtor in mutableType.ExistingConstructors)
       {
-        // Prevent loosening of visibility if the ctor visibility is FamilyOrAssembly (change to Family because the assembly of the generated 
-        // subclass is different from the assembly of the original class).
-        var attributes = clonedCtor.IsFamilyOrAssembly ? ChangeVisibility (clonedCtor.Attributes, MethodAttributes.Family) : clonedCtor.Attributes;
-
         var parameterTypes = clonedCtor.GetParameters().Select (pi => pi.ParameterType).ToArray();
-        var ctorBuilder = typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
+        var ctorBuilder = typeBuilder.DefineConstructor (clonedCtor.Attributes, CallingConventions.HasThis, parameterTypes);
         reflectionToBuilderMap.AddMapping (clonedCtor, ctorBuilder);
 
         foreach (MutableParameterInfo parameterInfo in clonedCtor.GetParameters())
@@ -122,11 +118,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         ctorBuilder.SetBody (body, ilGeneratorFactory, _debugInfoGenerator);
       }
-    }
-
-    private MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
-    {
-      return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
     }
   }
 }
