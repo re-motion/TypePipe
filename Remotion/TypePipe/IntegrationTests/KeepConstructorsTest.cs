@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 
 namespace TypePipe.IntegrationTests
 {
@@ -61,18 +62,23 @@ namespace TypePipe.IntegrationTests
       Assert.That (parameters[1], Is.EqualTo ("in and out"));
     }
 
-    public void CheckConstructorUsage (string expectedVal1, int expectedVal2, MethodAttributes visibility, Type type, params object[] ctorArguments)
+    private void CheckConstructorUsage (
+        string expectedVal1,
+        int expectedVal2,
+        MethodAttributes expectedVisibility,
+        Type generatedType,
+        params object[] ctorArguments)
     {
       var ctorParameterTypes = ctorArguments.Select (arg => arg.GetType()).ToArray();
-      var constructor = type.GetConstructor (CtorBindingFlags, null, ctorParameterTypes, null);
+      var constructor = generatedType.GetConstructor (CtorBindingFlags, null, ctorParameterTypes, null);
       var additionalMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
 
-      Assert.That (constructor.Attributes, Is.EqualTo (visibility | additionalMethodAttributes));
+      Assert.That (constructor.Attributes, Is.EqualTo (expectedVisibility | additionalMethodAttributes));
 
       var instance = (DomainType) constructor.Invoke (ctorArguments);
 
       Assert.That (instance, Is.Not.Null);
-      Assert.That (instance.GetType(), Is.SameAs (type));
+      Assert.That (instance.GetType(), Is.SameAs (generatedType));
       Assert.That (instance.StringProperty, Is.EqualTo (expectedVal1));
       Assert.That (instance.IntProperty, Is.EqualTo (expectedVal2));
     }
@@ -84,7 +90,9 @@ namespace TypePipe.IntegrationTests
           .ToArray(); // better error message
     }
 
+// ReSharper disable MemberCanBePrivate.Global
     public class DomainType
+// ReSharper restore MemberCanBePrivate.Global
     {
       public string StringProperty { get; set; }
       public int IntProperty { get; set; }
@@ -105,6 +113,7 @@ namespace TypePipe.IntegrationTests
       {
         StringProperty = "protected internal";
         IntProperty = -30;
+        Dev.Null = x;
       }
 
       internal DomainType (int i)
@@ -113,7 +122,9 @@ namespace TypePipe.IntegrationTests
         IntProperty = i;
       }
 
+// ReSharper disable UnusedMember.Local
       private DomainType (string s, int i)
+// ReSharper restore UnusedMember.Local
       {
         StringProperty = s;
         IntProperty = i;
