@@ -26,11 +26,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableConstructorInfoTest
   {
     private MutableType _declaringType;
+    
+    private MutableConstructorInfo _mutableCtor;
+    private UnderlyingConstructorInfoDescriptor _descriptor;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
+
+      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
+      _mutableCtor = Create (_descriptor);
     }
 
     [Test]
@@ -38,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
 
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
 
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
     }
@@ -90,40 +96,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Attributes ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract);
-
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
-
-      Assert.That (ctorInfo.Attributes, Is.EqualTo (MethodAttributes.Abstract));
+      Assert.That (_mutableCtor.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]
     public void CallingConvention ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
-
-      Assert.That (ctorInfo.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      Assert.That (_mutableCtor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
     }
 
     [Test]
     public void Name ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
-
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
-
-      Assert.That (ctorInfo.Name, Is.EqualTo (".ctor"));
+      Assert.That (_mutableCtor.Name, Is.EqualTo (".ctor"));
     }
 
     [Test]
     public void ParameterExpressions ()
     {
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+      var ctorInfo = CreateWithParameters (parameterDeclarations);
 
       Assert.That (ctorInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
     }
@@ -131,11 +123,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Body ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
-
-      Assert.That (ctorInfo.Body, Is.SameAs (underlyingCtorInfoDescriptor.Body));
+      Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
     }
 
     [Test]
