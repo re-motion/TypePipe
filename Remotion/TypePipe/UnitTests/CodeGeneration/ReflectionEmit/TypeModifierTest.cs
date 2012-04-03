@@ -136,10 +136,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var underlyingTypeStrategy = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
 
-      underlyingTypeStrategy.Stub (stub => stub.GetUnderlyingSystemType ()).Return (underlyingSystemType);
-      underlyingTypeStrategy.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
-      underlyingTypeStrategy.Stub (stub => stub.GetFields ()).Return (fields ?? new FieldInfo[0]);
-      underlyingTypeStrategy.Stub (stub => stub.GetConstructors ()).Return (constructors ?? new ConstructorInfo[0]);
+      underlyingTypeStrategy.Stub (stub => stub.UnderlyingSystemType).Return (underlyingSystemType);
+      underlyingTypeStrategy.Stub (stub => stub.Interfaces).Return (Type.EmptyTypes);
+      underlyingTypeStrategy.Stub (stub => stub.Fields).Return (fields ?? new FieldInfo[0]);
+      underlyingTypeStrategy.Stub (stub => stub.Constructors).Return (constructors ?? new ConstructorInfo[0]);
 
       return underlyingTypeStrategy;
     }

@@ -43,60 +43,66 @@ namespace Remotion.TypePipe.MutableReflection
       _memberFilter = memberFilter;
     }
 
-    public Type GetBaseType ()
+    public Type UnderlyingSystemType
     {
-      return _originalType.BaseType;
+      get { return _originalType; }
     }
 
-    public Type GetUnderlyingSystemType ()
+    public Type BaseType
     {
-      return _originalType;
+      get { return _originalType.BaseType; }
     }
 
-    public string GetName ()
+    public string Name
     {
-      return _originalType.Name;
+      get { return _originalType.Name; }
     }
 
-    public string GetNamespace ()
+    public string Namespace
     {
-      return _originalType.Namespace;
+      get { return _originalType.Namespace; }
     }
 
-    public string GetFullName ()
+    public string FullName
     {
-      return _originalType.FullName;
+      get { return _originalType.FullName; }
     }
 
-    public string GetToStringRepresentation ()
+    public string StringRepresentation
     {
-      return _originalType.ToString();
+      get { return _originalType.ToString(); }
     }
 
-    public TypeAttributes GetAttributeFlags ()
+    public TypeAttributes Attributes
     {
-      return _originalType.Attributes;
+      get { return _originalType.Attributes; }
     }
 
-    public Type[] GetInterfaces ()
+    public Type[] Interfaces
     {
-      return _originalType.GetInterfaces();
+      get { return _originalType.GetInterfaces(); }
     }
 
-    public FieldInfo[] GetFields ()
+    public FieldInfo[] Fields
     {
-      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      var fieldInfos = _originalType.GetFields (bindingAttr);
-      var filteredFields = _memberFilter.FilterFields (fieldInfos);
+      get
+      {
+        var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+        var fieldInfos = _originalType.GetFields (bindingAttr);
+        var filteredFields = _memberFilter.FilterFields (fieldInfos);
 
-      return filteredFields;
+        return filteredFields;
+      }
     }
 
-    public ConstructorInfo[] GetConstructors ()
+    public ConstructorInfo[] Constructors
     {
-      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var constructorInfos = _originalType.GetConstructors (bindingAttr);
-      return _memberFilter.FilterConstructors (constructorInfos);
+      get
+      {
+        var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        var constructorInfos = _originalType.GetConstructors (bindingAttr);
+        return _memberFilter.FilterConstructors (constructorInfos);
+      }
     }
 
     private bool CanNotBeSubclassed (Type type)

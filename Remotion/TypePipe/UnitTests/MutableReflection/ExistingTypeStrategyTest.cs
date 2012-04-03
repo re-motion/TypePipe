@@ -64,51 +64,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseType ()
+    public void GetUnderlyingSystemType ()
     {
-      Assert.That (_existingTypeStrategy.GetBaseType(), Is.EqualTo (typeof (ExampleType).BaseType));
+      Assert.That (_existingTypeStrategy.UnderlyingSystemType, Is.SameAs (typeof (ExampleType)));
     }
 
     [Test]
-    public void GetUnderlyingSystemType ()
+    public void GetBaseType ()
     {
-      Assert.That (_existingTypeStrategy.GetUnderlyingSystemType(), Is.SameAs (typeof (ExampleType)));
+      Assert.That (_existingTypeStrategy.BaseType, Is.EqualTo (typeof (ExampleType).BaseType));
     }
 
     [Test]
     public void GetName ()
     {
-      Assert.That (_existingTypeStrategy.GetName(), Is.EqualTo (_originalType.Name));
+      Assert.That (_existingTypeStrategy.Name, Is.EqualTo (_originalType.Name));
     }
 
     [Test]
     public void GetNamespace ()
     {
-      Assert.That (_existingTypeStrategy.GetNamespace (), Is.EqualTo (_originalType.Namespace));
+      Assert.That (_existingTypeStrategy.Namespace, Is.EqualTo (_originalType.Namespace));
     }
 
     [Test]
     public void GetFullName ()
     {
-      Assert.That (_existingTypeStrategy.GetFullName (), Is.EqualTo (_originalType.FullName));
+      Assert.That (_existingTypeStrategy.FullName, Is.EqualTo (_originalType.FullName));
     }
 
     [Test]
     public void GetToStringRepresentation ()
     {
-      Assert.That (_existingTypeStrategy.GetToStringRepresentation(), Is.EqualTo (_originalType.ToString()));
+      Assert.That (_existingTypeStrategy.StringRepresentation, Is.EqualTo (_originalType.ToString()));
     }
 
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      Assert.That (_existingTypeStrategy.GetAttributeFlags(), Is.EqualTo (typeof(ExampleType).Attributes));
+      Assert.That (_existingTypeStrategy.Attributes, Is.EqualTo (typeof(ExampleType).Attributes));
     }
 
     [Test]
     public void GetInterfaces ()
     {
-      Assert.That (_existingTypeStrategy.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IDisposable) }));
+      Assert.That (_existingTypeStrategy.Interfaces, Is.EquivalentTo (new[] { typeof (IDisposable) }));
     }
 
     [Test]
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredFields = new FieldInfo[0];
       _memberFilterStub.Stub (stub => stub.FilterFields (allFields)).Return (filteredFields);
 
-      var fields = _existingTypeStrategy.GetFields ();
+      var fields = _existingTypeStrategy.Fields;
 
       Assert.That (fields, Is.SameAs (filteredFields));
     }
@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredCtors = new ConstructorInfo[0];
       _memberFilterStub.Stub (stub => stub.FilterConstructors (allConstructors)).Return (filteredCtors);
 
-      var fields = _existingTypeStrategy.GetConstructors ();
+      var fields = _existingTypeStrategy.Constructors;
 
       Assert.That (fields, Is.SameAs (filteredCtors));
     }

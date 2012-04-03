@@ -58,9 +58,9 @@ namespace Remotion.TypePipe.MutableReflection
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
-      _existingInterfaces = _underlyingTypeStrategy.GetInterfaces().ToList().AsReadOnly();
-      _existingFields = Array.AsReadOnly (_underlyingTypeStrategy.GetFields ());
-      _existingConstructors = _underlyingTypeStrategy.GetConstructors ().ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
+      _existingInterfaces = _underlyingTypeStrategy.Interfaces.ToList().AsReadOnly();
+      _existingFields = Array.AsReadOnly (_underlyingTypeStrategy.Fields);
+      _existingConstructors = _underlyingTypeStrategy.Constructors.ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type UnderlyingSystemType
     {
-      get { return _underlyingTypeStrategy.GetUnderlyingSystemType() ?? this; }
+      get { return _underlyingTypeStrategy.UnderlyingSystemType ?? this; }
     }
 
     public override Assembly Assembly
@@ -105,27 +105,27 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type BaseType
     {
-      get { return _underlyingTypeStrategy.GetBaseType (); }
+      get { return _underlyingTypeStrategy.BaseType; }
     }
 
     public override string Name
     {
-      get { return _underlyingTypeStrategy.GetName(); }
+      get { return _underlyingTypeStrategy.Name; }
     }
 
     public override string Namespace
     {
-      get { return _underlyingTypeStrategy.GetNamespace(); }
+      get { return _underlyingTypeStrategy.Namespace; }
     }
 
     public override string FullName
     {
-      get { return _underlyingTypeStrategy.GetFullName(); }
+      get { return _underlyingTypeStrategy.FullName; }
     }
 
     public override string ToString ()
     {
-      return _underlyingTypeStrategy.GetToStringRepresentation();
+      return _underlyingTypeStrategy.StringRepresentation;
     }
 
     public bool IsEquivalentTo (Type type)
@@ -256,7 +256,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return _underlyingTypeStrategy.GetAttributeFlags ();
+      return _underlyingTypeStrategy.Attributes;
     }
 
     protected override bool IsByRefImpl ()

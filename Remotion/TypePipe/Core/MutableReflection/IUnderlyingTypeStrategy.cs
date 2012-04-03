@@ -27,15 +27,17 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public interface IUnderlyingTypeStrategy
   {
-    Type GetBaseType ();
-    Type GetUnderlyingSystemType ();
-    string GetName ();
-    string GetNamespace ();
-    string GetFullName ();
-    string GetToStringRepresentation ();
-    TypeAttributes GetAttributeFlags ();
-    Type[] GetInterfaces ();
-    FieldInfo[] GetFields ();
-    ConstructorInfo[] GetConstructors ();
+    Type UnderlyingSystemType { get; }
+
+    Type BaseType { get; }
+    string Name { get; }
+    string Namespace { get; }
+    string FullName { get; }
+    string StringRepresentation { get; }
+    TypeAttributes Attributes { get; }
+
+    Type[] Interfaces { get; }
+    FieldInfo[] Fields { get; }
+    ConstructorInfo[] Constructors { get; }
   }
 }

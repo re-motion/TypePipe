@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemType ()
     {
       var type = ReflectionObjectMother.GetSomeType();
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (type);
+      _typeStrategyStub.Stub (stub => stub.UnderlyingSystemType).Return (type);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (type));
     }
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemType_ForNull ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (null);
+      _typeStrategyStub.Stub (stub => stub.UnderlyingSystemType).Return (null);
 
       Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_mutableType));
     }
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void BaseType ()
     {
       var baseType = ReflectionObjectMother.GetSomeType();
-      _typeStrategyStub.Stub (stub => stub.GetBaseType()).Return (baseType);
+      _typeStrategyStub.Stub (stub => stub.BaseType).Return (baseType);
 
       Assert.That (_mutableType.BaseType, Is.SameAs (baseType));
     }
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Name ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetName()).Return ("bar");
+      _typeStrategyStub.Stub (stub => stub.Name).Return ("bar");
 
       Assert.That (_mutableType.Name, Is.EqualTo ("bar"));
     }
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Namespace ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetNamespace ()).Return ("foo");
+      _typeStrategyStub.Stub (stub => stub.Namespace).Return ("foo");
 
       Assert.That (_mutableType.Namespace, Is.EqualTo ("foo"));
     }
@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void FullName ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetFullName ()).Return ("foo.bar");
+      _typeStrategyStub.Stub (stub => stub.FullName).Return ("foo.bar");
 
       Assert.That (_mutableType.FullName, Is.EqualTo ("foo.bar"));
     }
@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetToStringRepresentation ()).Return ("foo");
+      _typeStrategyStub.Stub (stub => stub.StringRepresentation).Return ("foo");
 
       Assert.That (_mutableType.ToString(), Is.EqualTo ("foo"));
     }
@@ -163,7 +163,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var underlyingType = ReflectionObjectMother.GetSomeType();
       var type = ReflectionObjectMother.GetSomeDifferentType();
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType()).Return (underlyingType);
+      _typeStrategyStub.Stub (stub => stub.UnderlyingSystemType).Return (underlyingType);
 
       Assert.That (_mutableType.IsEquivalentTo (type), Is.False);
     }
@@ -486,7 +486,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableType = CreateMutableType (existingConstructors: new[] { someCtor });
 
       // Stub underlying type so that declaring type check in GetMutableConstructor succeeds
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (someCtor.DeclaringType);
+      _typeStrategyStub.Stub (stub => stub.UnderlyingSystemType).Return (someCtor.DeclaringType);
 
       var result = mutableType.GetMutableConstructor (someCtor);
 
@@ -501,7 +501,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableType = CreateMutableType (existingConstructors: new[] { someCtor });
      
       // Stub underlying type so that declaring type check in GetMutableConstructor succeeds
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (someCtor.DeclaringType);
+      _typeStrategyStub.Stub (stub => stub.UnderlyingSystemType).Return (someCtor.DeclaringType);
 
       var result1 = mutableType.GetMutableConstructor (someCtor);
       var result2 = mutableType.GetMutableConstructor (someCtor);
@@ -517,7 +517,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableType = CreateMutableType();
 
       // Stub underlying type so that declaring type check in GetMutableConstructor succeeds
-      _typeStrategyStub.Stub (stub => stub.GetUnderlyingSystemType ()).Return (someCtor.DeclaringType);
+      _typeStrategyStub.Stub (stub => stub.UnderlyingSystemType).Return (someCtor.DeclaringType);
 
       mutableType.GetMutableConstructor (someCtor);
     }
@@ -526,17 +526,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Accept ()
     {
       _typeStrategyStub
-          .Stub (stub => stub.GetInterfaces())
+          .Stub (stub => stub.Interfaces)
           .Return (new[] { ReflectionObjectMother.GetSomeInterfaceType() });
       var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType ();
       _mutableType.AddInterface (addedInterface);
 
       _typeStrategyStub
-          .Stub (stub => stub.GetFields ())
+          .Stub (stub => stub.Fields)
           .Return (new[] { ReflectionObjectMother.GetSomeField() });
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
-      _typeStrategyStub.Stub (stub => stub.GetConstructors ()).Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
+      _typeStrategyStub.Stub (stub => stub.Constructors).Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
       var addedConstructorInfo = AddConstructor (_mutableType, 0);
 
       var handlerMock = MockRepository.GenerateMock<ITypeModificationHandler>();
@@ -563,7 +563,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      _typeStrategyStub.Stub (stub => stub.GetAttributeFlags()).Return (TypeAttributes.Sealed);
+      _typeStrategyStub.Stub (stub => stub.Attributes).Return (TypeAttributes.Sealed);
 
       Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Sealed));
     }
@@ -600,9 +600,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       existingFields = existingFields ?? new FieldInfo[0];
       existingConstructors = existingConstructors ?? new ConstructorInfo[0];
 
-      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (existingInterfaces).Repeat.Once();
-      _typeStrategyStub.Stub (stub => stub.GetFields ()).Return (existingFields).Repeat.Once();
-      _typeStrategyStub.Stub (stub => stub.GetConstructors ()).Return (existingConstructors).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.Interfaces).Return (existingInterfaces).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.Fields).Return (existingFields).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.Constructors).Return (existingConstructors).Repeat.Once();
       
       return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
     }
