@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -31,6 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="Type"/> that can be changed. Changes are recorded and, depending on the concrete <see cref="MutableType"/>, applied
   /// to an existing type or to a newly created type.
   /// </summary>
+  [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableType : Type
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
@@ -127,6 +129,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override string ToString ()
     {
       return _underlyingTypeDescriptor.StringRepresentation;
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("MutableType = \"{0}\"", Name);
     }
 
     public bool IsEquivalentTo (Type type)

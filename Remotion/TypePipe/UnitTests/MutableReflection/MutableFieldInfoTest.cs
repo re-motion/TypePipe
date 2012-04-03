@@ -64,6 +64,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ToDebugString ()
+    {
+      var declaringTypeName = _fieldInfo.DeclaringType.Name;
+      var fieldTypeName = _fieldInfo.FieldType.Name;
+      var fieldName = _fieldInfo.Name;
+      var expected = "MutableField = \"" + fieldTypeName + " " + fieldName + "\", DeclaringType = \"" + declaringTypeName + "\"";
+
+      Assert.That (_fieldInfo.ToDebugString(), Is.EqualTo (expected));
+    }
+
+    [Test]
     public void AddCustomAttribute ()
     {
       var customAttribute = CustomAttributeDeclarationObjectMother.Create();

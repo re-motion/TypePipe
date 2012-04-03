@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
   /// </summary>
+  [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableConstructorInfo : ConstructorInfo
   {
     private readonly MutableType _declaringType;
@@ -102,6 +104,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));
       return typeof (void) + " " + Name + "(" + parameterTypes + ")";
+    }
+
+    public string ToDebugString()
+    {
+      return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType.Name);
     }
 
     public override ParameterInfo[] GetParameters ()

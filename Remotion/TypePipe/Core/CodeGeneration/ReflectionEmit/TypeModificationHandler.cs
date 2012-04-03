@@ -22,7 +22,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 

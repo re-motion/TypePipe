@@ -147,6 +147,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ToDebugString ()
+    {
+      Assert.That (_descriptor.StringRepresentation, Is.Not.Null.And.Not.Empty);
+
+      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"" + _descriptor.Name + "\""));
+    }
+
+    [Test]
     public void IsEquivalentTo_Type_False ()
     {
       var type = ReflectionObjectMother.GetSomeDifferentType();
