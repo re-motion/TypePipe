@@ -32,15 +32,18 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           //mutableType =>
           //mutableType.SetBody (
-        //    ctx => GetPreviousBody (
+          //  Expression.Block (
+        //    ctx => ctx.GetPreviousBody (
           //        Expression.Add ( // instead of Add (arithmetic) call static method: string.Concat(str1, str2)
           //            ctx.ParameterExpression[0], Expression.Constant (" cd")
-          //            )))
+          //            )),
+          //  Expression.Assign (Expression.Property (ctx.ThisExpression, "SettableProperty"), ctx.ParameterExpression[0]) ))
           );
 
       var instance = (DomainType) Activator.CreateInstance (type, "ab");
 
       Assert.That (instance.CtorArgument, Is.EqualTo ("ab cd"));
+      Assert.That (instance.SettableProperty, Is.EqualTo ("ab"));
     }
 
     [Test]
@@ -75,9 +78,7 @@ namespace TypePipe.IntegrationTests
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
             var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
-            //mutableCtor.SetBody (ctx => ctx.GetConstructorCallExpression (Expression.Constant ("modified existing")));
-            // OR  mutableCtor.SetBody (ctx => ctx.GetPreviousBody (Expression.Constant ("modified existing")));
-            // should yield same result here (I favor option 2, because option 1 looks like a recursive call)
+            // mutableCtor.SetBody (ctx => ctx.GetPreviousBody (Expression.Constant ("modified existing")));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -93,6 +94,7 @@ namespace TypePipe.IntegrationTests
       }
 
       public string CtorArgument { get; private set; }
+      public string SettableProperty { get; set; }
     }
   }
 }

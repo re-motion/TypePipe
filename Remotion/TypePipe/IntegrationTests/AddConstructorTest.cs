@@ -85,8 +85,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (arguments[1], Is.EqualTo ("7"));
     }
 
-    // TODO 4705: Add integration test proving that added ctor calls modified existing ctor on subclass proxy (not base ctor).
-
     public class DomainType
     {
       private readonly string _constructorInitializedValue;
