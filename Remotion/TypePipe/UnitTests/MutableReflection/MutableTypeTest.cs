@@ -95,6 +95,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsNewType ()
+    {
+      Assert.That (_mutableType.IsNewType, Is.False);
+    }
+
+    [Test]
     public void Assembly ()
     {
       Assert.That (_mutableType.Assembly, Is.Null);

@@ -52,6 +52,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
+    public bool IsNewField
+    {
+      get { return true; }
+    }
+
     public override Type FieldType
     {
       get { return _fieldType; }

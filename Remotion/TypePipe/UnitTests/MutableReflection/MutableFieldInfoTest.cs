@@ -50,6 +50,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsNewField ()
+    {
+      Assert.That (_fieldInfo.IsNewField, Is.True);
+    }
+
+    [Test]
     public new void ToString ()
     {
       var expected = _fieldInfo.FieldType + " " + _fieldInfo.Name;

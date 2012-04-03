@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      if (_mutableConstructorInfo.IsAdded)
+      if (_mutableConstructorInfo.IsNewConstructor)
       {
         var message = string.Format (
             "The body of an added constructor ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.", 

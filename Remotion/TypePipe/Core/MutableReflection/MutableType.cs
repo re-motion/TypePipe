@@ -94,6 +94,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingTypeDescriptor.UnderlyingSystemType; }
     }
 
+    public bool IsNewType
+    {
+      get { return false; }
+    }
+
     public override Assembly Assembly
     {
       get { return null; }

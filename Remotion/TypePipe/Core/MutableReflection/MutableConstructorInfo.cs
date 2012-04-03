@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo ?? this; }
     }
 
-    public bool IsAdded
+    public bool IsNewConstructor
     {
       get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo == null; }
     }
