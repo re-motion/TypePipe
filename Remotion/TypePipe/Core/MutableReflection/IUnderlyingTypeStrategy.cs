@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
     string GetToStringRepresentation ();
     TypeAttributes GetAttributeFlags ();
     Type[] GetInterfaces ();
-    FieldInfo[] GetFields (BindingFlags bindingAttr);
+    FieldInfo[] GetFields ();
     ConstructorInfo[] GetConstructors (BindingFlags bindingAttr);
   }
 }

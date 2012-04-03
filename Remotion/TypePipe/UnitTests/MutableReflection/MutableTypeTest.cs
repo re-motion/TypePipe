@@ -532,7 +532,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddInterface (addedInterface);
 
       _typeStrategyStub
-          .Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything))
+          .Stub (stub => stub.GetFields ())
           .Return (new[] { ReflectionObjectMother.GetSomeField() });
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
@@ -603,7 +603,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       existingConstructors = existingConstructors ?? new ConstructorInfo[0];
 
       _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (existingInterfaces).Repeat.Once();
-      _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (existingFields).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.GetFields ()).Return (existingFields).Repeat.Once();
       _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors).Repeat.Once();
       
       return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);

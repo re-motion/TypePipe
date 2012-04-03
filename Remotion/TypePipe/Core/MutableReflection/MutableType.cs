@@ -59,8 +59,7 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
       _existingInterfaces = _underlyingTypeStrategy.GetInterfaces().ToList().AsReadOnly();
-      var bindingAttrFields = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      _existingFields = Array.AsReadOnly (_underlyingTypeStrategy.GetFields (bindingAttrFields));
+      _existingFields = Array.AsReadOnly (_underlyingTypeStrategy.GetFields ());
       var bindingAttrCtors = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       _existingConstructors = _underlyingTypeStrategy.GetConstructors (bindingAttrCtors)
           .ToDictionary (ctor => ctor, CreateExistingMutableConstructor)

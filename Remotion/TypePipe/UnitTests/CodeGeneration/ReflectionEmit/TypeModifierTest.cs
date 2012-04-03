@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       underlyingTypeStrategy.Stub (stub => stub.GetUnderlyingSystemType ()).Return (underlyingSystemType);
       underlyingTypeStrategy.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes);
-      underlyingTypeStrategy.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (fields ?? new FieldInfo[0]);
+      underlyingTypeStrategy.Stub (stub => stub.GetFields ()).Return (fields ?? new FieldInfo[0]);
       underlyingTypeStrategy.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (constructors ?? new ConstructorInfo[0]);
 
       return underlyingTypeStrategy;

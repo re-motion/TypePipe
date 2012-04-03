@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredFields = new FieldInfo[0];
       _memberFilterStub.Stub (stub => stub.FilterFields (allFields)).Return (filteredFields);
 
-      var fields = _existingTypeStrategy.GetFields (bindingFlags);
+      var fields = _existingTypeStrategy.GetFields ();
 
       Assert.That (fields, Is.SameAs (filteredFields));
     }

@@ -83,10 +83,13 @@ namespace Remotion.TypePipe.MutableReflection
       return _originalType.GetInterfaces();
     }
 
-    public FieldInfo[] GetFields (BindingFlags bindingAttr)
+    public FieldInfo[] GetFields ()
     {
+      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
       var fieldInfos = _originalType.GetFields (bindingAttr);
-      return _memberFilter.FilterFields (fieldInfos);
+      var filteredFields = _memberFilter.FilterFields (fieldInfos);
+
+      return filteredFields;
     }
 
     public ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
