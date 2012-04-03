@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredCtors = new ConstructorInfo[0];
       _memberFilterStub.Stub (stub => stub.FilterConstructors (allConstructors)).Return (filteredCtors);
 
-      var fields = _existingTypeStrategy.GetConstructors (bindingFlags);
+      var fields = _existingTypeStrategy.GetConstructors ();
 
       Assert.That (fields, Is.SameAs (filteredCtors));
     }

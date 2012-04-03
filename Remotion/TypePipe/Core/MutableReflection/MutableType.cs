@@ -60,10 +60,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _existingInterfaces = _underlyingTypeStrategy.GetInterfaces().ToList().AsReadOnly();
       _existingFields = Array.AsReadOnly (_underlyingTypeStrategy.GetFields ());
-      var bindingAttrCtors = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      _existingConstructors = _underlyingTypeStrategy.GetConstructors (bindingAttrCtors)
-          .ToDictionary (ctor => ctor, CreateExistingMutableConstructor)
-          .AsReadOnly();
+      _existingConstructors = _underlyingTypeStrategy.GetConstructors ().ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces

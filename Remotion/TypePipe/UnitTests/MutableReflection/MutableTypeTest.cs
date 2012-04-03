@@ -536,9 +536,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (new[] { ReflectionObjectMother.GetSomeField() });
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
-      _typeStrategyStub
-          .Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything))
-          .Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
+      _typeStrategyStub.Stub (stub => stub.GetConstructors ()).Return (new[] { ReflectionObjectMother.GetSomeDefaultConstructor () });
       var addedConstructorInfo = AddConstructor (_mutableType, 0);
 
       var handlerMock = MockRepository.GenerateMock<ITypeModificationHandler>();
@@ -604,7 +602,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (existingInterfaces).Repeat.Once();
       _typeStrategyStub.Stub (stub => stub.GetFields ()).Return (existingFields).Repeat.Once();
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.GetConstructors ()).Return (existingConstructors).Repeat.Once();
       
       return new MutableType (_typeStrategyStub, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
     }

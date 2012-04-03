@@ -92,8 +92,9 @@ namespace Remotion.TypePipe.MutableReflection
       return filteredFields;
     }
 
-    public ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
+    public ConstructorInfo[] GetConstructors ()
     {
+      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var constructorInfos = _originalType.GetConstructors (bindingAttr);
       return _memberFilter.FilterConstructors (constructorInfos);
     }
