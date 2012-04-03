@@ -22,6 +22,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Used by <see cref="UnderlyingTypeDescriptor.Create"/> to filter the returned members.
   /// </summary>
+  // TODO 4695 (This is already part of the RefEmit abstraction.)
   public interface IMemberFilter
   {
     IEnumerable<FieldInfo> FilterFields (IEnumerable<FieldInfo> fieldInfos);
