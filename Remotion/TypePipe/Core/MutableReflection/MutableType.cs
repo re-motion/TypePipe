@@ -200,7 +200,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableConstructorInfo AddConstructor (
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<ConstructorAdditionContext, Expression> bodyGenerator)
+        Func<ConstructorBodyCreationContext, Expression> bodyGenerator)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyGenerator", bodyGenerator);
@@ -210,7 +210,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
-      var context = new ConstructorAdditionContext (this, parameterExpressions);
+      var context = new ConstructorBodyCreationContext (this, parameterExpressions);
       var body = bodyGenerator (context);
       
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);

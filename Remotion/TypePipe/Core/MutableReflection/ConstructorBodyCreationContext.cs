@@ -29,38 +29,38 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Provides access to parameters and custom expression for building constructor bodies.
   /// </summary>
-  public class ConstructorAdditionContext
+  public class ConstructorBodyCreationContext
   {
     private readonly MutableType _declaringType;
-    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameters;
 
-    public ConstructorAdditionContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    public ConstructorBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
 
       _declaringType = declaringType;
-      _parameterExpressions = parameterExpressions.ToList().AsReadOnly();
+      _parameters = parameterExpressions.ToList().AsReadOnly();
     }
 
-    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
+    public ReadOnlyCollection<ParameterExpression> Parameters
     {
-      get { return _parameterExpressions; }
+      get { return _parameters; }
     }
 
-    public Expression ThisExpression
+    public Expression This
     {
       get { return new ThisExpression(_declaringType); }
     }
 
-    public Expression GetConstructorCallExpression (params Expression[] arguments)
+    public Expression GetConstructorCall (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("arguments", arguments);
 
-      return GetConstructorCallExpression (((IEnumerable<Expression>) arguments));
+      return GetConstructorCall (((IEnumerable<Expression>) arguments));
     }
 
-    public Expression GetConstructorCallExpression (IEnumerable<Expression> arguments)
+    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var adapter = new ConstructorAsMethodInfoAdapter (constructor);
 
-      return Expression.Call (ThisExpression, adapter, arguments);
+      return Expression.Call (This, adapter, arguments);
     }
   }
 }

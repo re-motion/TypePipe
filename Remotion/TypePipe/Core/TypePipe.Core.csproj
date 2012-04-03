@@ -91,7 +91,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModificationHandler.cs" />
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
-    <Compile Include="MutableReflection\ConstructorAdditionContext.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyCreationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\ITypeModificationHandler.cs" />

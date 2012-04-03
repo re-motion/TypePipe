@@ -34,8 +34,8 @@ namespace TypePipe.IntegrationTests
               MethodAttributes.Public, 
               new[] { new ParameterDeclaration (typeof (int), "i") }, 
               context => Expression.Block (
-                  context.GetConstructorCallExpression (Expression.Call (context.ParameterExpressions[0], "ToString", Type.EmptyTypes)),
-                  Expression.Assign (Expression.Field (context.ThisExpression, "_addedConstructorInitializedValue"), Expression.Constant ("hello")))));
+                  context.GetConstructorCall (Expression.Call (context.Parameters[0], "ToString", Type.EmptyTypes)),
+                  Expression.Assign (Expression.Field (context.This, "_addedConstructorInitializedValue"), Expression.Constant ("hello")))));
 
       var addedCtor = type.GetConstructor (new[] { typeof (int) });
       Assert.That (addedCtor, Is.Not.Null);
@@ -62,9 +62,9 @@ namespace TypePipe.IntegrationTests
                 var toStringResultLocal = Expression.Variable (typeof (string), "toStringResult");
                 return Expression.Block (
                     new[] { toStringResultLocal },
-                    Expression.Assign (toStringResultLocal, Expression.Call (context.ParameterExpressions[0], "ToString", Type.EmptyTypes)),
-                    context.GetConstructorCallExpression (toStringResultLocal),
-                    Expression.Assign (context.ParameterExpressions[1], toStringResultLocal));
+                    Expression.Assign (toStringResultLocal, Expression.Call (context.Parameters[0], "ToString", Type.EmptyTypes)),
+                    context.GetConstructorCall (toStringResultLocal),
+                    Expression.Assign (context.Parameters[1], toStringResultLocal));
               }));
 
       var addedCtor = type.GetConstructor (new[] { typeof (int), typeof (string).MakeByRefType () });

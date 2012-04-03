@@ -72,7 +72,7 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
-    <Compile Include="MutableReflection\ConstructorAdditionContextTest.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyCreationContextTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ArgumentTestHelper.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />

@@ -37,7 +37,7 @@ namespace TypePipe.IntegrationTests
           //        Expression.Add ( // instead of Add (arithmetic) call static method: string.Concat(str1, str2)
           //            ctx.ParameterExpression[0], Expression.Constant (" cd")
           //            )),
-          //  Expression.Assign (Expression.Property (ctx.ThisExpression, "SettableProperty"), ctx.ParameterExpression[0]) ))
+          //  Expression.Assign (Expression.Property (ctx.This, "SettableProperty"), ctx.ParameterExpression[0]) ))
           );
 
       var instance = (DomainType) Activator.CreateInstance (type, "ab");
@@ -53,12 +53,12 @@ namespace TypePipe.IntegrationTests
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public,
               new ParameterDeclaration[0],
-              ctx => ctx.GetConstructorCallExpression (Expression.Constant ("added"))),
+              ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
           mutableType =>
           {
             var addedCtor = mutableType.GetConstructor (Type.EmptyTypes);
             var mutableCtor = mutableType.GetMutableConstructor (addedCtor);
-            //mutableCtor.SetBody (ctx => ctx.GetConstructorCallExpression (Expression.Constant ("modified added")));
+            //mutableCtor.SetBody (ctx => ctx.GetConstructorCall (Expression.Constant ("modified added")));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -73,7 +73,7 @@ namespace TypePipe.IntegrationTests
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public,
               new ParameterDeclaration[0],
-              ctx => ctx.GetConstructorCallExpression (Expression.Constant ("added"))),
+              ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
           mutableType =>
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
