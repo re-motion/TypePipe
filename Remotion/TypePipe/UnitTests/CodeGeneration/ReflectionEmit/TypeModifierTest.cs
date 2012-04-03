@@ -57,10 +57,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications ()
     {
-      var fakeUnderlyingSystemType = ReflectionObjectMother.GetSomeType ();
-      var underlyingStrategyStub = CreateUnderlyingTypeStrategyStub (fakeUnderlyingSystemType);
+      var originalType = typeof (DomainClassWithoutMembers);
+      var underlyingStrategyStub = UnderlyingTypeDescriptorObjectMother.Create (originalType);
       
-      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeStrategy: underlyingStrategyStub);
+      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: underlyingStrategyStub);
       
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       var fakeResultType = ReflectionObjectMother.GetSomeType ();
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _subclassProxyNameProviderStub.Stub (stub => stub.GetSubclassProxyName (mutableTypeMock)).Return ("foofoo");
       _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, fakeUnderlyingSystemType))
+          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, originalType))
           .Return (typeBuilderMock);
       mutableTypeMock
           .Expect (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything))
@@ -85,6 +85,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
             Assert.That (handler.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
           });
+      typeBuilderMock.Stub (
+          stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
       typeBuilderMock
           .Expect (mock => mock.CreateType ()).Return (fakeResultType)
           .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
@@ -101,8 +103,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications_ClonesConstructorsReturnedByMutableType ()
     {
-      var constructor = ReflectionObjectMother.GetConstructor (() => new ClassWithConstructors ("s"));
-      var mutableType = CreateMutableTypeWithConstructors (constructor);
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructors));
+      var mutableType = MutableTypeObjectMother.Create (underlyingTypeDescriptor: descriptor);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
       _moduleBuilderMock
@@ -122,31 +124,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       typeBuilderMock.VerifyAllExpectations ();
     }
 
-    private MutableType CreateMutableTypeWithConstructors (params ConstructorInfo[] constructors)
-    {
-      IUnderlyingTypeStrategy underlyingTypeStrategy = CreateUnderlyingTypeStrategyStub(typeof (ClassWithConstructors), constructors: constructors);
-
-      return MutableTypeObjectMother.Create (underlyingTypeStrategy: underlyingTypeStrategy);
+    public class DomainClassWithoutMembers
+    { 
     }
 
-    private IUnderlyingTypeStrategy CreateUnderlyingTypeStrategyStub (
-        Type underlyingSystemType,
-        FieldInfo[] fields = null,
-        ConstructorInfo[] constructors = null)
+    public class DomainClassWithConstructors
     {
-      var underlyingTypeStrategy = MockRepository.GenerateStub<IUnderlyingTypeStrategy> ();
-
-      underlyingTypeStrategy.Stub (stub => stub.UnderlyingSystemType).Return (underlyingSystemType);
-      underlyingTypeStrategy.Stub (stub => stub.Interfaces).Return (Type.EmptyTypes);
-      underlyingTypeStrategy.Stub (stub => stub.Fields).Return (fields ?? new FieldInfo[0]);
-      underlyingTypeStrategy.Stub (stub => stub.Constructors).Return (constructors ?? new ConstructorInfo[0]);
-
-      return underlyingTypeStrategy;
-    }
-
-    public class ClassWithConstructors
-    {
-      public ClassWithConstructors (string s)
+      public DomainClassWithConstructors (string s)
       {
         Dev.Null = s;
       }

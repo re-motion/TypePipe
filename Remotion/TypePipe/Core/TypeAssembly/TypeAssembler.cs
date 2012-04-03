@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.TypeAssembly
     private MutableType CreateMutableType (Type requestedType)
     {
       return new MutableType (
-          new ExistingTypeStrategy (requestedType, new MemberFilter ()), // TODO 4695 RefEmit dependent!
+          UnderlyingTypeDescriptor.Create(requestedType, new MemberFilter ()), // TODO 4695 RefEmit dependent!
           new MemberSignatureEqualityComparer(),
           new BindingFlagsEvaluator());
     }

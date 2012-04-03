@@ -79,7 +79,7 @@
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
-    <Compile Include="MutableReflection\ExistingTypeStrategyObjectMother.cs" />
+    <Compile Include="MutableReflection\UnderlyingTypeDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableMethodInfoTest.cs" />
@@ -100,7 +100,7 @@
     <Compile Include="MutableReflection\MutablePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
-    <Compile Include="MutableReflection\ExistingTypeStrategyTest.cs" />
+    <Compile Include="MutableReflection\UnderlyingTypeDescriptorTest.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\MemberFilterTest.cs" />

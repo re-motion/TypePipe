@@ -20,11 +20,11 @@ using System.Reflection;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Used by <see cref="ExistingTypeStrategy"/> to filter the returned members.
+  /// Used by <see cref="UnderlyingTypeDescriptor.Create"/> to filter the returned members.
   /// </summary>
   public interface IMemberFilter
   {
-    FieldInfo[] FilterFields (IEnumerable<FieldInfo> fieldInfos);
-    ConstructorInfo[] FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos);
+    IEnumerable<FieldInfo> FilterFields (IEnumerable<FieldInfo> fieldInfos);
+    IEnumerable<ConstructorInfo> FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos);
   }
 }

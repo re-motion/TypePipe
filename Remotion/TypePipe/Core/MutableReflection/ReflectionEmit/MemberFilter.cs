@@ -26,14 +26,14 @@ namespace Remotion.TypePipe.MutableReflection.ReflectionEmit
   /// </summary>
   public class MemberFilter : IMemberFilter
   {
-    public FieldInfo[] FilterFields (IEnumerable<FieldInfo> fieldInfos)
+    public IEnumerable<FieldInfo> FilterFields (IEnumerable<FieldInfo> fieldInfos)
     {
-      return fieldInfos.Where (fi => fi.IsPublic || fi.IsFamilyOrAssembly || fi.IsFamily).ToArray();
+      return fieldInfos.Where (fi => fi.IsPublic || fi.IsFamilyOrAssembly || fi.IsFamily);
     }
 
-    public ConstructorInfo[] FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos)
+    public IEnumerable<ConstructorInfo> FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos)
     {
-      return FilterMethodBases (constructorInfos).ToArray();
+      return FilterMethodBases (constructorInfos);
     }
 
     private IEnumerable<T> FilterMethodBases<T> (IEnumerable<T> methodBases)

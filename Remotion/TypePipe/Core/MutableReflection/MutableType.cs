@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableType : Type
   {
-    private readonly IUnderlyingTypeStrategy _underlyingTypeStrategy;
+    private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
@@ -41,26 +41,22 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
-    private readonly ReadOnlyCollection<Type> _existingInterfaces;
-    private readonly ReadOnlyCollection<FieldInfo> _existingFields;
     private readonly ReadOnlyDictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
 
     public MutableType (
-      IUnderlyingTypeStrategy underlyingTypeStrategy,
+      UnderlyingTypeDescriptor underlyingTypeDescriptor,
       IEqualityComparer<MemberInfo> memberInfoEqualityComparer,
       IBindingFlagsEvaluator bindingFlagsEvaluator)
     {
-      ArgumentUtility.CheckNotNull ("underlyingTypeStrategy", underlyingTypeStrategy);
+      ArgumentUtility.CheckNotNull ("underlyingTypeDescriptor", underlyingTypeDescriptor);
       ArgumentUtility.CheckNotNull ("memberInfoEqualityComparer", memberInfoEqualityComparer);
       ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
 
-      _underlyingTypeStrategy = underlyingTypeStrategy;
+      _underlyingTypeDescriptor = underlyingTypeDescriptor;
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
-      _existingInterfaces = _underlyingTypeStrategy.Interfaces.ToList().AsReadOnly();
-      _existingFields = Array.AsReadOnly (_underlyingTypeStrategy.Fields);
-      _existingConstructors = _underlyingTypeStrategy.Constructors.ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
+      _existingConstructors = _underlyingTypeDescriptor.Constructors.ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -80,12 +76,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<Type> ExistingInterfaces
     {
-      get { return _existingInterfaces; }
+      get { return _underlyingTypeDescriptor.Interfaces; }
     }
 
     public ReadOnlyCollection<FieldInfo> ExistingFields
     {
-      get { return _existingFields; }
+      get { return _underlyingTypeDescriptor.Fields; }
     }
 
     public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingConstructors
@@ -95,7 +91,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type UnderlyingSystemType
     {
-      get { return _underlyingTypeStrategy.UnderlyingSystemType ?? this; }
+      get { return _underlyingTypeDescriptor.UnderlyingSystemType; }
     }
 
     public override Assembly Assembly
@@ -105,27 +101,27 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type BaseType
     {
-      get { return _underlyingTypeStrategy.BaseType; }
+      get { return _underlyingTypeDescriptor.BaseType; }
     }
 
     public override string Name
     {
-      get { return _underlyingTypeStrategy.Name; }
+      get { return _underlyingTypeDescriptor.Name; }
     }
 
     public override string Namespace
     {
-      get { return _underlyingTypeStrategy.Namespace; }
+      get { return _underlyingTypeDescriptor.Namespace; }
     }
 
     public override string FullName
     {
-      get { return _underlyingTypeStrategy.FullName; }
+      get { return _underlyingTypeDescriptor.FullName; }
     }
 
     public override string ToString ()
     {
-      return _underlyingTypeStrategy.StringRepresentation;
+      return _underlyingTypeDescriptor.StringRepresentation;
     }
 
     public bool IsEquivalentTo (Type type)
@@ -141,14 +137,17 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
       if (GetInterfaces ().Contains (interfaceType))
-        throw new ArgumentException (string.Format ("Interface '{0}' is already implemented.", interfaceType), "interfaceType");
+      {
+        var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
+        throw new ArgumentException (message, "interfaceType");
+      }
 
       _addedInterfaces.Add (interfaceType);
     }
 
     public override Type[] GetInterfaces ()
     {
-      return _existingInterfaces.Concat (AddedInterfaces).ToArray();
+      return _underlyingTypeDescriptor.Interfaces.Concat (AddedInterfaces).ToArray();
     }
 
     public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)
@@ -181,7 +180,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _existingFields.Concat (_addedFields.Cast<FieldInfo>())
+      return ExistingFields.Concat (_addedFields.Cast<FieldInfo>())
           .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
           .ToArray();
     }
@@ -256,7 +255,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return _underlyingTypeStrategy.Attributes;
+      return _underlyingTypeDescriptor.Attributes;
     }
 
     protected override bool IsByRefImpl ()

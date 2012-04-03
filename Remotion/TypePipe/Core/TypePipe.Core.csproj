@@ -100,7 +100,7 @@
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
-    <Compile Include="MutableReflection\IUnderlyingTypeStrategy.cs" />
+    <Compile Include="MutableReflection\UnderlyingTypeDescriptor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
@@ -224,7 +224,6 @@
     <Compile Include="MutableReflection\MutableMethodInfo.cs" />
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
-    <Compile Include="MutableReflection\ExistingTypeStrategy.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\MemberFilter.cs" />

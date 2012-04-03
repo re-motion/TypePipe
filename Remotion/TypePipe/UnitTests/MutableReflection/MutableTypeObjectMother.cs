@@ -26,30 +26,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableTypeObjectMother
   {
     public static MutableType Create (
-        IUnderlyingTypeStrategy underlyingTypeStrategy = null,
+        UnderlyingTypeDescriptor underlyingTypeDescriptor = null,
         IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
         IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return new MutableType (
-          underlyingTypeStrategy ?? ExistingTypeStrategyObjectMother.Create(),
+          underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create(),
           memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
           bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
     public static MutableType CreatePartialMock (
-        IUnderlyingTypeStrategy underlyingTypeStrategy = null,
+        UnderlyingTypeDescriptor underlyingTypeDescriptor = null,
         IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
         IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return MockRepository.GeneratePartialMock<MutableType> (
-          underlyingTypeStrategy ?? ExistingTypeStrategyObjectMother.Create(),
+          underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create(),
           memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
           bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
     public static MutableType CreateForExistingType (Type originalType = null)
     {
-      return Create (underlyingTypeStrategy: ExistingTypeStrategyObjectMother.Create (originalType));
+      return Create (underlyingTypeDescriptor: UnderlyingTypeDescriptorObjectMother.Create (originalType));
     }
   }
 }

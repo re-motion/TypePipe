@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _provider = new GuidBasedSubclassProxyNameProvider ();
-      _mutableType = MutableTypeObjectMother.Create (underlyingTypeStrategy: ExistingTypeStrategyObjectMother.Create (typeof (object)));
+      _mutableType = MutableTypeObjectMother.Create (underlyingTypeDescriptor: UnderlyingTypeDescriptorObjectMother.Create (typeof (object)));
     }
 
     [Test]

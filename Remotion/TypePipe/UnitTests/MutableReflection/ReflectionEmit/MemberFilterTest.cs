@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using MemberFilter = Remotion.TypePipe.MutableReflection.ReflectionEmit.MemberFilter;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
@@ -42,13 +43,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
     {
       var allFields = typeof (TestDomain).GetFields (c_allMembers);
       Assert.That (
-          GetMemberNames (allFields),
+          GetFieldNames (allFields),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField", "InternalField", "_privateField" }));
 
       var filteredFields = _memberFilter.FilterFields(allFields);
 
       Assert.That (
-          GetMemberNames (filteredFields),
+          GetFieldNames (filteredFields),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField" }));
     }
 
@@ -65,9 +66,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
       Assert.That (GetCtorSignatures (filteredConstructors), Is.EquivalentTo (new[] { ".ctor()", ".ctor(Int32)", ".ctor(System.String)" }));
     }
 
-    private IEnumerable<string> GetMemberNames (IEnumerable<MemberInfo> memberInfos)
+    private IEnumerable<string> GetFieldNames (IEnumerable<FieldInfo> fieldInfos)
     {
-      return memberInfos.Select (m => m.Name);
+      return fieldInfos.Select (m => m.Name);
     }
 
     private IEnumerable<string> GetCtorSignatures (IEnumerable<ConstructorInfo> ctorInfos)
@@ -75,21 +76,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
       return ctorInfos.Select (ctor => ctor.ToString().Replace ("Void ", ""));
     }
 
+// ReSharper disable MemberCanBePrivate.Global
     public class TestDomain
+// ReSharper restore MemberCanBePrivate.Global
     {
       public int PublicField;
       protected internal int ProtectedOrInternalField;
       protected int ProtectedField;
       internal int InternalField = 0;
-#pragma warning disable 169
-      private int _privateField;
-#pragma warning restore 169
+      private int _privateField = 0;
 
-      public TestDomain () { }
-      protected internal TestDomain(int i) {}
-      protected TestDomain (string s) { }
-      internal TestDomain (double d) { }
-      private TestDomain (long l) { }
+      public TestDomain () { Dev.Null = _privateField; }
+      protected internal TestDomain (int i) { Dev.Null = i; }
+      protected TestDomain (string s) { Dev.Null = s; }
+      internal TestDomain (double d) { Dev.Null = d; }
+// ReSharper disable UnusedMember.Local
+      private TestDomain (long l) { Dev.Null = l; }
+// ReSharper restore UnusedMember.Local
     }
   }
 }
