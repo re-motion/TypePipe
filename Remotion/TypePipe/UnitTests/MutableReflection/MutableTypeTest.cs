@@ -261,7 +261,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var fields = _mutableType.GetFields (0);
 
-      Assert.That (fields, Is.EquivalentTo (_descriptor.Fields.Concat (EnumerableUtility.Singleton<FieldInfo> (addedField))));
+      Assert.That (fields, Is.EquivalentTo (_descriptor.Fields.Concat (addedField)));
     }
 
     [Test]
