@@ -1,3 +1,19 @@
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
+// 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,10 +61,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization_WithInterfaces ()
     {
       var interfaces = new[] { ReflectionObjectMother.GetSomeInterfaceType(), ReflectionObjectMother.GetSomeDifferentInterfaceType() };
-      // TODO 4737: CreateMutableType (interfaces: interfaces)
-      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (interfaces);
 
-      var mutableType = CreateMutableType();
+      var mutableType = CreateMutableType(existingInterfaces: interfaces);
 
       Assert.That (mutableType.ExistingInterfaces, Is.EqualTo (interfaces));
     }
@@ -56,12 +70,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WithFields ()
     {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
       var field = ReflectionObjectMother.GetSomeField();
-      // TODO 4737: CreateMutableType (fields: new[] { field })
-      _typeStrategyStub.Stub (stub => stub.GetFields (bindingFlags)).Return (new[] { field });
 
-      var mutableType = CreateMutableType ();
+      var mutableType = CreateMutableType (existingFields: new[] { field });
 
       Assert.That (mutableType.ExistingFields, Has.Count.EqualTo (1));
       var existingField = mutableType.ExistingFields.Single ();
@@ -72,12 +83,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WithConstructors ()
     {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // Don't return static constructors by default
       var ctorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
-      // TODO 4737: CreateMutableType (constructors: new[] { ctorInfo })
-      _typeStrategyStub.Stub (stub => stub.GetConstructors (bindingFlags)).Return (new[] { ctorInfo });
 
-      var mutableType = CreateMutableType();
+      var mutableType = CreateMutableType (existingConstructors: new[] { ctorInfo });
 
       Assert.That (mutableType.ExistingConstructors, Has.Count.EqualTo (1));
       var existingCtor = mutableType.ExistingConstructors.Single();
@@ -179,13 +187,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
-      // TODO 4737: CreateMutableType (interfaces: Type.EmptyTypes)
-      _typeStrategyStub.Stub (stub => stub.GetInterfaces ()).Return (Type.EmptyTypes);
+      var mutableType = CreateMutableType (existingInterfaces: Type.EmptyTypes);
 
-      _mutableType.AddInterface (typeof (IDisposable));
-      _mutableType.AddInterface (typeof (IComparable));
+      mutableType.AddInterface (typeof (IDisposable));
+      mutableType.AddInterface (typeof (IComparable));
 
-      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
+      Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
     }
 
     [Test]
@@ -200,40 +207,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Interface 'System.IDisposable' is already implemented.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
-      // TODO 4737: CreateMutableType (interfaces: new[] { some interface })
-      _typeStrategyStub.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
-      var mutableType = CreateMutableType();
+      var someInterface = typeof(IDisposable);
+      var mutableType = CreateMutableType (existingInterfaces: new[] { someInterface });
 
-      mutableType.AddInterface (typeof (IDisposable));
+      mutableType.AddInterface (someInterface);
     }
 
     [Test]
     public void GetInterfaces ()
     {
-      // TODO 4737: CreateMutableType (interfaces: new[] { some interface })
-      _typeStrategyStub.Stub (stub => stub.GetInterfaces ()).Return (new[] { typeof (IDisposable) });
-      var mutableType = CreateMutableType();
-      mutableType.AddInterface (typeof (IComparable));
+      var interface1 = ReflectionObjectMother.GetSomeInterfaceType();
+      var interface2 = ReflectionObjectMother.GetSomeDifferentInterfaceType();
+      var mutableType = CreateMutableType(existingInterfaces: new[] { interface1 });
 
-      Assert.That (mutableType.GetInterfaces(), Is.EqualTo (new[] { typeof (IDisposable), typeof (IComparable) }));
+      mutableType.AddInterface (interface2);
+
+      Assert.That (mutableType.GetInterfaces(), Is.EqualTo (new[] { interface1, interface2 }));
     }
 
     [Test]
     public void AddField ()
     {
-      // TODO 4737: CreateMutableType (fields: new[] { new FieldInfo[0] })
-      _typeStrategyStub.Stub (stub => stub.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-          .Return (new FieldInfo[0]);
+      var mutableType = CreateMutableType (existingFields: new FieldInfo[0]);
 
-      var newField = _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
+     var newField = mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
 
       // Correct field info instance
-      Assert.That (newField.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (newField.DeclaringType, Is.SameAs (mutableType));
       Assert.That (newField.Name, Is.EqualTo ("_newField"));
       Assert.That (newField.FieldType, Is.EqualTo (typeof (string)));
       Assert.That (newField.Attributes, Is.EqualTo (FieldAttributes.Private));
       // Field info is stored
-      Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { newField }));
+      Assert.That (mutableType.AddedFields, Is.EqualTo (new[] { newField }));
     }
 
     [Test]
@@ -445,7 +450,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedCtorInfo = AddConstructor (_mutableType, MethodAttributes.Public);
 
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Stub (stub => stub.HasRightAttributes (addedCtorInfo.Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (addedCtorInfo.Attributes, bindingFlags)).Return (false);
       
       var constructors = _mutableType.GetConstructors (bindingFlags);
 
@@ -588,12 +593,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
     }
 
-    private MutableType CreateMutableType (FieldInfo[] existingFields = null, ConstructorInfo[] existingConstructors = null)
+    private MutableType CreateMutableType (
+        Type[] existingInterfaces = null,
+        FieldInfo[] existingFields = null,
+        ConstructorInfo[] existingConstructors = null)
     {
+      existingInterfaces = existingInterfaces ?? new Type[0];
       existingFields = existingFields ?? new FieldInfo[0];
       existingConstructors = existingConstructors ?? new ConstructorInfo[0];
 
-      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (Type.EmptyTypes).Repeat.Once();
+      _typeStrategyStub.Stub (stub => stub.GetInterfaces()).Return (existingInterfaces).Repeat.Once();
       _typeStrategyStub.Stub (stub => stub.GetFields (Arg<BindingFlags>.Is.Anything)).Return (existingFields).Repeat.Once();
       _typeStrategyStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (existingConstructors).Repeat.Once();
       
