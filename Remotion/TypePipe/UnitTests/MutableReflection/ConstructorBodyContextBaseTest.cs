@@ -27,7 +27,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class ConstructorBodyCreationContextTest
+  public class ConstructorBodyContextBaseTest
   {
     private ReadOnlyCollection<ParameterExpression> _emptyParameters;
 
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameter2 = Expression.Parameter (ReflectionObjectMother.GetSomeType ());
       var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
 
-      var context = new ConstructorBodyCreationContext (mutableType, parameters);
+      var context = new TestableConstructorBodyContextBase (mutableType, parameters);
 
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
     }
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void This ()
     {
       var mutableType = MutableTypeObjectMother.Create();
-      var context = new ConstructorBodyCreationContext (mutableType, _emptyParameters);
+      var context = new TestableConstructorBodyContextBase (mutableType, _emptyParameters);
 
       Assert.That (context.This, Is.TypeOf<ThisExpression>());
       Assert.That (context.This.Type, Is.SameAs (mutableType));
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetConstructorCall ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructors));
-      var context = new ConstructorBodyCreationContext (mutableType, _emptyParameters);
+      var context = new TestableConstructorBodyContextBase (mutableType, _emptyParameters);
 
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
       var result = context.GetConstructorCall (argumentExpressions);
@@ -86,11 +86,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (MemberNotFoundException), ExpectedMessage =
         "Could not find a constructor with signature (System.Int32, System.Int32) on type " +
-        "'Remotion.TypePipe.UnitTests.MutableReflection.ConstructorBodyCreationContextTest+ClassWithConstructors'.")]
+        "'Remotion.TypePipe.UnitTests.MutableReflection.ConstructorBodyContextBaseTest+ClassWithConstructors'.")]
     public void GetConstructorCall_NoMatchingConstructor ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructors));
-      var context = new ConstructorBodyCreationContext (mutableType, _emptyParameters);
+      var context = new TestableConstructorBodyContextBase (mutableType, _emptyParameters);
 
       var argumentExpressions = new ArgumentTestHelper (7, 8).Expressions;
       context.GetConstructorCall (argumentExpressions);
