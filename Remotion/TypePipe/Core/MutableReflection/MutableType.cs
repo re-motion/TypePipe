@@ -259,6 +259,9 @@ namespace Remotion.TypePipe.MutableReflection
 
       foreach (var addedConstructor in _addedConstructors)
         modificationHandler.HandleAddedConstructor (addedConstructor);
+
+      foreach (var modifiedConstructor in ExistingConstructors.Where (c => c.IsModified))
+        modificationHandler.HandleModifiedConstructor (modifiedConstructor);
     }
 
     protected override bool HasElementTypeImpl ()
