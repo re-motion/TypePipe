@@ -39,7 +39,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("body", body);
 
-      // TODO 4743: Check body type: must be void.
+      if (body.Type != typeof(void))
+        throw new ArgumentException ("Constructor bodies must have void return type.", "body");
+
       var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList ().AsReadOnly ();
       return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarationReadOnlyCollection, body);
     }
@@ -80,11 +82,9 @@ namespace Remotion.TypePipe.MutableReflection
         ReadOnlyCollection<ParameterDeclaration> parameterDeclarations, 
         Expression body)
     {
-      // TODO 4743: Convert to assertions.
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      ArgumentUtility.CheckNotNull ("body", body);
-
-      // TODO 4743: Assert body type is always void.
+      Assertion.IsNotNull (parameterDeclarations);
+      Assertion.IsNotNull (body);
+      Assertion.IsTrue (body.Type == typeof (void));
 
       _underlyingSystemConstructorInfo = underlyingSystemConstructorInfo;
       _attributes = attributes;

@@ -55,8 +55,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
-      // TODO 4743: Covnert to argument check
-      Assertion.IsTrue (body.ReturnType == typeof (void));
+      if (body.ReturnType != typeof (void))
+        throw new ArgumentException("Body must be of void type.", "body");
 
       var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);

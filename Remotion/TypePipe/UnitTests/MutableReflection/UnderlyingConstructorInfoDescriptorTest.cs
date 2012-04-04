@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -33,14 +34,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var attributes = MethodAttributes.Abstract;
       var parameterDeclarations = new[] { new ParameterDeclaration (typeof (object), "xxx") };
-      var fakeBody = Expression.Empty();
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, fakeBody);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, body);
 
       Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Null);
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
-      Assert.That (descriptor.Body, Is.SameAs (fakeBody));
+      Assert.That (descriptor.Body, Is.SameAs (body));
+    }
+
+    [Test]
+    [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Constructor bodies must have void return type.\r\nParameter name: body")]
+    public void Create_ForNew_WithNonVoidBody ()
+    {
+      var nonVoidBody = ExpressionTreeObjectMother.GetSomeExpression(typeof(object));
+
+      UnderlyingConstructorInfoDescriptor.Create (0, new ParameterDeclaration[0], nonVoidBody);
     }
 
     [Test]
