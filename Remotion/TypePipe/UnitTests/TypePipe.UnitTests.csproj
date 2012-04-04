@@ -82,6 +82,7 @@
     <Compile Include="MutableReflection\BindingFlagsEvaluatorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeReflectionObjectMother.cs" />
+    <Compile Include="MutableReflection\MutableConstructorInfoTestHelper.cs" />
     <Compile Include="MutableReflection\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorObjectMother.cs" />

@@ -136,28 +136,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedConstructor_Throws ()
     {
-      CheckThrowsForInvalidArguments (
-        _handler.HandleAddedConstructor,
-        "The supplied constructor must be a new constructor.\r\nParameter name: addedConstructor",
-        newUnmodified: true,
-        newModified: true);
+      var message = "The supplied constructor must be a new constructor.\r\nParameter name: addedConstructor";
+      CheckThrowsForInvalidArguments (_handler.HandleAddedConstructor, message, isNewConstructor: false, isModified: true);
+      CheckThrowsForInvalidArguments (_handler.HandleAddedConstructor, message, isNewConstructor: false, isModified: false);
     }
 
     [Test]
     public void HandleModifiedConstructor_CallsAddConstructorToSubclassProxy ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
-      ctor.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression());
+      MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
       CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleModifiedConstructor, ctor);
     }
 
     [Test]
     public void HandleModifiedConstructor_Throws ()
     {
-      CheckThrowsForInvalidArguments (
-          _handler.HandleModifiedConstructor,
-          "The supplied constructor must be a modified existing constructor.\r\nParameter name: modifiedConstructor",
-          existingModified: true);
+      var message = "The supplied constructor must be a modified existing constructor.\r\nParameter name: modifiedConstructor";
+      CheckThrowsForInvalidArguments (_handler.HandleModifiedConstructor, message, isNewConstructor: true, isModified: true);
+      CheckThrowsForInvalidArguments (_handler.HandleModifiedConstructor, message, isNewConstructor: true, isModified: false);
+      CheckThrowsForInvalidArguments (_handler.HandleModifiedConstructor, message, isNewConstructor: false, isModified: false);
     }
 
     [Test]
@@ -170,10 +168,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedConstructor_Throws ()
     {
-      CheckThrowsForInvalidArguments (
-          _handler.HandleUnmodifiedConstructor,
-          "The supplied constructor must be an unmodified existing constructor.\r\nParameter name: existingConstructor",
-          existingUnmodified: true);
+      var message = "The supplied constructor must be an unmodified existing constructor.\r\nParameter name: existingConstructor";
+      CheckThrowsForInvalidArguments (_handler.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: true);
+      CheckThrowsForInvalidArguments (_handler.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: false);
+      CheckThrowsForInvalidArguments (_handler.HandleUnmodifiedConstructor, message, isNewConstructor: false, isModified: true);
     }
 
     [Test]
@@ -289,35 +287,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckThrowsForInvalidArguments (
-    Action<MutableConstructorInfo> methodInvocation,
-    string exceptionMessage,
-    bool newUnmodified = false,
-    bool newModified = false,
-    bool existingUnmodified = false,
-    bool existingModified = false)
+        Action<MutableConstructorInfo> methodInvocation, string exceptionMessage, bool isNewConstructor, bool isModified)
     {
-      var invalidArguments = new List<MutableConstructorInfo> ();
+      var constructor = isNewConstructor ? MutableConstructorInfoObjectMother.CreateForNew() : MutableConstructorInfoObjectMother.CreateForExisting();
+      if (isModified)
+        MutableConstructorInfoTestHelper.ModifyConstructor (constructor);
+      Assert.That (constructor.IsNewConstructor, Is.EqualTo (isNewConstructor));
+      Assert.That (constructor.IsModified, Is.EqualTo (isModified));
 
-      if (!newUnmodified)
-        invalidArguments.Add (MutableConstructorInfoObjectMother.CreateForNew ());
-      if (!newModified)
-        invalidArguments.Add (ModifyCtor (MutableConstructorInfoObjectMother.CreateForNew ()));
-      if (!existingUnmodified)
-        invalidArguments.Add (MutableConstructorInfoObjectMother.CreateForExisting ());
-      if (!existingModified)
-        invalidArguments.Add (ModifyCtor (MutableConstructorInfoObjectMother.CreateForExisting ()));
-
-      foreach (var mutableConstructor in invalidArguments)
-      {
-        var ctor = mutableConstructor;
-        Assert.That (() => methodInvocation (ctor), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
-      }
-    }
-
-    private MutableConstructorInfo ModifyCtor (MutableConstructorInfo mutableConstructor)
-    {
-      mutableConstructor.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression ());
-      return mutableConstructor;
+      Assert.That (() => methodInvocation (constructor), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
     }
 
     public class CustomAttribute : Attribute

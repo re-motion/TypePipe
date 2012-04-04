@@ -525,10 +525,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_mutableType.ExistingConstructors, Is.Not.Empty);
       var existingConstructorInfo = _mutableType.ExistingConstructors.Single();
-      ModifyConstructor (existingConstructorInfo);
+      MutableConstructorInfoTestHelper.ModifyConstructor (existingConstructorInfo);
 
       var addedConstructorInfo = AddConstructor (_mutableType, 0);
-      ModifyConstructor (addedConstructorInfo);
+      MutableConstructorInfoTestHelper.ModifyConstructor (addedConstructorInfo);
 
       var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler> ();
       handlerMock.Expect (mock => mock.HandleModifiedConstructor (existingConstructorInfo));
@@ -581,12 +581,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableConstructorInfo AddConstructor (MutableType mutableType, MethodAttributes attributes, params ParameterDeclaration[] parameterDeclarations)
     {
       return mutableType.AddConstructor (attributes, parameterDeclarations, context => Expression.Empty ());
-    }
-
-    private void ModifyConstructor (MutableConstructorInfo mutableConstructorInfo)
-    {
-      mutableConstructorInfo.SetBody (context => ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
-      Assert.That (mutableConstructorInfo.IsModified, Is.True);
     }
 
     public class DomainClass : IDomainInterface

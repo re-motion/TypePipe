@@ -20,7 +20,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -63,17 +62,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalType = typeof (DomainClassWithoutMembers);
       var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType);
       
-      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
+      var mutableTypePartialMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
       
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       var fakeResultType = ReflectionObjectMother.GetSomeType ();
       bool acceptCalled = false;
 
-      _subclassProxyNameProviderStub.Stub (stub => stub.GetSubclassProxyName (mutableTypeMock)).Return ("foofoo");
+      _subclassProxyNameProviderStub.Stub (stub => stub.GetSubclassProxyName (mutableTypePartialMock)).Return ("foofoo");
       _moduleBuilderMock
           .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, originalType))
           .Return (typeBuilderMock);
-      mutableTypeMock
+      mutableTypePartialMock
           .Expect (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything))
           .WhenCalled (mi =>
           {
@@ -82,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             var handler = (TypeModificationHandler) mi.Arguments[0];
             Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderMock));
             Assert.That (handler.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer> ());
-            Assert.That (handler.ReflectionToBuilderMap.GetBuilder (mutableTypeMock), Is.SameAs (typeBuilderMock));
+            Assert.That (handler.ReflectionToBuilderMap.GetBuilder (mutableTypePartialMock), Is.SameAs (typeBuilderMock));
             Assert.That (handler.ILGeneratorFactory, Is.TypeOf <ILGeneratorDecoratorFactory>());
             var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) handler.ILGeneratorFactory;
             Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
@@ -94,11 +93,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.CreateType ()).Return (fakeResultType)
           .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
 
-      var result = _typeModifier.ApplyModifications (mutableTypeMock);
+      var result = _typeModifier.ApplyModifications (mutableTypePartialMock);
 
       _moduleBuilderMock.VerifyAllExpectations ();
       typeBuilderMock.VerifyAllExpectations ();
-      mutableTypeMock.VerifyAllExpectations();
+      mutableTypePartialMock.VerifyAllExpectations();
 
       Assert.That (result, Is.SameAs (fakeResultType));
     }
@@ -131,16 +130,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void ApplyModifications_DoesNotCloneModifiedConstructors ()
     {
       var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructor));
-      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
-      mutableTypeMock.ExistingConstructors.Single ().SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression ());
+      var mutableTypePartialMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
+      MutableConstructorInfoTestHelper.ModifyConstructor (mutableTypePartialMock.ExistingConstructors.Single ());
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
       _moduleBuilderMock
           .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
           .Return (typeBuilderMock);
-      mutableTypeMock.Stub (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything));
+      mutableTypePartialMock.Stub (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything));
 
-      _typeModifier.ApplyModifications (mutableTypeMock);
+      _typeModifier.ApplyModifications (mutableTypePartialMock);
 
       typeBuilderMock.AssertWasNotCalled (
           mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
