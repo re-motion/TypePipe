@@ -96,6 +96,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsModified_False ()
+    {
+      var ctorInfo = MutableConstructorInfoObjectMother.Create();
+      Assert.That (ctorInfo.IsModified, Is.False);
+    }
+
+    [Test]
+    public void IsModified_True ()
+    {
+      var ctorInfo = MutableConstructorInfoObjectMother.Create ();
+
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      ctorInfo.SetBody (ctx => fakeBody);
+
+      Assert.That (ctorInfo.IsModified, Is.True);
+    }
+
+    [Test]
     public void Attributes ()
     {
       Assert.That (_mutableCtor.Attributes, Is.EqualTo (_descriptor.Attributes));

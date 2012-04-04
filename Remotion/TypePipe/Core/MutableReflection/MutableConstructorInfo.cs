@@ -71,6 +71,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo == null; }
     }
 
+    public bool IsModified
+    {
+      get { return _body != _underlyingConstructorInfoDescriptor.Body; }
+    }
+
     public override MethodAttributes Attributes
     {
       get { return _underlyingConstructorInfoDescriptor.Attributes; }
