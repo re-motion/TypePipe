@@ -29,44 +29,42 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void Visit_NoModifications ()
     {
       var replacedExpr = Expression.Constant ("I am not present in the original tree.");
-      var replacingExpr = Expression.Constant ("I are baboon!");
+      var replacementExpr = Expression.Constant ("I are baboon!");
+      var visitor = CreateVisitor (replacedExpr, replacementExpr);
+      
       var originalTree = Expression.Block (Expression.Constant("test"), Expression.Constant (7));
-      var expectedTree = originalTree;
-      var visitor = CreateVisitor (replacedExpr, replacingExpr);
 
       var actualTree = visitor.Visit (originalTree);
 
-      Assert.That (actualTree.DebugView, Is.EqualTo (expectedTree.DebugView));
+      Assert.That (actualTree, Is.SameAs (originalTree));
     }
 
     [Test]
     public void Visit_Modifications ()
     {
       var replacedExpr = Expression.Constant ("Replace me!");
-      var replacingExpr = Expression.Constant ("I are baboon!");
+      var replacementExpr = Expression.Constant ("I are baboon!");
+      var visitor = CreateVisitor (replacedExpr, replacementExpr);
+
       var originalTree = Expression.Block (replacedExpr, Expression.Block (replacedExpr), Expression.Constant (7));
-      var expectedTree = Expression.Block (replacingExpr, Expression.Block (replacingExpr), Expression.Constant (7));
-      Assert.That (originalTree.DebugView, Is.Not.EqualTo (expectedTree.DebugView));
-      var visitor = CreateVisitor (replacedExpr, replacingExpr);
+      var expectedTree = Expression.Block (replacementExpr, Expression.Block (replacementExpr), Expression.Constant (7));
 
       var actualTree = visitor.Visit (originalTree);
 
-      Assert.That (actualTree.DebugView, Is.EqualTo (expectedTree.DebugView));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, actualTree);
     }
 
     [Test]
-    public void Visit_NonRecursively ()
+    public void Visit_DoesNotReplaceWithinReplacementExpression ()
     {
       var replacedExpr = Expression.Constant ("Only replace me in original!");
-      var replacingExpr = Expression.Block (replacedExpr); // Replacing expression contains replaced expression
-      var originalTree = replacedExpr;
-      var expectedTree = replacingExpr;
-      Assert.That (originalTree.DebugView, Is.Not.EqualTo (expectedTree.DebugView));
-      var visitor = CreateVisitor (replacedExpr, replacingExpr);
+      // Replacement expression contains replaced expression
+      var replacementExpr = Expression.Block (replacedExpr);
+      var visitor = CreateVisitor (replacedExpr, replacementExpr);
 
-      var actualTree = visitor.Visit (originalTree);
+      var actualTree = visitor.Visit (replacedExpr);
 
-      Assert.That (actualTree.DebugView, Is.EqualTo (expectedTree.DebugView));
+      Assert.That (actualTree, Is.SameAs (replacementExpr));
     }
 
     private ReplacingExpressionVisitor CreateVisitor (Expression replacedExpr, Expression replacingExpr)
