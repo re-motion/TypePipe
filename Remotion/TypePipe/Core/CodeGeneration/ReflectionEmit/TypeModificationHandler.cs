@@ -126,8 +126,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
     {
       ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);
-      
-      // TODO 4706
+
+      AddConstructorToSubclassProxy (modifiedConstructor);
     }
 
     public void HandleUnmodifiedConstructor (MutableConstructorInfo existingConstructor)

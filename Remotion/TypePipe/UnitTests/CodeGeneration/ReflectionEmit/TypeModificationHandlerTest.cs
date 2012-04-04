@@ -133,6 +133,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleModifiedConstructor ()
+    {
+      var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForExisting ();
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleModifiedConstructor, mutableConstructorInfo);
+    }
+
+    [Test]
     public void CloneExistingConstructor_CallsAddConstructorToSubclassProxy ()
     {
       var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForExisting ();
