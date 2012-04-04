@@ -120,6 +120,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
 
+      if (!addedConstructor.IsNewConstructor)
+        throw new ArgumentException ("The supplied constructor must be a new constructor.", "addedConstructor");
+
       AddConstructorToSubclassProxy (addedConstructor);
     }
 
@@ -127,12 +130,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);
 
+      if (modifiedConstructor.IsNewConstructor || !modifiedConstructor.IsModified)
+        throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "modifiedConstructor");
+
       AddConstructorToSubclassProxy (modifiedConstructor);
     }
 
     public void HandleUnmodifiedConstructor (MutableConstructorInfo existingConstructor)
     {
       ArgumentUtility.CheckNotNull ("existingConstructor", existingConstructor);
+
+      if (existingConstructor.IsNewConstructor || existingConstructor.IsModified)
+        throw new ArgumentException ("The supplied constructor must be an unmodified existing constructor.", "existingConstructor");
 
       AddConstructorToSubclassProxy (existingConstructor);
     }

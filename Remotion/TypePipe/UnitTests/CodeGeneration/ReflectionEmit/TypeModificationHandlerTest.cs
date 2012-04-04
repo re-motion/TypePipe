@@ -28,6 +28,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -128,22 +129,51 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedConstructor_CallsAddConstructorToSubclassProxy ()
     {
-      var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForNew();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleAddedConstructor, mutableConstructorInfo);
+      var ctor = MutableConstructorInfoObjectMother.CreateForNew();
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleAddedConstructor, ctor);
     }
 
     [Test]
-    public void HandleModifiedConstructor ()
+    public void HandleAddedConstructor_Throws ()
     {
-      var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForExisting ();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleModifiedConstructor, mutableConstructorInfo);
+      CheckThrowsForInvalidArguments (
+        _handler.HandleAddedConstructor,
+        "The supplied constructor must be a new constructor.\r\nParameter name: addedConstructor",
+        newUnmodified: true,
+        newModified: true);
     }
 
     [Test]
-    public void CloneExistingConstructor_CallsAddConstructorToSubclassProxy ()
+    public void HandleModifiedConstructor_CallsAddConstructorToSubclassProxy ()
     {
-      var mutableConstructorInfo = MutableConstructorInfoObjectMother.CreateForExisting ();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleUnmodifiedConstructor, mutableConstructorInfo);
+      var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
+      ctor.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression());
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleModifiedConstructor, ctor);
+    }
+
+    [Test]
+    public void HandleModifiedConstructor_Throws ()
+    {
+      CheckThrowsForInvalidArguments (
+          _handler.HandleModifiedConstructor,
+          "The supplied constructor must be a modified existing constructor.\r\nParameter name: modifiedConstructor",
+          existingModified: true);
+    }
+
+    [Test]
+    public void HandleUnmodifiedConstructor_CallsAddConstructorToSubclassProxy ()
+    {
+      var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleUnmodifiedConstructor, ctor);
+    }
+
+    [Test]
+    public void HandleUnmodifiedConstructor_Throws ()
+    {
+      CheckThrowsForInvalidArguments (
+          _handler.HandleUnmodifiedConstructor,
+          "The supplied constructor must be an unmodified existing constructor.\r\nParameter name: existingConstructor",
+          existingUnmodified: true);
     }
 
     [Test]
@@ -256,6 +286,38 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodInvocation (mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations();
+    }
+
+    private void CheckThrowsForInvalidArguments (
+    Action<MutableConstructorInfo> methodInvocation,
+    string exceptionMessage,
+    bool newUnmodified = false,
+    bool newModified = false,
+    bool existingUnmodified = false,
+    bool existingModified = false)
+    {
+      var invalidArguments = new List<MutableConstructorInfo> ();
+
+      if (!newUnmodified)
+        invalidArguments.Add (MutableConstructorInfoObjectMother.CreateForNew ());
+      if (!newModified)
+        invalidArguments.Add (ModifyCtor (MutableConstructorInfoObjectMother.CreateForNew ()));
+      if (!existingUnmodified)
+        invalidArguments.Add (MutableConstructorInfoObjectMother.CreateForExisting ());
+      if (!existingModified)
+        invalidArguments.Add (ModifyCtor (MutableConstructorInfoObjectMother.CreateForExisting ()));
+
+      foreach (var mutableConstructor in invalidArguments)
+      {
+        var ctor = mutableConstructor;
+        Assert.That (() => methodInvocation (ctor), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
+      }
+    }
+
+    private MutableConstructorInfo ModifyCtor (MutableConstructorInfo mutableConstructor)
+    {
+      mutableConstructor.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression ());
+      return mutableConstructor;
     }
 
     public class CustomAttribute : Attribute
