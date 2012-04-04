@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  // [Ignore ("4703")]
   public class SetConstructorBodyTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
