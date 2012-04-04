@@ -212,9 +212,9 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var context = new ConstructorBodyCreationContext (this, parameterExpressions);
       var body = bodyGenerator (context);
-      // TODO 4743: Wrap body in void block if necessary.
+      var voidBody = body.Type == typeof(void) ? body : Expression.Block (typeof (void), body);
       
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, voidBody);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))

@@ -23,6 +23,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -363,6 +364,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Constructor info is stored
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { ctorInfo }));
+    }
+
+    [Test]
+    public void AddConstructor_WrapsNonVoidBody ()
+    {
+      var attributes = MethodAttributes.Public;
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
+      Func<ConstructorBodyCreationContext, Expression> bodyGenerator = context => fakeBody;
+
+      var ctorInfo = _mutableType.AddConstructor (attributes, Enumerable.Empty<ParameterDeclaration>(), bodyGenerator);
+
+      var expectedBody = Expression.Block (typeof (void), fakeBody);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctorInfo.Body);
     }
 
     [Test]
