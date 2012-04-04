@@ -19,6 +19,7 @@ using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -122,7 +123,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       if (constructorBuilder != null)
         constructorBuilder.Emit (this, opcode);
       else
+      {
+        Assertion.IsFalse (con is MutableConstructorInfo);
         _innerILGenerator.Emit (opcode, con);
+      }
     }
 
     public void Emit (OpCode opcode, Type cls)

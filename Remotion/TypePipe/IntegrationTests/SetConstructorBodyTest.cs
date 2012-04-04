@@ -68,6 +68,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 4745")]
     public void DelegateToExistingWhichIsChanged ()
     {
       var type = AssembleType<DomainType> (
@@ -86,6 +87,8 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (instance.CtorArgument, Is.EqualTo ("modified existing"));
     }
+
+    // TODO 4745: Add a second integration test in which an existing ctor delegates to an added one.
 
     public class DomainType
     {
