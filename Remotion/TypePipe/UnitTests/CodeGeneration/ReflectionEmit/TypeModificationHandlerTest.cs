@@ -170,10 +170,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .WhenCalled (mi =>
           {
             var lambdaExpression = (LambdaExpression) mi.Arguments[0];
-            Assert.That (lambdaExpression.Body, Is.AssignableTo<BlockExpression> ());
-            var blockExpression = (BlockExpression) lambdaExpression.Body;
-            Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { fakeBody }));
-            Assert.That (blockExpression.Type, Is.SameAs (typeof (void)));
+            Assert.That (lambdaExpression.Body, Is.SameAs (fakeBody));
             Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableConstructor.ParameterExpressions));
           });
 
@@ -244,7 +241,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _subclassProxyBuilderMock
           .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderStub);
-      _expressionPreparerMock.Stub (mock => mock.PrepareConstructorBody (mutableConstructor));
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      _expressionPreparerMock
+          .Stub (mock => mock.PrepareConstructorBody (mutableConstructor))
+          .Return (fakeBody);
 
       methodInvocation (mutableConstructor);
 

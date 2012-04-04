@@ -140,9 +140,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
 
       var body = _expressionPreparer.PrepareConstructorBody (mutableConstructor);
-      // TODO 4743: Remove wrapping of body, maybe assert void type
-      var voidBody = Expression.Block (typeof (void), body);
-      var bodyLambda = Expression.Lambda (voidBody, mutableConstructor.ParameterExpressions);
+      var bodyLambda = Expression.Lambda (body, mutableConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
     }
   }
