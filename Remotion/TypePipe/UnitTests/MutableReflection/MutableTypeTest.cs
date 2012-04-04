@@ -338,7 +338,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
@@ -360,23 +360,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var actualParameterInfos = ctorInfo.GetParameters().Select (pi => new { pi.ParameterType });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
-      Assert.That (ctorInfo.Body, Is.SameAs (fakeBody));
+      var expectedBody = Expression.Block (typeof (void), fakeBody);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctorInfo.Body);
 
       // Constructor info is stored
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { ctorInfo }));
-    }
-
-    [Test]
-    public void AddConstructor_WrapsNonVoidBody ()
-    {
-      var attributes = MethodAttributes.Public;
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = context => fakeBody;
-
-      var ctorInfo = _mutableType.AddConstructor (attributes, Enumerable.Empty<ParameterDeclaration>(), bodyProvider);
-
-      var expectedBody = Expression.Block (typeof (void), fakeBody);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctorInfo.Body);
     }
 
     [Test]

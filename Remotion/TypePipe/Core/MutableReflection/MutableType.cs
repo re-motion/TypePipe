@@ -210,11 +210,11 @@ namespace Remotion.TypePipe.MutableReflection
 
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+
       var context = new ConstructorBodyCreationContext (this, parameterExpressions);
-      var body = bodyProvider (context);
-      var voidBody = body.Type == typeof(void) ? body : Expression.Block (typeof (void), body);
+      var body = BodyProviderUtility.GetVoidBody (bodyProvider, context);
       
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, voidBody);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
       if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))

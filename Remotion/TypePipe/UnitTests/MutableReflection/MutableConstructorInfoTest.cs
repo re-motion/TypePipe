@@ -149,7 +149,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody ()
     {
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.Parameters, Is.EqualTo (_mutableCtor.ParameterExpressions));
@@ -160,17 +160,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
         return fakeBody;
       };
-
-      _mutableCtor.SetBody (bodyProvider);
-
-      Assert.That (_mutableCtor.Body, Is.SameAs (fakeBody));
-    }
-
-    [Test]
-    public void SetBody_WrapsNonVoidBody ()
-    {
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
-      Func<ConstructorBodyModificationContext, Expression> bodyProvider = context => fakeBody;
 
       _mutableCtor.SetBody (bodyProvider);
 

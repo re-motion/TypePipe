@@ -114,12 +114,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body);
-
-      var voidBody = bodyProvider (context);
-      if (voidBody.Type != typeof (void))
-        voidBody = Expression.Block (typeof (void), voidBody);
-
-      _body = voidBody;
+      _body = BodyProviderUtility.GetVoidBody (bodyProvider, context);
     }
 
     public override string ToString ()
