@@ -42,6 +42,11 @@ namespace Remotion.TypePipe.MutableReflection
       _previousBody = previousBody;
     }
 
+    public Expression GetPreviousBody ()
+    {
+      return _previousBody;
+    }
+
     public Expression GetPreviousBody (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);

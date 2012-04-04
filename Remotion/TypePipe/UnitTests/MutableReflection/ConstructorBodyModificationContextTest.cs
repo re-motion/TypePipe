@@ -27,18 +27,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class ConstructorBodyModificationContextTest
   {
     private List<ParameterExpression> _parameters;
+    private Expression _previousBody;
     private ConstructorBodyModificationContext _context;
 
     [SetUp]
     public void SetUp ()
     {
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (int)) };
-      var previousBody = Expression.Add (_parameters[0], _parameters[1]);
-      _context = new ConstructorBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, previousBody);
+      _previousBody = Expression.Add (_parameters[0], _parameters[1]);
+      _context = new ConstructorBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, _previousBody);
     }
 
     [Test]
-    public void GetPreviousBody ()
+    public void GetPreviousBody_NoParameter ()
+    {
+      var invokedBody = _context.GetPreviousBody();
+
+      Assert.That (invokedBody, Is.SameAs (_previousBody));
+    }
+
+    [Test]
+    public void GetPreviousBody_Params ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
@@ -51,17 +60,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The argument count (0) does not match the parameter count (2).\r\nParameter name: arguments")]
-    public void GetPreviousBody_WrongNumberOfArguments ()
+        "The argument count (1) does not match the parameter count (2).\r\nParameter name: arguments")]
+    public void GetPreviousBody_Params_WrongNumberOfArguments ()
     {
-      _context.GetPreviousBody();
+      var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
+
+      _context.GetPreviousBody(arg1);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "The argument at index 0 has an invalid type: No coercion operator is defined between types 'System.String' and 'System.Int32'.\r\n"
         + "Parameter name: arguments")]
-    public void GetPreviousBody_WrongArgumentType ()
+    public void GetPreviousBody_Params_WrongArgumentType ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
@@ -70,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetPreviousBody_ConvertibleArgumentType ()
+    public void GetPreviousBody_Params_ConvertibleArgumentType ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (long));
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (typeof (double));
