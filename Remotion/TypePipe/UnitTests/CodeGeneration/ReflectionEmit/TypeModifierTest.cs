@@ -15,14 +15,17 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -58,9 +61,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void ApplyModifications ()
     {
       var originalType = typeof (DomainClassWithoutMembers);
-      var underlyingStrategyStub = UnderlyingTypeDescriptorObjectMother.Create (originalType);
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType);
       
-      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: underlyingStrategyStub);
+      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
       
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       var fakeResultType = ReflectionObjectMother.GetSomeType ();
@@ -103,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications_ClonesConstructorsReturnedByMutableType ()
     {
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructors));
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructor));
       var mutableType = MutableTypeObjectMother.Create (underlyingTypeDescriptor: descriptor);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
@@ -124,13 +127,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       typeBuilderMock.VerifyAllExpectations ();
     }
 
+    [Test]
+    public void ApplyModifications_DoesNotCloneModifiedConstructors ()
+    {
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructor));
+      var mutableTypeMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
+      mutableTypeMock.ExistingConstructors.Single ().SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression ());
+
+      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
+      _moduleBuilderMock
+          .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
+          .Return (typeBuilderMock);
+      mutableTypeMock.Stub (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything));
+
+      _typeModifier.ApplyModifications (mutableTypeMock);
+
+      typeBuilderMock.AssertWasNotCalled (
+          mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
+    }
+
     public class DomainClassWithoutMembers
     { 
     }
 
-    public class DomainClassWithConstructors
+    public class DomainClassWithConstructor
     {
-      public DomainClassWithConstructors (string s)
+      public DomainClassWithConstructor (string s)
       {
         Dev.Null = s;
       }

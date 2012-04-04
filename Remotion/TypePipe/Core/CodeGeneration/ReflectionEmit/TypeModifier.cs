@@ -15,11 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -85,8 +85,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           typeBuilder, new ExpandingExpressionPreparer(), mutableReflectionObjectMap, ilGeneratorFactory, _debugInfoGenerator);
 
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-      // TODO 4705: Only call HandleUnmodifiedConstructor for unmodified ctors
-      foreach (var clonedCtor in mutableType.ExistingConstructors)
+      foreach (var clonedCtor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
         modificationHandler.HandleUnmodifiedConstructor (clonedCtor);
 
       mutableType.Accept (modificationHandler);
