@@ -100,6 +100,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingConstructorInfoDescriptor.Body; }
     }
 
+    // TODO 4705
+    public void SetBody ()
+    {
+    }
+
     public override string ToString ()
     {
       var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));

@@ -86,6 +86,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ITypeBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ModuleBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\TypeBuilderAdapter.cs" />
+    <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpression.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModificationHandler.cs" />
