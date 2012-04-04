@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -23,22 +24,23 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("4703")]
+  // [Ignore ("4703")]
   public class SetConstructorBodyTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void ModifyExistingConstructor ()
     {
       var type = AssembleType<DomainType> (
-          //mutableType =>
-          //mutableType.SetBody (
-          //  Expression.Block (
-        //    ctx => ctx.GetPreviousBody (
-          //        Expression.Add ( // instead of Add (arithmetic) call static method: string.Concat(str1, str2)
-          //            ctx.ParameterExpression[0], Expression.Constant (" cd")
-          //            )),
-          //  Expression.Assign (Expression.Property (ctx.This, "SettableProperty"), ctx.ParameterExpression[0]) ))
-          );
+          mutableType =>
+          {
+            var existingConstructor = mutableType.ExistingConstructors.Single();
+            var concatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
+            existingConstructor.SetBody (
+                ctx => Expression.Block (
+                    ctx.GetPreviousBody (Expression.Add (ctx.Parameters[0], Expression.Constant (" cd"), concatMethod)),
+                    // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
+                    Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[0])));
+          });
 
       var instance = (DomainType) Activator.CreateInstance (type, "ab");
 
@@ -58,7 +60,7 @@ namespace TypePipe.IntegrationTests
           {
             var addedCtor = mutableType.GetConstructor (Type.EmptyTypes);
             var mutableCtor = mutableType.GetMutableConstructor (addedCtor);
-            //mutableCtor.SetBody (ctx => ctx.GetConstructorCall (Expression.Constant ("modified added")));
+            mutableCtor.SetBody (ctx => ctx.GetConstructorCall (Expression.Constant ("modified added")));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -78,7 +80,7 @@ namespace TypePipe.IntegrationTests
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
             var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
-            // mutableCtor.SetBody (ctx => ctx.GetPreviousBody (Expression.Constant ("modified existing")));
+             mutableCtor.SetBody (ctx => ctx.GetPreviousBody (Expression.Constant ("modified existing")));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);

@@ -16,9 +16,11 @@
 // 
 using System;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -124,6 +126,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Body ()
     {
       Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
+    }
+
+    [Test]
+    public void SetBody ()
+    {
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
+      {
+        Assert.That (context.Parameters, Is.EqualTo (_mutableCtor.ParameterExpressions));
+        Assert.That (context.This.Type, Is.SameAs (_declaringType));
+
+        var previousBody = context.GetPreviousBody (context.Parameters.Cast<Expression>());
+        Assert.That (previousBody, Is.SameAs (_mutableCtor.Body));
+
+        return fakeBody;
+      };
+
+      _mutableCtor.SetBody (bodyProvider);
+
+      Assert.That (_mutableCtor.Body, Is.SameAs (fakeBody));
+    }
+
+    [Test]
+    public void SetBody_WrapsNonVoidBody ()
+    {
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
+      Func<ConstructorBodyModificationContext, Expression> bodyProvider = context => fakeBody;
+
+      _mutableCtor.SetBody (bodyProvider);
+
+      var expectedBody = Expression.Block (typeof (void), fakeBody);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableCtor.Body);
     }
 
     [Test]

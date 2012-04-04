@@ -37,6 +37,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
+    private Expression _body;
+
     public MutableConstructorInfo (MutableType declaringType, UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
@@ -50,6 +52,8 @@ namespace Remotion.TypePipe.MutableReflection
       _parameters = _underlyingConstructorInfoDescriptor.ParameterDeclarations
           .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
           .ToList().AsReadOnly();
+
+      _body = _underlyingConstructorInfoDescriptor.Body;
     }
 
     public override Type DeclaringType
@@ -97,13 +101,20 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Expression Body
     {
-      get { return _underlyingConstructorInfoDescriptor.Body; }
+      get { return _body; }
     }
 
-    // TODO 4705
-    public void SetBody ()
+    public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
     {
-      // TODO 4705: Wrap generated body if required
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body);
+
+      var voidBody = bodyProvider (context);
+      if (voidBody.Type != typeof (void))
+        voidBody = Expression.Block (typeof (void), voidBody);
+
+      _body = voidBody;
     }
 
     public override string ToString ()

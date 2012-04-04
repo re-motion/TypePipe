@@ -85,11 +85,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           typeBuilder, new ExpandingExpressionPreparer(), mutableReflectionObjectMap, ilGeneratorFactory, _debugInfoGenerator);
 
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      // TODO 4705: Only call HandleUnmodifiedConstructor for unmodified ctors
       foreach (var clonedCtor in mutableType.ExistingConstructors)
-      {
-        Assertion.IsTrue (clonedCtor.Body is OriginalBodyExpression);
         modificationHandler.HandleUnmodifiedConstructor (clonedCtor);
-      }
 
       mutableType.Accept (modificationHandler);
 

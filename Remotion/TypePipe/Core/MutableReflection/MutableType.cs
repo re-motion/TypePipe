@@ -200,10 +200,10 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableConstructorInfo AddConstructor (
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<ConstructorBodyCreationContext, Expression> bodyGenerator)
+        Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      ArgumentUtility.CheckNotNull ("bodyGenerator", bodyGenerator);
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
@@ -211,7 +211,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var context = new ConstructorBodyCreationContext (this, parameterExpressions);
-      var body = bodyGenerator (context);
+      var body = bodyProvider (context);
       var voidBody = body.Type == typeof(void) ? body : Expression.Block (typeof (void), body);
       
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, voidBody);
