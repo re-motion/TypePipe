@@ -30,12 +30,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class ConstructorBodyModificationContext : ConstructorBodyContextBase
   {
-    private readonly BlockExpression _previousBody;
+    private readonly Expression _previousBody;
 
     public ConstructorBodyModificationContext (
         MutableType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
-        BlockExpression previousBody)
+        Expression previousBody)
         : base (declaringType, parameterExpressions)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
@@ -60,9 +60,30 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (message, "arguments");
       }
 
-      var replacements = Parameters.Zip (argumentCollection).ToDictionary (t => (Expression) t.Item1, t => t.Item2);
+      var replacements = Parameters
+          .Select ((p, i) => new { Parameter = p, Index = i })
+          .Zip (argumentCollection, (t, a) => new { t.Parameter, Argument = EnsureCorrectType (a, t.Parameter.Type, t.Index, "arguments") })
+          .ToDictionary (t => (Expression) t.Parameter, t => t.Argument);
       var visitor = new ReplacingExpressionVisitor (replacements);
       return visitor.Visit (_previousBody);
+    }
+
+    private Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)
+    {
+      if (expression.Type != type)
+      {
+        try
+        {
+          return Expression.Convert (expression, type);
+        }
+        catch (InvalidOperationException ex)
+        {
+          var message = string.Format ("The argument at index {0} has an invalid type: {1}", argumentIndex, ex.Message);
+          throw new ArgumentException (message, parameterName, ex);
+        }
+      }
+
+      return expression;
     }
   }
 }

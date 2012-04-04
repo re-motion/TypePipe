@@ -32,9 +32,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _parameters = new List<ParameterExpression>
-                    { Expression.Parameter (ReflectionObjectMother.GetSomeType()), Expression.Parameter (ReflectionObjectMother.GetSomeType()) };
-      var previousBody = Expression.Block (_parameters[0], _parameters[1]);
+      _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (int)) };
+      var previousBody = Expression.Add (_parameters[0], _parameters[1]);
       _context = new ConstructorBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, previousBody);
     }
 
@@ -46,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var invokedBody = _context.GetPreviousBody (arg1, arg2);
 
-      var expectedBody = Expression.Block (arg1, arg2);
+      var expectedBody = Expression.Add (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
@@ -56,6 +55,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetPreviousBody_WrongNumberOfArguments ()
     {
       _context.GetPreviousBody();
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The argument at index 0 has an invalid type: No coercion operator is defined between types 'System.String' and 'System.Int32'.\r\n"
+        + "Parameter name: arguments")]
+    public void GetPreviousBody_WrongArgumentType ()
+    {
+      var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
+      var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
+
+      _context.GetPreviousBody (arg1, arg2);
+    }
+
+    [Test]
+    public void GetPreviousBody_ConvertibleArgumentType ()
+    {
+      var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (long));
+      var arg2 = ExpressionTreeObjectMother.GetSomeExpression (typeof (double));
+
+      var invokedBody = _context.GetPreviousBody (arg1, arg2);
+
+      var expectedBody = Expression.Add (Expression.Convert (arg1, typeof (int)), Expression.Convert (arg2, typeof (int)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
   }
 }
