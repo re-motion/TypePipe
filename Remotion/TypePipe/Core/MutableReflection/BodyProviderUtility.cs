@@ -32,6 +32,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("context", context);
 
       var body = bodyProvider (context);
+      if (body == null)
+        throw new InvalidOperationException ("Body provider must return non-null body.");
+
       if (body.Type != typeof (void))
         return Expression.Block (typeof (void), body);
 

@@ -25,40 +25,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class BodyProviderUtilityTest
   {
+    private ConstructorBodyContextBase _context;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _context = new TestableConstructorBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0]);
+    }
+
     [Test]
     public void GetVoidBody ()
     {
-      var context = new TestableConstructorBodyContextBase (MutableTypeObjectMother.Create(), new ParameterExpression[0]);
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      var bodyProvider = CreateBodyProvider(body);
 
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      Func<TestableConstructorBodyContextBase, Expression> bodyProvider = c =>
-      {
-        Assert.That (c, Is.EqualTo (context));
-        return fakeBody;
-      };
-
-      var result = BodyProviderUtility.GetVoidBody (bodyProvider, context);
+      var result = BodyProviderUtility.GetVoidBody (bodyProvider, _context);
       
-      Assert.That (result, Is.SameAs (fakeBody));
+      Assert.That (result, Is.SameAs (body));
     }
 
     [Test]
     public void GetVoidBody_WrapsNonVoidBody ()
     {
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
+      var bodyProvider = CreateBodyProvider(body);
 
-      var context = new TestableConstructorBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0]);
+      var result = BodyProviderUtility.GetVoidBody (bodyProvider, _context);
 
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
-      Func<TestableConstructorBodyContextBase, Expression> bodyProvider = c =>
-      {
-        Assert.That (c, Is.EqualTo (context));
-        return fakeBody;
-      };
-
-      var result = BodyProviderUtility.GetVoidBody (bodyProvider, context);
-
-      var expectedBody = Expression.Block (typeof (void), fakeBody);
+      var expectedBody = Expression.Block (typeof (void), body);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
+    }
+
+    [Test]
+    [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
+    public void GetVoidBody_ThrowsForNullBody ()
+    {
+      Func<ConstructorBodyContextBase, Expression> bodyProvider = c => null;
+
+      BodyProviderUtility.GetVoidBody (bodyProvider, _context);
+    }
+
+    private Func<ConstructorBodyContextBase, Expression> CreateBodyProvider (Expression body)
+    {
+      return c =>
+      {
+        Assert.That (c, Is.EqualTo (_context));
+        return body;
+      };
     }
   }
 }
