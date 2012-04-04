@@ -103,6 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 4705
     public void SetBody ()
     {
+      // TODO 4705: Wrap generated body if required
     }
 
     public override string ToString ()

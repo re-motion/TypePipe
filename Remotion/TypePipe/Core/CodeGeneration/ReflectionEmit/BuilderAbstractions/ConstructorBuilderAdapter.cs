@@ -54,6 +54,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     {
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+
+      // TODO 4743: Covnert to argument check
       Assertion.IsTrue (body.ReturnType == typeof (void));
 
       var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
