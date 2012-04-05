@@ -15,10 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
@@ -69,7 +69,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4745")]
     public void AddedCtor_DelegatesTo_ModifiedExistingCtor ()
     {
       var type = AssembleType<DomainType> (
@@ -123,7 +122,9 @@ namespace TypePipe.IntegrationTests
 
       public DomainType (string ctorArg1, string ctorArg2)
       {
-        // Do nothing
+        Dev.Null = ctorArg1;
+        Dev.Null = ctorArg2;
+        SettableProperty = "blah";
       }
 
       public string ctorArg { get; private set; }
