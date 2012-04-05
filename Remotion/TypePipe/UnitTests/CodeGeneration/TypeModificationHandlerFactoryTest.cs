@@ -15,12 +15,16 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -34,6 +38,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
     private TypeModificationHandlerFactory _handlerFactory;
 
+    private ReflectionToBuilderMap _reflectionToBuilderMap;
+    private IILGeneratorFactory _ilGeneratorFactory;
+
     [SetUp]
     public void SetUp ()
     {
@@ -41,6 +48,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _expressionPreparer = MockRepository.GenerateStub<IExpressionPreparer>();
 
       _handlerFactory = new TypeModificationHandlerFactory (_expressionPreparer, _debugInfoGeneratorStub);
+
+      _reflectionToBuilderMap = new ReflectionToBuilderMap ();
+      _ilGeneratorFactory = MockRepository.GenerateStub<IILGeneratorFactory> ();
     }
 
     [Test]
@@ -58,15 +68,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    [Ignore ("4745")]
     public void CreateHandler ()
     {
       var mutableType = MutableTypeObjectMother.Create();
       var typeBuilderStub = MockRepository.GenerateStub<ITypeBuilder>();
-      var reflectionToBuilderMap = new ReflectionToBuilderMap();
-      var ilGeneratorFactory = MockRepository.GenerateStub<IILGeneratorFactory>();
 
-      var result = _handlerFactory.CreateHandler (mutableType, typeBuilderStub, reflectionToBuilderMap, ilGeneratorFactory);
+      typeBuilderStub.Stub (
+          stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
+      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Dispose
+      _expressionPreparer
+          .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
+          .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
+
+      var result = _handlerFactory.CreateHandler (mutableType, typeBuilderStub, _reflectionToBuilderMap, _ilGeneratorFactory);
 
       Assert.That (result, Is.TypeOf<TypeModificationHandler>());
       var handler = (TypeModificationHandler) result;
@@ -75,32 +89,47 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (handler.ExpressionPreparer, Is.SameAs (_expressionPreparer));
 
       Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderStub));
-      Assert.That (handler.ReflectionToBuilderMap, Is.SameAs (reflectionToBuilderMap));
-      Assert.That (handler.ILGeneratorFactory, Is.SameAs (ilGeneratorFactory));
+      Assert.That (handler.ReflectionToBuilderMap, Is.SameAs (_reflectionToBuilderMap));
+      Assert.That (handler.ILGeneratorFactory, Is.SameAs (_ilGeneratorFactory));
     }
 
     [Test]
-    [Ignore("4745")]
     public void CreateHandler_UnmodifiedAndModifiedExistingCtors ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithCtors));
-      var ctor = mutableType.GetConstructor (Type.EmptyTypes);
-      MutableConstructorInfoTestHelper.ModifyConstructor (mutableType.GetMutableConstructor (ctor));
+      var modifiedCtor = ReflectionObjectMother.GetConstructor (() => new ClassWithCtors());
+      MutableConstructorInfoTestHelper.ModifyConstructor (mutableType.GetMutableConstructor (modifiedCtor));
+      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
 
-      var typeBuilderStub = MockRepository.GenerateStub<ITypeBuilder> ();
-      var reflectionToBuilderMap = new ReflectionToBuilderMap ();
-      var ilGeneratorFactory = MockRepository.GenerateStub<IILGeneratorFactory> ();
+      typeBuilderMock.Stub (
+          stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
+      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Dispose
+      _expressionPreparer
+          .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
+          .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
+      
+      _handlerFactory.CreateHandler (mutableType, typeBuilderMock, _reflectionToBuilderMap, _ilGeneratorFactory);
 
-      var result = _handlerFactory.CreateHandler (mutableType, typeBuilderStub, reflectionToBuilderMap, ilGeneratorFactory);
+      typeBuilderMock.AssertWasCalled (
+          mock => mock.DefineConstructor (
+              Arg<MethodAttributes>.Is.Anything,
+              Arg<CallingConventions>.Is.Anything,
+              Arg<Type[]>.List.Equal (new []{typeof(int)})));
 
-      // Test that //  modificationHandler.HandleUnmodifiedConstructor (clonedCtor);
-      // was called for public ClassWithCtors (int i) { }
+      typeBuilderMock.AssertWasNotCalled (
+          mock => mock.DefineConstructor (
+              Arg<MethodAttributes>.Is.Anything,
+              Arg<CallingConventions>.Is.Anything,
+              Arg<Type[]>.List.Equal (Type.EmptyTypes)));
     }
 
-    class ClassWithCtors
+    public class ClassWithCtors
     {
       public ClassWithCtors () { }
-      public ClassWithCtors (int i) { }
+      public ClassWithCtors (int i)
+      {
+        Dev.Null = i;
+      }
     }
   }
 }
