@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_otherTypes);
     }
 
-    public static Type GetSomeUnsealedType ()
+    public static Type GetSomeSubclassableType ()
     {
       return GetRandomElement (s_unsealedTypes);
     }

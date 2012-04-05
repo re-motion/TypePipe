@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
 
-      var requestedType = ReflectionObjectMother.GetSomeUnsealedType();
+      var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       MutableType mutableType = null;
       var fakeResult = ReflectionObjectMother.GetSomeType();
 

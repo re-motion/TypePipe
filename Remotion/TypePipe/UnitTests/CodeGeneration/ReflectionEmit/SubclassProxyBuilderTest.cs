@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilderTest
   {
     private IExpressionPreparer _expressionPreparerMock;
-    private ITypeBuilder _subclassProxyBuilderMock;
+    private ITypeBuilder _typeBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private ReflectionToBuilderMap _reflectionToBuilderMap;
@@ -48,20 +48,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer>();
-      _subclassProxyBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
+      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _reflectionToBuilderMap = new ReflectionToBuilderMap();
 
       _builder = new SubclassProxyBuilder (
-          _subclassProxyBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+          _typeBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
       var handler = new SubclassProxyBuilder (
-          _subclassProxyBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, null);
+          _typeBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, null);
       Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
 
@@ -69,11 +69,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedInterface ()
     {
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      _subclassProxyBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
+      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
       _builder.HandleAddedInterface (addedInterface);
 
-      _subclassProxyBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -82,13 +82,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var addedField = MutableFieldInfoObjectMother.Create();
       var fieldBuilderStub = MockRepository.GenerateStub<IFieldBuilder>();
 
-      _subclassProxyBuilderMock
+      _typeBuilderMock
           .Expect(mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
           .Return (fieldBuilderStub);
 
       _builder.HandleAddedField (addedField);
 
-      _subclassProxyBuilderMock.VerifyAllExpectations ();
+      _typeBuilderMock.VerifyAllExpectations ();
       Assert.That (_reflectionToBuilderMap.GetBuilder (addedField), Is.SameAs (fieldBuilderStub));
     }
 
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       addedField.AddCustomAttribute (declaration);
 
       var fieldBuilderMock = MockRepository.GenerateMock<IFieldBuilder>();
-      _subclassProxyBuilderMock
+      _typeBuilderMock
           .Stub (stub => stub.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
           .Return (fieldBuilderMock);
       fieldBuilderMock
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleAddedConstructor_CallsAddConstructorToSubclassProxy ()
+    public void HandleAddedConstructor_CallsAddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForNew();
       CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleAddedConstructor, ctor);
@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleModifiedConstructor_CallsAddConstructorToSubclassProxy ()
+    public void HandleModifiedConstructor_CallsAddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
       MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
@@ -160,23 +160,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleUnmodifiedConstructor_CallsAddConstructorToSubclassProxy ()
-    {
-      var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleUnmodifiedConstructor, ctor);
-    }
-
-    [Test]
-    public void HandleUnmodifiedConstructor_Throws ()
-    {
-      var message = "The supplied constructor must be an unmodified existing constructor.\r\nParameter name: existingConstructor";
-      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: true);
-      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: false);
-      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNewConstructor: false, isModified: true);
-    }
-
-    [Test]
-    public void AddConstructorToSubclassProxy_DefinesConstructor ()
+    public void AddConstructor_DefinesConstructor ()
     {
       var parameterDeclarations =
           new[]
@@ -191,7 +175,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expectedCallingConvention = mutableConstructor.CallingConvention;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
-      _subclassProxyBuilderMock
+      _typeBuilderMock
           .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
           .Return (constructorBuilderMock);
 
@@ -201,9 +185,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
-      CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
+      _builder.AddConstructor (mutableConstructor);
 
-      _subclassProxyBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.VerifyAllExpectations();
       _expressionPreparerMock.VerifyAllExpectations();
       constructorBuilderMock.VerifyAllExpectations();
 
@@ -211,13 +195,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddConstructorToSubclassProxy_RegistersBuildAction ()
+    public void AddConstructor_RegistersBuildAction ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: Enumerable.Empty<ParameterDeclaration>());
       var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
 
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
-      _subclassProxyBuilderMock
+      _typeBuilderMock
           .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderMock);
 
@@ -226,8 +210,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
 
-      CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
-      
+      _builder.AddConstructor (mutableConstructor);
+
       var buildActions = GetBuildActions (_builder);
       Assert.That (buildActions, Has.Count.EqualTo (1));
       var action = buildActions.Single ();
@@ -248,7 +232,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddConstructorToSubclassProxy_WithByRefParameters ()
+    public void AddConstructor_WithByRefParameters ()
     {
       var byRefType = typeof (object).MakeByRefType();
       
@@ -257,7 +241,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
 
       var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
-      _subclassProxyBuilderMock
+      _typeBuilderMock
           .Expect (
               mock => mock.DefineConstructor (
                   Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.List.Equal (new[] { byRefType })))
@@ -266,26 +250,37 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
       _expressionPreparerMock.Stub (stub => stub.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
 
-      CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
+      _builder.AddConstructor (mutableConstructor);
 
-      _subclassProxyBuilderMock.VerifyAllExpectations ();
+      _typeBuilderMock.VerifyAllExpectations ();
     }
 
     [Test]
     public void Build ()
     {
-      int buildActionCallCount = 0;
-      AddBuildAction (_builder, () => ++buildActionCallCount);
+      bool buildActionCalled = false;
+      AddBuildAction (_builder, () => buildActionCalled = true);
 
-      // First call
+      var fakeType = ReflectionObjectMother.GetSomeType();
+      _typeBuilderMock
+          .Expect (mock => mock.CreateType())
+          .Return (fakeType)
+          .WhenCalled (mi => Assert.That (buildActionCalled, Is.True));
+
+      var result = _builder.Build ();
+
+      _typeBuilderMock.VerifyAllExpectations();
+      Assert.That (buildActionCalled, Is.True);
+      Assert.That (result, Is.SameAs (fakeType));
+    }
+
+    [Test]
+    public void Build_Twice ()
+    {
+      _typeBuilderMock.Stub (mock => mock.CreateType ());
+
       _builder.Build ();
-
-      Assert.That (buildActionCallCount, Is.EqualTo (1));
-
-      // Second call
-      _builder.Build ();
-
-      Assert.That (buildActionCallCount, Is.EqualTo (1));
+      Assert.That (() => _builder.Build (), Throws.InvalidOperationException.With.Message.EqualTo ("Build can only be called once."));
     }
 
     private void AddBuildAction (SubclassProxyBuilder handler, Action action)
@@ -321,16 +316,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (actualBlob, Is.EqualTo (expectedBlob));
     }
 
-    private void CallAddConstructorToSubclassProxy (SubclassProxyBuilder handler, MutableConstructorInfo mutableConstructor)
-    {
-      PrivateInvoke.InvokeNonPublicMethod (handler, "AddConstructorToSubclassProxy", mutableConstructor);
-    }
-
     private void CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (
         Action<MutableConstructorInfo> methodInvocation, MutableConstructorInfo mutableConstructor)
     {
       var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
-      _subclassProxyBuilderMock
+      _typeBuilderMock
           .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderStub);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
@@ -340,7 +330,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       methodInvocation (mutableConstructor);
 
-      _subclassProxyBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.VerifyAllExpectations();
     }
 
     private void CheckThrowsForInvalidArguments (

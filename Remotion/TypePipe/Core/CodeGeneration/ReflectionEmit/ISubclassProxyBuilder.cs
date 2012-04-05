@@ -24,17 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyBuilder : ITypeModificationHandler
   {
-    // TODO 4745: void AddConstructor (MutableConstructorInfo constructor);
-    void Build ();
-
-    // TODO 4745: Expected end result
-    // using (var builder = _factory.CreateSubclassProxyBuilder (mutableType.UnderlyingSystemType))
-    // {
-    //   foreach (...)
-    //     builder.AddConstructor (unmodifiedExistingCtor);
-    //   builder.ImplementSerializability();
-    //   mutableType.Accept (builder);
-    // }
-    // return builder.Build();
+    void AddConstructor (MutableConstructorInfo constructor);
+    Type Build ();
   }
 }

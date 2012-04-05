@@ -18,13 +18,10 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -33,103 +30,61 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   [TestFixture]
   public class SubclassProxyBuilderFactoryTest
   {
+    private IModuleBuilder _moduleBuilderMock;
+    private ISubclassProxyNameProvider _subclassProxyNameProviderMock;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IExpressionPreparer _expressionPreparer;
 
     private SubclassProxyBuilderFactory _builderFactory;
 
-    private ReflectionToBuilderMap _reflectionToBuilderMap;
-    private IILGeneratorFactory _ilGeneratorFactory;
-
     [SetUp]
     public void SetUp ()
     {
+      _moduleBuilderMock = MockRepository.GenerateMock<IModuleBuilder> ();
+      _subclassProxyNameProviderMock = MockRepository.GenerateMock<ISubclassProxyNameProvider> ();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
       _expressionPreparer = MockRepository.GenerateStub<IExpressionPreparer>();
 
-      _builderFactory = new SubclassProxyBuilderFactory (_expressionPreparer, _debugInfoGeneratorStub);
-
-      _reflectionToBuilderMap = new ReflectionToBuilderMap ();
-      _ilGeneratorFactory = MockRepository.GenerateStub<IILGeneratorFactory> ();
-    }
-
-    [Test]
-    public void Initialization ()
-    {
-      Assert.That (_builderFactory.ExpressionPreparer, Is.SameAs (_expressionPreparer));
-      Assert.That (_builderFactory.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+      _builderFactory = new SubclassProxyBuilderFactory (
+          _moduleBuilderMock, _subclassProxyNameProviderMock, _expressionPreparer, _debugInfoGeneratorStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handlerFactory = new SubclassProxyBuilderFactory (_expressionPreparer, null);
+      var handlerFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, _subclassProxyNameProviderMock, _expressionPreparer, null);
       Assert.That (handlerFactory.DebugInfoGenerator, Is.Null);
     }
 
     [Test]
     public void CreateBuilder ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
-      var typeBuilderStub = MockRepository.GenerateStub<ITypeBuilder>();
+      var originalType = ReflectionObjectMother.GetSomeSubclassableType();
+      var mutableType = MutableTypeObjectMother.CreateForExistingType(originalType: originalType);
 
-      typeBuilderStub.Stub (
-          stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
-      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Build
-      _expressionPreparer
-          .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
-          .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
+      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (mutableType)).Return ("foofoo");
 
-      var result = _builderFactory.CreateBuilder (mutableType, typeBuilderStub, _reflectionToBuilderMap, _ilGeneratorFactory);
+      var typeBuilderStub = MockRepository.GenerateStub<ITypeBuilder> ();
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
+      _moduleBuilderMock
+          .Expect (mock => mock.DefineType ("foofoo", attributes, originalType))
+          .Return (typeBuilderStub);
+
+      var result = _builderFactory.CreateBuilder (mutableType);
 
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
-      var handler = (SubclassProxyBuilder) result;
+      var builder = (SubclassProxyBuilder) result;
 
-      Assert.That (handler.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
-      Assert.That (handler.ExpressionPreparer, Is.SameAs (_expressionPreparer));
+      Assert.That (builder.TypeBuilder, Is.SameAs (typeBuilderStub));
+      Assert.That (builder.ExpressionPreparer, Is.SameAs (_expressionPreparer));
+      Assert.That (builder.ReflectionToBuilderMap.GetBuilder (mutableType), Is.SameAs (typeBuilderStub));
 
-      Assert.That (handler.TypeBuilder, Is.SameAs (typeBuilderStub));
-      Assert.That (handler.ReflectionToBuilderMap, Is.SameAs (_reflectionToBuilderMap));
-      Assert.That (handler.ILGeneratorFactory, Is.SameAs (_ilGeneratorFactory));
-    }
+      Assert.That (builder.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
+      var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) builder.ILGeneratorFactory;
+      Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
+      Assert.That (ilGeneratorDecoratorFactory.ReflectionToBuilderMap, Is.SameAs (builder.ReflectionToBuilderMap));
 
-    [Test]
-    public void CreateBuilder_UnmodifiedAndModifiedExistingCtors ()
-    {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithCtors));
-      var modifiedCtor = ReflectionObjectMother.GetConstructor (() => new ClassWithCtors());
-      MutableConstructorInfoTestHelper.ModifyConstructor (mutableType.GetMutableConstructor (modifiedCtor));
-      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
-
-      typeBuilderMock.Stub (
-          stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
-      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Build
-      _expressionPreparer
-          .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
-          .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
-      
-      _builderFactory.CreateBuilder (mutableType, typeBuilderMock, _reflectionToBuilderMap, _ilGeneratorFactory);
-
-      typeBuilderMock.AssertWasCalled (
-          mock => mock.DefineConstructor (
-              Arg<MethodAttributes>.Is.Anything,
-              Arg<CallingConventions>.Is.Anything,
-              Arg<Type[]>.List.Equal (new []{typeof(int)})));
-
-      typeBuilderMock.AssertWasNotCalled (
-          mock => mock.DefineConstructor (
-              Arg<MethodAttributes>.Is.Anything,
-              Arg<CallingConventions>.Is.Anything,
-              Arg<Type[]>.List.Equal (Type.EmptyTypes)));
-    }
-
-    public class ClassWithCtors
-    {
-      public ClassWithCtors () { }
-      public ClassWithCtors (int i)
-      {
-        Dev.Null = i;
-      }
+      Assert.That (builder.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
     }
   }
 }

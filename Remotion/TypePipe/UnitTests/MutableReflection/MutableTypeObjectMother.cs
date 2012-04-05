@@ -36,17 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
-    public static MutableType CreatePartialMock (
-        UnderlyingTypeDescriptor underlyingTypeDescriptor = null,
-        IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
-        IBindingFlagsEvaluator bindingFlagsEvaluator = null)
-    {
-      return MockRepository.GeneratePartialMock<MutableType> (
-          underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create(),
-          memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
-          bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
-    }
-
     public static MutableType CreateForExistingType (Type originalType = null)
     {
       return Create (underlyingTypeDescriptor: UnderlyingTypeDescriptorObjectMother.Create (originalType));

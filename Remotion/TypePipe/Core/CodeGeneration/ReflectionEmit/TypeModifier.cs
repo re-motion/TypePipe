@@ -15,9 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using System.Linq;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -31,57 +29,29 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class TypeModifier : ITypeModifier
   {
-    private readonly IModuleBuilder _moduleBuilder;
-    private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
     private readonly ISubclassProxyBuilderFactory _handlerFactory;
 
     [CLSCompliant (false)]
-    public TypeModifier (
-        IModuleBuilder moduleBuilder,
-        ISubclassProxyNameProvider subclassProxyNameProvider,
-        ISubclassProxyBuilderFactory handlerFactory)
+    public TypeModifier (ISubclassProxyBuilderFactory handlerFactory)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
-      ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
       ArgumentUtility.CheckNotNull ("handlerFactory", handlerFactory);
 
-      _moduleBuilder = moduleBuilder;
-      _subclassProxyNameProvider = subclassProxyNameProvider;
       _handlerFactory = handlerFactory;
-    }
-
-    [CLSCompliant (false)]
-    public IModuleBuilder ModuleBuilder
-    {
-      get { return _moduleBuilder; }
-    }
-
-    public ISubclassProxyNameProvider SubclassProxyNameProvider
-    {
-      get { return _subclassProxyNameProvider; }
     }
 
     public Type ApplyModifications (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (mutableType);
-      var typeBuilder = _moduleBuilder.DefineType (
-          subclassProxyName,
-          TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          mutableType.UnderlyingSystemType);
+      var builder = _handlerFactory.CreateBuilder (mutableType);
 
-      // TODO 4745: Move this into CreateBuilder 
-      var reflectionToBuilderMap = new ReflectionToBuilderMap ();
-      reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
+      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      foreach (var clonedCtor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
+        builder.AddConstructor (clonedCtor);
 
-      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
+      mutableType.Accept (builder);
 
-      var builder = _handlerFactory.CreateBuilder (mutableType, typeBuilder, reflectionToBuilderMap, ilGeneratorFactory);
-        mutableType.Accept (builder);
-      builder.Build();
-
-      return typeBuilder.CreateType();
+      return builder.Build();
     }
   }
 }

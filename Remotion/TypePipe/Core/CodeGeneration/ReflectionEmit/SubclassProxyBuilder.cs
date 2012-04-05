@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (!addedConstructor.IsNewConstructor)
         throw new ArgumentException ("The supplied constructor must be a new constructor.", "addedConstructor");
 
-      AddConstructorToSubclassProxy (addedConstructor);
+      AddConstructor (addedConstructor);
     }
 
     // TODO 4745: EnsureNotDisposed
@@ -144,44 +144,38 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (modifiedConstructor.IsNewConstructor || !modifiedConstructor.IsModified)
         throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "modifiedConstructor");
 
-      AddConstructorToSubclassProxy (modifiedConstructor);
+      AddConstructor (modifiedConstructor);
     }
 
-    // TODO 4745: EnsureNotDisposed
-    public void HandleUnmodifiedConstructor (MutableConstructorInfo existingConstructor)
+    public void AddConstructor (MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("existingConstructor", existingConstructor);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      if (existingConstructor.IsNewConstructor || existingConstructor.IsModified)
-        throw new ArgumentException ("The supplied constructor must be an unmodified existing constructor.", "existingConstructor");
+      var parameterTypes = constructor.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
+      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, constructor.CallingConvention, parameterTypes);
+      _reflectionToBuilderMap.AddMapping (constructor, ctorBuilder);
 
-      AddConstructorToSubclassProxy (existingConstructor);
+      foreach (var parameterInfo in constructor.GetParameters ())
+        ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
+
+      var body = _expressionPreparer.PrepareConstructorBody (constructor);
+      var bodyLambda = Expression.Lambda (body, constructor.ParameterExpressions);
+
+      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
+      _buildActions.Add (() => ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
     }
 
-    public void Build ()
+    public Type Build ()
     {
       if (_isCompleted)
-        return;
+        throw new InvalidOperationException ("Build can only be called once.");
+      
       _isCompleted = true;
 
       foreach (var action in _buildActions)
         action();
-    }
 
-    private void AddConstructorToSubclassProxy (MutableConstructorInfo mutableConstructor)
-    {
-      var parameterTypes = mutableConstructor.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
-      var ctorBuilder = _typeBuilder.DefineConstructor (mutableConstructor.Attributes, mutableConstructor.CallingConvention, parameterTypes);
-      _reflectionToBuilderMap.AddMapping (mutableConstructor, ctorBuilder);
-
-      foreach (var parameterInfo in mutableConstructor.GetParameters ())
-        ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
-
-      var body = _expressionPreparer.PrepareConstructorBody (mutableConstructor);
-      var bodyLambda = Expression.Lambda (body, mutableConstructor.ParameterExpressions);
-
-      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
-      _buildActions.Add (() => ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
+      return _typeBuilder.CreateType();
     }
   }
 }

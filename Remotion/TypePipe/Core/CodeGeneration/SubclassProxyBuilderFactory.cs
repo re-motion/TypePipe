@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
@@ -25,20 +25,39 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
+  // TODO 4745: Move to ReflectionEmit namespace
   /// <summary>
   /// Creates <see cref="SubclassProxyBuilder"/> instances.
   /// </summary>
   public class SubclassProxyBuilderFactory : ISubclassProxyBuilderFactory
   {
+    private readonly IModuleBuilder _moduleBuilder;
+    private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
-    public SubclassProxyBuilderFactory (IExpressionPreparer expressionPreparer, DebugInfoGenerator debugInfoGeneratorOrNull)
+    [CLSCompliant (false)]
+    public SubclassProxyBuilderFactory (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider, IExpressionPreparer expressionPreparer, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
+      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
 
+      _moduleBuilder = moduleBuilder;
+      _subclassProxyNameProvider = subclassProxyNameProvider;
       _expressionPreparer = expressionPreparer;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
+    }
+
+    [CLSCompliant (false)]
+    public IModuleBuilder ModuleBuilder
+    {
+      get { return _moduleBuilder; }
+    }
+
+    public ISubclassProxyNameProvider SubclassProxyNameProvider
+    {
+      get { return _subclassProxyNameProvider; }
     }
 
     public IExpressionPreparer ExpressionPreparer
@@ -51,21 +70,20 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _debugInfoGenerator; }
     }
 
-    [CLSCompliant (false)]
-    public ISubclassProxyBuilder CreateBuilder (
-        MutableType mutableType,
-        ITypeBuilder subclassProxyTypeBuilder,
-        ReflectionToBuilderMap reflectionToBuilderMap,
-        IILGeneratorFactory ilGeneratorFactory)
+    public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
     {
-      var builder = new SubclassProxyBuilder (
-          subclassProxyTypeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
+      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (mutableType);
+      var typeBuilder = _moduleBuilder.DefineType (
+          subclassProxyName,
+          TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
+          mutableType.UnderlyingSystemType);
 
-      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-      foreach (var clonedCtor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
-        builder.HandleUnmodifiedConstructor (clonedCtor);
+      var reflectionToBuilderMap = new ReflectionToBuilderMap ();
+      reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
 
-      return builder;
+      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
+
+      return new SubclassProxyBuilder (typeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
     }
   }
 }
