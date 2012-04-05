@@ -63,7 +63,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\OriginalConstructorBodyReplacingExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifierTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
-    <Compile Include="CodeGeneration\SubclassProxyBuilderFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorTestHelper.cs" />

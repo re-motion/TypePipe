@@ -76,7 +76,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\OriginalConstructorBodyReplacingExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeGeneration\SubclassProxyBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="Expressions\OriginalBodyExpression.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />

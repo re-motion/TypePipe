@@ -14,18 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class SubclassProxyBuilderFactoryTest

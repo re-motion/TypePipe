@@ -17,15 +17,13 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  // TODO 4745: Move to ReflectionEmit namespace
   /// <summary>
   /// Creates <see cref="SubclassProxyBuilder"/> instances.
   /// </summary>
