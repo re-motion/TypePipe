@@ -29,9 +29,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Implements <see cref="ITypeModificationHandler"/> by applying the modifications made to a <see cref="MutableType"/> to a subclass proxy.
-  /// Also implements <see cref="ISubclassProxyBuilder"/> for cloning unmodified existing constructors and forward declarations of
-  /// method and constructor bodies.
+  /// Implements <see cref="ISubclassProxyBuilder"/> by building a subclass proxy using <see cref="ITypeBuilder"/> and related interfaces.
+  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="Build"/> method.
   /// </summary>
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
@@ -40,9 +39,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
-    private readonly List<Action> _disposeActions = new List<Action>();
 
-    private bool _disposed = false;
+    private readonly List<Action> _buildActions = new List<Action>();
+
+    private bool _isCompleted = false;
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
@@ -158,13 +158,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddConstructorToSubclassProxy (existingConstructor);
     }
 
-    public void Dispose ()
+    public void Build ()
     {
-      if (_disposed)
+      if (_isCompleted)
         return;
-      _disposed = true;
+      _isCompleted = true;
 
-      foreach (var action in _disposeActions)
+      foreach (var action in _buildActions)
         action();
     }
 
@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var bodyLambda = Expression.Lambda (body, mutableConstructor.ParameterExpressions);
 
       // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
-      _disposeActions.Add (() => ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
+      _buildActions.Add (() => ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
     }
   }
 }

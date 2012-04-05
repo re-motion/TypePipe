@@ -211,7 +211,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddConstructorToSubclassProxy_RegistersDisposeAction ()
+    public void AddConstructorToSubclassProxy_RegistersBuildAction ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: Enumerable.Empty<ParameterDeclaration>());
       var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
@@ -224,13 +224,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
       _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
 
-      Assert.That (GetDisposeActions (_builder), Has.Count.EqualTo (0));
+      Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
 
       CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
       
-      var disposeActions = GetDisposeActions (_builder);
-      Assert.That (disposeActions, Has.Count.EqualTo (1));
-      var action = disposeActions.Single ();
+      var buildActions = GetBuildActions (_builder);
+      Assert.That (buildActions, Has.Count.EqualTo (1));
+      var action = buildActions.Single ();
 
       constructorBuilderMock
           .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
@@ -272,31 +272,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void Dispose ()
+    public void Build ()
     {
-      int disposeActionCallCount = 0;
-      AddDisposeAction (_builder, () => ++disposeActionCallCount);
+      int buildActionCallCount = 0;
+      AddBuildAction (_builder, () => ++buildActionCallCount);
 
       // First call
-      _builder.Dispose ();
+      _builder.Build ();
 
-      Assert.That (disposeActionCallCount, Is.EqualTo (1));
+      Assert.That (buildActionCallCount, Is.EqualTo (1));
 
       // Second call
-      _builder.Dispose ();
+      _builder.Build ();
 
-      Assert.That (disposeActionCallCount, Is.EqualTo (1));
+      Assert.That (buildActionCallCount, Is.EqualTo (1));
     }
 
-    private void AddDisposeAction (SubclassProxyBuilder handler, Action action)
+    private void AddBuildAction (SubclassProxyBuilder handler, Action action)
     {
-      var disposeActions = GetDisposeActions(handler);
-      disposeActions.Add (action);
+      var buildActions = GetBuildActions(handler);
+      buildActions.Add (action);
     }
 
-    private List<Action> GetDisposeActions (SubclassProxyBuilder handler)
+    private List<Action> GetBuildActions (SubclassProxyBuilder handler)
     {
-      return (List<Action>) PrivateInvoke.GetNonPublicField (handler, "_disposeActions");
+      return (List<Action>) PrivateInvoke.GetNonPublicField (handler, "_buildActions");
     }
 
     private void CheckCustomAttributeBuilder (

@@ -15,15 +15,11 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -48,6 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _handlerFactoryStub);
     }
 
+    // TODO 4745: Change to use MockRepository.Ordered()
     [Test]
     public void ApplyModifications ()
     {
@@ -84,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.Accept (builderMock))
           .WhenCalled (mi => acceptCalled = true);
       builderMock
-          .Expect (mock => mock.Dispose())
+          .Expect (mock => mock.Build())
           .WhenCalled (mi =>
           {
             Assert.That (acceptCalled, Is.True);

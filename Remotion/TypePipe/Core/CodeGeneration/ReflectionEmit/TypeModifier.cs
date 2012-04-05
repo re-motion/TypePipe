@@ -77,8 +77,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
 
-      using (var builder = _handlerFactory.CreateBuilder (mutableType, typeBuilder, reflectionToBuilderMap, ilGeneratorFactory))
+      var builder = _handlerFactory.CreateBuilder (mutableType, typeBuilder, reflectionToBuilderMap, ilGeneratorFactory);
         mutableType.Accept (builder);
+      builder.Build();
 
       return typeBuilder.CreateType();
     }

@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       typeBuilderStub.Stub (
           stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
-      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Dispose
+      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Build
       _expressionPreparer
           .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
           .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       typeBuilderMock.Stub (
           stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
-      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Dispose
+      // TODO 4745: Remove when body generation has been moved from HandleUnmodifiedConstructor to handler.Build
       _expressionPreparer
           .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
           .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
