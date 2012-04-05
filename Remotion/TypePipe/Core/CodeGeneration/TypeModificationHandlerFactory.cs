@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Creates <see cref="TypeModificationHandler"/> instances.
   /// </summary>
+  // TODO 4745: SubclassProxyBuilderFactory
   public class TypeModificationHandlerFactory : IDisposableTypeModificationHandlerFactory
   {
     private readonly IExpressionPreparer _expressionPreparer;
@@ -54,13 +55,13 @@ namespace Remotion.TypePipe.CodeGeneration
     [CLSCompliant (false)]
     public IDisposableTypeModificationHandler CreateHandler (
         MutableType mutableType,
-        ITypeBuilder typeBuilder,
+        ITypeBuilder subclassProxyTypeBuilder,
         ReflectionToBuilderMap reflectionToBuilderMap,
         IILGeneratorFactory ilGeneratorFactory)
     {
-      var handler = new TypeModificationHandler (typeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
+      var handler = new TypeModificationHandler (subclassProxyTypeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
 
-      //// Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
       foreach (var clonedCtor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
         handler.HandleUnmodifiedConstructor (clonedCtor);
 

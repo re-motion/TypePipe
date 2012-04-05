@@ -20,9 +20,23 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Extends <see cref="ITypeModificationHandler"/> with begin (// TODO reference constructor 4745) and finish (<see cref="IDisposable.Dispose"/>) semantics.
+  /// Extends <see cref="ITypeModificationHandler"/> with the <see cref="IDisposable"/> interface to allow callers to signal that all type 
+  /// modifications have been handled.
   /// </summary>
   public interface IDisposableTypeModificationHandler : IDisposable, ITypeModificationHandler
   {
+    // TODO 4745: Rename interface to ISubclassProxyBuilder, implementation SubclassProxyBuilder.
+    // TODO 4745: void AddConstructor (MutableConstructorInfo constructor);
+
+    // TODO 4745: Expected end result
+    // var typeBuilder = ...;
+    // using (var builder = _factory.CreateSubclassProxyBuilder (typeBuilder))
+    // {
+    //   foreach (...)
+    //     builder.AddConstructor (unmodifiedExistingCtor);
+    //   builder.ImplementSerializability();
+    //   mutableType.Accept (builder);
+    // }
+    // return typeBuilder.CreateType();
   }
 }

@@ -71,6 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
+      // TODO 4745: Move this into CreateHandler 
       var reflectionToBuilderMap = new ReflectionToBuilderMap ();
       reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
 

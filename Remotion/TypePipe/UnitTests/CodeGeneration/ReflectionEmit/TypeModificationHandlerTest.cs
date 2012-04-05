@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -28,6 +29,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -174,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddConstructorToSubclassProxy ()
+    public void AddConstructorToSubclassProxy_DefinesConstructor ()
     {
       var parameterDeclarations =
           new[]
@@ -199,15 +201,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
-      constructorBuilderMock
-          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
-          .WhenCalled (mi =>
-          {
-            var lambdaExpression = (LambdaExpression) mi.Arguments[0];
-            Assert.That (lambdaExpression.Body, Is.SameAs (fakeBody));
-            Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableConstructor.ParameterExpressions));
-          });
-
       CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations();
@@ -215,6 +208,43 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.VerifyAllExpectations();
 
       Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderMock));
+    }
+
+    [Test]
+    public void AddConstructorToSubclassProxy_RegistersDisposeAction ()
+    {
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: Enumerable.Empty<ParameterDeclaration>());
+      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+
+      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
+      _subclassProxyBuilderMock
+          .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Return (constructorBuilderMock);
+
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
+      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
+
+      Assert.That (GetDisposeActions (_handler), Has.Count.EqualTo (0));
+
+      CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
+      
+      var disposeActions = GetDisposeActions (_handler);
+      Assert.That (disposeActions, Has.Count.EqualTo (1));
+      var action = disposeActions.Single ();
+
+      constructorBuilderMock
+          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
+          .WhenCalled (
+              mi =>
+              {
+                var lambdaExpression = (LambdaExpression) mi.Arguments[0];
+                Assert.That (lambdaExpression.Body, Is.SameAs (fakeBody));
+                Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableConstructor.ParameterExpressions));
+              });
+
+      action ();
+
+      constructorBuilderMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -239,6 +269,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void Dispose ()
+    {
+      int disposeActionCallCount = 0;
+      AddDisposeAction (_handler, () => ++disposeActionCallCount);
+
+      // First call
+      _handler.Dispose ();
+
+      Assert.That (disposeActionCallCount, Is.EqualTo (1));
+
+      // Second call
+      _handler.Dispose ();
+
+      Assert.That (disposeActionCallCount, Is.EqualTo (1));
+    }
+
+    private void AddDisposeAction (TypeModificationHandler handler, Action action)
+    {
+      var disposeActions = GetDisposeActions(handler);
+      disposeActions.Add (action);
+    }
+
+    private List<Action> GetDisposeActions (TypeModificationHandler handler)
+    {
+      return (List<Action>) PrivateInvoke.GetNonPublicField (handler, "_disposeActions");
     }
 
     private void CheckCustomAttributeBuilder (

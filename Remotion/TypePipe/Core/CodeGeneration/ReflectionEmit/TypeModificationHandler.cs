@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -29,6 +30,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Implements <see cref="ITypeModificationHandler"/> by applying the modifications made to a <see cref="MutableType"/> to a subclass proxy.
+  /// Also implements <see cref="IDisposableTypeModificationHandler"/> for cloning unmodified existing constructors and forward declarations of
+  /// method and constructor bodies.
   /// </summary>
   public class TypeModificationHandler : IDisposableTypeModificationHandler
   {
@@ -37,6 +40,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly List<Action> _disposeActions = new List<Action>();
+
+    private bool _disposed = false;
 
     [CLSCompliant (false)]
     public TypeModificationHandler (
@@ -86,15 +92,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
+    // TODO 4745: EnsureNotDisposed
     public void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
       _subclassProxyBuilder.AddInterfaceImplementation (addedInterface);
     }
 
+    // TODO 4745: EnsureNotDisposed
     public void HandleAddedField (MutableFieldInfo addedField)
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
+
       var fieldBuilder = _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
       _reflectionToBuilderMap.AddMapping (addedField, fieldBuilder);
 
@@ -116,6 +125,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
+    // TODO 4745: EnsureNotDisposed
     public void HandleAddedConstructor (MutableConstructorInfo addedConstructor)
     {
       ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
@@ -126,6 +136,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddConstructorToSubclassProxy (addedConstructor);
     }
 
+    // TODO 4745: EnsureNotDisposed
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
     {
       ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);
@@ -136,6 +147,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddConstructorToSubclassProxy (modifiedConstructor);
     }
 
+    // TODO 4745: EnsureNotDisposed
     public void HandleUnmodifiedConstructor (MutableConstructorInfo existingConstructor)
     {
       ArgumentUtility.CheckNotNull ("existingConstructor", existingConstructor);
@@ -144,6 +156,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         throw new ArgumentException ("The supplied constructor must be an unmodified existing constructor.", "existingConstructor");
 
       AddConstructorToSubclassProxy (existingConstructor);
+    }
+
+    public void Dispose ()
+    {
+      if (_disposed)
+        return;
+      _disposed = true;
+
+      foreach (var action in _disposeActions)
+        action();
     }
 
     private void AddConstructorToSubclassProxy (MutableConstructorInfo mutableConstructor)
@@ -157,12 +179,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var body = _expressionPreparer.PrepareConstructorBody (mutableConstructor);
       var bodyLambda = Expression.Lambda (body, mutableConstructor.ParameterExpressions);
-      ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
-    }
 
-    // TODO 4745
-    public void Dispose ()
-    {
+      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
+      _disposeActions.Add (() => ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
     }
   }
 }

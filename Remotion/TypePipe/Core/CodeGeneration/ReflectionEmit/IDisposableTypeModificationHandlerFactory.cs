@@ -24,12 +24,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Defines an interface for <see cref="IDisposableTypeModificationHandler"/> factories.
   /// </summary>
+  // TODO 4745: ISubclassProxyBuilderFactory
   [CLSCompliant (false)]
   public interface IDisposableTypeModificationHandlerFactory
   {
+    // TODO 4745: CreateBuilder
     IDisposableTypeModificationHandler CreateHandler (
         MutableType mutableType,
-        ITypeBuilder typeBuilder,
+        ITypeBuilder subclassProxyTypeBuilder,
         ReflectionToBuilderMap reflectionToBuilderMap,
         IILGeneratorFactory ilGeneratorFactory);
   }
