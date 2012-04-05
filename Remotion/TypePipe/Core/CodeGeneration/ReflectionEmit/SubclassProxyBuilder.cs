@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private readonly List<Action> _buildActions = new List<Action>();
 
-    private bool _isCompleted = false;
+    private bool _hasBeenBuilt = false;
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
@@ -91,17 +91,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
-    // TODO 4745: EnsureNotDisposed
     public void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
+      EnsureNotBuilt ();
+      
       _typeBuilder.AddInterfaceImplementation (addedInterface);
     }
 
-    // TODO 4745: EnsureNotDisposed
     public void HandleAddedField (MutableFieldInfo addedField)
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
+      EnsureNotBuilt ();
 
       var fieldBuilder = _typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
       _reflectionToBuilderMap.AddMapping (addedField, fieldBuilder);
@@ -124,10 +125,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    // TODO 4745: EnsureNotDisposed
     public void HandleAddedConstructor (MutableConstructorInfo addedConstructor)
     {
       ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
+      EnsureNotBuilt ();
 
       if (!addedConstructor.IsNewConstructor)
         throw new ArgumentException ("The supplied constructor must be a new constructor.", "addedConstructor");
@@ -135,10 +136,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddConstructor (addedConstructor);
     }
 
-    // TODO 4745: EnsureNotDisposed
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
     {
       ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);
+      EnsureNotBuilt ();
 
       if (modifiedConstructor.IsNewConstructor || !modifiedConstructor.IsModified)
         throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "modifiedConstructor");
@@ -149,6 +150,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void AddConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
+      EnsureNotBuilt ();
 
       var parameterTypes = constructor.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
       var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, constructor.CallingConvention, parameterTypes);
@@ -166,15 +168,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type Build ()
     {
-      if (_isCompleted)
+      if (_hasBeenBuilt)
         throw new InvalidOperationException ("Build can only be called once.");
       
-      _isCompleted = true;
+      _hasBeenBuilt = true;
 
       foreach (var action in _buildActions)
         action();
 
       return _typeBuilder.CreateType();
+    }
+
+    private void EnsureNotBuilt ()
+    {
+      if (_hasBeenBuilt)
+        throw new InvalidOperationException ("Subclass proxy has already been built.");
     }
   }
 }

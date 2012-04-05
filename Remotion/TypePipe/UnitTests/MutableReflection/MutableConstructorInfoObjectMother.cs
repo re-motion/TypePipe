@@ -37,6 +37,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return Create (underlyingConstructorInfoDescriptor: descriptor);
     }
 
+    public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo originalConstructorInfo = null)
+    {
+      var ctor = CreateForExisting (originalConstructorInfo);
+      MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
+      return ctor;
+    }
+
     public static MutableConstructorInfo CreateForNew (MutableType declaringType = null)
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();

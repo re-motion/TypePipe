@@ -145,8 +145,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedConstructor_CallsAddConstructor ()
     {
-      var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
-      MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
+      var ctor = MutableConstructorInfoObjectMother.CreateForExistingAndModify();
       CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleModifiedConstructor, ctor);
     }
 
@@ -281,6 +280,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _builder.Build ();
       Assert.That (() => _builder.Build (), Throws.InvalidOperationException.With.Message.EqualTo ("Build can only be called once."));
+    }
+
+    [Test]
+    public void Build_DisablesOperations ()
+    {
+      _typeBuilderMock.Stub (mock => mock.CreateType ());
+      _builder.Build ();
+
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType ()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify ()));
+      CheckThrowsForOperationAfterBuild (() => _builder.AddConstructor (MutableConstructorInfoObjectMother.Create()));
+    }
+
+    private void CheckThrowsForOperationAfterBuild (Action action)
+    {
+      Assert.That (() => action(), Throws.InvalidOperationException.With.Message.EqualTo ("Subclass proxy has already been built."));
     }
 
     private void AddBuildAction (SubclassProxyBuilder handler, Action action)
