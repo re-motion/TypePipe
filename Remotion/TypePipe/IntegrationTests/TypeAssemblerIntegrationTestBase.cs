@@ -121,9 +121,11 @@ namespace TypePipe.IntegrationTests
       var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
       var guidBasedSubclassProxyNameProvider = new GuidBasedSubclassProxyNameProvider ();
-      var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
+      var expressionPreparer = new ExpandingExpressionPreparer();
+      var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator ();
+      var handlerFactory = new TypeModificationHandlerFactory (expressionPreparer, debugInfoGenerator);
 
-      return new TypeModifier (moduleBuilderAdapter, guidBasedSubclassProxyNameProvider, debugInfoGenerator);
+      return new TypeModifier (moduleBuilderAdapter, guidBasedSubclassProxyNameProvider, debugInfoGenerator, handlerFactory);
     }
 
     private string GetNameForThisTest (int stackFramesToSkip)

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Implements <see cref="ITypeModificationHandler"/> by applying the modifications made to a <see cref="MutableType"/> to a subclass proxy.
   /// </summary>
-  public class TypeModificationHandler : ITypeModificationHandler
+  public class TypeModificationHandler : IDisposableTypeModificationHandler
   {
     private readonly ITypeBuilder _subclassProxyBuilder;
     private readonly IExpressionPreparer _expressionPreparer;
@@ -158,6 +158,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var body = _expressionPreparer.PrepareConstructorBody (mutableConstructor);
       var bodyLambda = Expression.Lambda (body, mutableConstructor.ParameterExpressions);
       ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator);
+    }
+
+    // TODO 4745
+    public void Dispose ()
+    {
     }
   }
 }

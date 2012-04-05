@@ -56,6 +56,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IDisposableTypeModificationHandler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IDisposableTypeModificationHandlerFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactory.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\OriginalConstructorBodyReplacingExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CodeGeneration\TypeModificationHandlerFactory.cs" />
     <Compile Include="Expressions\OriginalBodyExpression.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />

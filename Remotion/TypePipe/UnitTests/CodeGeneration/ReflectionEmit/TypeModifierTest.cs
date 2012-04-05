@@ -24,7 +24,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -36,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private IModuleBuilder _moduleBuilderMock;
     private ISubclassProxyNameProvider _subclassProxyNameProviderStub;
     private DebugInfoGenerator _debugInfoGeneratorStub;
+    private IDisposableTypeModificationHandlerFactory _handlerFactoryStub;
 
     private TypeModifier _typeModifier;
 
@@ -45,116 +45,73 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderStub = MockRepository.GenerateStub<ISubclassProxyNameProvider>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
+      _handlerFactoryStub = MockRepository.GenerateStub<IDisposableTypeModificationHandlerFactory>();
 
-      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _debugInfoGeneratorStub);
+      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _debugInfoGeneratorStub, _handlerFactoryStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, null);
+      var typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, null, _handlerFactoryStub);
       Assert.That (typeModifier.DebugInfoGenerator, Is.Null);
     }
 
     [Test]
     public void ApplyModifications ()
     {
-      var originalType = typeof (DomainClassWithoutMembers);
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType);
-      
-      var mutableTypePartialMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
+      var mutableTypePartialMock = MutableTypeObjectMother.CreatePartialMock ();
       
       var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
       var fakeResultType = ReflectionObjectMother.GetSomeType ();
       bool acceptCalled = false;
+      bool disposeCalled = false;
 
       _subclassProxyNameProviderStub.Stub (stub => stub.GetSubclassProxyName (mutableTypePartialMock)).Return ("foofoo");
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
       _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", TypeAttributes.Public | TypeAttributes.BeforeFieldInit, originalType))
+          .Expect (mock => mock.DefineType ("foofoo", attributes, mutableTypePartialMock.UnderlyingSystemType))
           .Return (typeBuilderMock);
-      mutableTypePartialMock
-          .Expect (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything))
+
+      var handlerMock = MockRepository.GenerateStrictMock<IDisposableTypeModificationHandler> ();
+      _handlerFactoryStub
+          .Stub (stub =>
+            stub.CreateHandler (
+                Arg.Is (mutableTypePartialMock),
+                Arg.Is (typeBuilderMock),
+                Arg<ReflectionToBuilderMap>.Is.Anything,
+                Arg<IILGeneratorFactory>.Is.Anything))
+          .Return (handlerMock)
           .WhenCalled (mi =>
           {
-            acceptCalled = true;
-            Assert.That (mi.Arguments[0], Is.TypeOf<TypeModificationHandler>());
-            var handler = (TypeModificationHandler) mi.Arguments[0];
-            Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderMock));
-            Assert.That (handler.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer> ());
-            Assert.That (handler.ReflectionToBuilderMap.GetBuilder (mutableTypePartialMock), Is.SameAs (typeBuilderMock));
-            Assert.That (handler.ILGeneratorFactory, Is.TypeOf <ILGeneratorDecoratorFactory>());
-            var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) handler.ILGeneratorFactory;
-            Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
-            Assert.That (handler.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+            var reflectionToBuilderMap = (ReflectionToBuilderMap) mi.Arguments[2];
+            Assert.That (reflectionToBuilderMap.GetBuilder (mutableTypePartialMock), Is.SameAs (typeBuilderMock));
+            var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) mi.Arguments[3];
+            Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
           });
-      typeBuilderMock.Stub (
-          stub => stub.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
+      mutableTypePartialMock
+          .Expect (mock => mock.Accept (handlerMock))
+          .WhenCalled (mi => acceptCalled = true);
+      handlerMock
+          .Expect (mock => mock.Dispose())
+          .WhenCalled (mi =>
+          {
+            Assert.That (acceptCalled, Is.True);
+            disposeCalled = true;
+          });
       typeBuilderMock
-          .Expect (mock => mock.CreateType ()).Return (fakeResultType)
-          .WhenCalled (mi => Assert.That (acceptCalled, Is.True));
+          .Expect (mock => mock.CreateType ())
+          .Return (fakeResultType)
+          .WhenCalled (mi => Assert.True (acceptCalled && disposeCalled));
 
       var result = _typeModifier.ApplyModifications (mutableTypePartialMock);
 
       _moduleBuilderMock.VerifyAllExpectations ();
       typeBuilderMock.VerifyAllExpectations ();
       mutableTypePartialMock.VerifyAllExpectations();
+      handlerMock.VerifyAllExpectations();
 
       Assert.That (result, Is.SameAs (fakeResultType));
-    }
-
-    [Test]
-    public void ApplyModifications_ClonesConstructorsReturnedByMutableType ()
-    {
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructor));
-      var mutableType = MutableTypeObjectMother.Create (underlyingTypeDescriptor: descriptor);
-
-      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
-      _moduleBuilderMock
-          .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
-          .Return (typeBuilderMock);
-
-      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder>();
-      typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (
-              Arg<MethodAttributes>.Is.Anything,
-              Arg<CallingConventions>.Is.Anything,
-              Arg<Type[]>.List.Equal (new[] { typeof (string) })))
-          .Return (constructorBuilderStub);
-
-      _typeModifier.ApplyModifications (mutableType);
-
-      typeBuilderMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void ApplyModifications_DoesNotCloneModifiedConstructors ()
-    {
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainClassWithConstructor));
-      var mutableTypePartialMock = MutableTypeObjectMother.CreatePartialMock (underlyingTypeDescriptor: descriptor);
-      MutableConstructorInfoTestHelper.ModifyConstructor (mutableTypePartialMock.ExistingConstructors.Single ());
-
-      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
-      _moduleBuilderMock
-          .Stub (mock => mock.DefineType (Arg<string>.Is.Anything, Arg<TypeAttributes>.Is.Anything, Arg<Type>.Is.Anything))
-          .Return (typeBuilderMock);
-      mutableTypePartialMock.Stub (mock => mock.Accept (Arg<ITypeModificationHandler>.Is.Anything));
-
-      _typeModifier.ApplyModifications (mutableTypePartialMock);
-
-      typeBuilderMock.AssertWasNotCalled (
-          mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
-    }
-
-    public class DomainClassWithoutMembers
-    { 
-    }
-
-    public class DomainClassWithConstructor
-    {
-      public DomainClassWithConstructor (string s)
-      {
-        Dev.Null = s;
-      }
     }
   }
 }

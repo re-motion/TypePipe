@@ -28,7 +28,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
-using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {

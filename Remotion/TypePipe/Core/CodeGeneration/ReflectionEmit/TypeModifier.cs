@@ -35,20 +35,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly IModuleBuilder _moduleBuilder;
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
+    // TODO 4745 remove
     private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly IDisposableTypeModificationHandlerFactory _handlerFactory;
 
     [CLSCompliant (false)]
     public TypeModifier (
         IModuleBuilder moduleBuilder,
         ISubclassProxyNameProvider subclassProxyNameProvider,
-        DebugInfoGenerator debugInfoGeneratorOrNull)
+        DebugInfoGenerator debugInfoGeneratorOrNull,
+        IDisposableTypeModificationHandlerFactory handlerFactory)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
+      ArgumentUtility.CheckNotNull ("handlerFactory", handlerFactory);
 
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
+      _handlerFactory = handlerFactory;
     }
 
     [CLSCompliant (false)]
@@ -77,18 +82,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      var mutableReflectionObjectMap = new ReflectionToBuilderMap ();
-      mutableReflectionObjectMap.AddMapping (mutableType, typeBuilder);
+      var reflectionToBuilderMap = new ReflectionToBuilderMap ();
+      reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
 
-      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), mutableReflectionObjectMap);
-      var modificationHandler = new TypeModificationHandler (
-          typeBuilder, new ExpandingExpressionPreparer(), mutableReflectionObjectMap, ilGeneratorFactory, _debugInfoGenerator);
+      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
 
-      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-      foreach (var clonedCtor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
-        modificationHandler.HandleUnmodifiedConstructor (clonedCtor);
-
-      mutableType.Accept (modificationHandler);
+      using (var handler = _handlerFactory.CreateHandler (mutableType, typeBuilder, reflectionToBuilderMap, ilGeneratorFactory))
+        mutableType.Accept (handler);
 
       return typeBuilder.CreateType();
     }
