@@ -75,7 +75,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _expressionPreparer; }
     }
 
-    [CLSCompliant(false)]
     public ReflectionToBuilderMap ReflectionToBuilderMap
     {
       get { return _reflectionToBuilderMap; }

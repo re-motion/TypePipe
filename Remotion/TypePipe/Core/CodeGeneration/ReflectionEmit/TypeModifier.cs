@@ -31,7 +31,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly ISubclassProxyBuilderFactory _handlerFactory;
 
-    [CLSCompliant (false)]
     public TypeModifier (ISubclassProxyBuilderFactory handlerFactory)
     {
       ArgumentUtility.CheckNotNull ("handlerFactory", handlerFactory);

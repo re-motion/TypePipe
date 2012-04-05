@@ -26,7 +26,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// <summary>
   /// Adapts <see cref="OffsetTrackingILGenerator"/> to implement the <see cref="IILGenerator"/> interface.
   /// </summary>
-  [CLSCompliant (false)]
   public class OffsetTrackingILGeneratorAdapter : IILGenerator
   {
     private readonly OffsetTrackingILGenerator _ilGenerator;
@@ -47,6 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _ilGenerator.ILOffset; }
     }
 
+    [CLSCompliant (false)]
     public IILGeneratorFactory GetFactory ()
     {
       return new OffsetTrackingILGeneratorFactory();

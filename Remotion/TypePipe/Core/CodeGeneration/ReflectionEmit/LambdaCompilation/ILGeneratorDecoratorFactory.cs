@@ -23,12 +23,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// <summary>
   /// Decorates another <see cref="IILGeneratorFactory"/> in order to create <see cref="ILGeneratorDecorator"/> instances.
   /// </summary>
-  [CLSCompliant (false)]
   public class ILGeneratorDecoratorFactory : IILGeneratorFactory
   {
     private readonly IILGeneratorFactory _innerFactory;
     private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
 
+    [CLSCompliant (false)]
     public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory, ReflectionToBuilderMap reflectionToBuilderMap)
     {
       ArgumentUtility.CheckNotNull ("innerFactory", innerFactory);
@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _reflectionToBuilderMap = reflectionToBuilderMap;
     }
 
+    [CLSCompliant (false)]
     public IILGeneratorFactory InnerFactory
     {
       get { return _innerFactory; }
@@ -48,6 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _reflectionToBuilderMap; }
     }
 
+    [CLSCompliant (false)]
     public IILGenerator CreateAdaptedILGenerator (ILGenerator realILGenerator)
     {
       ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);

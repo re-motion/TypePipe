@@ -27,12 +27,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// <summary>
   /// A decorator which adapts emit calls for <see cref="ConstructorAsMethodInfoAdapter"/>.
   /// </summary>
-  [CLSCompliant(false)]
   public class ILGeneratorDecorator : IILGenerator
   {
     private readonly IILGenerator _innerILGenerator;
     private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
 
+    [CLSCompliant (false)]
     public ILGeneratorDecorator (IILGenerator innerIlGenerator, ReflectionToBuilderMap reflectionToBuilderMap)
     {
       ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
@@ -42,6 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _reflectionToBuilderMap = reflectionToBuilderMap;
     }
 
+    [CLSCompliant (false)]
     public IILGenerator InnerILGenerator
     {
       get { return _innerILGenerator; }
@@ -57,6 +58,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerILGenerator.ILOffset; }
     }
 
+    [CLSCompliant (false)]
     public IILGeneratorFactory GetFactory ()
     {
       return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory(), _reflectionToBuilderMap);
@@ -97,6 +99,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return _innerILGenerator.DefineLabel();
     }
 
+    [CLSCompliant (false)]
     public void Emit (OpCode opcode, sbyte arg)
     {
       _innerILGenerator.Emit (opcode, arg);

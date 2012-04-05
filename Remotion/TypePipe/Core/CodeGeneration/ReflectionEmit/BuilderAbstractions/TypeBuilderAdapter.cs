@@ -24,7 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// <summary>
   /// Adapts <see cref="TypeBuilder"/> with the <see cref="ITypeBuilder"/> interface.
   /// </summary>
-  [CLSCompliant (false)]
   public class TypeBuilderAdapter : ITypeBuilder
   {
     private readonly TypeBuilder _typeBuilder;
@@ -47,6 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       _typeBuilder.AddInterfaceImplementation (interfaceType);
     }
 
+    [CLSCompliant (false)]
     public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -55,6 +55,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       return new FieldBuilderAdapter (_typeBuilder.DefineField (name, type, attributes));
     }
 
+    [CLSCompliant (false)]
     public IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);

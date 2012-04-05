@@ -24,7 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// <summary>
   /// Adapts <see cref="ModuleBuilder"/> with the <see cref="IModuleBuilder"/> interface.
   /// </summary>
-  [CLSCompliant (false)]
   public class ModuleBuilderAdapter : IModuleBuilder
   {
     private readonly ModuleBuilder _moduleBuilder;
@@ -36,6 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       _moduleBuilder = moduleBuilder;
     }
 
+    [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

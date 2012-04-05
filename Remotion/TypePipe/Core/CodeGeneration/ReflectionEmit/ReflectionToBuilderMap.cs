@@ -33,13 +33,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <see cref="ITypeBuilder"/>, <see cref="IConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
   /// references to the mutable Reflection objects when it emits code.
   /// </remarks>
-  [CLSCompliant(false)]
   public class ReflectionToBuilderMap
   {
     private readonly Dictionary<Type, ITypeBuilder> _mappedTypes = new Dictionary<Type, ITypeBuilder> ();
     private readonly Dictionary<ConstructorInfo, IConstructorBuilder> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IConstructorBuilder> ();
     private readonly Dictionary<FieldInfo, IFieldBuilder> _mappedFieldInfos = new Dictionary<FieldInfo, IFieldBuilder> ();
 
+    [CLSCompliant (false)]
     public void AddMapping (Type mappedType, ITypeBuilder typeBuilder)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
@@ -48,6 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedTypes, mappedType, typeBuilder);
     }
 
+    [CLSCompliant (false)]
     public void AddMapping (ConstructorInfo mappedConstructorInfo, IConstructorBuilder constructorBuilder)
     {
       ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
@@ -56,6 +57,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorBuilder);
     }
 
+    [CLSCompliant (false)]
     public void AddMapping (FieldInfo mappedFieldInfo, IFieldBuilder fieldBuilder)
     {
       ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
@@ -64,6 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedFieldInfos, mappedFieldInfo, fieldBuilder);
     }
 
+    [CLSCompliant (false)]
     public ITypeBuilder GetBuilder (Type mappedType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
@@ -71,6 +74,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return GetBuilder (_mappedTypes, mappedType);
     }
 
+    [CLSCompliant (false)]
     public IConstructorBuilder GetBuilder (ConstructorInfo mappedConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
@@ -78,6 +82,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return GetBuilder (_mappedConstructorInfos, mappedConstructorInfo);
     }
 
+    [CLSCompliant (false)]
     public IFieldBuilder GetBuilder (FieldInfo mappedFieldInfo)
     {
       ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
