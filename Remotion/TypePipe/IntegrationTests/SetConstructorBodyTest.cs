@@ -32,9 +32,10 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var existingConstructor = mutableType.ExistingConstructors.Single();
+            var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
+            var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
             var concatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
-            existingConstructor.SetBody (
+            mutableCtor.SetBody (
                 ctx => Expression.Block (
                     ctx.GetPreviousBody (Expression.Add (ctx.Parameters[0], Expression.Constant (" cd"), concatMethod)),
                     // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
@@ -43,7 +44,7 @@ namespace TypePipe.IntegrationTests
 
       var instance = (DomainType) Activator.CreateInstance (type, "ab");
 
-      Assert.That (instance.CtorArgument, Is.EqualTo ("ab cd"));
+      Assert.That (instance.ctorArg, Is.EqualTo ("ab cd"));
       Assert.That (instance.SettableProperty, Is.EqualTo ("ab"));
     }
 
@@ -64,12 +65,12 @@ namespace TypePipe.IntegrationTests
 
       var instance = (DomainType) Activator.CreateInstance (type);
 
-      Assert.That (instance.CtorArgument, Is.EqualTo ("modified added"));
+      Assert.That (instance.ctorArg, Is.EqualTo ("modified added"));
     }
 
     [Test]
     [Ignore ("TODO 4745")]
-    public void DelegateToExistingWhichIsChanged ()
+    public void AddedCtor_DelegatesTo_ModifiedExistingCtor ()
     {
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
@@ -85,19 +86,47 @@ namespace TypePipe.IntegrationTests
 
       var instance = (DomainType) Activator.CreateInstance (type);
 
-      Assert.That (instance.CtorArgument, Is.EqualTo ("modified existing"));
+      Assert.That (instance.ctorArg, Is.EqualTo ("modified existing"));
     }
 
-    // TODO 4745: Add a second integration test in which an existing ctor delegates to an added one.
+    [Test]
+    public void ModifiedExistingCtor_DelegatesTo_AddedCtor ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType => mutableType.AddConstructor (
+              MethodAttributes.Public,
+              new ParameterDeclaration[0],
+              ctx => ctx.GetConstructorCall (Expression.Constant("added"))),
+          mutableType =>
+          {
+            var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string), typeof(string) });
+            var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
+            mutableCtor.SetBody (
+                ctx => Expression.Block (
+                    ctx.GetConstructorCall(),
+                    // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
+                    Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[1])));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type, "ignored", "modified existing");
+
+      Assert.That (instance.ctorArg, Is.EqualTo ("added"));
+      Assert.That (instance.SettableProperty, Is.EqualTo ("modified existing"));
+    }
 
     public class DomainType
     {
-      public DomainType (string ctorArgument)
+      public DomainType (string ctorArg)
       {
-        CtorArgument = ctorArgument;
+        this.ctorArg = ctorArg;
       }
 
-      public string CtorArgument { get; private set; }
+      public DomainType (string ctorArg1, string ctorArg2)
+      {
+        // Do nothing
+      }
+
+      public string ctorArg { get; private set; }
       public string SettableProperty { get; set; }
     }
   }

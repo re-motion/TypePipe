@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Expression GetConstructorCall (params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("arguments", arguments);
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       return GetConstructorCall (((IEnumerable<Expression>) arguments));
     }
