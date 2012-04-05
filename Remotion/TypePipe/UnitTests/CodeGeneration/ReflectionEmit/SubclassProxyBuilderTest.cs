@@ -34,7 +34,7 @@ using System.Collections.Generic;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class TypeModificationHandlerTest
+  public class SubclassProxyBuilderTest
   {
     private IExpressionPreparer _expressionPreparerMock;
     private ITypeBuilder _subclassProxyBuilderMock;
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private ReflectionToBuilderMap _reflectionToBuilderMap;
 
-    private TypeModificationHandler _handler;
+    private SubclassProxyBuilder _builder;
 
     [SetUp]
     public void SetUp ()
@@ -53,14 +53,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _reflectionToBuilderMap = new ReflectionToBuilderMap();
 
-      _handler = new TypeModificationHandler (
+      _builder = new SubclassProxyBuilder (
           _subclassProxyBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handler = new TypeModificationHandler (
+      var handler = new SubclassProxyBuilder (
           _subclassProxyBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, null);
       Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
       _subclassProxyBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
-      _handler.HandleAddedInterface (addedInterface);
+      _builder.HandleAddedInterface (addedInterface);
 
       _subclassProxyBuilderMock.VerifyAllExpectations();
     }
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect(mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
           .Return (fieldBuilderStub);
 
-      _handler.HandleAddedField (addedField);
+      _builder.HandleAddedField (addedField);
 
       _subclassProxyBuilderMock.VerifyAllExpectations ();
       Assert.That (_reflectionToBuilderMap.GetBuilder (addedField), Is.SameAs (fieldBuilderStub));
@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new[] { field },
               new[] { "test" }));
       
-      _handler.HandleAddedField (addedField);
+      _builder.HandleAddedField (addedField);
 
       fieldBuilderMock.VerifyAllExpectations();
     }
@@ -131,15 +131,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedConstructor_CallsAddConstructorToSubclassProxy ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForNew();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleAddedConstructor, ctor);
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleAddedConstructor, ctor);
     }
 
     [Test]
     public void HandleAddedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a new constructor.\r\nParameter name: addedConstructor";
-      CheckThrowsForInvalidArguments (_handler.HandleAddedConstructor, message, isNewConstructor: false, isModified: true);
-      CheckThrowsForInvalidArguments (_handler.HandleAddedConstructor, message, isNewConstructor: false, isModified: false);
+      CheckThrowsForInvalidArguments (_builder.HandleAddedConstructor, message, isNewConstructor: false, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleAddedConstructor, message, isNewConstructor: false, isModified: false);
     }
 
     [Test]
@@ -147,32 +147,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
       MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleModifiedConstructor, ctor);
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleModifiedConstructor, ctor);
     }
 
     [Test]
     public void HandleModifiedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a modified existing constructor.\r\nParameter name: modifiedConstructor";
-      CheckThrowsForInvalidArguments (_handler.HandleModifiedConstructor, message, isNewConstructor: true, isModified: true);
-      CheckThrowsForInvalidArguments (_handler.HandleModifiedConstructor, message, isNewConstructor: true, isModified: false);
-      CheckThrowsForInvalidArguments (_handler.HandleModifiedConstructor, message, isNewConstructor: false, isModified: false);
+      CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNewConstructor: true, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNewConstructor: true, isModified: false);
+      CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNewConstructor: false, isModified: false);
     }
 
     [Test]
     public void HandleUnmodifiedConstructor_CallsAddConstructorToSubclassProxy ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForExisting ();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_handler.HandleUnmodifiedConstructor, ctor);
+      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleUnmodifiedConstructor, ctor);
     }
 
     [Test]
     public void HandleUnmodifiedConstructor_Throws ()
     {
       var message = "The supplied constructor must be an unmodified existing constructor.\r\nParameter name: existingConstructor";
-      CheckThrowsForInvalidArguments (_handler.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: true);
-      CheckThrowsForInvalidArguments (_handler.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: false);
-      CheckThrowsForInvalidArguments (_handler.HandleUnmodifiedConstructor, message, isNewConstructor: false, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNewConstructor: true, isModified: false);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNewConstructor: false, isModified: true);
     }
 
     [Test]
@@ -201,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
-      CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
+      CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations();
       _expressionPreparerMock.VerifyAllExpectations();
@@ -224,11 +224,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
       _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
 
-      Assert.That (GetDisposeActions (_handler), Has.Count.EqualTo (0));
+      Assert.That (GetDisposeActions (_builder), Has.Count.EqualTo (0));
 
-      CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
+      CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
       
-      var disposeActions = GetDisposeActions (_handler);
+      var disposeActions = GetDisposeActions (_builder);
       Assert.That (disposeActions, Has.Count.EqualTo (1));
       var action = disposeActions.Single ();
 
@@ -266,7 +266,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
       _expressionPreparerMock.Stub (stub => stub.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
 
-      CallAddConstructorToSubclassProxy (_handler, mutableConstructor);
+      CallAddConstructorToSubclassProxy (_builder, mutableConstructor);
 
       _subclassProxyBuilderMock.VerifyAllExpectations ();
     }
@@ -275,26 +275,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Dispose ()
     {
       int disposeActionCallCount = 0;
-      AddDisposeAction (_handler, () => ++disposeActionCallCount);
+      AddDisposeAction (_builder, () => ++disposeActionCallCount);
 
       // First call
-      _handler.Dispose ();
+      _builder.Dispose ();
 
       Assert.That (disposeActionCallCount, Is.EqualTo (1));
 
       // Second call
-      _handler.Dispose ();
+      _builder.Dispose ();
 
       Assert.That (disposeActionCallCount, Is.EqualTo (1));
     }
 
-    private void AddDisposeAction (TypeModificationHandler handler, Action action)
+    private void AddDisposeAction (SubclassProxyBuilder handler, Action action)
     {
       var disposeActions = GetDisposeActions(handler);
       disposeActions.Add (action);
     }
 
-    private List<Action> GetDisposeActions (TypeModificationHandler handler)
+    private List<Action> GetDisposeActions (SubclassProxyBuilder handler)
     {
       return (List<Action>) PrivateInvoke.GetNonPublicField (handler, "_disposeActions");
     }
@@ -321,7 +321,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (actualBlob, Is.EqualTo (expectedBlob));
     }
 
-    private void CallAddConstructorToSubclassProxy (TypeModificationHandler handler, MutableConstructorInfo mutableConstructor)
+    private void CallAddConstructorToSubclassProxy (SubclassProxyBuilder handler, MutableConstructorInfo mutableConstructor)
     {
       PrivateInvoke.InvokeNonPublicMethod (handler, "AddConstructorToSubclassProxy", mutableConstructor);
     }

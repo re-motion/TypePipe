@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private IModuleBuilder _moduleBuilderMock;
     private ISubclassProxyNameProvider _subclassProxyNameProviderStub;
-    private IDisposableTypeModificationHandlerFactory _handlerFactoryStub;
+    private ISubclassProxyBuilderFactory _handlerFactoryStub;
 
     private TypeModifier _typeModifier;
 
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderStub = MockRepository.GenerateStub<ISubclassProxyNameProvider>();
-      _handlerFactoryStub = MockRepository.GenerateStub<IDisposableTypeModificationHandlerFactory>();
+      _handlerFactoryStub = MockRepository.GenerateStub<ISubclassProxyBuilderFactory>();
 
       _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _handlerFactoryStub);
     }
@@ -64,15 +64,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineType ("foofoo", attributes, mutableTypePartialMock.UnderlyingSystemType))
           .Return (typeBuilderMock);
 
-      var handlerMock = MockRepository.GenerateStrictMock<IDisposableTypeModificationHandler> ();
+      var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder> ();
       _handlerFactoryStub
           .Stub (stub =>
-            stub.CreateHandler (
+            stub.CreateBuilder (
                 Arg.Is (mutableTypePartialMock),
                 Arg.Is (typeBuilderMock),
                 Arg<ReflectionToBuilderMap>.Is.Anything,
                 Arg<IILGeneratorFactory>.Is.Anything))
-          .Return (handlerMock)
+          .Return (builderMock)
           .WhenCalled (mi =>
           {
             var reflectionToBuilderMap = (ReflectionToBuilderMap) mi.Arguments[2];
@@ -81,9 +81,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
           });
       mutableTypePartialMock
-          .Expect (mock => mock.Accept (handlerMock))
+          .Expect (mock => mock.Accept (builderMock))
           .WhenCalled (mi => acceptCalled = true);
-      handlerMock
+      builderMock
           .Expect (mock => mock.Dispose())
           .WhenCalled (mi =>
           {
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock.VerifyAllExpectations ();
       typeBuilderMock.VerifyAllExpectations ();
       mutableTypePartialMock.VerifyAllExpectations();
-      handlerMock.VerifyAllExpectations();
+      builderMock.VerifyAllExpectations();
 
       Assert.That (result, Is.SameAs (fakeResultType));
     }

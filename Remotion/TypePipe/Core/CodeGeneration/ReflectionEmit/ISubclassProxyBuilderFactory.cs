@@ -22,14 +22,12 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for <see cref="IDisposableTypeModificationHandler"/> factories.
+  /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
   /// </summary>
-  // TODO 4745: ISubclassProxyBuilderFactory
   [CLSCompliant (false)]
-  public interface IDisposableTypeModificationHandlerFactory
+  public interface ISubclassProxyBuilderFactory
   {
-    // TODO 4745: CreateBuilder
-    IDisposableTypeModificationHandler CreateHandler (
+    ISubclassProxyBuilder CreateBuilder (
         MutableType mutableType,
         ITypeBuilder subclassProxyTypeBuilder,
         ReflectionToBuilderMap reflectionToBuilderMap,

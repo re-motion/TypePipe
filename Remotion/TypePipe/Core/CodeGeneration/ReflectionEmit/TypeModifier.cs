@@ -33,13 +33,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly IModuleBuilder _moduleBuilder;
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
-    private readonly IDisposableTypeModificationHandlerFactory _handlerFactory;
+    private readonly ISubclassProxyBuilderFactory _handlerFactory;
 
     [CLSCompliant (false)]
     public TypeModifier (
         IModuleBuilder moduleBuilder,
         ISubclassProxyNameProvider subclassProxyNameProvider,
-        IDisposableTypeModificationHandlerFactory handlerFactory)
+        ISubclassProxyBuilderFactory handlerFactory)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
@@ -71,14 +71,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      // TODO 4745: Move this into CreateHandler 
+      // TODO 4745: Move this into CreateBuilder 
       var reflectionToBuilderMap = new ReflectionToBuilderMap ();
       reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
 
-      using (var handler = _handlerFactory.CreateHandler (mutableType, typeBuilder, reflectionToBuilderMap, ilGeneratorFactory))
-        mutableType.Accept (handler);
+      using (var builder = _handlerFactory.CreateBuilder (mutableType, typeBuilder, reflectionToBuilderMap, ilGeneratorFactory))
+        mutableType.Accept (builder);
 
       return typeBuilder.CreateType();
     }

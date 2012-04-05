@@ -31,12 +31,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class TypeModificationHandlerFactoryTest
+  public class SubclassProxyBuilderFactoryTest
   {
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IExpressionPreparer _expressionPreparer;
 
-    private TypeModificationHandlerFactory _handlerFactory;
+    private SubclassProxyBuilderFactory _builderFactory;
 
     private ReflectionToBuilderMap _reflectionToBuilderMap;
     private IILGeneratorFactory _ilGeneratorFactory;
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
       _expressionPreparer = MockRepository.GenerateStub<IExpressionPreparer>();
 
-      _handlerFactory = new TypeModificationHandlerFactory (_expressionPreparer, _debugInfoGeneratorStub);
+      _builderFactory = new SubclassProxyBuilderFactory (_expressionPreparer, _debugInfoGeneratorStub);
 
       _reflectionToBuilderMap = new ReflectionToBuilderMap ();
       _ilGeneratorFactory = MockRepository.GenerateStub<IILGeneratorFactory> ();
@@ -56,19 +56,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void Initialization ()
     {
-      Assert.That (_handlerFactory.ExpressionPreparer, Is.SameAs (_expressionPreparer));
-      Assert.That (_handlerFactory.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+      Assert.That (_builderFactory.ExpressionPreparer, Is.SameAs (_expressionPreparer));
+      Assert.That (_builderFactory.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handlerFactory = new TypeModificationHandlerFactory (_expressionPreparer, null);
+      var handlerFactory = new SubclassProxyBuilderFactory (_expressionPreparer, null);
       Assert.That (handlerFactory.DebugInfoGenerator, Is.Null);
     }
 
     [Test]
-    public void CreateHandler ()
+    public void CreateBuilder ()
     {
       var mutableType = MutableTypeObjectMother.Create();
       var typeBuilderStub = MockRepository.GenerateStub<ITypeBuilder>();
@@ -80,21 +80,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
           .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
 
-      var result = _handlerFactory.CreateHandler (mutableType, typeBuilderStub, _reflectionToBuilderMap, _ilGeneratorFactory);
+      var result = _builderFactory.CreateBuilder (mutableType, typeBuilderStub, _reflectionToBuilderMap, _ilGeneratorFactory);
 
-      Assert.That (result, Is.TypeOf<TypeModificationHandler>());
-      var handler = (TypeModificationHandler) result;
+      Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
+      var handler = (SubclassProxyBuilder) result;
 
       Assert.That (handler.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (handler.ExpressionPreparer, Is.SameAs (_expressionPreparer));
 
-      Assert.That (handler.SubclassProxyBuilder, Is.SameAs (typeBuilderStub));
+      Assert.That (handler.TypeBuilder, Is.SameAs (typeBuilderStub));
       Assert.That (handler.ReflectionToBuilderMap, Is.SameAs (_reflectionToBuilderMap));
       Assert.That (handler.ILGeneratorFactory, Is.SameAs (_ilGeneratorFactory));
     }
 
     [Test]
-    public void CreateHandler_UnmodifiedAndModifiedExistingCtors ()
+    public void CreateBuilder_UnmodifiedAndModifiedExistingCtors ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithCtors));
       var modifiedCtor = ReflectionObjectMother.GetConstructor (() => new ClassWithCtors());
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           .Stub (stub => stub.PrepareConstructorBody (Arg<MutableConstructorInfo>.Is.Anything))
           .Return (ExpressionTreeObjectMother.GetSomeExpression (typeof (void)));
       
-      _handlerFactory.CreateHandler (mutableType, typeBuilderMock, _reflectionToBuilderMap, _ilGeneratorFactory);
+      _builderFactory.CreateBuilder (mutableType, typeBuilderMock, _reflectionToBuilderMap, _ilGeneratorFactory);
 
       typeBuilderMock.AssertWasCalled (
           mock => mock.DefineConstructor (

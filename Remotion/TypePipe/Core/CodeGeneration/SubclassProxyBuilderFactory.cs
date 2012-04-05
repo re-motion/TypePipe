@@ -26,15 +26,14 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Creates <see cref="TypeModificationHandler"/> instances.
+  /// Creates <see cref="SubclassProxyBuilder"/> instances.
   /// </summary>
-  // TODO 4745: SubclassProxyBuilderFactory
-  public class TypeModificationHandlerFactory : IDisposableTypeModificationHandlerFactory
+  public class SubclassProxyBuilderFactory : ISubclassProxyBuilderFactory
   {
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
-    public TypeModificationHandlerFactory (IExpressionPreparer expressionPreparer, DebugInfoGenerator debugInfoGeneratorOrNull)
+    public SubclassProxyBuilderFactory (IExpressionPreparer expressionPreparer, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
 
@@ -53,19 +52,20 @@ namespace Remotion.TypePipe.CodeGeneration
     }
 
     [CLSCompliant (false)]
-    public IDisposableTypeModificationHandler CreateHandler (
+    public ISubclassProxyBuilder CreateBuilder (
         MutableType mutableType,
         ITypeBuilder subclassProxyTypeBuilder,
         ReflectionToBuilderMap reflectionToBuilderMap,
         IILGeneratorFactory ilGeneratorFactory)
     {
-      var handler = new TypeModificationHandler (subclassProxyTypeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
+      var builder = new SubclassProxyBuilder (
+          subclassProxyTypeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
 
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
       foreach (var clonedCtor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
-        handler.HandleUnmodifiedConstructor (clonedCtor);
+        builder.HandleUnmodifiedConstructor (clonedCtor);
 
-      return handler;
+      return builder;
     }
   }
 }

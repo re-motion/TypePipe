@@ -19,13 +19,13 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
+  // TODO 4745: Replace Dispose with Build method.
   /// <summary>
-  /// Extends <see cref="ITypeModificationHandler"/> with the <see cref="IDisposable"/> interface to allow callers to signal that all type 
-  /// modifications have been handled.
+  /// Defines an interface for classes building a subclass proxy. Implements <see cref="IDisposable"/> to allow callers to signal when all
+  /// build operations have been defined.
   /// </summary>
-  public interface IDisposableTypeModificationHandler : IDisposable, ITypeModificationHandler
+  public interface ISubclassProxyBuilder : IDisposable, ITypeModificationHandler
   {
-    // TODO 4745: Rename interface to ISubclassProxyBuilder, implementation SubclassProxyBuilder.
     // TODO 4745: void AddConstructor (MutableConstructorInfo constructor);
 
     // TODO 4745: Expected end result

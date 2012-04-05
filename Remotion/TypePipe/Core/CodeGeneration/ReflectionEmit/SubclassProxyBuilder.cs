@@ -30,12 +30,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Implements <see cref="ITypeModificationHandler"/> by applying the modifications made to a <see cref="MutableType"/> to a subclass proxy.
-  /// Also implements <see cref="IDisposableTypeModificationHandler"/> for cloning unmodified existing constructors and forward declarations of
+  /// Also implements <see cref="ISubclassProxyBuilder"/> for cloning unmodified existing constructors and forward declarations of
   /// method and constructor bodies.
   /// </summary>
-  public class TypeModificationHandler : IDisposableTypeModificationHandler
+  public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
-    private readonly ITypeBuilder _subclassProxyBuilder;
+    private readonly ITypeBuilder _typeBuilder;
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
@@ -45,19 +45,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private bool _disposed = false;
 
     [CLSCompliant (false)]
-    public TypeModificationHandler (
-        ITypeBuilder subclassProxyBuilder,
+    public SubclassProxyBuilder (
+        ITypeBuilder typeBuilder,
         IExpressionPreparer expressionPreparer,
         ReflectionToBuilderMap reflectionToBuilderMap,
         IILGeneratorFactory ilGeneratorFactory,
         DebugInfoGenerator debugInfoGeneratorOrNull)
     {
-      ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
+      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
       ArgumentUtility.CheckNotNull ("reflectionToBuilderMap", reflectionToBuilderMap);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
-      _subclassProxyBuilder = subclassProxyBuilder;
+      _typeBuilder = typeBuilder;
       _expressionPreparer = expressionPreparer;
       _reflectionToBuilderMap = reflectionToBuilderMap;
       _ilGeneratorFactory = ilGeneratorFactory;
@@ -65,9 +65,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder SubclassProxyBuilder
+    public ITypeBuilder TypeBuilder
     {
-      get { return _subclassProxyBuilder; }
+      get { return _typeBuilder; }
     }
 
     public IExpressionPreparer ExpressionPreparer
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
-      _subclassProxyBuilder.AddInterfaceImplementation (addedInterface);
+      _typeBuilder.AddInterfaceImplementation (addedInterface);
     }
 
     // TODO 4745: EnsureNotDisposed
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedField", addedField);
 
-      var fieldBuilder = _subclassProxyBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
+      var fieldBuilder = _typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
       _reflectionToBuilderMap.AddMapping (addedField, fieldBuilder);
 
       foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private void AddConstructorToSubclassProxy (MutableConstructorInfo mutableConstructor)
     {
       var parameterTypes = mutableConstructor.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
-      var ctorBuilder = _subclassProxyBuilder.DefineConstructor (mutableConstructor.Attributes, mutableConstructor.CallingConvention, parameterTypes);
+      var ctorBuilder = _typeBuilder.DefineConstructor (mutableConstructor.Attributes, mutableConstructor.CallingConvention, parameterTypes);
       _reflectionToBuilderMap.AddMapping (mutableConstructor, ctorBuilder);
 
       foreach (var parameterInfo in mutableConstructor.GetParameters ())

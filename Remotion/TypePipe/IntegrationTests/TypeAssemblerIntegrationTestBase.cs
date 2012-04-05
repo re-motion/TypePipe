@@ -123,7 +123,7 @@ namespace TypePipe.IntegrationTests
       var guidBasedSubclassProxyNameProvider = new GuidBasedSubclassProxyNameProvider ();
       var expressionPreparer = new ExpandingExpressionPreparer();
       var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator ();
-      var handlerFactory = new TypeModificationHandlerFactory (expressionPreparer, debugInfoGenerator);
+      var handlerFactory = new SubclassProxyBuilderFactory (expressionPreparer, debugInfoGenerator);
 
       return new TypeModifier (moduleBuilderAdapter, guidBasedSubclassProxyNameProvider, handlerFactory);
     }
