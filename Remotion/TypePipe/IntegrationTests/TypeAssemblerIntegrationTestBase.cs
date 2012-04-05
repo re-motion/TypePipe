@@ -125,7 +125,7 @@ namespace TypePipe.IntegrationTests
       var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator ();
       var handlerFactory = new TypeModificationHandlerFactory (expressionPreparer, debugInfoGenerator);
 
-      return new TypeModifier (moduleBuilderAdapter, guidBasedSubclassProxyNameProvider, debugInfoGenerator, handlerFactory);
+      return new TypeModifier (moduleBuilderAdapter, guidBasedSubclassProxyNameProvider, handlerFactory);
     }
 
     private string GetNameForThisTest (int stackFramesToSkip)

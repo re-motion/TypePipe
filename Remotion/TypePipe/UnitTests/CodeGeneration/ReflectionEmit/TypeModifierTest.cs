@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private IModuleBuilder _moduleBuilderMock;
     private ISubclassProxyNameProvider _subclassProxyNameProviderStub;
-    private DebugInfoGenerator _debugInfoGeneratorStub;
     private IDisposableTypeModificationHandlerFactory _handlerFactoryStub;
 
     private TypeModifier _typeModifier;
@@ -44,17 +43,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _subclassProxyNameProviderStub = MockRepository.GenerateStub<ISubclassProxyNameProvider>();
-      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _handlerFactoryStub = MockRepository.GenerateStub<IDisposableTypeModificationHandlerFactory>();
 
-      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _debugInfoGeneratorStub, _handlerFactoryStub);
-    }
-
-    [Test]
-    public void Initialization_NullDebugInfoGenerator ()
-    {
-      var typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, null, _handlerFactoryStub);
-      Assert.That (typeModifier.DebugInfoGenerator, Is.Null);
+      _typeModifier = new TypeModifier (_moduleBuilderMock, _subclassProxyNameProviderStub, _handlerFactoryStub);
     }
 
     [Test]

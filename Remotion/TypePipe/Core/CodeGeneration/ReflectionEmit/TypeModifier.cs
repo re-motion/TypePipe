@@ -15,9 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
@@ -35,15 +33,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly IModuleBuilder _moduleBuilder;
     private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
-    // TODO 4745 remove
-    private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IDisposableTypeModificationHandlerFactory _handlerFactory;
 
     [CLSCompliant (false)]
     public TypeModifier (
         IModuleBuilder moduleBuilder,
         ISubclassProxyNameProvider subclassProxyNameProvider,
-        DebugInfoGenerator debugInfoGeneratorOrNull,
         IDisposableTypeModificationHandlerFactory handlerFactory)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
@@ -52,7 +47,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _moduleBuilder = moduleBuilder;
       _subclassProxyNameProvider = subclassProxyNameProvider;
-      _debugInfoGenerator = debugInfoGeneratorOrNull;
       _handlerFactory = handlerFactory;
     }
 
@@ -65,11 +59,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public ISubclassProxyNameProvider SubclassProxyNameProvider
     {
       get { return _subclassProxyNameProvider; }
-    }
-
-    public DebugInfoGenerator DebugInfoGenerator
-    {
-      get { return _debugInfoGenerator; }
     }
 
     public Type ApplyModifications (MutableType mutableType)
