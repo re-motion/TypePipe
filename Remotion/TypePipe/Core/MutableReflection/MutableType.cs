@@ -264,6 +264,11 @@ namespace Remotion.TypePipe.MutableReflection
         modificationHandler.HandleModifiedConstructor (modifiedConstructor);
     }
 
+    public override Type GetElementType ()
+    {
+      return null;
+    }
+
     protected override bool HasElementTypeImpl ()
     {
       return false;
@@ -275,6 +280,26 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     protected override bool IsByRefImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsArrayImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsPointerImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsPrimitiveImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsCOMObjectImpl ()
     {
       return false;
     }
@@ -321,11 +346,6 @@ namespace Remotion.TypePipe.MutableReflection
 
     #region Not implemented abstract members of Type class
 
-    public override Type GetElementType ()
-    {
-      throw new NotImplementedException();
-    }
-
     public override Guid GUID
     {
       get { throw new NotImplementedException(); }
@@ -339,26 +359,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override string AssemblyQualifiedName
     {
       get { throw new NotImplementedException(); }
-    }
-
-    protected override bool IsArrayImpl ()
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override bool IsPointerImpl ()
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override bool IsPrimitiveImpl ()
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override bool IsCOMObjectImpl ()
-    {
-      throw new NotImplementedException();
     }
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)

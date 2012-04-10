@@ -540,9 +540,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetElementType ()
+    {
+      Assert.That (_mutableType.GetElementType(), Is.Null);
+    }
+
+    [Test]
     public void HasElementTypeImpl ()
     {
       Assert.That (_mutableType.HasElementType, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]
@@ -552,9 +564,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetAttributeFlagsImpl ()
+    public void IsArrayImpl ()
     {
-      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_mutableType.IsArray, Is.False);
+    }
+
+    [Test]
+    public void IsPointerImpl ()
+    {
+      Assert.That (_mutableType.IsPointer, Is.False);
+    }
+
+    [Test]
+    public void IsPrimitiveImpl ()
+    {
+      Assert.That (_mutableType.IsPrimitive, Is.False);
+    }
+
+    [Test]
+    public void IsCOMObjectImpl ()
+    {
+      Assert.That (_mutableType.IsCOMObject, Is.False);
     }
 
     [Test]
