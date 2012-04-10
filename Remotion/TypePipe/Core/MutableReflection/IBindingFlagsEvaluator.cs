@@ -22,8 +22,5 @@ namespace Remotion.TypePipe.MutableReflection
   {
     bool HasRightAttributes (MethodAttributes methodAttributes, BindingFlags bindingFlags);
     bool HasRightAttributes (FieldAttributes fieldAttributes, BindingFlags bindingFlags);
-
-    bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags);
-    bool HasRightInstanceOrStaticFlag (MethodAttributes methodAttributes, BindingFlags bindingFlags);
   }
 }
