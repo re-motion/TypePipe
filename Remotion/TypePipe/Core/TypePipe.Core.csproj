@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Remotion.TypePipe</RootNamespace>
+    <AssemblyName>Remotion.TypePipe</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CLR2;NET_3_5</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Remotion.TypePipe.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;REMOTION_TYPEPIPE;NET_3_5</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Release\Remotion.TypePipe.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\AssemblyInfoShared.cs">
+      <Link>Properties\AssemblyInfoShared.cs</Link>
+    </Compile>
+    <Compile Include="CodeGeneration\ITypeModifier.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ConstructorBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGenerator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGeneratorFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ExpandingExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionToBuilderMap.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\OriginalConstructorBodyReplacingExpressionVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
+    <Compile Include="Expressions\OriginalBodyExpression.cs" />
+    <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />
+    <Compile Include="Expressions\ITypePipeExpression.cs" />
+    <Compile Include="Expressions\ITypePipeExpressionVisitor.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\MethodBuilderForLambdaCompiler.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyNameProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IModuleBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ITypeBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ModuleBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\TypeBuilderAdapter.cs" />
+    <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
+    <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpression.cs" />
+    <Compile Include="Expressions\ThisExpression.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
+    <Compile Include="Expressions\TypePipeExpressionBase.cs" />
+    <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
+    <Compile Include="MutableReflection\BodyProviderUtility.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyCreationContext.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyContextBase.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyModificationContext.cs" />
+    <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
+    <Compile Include="MutableReflection\IMemberFilter.cs" />
+    <Compile Include="MutableReflection\ITypeModificationHandler.cs" />
+    <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
+    <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
+    <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
+    <Compile Include="MutableReflection\MemberNotFoundException.cs" />
+    <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
+    <Compile Include="MutableReflection\UnderlyingTypeDescriptor.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
+    <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
+    <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
+    <Compile Include="Dlr\Actions\CallInfo.cs" />
+    <Compile Include="Dlr\Actions\CallSite.cs" />
+    <Compile Include="Dlr\Actions\CallSiteBinder.cs" />
+    <Compile Include="Dlr\Actions\CallSiteHelpers.cs" />
+    <Compile Include="Dlr\Actions\CallSiteOps.cs" />
+    <Compile Include="Dlr\Actions\ConvertBinder.cs" />
+    <Compile Include="Dlr\Actions\CreateInstanceBinder.cs" />
+    <Compile Include="Dlr\Actions\DeleteIndexBinder.cs" />
+    <Compile Include="Dlr\Actions\DeleteMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\DynamicMetaObject.cs" />
+    <Compile Include="Dlr\Actions\DynamicMetaObjectBinder.cs" />
+    <Compile Include="Dlr\Actions\DynamicObject.cs" />
+    <Compile Include="Dlr\Actions\ExpandoClass.cs" />
+    <Compile Include="Dlr\Actions\ExpandoObject.cs" />
+    <Compile Include="Dlr\Actions\GetIndexBinder.cs" />
+    <Compile Include="Dlr\Actions\GetMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\IDynamicMetaObjectProvider.cs" />
+    <Compile Include="Dlr\Actions\IInvokeOnGetBinder.cs" />
+    <Compile Include="Dlr\Actions\InvokeBinder.cs" />
+    <Compile Include="Dlr\Actions\InvokeMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\RuleCache.cs" />
+    <Compile Include="Dlr\Actions\SetIndexBinder.cs" />
+    <Compile Include="Dlr\Actions\SetMemberBinder.cs" />
+    <Compile Include="Dlr\Actions\UnaryOperationBinder.cs" />
+    <Compile Include="Dlr\Actions\UpdateDelegates.Generated.cs" />
+    <Compile Include="Dlr\Ast\BinaryExpression.cs" />
+    <Compile Include="Dlr\Ast\BlockExpression.cs" />
+    <Compile Include="Dlr\Ast\CatchBlock.cs" />
+    <Compile Include="Dlr\Ast\ConditionalExpression.cs" />
+    <Compile Include="Dlr\Ast\ConstantExpression.cs" />
+    <Compile Include="Dlr\Ast\DebugInfoExpression.cs" />
+    <Compile Include="Dlr\Ast\DebugViewWriter.cs" />
+    <Compile Include="Dlr\Ast\DefaultExpression.cs" />
+    <Compile Include="Dlr\Ast\DynamicExpression.cs" />
+    <Compile Include="Dlr\Ast\ElementInit.cs" />
+    <Compile Include="Dlr\Ast\Expression.cs" />
+    <Compile Include="Dlr\Ast\Expression.DebuggerProxy.cs" />
+    <Compile Include="Dlr\Ast\ExpressionStringBuilder.cs" />
+    <Compile Include="Dlr\Ast\ExpressionType.cs" />
+    <Compile Include="Dlr\Ast\ExpressionVisitor.cs" />
+    <Compile Include="Dlr\Ast\GotoExpression.cs" />
+    <Compile Include="Dlr\Ast\IArgumentProvider.cs" />
+    <Compile Include="Dlr\Ast\IndexExpression.cs" />
+    <Compile Include="Dlr\Ast\InvocationExpression.cs" />
+    <Compile Include="Dlr\Ast\LabelExpression.cs" />
+    <Compile Include="Dlr\Ast\LabelTarget.cs" />
+    <Compile Include="Dlr\Ast\LambdaExpression.cs" />
+    <Compile Include="Dlr\Ast\ListArgumentProvider.cs" />
+    <Compile Include="Dlr\Ast\ListInitExpression.cs" />
+    <Compile Include="Dlr\Ast\LoopExpression.cs" />
+    <Compile Include="Dlr\Ast\MemberAssignment.cs" />
+    <Compile Include="Dlr\Ast\MemberBinding.cs" />
+    <Compile Include="Dlr\Ast\MemberExpression.cs" />
+    <Compile Include="Dlr\Ast\MemberInitExpression.cs" />
+    <Compile Include="Dlr\Ast\MemberListBinding.cs" />
+    <Compile Include="Dlr\Ast\MemberMemberBinding.cs" />
+    <Compile Include="Dlr\Ast\MethodCallExpression.cs" />
+    <Compile Include="Dlr\Ast\NewArrayExpression.cs" />
+    <Compile Include="Dlr\Ast\NewExpression.cs" />
+    <Compile Include="Dlr\Ast\ParameterExpression.cs" />
+    <Compile Include="Dlr\Ast\RuntimeVariablesExpression.cs" />
+    <Compile Include="Dlr\Ast\SwitchCase.cs" />
+    <Compile Include="Dlr\Ast\SwitchExpression.cs" />
+    <Compile Include="Dlr\Ast\SymbolDocumentInfo.cs" />
+    <Compile Include="Dlr\Ast\TryExpression.cs" />
+    <Compile Include="Dlr\Ast\TypeBinaryExpression.cs" />
+    <Compile Include="Dlr\Ast\TypeUtils.cs" />
+    <Compile Include="Dlr\Ast\UnaryExpression.cs" />
+    <Compile Include="Dlr\Compiler\AnalyzedTree.cs" />
+    <Compile Include="Dlr\Compiler\AssemblyGen.cs" />
+    <Compile Include="Dlr\Compiler\BoundConstants.cs" />
+    <Compile Include="Dlr\Compiler\Closure.cs" />
+    <Compile Include="Dlr\Compiler\CompilerScope.cs" />
+    <Compile Include="Dlr\Compiler\CompilerScope.Storage.cs" />
+    <Compile Include="Dlr\Compiler\ConstantCheck.cs" />
+    <Compile Include="Dlr\Compiler\DebugInfoGenerator.cs" />
+    <Compile Include="Dlr\Compiler\DelegateHelpers.cs" />
+    <Compile Include="Dlr\Compiler\DelegateHelpers.Generated.cs" />
+    <Compile Include="Dlr\Compiler\ExpressionQuoter.cs" />
+    <Compile Include="Dlr\Compiler\HoistedLocals.cs" />
+    <Compile Include="Dlr\Compiler\ILGen.cs" />
+    <Compile Include="Dlr\Compiler\KeyedQueue.cs" />
+    <Compile Include="Dlr\Compiler\LabelInfo.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Address.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Binary.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.ControlFlow.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Expressions.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Generated.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Lambda.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Logical.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Statements.cs" />
+    <Compile Include="Dlr\Compiler\LambdaCompiler.Unary.cs" />
+    <Compile Include="Dlr\Compiler\OffsetTrackingILGenerator.cs" />
+    <Compile Include="Dlr\Compiler\RuntimeVariableList.cs" />
+    <Compile Include="Dlr\Compiler\Set.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.Bindings.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.Generated.cs" />
+    <Compile Include="Dlr\Compiler\StackSpiller.Temps.cs" />
+    <Compile Include="Dlr\Compiler\SymbolDocumentGenerator.cs" />
+    <Compile Include="Dlr\Compiler\VariableBinder.cs" />
+    <Compile Include="Dlr\Utils\Action.cs" />
+    <Compile Include="Dlr\Utils\CacheDict.cs" />
+    <Compile Include="Dlr\Utils\CollectionExtensions.cs" />
+    <Compile Include="Dlr\Utils\ContractUtils.cs" />
+    <Compile Include="Dlr\Utils\ExceptionFactory.Generated.cs" />
+    <Compile Include="Dlr\Utils\Function.cs" />
+    <Compile Include="Dlr\Utils\Helpers.cs" />
+    <Compile Include="Dlr\Utils\IRuntimeVariables.cs" />
+    <Compile Include="Dlr\Utils\ReadOnlyCollectionBuilder.cs" />
+    <Compile Include="Dlr\Utils\ReadOnlyDictionary.cs" />
+    <Compile Include="Dlr\Utils\ReferenceEqualityComparer.cs" />
+    <Compile Include="Dlr\Utils\TrueReadOnlyCollection.cs" />
+    <Compile Include="Dlr\Utils\TypeExtensions.cs" />
+    <Compile Include="MutableReflection\MutableConstructorInfo.cs" />
+    <Compile Include="MutableReflection\MutableFieldInfo.cs" />
+    <Compile Include="MutableReflection\MutableMethodInfo.cs" />
+    <Compile Include="MutableReflection\MutableParameterInfo.cs" />
+    <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
+    <Compile Include="MutableReflection\MutableType.cs" />
+    <Compile Include="MutableReflection\ParameterDeclaration.cs" />
+    <Compile Include="MutableReflection\ReflectionEmit\MemberFilter.cs" />
+    <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeAssembly\TypeAssembler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\remotion.snk">
+      <Link>remotion.snk</Link>
+    </None>
+    <None Include="..\..\TypePipe Apache-2.0.licenseheader">
+      <Link>TypePipe Apache-2.0.licenseheader</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
+      <Project>{2AA369EC-A4E7-4D75-9101-EFA90E902625}</Project>
+      <Name>Core.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

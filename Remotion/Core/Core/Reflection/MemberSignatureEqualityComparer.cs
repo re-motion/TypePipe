@@ -64,7 +64,8 @@ namespace Remotion.Reflection
       catch (NotSupportedException ex)
       {
         var message = String.Format (
-              "MemberSignatureEqualityComparer does not support member type '{0}', only methods, properties, and events are supported.", 
+              "MemberSignatureEqualityComparer does not support member type '{0}', "
+              + "only constructors, methods, properties, events and fields are supported.", 
               memberType);
           throw new NotSupportedException (message, ex);
       }

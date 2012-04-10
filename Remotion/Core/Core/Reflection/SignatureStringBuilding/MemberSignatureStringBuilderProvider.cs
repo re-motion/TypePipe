@@ -27,20 +27,24 @@ namespace Remotion.Reflection.SignatureStringBuilding
     private static readonly MethodSignatureStringBuilder s_methodSignatureBuilder = new MethodSignatureStringBuilder ();
     private static readonly PropertySignatureStringBuilder s_propertySignatureBuilder = new PropertySignatureStringBuilder ();
     private static readonly EventSignatureStringBuilder s_eventSignatureBuilder = new EventSignatureStringBuilder ();
+    private static readonly FieldSignatureStringBuilder s_fieldSignatureBuilder = new FieldSignatureStringBuilder ();
 
     public static IMemberSignatureStringBuilder GetSignatureBuilder (MemberTypes memberType)
     {
       switch (memberType)
       {
+        case MemberTypes.Constructor:
         case MemberTypes.Method:
           return s_methodSignatureBuilder;
         case MemberTypes.Property:
           return s_propertySignatureBuilder;
         case MemberTypes.Event:
           return s_eventSignatureBuilder;
+        case MemberTypes.Field:
+          return s_fieldSignatureBuilder;
         default:
           var message = string.Format (
-              "Cannot return a signature builder for member type '{0}'; only methods, properties, and events are supported.", 
+              "Cannot return a signature builder for member type '{0}'; only constructors, methods, properties, events and fields are supported.", 
               memberType);
           throw new NotSupportedException (message);
       }

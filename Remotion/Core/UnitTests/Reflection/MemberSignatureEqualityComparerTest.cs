@@ -28,6 +28,10 @@ namespace Remotion.UnitTests.Reflection
   {
     private MemberSignatureEqualityComparer _comparer;
 
+    private ConstructorInfo _c1;
+    private ConstructorInfo _c2;
+    private ConstructorInfo _c3;
+
     private MethodInfo _m1;
     private MethodInfo _m2;
     private MethodInfo _m3;
@@ -40,10 +44,19 @@ namespace Remotion.UnitTests.Reflection
     private EventInfo _e2;
     private EventInfo _e3;
 
+    private FieldInfo _f1;
+    private FieldInfo _f2;
+    private FieldInfo _f3;
+
+
     [SetUp]
     public void SetUp ()
     {
       _comparer = new MemberSignatureEqualityComparer ();
+
+      _c1 = typeof (ClassForSignatureComparisons).GetConstructor (Type.EmptyTypes);
+      _c2 = typeof (ClassForSignatureComparisons2).GetConstructor (Type.EmptyTypes);
+      _c3 = typeof (ClassForSignatureComparisons).GetConstructor (new[] { typeof (int) });
 
       _m1 = typeof (ClassForSignatureComparisons).GetMethod ("M1");
       _m2 = typeof (ClassForSignatureComparisons).GetMethod ("M2");
@@ -56,6 +69,28 @@ namespace Remotion.UnitTests.Reflection
       _e1 = typeof (ClassForSignatureComparisons).GetEvent ("E1");
       _e2 = typeof (ClassForSignatureComparisons).GetEvent ("E2");
       _e3 = typeof (ClassForSignatureComparisons).GetEvent ("E3");
+
+      _f1 = typeof (ClassForSignatureComparisons).GetField ("F1");
+      _f2 = typeof (ClassForSignatureComparisons).GetField ("F2");
+      _f3 = typeof (ClassForSignatureComparisons).GetField ("F3");
+    }
+
+    [Test]
+    public void Equals_Constructors_True ()
+    {
+      Assert.That (_comparer.Equals (_c1, _c2), Is.True);
+    }
+
+    [Test]
+    public void Equals_Constructors_False ()
+    {
+      Assert.That (_comparer.Equals (_c1, _c3), Is.False);
+    }
+
+    [Test]
+    public void GetHashCode_Constructors_Equal ()
+    {
+      Assert.That (_comparer.GetHashCode (_c1), Is.EqualTo (_comparer.GetHashCode (_c2)));
     }
 
     [Test]
@@ -113,6 +148,24 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void Equals_Fields_True ()
+    {
+      Assert.That (_comparer.Equals (_f1, _f2), Is.True);
+    }
+
+    [Test]
+    public void Equals_Fields_False ()
+    {
+      Assert.That (_comparer.Equals (_f1, _f3), Is.False);
+    }
+
+    [Test]
+    public void GetHashCode_Fields_Equal ()
+    {
+      Assert.That (_comparer.GetHashCode (_f1), Is.EqualTo (_comparer.GetHashCode (_f2)));
+    }
+
+    [Test]
     public void Equals_NonEqualMemberTypes ()
     {
       Assert.That (new PropertySignatureStringBuilder ().BuildSignatureString (_p1), 
@@ -123,7 +176,8 @@ namespace Remotion.UnitTests.Reflection
 
     [Test]
     [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', only methods, properties, and events are supported.")]
+        ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
+        + "only constructors, methods, properties, events and fields are supported.")]
     public void Equals_InvalidMemberType ()
     {
       _comparer.Equals (_m1, typeof (object));
@@ -131,7 +185,8 @@ namespace Remotion.UnitTests.Reflection
 
     [Test]
     [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', only methods, properties, and events are supported.")]
+        ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
+        + "only constructors, methods, properties, events and fields are supported.")]
     public void GetHashCode_InvalidMemberType ()
     {
       _comparer.GetHashCode (typeof (object));

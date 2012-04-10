@@ -46,29 +46,35 @@ namespace Remotion.Reflection.SignatureStringBuilding
   {
     private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
 
-    public string BuildSignatureString (MethodInfo methodInfo)
+    public string BuildSignatureString (MethodBase methodBase)
     {
-      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
-      if (methodInfo.IsGenericMethod && !methodInfo.IsGenericMethodDefinition)
-        throw new ArgumentException ("Closed generic methods are not supported.", "methodInfo");
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+      if (methodBase.IsGenericMethod && !methodBase.IsGenericMethodDefinition)
+        throw new ArgumentException ("Closed generic methods are not supported.", "methodBase");
 
       var sb = new StringBuilder ();
-      
-      _helper.AppendTypeString (sb, methodInfo.ReturnType);
-      
+
+      if (methodBase is MethodInfo)
+        _helper.AppendTypeString (sb, ((MethodInfo) methodBase).ReturnType);
+      else
+      {
+        Assertion.IsTrue (methodBase is ConstructorInfo);
+        _helper.AppendTypeString (sb, typeof (void));
+      }
+
       sb.Append ("(");
-      _helper.AppendSeparatedTypeStrings (sb, methodInfo.GetParameters ().Select (p => p.ParameterType));
+      _helper.AppendSeparatedTypeStrings (sb, methodBase.GetParameters ().Select (p => p.ParameterType));
       sb.Append (")");
       
-      if (methodInfo.IsGenericMethod)
-        sb.Append ("`").Append (methodInfo.GetGenericArguments ().Length);
+      if (methodBase.IsGenericMethod)
+        sb.Append ("`").Append (methodBase.GetGenericArguments ().Length);
 
       return sb.ToString ();
     }
 
     string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
     {
-      return BuildSignatureString ((MethodInfo) memberInfo);
+      return BuildSignatureString ((MethodBase) memberInfo);
     }
   }
 }

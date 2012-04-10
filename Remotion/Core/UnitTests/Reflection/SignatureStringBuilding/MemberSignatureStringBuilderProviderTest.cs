@@ -25,6 +25,13 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
   public class MemberSignatureStringBuilderProviderTest
   {
     [Test]
+    public void GetSignatureStringBuilder_Constructor ()
+    {
+      var result = MemberSignatureStringBuilderProvider.GetSignatureBuilder (MemberTypes.Constructor);
+      Assert.That (result, Is.TypeOf<MethodSignatureStringBuilder> ());
+    }
+
+    [Test]
     public void GetSignatureStringBuilder_Method ()
     {
       var result = MemberSignatureStringBuilderProvider.GetSignatureBuilder (MemberTypes.Method);
@@ -46,12 +53,19 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
+    public void GetSignatureStringBuilder_Field ()
+    {
+      var result = MemberSignatureStringBuilderProvider.GetSignatureBuilder (MemberTypes.Field);
+      Assert.That (result, Is.TypeOf<FieldSignatureStringBuilder>());
+    }
+
+    [Test]
     public void GetSignatureStringBuilder_Unsupported ()
     {
       Assert.That (
           () => MemberSignatureStringBuilderProvider.GetSignatureBuilder (MemberTypes.TypeInfo),
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-              "Cannot return a signature builder for member type 'TypeInfo'; only methods, properties, and events are supported."));
+              "Cannot return a signature builder for member type 'TypeInfo'; only constructors, methods, properties, events and fields are supported."));
     }
   }
 }
