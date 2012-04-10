@@ -106,6 +106,21 @@ namespace Remotion.TypePipe.MutableReflection
       get { return null; }
     }
 
+    public override Module Module
+    {
+      get { return null; }
+    }
+
+    public override Guid GUID
+    {
+      get { throw new NotSupportedException ("Property MutableType.GUID is not supported."); }
+    }
+
+    public override string AssemblyQualifiedName
+    {
+      get { throw new NotSupportedException ("Property MutableType.AssemblyQualifiedName is not supported."); }
+    }
+
     public override Type BaseType
     {
       get { return _underlyingTypeDescriptor.BaseType; }
@@ -264,6 +279,19 @@ namespace Remotion.TypePipe.MutableReflection
         modificationHandler.HandleModifiedConstructor (modifiedConstructor);
     }
 
+    public override object InvokeMember (
+        string name,
+        BindingFlags invokeAttr,
+        Binder binderOrNull,
+        object target,
+        object[] args,
+        ParameterModifier[] modifiers,
+        CultureInfo culture,
+        string[] namedParameters)
+    {
+      throw new NotSupportedException ("Method MutableType.InvokeMember is not supported.");
+    }
+
     public override Type GetElementType ()
     {
       return null;
@@ -346,27 +374,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     #region Not implemented abstract members of Type class
 
-    public override Guid GUID
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Module Module
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override string AssemblyQualifiedName
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binderOrNull, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
     {
       throw new NotImplementedException();
     }

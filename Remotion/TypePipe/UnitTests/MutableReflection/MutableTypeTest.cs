@@ -108,6 +108,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Module ()
+    {
+      Assert.That (_mutableType.Module, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Property MutableType.GUID is not supported.")]
+    public void GUID ()
+    {
+      var result = _mutableType.GUID;
+      Assert.Fail ("Unreachable code", result);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Property MutableType.AssemblyQualifiedName is not supported.")]
+    public void AssemblyQualifiedName ()
+    {
+      var result = _mutableType.AssemblyQualifiedName;
+      Assert.Fail ("Unreachable code", result);
+    }
+
+    [Test]
     public void BaseType ()
     {
       Assert.That (_descriptor.BaseType, Is.Not.Null);
@@ -537,6 +559,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.Accept (handlerMock);
 
       handlerMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Method MutableType.InvokeMember is not supported.")]
+    public void InvokeMember ()
+    {
+      _mutableType.InvokeMember (null, 0, null, null, null);
     }
 
     [Test]
