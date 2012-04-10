@@ -9,8 +9,8 @@ Copyright (c) rubicon IT GmbH, www.rubicon.eu
 
 This software includes the following libraries:
 
-Castle.Core.dll, Castle.DynamicProxy2.dll
-Copyright 2004-2008 Castle Project 
+Castle.Core.dll
+Copyright 2004-2011 Castle Project 
 Original software available from http://www.castleproject.org/
 
 log4net.dll
