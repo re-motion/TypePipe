@@ -282,14 +282,16 @@ namespace Remotion.TypePipe.MutableReflection
     protected override ConstructorInfo GetConstructorImpl (
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
-      var binder = binderOrNull ?? DefaultBinder;
-      var candidates = GetConstructors (bindingAttr).ToArray ();
-
+      var candidates = GetConstructors (bindingAttr);
       if (candidates.Length == 0)
         return null;
 
-      Assertion.IsNotNull (binder, "DefaultBinder is never null.");
-      return (ConstructorInfo) binder.SelectMethod (bindingAttr, candidates, types, modifiers);
+      return (ConstructorInfo) SafeGetBinder (binderOrNull).SelectMethod (bindingAttr, candidates, types, modifiers);
+    }
+
+    private Binder SafeGetBinder (Binder binderOrNull)
+    {
+      return binderOrNull ?? DefaultBinder;
     }
 
     private FieldInfo[] GetAllFields ()
