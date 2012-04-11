@@ -523,6 +523,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetMethods ()
+    {
+      Assert.That (_descriptor.Methods, Is.Not.Empty); // ToString(), Equals(), ...
+      // TODO 4744
+      //var existingMethod = _descriptor.Methods.Single (m => m.Name == "PublicMethod");
+      //var attributes = MethodAttributes.Public;
+      //var parameterDeclarations = new ArgumentTestHelper (7).ParameterDeclarations; // Need different signature
+      //var addedMethod = AddMethod (_mutableType, "name", returnType, attributes, parameterDeclarations);
+
+      _bindingFlagsEvaluatorMock
+          .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+
+      var methods = _mutableType.GetMethods (0);
+
+      Assert.That (methods, Has.Length.EqualTo (_descriptor.Methods.Count /* + 1 */)); // TODO 4744 
+      var methodInfo = methods.Single (m => m.Name == "PublicMethod");
+      Assert.That (methodInfo, Is.TypeOf<MutableMethodInfo> ());
+      // TODO 4744
+      //var mutableMethodInfo = (MutableMethodInfo) methodInfo;
+      //Assert.That (mutableMethodInfo.UnderlyingSystemConstructorInfo, Is.EqualTo (existingMethod));
+
+      //Assert.That (methods[1], Is.SameAs (addedMethod)); // TODO 4744
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given constructor cannot be mutated.")]
     public void GetMutableConstructor_StandardConstructorInfo_Unknown ()
     {

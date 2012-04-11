@@ -274,10 +274,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       //// TODO 4744
       //var allMethods = ExistingMethods.Concat (AddedMusic);
-      //return allMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
-
-      // TODO TypePipe: Like GetConstructors.
-      throw new NotImplementedException ();
+      var allMethods = ExistingMethods;
+      return allMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
