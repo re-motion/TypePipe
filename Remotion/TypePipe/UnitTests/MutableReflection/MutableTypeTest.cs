@@ -432,9 +432,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
       var existingConstructor = _descriptor.Constructors.Single ();
-      var attributes = MethodAttributes.Public;
       var parameterDeclarations = new ArgumentTestHelper (7).ParameterDeclarations; // Need different signature
-      var addedConstructor = AddConstructor (_mutableType, attributes, parameterDeclarations);
+      var addedConstructor = AddConstructor (_mutableType, parameterDeclarations);
 
       _bindingFlagsEvaluatorMock
           .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
@@ -466,7 +465,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructors_FilterWithUtility_AddedConstructor ()
     {
-      var addedCtorInfo = AddConstructor (_mutableType, MethodAttributes.Public);
+      var addedCtorInfo = AddConstructor (_mutableType);
 
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (addedCtorInfo.Attributes, bindingFlags)).Return (false);
@@ -491,7 +490,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableConstructor_MutableConstructorInfo ()
     {
-      var ctor = AddConstructor (_mutableType, 0);
+      var ctor = AddConstructor (_mutableType);
 
       var result = _mutableType.GetMutableConstructor (ctor);
 
@@ -570,7 +569,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
       Assert.That (_mutableType.ExistingConstructors, Is.Not.Empty);
-      var addedConstructorInfo = AddConstructor (_mutableType, 0);
+      var addedConstructorInfo = AddConstructor (_mutableType);
 
       var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler>();
       handlerMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
@@ -589,7 +588,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var existingConstructorInfo = _mutableType.ExistingConstructors.Single();
       MutableConstructorInfoTestHelper.ModifyConstructor (existingConstructorInfo);
 
-      var addedConstructorInfo = AddConstructor (_mutableType, 0);
+      var addedConstructorInfo = AddConstructor (_mutableType);
       MutableConstructorInfoTestHelper.ModifyConstructor (addedConstructorInfo);
 
       var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler> ();
@@ -677,9 +676,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
     }
 
-    private MutableConstructorInfo AddConstructor (MutableType mutableType, MethodAttributes attributes, params ParameterDeclaration[] parameterDeclarations)
+    private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)
     {
-      return mutableType.AddConstructor (attributes, parameterDeclarations, context => Expression.Empty ());
+      return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations, context => Expression.Empty());
     }
 
     public class DomainClass : IDomainInterface
