@@ -28,36 +28,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var declaringType = ReflectionObjectMother.GetSomeType();
+      var name = "method name";
       var methodAttributes = MethodAttributes.Public;
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameter1 = ParameterDeclarationObjectMother.Create();
       var parameter2 = ParameterDeclarationObjectMother.Create();
 
-      var methodInfo = new MutableMethodInfo (declaringType, methodAttributes, returnType, new[] { parameter1, parameter2});
+      var method = new MutableMethodInfo (declaringType, name, methodAttributes, returnType, new[] { parameter1, parameter2});
 
-      Assert.That (methodInfo.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (methodInfo.Attributes, Is.EqualTo (methodAttributes));
-      Assert.That (methodInfo.ReturnType, Is.SameAs (returnType));
+      Assert.That (method.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (method.Name, Is.EqualTo (name));
+      Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
+      Assert.That (method.ReturnType, Is.SameAs (returnType));
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
-              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
+              new { Member = (MemberInfo) method, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
+              new { Member = (MemberInfo) method, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
           };
-      var actualParameterInfos = methodInfo.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
+      var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
     }
 
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclarationObjectMother.CreateMultiple (1));
+      var method = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclarationObjectMother.CreateMultiple (1));
 
-      var parameters = ctorInfo.GetParameters ();
+      var parameters = method.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
       parameters[0] = null;
 
-      var parametersAgain = ctorInfo.GetParameters ();
+      var parametersAgain = method.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
   }

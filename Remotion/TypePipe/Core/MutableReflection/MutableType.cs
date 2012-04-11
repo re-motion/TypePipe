@@ -44,6 +44,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
 
     private readonly ReadOnlyDictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
+    private readonly ReadOnlyDictionary<MethodInfo, MutableMethodInfo> _existingMethods;
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -59,6 +60,7 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
       _existingConstructors = _underlyingTypeDescriptor.Constructors.ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
+      _existingMethods = _underlyingTypeDescriptor.Methods.ToDictionary (method => method, CreateExistingMutableMethod).AsReadOnly();
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -89,6 +91,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingConstructors
     {
       get { return _existingConstructors.Values.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMethods
+    {
+      get { return _existingMethods.Values.AsReadOnly (); }
     }
 
     public override Type UnderlyingSystemType
@@ -207,6 +214,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
+      // TODO 4744
       return ExistingFields.Concat (_addedFields.Cast<FieldInfo>())
           .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
           .ToArray();
@@ -260,6 +268,16 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException ("The given constructor cannot be mutated.");
       
       return matchingMutableConstructorInfo;
+    }
+
+    public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
+    {
+      //// TODO 4744
+      //var allMethods = ExistingMethods.Concat (AddedMusic);
+      //return allMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
+
+      // TODO TypePipe: Like GetConstructors.
+      throw new NotImplementedException ();
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
@@ -342,6 +360,18 @@ namespace Remotion.TypePipe.MutableReflection
       return (ConstructorInfo) SafeGetBinder (binderOrNull).SelectMethod (bindingAttr, candidates, types, modifiers);
     }
 
+    protected override MethodInfo GetMethodImpl (
+        string name,
+        BindingFlags bindingAttr,
+        Binder binderOrNull,
+        CallingConventions callConvention,
+        Type[] types,
+        ParameterModifier[] modifiers)
+    {
+      // TODO TypePipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
+      throw new NotImplementedException ();
+    }
+
     private Binder SafeGetBinder (Binder binderOrNull)
     {
       return binderOrNull ?? DefaultBinder;
@@ -370,6 +400,13 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
       return new MutableConstructorInfo (this, UnderlyingConstructorInfoDescriptor.Create (originalConstructor));
+    }
+
+    private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
+    {
+      // TODO: 4744
+      var parameterDeclarations = originalMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
+      return new MutableMethodInfo (this, originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations);
     }
 
     #region Not implemented abstract members of Type class
@@ -412,18 +449,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
     {
       throw new NotImplementedException();
-    }
-
-    protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      // TODO TypePipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
-      throw new NotImplementedException ();
-    }
-
-    public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
-    {
-      // TODO TypePipe: Like GetConstructors.
-      throw new NotImplementedException ();
     }
     
     public override object[] GetCustomAttributes (bool inherit)

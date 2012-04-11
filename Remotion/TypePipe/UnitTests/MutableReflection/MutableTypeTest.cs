@@ -88,6 +88,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Initialization_WithMethods ()
+    {
+      var methods = _descriptor.Methods;
+      Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
+      //var expectedMethod = methods.Single (m => m.Name == "PublicMethod");
+
+      Assert.That (_mutableType.ExistingMethods.Count, Is.EqualTo(methods.Count));
+      var mutableMethod = _mutableType.ExistingMethods.Single (m => m.Name == "PublicMethod");
+
+      // TODO: 4744
+      //Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
+      Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
+    }
+
+    [Test]
     public void UnderlyingSystemType ()
     {
       Assert.That (_descriptor.UnderlyingSystemType, Is.Not.Null);
@@ -652,6 +667,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Dev.Null = Field1;
         Dev.Null = Field2;
       }
+
+      public void PublicMethod () { }
     }
 
     public interface IDomainInterface

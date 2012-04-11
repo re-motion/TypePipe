@@ -30,21 +30,25 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableMethodInfo : MethodInfo
   {
     private readonly Type _declaringType;
+    private readonly string _name;
     private readonly MethodAttributes _methodAttributes;
     private readonly Type _returnType;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
     public MutableMethodInfo (
         Type declaringType,
+        string name,
         MethodAttributes methodAttributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       _declaringType = declaringType;
+      _name = name;
       _methodAttributes = methodAttributes;
       _returnType = returnType;
       _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
@@ -53,6 +57,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type DeclaringType
     {
       get { return _declaringType; }
+    }
+
+    public override string Name
+    {
+      get { return _name; }
     }
 
     public override MethodAttributes Attributes
@@ -98,11 +107,6 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public override ICustomAttributeProvider ReturnTypeCustomAttributes
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override string Name
     {
       get { throw new NotImplementedException(); }
     }
