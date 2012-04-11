@@ -29,6 +29,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class ParameterDeclaration
   {
+    public static readonly ParameterDeclaration[] EmptyParameters = new ParameterDeclaration[0];
+
     private readonly Type _type;
     private readonly string _name;
     private readonly ParameterAttributes _attributes;

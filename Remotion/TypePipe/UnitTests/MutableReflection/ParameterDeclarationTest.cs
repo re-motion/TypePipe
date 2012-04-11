@@ -25,6 +25,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class ParameterDeclarationTest
   {
     [Test]
+    public void EmptyParameters ()
+    {
+      Assert.That (ParameterDeclaration.EmptyParameters, Is.Empty);
+    }
+
+    [Test]
     public void Initialization ()
     {
       var declaration = new ParameterDeclaration (typeof (string), "parameterName", ParameterAttributes.Out);

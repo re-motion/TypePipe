@@ -54,6 +54,7 @@
     </Compile>
     <Compile Include="AddFieldTest.cs" />
     <Compile Include="AddInterfaceTest.cs" />
+    <Compile Include="AddMethodTest.cs" />
     <Compile Include="KeepConstructorsTest.cs" />
     <Compile Include="SetConstructorBodyTest.cs" />
     <Compile Include="SetupFixture.cs" />
