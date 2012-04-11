@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetTypedBody ()
+    public void GetTypedBody_VoidConversion ()
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       var bodyProvider = CreateBodyProvider(body);
@@ -42,6 +42,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var result = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
 
       var expectedBody = Expression.Block (typeof (void), body);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
+    }
+
+    [Test]
+    public void GetTypedBody_BoxingConversion ()
+    {
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      var bodyProvider = CreateBodyProvider (body);
+
+      var result = BodyProviderUtility.GetTypedBody (typeof (object), bodyProvider, _context);
+
+      var expectedBody = Expression.Convert (body, typeof (object));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
     }
 

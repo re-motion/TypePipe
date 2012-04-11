@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (body == null)
         throw new InvalidOperationException ("Body provider must return non-null body.");
 
-      return ExpressionTypeUtility.EnsureCorrectType (body, typeof (void));
+      return ExpressionTypeUtility.EnsureCorrectType (body, expectedType);
     }
   }
 }
