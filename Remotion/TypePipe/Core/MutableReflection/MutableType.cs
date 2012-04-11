@@ -104,6 +104,18 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _existingMethods.Values.AsReadOnly (); }
     }
 
+    // TODO 4744, decide: AllInterfaces?, AllFields?
+
+    public IEnumerable<MutableConstructorInfo> AllConstructors
+    {
+      get { return ExistingConstructors.Concat (AddedConstructors); }
+    }
+
+    public IEnumerable<MutableMethodInfo> AllMethods
+    {
+      get { return ExistingMethods.Concat (AddedMethods); }
+    }
+
     public override Type UnderlyingSystemType
     {
       get { return _underlyingTypeDescriptor.UnderlyingSystemType; }
@@ -244,7 +256,7 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
-      if (GetAllConstructors ().Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
+      if (AllConstructors.Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       _addedConstructors.Add (constructorInfo);
@@ -255,7 +267,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
       // TODO 4744
-      return GetAllConstructors().Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
+      return AllConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
@@ -277,7 +289,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
       // TODO 4744
-      return GetAllMethods().Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
+      return AllMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
@@ -381,25 +393,9 @@ namespace Remotion.TypePipe.MutableReflection
       return binderOrNull ?? DefaultBinder;
     }
 
-    // TODO 4744  Make public property
-    // GetAllInterfaces
-
-    // TODO 4744  Make public property
     private IEnumerable<FieldInfo> GetAllFields ()
     {
       return ExistingFields.Concat (AddedFields.Cast<FieldInfo>());
-    }
-
-    // TODO 4744  Make public property
-    private IEnumerable<MutableConstructorInfo> GetAllConstructors ()
-    {
-      return ExistingConstructors.Concat (AddedConstructors);
-    }
-
-    // TODO 4744  Make public property
-    private IEnumerable<MutableMethodInfo> GetAllMethods ()
-    {
-      return ExistingMethods.Concat (AddedMethods);
     }
 
     private void CheckDeclaringType (MemberInfo member, string parameterName)

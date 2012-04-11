@@ -104,6 +104,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AllConstructors ()
+    {
+      Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
+      var existingCtor = _descriptor.Constructors.Single ();
+      var addedCtor = AddConstructor (_mutableType, new ArgumentTestHelper (7).ParameterDeclarations); // Need different signature
+
+      var allConstructors = _mutableType.AllConstructors.ToArray();
+
+      Assert.That (allConstructors, Has.Length.EqualTo (2));
+      Assert.That (allConstructors[0].DeclaringType, Is.SameAs(_mutableType));
+      Assert.That (allConstructors[0].UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
+      Assert.That (allConstructors[1], Is.SameAs (addedCtor));
+    }
+
+    [Test]
+    [Ignore ("4744")]
+    public void AllMethods ()
+    {
+      Assert.That (_descriptor.Methods, Is.Not.Empty);
+      var existingMethods = _descriptor.Methods;
+      var addedMethod = AddMethod ("NewMethod");
+
+      var allMethods = _mutableType.AllMethods.ToArray();
+
+      var expectedMethodCount = _descriptor.Methods.Count + 1;
+      Assert.That (allMethods, Has.Length.EqualTo (expectedMethodCount));
+      for (int i = 0; i < expectedMethodCount - 1; i++)
+      {
+        Assert.That (allMethods[i].DeclaringType, Is.SameAs (_mutableType));
+        //Assert.That (allMethods[i].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[i]));
+      }
+      Assert.That (allMethods.Last (), Is.SameAs (addedMethod));
+    }
+
+    [Test]
     public void UnderlyingSystemType ()
     {
       Assert.That (_descriptor.UnderlyingSystemType, Is.Not.Null);
@@ -430,46 +465,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructors ()
     {
-      Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
-      var existingConstructor = _descriptor.Constructors.Single ();
-      var parameterDeclarations = new ArgumentTestHelper (7).ParameterDeclarations; // Need different signature
-      var addedConstructor = AddConstructor (_mutableType, parameterDeclarations);
-
+      Assert.That (_mutableType.AllConstructors, Is.Not.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
 
       var constructors = _mutableType.GetConstructors (0);
 
-      Assert.That (constructors, Has.Length.EqualTo (2));
-      Assert.That (constructors[0], Is.TypeOf<MutableConstructorInfo> ());
-      var mutatedConstructorInfo = (MutableConstructorInfo) constructors[0];
-      Assert.That (mutatedConstructorInfo.UnderlyingSystemConstructorInfo, Is.EqualTo (existingConstructor));
-
-      Assert.That (constructors[1], Is.SameAs (addedConstructor));
+      Assert.That (constructors, Is.EqualTo(_mutableType.AllConstructors));
     }
 
     [Test]
-    public void GetConstructors_FilterWithUtility_ExistingConstructor ()
+    public void GetConstructors_FilterWithUtility ()
     {
-      var existingCtorInfo = _descriptor.Constructors.Single();
+      Assert.That (_mutableType.AllConstructors.Count(), Is.EqualTo(1));
+      var ctor = _mutableType.AllConstructors.Single();
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (existingCtorInfo.Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (ctor.Attributes, bindingFlags)).Return (false);
 
-      var constructors = _mutableType.GetConstructors (bindingFlags);
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      Assert.That (constructors, Is.Empty);
-    }
-
-    [Test]
-    public void GetConstructors_FilterWithUtility_AddedConstructor ()
-    {
-      var addedCtorInfo = AddConstructor (_mutableType);
-
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (addedCtorInfo.Attributes, bindingFlags)).Return (false);
-      
       var constructors = _mutableType.GetConstructors (bindingFlags);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
@@ -525,27 +538,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMethods ()
     {
-      Assert.That (_descriptor.Methods, Is.Not.Empty); // ToString(), Equals(), ...
-      // TODO 4744
-      //var existingMethod = _descriptor.Methods.Single (m => m.Name == "PublicMethod");
-      //var attributes = MethodAttributes.Public;
-      //var parameterDeclarations = new ArgumentTestHelper (7).ParameterDeclarations; // Need different signature
-      //var addedMethod = AddMethod (_mutableType, "name", returnType, attributes, parameterDeclarations);
-
+      Assert.That (_mutableType.AllMethods, Is.Not.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
 
       var methods = _mutableType.GetMethods (0);
 
-      Assert.That (methods, Has.Length.EqualTo (_descriptor.Methods.Count /* + 1 */)); // TODO 4744 
-      var methodInfo = methods.Single (m => m.Name == "PublicMethod");
-      Assert.That (methodInfo, Is.TypeOf<MutableMethodInfo> ());
-      // TODO 4744
-      //var mutableMethodInfo = (MutableMethodInfo) methodInfo;
-      //Assert.That (mutableMethodInfo.UnderlyingSystemConstructorInfo, Is.EqualTo (existingMethod));
+      Assert.That (methods, Is.EqualTo (_mutableType.AllMethods));
+    }
 
-      //Assert.That (methods[1], Is.SameAs (addedMethod)); // TODO 4744
+    [Test]
+    public void GetMethods_FilterWithUtility ()
+    {
+      Assert.That (_mutableType.AllMethods, Is.Not.Empty);
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is(bindingFlags))).Return (false);
+
+      var methods = _mutableType.GetMethods (bindingFlags);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (methods, Is.Empty);
     }
 
     [Test]
@@ -703,6 +716,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)
     {
       return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations, context => Expression.Empty());
+    }
+
+    private MutableMethodInfo AddMethod (string name)
+    {
+      Dev.Null = name;
+      throw new NotImplementedException ("TODO 4744");
     }
 
     public class DomainClass : IDomainInterface
