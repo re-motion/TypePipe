@@ -44,6 +44,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var filteredCtors = new[] { ReflectionObjectMother.GetSomeConstructor () };
       memberFilterMock.Expect (mock => mock.FilterConstructors (allInstanceConstructors)).Return (filteredCtors).Repeat.AtLeastOnce();
 
+      // Methods
+      var allMethods = typeof (ExampleType).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      var filteredMethods = new[] { ReflectionObjectMother.GetSomeMethod() };
+      memberFilterMock.Expect (mock => mock.FilterMethods (allMethods)).Return (filteredMethods);
+
       var descriptor = UnderlyingTypeDescriptor.Create (originalType, memberFilterMock);
 
       memberFilterMock.VerifyAllExpectations();
@@ -58,6 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Interfaces, Is.EquivalentTo (new[] { typeof (IDisposable) }));
       Assert.That (descriptor.Fields, Is.EqualTo (filteredFields));
       Assert.That (descriptor.Constructors, Is.EqualTo (filteredCtors));
+      Assert.That (descriptor.Methods, Is.EqualTo (filteredMethods));
     }
 
     [Test]
@@ -82,6 +88,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => Create (typeof (List<int>)), Throws.Nothing);
       // no accessible ctor
       Assert.That (() => Create (typeof (ExampleType), returnConstructors: false), Throws.ArgumentException.With.Message.EqualTo (msg));
+    }
+
+    private UnderlyingTypeDescriptor Create (Type originalType, bool returnConstructors = true)
+    {
+      var memberFilter = MockRepository.GenerateStub<IMemberFilter> ();
+      memberFilter
+          .Stub (stub => stub.FilterConstructors (Arg<IEnumerable<ConstructorInfo>>.Is.Anything))
+          .Do ((Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>) (a => returnConstructors ? a : new ConstructorInfo[0]));
+      memberFilter
+          .Stub (stub => stub.FilterFields (Arg<IEnumerable<FieldInfo>>.Is.Anything))
+          .Do ((Func<IEnumerable<FieldInfo>, IEnumerable<FieldInfo>>) (a => a));
+      memberFilter
+          .Stub (stub => stub.FilterMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything))
+          .Do ((Func<IEnumerable<MethodInfo>, IEnumerable<MethodInfo>>) (a => a));
+
+      return UnderlyingTypeDescriptor.Create (originalType, memberFilter);
     }
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -112,18 +134,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       {
         Dev.Null = _nonPublicField;
       }
-    }
 
-    private UnderlyingTypeDescriptor Create (Type originalType, bool returnConstructors = true)
-    {
-      var memberFilter = MockRepository.GenerateStub<IMemberFilter>();
-      memberFilter
-          .Stub (stub => stub.FilterConstructors (Arg<IEnumerable<ConstructorInfo>>.Is.Anything))
-          .Do ((Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>) (a => returnConstructors ? a : new ConstructorInfo[0]));
-      memberFilter
-          .Stub (stub => stub.FilterFields (Arg<IEnumerable<FieldInfo>>.Is.Anything))
-          .Do ((Func<IEnumerable<FieldInfo>, IEnumerable<FieldInfo>>) (a => a));
-      return UnderlyingTypeDescriptor.Create (originalType, memberFilter);
+// ReSharper disable UnusedMember.Local
+      private void PrivateMethod () { }
+// ReSharper restore UnusedMember.Local
+      protected void ProtecteMethod () { }
+      public static void PublicStaticMethod () { }
     }
   }
 }

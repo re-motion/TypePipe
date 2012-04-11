@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -31,6 +30,9 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingTypeDescriptor
   {
+    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+    private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
+
     public static UnderlyingTypeDescriptor Create (Type originalType, IMemberFilter memberFilter)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
@@ -50,8 +52,9 @@ namespace Remotion.TypePipe.MutableReflection
           originalType.ToString (),
           originalType.Attributes,
           Array.AsReadOnly (originalType.GetInterfaces ()),
-          GetAllFields (originalType, memberFilter).ToList().AsReadOnly(),
-          GetAllInstanceConstructors (originalType, memberFilter).ToList().AsReadOnly());
+          memberFilter.FilterFields (originalType.GetFields (c_allMembers)).ToList().AsReadOnly(),
+          memberFilter.FilterConstructors (originalType.GetConstructors (c_allInstanceMembers)).ToList().AsReadOnly(),
+          memberFilter.FilterMethods (originalType.GetMethods (c_allMembers)).ToList().AsReadOnly());
     }
 
     private static bool CanNotBeSubclassed (Type type, IMemberFilter memberFilter)
@@ -65,23 +68,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private static bool HasAccessibleConstructor (Type type, IMemberFilter memberFilter)
     {
-      return GetAllInstanceConstructors (type, memberFilter).Any();
-    }
-
-    private static IEnumerable<FieldInfo> GetAllFields (Type originalType, IMemberFilter memberFilter)
-    {
-      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      var fieldInfos = originalType.GetFields (bindingAttr);
-      var filteredFields = memberFilter.FilterFields (fieldInfos);
-
-      return filteredFields;
-    }
-
-    private static IEnumerable<ConstructorInfo> GetAllInstanceConstructors (Type originalType, IMemberFilter memberFilter)
-    {
-      var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var constructorInfos = originalType.GetConstructors (bindingAttr);
-      return memberFilter.FilterConstructors (constructorInfos);
+      return memberFilter.FilterConstructors (type.GetConstructors (c_allInstanceMembers)).Any();
     }
 
     private readonly Type _underlyingSystemType;
@@ -96,6 +83,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<FieldInfo> _fields;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
+    private readonly ReadOnlyCollection<MethodInfo> _methods;
 
     private UnderlyingTypeDescriptor (
         Type underlyingSystemType,
@@ -107,7 +95,8 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         ReadOnlyCollection<Type> interfaces,
         ReadOnlyCollection<FieldInfo> fields,
-        ReadOnlyCollection<ConstructorInfo> constructors)
+        ReadOnlyCollection<ConstructorInfo> constructors,
+        ReadOnlyCollection<MethodInfo> methods)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
@@ -115,6 +104,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfaces", interfaces);
       ArgumentUtility.CheckNotNull ("fields", fields);
       ArgumentUtility.CheckNotNull ("constructors", constructors);
+      ArgumentUtility.CheckNotNull ("methods", methods);
 
       _underlyingSystemType = underlyingSystemType;
       _baseType = baseType;
@@ -126,6 +116,7 @@ namespace Remotion.TypePipe.MutableReflection
       _interfaces = interfaces;
       _fields = fields;
       _constructors = constructors;
+      _methods = methods;
     }
 
     public Type UnderlyingSystemType
@@ -176,6 +167,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<ConstructorInfo> Constructors
     {
       get { return _constructors; }
+    }
+
+    public ReadOnlyCollection<MethodInfo> Methods
+    {
+      get { return _methods; }
     }
   }
 }
