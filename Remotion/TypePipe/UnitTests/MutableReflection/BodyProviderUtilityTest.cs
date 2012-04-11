@@ -25,12 +25,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class BodyProviderUtilityTest
   {
-    private ConstructorBodyContextBase _context;
+    private MethodBodyContextBase _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _context = new TestableConstructorBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0]);
+      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0]);
     }
 
     [Test]
@@ -60,12 +60,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
     public void GetVoidBody_ThrowsForNullBody ()
     {
-      Func<ConstructorBodyContextBase, Expression> bodyProvider = c => null;
+      Func<MethodBodyContextBase, Expression> bodyProvider = c => null;
 
       BodyProviderUtility.GetVoidBody (bodyProvider, _context);
     }
 
-    private Func<ConstructorBodyContextBase, Expression> CreateBodyProvider (Expression body)
+    private Func<MethodBodyContextBase, Expression> CreateBodyProvider (Expression body)
     {
       return c =>
       {

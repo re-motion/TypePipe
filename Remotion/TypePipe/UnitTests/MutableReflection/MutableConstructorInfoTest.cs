@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetBody ()
     {
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
-      Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
+      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.Parameters, Is.EqualTo (_mutableCtor.ParameterExpressions));
         Assert.That (context.This.Type, Is.SameAs (_declaringType));

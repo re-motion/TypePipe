@@ -28,14 +28,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
-    private ConstructorBodyModificationContext _context;
+    private MethodBodyModificationContext _context;
 
     [SetUp]
     public void SetUp ()
     {
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (int)) };
       _previousBody = Expression.Add (_parameters[0], _parameters[1]);
-      _context = new ConstructorBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, _previousBody);
+      _context = new MethodBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, _previousBody);
     }
 
     [Test]

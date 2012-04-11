@@ -109,11 +109,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body; }
     }
 
-    public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
+    public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body);
+      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body);
       _body = BodyProviderUtility.GetVoidBody (bodyProvider, context);
     }
 

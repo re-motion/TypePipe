@@ -20,9 +20,9 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class TestableConstructorBodyContextBase : ConstructorBodyContextBase
+  public class TestableMethodBodyContextBase : MethodBodyContextBase
   {
-    public TestableConstructorBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    public TestableMethodBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
         : base(declaringType, parameterExpressions)
     {
     }

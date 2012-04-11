@@ -24,9 +24,9 @@ namespace Remotion.TypePipe.MutableReflection
   /// Provides access to parameters and custom expression for building the bodies of added constructors. 
   /// See also <see cref="MutableType.AddConstructor"/>.
   /// </summary>
-  public class ConstructorBodyCreationContext : ConstructorBodyContextBase
+  public class MethodBodyCreationContext : MethodBodyContextBase
   {
-    public ConstructorBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    public MethodBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
         : base(declaringType, parameterExpressions)
     {
     }

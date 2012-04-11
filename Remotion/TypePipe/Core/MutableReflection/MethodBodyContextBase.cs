@@ -27,14 +27,14 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Base class for context classes used to build new constructor bodies. (So-called body builders.)
+  /// Base class for context classes used to build new method bodies. (So-called body builders.)
   /// </summary>
-  public abstract class ConstructorBodyContextBase
+  public abstract class MethodBodyContextBase
   {
     private readonly MutableType _declaringType;
     private readonly ReadOnlyCollection<ParameterExpression> _parameters;
 
-    protected ConstructorBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    protected MethodBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
@@ -64,18 +64,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      var argumentTypes = arguments.Select (e => e.Type).ToArray();
-      var constructor = _declaringType.GetConstructor (argumentTypes);
-      if (constructor == null)
-      {
-        var message = string.Format ("Could not find a constructor with signature ({0}) on type '{1}'.",
-            SeparatedStringBuilder.Build(", ", argumentTypes), _declaringType);
-        throw new MemberNotFoundException (message);
-      }
-
-      var adapter = new ConstructorAsMethodInfoAdapter (constructor);
-
-      return Expression.Call (This, adapter, arguments);
+      return ConstructorBodyContextUtility.GetConstructorCallExpression(This, arguments);
     }
   }
 }
