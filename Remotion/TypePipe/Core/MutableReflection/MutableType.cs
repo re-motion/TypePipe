@@ -221,8 +221,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
       // TODO 4744
-      var allFields = GetAllFields();
-      return allFields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
+      return GetAllFields().Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -256,8 +255,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
       // TODO 4744
-      var allConstructors = GetAllConstructors();
-      return allConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
+      return GetAllConstructors().Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
@@ -279,8 +277,7 @@ namespace Remotion.TypePipe.MutableReflection
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
       // TODO 4744
-      var allMethods = GetAllMethods();
-      return allMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
+      return GetAllMethods().Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
@@ -380,19 +377,25 @@ namespace Remotion.TypePipe.MutableReflection
       return binderOrNull ?? DefaultBinder;
     }
 
-    private FieldInfo[] GetAllFields ()
+    // TODO 4744  Make public property
+    // GetAllInterfaces
+
+    // TODO 4744  Make public property
+    private IEnumerable<FieldInfo> GetAllFields ()
     {
-      return ExistingFields.Concat (AddedFields.Cast<FieldInfo>()).ToArray();
+      return ExistingFields.Concat (AddedFields.Cast<FieldInfo>());
     }
 
-    private ConstructorInfo[] GetAllConstructors ()
+    // TODO 4744  Make public property
+    private IEnumerable<MutableConstructorInfo> GetAllConstructors ()
     {
-      return ExistingConstructors.Concat (AddedConstructors).ToArray();
+      return ExistingConstructors.Concat (AddedConstructors);
     }
 
-    private MethodInfo[] GetAllMethods ()
+    // TODO 4744  Make public property
+    private IEnumerable<MutableMethodInfo> GetAllMethods ()
     {
-      return ExistingMethods.Concat (AddedMethods).ToArray();
+      return ExistingMethods.Concat (AddedMethods);
     }
 
     private void CheckDeclaringType (MemberInfo member, string parameterName)
