@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 
@@ -37,8 +36,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (int)) };
-      _previousBody = Expression.Add (_parameters[0], _parameters[1]);
+      _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
+      _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _context = new ConstructorBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, _previousBody);
     }
 
@@ -64,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var invokedBody = _context.GetPreviousBody (arg1, arg2);
 
-      var expectedBody = Expression.Add (arg1, arg2);
+      var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
@@ -80,7 +79,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The argument at index 0 has an invalid type: No coercion operator is defined between types 'System.String' and 'System.Int32'.\r\n"
+        "The argument at index 0 has an invalid type: Type 'System.String' cannot be implicitly converted to type 'System.Int32'. " 
+        + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.\r\n"
         + "Parameter name: arguments")]
     public void GetPreviousBody_Params_WrongArgumentType ()
     {
@@ -93,12 +93,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void GetPreviousBody_Params_ConvertibleArgumentType ()
     {
-      var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (long));
-      var arg2 = ExpressionTreeObjectMother.GetSomeExpression (typeof (double));
+      var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
+      var arg2 = ExpressionTreeObjectMother.GetSomeExpression (typeof (int)); // convert from int to object
 
       var invokedBody = _context.GetPreviousBody (arg1, arg2);
 
-      var expectedBody = Expression.Add (Expression.Convert (arg1, typeof (int)), Expression.Convert (arg2, typeof (int)));
+      var expectedBody = Expression.Block (arg1, Expression.Convert (arg2, typeof (object)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 

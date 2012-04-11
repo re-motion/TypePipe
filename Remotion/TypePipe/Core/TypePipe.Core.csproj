@@ -98,6 +98,7 @@
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyCreationContext.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\ExpressionTypeUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />

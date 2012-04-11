@@ -73,24 +73,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return visitor.Visit (_previousBody);
     }
 
-    private Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)
-    {
-      if (expression.Type != type)
-      {
-        try
-        {
-          return Expression.Convert (expression, type);
-        }
-        catch (InvalidOperationException ex)
-        {
-          var message = string.Format ("The argument at index {0} has an invalid type: {1}", argumentIndex, ex.Message);
-          throw new ArgumentException (message, parameterName, ex);
-        }
-      }
-
-      return expression;
-    }
-
     public Expression GetConstructorCall (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -103,6 +85,19 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       return ConstructorBodyContextUtility.GetConstructorCallExpression (This, arguments);
+    }
+
+    private Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)
+    {
+      try
+      {
+        return ExpressionTypeUtility.EnsureCorrectType (expression, type);
+      }
+      catch (InvalidOperationException ex)
+      {
+        var message = String.Format ("The argument at index {0} has an invalid type: {1}", argumentIndex, ex.Message);
+        throw new ArgumentException (message, parameterName, ex);
+      }
     }
   }
 }
