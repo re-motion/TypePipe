@@ -34,12 +34,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetVoidBody ()
+    public void GetTypedBody ()
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       var bodyProvider = CreateBodyProvider(body);
 
-      var result = BodyProviderUtility.GetVoidBody (bodyProvider, _context);
+      var result = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
 
       var expectedBody = Expression.Block (typeof (void), body);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
@@ -47,11 +47,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
-    public void GetVoidBody_ThrowsForNullBody ()
+    public void GetTypedBody_ThrowsForNullBody ()
     {
       Func<MethodBodyContextBase, Expression> bodyProvider = c => null;
 
-      BodyProviderUtility.GetVoidBody (bodyProvider, _context);
+      BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
     }
 
     private Func<MethodBodyContextBase, Expression> CreateBodyProvider (Expression body)

@@ -25,9 +25,10 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public static class BodyProviderUtility
   {
-    public static Expression GetVoidBody<T> (Func<T, Expression> bodyProvider, T context)
-        where T : MethodBodyContextBase
+    public static Expression GetTypedBody<TContext> (Type expectedType, Func<TContext, Expression> bodyProvider, TContext context)
+        where TContext : MethodBodyContextBase
     {
+      ArgumentUtility.CheckNotNull ("expectedType", expectedType);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
       ArgumentUtility.CheckNotNull ("context", context);
 

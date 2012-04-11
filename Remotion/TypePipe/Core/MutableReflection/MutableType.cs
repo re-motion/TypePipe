@@ -252,7 +252,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
 
       var context = new ConstructorBodyCreationContext (this, parameterExpressions);
-      var body = BodyProviderUtility.GetVoidBody (bodyProvider, context);
+      var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
       
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
