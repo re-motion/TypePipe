@@ -17,33 +17,18 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Provides access to expressions needed for building the bodies of added constructors. 
-  /// See also <see cref="MutableType.AddConstructor"/>.
+  /// Provides access to expressions needed for building the bodies of added methods. 
   /// </summary>
-  public class ConstructorBodyCreationContext : MethodBodyCreationContext
+  // TODO 4767 /// See also <see cref="MutableType.AddMethod"/>.
+  public class MethodBodyCreationContext : MethodBodyContextBase
   {
-    public ConstructorBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    public MethodBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
         : base(declaringType, parameterExpressions)
     {
-    }
-
-    public Expression GetConstructorCall (params Expression[] arguments)
-    {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      return GetConstructorCall (((IEnumerable<Expression>) arguments));
-    }
-
-    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
-    {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      return ConstructorBodyContextUtility.GetConstructorCallExpression (This, arguments);
     }
   }
 }
