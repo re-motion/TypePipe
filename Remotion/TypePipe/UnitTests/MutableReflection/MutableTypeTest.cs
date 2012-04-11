@@ -535,6 +535,62 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 4767")]
+    public void AddMethod ()
+    {
+      var name = "MethodName";
+      var attributes = MethodAttributes.Public;
+      var returnType = typeof (object);
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
+      {
+        Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+        Assert.That (context.This.Type, Is.SameAs (_mutableType));
+
+        return fakeBody;
+      };
+
+      var method = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
+
+      // Correct method info instance
+      Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (method.Name, Is.EqualTo (name));
+      Assert.That (method.ReturnType, Is.EqualTo (returnType));
+      Assert.That (method.Attributes, Is.EqualTo (attributes));
+      var expectedParameterInfos =
+          new[]
+          {
+              new { ParameterType = parameterDeclarations[0].Type },
+              new { ParameterType = parameterDeclarations[1].Type }
+          };
+      var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.ParameterType });
+      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+      var expectedBody = Expression.Convert (fakeBody, returnType);
+      //ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+
+      // Method info is stored
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { method }));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "xxx")]
+    [Ignore ("TODO 4767")]
+    public void AddMethod_ThrowsIfAlreadyExists ()
+    {
+      Assert.Fail ("TODO 4767");
+      //Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
+      //var ctorParameterTypes = _descriptor.Constructors.Single ().GetParameters ().Select (pi => pi.ParameterType);
+      //Assert.That (ctorParameterTypes, Is.Empty);
+      //_bindingFlagsEvaluatorMock
+      //    .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+      //    .Return (true);
+      //_memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
+
+      //_mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, context => Expression.Empty ());
+    }
+
+    [Test]
     public void GetMethods ()
     {
       Assert.That (_mutableType.AllMethods, Is.Not.Empty);

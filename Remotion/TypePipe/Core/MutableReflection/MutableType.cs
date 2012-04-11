@@ -287,6 +287,16 @@ namespace Remotion.TypePipe.MutableReflection
       return matchingMutableConstructorInfo;
     }
 
+    public MutableMethodInfo AddMethod (
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        Func<MethodBodyCreationContext, Expression> bodyGenerator)
+    {
+      return null;
+    }
+
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
       // TODO 4744
