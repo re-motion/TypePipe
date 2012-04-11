@@ -535,10 +535,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4767")]
     public void AddMethod ()
     {
-      var name = "MethodName";
+      var name = "Method";
       var attributes = MethodAttributes.Public;
       var returnType = typeof (object);
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -546,6 +545,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+        Assert.That (context.IsStatic, Is.False);
         Assert.That (context.This.Type, Is.SameAs (_mutableType));
 
         return fakeBody;
@@ -567,10 +567,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.ParameterType });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
       var expectedBody = Expression.Convert (fakeBody, returnType);
-      //ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
 
       // Method info is stored
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { method }));
+    }
+
+    [Test]
+    public void AddMethod_Static ()
+    {
+      var name = "StaticMethod";
+      var attributes = MethodAttributes.Static;
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (returnType);
+      Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
+      {
+        Assert.That (context.IsStatic, Is.True);
+        Assert.That (() => context.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
+
+        return fakeBody;
+      };
+
+      _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
     }
 
     [Test]

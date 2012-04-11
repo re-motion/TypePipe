@@ -293,9 +293,30 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<MethodBodyCreationContext, Expression> bodyGenerator)
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      return null;
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
+      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+
+      var isStatic = (attributes & MethodAttributes.Static) != 0;
+      var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic);
+      var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+
+      // TODO 4772
+      //var descriptor = UnderlyingMethodInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
+      var methodInfo = new MutableMethodInfo (this, name, attributes, returnType, parameterDeclarationCollection, body);
+
+      //if (AllConstructors.Any (ctor => _memberInfoEqualityComparer.Equals (ctor, constructorInfo)))
+      //  throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
+
+      _addedMethods.Add (methodInfo);
+
+      return methodInfo;
     }
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
@@ -427,7 +448,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
-      // TODO: 4744 extract into UnderlyingMethodInfoDescriptor
+      // TODO: 4772 extract into UnderlyingMethodInfoDescriptor
       var parameterDeclarations = originalMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
       var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
       var body = new OriginalBodyExpression (originalMethod.ReturnType, parameterExpressions.Cast<Expression>());
