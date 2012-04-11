@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -24,11 +25,25 @@ namespace Remotion.TypePipe.MutableReflection
   /// Provides access to parameters and custom expression for building the bodies of added constructors. 
   /// See also <see cref="MutableType.AddConstructor"/>.
   /// </summary>
-  public class MethodBodyCreationContext : MethodBodyContextBase
+  public class ConstructorBodyCreationContext : MethodBodyContextBase
   {
-    public MethodBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    public ConstructorBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
         : base(declaringType, parameterExpressions)
     {
+    }
+
+    public Expression GetConstructorCall (params Expression[] arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      return GetConstructorCall (((IEnumerable<Expression>) arguments));
+    }
+
+    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      return ConstructorBodyContextUtility.GetConstructorCallExpression (This, arguments);
     }
   }
 }

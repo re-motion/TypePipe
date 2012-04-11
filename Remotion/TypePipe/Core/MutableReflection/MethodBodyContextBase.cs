@@ -19,9 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Scripting.Ast;
-using Remotion.Text;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -51,20 +49,6 @@ namespace Remotion.TypePipe.MutableReflection
     public Expression This
     {
       get { return new ThisExpression(_declaringType); }
-    }
-
-    public Expression GetConstructorCall (params Expression[] arguments)
-    {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      return GetConstructorCall (((IEnumerable<Expression>) arguments));
-    }
-
-    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
-    {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      return ConstructorBodyContextUtility.GetConstructorCallExpression(This, arguments);
     }
   }
 }

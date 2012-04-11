@@ -410,7 +410,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
-      Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
         Assert.That (context.This.Type, Is.SameAs (_mutableType));

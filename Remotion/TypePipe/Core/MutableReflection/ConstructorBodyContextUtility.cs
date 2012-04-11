@@ -25,7 +25,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Provides useful functionality for building constructor bodies.
+  /// Provides functionality used by <see cref="ConstructorBodyCreationContext"/> and <see cref="ConstructorBodyModificationContext"/>.
   /// </summary>
   public static class ConstructorBodyContextUtility
   {

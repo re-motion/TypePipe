@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -56,32 +55,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (context.This, Is.TypeOf<ThisExpression>());
       Assert.That (context.This.Type, Is.SameAs (mutableType));
-    }
-
-    [Test]
-    public void GetConstructorCall ()
-    {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
-      var context = new TestableMethodBodyContextBase (mutableType, _emptyParameters);
-
-      var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
-      var result = context.GetConstructorCall (argumentExpressions);
-
-      Assert.That (result, Is.AssignableTo<MethodCallExpression>());
-      var methodCallExpression = (MethodCallExpression) result;
-
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression> ());
-      Assert.That (methodCallExpression.Object.Type, Is.SameAs (mutableType));
-
-      Assert.That (methodCallExpression.Arguments, Is.EqualTo(argumentExpressions));
-    }
-
-    private class ClassWithConstructor
-    {
-      public ClassWithConstructor (object o)
-      {
-        Dev.Null = o;
-      }
     }
   }
 }

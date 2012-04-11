@@ -76,6 +76,7 @@
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
     <Compile Include="MutableReflection\BodyProviderUtilityTest.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyCreationContextTest.cs" />
     <Compile Include="MutableReflection\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\ConstructorBodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\ConstructorBodyModificationContextTest.cs" />

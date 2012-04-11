@@ -97,9 +97,9 @@
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
     <Compile Include="MutableReflection\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\ConstructorBodyContextUtility.cs" />
-    <Compile Include="MutableReflection\MethodBodyCreationContext.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyCreationContext.cs" />
     <Compile Include="MutableReflection\MethodBodyContextBase.cs" />
-    <Compile Include="MutableReflection\MethodBodyModificationContext.cs" />
+    <Compile Include="MutableReflection\ConstructorBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\ITypeModificationHandler.cs" />

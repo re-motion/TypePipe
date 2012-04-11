@@ -16,8 +16,11 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 
@@ -28,14 +31,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
-    private MethodBodyModificationContext _context;
+    private ConstructorBodyModificationContext _context;
 
     [SetUp]
     public void SetUp ()
     {
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (int)) };
       _previousBody = Expression.Add (_parameters[0], _parameters[1]);
-      _context = new MethodBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, _previousBody);
+      _context = new ConstructorBodyModificationContext (MutableTypeObjectMother.Create(), _parameters, _previousBody);
     }
 
     [Test]
@@ -90,6 +93,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var expectedBody = Expression.Add (Expression.Convert (arg1, typeof (int)), Expression.Convert (arg2, typeof (int)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
+    }
+
+    [Test]
+    public void GetConstructorCall ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
+      var context = new ConstructorBodyModificationContext(mutableType, Enumerable.Empty<ParameterExpression>(), _previousBody);
+
+      var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
+      var result = context.GetConstructorCall (argumentExpressions);
+
+      Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
+      var methodCallExpression = (MethodCallExpression) result;
+
+      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression> ());
+      Assert.That (methodCallExpression.Object.Type, Is.SameAs (mutableType));
+
+      Assert.That (methodCallExpression.Arguments, Is.EqualTo (argumentExpressions));
+    }
+
+    private class ClassWithConstructor
+    {
+      public ClassWithConstructor (object o)
+      {
+        Dev.Null = o;
+      }
     }
   }
 }
