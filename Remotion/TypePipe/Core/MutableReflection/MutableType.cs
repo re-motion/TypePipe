@@ -42,6 +42,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
+    private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo> ();
 
     private readonly ReadOnlyDictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
     private readonly ReadOnlyDictionary<MethodInfo, MutableMethodInfo> _existingMethods;
@@ -76,6 +77,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollection<MutableMethodInfo> AddedMethods
+    {
+      get { return _addedMethods.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<Type> ExistingInterfaces
@@ -215,9 +221,8 @@ namespace Remotion.TypePipe.MutableReflection
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
       // TODO 4744
-      return ExistingFields.Concat (_addedFields.Cast<FieldInfo>())
-          .Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr))
-          .ToArray();
+      var allFields = GetAllFields();
+      return allFields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -250,7 +255,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      var allConstructors = ExistingConstructors.Concat (AddedConstructors);
+      // TODO 4744
+      var allConstructors = GetAllConstructors();
       return allConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
@@ -272,9 +278,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      //// TODO 4744
-      //var allMethods = ExistingMethods.Concat (AddedMusic);
-      var allMethods = ExistingMethods;
+      // TODO 4744
+      var allMethods = GetAllMethods();
       return allMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
     }
 
@@ -383,6 +388,11 @@ namespace Remotion.TypePipe.MutableReflection
     private ConstructorInfo[] GetAllConstructors ()
     {
       return ExistingConstructors.Concat (AddedConstructors).ToArray();
+    }
+
+    private MethodInfo[] GetAllMethods ()
+    {
+      return ExistingMethods.Concat (AddedMethods).ToArray();
     }
 
     private void CheckDeclaringType (MemberInfo member, string parameterName)
