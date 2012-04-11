@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.MutableReflection
   // TODO 4767 /// See also <see cref="MutableType.AddMethod"/>.
   public class MethodBodyCreationContext : MethodBodyContextBase
   {
-    public MethodBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
-        : base(declaringType, parameterExpressions)
+    public MethodBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic)
+        : base(declaringType, parameterExpressions, isStatic)
     {
     }
   }

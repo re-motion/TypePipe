@@ -31,14 +31,16 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly ReadOnlyCollection<ParameterExpression> _parameters;
+    private readonly bool _isStatic;
 
-    protected MethodBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
+    protected MethodBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
 
       _declaringType = declaringType;
       _parameters = parameterExpressions.ToList().AsReadOnly();
+      _isStatic = isStatic;
     }
 
     public ReadOnlyCollection<ParameterExpression> Parameters
@@ -48,7 +50,18 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Expression This
     {
-      get { return new ThisExpression(_declaringType); }
+      get 
+      {
+        if (IsStatic)
+          throw new InvalidOperationException ("Static methods cannot use 'This'.");
+
+        return new ThisExpression(_declaringType); 
+      }
+    }
+
+    public bool IsStatic
+    {
+      get { return _isStatic; }
     }
   }
 }

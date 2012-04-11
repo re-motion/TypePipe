@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -27,34 +28,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MethodBodyContextBaseTest
   {
     private ReadOnlyCollection<ParameterExpression> _emptyParameters;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
       _emptyParameters = new List<ParameterExpression> ().AsReadOnly ();
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
     public void Initialization ()
     {
-      var mutableType = MutableTypeObjectMother.Create ();
       var parameter1 = Expression.Parameter (ReflectionObjectMother.GetSomeType ());
       var parameter2 = Expression.Parameter (ReflectionObjectMother.GetSomeType ());
       var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
 
-      var context = new TestableMethodBodyContextBase (mutableType, parameters);
+      var context = new TestableMethodBodyContextBase (_mutableType, parameters, true);
 
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
+      Assert.That (context.IsStatic, Is.True);
     }
 
     [Test]
     public void This ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
-      var context = new TestableMethodBodyContextBase (mutableType, _emptyParameters);
+      var context = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false);
 
       Assert.That (context.This, Is.TypeOf<ThisExpression>());
-      Assert.That (context.This.Type, Is.SameAs (mutableType));
+      Assert.That (context.This.Type, Is.SameAs (_mutableType));
+    }
+
+    [Test]
+    public void This_ThrowsForStaticMethods ()
+    {
+      var context = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true);
+
+      Assert.That (() => context.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
     }
   }
 }

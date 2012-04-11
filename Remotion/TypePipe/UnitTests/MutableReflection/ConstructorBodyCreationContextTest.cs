@@ -28,6 +28,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class ConstructorBodyCreationContextTest
   {
     [Test]
+    public void Initialization ()
+    {
+      var mutableType = MutableTypeObjectMother.Create();
+      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> ());
+
+      Assert.That (context.IsStatic, Is.False);
+    }
+
+    [Test]
     public void GetConstructorCall ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));

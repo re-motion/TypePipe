@@ -42,6 +42,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Initialization ()
+    {
+      Assert.That (_context.IsStatic, Is.False);
+    }
+
+    [Test]
     public void GetPreviousBody_NoParameter ()
     {
       var invokedBody = _context.GetPreviousBody();

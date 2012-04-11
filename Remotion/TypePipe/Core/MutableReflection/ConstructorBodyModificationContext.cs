@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
         MutableType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody)
-        : base (declaringType, parameterExpressions)
+        : base (declaringType, parameterExpressions, false)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
       _previousBody = previousBody;

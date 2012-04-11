@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0]);
+      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false);
     }
 
     [Test]
