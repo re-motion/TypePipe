@@ -673,7 +673,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorImpl_NoMatch ()
     {
-      Assert.That (_mutableType.GetConstructor (Type.EmptyTypes), Is.Null);
+      var arguments = new ArgumentTestHelper (typeof (int));
+      Assert.That (_mutableType.GetConstructor (arguments.Types), Is.Null);
+    }
+
+    [Test]
+    [Ignore ("4744")]
+    public void GetMethodImpl ()
+    {
+      // TODO 4744
+      //var arguments = new ArgumentTestHelper (typeof (int));
+      //var addedMethod = _mutableType.AddMethod ("AddedMethod", returnType, 0, arguments.ParameterDeclarations, ctx => Expression.Empty ());
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+      Assert.That (_mutableType.GetMethods(), Has.Length.GreaterThan (1));
+
+      //var resultMethod = _mutableType.GetMethod ("AddedMethod");
+      //Assert.That (resultMethod, Is.SameAs (addedMethod));
+    }
+
+    [Test]
+    public void GetMethodImpl_NoMatch ()
+    {
+      Assert.That (_mutableType.GetMethod ("DoesNotExist"), Is.Null);
     }
 
     private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)

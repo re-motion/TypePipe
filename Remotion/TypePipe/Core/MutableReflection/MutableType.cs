@@ -368,6 +368,10 @@ namespace Remotion.TypePipe.MutableReflection
         Type[] types,
         ParameterModifier[] modifiers)
     {
+      var candidates = GetMethods (bindingAttr).Where (m => m.Name == name).ToArray();
+      if (candidates.Length == 0)
+        return null;
+
       // TODO TypePipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
       throw new NotImplementedException ();
     }
