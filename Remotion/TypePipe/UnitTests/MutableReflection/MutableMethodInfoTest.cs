@@ -18,6 +18,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -33,8 +34,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameter1 = ParameterDeclarationObjectMother.Create();
       var parameter2 = ParameterDeclarationObjectMother.Create();
+      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      var method = new MutableMethodInfo (declaringType, name, methodAttributes, returnType, new[] { parameter1, parameter2});
+      var method = new MutableMethodInfo (declaringType, name, methodAttributes, returnType, new[] { parameter1, parameter2}, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.Name, Is.EqualTo (name));
@@ -48,6 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+      Assert.That (method.Body, Is.SameAs (body));
     }
 
     [Test]

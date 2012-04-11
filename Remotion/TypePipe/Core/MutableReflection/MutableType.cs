@@ -23,6 +23,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using System.Linq;
@@ -426,9 +427,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
-      // TODO: 4744
+      // TODO: 4744 extract into UnderlyingMethodInfoDescriptor
       var parameterDeclarations = originalMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
-      return new MutableMethodInfo (this, originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations);
+      var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
+      var body = new OriginalBodyExpression (originalMethod.ReturnType, parameterExpressions.Cast<Expression>());
+      return new MutableMethodInfo (this, originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations, body);
     }
 
     #region Not implemented abstract members of Type class

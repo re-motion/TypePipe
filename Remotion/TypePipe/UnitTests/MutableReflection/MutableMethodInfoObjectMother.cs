@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -13,14 +15,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
-        ParameterDeclaration[] parameterDeclarations = null)
+        ParameterDeclaration[] parameterDeclarations = null,
+        Expression body = null)
     {
       return new MutableMethodInfo (
           declaringType ?? typeof (UnspecifiedType), 
           name,
           methodAttributes,
           returnType ?? typeof(UnspecifiedType),
-          parameterDeclarations ?? ParameterDeclaration.EmptyParameters);
+          parameterDeclarations ?? ParameterDeclaration.EmptyParameters,
+          body ?? ExpressionTreeObjectMother.GetSomeExpression(returnType));
     }
   }
 }

@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -34,24 +35,28 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MethodAttributes _methodAttributes;
     private readonly Type _returnType;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly Expression _body;
 
     public MutableMethodInfo (
         Type declaringType,
         string name,
         MethodAttributes methodAttributes,
         Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations)
+        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("body", body);
 
       _declaringType = declaringType;
       _name = name;
       _methodAttributes = methodAttributes;
       _returnType = returnType;
       _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
+      _body = body;
     }
 
     public override Type DeclaringType
@@ -72,6 +77,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type ReturnType
     {
       get { return _returnType; }
+    }
+
+    public Expression Body
+    {
+      get { return _body; }
     }
 
     public override ParameterInfo[] GetParameters ()
