@@ -27,7 +27,7 @@ namespace TypePipe.IntegrationTests
   public class AddConstructorTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void AddConstructor ()
+    public void Standard ()
     {
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
@@ -51,7 +51,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void AddConstructor_ParameterMetadataAndOutParameter ()
+    public void ParameterMetadataAndOutParameter ()
     {
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
