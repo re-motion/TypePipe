@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingMethods.Count, Is.EqualTo(methods.Count));
       var mutableMethod = _mutableType.ExistingMethods.Single (m => m.Name == "PublicMethod");
 
-      // TODO: 4744
+      // TODO: 4772
       //Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
     }
@@ -118,12 +118,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("4744")]
     public void AllMethods ()
     {
       Assert.That (_descriptor.Methods, Is.Not.Empty);
-      var existingMethods = _descriptor.Methods;
-      var addedMethod = AddMethod ("NewMethod");
+      //var existingMethods = _descriptor.Methods;
+      var addedMethod = AddMethod (_mutableType, "NewMethod");
 
       var allMethods = _mutableType.AllMethods.ToArray();
 
@@ -132,6 +131,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       for (int i = 0; i < expectedMethodCount - 1; i++)
       {
         Assert.That (allMethods[i].DeclaringType, Is.SameAs (_mutableType));
+        // TODO 4772
         //Assert.That (allMethods[i].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[i]));
       }
       Assert.That (allMethods.Last (), Is.SameAs (addedMethod));
@@ -765,20 +765,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("4744")]
     public void GetMethodImpl ()
     {
-      // TODO 4744
-      //var arguments = new ArgumentTestHelper (typeof (int));
-      //var addedMethod = _mutableType.AddMethod ("AddedMethod", returnType, 0, arguments.ParameterDeclarations, ctx => Expression.Empty ());
+      var addedMethod1 = AddMethod (_mutableType, "AddedMethod");
+      var addedMethod2 = AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration(typeof(int), "i"));
 
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
-      Assert.That (_mutableType.GetMethods(), Has.Length.GreaterThan (1));
+      Assert.That (_mutableType.GetMethods ().Select (m => m.Name == "AddedMethod").Count(), Is.GreaterThan (1));
 
-      //var resultMethod = _mutableType.GetMethod ("AddedMethod");
-      //Assert.That (resultMethod, Is.SameAs (addedMethod));
+      var result1 = _mutableType.GetMethod ("AddedMethod", Type.EmptyTypes);
+      var result2 = _mutableType.GetMethod ("AddedMethod", new[] { typeof (int) });
+      Assert.That (result1, Is.SameAs (addedMethod1));
+      Assert.That (result2, Is.SameAs (addedMethod2));
     }
 
     [Test]
@@ -792,10 +792,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations, context => Expression.Empty());
     }
 
-    private MutableMethodInfo AddMethod (string name)
+    private MutableMethodInfo AddMethod (MutableType mutableType, string name, params ParameterDeclaration[] parameterDeclarations)
     {
-      Dev.Null = name;
-      throw new NotImplementedException ("TODO 4744");
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
+
+      return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations, ctx => body);
     }
 
     public class DomainClass : IDomainInterface

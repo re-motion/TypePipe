@@ -417,8 +417,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (candidates.Length == 0)
         return null;
 
-      // TODO TypePipe: Implement using GetMethods, add and use BindingFlagsEvaluator.HasRightName (string actualName, string expectedName, BindingFlags bindingFlags), then apply binder/DefaultBinder
-      throw new NotImplementedException ();
+      return (MethodInfo) SafeGetBinder (binderOrNull).SelectMethod (bindingAttr, candidates, types, modifiers);
     }
 
     private Binder SafeGetBinder (Binder binderOrNull)
