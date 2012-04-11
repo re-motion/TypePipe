@@ -43,13 +43,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
     {
       var allFields = typeof (TestDomain).GetFields (c_allMembers);
       Assert.That (
-          GetFieldNames (allFields),
+          GetMemberNames (allFields),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField", "InternalField", "_privateField" }));
 
       var filteredFields = _memberFilter.FilterFields(allFields);
 
       Assert.That (
-          GetFieldNames (filteredFields),
+          GetMemberNames (filteredFields.Cast<MemberInfo> ()),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField" }));
     }
 
@@ -66,9 +66,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
       Assert.That (GetCtorSignatures (filteredConstructors), Is.EquivalentTo (new[] { ".ctor()", ".ctor(Int32)", ".ctor(System.String)" }));
     }
 
-    private IEnumerable<string> GetFieldNames (IEnumerable<FieldInfo> fieldInfos)
+    [Test]
+    public void FilterMethods ()
     {
-      return fieldInfos.Select (m => m.Name);
+      var allMethods = typeof (TestDomain).GetMethods (c_allMembers);
+      // Unfortunately, NUnit doesn't support Is.SupersetOf
+      Assert.That (
+          new[] { "PublicMethod", "ProtectedOrInternalMethod", "ProtectedMethod", "InternalMethod", "PrivateMethod" },
+          Is.SubsetOf (GetMemberNames (allMethods)));
+
+      var filteredMethods = _memberFilter.FilterMethods (allMethods);
+
+      Assert.That (
+          new[] { "PublicMethod", "ProtectedOrInternalMethod", "ProtectedMethod" },
+          Is.SubsetOf (GetMemberNames (filteredMethods.Cast<MemberInfo>())));
+    }
+
+    private IEnumerable<string> GetMemberNames (IEnumerable<MemberInfo> memberInfo)
+    {
+      return memberInfo.Select (m => m.Name);
     }
 
     private IEnumerable<string> GetCtorSignatures (IEnumerable<ConstructorInfo> ctorInfos)
@@ -76,9 +92,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
       return ctorInfos.Select (ctor => ctor.ToString().Replace ("Void ", ""));
     }
 
-// ReSharper disable MemberCanBePrivate.Global
     public class TestDomain
-// ReSharper restore MemberCanBePrivate.Global
     {
       public int PublicField;
       protected internal int ProtectedOrInternalField;
@@ -92,6 +106,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
       internal TestDomain (double d) { Dev.Null = d; }
 // ReSharper disable UnusedMember.Local
       private TestDomain (long l) { Dev.Null = l; }
+// ReSharper restore UnusedMember.Local
+
+      public void PublicMethod () { }
+      protected internal void ProtectedOrInternalMethod () { }
+      protected void ProtectedMethod () { }
+      internal void InternalMethod () { }
+// ReSharper disable UnusedMember.Local
+      private void PrivateMethod () { }
 // ReSharper restore UnusedMember.Local
     }
   }

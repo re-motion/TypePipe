@@ -27,5 +27,6 @@ namespace Remotion.TypePipe.MutableReflection
   {
     IEnumerable<FieldInfo> FilterFields (IEnumerable<FieldInfo> fieldInfos);
     IEnumerable<ConstructorInfo> FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos);
+    IEnumerable<MethodInfo> FilterMethods (IEnumerable<MethodInfo> methodInfos);
   }
 }
