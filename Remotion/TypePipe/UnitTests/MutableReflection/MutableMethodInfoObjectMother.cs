@@ -20,7 +20,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           name,
           methodAttributes,
           returnType ?? typeof(UnspecifiedType),
-          parameterDeclarations ?? new ParameterDeclaration[0]);
+          parameterDeclarations ?? ParameterDeclaration.EmptyParameters);
     }
   }
 }

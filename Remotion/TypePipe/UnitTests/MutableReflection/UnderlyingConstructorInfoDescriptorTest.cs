@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var nonVoidBody = ExpressionTreeObjectMother.GetSomeExpression(typeof(object));
 
-      UnderlyingConstructorInfoDescriptor.Create (0, new ParameterDeclaration[0], nonVoidBody);
+      UnderlyingConstructorInfoDescriptor.Create (0, ParameterDeclaration.EmptyParameters, nonVoidBody);
     }
 
     [Test]

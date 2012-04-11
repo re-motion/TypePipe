@@ -54,7 +54,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public,
-              new ParameterDeclaration[0],
+              ParameterDeclaration.EmptyParameters,
               ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
           mutableType =>
           {
@@ -74,7 +74,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public,
-              new ParameterDeclaration[0],
+              ParameterDeclaration.EmptyParameters,
               ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
           mutableType =>
           {
@@ -94,7 +94,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddConstructor (
               MethodAttributes.Public,
-              new ParameterDeclaration[0],
+              ParameterDeclaration.EmptyParameters,
               ctx => ctx.GetConstructorCall (Expression.Constant("added"))),
           mutableType =>
           {

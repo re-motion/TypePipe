@@ -196,7 +196,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddConstructor_RegistersBuildAction ()
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: Enumerable.Empty<ParameterDeclaration>());
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: ParameterDeclaration.EmptyParameters);
       var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
 
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();

@@ -31,8 +31,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
-    private static readonly IEnumerable<ParameterDeclaration> s_emptyParamDecls = Enumerable.Empty<ParameterDeclaration>();
-
     private UnderlyingTypeDescriptor _descriptor;
     private IEqualityComparer<MemberInfo> _memberInfoEqualityComparerStub;
     private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
@@ -443,7 +441,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Adding static constructors is not (yet) supported.\r\nParameter name: attributes")]
     public void AddConstructor_ThrowsForStatic ()
     {
-      _mutableType.AddConstructor (MethodAttributes.Static, s_emptyParamDecls, context => { throw new NotImplementedException(); });
+      _mutableType.AddConstructor (MethodAttributes.Static, ParameterDeclaration.EmptyParameters, context => { throw new NotImplementedException(); });
     }
 
     [Test]
@@ -459,7 +457,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (true);
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
-      _mutableType.AddConstructor (0, s_emptyParamDecls, context => Expression.Empty());
+      _mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, context => Expression.Empty());
     }
 
     [Test]

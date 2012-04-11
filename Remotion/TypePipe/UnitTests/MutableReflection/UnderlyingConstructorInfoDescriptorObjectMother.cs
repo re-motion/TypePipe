@@ -30,7 +30,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
     {
-      return UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations ?? new ParameterDeclaration[0], body ?? Expression.Empty());
+      return UnderlyingConstructorInfoDescriptor.Create (
+          attributes, parameterDeclarations ?? ParameterDeclaration.EmptyParameters, body ?? Expression.Empty());
     }
 
     public static UnderlyingConstructorInfoDescriptor CreateForExisting (
