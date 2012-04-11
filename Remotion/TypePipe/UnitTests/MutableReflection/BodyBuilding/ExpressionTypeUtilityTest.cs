@@ -38,6 +38,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
+    public void EnsureCorrectType_Exact_Void ()
+    {
+      var expectedType = typeof (void);
+      var expression = ExpressionTreeObjectMother.GetSomeExpression (expectedType);
+
+      var result = ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
+
+      Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
     public void EnsureCorrectType_Exact_ValueTypes ()
     {
       var expectedType = typeof (int);
@@ -79,6 +90,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var result = ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
 
       CheckExpressionIsConverted (expression, expectedType, result);
+    }
+
+    [Test]
+    public void EnsureCorrectType_NonVoidExpression_WrappedAsVoid ()
+    {
+      var expectedType = typeof (void);
+      var expression = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
+
+      var result = ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
+
+      Assert.That (result, Is.AssignableTo<BlockExpression>());
+      var blockExpression = (BlockExpression) result;
+
+      Assert.That (blockExpression.Type, Is.SameAs (expectedType));
+      Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { expression }));
     }
 
     [Test]

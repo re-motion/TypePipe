@@ -17,7 +17,6 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 
@@ -36,17 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     public void GetVoidBody ()
-    {
-      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      var bodyProvider = CreateBodyProvider(body);
-
-      var result = BodyProviderUtility.GetVoidBody (bodyProvider, _context);
-      
-      Assert.That (result, Is.SameAs (body));
-    }
-
-    [Test]
-    public void GetVoidBody_WrapsNonVoidBody ()
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       var bodyProvider = CreateBodyProvider(body);
