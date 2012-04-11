@@ -36,6 +36,11 @@ namespace Remotion.TypePipe.MutableReflection.ReflectionEmit
       return FilterMethodBases (constructorInfos);
     }
 
+    public IEnumerable<MethodInfo> FilterMethods (IEnumerable<MethodInfo> methodInfos)
+    {
+      return FilterMethodBases (methodInfos);
+    }
+
     private IEnumerable<T> FilterMethodBases<T> (IEnumerable<T> methodBases)
       where T : MethodBase
     {
