@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Initialization_WithInterfaces ()
+    public void Initialization_Interfaces ()
     {
       Assert.That (_descriptor.Interfaces, Is.Not.Empty);
 
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Initialization_WithFields ()
+    public void Initialization_Fields ()
     {
       Assert.That (_descriptor.Fields, Is.Not.Empty);
 
@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Initialization_WithConstructors ()
+    public void Initialization_Constructors ()
     {
       var ctors = _descriptor.Constructors;
       Assert.That (ctors, Is.Not.Empty.And.Count.EqualTo (1));
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Initialization_WithMethods ()
+    public void Initialization_Methods ()
     {
       var methods = _descriptor.Methods;
       Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
@@ -132,16 +132,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Property MutableType.GUID is not supported.")]
     public void GUID ()
     {
-      var result = _mutableType.GUID;
-      Assert.Fail ("Unreachable code", result);
+      Dev.Null = _mutableType.GUID;
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Property MutableType.AssemblyQualifiedName is not supported.")]
     public void AssemblyQualifiedName ()
     {
-      var result = _mutableType.AssemblyQualifiedName;
-      Assert.Fail ("Unreachable code", result);
+      Dev.Null = _mutableType.AssemblyQualifiedName;
     }
 
     [Test]
