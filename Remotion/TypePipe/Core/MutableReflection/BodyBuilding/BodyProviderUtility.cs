@@ -18,7 +18,7 @@ using System;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Provides useful functionality for working with method body provider delegates.

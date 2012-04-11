@@ -22,7 +22,7 @@ using Remotion.Text;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Provides functionality used by <see cref="ConstructorBodyCreationContext"/> and <see cref="ConstructorBodyModificationContext"/>.

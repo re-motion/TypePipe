@@ -14,16 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   [TestFixture]
   public class ConstructorBodyContextUtilityTest
@@ -51,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (MemberNotFoundException), ExpectedMessage =
         "Could not find a constructor with signature (System.Int32, System.Int32) on type " +
-        "'Remotion.TypePipe.UnitTests.MutableReflection.ConstructorBodyContextUtilityTest+ClassWithConstructors'.")]
+        "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.ConstructorBodyContextUtilityTest+ClassWithConstructors'.")]
     public void GetConstructorCall_NoMatchingConstructor ()
     {
       var thisExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (ClassWithConstructors));

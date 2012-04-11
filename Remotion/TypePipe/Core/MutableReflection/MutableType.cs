@@ -23,6 +23,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using System.Linq;
 

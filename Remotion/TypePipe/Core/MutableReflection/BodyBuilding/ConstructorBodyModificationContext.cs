@@ -22,7 +22,7 @@ using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Provides access to parameters and custom expression for building the bodies of modified constructors. 

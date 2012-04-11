@@ -22,7 +22,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Base class for context classes used to build new method bodies. (So-called body builders.)

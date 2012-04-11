@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Text;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection

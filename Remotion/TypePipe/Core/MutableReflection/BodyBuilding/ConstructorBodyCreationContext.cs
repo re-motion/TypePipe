@@ -14,12 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Provides access to expressions needed for building the bodies of added constructors. 
