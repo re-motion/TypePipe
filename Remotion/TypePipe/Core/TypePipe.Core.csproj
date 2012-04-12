@@ -56,6 +56,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IMethodBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\MethodBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
