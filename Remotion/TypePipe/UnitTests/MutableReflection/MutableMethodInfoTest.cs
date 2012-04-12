@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -26,30 +27,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableMethodInfoTest
   {
+    private string _name;
     private Type _declaringType;
+    private Type _returnType;
+    private Expression _body;
 
     [SetUp]
     public void SetUp ()
     {
+      _name = "MethodName";
       _declaringType = ReflectionObjectMother.GetSomeType ();
+      _returnType = ReflectionObjectMother.GetSomeType ();
+      _body = ExpressionTreeObjectMother.GetSomeExpression (_returnType);
     }
 
     [Test]
     public void Initialization ()
     {
-      var name = "method name";
       var methodAttributes = MethodAttributes.Public;
-      var returnType = ReflectionObjectMother.GetSomeType();
       var parameter1 = ParameterDeclarationObjectMother.Create();
       var parameter2 = ParameterDeclarationObjectMother.Create();
-      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      var method = new MutableMethodInfo (_declaringType, name, methodAttributes, returnType, new[] { parameter1, parameter2}, body);
+      var method = new MutableMethodInfo (_declaringType, _name, methodAttributes, _returnType, new[] { parameter1, parameter2}, _body);
 
       Assert.That (method.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (method.Name, Is.EqualTo (name));
+      Assert.That (method.Name, Is.EqualTo (_name));
       Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
-      Assert.That (method.ReturnType, Is.SameAs (returnType));
+      Assert.That (method.ReturnType, Is.SameAs (_returnType));
       var expectedParameterInfos =
           new[]
           {
@@ -58,7 +62,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
-      Assert.That (method.Body, Is.SameAs (body));
+      Assert.That (method.Body, Is.SameAs (_body));
+    }
+
+    [Test]
+    public void CallingConvention ()
+    {
+      var instanceMethod = new MutableMethodInfo (_declaringType, _name, 0, _returnType, ParameterDeclaration.EmptyParameters, _body);
+      var staticMethod = new MutableMethodInfo (_declaringType, _name, MethodAttributes.Static, _returnType, ParameterDeclaration.EmptyParameters, _body);
+
+      Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
     }
 
     [Test]

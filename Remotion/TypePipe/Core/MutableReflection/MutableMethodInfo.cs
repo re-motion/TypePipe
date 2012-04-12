@@ -76,6 +76,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methodAttributes; }
     }
 
+    public override CallingConventions CallingConvention
+    {
+      get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
+    }
+
     public override Type ReturnType
     {
       get { return _returnType; }
