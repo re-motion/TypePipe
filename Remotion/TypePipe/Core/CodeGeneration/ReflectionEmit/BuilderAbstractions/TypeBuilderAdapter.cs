@@ -64,6 +64,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       return new ConstructorBuilderAdapter (constructorBuilder);
     }
 
+    [CLSCompliant (false)]
+    public IMethodBuilder DefineMethod (string name, MethodAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, callingConvention, returnType, parameterTypes);
+      return new MethodBuilderAdapter (methodBuilder);
+    }
+
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
