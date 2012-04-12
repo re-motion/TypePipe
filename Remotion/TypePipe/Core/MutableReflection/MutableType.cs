@@ -324,7 +324,6 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      // TODO 4744
       return AllMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
     }
 
@@ -428,7 +427,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     private Binder SafeGetBinder (Binder binderOrNull)
     {
-      return binderOrNull ?? DefaultBinder;
+      var binder = binderOrNull ?? DefaultBinder;
+      Assertion.IsNotNull (binder);
+      return binder;
     }
 
     private IEnumerable<FieldInfo> GetAllFields ()

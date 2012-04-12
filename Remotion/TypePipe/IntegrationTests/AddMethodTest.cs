@@ -184,7 +184,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4768  -  Maybe move to SetMethodBodyTest, (because SetBody is required)")]
+    [Ignore ("TODO 4768")]
     public void MethodsRequiringForwardDeclarations ()
     {
       // public static int Method1 (int i)

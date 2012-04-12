@@ -583,8 +583,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.IsStatic, Is.True);
-        Assert.That (() => context.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
-
         return fakeBody;
       };
 
@@ -610,7 +608,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMethods ()
     {
-      Assert.That (_mutableType.AllMethods, Is.Not.Empty);
+      AddMethod (_mutableType, "Method");
+
+      Assert.That (_mutableType.ExistingMethods, Is.Not.Empty);
+      Assert.That (_mutableType.AddedMethods, Is.Not.Empty);
+
       _bindingFlagsEvaluatorMock
           .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
