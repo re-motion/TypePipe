@@ -311,7 +311,7 @@ namespace Remotion.TypePipe.MutableReflection
       //var descriptor = UnderlyingMethodInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var methodInfo = new MutableMethodInfo (this, name, attributes, returnType, parameterDeclarationCollection, body);
 
-      // TODO 4762 includes return type in the check, this works but is not 100% correct (only implicitly) because another execption gets thrown first
+      // TODO 4767 includes return type in the check, this works but is not 100% correct (only implicitly) because another execption gets thrown first
       if (AllMethods.Where (m => m.Name == name).Any (method => _memberInfoEqualityComparer.Equals (method, methodInfo)))
       {
         var message = string.Format ("Method '{0}' with equal signature already exists.", name);
