@@ -31,14 +31,13 @@ namespace TypePipe.IntegrationTests
     public void StaticMethodWithOutParameter ()
     {
       var name = "PublicStaticMethodWithOutParameter";
-
-      var type = AssembleType<DomainType> (/* TODO 4767
+      var type = AssembleType<DomainType> (
           mutableType => mutableType.AddMethod (
               name,
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
               new[] { new ParameterDeclaration (typeof (int).MakeByRefType(), "parameterName", ParameterAttributes.Out) },
-              ctx => Expression.Assign (ctx.Parameters[0], Expression.Constant (7)))*/);
+              ctx => Expression.Assign (ctx.Parameters[0], Expression.Constant (7))));
 
       var addedMethod = type.GetMethod (name);
 
@@ -60,17 +59,17 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void StaticMethodCannotUseThisExpression ()
     {
-      var type = AssembleType<DomainType> (/* TODO 4767
+      var type = AssembleType<DomainType> (
           mutableType => mutableType.AddMethod (
               "StaticMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
-              ParameterDeclarations.EmptyParameters,
+              ParameterDeclaration.EmptyParameters,
               ctx =>
               {
                 Assert.That (ctx.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
                 return Expression.Empty();
-              })*/);
+              }));
 
       var addedMethod = type.GetMethod ("StaticMethod");
 
@@ -81,15 +80,14 @@ namespace TypePipe.IntegrationTests
     public void InstanceMethodWithInParameter ()
     {
       var name = "InstanceMethod";
-
-      var type = AssembleType<DomainType> (/* TODO 4767
+      var type = AssembleType<DomainType> (
           mutableType => mutableType.AddMethod (
               name,
               MethodAttributes.Public,
               typeof (void),
               new[] { new ParameterDeclaration (typeof (string), "parameterName") },
               // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
-              ctx => Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[0]))*/);
+              ctx => Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[0])));
 
       var addedMethod = type.GetMethod (name);
 
@@ -112,28 +110,28 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void MethodsWithReturnValue ()
     {
-      var type = AssembleType<DomainType> (/* TODO 4767
+      var type = AssembleType<DomainType> (
           mutableType =>
           {
             mutableType.AddMethod (
                 "MethodWithExactResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (string),
-                ParameterDelcarations.EmptyParameters,
+                ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant ("return value"));
             mutableType.AddMethod (
                 "MethodWithBoxingConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
-                ParameterDelcarations.EmptyParameters,
+                ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant (8));
             mutableType.AddMethod (
                 "MethodWithReferenceConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
-                ParameterDelcarations.EmptyParameters,
+                ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant ("string"));
-          }*/);
+          });
 
       var result1 = type.GetMethod ("MethodWithExactResultType").Invoke (null, new object[0]);
       var result2 = type.GetMethod ("MethodWithBoxingConvertibleResultType").Invoke (null, new object[0]);
@@ -147,40 +145,38 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void MethodsWithInvalidReturnValue ()
     {
-      var type = AssembleType<DomainType> (/* TODO 4767
+      var type = AssembleType<DomainType> (
           mutableType =>
           {
+            var execptionMessage = "The type of the provided body cannot be converted to the specified return type./r/nParameter name: bodyProvider";
             Assert.That (
                 () =>
                 mutableType.AddMethod (
                     "MethodWithPotentiallyDangerousValueConversion",
                     MethodAttributes.Public | MethodAttributes.Static,
                     typeof (int),
-                    ParameterDelcarations.EmptyParameters,
+                    ParameterDeclaration.EmptyParameters,
                     ctx => Expression.Constant (7L)),
-                Throws.ArgumentException.With.Message.EqualTo (
-                  "The type of the provided body cannot be converted to the specified return type./r/nParameter name: bodyProvider"));
-           Assert.That (
+                Throws.ArgumentException.With.Message.EqualTo (execptionMessage));
+            Assert.That (
                 () =>
                 mutableType.AddMethod (
                     "MethodWithPotentiallyDangerousReferenceConversion",
                     MethodAttributes.Public | MethodAttributes.Static,
                     typeof (string),
-                    ParameterDelcarations.EmptyParameters,
-                    ctx => Expression.Constant (null, typeof(object))),
-                Throws.ArgumentException.With.Message.EqualTo (
-                  "The type of the provided body cannot be converted to the specified return type./r/nParameter name: bodyProvider"));
+                    ParameterDeclaration.EmptyParameters,
+                    ctx => Expression.Constant (null, typeof (object))),
+                Throws.ArgumentException.With.Message.EqualTo (execptionMessage));
             Assert.That (
                 () =>
                 mutableType.AddMethod (
                     "MethodWithInvalidResultType",
                     MethodAttributes.Public | MethodAttributes.Static,
                     typeof (int),
-                    ParameterDelcarations.EmptyParameters,
+                    ParameterDeclaration.EmptyParameters,
                     ctx => Expression.Constant ("string")),
-                Throws.ArgumentException.With.Message.EqualTo (
-                  "The type of the provided body cannot be converted to the specified return type./r/nParameter name: bodyProvider"));
-          }*/);
+                Throws.ArgumentException.With.Message.EqualTo (execptionMessage));
+          });
 
       Assert.That (type.GetMethod ("MethodWithPotentiallyDangerousValueConversion"), Is.Null);
       Assert.That (type.GetMethod ("MethodWithPotentiallyDangerousReferenceConversion"), Is.Null);
@@ -188,41 +184,42 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 4768  -  Maybe move to SetMethodBodyTest, (because SetBody is required)")]
     public void MethodsRequiringForwardDeclarations ()
     {
-      //public static int Method1 (int i)
-      //{
-      //  if (i <= 0)
-      //    return i;
-      //  else
-      //    return Method2 (i);
-      //}
-      //public static int Method2 (int i)
-      //{
-      //  return Method1 (i - 1);
-      //}
-      var type = AssembleType<DomainType> (/* TODO 4767
-            mutableType =>
-            {
-              var method1 = mutableType.AddMethod (
-                  "Method1",
-                  MethodAttributes.Public | MethodAttributes.Static,
-                  typeof (int),
-                  new[] { new ParameterDeclaration (typeof (int), "i") },
-                  ctx => Expression.Throw(Expression.Constant(new NotImplementedException()), typeof(int)));
-              var method2 = mutableType.AddMethod (
-                  "Method2",
-                  MethodAttributes.Private | MethodAttributes.Static,
-                  typeof (int),
-                  new[] { new ParameterDeclaration (typeof (int), "i") },
-                  ctx => Expression.Call(method1, Expression.Decrement(ctx.Parameter[0])));
-              method1.SetBody (
-                  ctx =>
-                  Expression.IfThenElse (
-                      Expression.LessThanOrEqual (ctx.Parameter[0], Expression.Constant (0)),
-                      ctx.Parameter[0],
-                      Expression.Call (method2, ctx.Parameter[0])));
-            }*/);
+      // public static int Method1 (int i)
+      // {
+      //   if (i <= 0)
+      //     return i;
+      //   else
+      //     return Method2 (i);
+      // }
+      // public static int Method2 (int i)
+      // {
+      //   return Method1 (i - 1);
+      // }
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method1 = mutableType.AddMethod (
+                "Method1",
+                MethodAttributes.Public | MethodAttributes.Static,
+                typeof (int),
+                new[] { new ParameterDeclaration (typeof (int), "i") },
+                ctx => Expression.Throw (Expression.Constant (new NotImplementedException()), typeof (int)));
+            /*var method2 =*/ mutableType.AddMethod (
+                "Method2",
+                MethodAttributes.Private | MethodAttributes.Static,
+                typeof (int),
+                new[] { new ParameterDeclaration (typeof (int), "i") },
+                ctx => Expression.Call (method1, Expression.Decrement (ctx.Parameters[0])));
+            /*method1.SetBody (
+                ctx =>
+                Expression.IfThenElse (
+                    Expression.LessThanOrEqual (ctx.Parameters[0], Expression.Constant (0)),
+                    ctx.Parameters[0],
+                    Expression.Call (method2, ctx.Parameters[0])));*/
+          });
 
       var addedMethod = type.GetMethod ("Method1");
 
