@@ -57,12 +57,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping_Twice ()
     {
-      CheckAddMappingTwiceThrows<Type, ITypeBuilder> (_map.AddMapping, _someType);
-      CheckAddMappingTwiceThrows<FieldInfo, IFieldBuilder> (_map.AddMapping, _someFieldInfo);
-      CheckAddMappingTwiceThrows<ConstructorInfo, IConstructorBuilder> (_map.AddMapping, _someConstructorInfo);
-      CheckAddMappingTwiceThrows<MethodInfo, IMethodBuilder> (_map.AddMapping, _someMethodInfo);
+      CheckAddMappingTwiceThrows<Type, ITypeBuilder> (
+          _map.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
+      CheckAddMappingTwiceThrows<FieldInfo, IFieldBuilder> (
+          _map.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
+      CheckAddMappingTwiceThrows<ConstructorInfo, IConstructorBuilder> (
+          _map.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
+      CheckAddMappingTwiceThrows<MethodInfo, IMethodBuilder> (
+          _map.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
     }
-
+    
     [Test]
     public void GetBuilder_NoMapping ()
     {
@@ -85,12 +89,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckAddMappingTwiceThrows<TMappedObject, TBuilder> (
-        Action<TMappedObject, TBuilder> addMappingMethod, TMappedObject mappedObject)
+        Action<TMappedObject, TBuilder> addMappingMethod, TMappedObject mappedObject, string expectedMessage)
         where TBuilder: class
     {
       addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>());
 
-      var expectedMessage = string.Format ("{0} is already mapped.\r\nParameter name: mapped{0}", typeof (TMappedObject).Name);
       Assert.That (
           () => addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>()),
           Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
