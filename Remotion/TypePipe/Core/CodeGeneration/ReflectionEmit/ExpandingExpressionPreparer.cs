@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -35,6 +36,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var visitor = new OriginalConstructorBodyReplacingExpressionVisitor (mutableConstructorInfo);
       return visitor.Visit (mutableConstructorInfo.Body);
+    }
+
+    // TODO RM-4753
+    public Expression PrepareMethodBody (MutableMethodInfo mutableMethodInfo)
+    {
+      ArgumentUtility.CheckNotNull ("mutableMethodInfo", mutableMethodInfo);
+
+      return mutableMethodInfo.Body;
     }
   }
 }

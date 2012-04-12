@@ -26,5 +26,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public interface IExpressionPreparer
   {
     Expression PrepareConstructorBody (MutableConstructorInfo mutableConstructorInfo);
+    Expression PrepareMethodBody (MutableMethodInfo mutableMethodInfo);
   }
 }

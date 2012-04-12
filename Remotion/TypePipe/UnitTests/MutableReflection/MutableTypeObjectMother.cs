@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

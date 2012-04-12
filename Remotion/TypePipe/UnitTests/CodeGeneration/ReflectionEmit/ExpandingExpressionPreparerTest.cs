@@ -42,12 +42,30 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void PrepareConstructorBody_ExpandsOriginalBodyExpressions ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
-      var mutableConstructorInfo = mutableType.ExistingConstructors.First();
-      Assert.That (mutableConstructorInfo.Body, Is.TypeOf<OriginalBodyExpression>());
+      var ctor = mutableType.ExistingConstructors.Single();
+      Assert.That (ctor.Body, Is.TypeOf<OriginalBodyExpression>());
 
-      var result = _preparer.PrepareConstructorBody (mutableConstructorInfo);
+      var result = _preparer.PrepareConstructorBody (ctor);
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
+    }
+    
+    [Test]
+    public void PrepareMethodBody_DoesNothingAndJustReturnsMethodBody ()
+    {
+      // TODO 4753
+      // TODO 4772
+      var body1 = Expression.Empty();
+      var body2 = new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
+
+      var method1 = MutableMethodInfoObjectMother.Create (body: body1);
+      var method2 = MutableMethodInfoObjectMother.Create (body: body2);
+
+      var result1 = _preparer.PrepareMethodBody (method1);
+      var result2 = _preparer.PrepareMethodBody (method2);
+
+      Assert.That (result1, Is.SameAs (body1));
+      Assert.That (result2, Is.SameAs (body2));
     }
   }
 }
