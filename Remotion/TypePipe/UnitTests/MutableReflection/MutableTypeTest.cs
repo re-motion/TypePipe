@@ -294,12 +294,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterfaces ()
     {
-      var interface1 = _descriptor.Interfaces.First ();
-      var interface2 = ReflectionObjectMother.GetSomeDifferentInterfaceType();
+      var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
 
-      _mutableType.AddInterface (interface2);
+      _mutableType.AddInterface (addedInterface);
 
-      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { interface1, interface2 }));
+      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (_mutableType.AllInterfaces));
     }
 
     [Test]

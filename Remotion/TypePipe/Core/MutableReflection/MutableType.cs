@@ -206,7 +206,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type[] GetInterfaces ()
     {
-      return _underlyingTypeDescriptor.Interfaces.Concat (AddedInterfaces).ToArray();
+      return AllInterfaces.ToArray();
     }
 
     public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)
