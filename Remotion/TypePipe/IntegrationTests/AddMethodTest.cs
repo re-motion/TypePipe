@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 4768")]
   public class AddMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -67,7 +66,7 @@ namespace TypePipe.IntegrationTests
               ParameterDeclaration.EmptyParameters,
               ctx =>
               {
-                Assert.That (ctx.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
+                Assert.That (() => ctx.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
                 return Expression.Empty();
               }));
 
@@ -119,12 +118,14 @@ namespace TypePipe.IntegrationTests
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant ("return value"));
+
             mutableType.AddMethod (
                 "MethodWithBoxingConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
                 ParameterDeclaration.EmptyParameters,
-                ctx => Expression.Constant (8));
+                ctx => Expression.Constant (7));
+
             mutableType.AddMethod (
                 "MethodWithReferenceConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
@@ -133,9 +134,9 @@ namespace TypePipe.IntegrationTests
                 ctx => Expression.Constant ("string"));
           });
 
-      var result1 = type.GetMethod ("MethodWithExactResultType").Invoke (null, new object[0]);
-      var result2 = type.GetMethod ("MethodWithBoxingConvertibleResultType").Invoke (null, new object[0]);
-      var result3 = type.GetMethod ("MethodWithReferenceConvertibleResultType").Invoke (null, new object[0]);
+      var result1 = type.GetMethod ("MethodWithExactResultType").Invoke (null, null);
+      var result2 = type.GetMethod ("MethodWithBoxingConvertibleResultType").Invoke (null, null);
+      var result3 = type.GetMethod ("MethodWithReferenceConvertibleResultType").Invoke (null, null);
 
       Assert.That (result1, Is.EqualTo ("return value"));
       Assert.That (result2, Is.EqualTo (7));
@@ -148,34 +149,27 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var execptionMessage = "The type of the provided body cannot be converted to the specified return type./r/nParameter name: bodyProvider";
-            Assert.That (
-                () =>
-                mutableType.AddMethod (
-                    "MethodWithPotentiallyDangerousValueConversion",
-                    MethodAttributes.Public | MethodAttributes.Static,
-                    typeof (int),
-                    ParameterDeclaration.EmptyParameters,
-                    ctx => Expression.Constant (7L)),
-                Throws.ArgumentException.With.Message.EqualTo (execptionMessage));
-            Assert.That (
-                () =>
-                mutableType.AddMethod (
-                    "MethodWithPotentiallyDangerousReferenceConversion",
-                    MethodAttributes.Public | MethodAttributes.Static,
-                    typeof (string),
-                    ParameterDeclaration.EmptyParameters,
-                    ctx => Expression.Constant (null, typeof (object))),
-                Throws.ArgumentException.With.Message.EqualTo (execptionMessage));
-            Assert.That (
-                () =>
-                mutableType.AddMethod (
-                    "MethodWithInvalidResultType",
-                    MethodAttributes.Public | MethodAttributes.Static,
-                    typeof (int),
-                    ParameterDeclaration.EmptyParameters,
-                    ctx => Expression.Constant ("string")),
-                Throws.ArgumentException.With.Message.EqualTo (execptionMessage));
+            var exceptionMessagePart = "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.";
+            CheckAddMethodThrows (
+                mutableType,
+                "MethodWithPotentiallyDangerousValueConversion",
+                typeof (int),
+                Expression.Constant (7L),
+                "Type 'System.Int64' cannot be implicitly converted to type 'System.Int32'. " + exceptionMessagePart);
+
+            CheckAddMethodThrows (
+                mutableType,
+                "MethodWithPotentiallyDangerousReferenceConversion",
+                typeof (string),
+                Expression.Constant (null, typeof (object)),
+                "Type 'System.Object' cannot be implicitly converted to type 'System.String'. " + exceptionMessagePart);
+
+            CheckAddMethodThrows (
+                mutableType,
+                "MethodWithInvalidResultType",
+                typeof (int),
+                Expression.Constant ("string"),
+                "Type 'System.String' cannot be implicitly converted to type 'System.Int32'. " + exceptionMessagePart);
           });
 
       Assert.That (type.GetMethod ("MethodWithPotentiallyDangerousValueConversion"), Is.Null);
@@ -184,7 +178,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4768")]
+    [Ignore ("TODO 4773")]
     public void MethodsRequiringForwardDeclarations ()
     {
       // public static int Method1 (int i)
@@ -207,12 +201,14 @@ namespace TypePipe.IntegrationTests
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Throw (Expression.Constant (new NotImplementedException()), typeof (int)));
+
             /*var method2 =*/ mutableType.AddMethod (
                 "Method2",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Call (method1, Expression.Decrement (ctx.Parameters[0])));
+
             /*method1.SetBody (
                 ctx =>
                 Expression.IfThenElse (
@@ -225,6 +221,13 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (addedMethod.Invoke (null, new object[] { 7 }), Is.EqualTo (0));
       Assert.That (addedMethod.Invoke (null, new object[] { -8 }), Is.EqualTo (-8));
+    }
+
+    private void CheckAddMethodThrows (MutableType mutableType, string name, Type returnType, Expression body, string exceptionMessage)
+    {
+      Assert.That (
+          () => mutableType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.EmptyParameters, ctx => body),
+          Throws.InvalidOperationException.With.Message.EqualTo (exceptionMessage));
     }
 
     public class DomainType
