@@ -88,10 +88,12 @@ namespace TypePipe.IntegrationTests
 
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
-      var participants = participantActions.Select (CreateTypeAssemblyParticipant).ToArray();
-      var originalType = typeof (T);
+      return AssembleType (typeof (T), GetNameForThisTest (1), participantActions);
+    }
 
-      return AssembleType (originalType, GetNameForThisTest (1), participants);
+    protected Type AssembleType (Type originalType, params Action<MutableType>[] participantActions)
+    {
+      return AssembleType (originalType, GetNameForThisTest (1), participantActions);
     }
 
     private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
@@ -104,8 +106,9 @@ namespace TypePipe.IntegrationTests
       return participantStub;
     }
 
-    private Type AssembleType (Type originalType, string testName, params ITypeAssemblyParticipant[] participants)
+    private Type AssembleType (Type originalType, string testName, Action<MutableType>[] participantActions)
     {
+      var participants = participantActions.Select (CreateTypeAssemblyParticipant).ToArray();
       var typeAssembler = new TypeAssembler (participants, CreateReflectionEmitTypeModifier (testName));
       var assembledType = typeAssembler.AssembleType (originalType);
 

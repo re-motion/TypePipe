@@ -260,6 +260,5 @@ namespace TypePipe.IntegrationTests
     {
       public string SettableProperty { get; set; }
     }
-
   }
 }
