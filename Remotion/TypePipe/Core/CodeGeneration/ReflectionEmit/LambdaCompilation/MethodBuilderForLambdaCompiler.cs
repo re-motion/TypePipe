@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       if (!_ignoreSignatureModifications)
         _methodBuilder.SetReturnType (returnType);
       else
-        Assertion.IsTrue (returnType == _methodBuilder.ReturnType);
+        Assertion.IsTrue (_methodBuilder.ReturnType.IsAssignableFrom(returnType));
     }
 
     public void SetParameters (Type[] parameterTypes)
