@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
 
       var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, parameterTypes);
+      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
       _reflectionToBuilderMap.AddMapping (constructor, ctorBuilder);
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());

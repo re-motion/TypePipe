@@ -56,12 +56,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     }
 
     [CLSCompliant (false)]
-    public IConstructorBuilder DefineConstructor (MethodAttributes attributes, Type[] parameterTypes)
+    public IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      // TODO 4768 (review callingconvention)
-      var constructorBuilder = _typeBuilder.DefineConstructor (attributes, CallingConventions.HasThis, parameterTypes);
+      var constructorBuilder = _typeBuilder.DefineConstructor (attributes, callingConvention, parameterTypes);
       return new ConstructorBuilderAdapter (constructorBuilder);
     }
 
