@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
@@ -27,7 +28,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// <summary>
   /// Adapts <see cref="MethodBuilder"/> with the <see cref="IMethodBuilder"/> interface.
   /// </summary>
-  [CLSCompliant (false)]
   public class MethodBuilderAdapter : IMethodBuilder
   {
     private readonly MethodBuilder _methodBuilder;
@@ -43,6 +43,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       get { return _methodBuilder; }
     }
 
+    public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
+    {
+      _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
+    }
+
+    [CLSCompliant (false)]
     public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("body", body);
@@ -50,6 +56,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 
       var builderForLambdaCompiler = new MethodBuilderForLambdaCompiler (_methodBuilder, ilGeneratorFactory, true);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
+    }
+
+    [CLSCompliant (false)]
+    public void Emit (IILGenerator ilGenerator, OpCode opCode)
+    {
+      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
+
+      ilGenerator.Emit (opCode, _methodBuilder);
     }
   }
 }

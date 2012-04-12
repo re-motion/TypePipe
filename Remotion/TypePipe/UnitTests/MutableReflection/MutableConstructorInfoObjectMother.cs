@@ -51,11 +51,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static MutableConstructorInfo CreateForNewWithParameters (
-        MutableType declaringType = null,
+        MutableType declaringType,
         params ParameterDeclaration[] parameterDeclarations)
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
       return Create (declaringType: declaringType, underlyingConstructorInfoDescriptor: descriptor);
+    }
+
+    public static MutableConstructorInfo CreateForNewWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    {
+      return CreateForNewWithParameters (null, parameterDeclarations);
     }
   }
 }

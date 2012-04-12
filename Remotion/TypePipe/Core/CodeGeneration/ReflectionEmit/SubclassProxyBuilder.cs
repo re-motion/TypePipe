@@ -138,7 +138,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void HandleAddedMethod (MutableMethodInfo addedMethod)
     {
-      throw new NotImplementedException ("TODO 4768");
+      ArgumentUtility.CheckNotNull ("addedMethod", addedMethod);
+      EnsureNotBuilt ();
+      
+      // TODO
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
@@ -157,18 +160,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt ();
 
-      var parameterTypes = constructor.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
+      var parameterTypes = GetParameterTypes (constructor);
       var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, constructor.CallingConvention, parameterTypes);
       _reflectionToBuilderMap.AddMapping (constructor, ctorBuilder);
 
-      foreach (var parameterInfo in constructor.GetParameters ())
-        ctorBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
+      DefineParameters (ctorBuilder, constructor.GetParameters ());
 
       var body = _expressionPreparer.PrepareConstructorBody (constructor);
-      var bodyLambda = Expression.Lambda (body, constructor.ParameterExpressions);
-
-      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
-      _buildActions.Add (() => ctorBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
+      RegisterBodyBuildAction (ctorBuilder, constructor.ParameterExpressions, body);
     }
 
     public Type Build ()
@@ -188,6 +187,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       if (_hasBeenBuilt)
         throw new InvalidOperationException ("Subclass proxy has already been built.");
+    }
+
+
+    private Type[] GetParameterTypes (MethodBase methodBase)
+    {
+      return methodBase.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
+    }
+
+    private void DefineParameters (IMethodBuilder methodBuilder, ParameterInfo[] parameterInfos)
+    {
+      foreach (var parameterInfo in parameterInfos)
+        methodBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
+    }
+
+    private void RegisterBodyBuildAction (IMethodBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
+    {
+      var bodyLambda = Expression.Lambda (body, parameterExpressions);
+
+      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
+      _buildActions.Add (() => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
     }
   }
 }

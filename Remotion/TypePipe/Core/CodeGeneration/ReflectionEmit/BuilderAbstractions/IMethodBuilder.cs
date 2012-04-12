@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
@@ -28,6 +29,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   [CLSCompliant (false)]
   public interface IMethodBuilder
   {
+    void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName);
     void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);
+    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }

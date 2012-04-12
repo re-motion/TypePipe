@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, callingConvention, returnType, parameterTypes);
+      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, returnType, parameterTypes);
       return new MethodBuilderAdapter (methodBuilder);
     }
 

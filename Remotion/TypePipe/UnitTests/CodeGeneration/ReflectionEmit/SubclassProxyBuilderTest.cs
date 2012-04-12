@@ -44,6 +44,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private SubclassProxyBuilder _builder;
 
+    private Expression _fakeBody;
+
     [SetUp]
     public void SetUp ()
     {
@@ -55,6 +57,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _builder = new SubclassProxyBuilder (
           _typeBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+
+      _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
 
     [Test]
@@ -161,14 +165,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddConstructor_DefinesConstructor ()
     {
-      var parameterDeclarations =
-          new[]
-          {
-              ParameterDeclarationObjectMother.Create (typeof (string), "p1", ParameterAttributes.In),
-              ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out)
-          };
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
+      var mutableConstructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
+          ParameterDeclarationObjectMother.Create (typeof (string), "p1", ParameterAttributes.In),
+          ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType (), "p2", ParameterAttributes.Out));
 
       var expectedAttributes = mutableConstructor.Attributes;
       var expectedCallingConvention = mutableConstructor.CallingConvention;
@@ -178,8 +177,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
           .Return (constructorBuilderMock);
 
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
-      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
+      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (_fakeBody);
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
@@ -196,62 +194,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddConstructor_RegistersBuildAction ()
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: ParameterDeclaration.EmptyParameters);
-      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
-
+      var mutableConstructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters();
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
       _typeBuilderMock
           .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderMock);
-
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
-      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
+      _expressionPreparerMock.Stub (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (_fakeBody);
 
       Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
 
       _builder.AddConstructor (mutableConstructor);
 
-      var buildActions = GetBuildActions (_builder);
-      Assert.That (buildActions, Has.Count.EqualTo (1));
-      var action = buildActions.Single ();
-
-      constructorBuilderMock
-          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
-          .WhenCalled (
-              mi =>
-              {
-                var lambdaExpression = (LambdaExpression) mi.Arguments[0];
-                Assert.That (lambdaExpression.Body, Is.SameAs (fakeBody));
-                Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableConstructor.ParameterExpressions));
-              });
-
-      action ();
-
-      constructorBuilderMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void AddConstructor_WithByRefParameters ()
-    {
-      var byRefType = typeof (object).MakeByRefType();
-      
-      var parameterDeclarations = new[] { ParameterDeclarationObjectMother.Create (byRefType) };
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-      var mutableConstructor = MutableConstructorInfoObjectMother.Create (underlyingConstructorInfoDescriptor: descriptor);
-
-      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
-      _typeBuilderMock
-          .Expect (
-              mock => mock.DefineConstructor (
-                  Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.List.Equal (new[] { byRefType })))
-          .Return (constructorBuilderStub);
-
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
-      _expressionPreparerMock.Stub (stub => stub.PrepareConstructorBody (mutableConstructor)).Return (fakeBody);
-
-      _builder.AddConstructor (mutableConstructor);
-
-      _typeBuilderMock.VerifyAllExpectations ();
+      CheckSingleSetBodyBuildAction (constructorBuilderMock, mutableConstructor.ParameterExpressions);
     }
 
     [Test]
@@ -291,6 +245,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.Create()));
+
       CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify ()));
       CheckThrowsForOperationAfterBuild (() => _builder.AddConstructor (MutableConstructorInfoObjectMother.Create()));
     }
@@ -361,6 +317,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (() => methodInvocation (constructor), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
     }
+
+    private void CheckSingleSetBodyBuildAction (IMethodBuilder methodBuilderMock, IEnumerable<ParameterExpression> parameterExpressions)
+    {
+      // To check the build action registers by AddConstructor, we need to invoke it and observe its effects.
+      methodBuilderMock
+          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
+          .WhenCalled (
+              mi =>
+              {
+                var lambdaExpression = (LambdaExpression) mi.Arguments[0];
+                Assert.That (lambdaExpression.Body, Is.SameAs (_fakeBody));
+                Assert.That (lambdaExpression.Parameters, Is.EqualTo (parameterExpressions));
+              });
+
+      var buildActions = GetBuildActions (_builder);
+      Assert.That (buildActions, Has.Count.EqualTo (1));
+      var action = buildActions.Single ();
+      action ();
+
+      methodBuilderMock.VerifyAllExpectations ();
+    }
+
 
     public class CustomAttribute : Attribute
     {
