@@ -177,7 +177,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
           .Return (constructorBuilderMock);
 
-      _expressionPreparerMock.Expect (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (_fakeBody);
+      _expressionPreparerMock
+          .Expect (mock => mock.PrepareConstructorBody (mutableConstructor))
+          .Return (_fakeBody)
+          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderMock)));
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
@@ -187,8 +190,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.VerifyAllExpectations();
       _expressionPreparerMock.VerifyAllExpectations();
       constructorBuilderMock.VerifyAllExpectations();
-
-      Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderMock));
     }
 
     [Test]
@@ -206,6 +207,58 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder.AddConstructor (mutableConstructor);
 
       CheckSingleSetBodyBuildAction (constructorBuilderMock, mutableConstructor.ParameterExpressions);
+    }
+
+    [Test]
+    public void HandleAddedMethod_DefinesMethod ()
+    {
+      var mutableMethod = MutableMethodInfoObjectMother.Create (
+          parameterDeclarations: new[]
+                                 {
+                                     ParameterDeclarationObjectMother.Create (typeof (string), "p1", ParameterAttributes.In),
+                                     ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out)
+                                 });
+
+      var expectedName = mutableMethod.Name;
+      var expectedAttributes = mutableMethod.Attributes;
+      var expectedCallingConvention = mutableMethod.CallingConvention;
+      var expectedReturnType = mutableMethod.ReturnType;
+      var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType () };
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedCallingConvention, expectedReturnType, expectedParameterTypes))
+          .Return (methodBuilderMock);
+
+      _expressionPreparerMock
+          .Expect (mock => mock.PrepareMethodBody (mutableMethod))
+          .Return (_fakeBody)
+          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (mutableMethod), Is.SameAs (methodBuilderMock)));
+
+      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
+      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
+
+      _builder.HandleAddedMethod (mutableMethod);
+
+      _typeBuilderMock.VerifyAllExpectations ();
+      _expressionPreparerMock.VerifyAllExpectations ();
+      methodBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void AddMethod_RegistersBuildAction ()
+    {
+      var mutableMethod = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclaration.EmptyParameters);
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      _typeBuilderMock
+          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Return (methodBuilderMock);
+      _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (mutableMethod)).Return (_fakeBody);
+
+      Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
+
+      _builder.HandleAddedMethod (mutableMethod);
+
+      CheckSingleSetBodyBuildAction (methodBuilderMock, mutableMethod.ParameterExpressions);
     }
 
     [Test]

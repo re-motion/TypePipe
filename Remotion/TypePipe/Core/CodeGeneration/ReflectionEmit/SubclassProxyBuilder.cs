@@ -140,8 +140,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("addedMethod", addedMethod);
       EnsureNotBuilt ();
-      
-      // TODO
+
+      var parameterTypes = GetParameterTypes (addedMethod);
+      var methodBuilder = _typeBuilder.DefineMethod (
+          addedMethod.Name, addedMethod.Attributes, addedMethod.CallingConvention, addedMethod.ReturnType, parameterTypes);
+      _reflectionToBuilderMap.AddMapping (addedMethod, methodBuilder);
+
+      DefineParameters (methodBuilder, addedMethod.GetParameters ());
+
+      var body = _expressionPreparer.PrepareMethodBody (addedMethod);
+      RegisterBodyBuildAction (methodBuilder, addedMethod.ParameterExpressions, body);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)

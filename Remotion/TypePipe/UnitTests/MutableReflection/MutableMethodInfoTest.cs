@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -25,10 +26,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableMethodInfoTest
   {
+    private Type _declaringType;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _declaringType = ReflectionObjectMother.GetSomeType ();
+    }
+
     [Test]
     public void Initialization ()
     {
-      var declaringType = ReflectionObjectMother.GetSomeType();
       var name = "method name";
       var methodAttributes = MethodAttributes.Public;
       var returnType = ReflectionObjectMother.GetSomeType();
@@ -36,9 +44,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameter2 = ParameterDeclarationObjectMother.Create();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      var method = new MutableMethodInfo (declaringType, name, methodAttributes, returnType, new[] { parameter1, parameter2}, body);
+      var method = new MutableMethodInfo (_declaringType, name, methodAttributes, returnType, new[] { parameter1, parameter2}, body);
 
-      Assert.That (method.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (method.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
       Assert.That (method.ReturnType, Is.SameAs (returnType));
@@ -54,9 +62,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ParameterExpressions ()
+    {
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var methodInfo = CreateWithParameters (parameterDeclarations);
+
+      Assert.That (methodInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+    }
+
+    [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var method = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclarationObjectMother.CreateMultiple (1));
+      var method = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (1));
 
       var parameters = method.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
@@ -64,6 +81,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var parametersAgain = method.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
+    }
+
+    private MutableMethodInfo CreateWithParameters (ParameterDeclaration[] parameterDeclarations)
+    {
+      return new MutableMethodInfo (
+          _declaringType, 
+          "UnspecifiedMethod",
+          MethodAttributes.Public,
+          ReflectionObjectMother.GetSomeType(),
+          parameterDeclarations,
+          ExpressionTreeObjectMother.GetSomeExpression());
     }
   }
 }

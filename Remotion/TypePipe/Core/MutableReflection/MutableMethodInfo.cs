@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _name;
     private readonly MethodAttributes _methodAttributes;
     private readonly Type _returnType;
+    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly Expression _body;
 
@@ -55,6 +56,7 @@ namespace Remotion.TypePipe.MutableReflection
       _name = name;
       _methodAttributes = methodAttributes;
       _returnType = returnType;
+      _parameterDeclarations = parameterDeclarations.ToList().AsReadOnly();
       _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
       _body = body;
     }
@@ -77,6 +79,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type ReturnType
     {
       get { return _returnType; }
+    }
+
+    public IEnumerable<ParameterExpression> ParameterExpressions
+    {
+      get { return _parameterDeclarations.Select (pd => pd.Expression); }
     }
 
     public Expression Body
