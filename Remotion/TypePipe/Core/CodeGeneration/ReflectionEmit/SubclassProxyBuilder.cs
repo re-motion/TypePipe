@@ -136,6 +136,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddConstructor (addedConstructor);
     }
 
+    public void HandleAddedMethod (MutableMethodInfo addedMethod)
+    {
+      throw new NotImplementedException ("TODO 4768");
+    }
+
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
     {
       ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);

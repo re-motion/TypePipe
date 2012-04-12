@@ -656,10 +656,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingConstructors, Is.Not.Empty);
       var addedConstructorInfo = AddConstructor (_mutableType);
 
+      Assert.That (_mutableType.ExistingMethods, Is.Not.Empty);
+      var addedMethod = AddMethod (_mutableType, "AddedMethod");
+
       var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler>();
       handlerMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
       handlerMock.Expect (mock => mock.HandleAddedField (addedFieldInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (addedConstructorInfo));
+      handlerMock.Expect (mock => mock.HandleAddedMethod (addedMethod));
       
       _mutableType.Accept (handlerMock);
 

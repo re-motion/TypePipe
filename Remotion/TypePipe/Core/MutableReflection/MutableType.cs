@@ -342,6 +342,9 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var addedConstructor in _addedConstructors)
         modificationHandler.HandleAddedConstructor (addedConstructor);
 
+      foreach (var addedMethod in _addedMethods)
+        modificationHandler.HandleAddedMethod (addedMethod);
+
       foreach (var modifiedConstructor in ExistingConstructors.Where (c => c.IsModified))
         modificationHandler.HandleModifiedConstructor (modifiedConstructor);
     }
