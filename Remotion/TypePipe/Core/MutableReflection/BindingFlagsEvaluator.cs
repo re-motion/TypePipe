@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
       var isPublic = ((methodAttributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public);
-      var shoudBePublic = (bindingFlags & BindingFlags.Public) != 0;
+      var shoudBePublic = (bindingFlags & BindingFlags.Public) == BindingFlags.Public;
 
       return isPublic == shoudBePublic;
     }
@@ -44,8 +44,8 @@ namespace Remotion.TypePipe.MutableReflection
       if ((bindingFlags & (BindingFlags.Instance | BindingFlags.Static)) == 0)
         return false;
 
-      var isStatic = (methodAttributes & MethodAttributes.Static) != 0;
-      var shouldBeStatic = (bindingFlags & BindingFlags.Static) != 0;
+      var isStatic = (methodAttributes & MethodAttributes.Static) == MethodAttributes.Static;
+      var shouldBeStatic = (bindingFlags & BindingFlags.Static) == BindingFlags.Static;
 
       return isStatic == shouldBeStatic;
     }

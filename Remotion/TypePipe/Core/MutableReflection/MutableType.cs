@@ -303,7 +303,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
 
-      var isStatic = (attributes & MethodAttributes.Static) != 0;
+      var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
