@@ -142,8 +142,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
 
       var parameterTypes = GetParameterTypes (addedMethod);
-      var methodBuilder = _typeBuilder.DefineMethod (
-          addedMethod.Name, addedMethod.Attributes, addedMethod.CallingConvention, addedMethod.ReturnType, parameterTypes);
+      var methodBuilder = _typeBuilder.DefineMethod (addedMethod.Name, addedMethod.Attributes, addedMethod.ReturnType, parameterTypes);
       _reflectionToBuilderMap.AddMapping (addedMethod, methodBuilder);
 
       DefineParameters (methodBuilder, addedMethod.GetParameters ());
@@ -169,7 +168,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
 
       var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, constructor.CallingConvention, parameterTypes);
+      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, parameterTypes);
       _reflectionToBuilderMap.AddMapping (constructor, ctorBuilder);
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());

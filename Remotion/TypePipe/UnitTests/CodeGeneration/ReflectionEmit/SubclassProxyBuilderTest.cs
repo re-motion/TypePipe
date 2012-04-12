@@ -170,11 +170,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType (), "p2", ParameterAttributes.Out));
 
       var expectedAttributes = mutableConstructor.Attributes;
-      var expectedCallingConvention = mutableConstructor.CallingConvention;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
       _typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConvention, expectedParameterTypes))
+          .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedParameterTypes))
           .Return (constructorBuilderMock);
 
       _expressionPreparerMock
@@ -198,7 +197,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mutableConstructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters();
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
       _typeBuilderMock
-          .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderMock);
       _expressionPreparerMock.Stub (mock => mock.PrepareConstructorBody (mutableConstructor)).Return (_fakeBody);
 
@@ -221,12 +220,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var expectedName = mutableMethod.Name;
       var expectedAttributes = mutableMethod.Attributes;
-      var expectedCallingConvention = mutableMethod.CallingConvention;
       var expectedReturnType = mutableMethod.ReturnType;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType () };
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedCallingConvention, expectedReturnType, expectedParameterTypes))
+          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
           .Return (methodBuilderMock);
 
       _expressionPreparerMock
@@ -250,7 +248,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mutableMethod = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclaration.EmptyParameters);
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock
-          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (methodBuilderMock);
       _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (mutableMethod)).Return (_fakeBody);
 
@@ -347,7 +345,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
       _typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Expect (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderStub);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
       _expressionPreparerMock
