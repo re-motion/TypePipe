@@ -163,7 +163,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       if (baseConstructorMethodInfo != null)
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
       else
-        _innerILGenerator.Emit (opcode, meth);
+      {
+        var builder = _reflectionToBuilderMap.GetBuilder (meth);
+        if (builder != null)
+          builder.Emit (this, opcode);
+        else
+          _innerILGenerator.Emit (opcode, meth);
+      }
     }
 
     public void Emit (OpCode opcode, Label[] labels)
@@ -188,6 +194,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
     {
+      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
+      // Optional parameters may be null
+
       var baseConstructorMethodInfo = methodInfo as ConstructorAsMethodInfoAdapter;
       if (baseConstructorMethodInfo != null)
       {
@@ -197,7 +206,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
       }
       else
-        _innerILGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
+      {
+        var builder = _reflectionToBuilderMap.GetBuilder (methodInfo);
+        if (builder != null)
+          builder.EmitCall (this, opcode, optionalParameterTypes);
+        else
+          _innerILGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
+      }
     }
 
     public void EndExceptionBlock ()

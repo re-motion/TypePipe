@@ -65,5 +65,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 
       ilGenerator.Emit (opCode, _methodBuilder);
     }
+
+    [CLSCompliant (false)]
+    public void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes)
+    {
+      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
+      // optionalParameterTypes may be null
+
+      ilGenerator.EmitCall (opCode, _methodBuilder, optionalParameterTypes);
+    }
   }
 }

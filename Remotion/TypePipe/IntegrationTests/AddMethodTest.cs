@@ -178,6 +178,32 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    public void MethodUsingMutableMethodInBody ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method1 = mutableType.AddMethod (
+                "Method1",
+                MethodAttributes.Private | MethodAttributes.Static,
+                typeof (int),
+                ParameterDeclaration.EmptyParameters,
+                ctx => Expression.Constant (7));
+
+            mutableType.AddMethod (
+                "Method2",
+                MethodAttributes.Public | MethodAttributes.Static,
+                typeof (int),
+                ParameterDeclaration.EmptyParameters,
+                ctx => Expression.Increment (Expression.Call (method1)));
+          });
+
+      var addedMethod = type.GetMethod ("Method2");
+
+      Assert.That (addedMethod.Invoke (null, null), Is.EqualTo (8));
+    }
+
+    [Test]
     [Ignore ("TODO 4773")]
     public void MethodsRequiringForwardDeclarations ()
     {
