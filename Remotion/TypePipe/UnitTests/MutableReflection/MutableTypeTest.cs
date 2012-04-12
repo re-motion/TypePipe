@@ -450,9 +450,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
-      Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
-      var ctorParameterTypes = _descriptor.Constructors.Single().GetParameters().Select(pi => pi.ParameterType);
-      Assert.That (ctorParameterTypes, Is.Empty);
+      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
+      Assert.That (_mutableType.ExistingConstructors.Single ().GetParameters (), Is.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
@@ -593,20 +592,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "xxx")]
-    [Ignore ("TODO 4767")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method 'ToString' with equal signature already exists.\r\nParameter name: name")]
     public void AddMethod_ThrowsIfAlreadyExists ()
     {
-      Assert.Fail ("TODO 4767");
-      //Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
-      //var ctorParameterTypes = _descriptor.Constructors.Single ().GetParameters ().Select (pi => pi.ParameterType);
-      //Assert.That (ctorParameterTypes, Is.Empty);
-      //_bindingFlagsEvaluatorMock
-      //    .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-      //    .Return (true);
-      //_memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
+      var toStringMethod = _mutableType.ExistingMethods.Single (m => m.Name == "ToString");
+      Assert.That (toStringMethod, Is.Not.Null);
+      Assert.That (toStringMethod.GetParameters(), Is.Empty);
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
-      //_mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, context => Expression.Empty ());
+      _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, context => Expression.Constant ("string"));
     }
 
     [Test]
