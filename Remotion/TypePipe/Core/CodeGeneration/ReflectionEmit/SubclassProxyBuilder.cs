@@ -195,13 +195,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return methodBase.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
     }
 
-    private void DefineParameters (IMethodBuilder methodBuilder, ParameterInfo[] parameterInfos)
+    private void DefineParameters (IMethodBaseBuilder methodBuilder, ParameterInfo[] parameterInfos)
     {
       foreach (var parameterInfo in parameterInfos)
         methodBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
     }
 
-    private void RegisterBodyBuildAction (IMethodBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
+    private void RegisterBodyBuildAction (IMethodBaseBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
     {
       var bodyLambda = Expression.Lambda (body, parameterExpressions);
 

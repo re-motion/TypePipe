@@ -26,7 +26,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
-  /// Adapts <see cref="MethodBuilder"/> with the <see cref="IMethodBuilder"/> interface.
+  /// Adapts <see cref="MethodBuilder"/> with the <see cref="IMethodBaseBuilder"/> interface.
   /// </summary>
   public class MethodBuilderAdapter : IMethodBuilder
   {

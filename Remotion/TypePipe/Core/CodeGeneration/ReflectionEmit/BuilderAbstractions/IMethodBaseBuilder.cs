@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,15 +15,22 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="ConstructorBuilder"/>.
+  /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IConstructorBuilder : IMethodBaseBuilder
+  public interface IMethodBaseBuilder
   {
+    void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName);
+    void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);
+    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }

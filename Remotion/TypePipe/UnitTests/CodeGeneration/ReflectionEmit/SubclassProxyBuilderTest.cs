@@ -318,7 +318,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (() => methodInvocation (constructor), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
     }
 
-    private void CheckSingleSetBodyBuildAction (IMethodBuilder methodBuilderMock, IEnumerable<ParameterExpression> parameterExpressions)
+    private void CheckSingleSetBodyBuildAction (IMethodBaseBuilder methodBuilderMock, IEnumerable<ParameterExpression> parameterExpressions)
     {
       // To check the build action registers by AddConstructor, we need to invoke it and observe its effects.
       methodBuilderMock
