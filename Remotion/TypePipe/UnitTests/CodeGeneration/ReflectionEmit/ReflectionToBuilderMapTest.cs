@@ -27,102 +27,73 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class ReflectionToBuilderMapTest
   {
-    private ReflectionToBuilderMap _reflectionToBuilderMap;
+    private ReflectionToBuilderMap _map;
 
     private Type _someType;
-    private ITypeBuilder _fakeTypeBuilder;
-
-    private ConstructorInfo _someConstructorInfo;
-    private IConstructorBuilder _fakeConstructorBuilder;
-    
     private FieldInfo _someFieldInfo;
-    private IFieldBuilder _fakeFieldBuilder;
+    private ConstructorInfo _someConstructorInfo;
+    private MethodInfo _someMethodInfo;
 
     [SetUp]
     public void SetUp ()
     {
-      _reflectionToBuilderMap = new ReflectionToBuilderMap();
+      _map = new ReflectionToBuilderMap();
 
       _someType = ReflectionObjectMother.GetSomeType();
-      _fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
-
-      _someConstructorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
-      _fakeConstructorBuilder = MockRepository.GenerateStub<IConstructorBuilder>();
-
       _someFieldInfo = ReflectionObjectMother.GetSomeField ();
-      _fakeFieldBuilder = MockRepository.GenerateStub<IFieldBuilder> ();
+      _someConstructorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
+      _someMethodInfo = ReflectionObjectMother.GetSomeMethod ();
     }
 
     [Test]
-    public void AddMapping_Type ()
+    public void AddMapping ()
     {
-      _reflectionToBuilderMap.AddMapping (_someType, _fakeTypeBuilder);
-      var result = _reflectionToBuilderMap.GetBuilder (_someType);
-
-      Assert.That (result, Is.SameAs (_fakeTypeBuilder));
+      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someType);
+      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someFieldInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someConstructorInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someMethodInfo);
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type is already mapped.\r\nParameter name: mappedType")]
-    public void AddMapping_Type_Twice ()
+    public void AddMapping_Twice ()
     {
-      _reflectionToBuilderMap.AddMapping (_someType, _fakeTypeBuilder);
-      _reflectionToBuilderMap.AddMapping (_someType, _fakeTypeBuilder);
+      CheckAddMappingTwiceThrows<Type, ITypeBuilder> (_map.AddMapping, _someType);
+      CheckAddMappingTwiceThrows<FieldInfo, IFieldBuilder> (_map.AddMapping, _someFieldInfo);
+      CheckAddMappingTwiceThrows<ConstructorInfo, IConstructorBuilder> (_map.AddMapping, _someConstructorInfo);
+      CheckAddMappingTwiceThrows<MethodInfo, IMethodBuilder> (_map.AddMapping, _someMethodInfo);
     }
 
     [Test]
-    public void AddMapping_ConstructorInfo ()
+    public void GetBuilder_NoMapping ()
     {
-      _reflectionToBuilderMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
-      var result = _reflectionToBuilderMap.GetBuilder (_someConstructorInfo);
-
-      Assert.That (result, Is.SameAs (_fakeConstructorBuilder));
+      Assert.That (_map.GetBuilder (_someType), Is.Null);
+      Assert.That (_map.GetBuilder (_someFieldInfo), Is.Null);
+      Assert.That (_map.GetBuilder (_someConstructorInfo), Is.Null);
+      Assert.That (_map.GetBuilder (_someMethodInfo), Is.Null);
     }
 
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo")]
-    public void AddMapping_ConstructorInfo_Twice ()
+    private void CheckAddMapping<TMappedObject, TBuilder> (
+        Action<TMappedObject, TBuilder> addMappingMethod, Func<TMappedObject, TBuilder> getBuilderMethod, TMappedObject mappedObject)
+        where TBuilder: class
     {
-      _reflectionToBuilderMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
-      _reflectionToBuilderMap.AddMapping (_someConstructorInfo, _fakeConstructorBuilder);
+      var fakeBuilder = MockRepository.GenerateStub<TBuilder>();
+     
+      addMappingMethod (mappedObject, fakeBuilder);
+
+      var result = getBuilderMethod (mappedObject);
+      Assert.That (result, Is.SameAs (fakeBuilder));
     }
 
-    [Test]
-    public void AddMapping_FieldInfo ()
+    private void CheckAddMappingTwiceThrows<TMappedObject, TBuilder> (
+        Action<TMappedObject, TBuilder> addMappingMethod, TMappedObject mappedObject)
+        where TBuilder: class
     {
-      _reflectionToBuilderMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
-      var result = _reflectionToBuilderMap.GetBuilder (_someFieldInfo);
+      addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>());
 
-      Assert.That (result, Is.SameAs (_fakeFieldBuilder));
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo")]
-    public void AddMapping_FieldInfo_Twice ()
-    {
-      _reflectionToBuilderMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
-      _reflectionToBuilderMap.AddMapping (_someFieldInfo, _fakeFieldBuilder);
-    }
-
-    [Test]
-    public void GetBuilder_Type_NoMapping ()
-    {
-      var result = _reflectionToBuilderMap.GetBuilder (_someType);
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetBuilder_ConstructorInfo_NoMapping ()
-    {
-      var result = _reflectionToBuilderMap.GetBuilder (_someConstructorInfo);
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetBuilder_FieldInfo_NoMapping ()
-    {
-      var result = _reflectionToBuilderMap.GetBuilder (_someFieldInfo);
-      Assert.That (result, Is.Null);
+      var expectedMessage = string.Format ("{0} is already mapped.\r\nParameter name: mapped{0}", typeof (TMappedObject).Name);
+      Assert.That (
+          () => addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>()),
+          Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
     }
   }
 }

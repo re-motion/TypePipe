@@ -36,8 +36,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class ReflectionToBuilderMap
   {
     private readonly Dictionary<Type, ITypeBuilder> _mappedTypes = new Dictionary<Type, ITypeBuilder> ();
-    private readonly Dictionary<ConstructorInfo, IConstructorBuilder> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IConstructorBuilder> ();
     private readonly Dictionary<FieldInfo, IFieldBuilder> _mappedFieldInfos = new Dictionary<FieldInfo, IFieldBuilder> ();
+    private readonly Dictionary<ConstructorInfo, IConstructorBuilder> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IConstructorBuilder> ();
+    private readonly Dictionary<MethodInfo, IMethodBuilder> _mappedMethodInfos = new Dictionary<MethodInfo, IMethodBuilder>();
 
     [CLSCompliant (false)]
     public void AddMapping (Type mappedType, ITypeBuilder typeBuilder)
@@ -46,15 +47,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
 
       AddMapping (_mappedTypes, mappedType, typeBuilder);
-    }
-
-    [CLSCompliant (false)]
-    public void AddMapping (ConstructorInfo mappedConstructorInfo, IConstructorBuilder constructorBuilder)
-    {
-      ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
-      ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
-
-      AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorBuilder);
     }
 
     [CLSCompliant (false)]
@@ -67,11 +59,37 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
+    public void AddMapping (ConstructorInfo mappedConstructorInfo, IConstructorBuilder constructorBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
+      ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
+
+      AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorBuilder);
+    }
+
+    [CLSCompliant (false)]
+    public void AddMapping (MethodInfo mappedMethodInfo, IMethodBuilder methodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
+      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
+
+      AddMapping (_mappedMethodInfos, mappedMethodInfo, methodBuilder);
+    }
+
+    [CLSCompliant (false)]
     public ITypeBuilder GetBuilder (Type mappedType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
 
       return GetBuilder (_mappedTypes, mappedType);
+    }
+
+    [CLSCompliant (false)]
+    public IFieldBuilder GetBuilder (FieldInfo mappedFieldInfo)
+    {
+      ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
+
+      return GetBuilder (_mappedFieldInfos, mappedFieldInfo);
     }
 
     [CLSCompliant (false)]
@@ -83,11 +101,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public IFieldBuilder GetBuilder (FieldInfo mappedFieldInfo)
+    public IMethodBuilder GetBuilder (MethodInfo mappedMethodInfo)
     {
-      ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
+      ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
 
-      return GetBuilder (_mappedFieldInfos, mappedFieldInfo);
+      return GetBuilder (_mappedMethodInfos, mappedMethodInfo);
     }
 
     private void AddMapping<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem, TValue builder)
