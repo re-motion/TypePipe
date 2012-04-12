@@ -103,6 +103,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AllInterfaces ()
+    {
+      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
+      var existingInterface = _descriptor.Interfaces.Single();
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      _mutableType.AddInterface (addedInterface);
+
+      var allInterfaces = _mutableType.AllInterfaces;
+
+      Assert.That (allInterfaces, Is.EqualTo (new[] { existingInterface, addedInterface }));
+    }
+
+    [Test]
     public void AllConstructors ()
     {
       Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));

@@ -106,7 +106,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _existingMethods.Values.AsReadOnly (); }
     }
 
-    // TODO 4744, decide: AllInterfaces?, AllFields?
+    public IEnumerable<Type> AllInterfaces
+    {
+      get { return ExistingInterfaces.Concat (_addedInterfaces); }
+    }
+
+    // TODO 4744, decide: AllFields?
 
     public IEnumerable<MutableConstructorInfo> AllConstructors
     {
