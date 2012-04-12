@@ -80,6 +80,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    public void Emit_FieldInfo_Standard ()
+    {
+      var FieldInfo = ReflectionObjectMother.GetSomeField ();
+
+      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldfld, FieldInfo));
+
+      _decorator.Emit (OpCodes.Ldfld, FieldInfo);
+
+      _innerILGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void Emit_FieldInfo_MappedFieldInfo ()
+    {
+      var mappedFieldInfo = ReflectionObjectMother.GetSomeField ();
+      var FieldBuilderMock = MockRepository.GenerateStrictMock<IFieldBuilder> ();
+      FieldBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Ldfld));
+      _reflectionToBuilderMap.AddMapping (mappedFieldInfo, FieldBuilderMock);
+
+      _decorator.Emit (OpCodes.Ldfld, mappedFieldInfo);
+
+      FieldBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     public void Emit_MethodInfo_Standard ()
     {
       var methodInfo = ReflectionObjectMother.GetSomeMethod();

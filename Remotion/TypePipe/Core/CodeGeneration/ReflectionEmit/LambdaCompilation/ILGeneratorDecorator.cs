@@ -122,6 +122,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, ConstructorInfo con)
     {
+      ArgumentUtility.CheckNotNull ("con", con);
+
       var constructorBuilder = _reflectionToBuilderMap.GetBuilder (con);
       if (constructorBuilder != null)
         constructorBuilder.Emit (this, opcode);
@@ -154,11 +156,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, FieldInfo field)
     {
-      _innerILGenerator.Emit (opcode, field);
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      var builder = _reflectionToBuilderMap.GetBuilder (field);
+      if (builder != null)
+        builder.Emit (this, opcode);
+      else
+        _innerILGenerator.Emit (opcode, field);
     }
 
     public void Emit (OpCode opcode, MethodInfo meth)
     {
+      ArgumentUtility.CheckNotNull ("meth", meth);
+
       var baseConstructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
       if (baseConstructorMethodInfo != null)
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);

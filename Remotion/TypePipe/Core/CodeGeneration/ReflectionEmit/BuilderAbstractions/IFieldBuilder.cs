@@ -14,15 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
   /// Defines an interface for <see cref="FieldBuilder"/>.
   /// </summary>
+  [CLSCompliant (false)]
   public interface IFieldBuilder
   {
     void SetCustomAttribute (CustomAttributeBuilder customBuilder);
+    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }

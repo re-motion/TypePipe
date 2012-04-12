@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 
@@ -84,6 +85,36 @@ namespace TypePipe.IntegrationTests
       Assert.That(customAttribute.CtorArg, Is.EqualTo("ctorArg"));
       Assert.That (customAttribute.NamedPropertyArg, Is.EqualTo (7));
       Assert.That (customAttribute.NamedFieldArg, Is.EqualTo (new[] { MyEnum.Other, MyEnum.Default }));
+    }
+
+    [Test]
+    public void MutableField_UsedByMethodBodies ()
+    {
+      var type = AssembleType<OriginalType> (
+          mutableType =>
+          {
+            var fieldInfo = mutableType.AddField (typeof (string), "_privateInstanceField");
+            mutableType.AddConstructor (
+                MethodAttributes.Public,
+                new[] { new ParameterDeclaration (typeof (string), "arg") },
+                ctx =>
+                Expression.Block (ctx.GetConstructorCall (), Expression.Assign (Expression.Field (ctx.This, fieldInfo), ctx.Parameters[0]))
+                );
+          },
+          mutableType =>
+          mutableType.AddMethod (
+              "MethodUsingField",
+              MethodAttributes.Public,
+              typeof (string),
+              ParameterDeclaration.EmptyParameters,
+              ctx => Expression.Field (ctx.This, mutableType.GetField ("_privateInstanceField", BindingFlags.Instance | BindingFlags.NonPublic))));
+
+      var instance = Activator.CreateInstance (type, "test value");
+
+      var method = type.GetMethod ("MethodUsingField");
+      var result = method.Invoke (instance, null);
+
+      Assert.That (result, Is.EqualTo ("test value"));
     }
 
     private string[] GetAllFieldNames (Type type)
