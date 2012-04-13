@@ -298,7 +298,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
       var existingInterface = _descriptor.Interfaces.First();
-
       _mutableType.AddInterface (existingInterface);
     }
 
@@ -306,10 +305,63 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetInterfaces ()
     {
       var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
-
       _mutableType.AddInterface (addedInterface);
 
       Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (_mutableType.AllInterfaces));
+    }
+
+    [Test]
+    public void GetInterface_NoMatch ()
+    {
+      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (1));
+
+      var result = _mutableType.GetInterface ("IMyInterface", false);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetInterface_CaseSensitive_NoMatch ()
+    {
+      _mutableType.AddInterface (typeof (IMyInterface));
+      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (2));
+
+      var result = _mutableType.GetInterface ("Imyinterface", false);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetInterface_CaseSensitive ()
+    {
+      _mutableType.AddInterface (typeof (IMyInterface));
+      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (2));
+
+      var result = _mutableType.GetInterface ("IMyInterface", false);
+
+      Assert.That (result, Is.SameAs (typeof (IMyInterface)));
+    }
+
+    [Test]
+    public void GetInterface_IgnoreCase ()
+    {
+      _mutableType.AddInterface (typeof (IMyInterface));
+      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (2));
+
+      var result = _mutableType.GetInterface ("Imyinterface", true);
+
+      Assert.That (result, Is.SameAs (typeof (IMyInterface)));
+    }
+
+    [Test]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'Imyinterface'.")]
+    public void GetInterface_IgnoreCase_Ambiguous ()
+    {
+      _mutableType.AddInterface (typeof (IMyInterface));
+      _mutableType.AddInterface (typeof (Imyinterface));
+      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (3));
+
+      _mutableType.GetInterface ("Imyinterface", true);
     }
 
     [Test]
@@ -832,5 +884,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public interface IDomainInterface
     {
     }
+
+    interface IMyInterface { }
+    interface Imyinterface { }
   }
 }

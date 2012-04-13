@@ -198,7 +198,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      if (GetInterfaces ().Contains (interfaceType))
+      if (AllInterfaces.Contains (interfaceType))
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
         throw new ArgumentException (message, "interfaceType");
@@ -210,6 +210,21 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type[] GetInterfaces ()
     {
       return AllInterfaces.ToArray();
+    }
+
+    public override Type GetInterface (string name, bool ignoreCase)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+      var interfaces = AllInterfaces.Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
+
+      if (interfaces.Length == 0)
+        return null;
+      if (interfaces.Length > 1)
+        throw new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name));
+
+      return interfaces[0];
     }
 
     public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)
@@ -231,13 +246,14 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      var fieldInfos = GetFields (bindingAttr).Where (field => field.Name == name).ToArray ();
-      if (fieldInfos.Length == 0)
+      var fields = GetFields (bindingAttr).Where (field => field.Name == name).ToArray ();
+
+      if (fields.Length == 0)
         return null;
-      if (fieldInfos.Length > 1)
+      if (fields.Length > 1)
         throw new AmbiguousMatchException (string.Format ("Ambiguous field name '{0}'.", name));
 
-      return fieldInfos[0];
+      return fields[0];
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
@@ -465,11 +481,6 @@ namespace Remotion.TypePipe.MutableReflection
     #region Not implemented abstract members of Type class
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Type GetInterface (string name, bool ignoreCase)
     {
       throw new NotImplementedException();
     }
