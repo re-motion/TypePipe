@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
@@ -526,6 +527,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotSupportedException ("Property MutableType.AssemblyQualifiedName is not supported."); }
     }
 
+    public override StructLayoutAttribute StructLayoutAttribute
+    {
+      get { throw new NotSupportedException ("Property MutableType.StructLayoutAttribute is not supported."); }
+    }
+
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
     {
       throw new NotSupportedException ("Method MutableType.GetInterfaceMap is not supported.");
@@ -534,6 +540,26 @@ namespace Remotion.TypePipe.MutableReflection
     public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binderOrNull, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
     {
       throw new NotSupportedException ("Method MutableType.InvokeMember is not supported.");
+    }
+
+    public override Type MakePointerType ()
+    {
+      throw new NotSupportedException ("Method MutableType.MakePointerType is not supported.");
+    }
+
+    public override Type MakeByRefType ()
+    {
+      throw new NotSupportedException ("Method MutableType.MakeByRefType is not supported.");
+    }
+
+    public override Type MakeArrayType ()
+    {
+      throw new NotSupportedException ("Method MutableType.MakeArrayType is not supported.");
+    }
+
+    public override Type MakeArrayType (int rank)
+    {
+      throw new NotSupportedException ("Method MutableType.MakeArrayType is not supported.");
     }
 
     #endregion

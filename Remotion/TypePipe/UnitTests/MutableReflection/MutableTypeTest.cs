@@ -839,8 +839,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.MetadataToken, "Property", "MetadataToken");
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.GUID, "Property", "GUID");
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
+      CheckThrowsNotSupported (() => Dev.Null = _mutableType.StructLayoutAttribute, "Property", "StructLayoutAttribute");
       CheckThrowsNotSupported (() => _mutableType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
       CheckThrowsNotSupported (() => _mutableType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
+      CheckThrowsNotSupported (() => _mutableType.MakePointerType(), "Method", "MakePointerType");
+      CheckThrowsNotSupported (() => _mutableType.MakeByRefType(), "Method", "MakeByRefType");
+      CheckThrowsNotSupported (() => _mutableType.MakeArrayType(), "Method", "MakeArrayType");
+      CheckThrowsNotSupported (() => _mutableType.MakeArrayType (7), "Method", "MakeArrayType");
     }
 
     private void CheckThrowsNotSupported(TestDelegate memberInvocation, string memberType, string memberName)
