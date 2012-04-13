@@ -21,7 +21,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -356,36 +355,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields ()
     {
-      var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "field2");
-
+      Assert.That (_mutableType.AllFields, Is.Not.Empty);
       _bindingFlagsEvaluatorMock
         .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
         .Return (true);
 
       var fields = _mutableType.GetFields (0);
 
-      Assert.That (fields, Is.EquivalentTo (_descriptor.Fields.Concat (addedField)));
+      Assert.That (fields, Is.EqualTo(_mutableType.AllFields));
     }
 
     [Test]
-    public void GetFields_FilterAddedWithUtility_Added ()
+    public void GetFields_FilterAddedWithUtility ()
     {
+      var allFields = _mutableType.AllFields.ToArray();
+      Assert.That (allFields, Has.Length.EqualTo(2));
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (FieldAttributes.Public, bindingFlags)).Return (false);
-
-      _mutableType.AddField (typeof (int), "_newField", FieldAttributes.Public);
-      var fields = _mutableType.GetFields (bindingFlags);
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
-      Assert.That (fields, Is.Empty);
-    }
-
-    [Test]
-    public void GetFields_FilterAddedWithUtility_Existing ()
-    {
-      var fieldInfo = _descriptor.Fields.First ();
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fieldInfo.Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (allFields[0].Attributes, bindingFlags)).Return (false).Repeat.Once();
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (allFields[1].Attributes, bindingFlags)).Return (false).Repeat.Once();
 
       var fields = _mutableType.GetFields (bindingFlags);
 

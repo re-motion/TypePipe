@@ -219,7 +219,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var fieldInfo = new MutableFieldInfo (this, type, name, attributes);
 
-      if (GetAllFields ().Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
+      if (AllFields.Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
       _addedFields.Add (fieldInfo);
@@ -242,8 +242,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      // TODO 4744
-      return GetAllFields().Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
+      return AllFields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -276,7 +275,6 @@ namespace Remotion.TypePipe.MutableReflection
     
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      // TODO 4744
       return AllConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
@@ -438,11 +436,6 @@ namespace Remotion.TypePipe.MutableReflection
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
       return binder;
-    }
-
-    private IEnumerable<FieldInfo> GetAllFields ()
-    {
-      return ExistingFields.Concat (AddedFields.Cast<FieldInfo>());
     }
 
     private void CheckDeclaringType (MemberInfo member, string parameterName)
