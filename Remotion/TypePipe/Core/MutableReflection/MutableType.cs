@@ -146,16 +146,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return null; }
     }
 
-    public override Guid GUID
-    {
-      get { throw new NotSupportedException ("Property MutableType.GUID is not supported."); }
-    }
-
-    public override string AssemblyQualifiedName
-    {
-      get { throw new NotSupportedException ("Property MutableType.AssemblyQualifiedName is not supported."); }
-    }
-
     public override Type BaseType
     {
       get { return _underlyingTypeDescriptor.BaseType; }
@@ -369,19 +359,6 @@ namespace Remotion.TypePipe.MutableReflection
         modificationHandler.HandleModifiedConstructor (modifiedConstructor);
     }
 
-    public override object InvokeMember (
-        string name,
-        BindingFlags invokeAttr,
-        Binder binderOrNull,
-        object target,
-        object[] args,
-        ParameterModifier[] modifiers,
-        CultureInfo culture,
-        string[] namedParameters)
-    {
-      throw new NotSupportedException ("Method MutableType.InvokeMember is not supported.");
-    }
-
     public override Type GetElementType ()
     {
       return null;
@@ -478,7 +455,7 @@ namespace Remotion.TypePipe.MutableReflection
       return new MutableMethodInfo (this, originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations, body);
     }
 
-    #region Not implemented abstract members of Type class
+    #region Not YET implemented abstract members of Type class
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
     {
@@ -528,6 +505,35 @@ namespace Remotion.TypePipe.MutableReflection
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region Unsupported Members
+
+    public override int MetadataToken
+    {
+      get { throw new NotSupportedException ("Property MutableType.MetadataToken is not supported."); }
+    }
+
+    public override Guid GUID
+    {
+      get { throw new NotSupportedException ("Property MutableType.GUID is not supported."); }
+    }
+
+    public override string AssemblyQualifiedName
+    {
+      get { throw new NotSupportedException ("Property MutableType.AssemblyQualifiedName is not supported."); }
+    }
+
+    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
+    {
+      throw new NotSupportedException ("Method MutableType.GetInterfaceMap is not supported.");
+    }
+
+    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binderOrNull, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
+    {
+      throw new NotSupportedException ("Method MutableType.InvokeMember is not supported.");
     }
 
     #endregion

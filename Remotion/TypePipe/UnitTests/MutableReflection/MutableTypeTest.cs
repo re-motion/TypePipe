@@ -834,10 +834,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Members_NotSupported ()
+    public void UnsupportedMembers ()
     {
+      CheckThrowsNotSupported (() => Dev.Null = _mutableType.MetadataToken, "Property", "MetadataToken");
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.GUID, "Property", "GUID");
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
+      CheckThrowsNotSupported (() => _mutableType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
       CheckThrowsNotSupported (() => _mutableType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
     }
 
