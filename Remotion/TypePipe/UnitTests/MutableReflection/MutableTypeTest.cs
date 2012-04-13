@@ -116,6 +116,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AllFields ()
+    {
+      Assert.That (_descriptor.Fields, Has.Count.EqualTo (2));
+      var existingFields = _descriptor.Fields;
+      var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_addedField");
+
+      var allFields = _mutableType.AllFields;
+
+      Assert.That (allFields, Is.EqualTo (new[] { existingFields[0], existingFields[1], addedField }));
+    }
+
+    [Test]
     public void AllConstructors ()
     {
       Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
