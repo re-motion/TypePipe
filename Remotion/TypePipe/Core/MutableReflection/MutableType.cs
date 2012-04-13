@@ -532,6 +532,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotSupportedException ("Property MutableType.StructLayoutAttribute is not supported."); }
     }
 
+    public override GenericParameterAttributes GenericParameterAttributes
+    {
+      get { throw new NotSupportedException ("Property MutableType.GenericParameterAttributes is not supported."); }
+    }
+
+    public override int GenericParameterPosition
+    {
+      get { throw new NotSupportedException ("Property MutableType.GenericParameterPosition is not supported."); }
+    }
+
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
     {
       throw new NotSupportedException ("Method MutableType.GetInterfaceMap is not supported.");
@@ -560,6 +570,21 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type MakeArrayType (int rank)
     {
       throw new NotSupportedException ("Method MutableType.MakeArrayType is not supported.");
+    }
+
+    public override int GetArrayRank ()
+    {
+      throw new NotSupportedException ("Method MutableType.GetArrayRank is not supported.");
+    }
+
+    public override Type[] GetGenericParameterConstraints ()
+    {
+      throw new NotSupportedException ("Method MutableType.GetGenericParameterConstraints is not supported.");
+    }
+
+    public override Type MakeGenericType (params Type[] typeArguments)
+    {
+      throw new NotSupportedException ("Method MutableType.MakeGenericType is not supported.");
     }
 
     #endregion
