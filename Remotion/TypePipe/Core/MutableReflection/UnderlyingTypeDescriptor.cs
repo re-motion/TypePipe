@@ -40,8 +40,9 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4695
       if (CanNotBeSubclassed (originalType, memberFilter))
-        throw new ArgumentException ("Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic"
-                                     + " parameters and must have an accessible constructor.", "originalType");
+        throw new ArgumentException (
+          "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+          + "a generic parameter, contain generic parameters and must have an accessible constructor.", "originalType");
 
       return new UnderlyingTypeDescriptor (
           originalType,

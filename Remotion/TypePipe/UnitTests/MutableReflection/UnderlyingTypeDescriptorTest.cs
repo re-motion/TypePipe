@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -69,8 +70,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ThrowsIfOriginalTypeCannotBeSubclassed ()
     {
-      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, contain generic parameters and "
-              + "must have an accessible constructor.\r\nParameter name: originalType";
+      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+                + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType";
       // sealed
       Assert.That (() => Create (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // interface
@@ -86,6 +87,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => Create (typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // closed generics
       Assert.That (() => Create (typeof (List<int>)), Throws.Nothing);
+      // generic parameter
+      Assert.That (() => Create (typeof (List<>).GetGenericArguments().Single()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // array
+      Assert.That (() => Create (typeof (int).MakeArrayType()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // by ref
+      Assert.That (() => Create (typeof (int).MakeByRefType()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // pointer
+      Assert.That (() => Create (typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // no accessible ctor
       Assert.That (() => Create (typeof (ExampleType), returnConstructors: false), Throws.ArgumentException.With.Message.EqualTo (msg));
     }
