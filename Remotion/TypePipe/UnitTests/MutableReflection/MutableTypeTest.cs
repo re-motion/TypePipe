@@ -188,20 +188,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Property MutableType.GUID is not supported.")]
-    public void GUID ()
-    {
-      Dev.Null = _mutableType.GUID;
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Property MutableType.AssemblyQualifiedName is not supported.")]
-    public void AssemblyQualifiedName ()
-    {
-      Dev.Null = _mutableType.AssemblyQualifiedName;
-    }
-
-    [Test]
     public void BaseType ()
     {
       Assert.That (_descriptor.BaseType, Is.Not.Null);
@@ -755,13 +741,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Method MutableType.InvokeMember is not supported.")]
-    public void InvokeMember ()
-    {
-      _mutableType.InvokeMember (null, 0, null, null, null);
-    }
-
-    [Test]
     public void GetElementType ()
     {
       Assert.That (_mutableType.GetElementType(), Is.Null);
@@ -852,6 +831,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetMethodImpl_NoMatch ()
     {
       Assert.That (_mutableType.GetMethod ("DoesNotExist"), Is.Null);
+    }
+
+    [Test]
+    public void Members_NotSupported ()
+    {
+      CheckThrowsNotSupported (() => Dev.Null = _mutableType.GUID, "Property", "GUID");
+      CheckThrowsNotSupported (() => Dev.Null = _mutableType.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
+      CheckThrowsNotSupported (() => _mutableType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
+    }
+
+    private void CheckThrowsNotSupported(TestDelegate memberInvocation, string memberType, string memberName)
+    {
+      var message = string.Format ("{0} MutableType.{1} is not supported.", memberType, memberName);
+      Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
     private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)
