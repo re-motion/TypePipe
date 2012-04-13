@@ -834,6 +834,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void VirtualMethodsImplementedByType ()
+    {
+      // None of these members should throw an exception 
+      Dev.Null = _mutableType.MemberType;
+      Dev.Null = _mutableType.DeclaringType;
+      Dev.Null = _mutableType.DeclaringMethod;
+      Dev.Null = _mutableType.ReflectedType;
+      Dev.Null = _mutableType.IsGenericType;
+      Dev.Null = _mutableType.IsGenericTypeDefinition;
+      Dev.Null = _mutableType.IsGenericParameter;
+      Dev.Null = _mutableType.ContainsGenericParameters;
+
+      Dev.Null = _mutableType.IsValueType; // IsValueTypeImpl()
+      Dev.Null = _mutableType.IsContextful; // IsContextfulImpl()
+      Dev.Null = _mutableType.IsMarshalByRef; // IsMarshalByRefImpl()
+
+      _mutableType.FindInterfaces ((type, filterCriteria) => true, (object) null);
+      _mutableType.GetEvents ();
+      _mutableType.GetMember ("name", BindingFlags.Default);
+      _mutableType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
+      _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, (MemberFilter) null, (object) null);
+      _mutableType.IsSubclassOf ((Type) null);
+      _mutableType.IsInstanceOfType ((object) null);
+      _mutableType.IsAssignableFrom ((Type) null);
+    }
+
+    [Test]
     public void UnsupportedMembers ()
     {
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.MetadataToken, "Property", "MetadataToken");
@@ -842,7 +869,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.StructLayoutAttribute, "Property", "StructLayoutAttribute");
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.GenericParameterAttributes, "Property", "GenericParameterAttributes");
       CheckThrowsNotSupported (() => Dev.Null = _mutableType.GenericParameterPosition, "Property", "GenericParameterPosition");
+      CheckThrowsNotSupported (() => Dev.Null = _mutableType.TypeHandle, "Property", "TypeHandle");
 
+      CheckThrowsNotSupported (() => _mutableType.GetDefaultMembers (), "Method", "GetDefaultMembers");
       CheckThrowsNotSupported (() => _mutableType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
       CheckThrowsNotSupported (() => _mutableType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
       CheckThrowsNotSupported (() => _mutableType.MakePointerType(), "Method", "MakePointerType");
@@ -852,6 +881,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       CheckThrowsNotSupported (() => _mutableType.GetArrayRank(), "Method", "GetArrayRank");
       CheckThrowsNotSupported (() => _mutableType.GetGenericParameterConstraints(), "Method", "GetGenericParameterConstraints");
       CheckThrowsNotSupported (() => _mutableType.MakeGenericType(), "Method", "MakeGenericType");
+      CheckThrowsNotSupported (() => _mutableType.GetGenericArguments(), "Method", "GetGenericArguments");
+      CheckThrowsNotSupported (() => _mutableType.GetGenericTypeDefinition (), "Method", "GetGenericTypeDefinition");
     }
 
     private void CheckThrowsNotSupported(TestDelegate memberInvocation, string memberType, string memberName)

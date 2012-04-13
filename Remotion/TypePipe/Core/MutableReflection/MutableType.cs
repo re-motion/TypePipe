@@ -463,6 +463,11 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
+    public override MemberInfo[] GetMember (string name, MemberTypes type, BindingFlags bindingAttr)
+    {
+      return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
+    }
+
     public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
     {
       throw new NotImplementedException();
@@ -470,12 +475,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override EventInfo[] GetEvents (BindingFlags bindingAttr)
     {
-      throw new NotImplementedException();
+      return new EventInfo[0]; // Needed for GetEvents() - virtual method check
     }
 
     public override Type[] GetNestedTypes (BindingFlags bindingAttr)
     {
-      throw new NotImplementedException();
+      return new Type[0]; // Needed for virtual method check
     }
 
     public override Type GetNestedType (string name, BindingFlags bindingAttr)
@@ -490,7 +495,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
     {
-      throw new NotImplementedException();
+      return new PropertyInfo[0]; // Needed for virtual method check
     }
     
     public override object[] GetCustomAttributes (bool inherit)
@@ -542,6 +547,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotSupportedException ("Property MutableType.GenericParameterPosition is not supported."); }
     }
 
+    public override RuntimeTypeHandle TypeHandle
+    {
+      get { throw new NotSupportedException ("Property MutableType.TypeHandle is not supported."); }
+    }
+
+    public override MemberInfo[] GetDefaultMembers ()
+    {
+      throw new NotSupportedException ("Method MutableType.GetDefaultMembers is not supported.");
+    }
+
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
     {
       throw new NotSupportedException ("Method MutableType.GetInterfaceMap is not supported.");
@@ -585,6 +600,16 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type MakeGenericType (params Type[] typeArguments)
     {
       throw new NotSupportedException ("Method MutableType.MakeGenericType is not supported.");
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      throw new NotSupportedException ("Method MutableType.GetGenericArguments is not supported.");
+    }
+
+    public override Type GetGenericTypeDefinition ()
+    {
+      throw new NotSupportedException ("Method MutableType.GetGenericTypeDefinition is not supported.");
     }
 
     #endregion
