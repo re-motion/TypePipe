@@ -52,8 +52,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       bool buildCalled = false;
 
+// ReSharper disable AccessToModifiedClosure
       builderMock.Expect (mock => mock.AddConstructor (unmodifiedConstructor)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
       mutableTypePartialMock.Expect (mock => mock.Accept (builderMock)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
+// ReSharper restore AccessToModifiedClosure
 
       var fakeType = ReflectionObjectMother.GetSomeType();
       builderMock.Expect (mock => mock.Build()).Return (fakeType).WhenCalled (mi => buildCalled = true);
