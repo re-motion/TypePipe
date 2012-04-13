@@ -42,7 +42,7 @@ namespace TypePipe.IntegrationTests
     }
 
     // TODO 4775: Modify closed generic type: add method, replace body of a method using the generic parameter.
-    // TODO Implement (override) MutableType.GetGenericArguments and MutableType.GetGenericTypeDefinition
+    // TODO 4744: Implement MutableType.GetGenericArguments, GetGenericTypeDefinition, IsGenericType, IsGenericTypeDefinition, etc.; use them in an integration test.
 
     [Test]
     [Ignore ("TODO 4775")]
