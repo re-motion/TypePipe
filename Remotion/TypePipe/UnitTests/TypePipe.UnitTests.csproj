@@ -89,6 +89,7 @@
     <Compile Include="MutableReflection\MutableConstructorInfoTestHelper.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
+    <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableFieldInfoTest.cs" />

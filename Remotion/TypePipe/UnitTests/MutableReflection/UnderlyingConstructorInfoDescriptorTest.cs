@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
@@ -33,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForNew ()
     {
       var attributes = MethodAttributes.Abstract;
-      var parameterDeclarations = new[] { new ParameterDeclaration (typeof (object), "xxx") };
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, body);

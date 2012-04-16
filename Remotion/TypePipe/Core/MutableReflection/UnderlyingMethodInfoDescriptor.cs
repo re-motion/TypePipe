@@ -14,6 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
+
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
@@ -24,6 +32,82 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingMethodInfoDescriptor
   {
-    
+    public static UnderlyingMethodInfoDescriptor Create (
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        Expression body)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("body", body);
+
+      if (!returnType.IsAssignableFrom (body.Type))
+        throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
+
+      var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList().AsReadOnly();
+      return new UnderlyingMethodInfoDescriptor (null, name, attributes, returnType, parameterDeclarationReadOnlyCollection, body);
+    }
+
+    private readonly MethodInfo _underlyingSystemMethodInfo;
+    private readonly string _name;
+    private readonly MethodAttributes _attributes;
+    private readonly Type _returnType;
+    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
+    private readonly Expression _body;
+
+    private UnderlyingMethodInfoDescriptor (
+        MethodInfo underlyingSystemMethodInfo,
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
+        Expression body)
+    {
+      Assertion.IsFalse (string.IsNullOrEmpty (name));
+      Assertion.IsNotNull (returnType);
+      Assertion.IsNotNull (parameterDeclarations);
+      Assertion.IsNotNull (body);
+      Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));
+
+      _underlyingSystemMethodInfo = underlyingSystemMethodInfo;
+      _name = name;
+      _attributes = attributes;
+      _returnType = returnType;
+      _parameterDeclarations = parameterDeclarations;
+      _body = body;
+    }
+
+    public MethodInfo UnderlyingSystemMethodInfo
+    {
+      get { return _underlyingSystemMethodInfo; }
+    }
+
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    public MethodAttributes Attributes
+    {
+      get { return _attributes; }
+    }
+
+    public Type ReturnType
+    {
+      get { return _returnType; }
+    }
+
+    public ReadOnlyCollection<ParameterDeclaration> ParameterDeclarations
+    {
+      get { return _parameterDeclarations; }
+    }
+
+    public Expression Body
+    {
+      get { return _body; }
+    }
   }
 }
