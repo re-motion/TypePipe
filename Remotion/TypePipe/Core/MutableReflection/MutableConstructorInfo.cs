@@ -64,12 +64,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ConstructorInfo UnderlyingSystemConstructorInfo
     {
-      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo ?? this; }
+      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemMethodBase ?? this; }
     }
 
     public bool IsNewConstructor
     {
-      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemConstructorInfo == null; }
+      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemMethodBase == null; }
     }
 
     public bool IsModified
@@ -93,11 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string Name
     {
-      get
-      {
-        Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
-        return ".ctor";
-      }
+      get { return _underlyingConstructorInfoDescriptor.Name; }
     }
 
     public IEnumerable<ParameterExpression> ParameterExpressions

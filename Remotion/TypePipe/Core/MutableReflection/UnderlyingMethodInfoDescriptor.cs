@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableMethodInfo"/> to represent the original method, before any mutations.
   /// </remarks>
-  public class UnderlyingMethodInfoDescriptor
+  public class UnderlyingMethodInfoDescriptor : UnderlyingMethodBaseDescriptor<MethodInfo>
   {
     public static UnderlyingMethodInfoDescriptor Create (
         string name,
@@ -55,15 +55,22 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("originalMethod", originalMethod);
 
-      return null;
+      // TODO 4695
+      // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
+      var attributes = GetMethodAttributesWithAdjustedVisibiity (originalMethod);
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
+      var body = CreateOriginalBodyExpression (originalMethod.ReturnType, parameterDeclarations);
+
+      return new UnderlyingMethodInfoDescriptor (
+          originalMethod,
+          originalMethod.Name,
+          attributes,
+          originalMethod.ReturnType,
+          parameterDeclarations,
+          body);
     }
 
-    private readonly MethodInfo _underlyingSystemMethodInfo;
-    private readonly string _name;
-    private readonly MethodAttributes _attributes;
     private readonly Type _returnType;
-    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
-    private readonly Expression _body;
 
     private UnderlyingMethodInfoDescriptor (
         MethodInfo underlyingSystemMethodInfo,
@@ -72,49 +79,17 @@ namespace Remotion.TypePipe.MutableReflection
         Type returnType,
         ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
         Expression body)
+        : base(underlyingSystemMethodInfo, name, attributes, parameterDeclarations, body)
     {
-      Assertion.IsFalse (string.IsNullOrEmpty (name));
       Assertion.IsNotNull (returnType);
-      Assertion.IsNotNull (parameterDeclarations);
-      Assertion.IsNotNull (body);
       Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));
 
-      _underlyingSystemMethodInfo = underlyingSystemMethodInfo;
-      _name = name;
-      _attributes = attributes;
       _returnType = returnType;
-      _parameterDeclarations = parameterDeclarations;
-      _body = body;
-    }
-
-    public MethodInfo UnderlyingSystemMethodInfo
-    {
-      get { return _underlyingSystemMethodInfo; }
-    }
-
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    public MethodAttributes Attributes
-    {
-      get { return _attributes; }
     }
 
     public Type ReturnType
     {
       get { return _returnType; }
-    }
-
-    public ReadOnlyCollection<ParameterDeclaration> ParameterDeclarations
-    {
-      get { return _parameterDeclarations; }
-    }
-
-    public Expression Body
-    {
-      get { return _body; }
     }
   }
 }

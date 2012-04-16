@@ -52,18 +52,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemMethodInfo ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Not.Null);
 
       var methodInfo = Create (descriptor);
 
-      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (descriptor.UnderlyingSystemMethodInfo));
+      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (descriptor.UnderlyingSystemMethodBase));
     }
 
     [Test]
     public void UnderlyingSystemMethodInfo_ForNull ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
 
       var methodInfo = Create (descriptor);
 

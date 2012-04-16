@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarations, body);
 
-      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (returnType));
@@ -57,7 +57,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
     
     [Test]
-    [Ignore ("TODO 4772")]
     public void Create_ForExisting ()
     {
       int v;
@@ -65,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
 
-      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.SameAs (originalMethod));
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.SameAs (originalMethod));
       Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
       Assert.That (descriptor.Attributes, Is.EqualTo (originalMethod.Attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (originalMethod.ReturnType));
@@ -84,12 +83,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
 
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
-      Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
+      Assert.That (originalBodyExpression.Type, Is.SameAs (originalMethod.ReturnType));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
     }
 
     [Test]
-    [Ignore ("TODO 4772")]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
       var originalMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());

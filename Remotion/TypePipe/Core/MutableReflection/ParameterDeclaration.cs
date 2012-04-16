@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
@@ -30,6 +32,18 @@ namespace Remotion.TypePipe.MutableReflection
   public class ParameterDeclaration
   {
     public static readonly ParameterDeclaration[] EmptyParameters = new ParameterDeclaration[0];
+
+    public static ParameterDeclaration CreateEquivalent (ParameterInfo parameterInfo)
+    {
+      ArgumentUtility.CheckNotNull ("parameterInfo", parameterInfo);
+      return new ParameterDeclaration (parameterInfo.ParameterType, parameterInfo.Name, parameterInfo.Attributes);
+    }
+
+    public static IEnumerable<ParameterDeclaration> CreateForEquivalentSignature (MethodBase methodBase)
+    {
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+      return methodBase.GetParameters ().Select (CreateEquivalent);
+    }
 
     private readonly Type _type;
     private readonly string _name;

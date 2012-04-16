@@ -54,18 +54,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemConstructorInfo ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Not.Null);
 
       var ctorInfo = Create (descriptor);
 
-      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemConstructorInfo));
+      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemMethodBase));
     }
 
     [Test]
     public void UnderlyingSystemConstructorInfo_ForNull ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
 
       var ctorInfo = Create (descriptor);
 
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewConstructor_True ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
 
       var ctorInfo = Create (descriptor);
 
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewConstructor_False ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Not.Null);
 
       var ctorInfo = Create (descriptor);
 
@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Name ()
     {
-      Assert.That (_mutableCtor.Name, Is.EqualTo (".ctor"));
+      Assert.That (_mutableCtor.Name, Is.EqualTo (_descriptor.Name));
     }
 
     [Test]

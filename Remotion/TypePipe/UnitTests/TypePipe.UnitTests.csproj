@@ -81,6 +81,8 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContextTest.cs" />
+    <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
+    <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ArgumentTestHelper.cs" />

@@ -17,7 +17,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -28,6 +30,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void EmptyParameters ()
     {
       Assert.That (ParameterDeclaration.EmptyParameters, Is.Empty);
+    }
+
+    [Test]
+    public void CreateEquivalent ()
+    {
+      var parameterInfo = ReflectionObjectMother.GetSomeParameter();
+
+      var result = ParameterDeclaration.CreateEquivalent (parameterInfo);
+
+      Assert.That (result.Type, Is.SameAs (parameterInfo.ParameterType));
+      Assert.That (result.Name, Is.EqualTo (parameterInfo.Name));
+      Assert.That (result.Attributes, Is.EqualTo (parameterInfo.Attributes));
+    }
+
+    [Test]
+    public void CreateForEquivalentSignature ()
+    {
+      string v;
+      var method = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.Method (42, out v));
+
+      var result = ParameterDeclaration.CreateForEquivalentSignature (method);
+
+      var expected = new[] 
+      { 
+        new { Type = typeof (int), Name = "i", Attributes = ParameterAttributes.None },
+        new { Type = typeof (string).MakeByRefType(), Name = "s", Attributes = ParameterAttributes.Out }
+      };
+      var actual = result.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      Assert.That (actual, Is.EqualTo (expected));
     }
 
     [Test]
@@ -59,6 +90,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (declaration.Type, Is.EqualTo (typeof (string).MakeByRefType()));
       Assert.That (declaration.Expression.Type, Is.EqualTo (typeof (string)));
       Assert.That (declaration.Expression.IsByRef, Is.True);
+    }
+
+    private abstract class DomainType
+    {
+      public void Method (int i, out string s)
+      {
+        Dev.Null = i;
+        s = "no";
+      }
     }
   }
 }

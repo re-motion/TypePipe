@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableConstructorInfo"/> to represent the original constructor, before any mutations.
   /// </remarks>
-  public class UnderlyingConstructorInfoDescriptor
+  public class UnderlyingConstructorInfoDescriptor  : UnderlyingMethodBaseDescriptor<ConstructorInfo>
   {
     public static UnderlyingConstructorInfoDescriptor Create (
         MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body)
@@ -52,64 +52,21 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4695
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
-      var attributes = originalConstructorInfo.IsFamilyOrAssembly
-                           ? ChangeVisibility (originalConstructorInfo.Attributes, MethodAttributes.Family)
-                           : originalConstructorInfo.Attributes;
-      var parameterDeclarations = 
-          originalConstructorInfo.GetParameters()
-              .Select (pi => new ParameterDeclaration (pi.ParameterType, pi.Name, pi.Attributes))
-              .ToList()
-              .AsReadOnly();
-      var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
-      var body = new OriginalBodyExpression (typeof (void), parameterExpressions.Cast<Expression>());
-      
+      var attributes = GetMethodAttributesWithAdjustedVisibiity (originalConstructorInfo);
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature(originalConstructorInfo).ToList().AsReadOnly();
+      var body = CreateOriginalBodyExpression (typeof (void), parameterDeclarations);
+
       return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, attributes, parameterDeclarations, body);
     }
 
-    private static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
-    {
-      return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
-    }
-
-    private readonly ConstructorInfo _underlyingSystemConstructorInfo;
-    private readonly MethodAttributes _attributes;
-    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
-    private readonly Expression _body;
-
     private UnderlyingConstructorInfoDescriptor (
-        ConstructorInfo underlyingSystemConstructorInfo,
+        ConstructorInfo underlyingSystemMethodBase,
         MethodAttributes attributes,
         ReadOnlyCollection<ParameterDeclaration> parameterDeclarations, 
         Expression body)
+      : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDeclarations, body)
     {
-      Assertion.IsNotNull (parameterDeclarations);
-      Assertion.IsNotNull (body);
       Assertion.IsTrue (body.Type == typeof (void));
-
-      _underlyingSystemConstructorInfo = underlyingSystemConstructorInfo;
-      _attributes = attributes;
-      _parameterDeclarations = parameterDeclarations;
-      _body = body;
-    }
-
-    public ConstructorInfo UnderlyingSystemConstructorInfo
-    {
-      get { return _underlyingSystemConstructorInfo; }
-    }
-
-    public MethodAttributes Attributes
-    {
-      get { return _attributes; }
-    }
-
-    public ReadOnlyCollection<ParameterDeclaration> ParameterDeclarations
-    {
-      get { return _parameterDeclarations; }
-    }
-
-    public Expression Body
-    {
-      get { return _body; }
     }
   }
 }
