@@ -36,8 +36,8 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            //var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            //mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Multiply (Expression.Constant (2), ctx.Parameter[0])));
+            var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -52,20 +52,17 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            //var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
-            //mutableMethod.SetBody (
-            //    ctx =>
-            //    {
-            //      var tempLocal = Expression.Variable (typeof (int), "temp");
-            //      return Expression.Block (
-            //          tempLocal,
-            //          Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
-            //          ctx.GetPreviousBody (tempLocal, ctx.Parameters[1]),
-            //          Expression.Assign (
-            //              ctx.Parameters[1],
-            //              Expression.Add (ctx.Parameters[1], Expression.Constant (" test")),
-            //              s_stringConcatMethod));
-            //    });
+            var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
+            mutableMethod.SetBody (
+                ctx =>
+                {
+                  var tempLocal = Expression.Variable (typeof (int), "temp");
+                  return Expression.Block (
+                      tempLocal,
+                      Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
+                      ctx.GetPreviousBody (tempLocal, ctx.Parameters[1]),
+                      Expression.Assign (ctx.Parameters[1], Expression.Add (ctx.Parameters[1], Expression.Constant (" test"), s_stringConcatMethod)));
+                });
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -83,13 +80,13 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            //var method = typeof (DomainType).GetMethod ("ProtectedVirtualMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-            //var mutableMethod = mutableType.GetMutableMethod (method);
-            //mutableMethod.SetBody (
-            //ctx => Expression.Add (
-            //    Expression.Constant ("hello "),
-            //    Expression.Call (ctx.GetPreviousBody(), "ToString"),
-            //    s_stringConcatMethod);
+            var method = typeof (DomainType).GetMethod ("ProtectedVirtualMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+            var mutableMethod = mutableType.GetMutableMethod (method);
+            mutableMethod.SetBody (
+                ctx => Expression.Add (
+                    Expression.Constant ("hello "),
+                    Expression.Call (ctx.GetPreviousBody(), "ToString", null),
+                    s_stringConcatMethod));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -109,7 +106,7 @@ namespace TypePipe.IntegrationTests
           {
             var mutableMethod = mutableType.AddedMethods.Single ();
             Assert.That (mutableMethod.IsVirtual, Is.False);
-            //mutableMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody(), Expression.Constant (1)));
+            mutableMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody (), Expression.Constant (1)));
           });
 
       var method = type.GetMethod ("AddedMethod");
@@ -125,8 +122,8 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
         mutableType =>
         {
-          //var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-          //mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Multiply (Expression.Constant (2), ctx.Parameter[0])));
+          var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+          mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
         });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -141,22 +138,22 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            //var nonVirtualMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicMethod"));
-            //Assert.That (
-            //    () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
-            //    Throws.InvalidOperationException.With.Message.EqualTo (
-            //        "Non-virtual methods cannot be replaced with ReflectionEmit code generation strategy."));
+            var nonVirtualMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicMethod"));
+            Assert.That (
+                () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
+                Throws.InvalidOperationException.With.Message.EqualTo (
+                    "Non-virtual methods cannot be replaced with ReflectionEmit code generation strategy."));
 
-            //var staticMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicStaticMethod"));
-            //Assert.That (
-            //    () => staticMethod.SetBody (
-            //        ctx =>
-            //        {
-            //          Assert.That (ctx.IsStatic, Is.True);
-            //          return Expression.Constant (8);
-            //        },
-            //        Throws.InvalidOperationException.With.Message.EqualTo (
-            //            "Static methods cannot be replaced with ReflectionEmit code generation strategy.")));
+            var staticMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicStaticMethod"));
+            Assert.That (
+                () => staticMethod.SetBody (
+                    ctx =>
+                    {
+                      Assert.That (ctx.IsStatic, Is.True);
+                      return Expression.Constant (8);
+                    }),
+                Throws.InvalidOperationException.With.Message.EqualTo (
+                    "Static methods cannot be replaced with ReflectionEmit code generation strategy."));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -172,13 +169,13 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            //var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            //mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Multiply (Expression.Constant (2), ctx.Parameter[0])));
+            var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           },
           mutableType =>
           {
-            //var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            //mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Add (Expression.Constant (2), ctx.Parameter[0])));
+            var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            mutableMethod.SetBody (ctx => ctx.GetPreviousBody (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -201,12 +198,12 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Call (ctx.This, originalMethod, Expression.Constant(7)));
 
-            //var modifiedMethod = mutableType.GetMutableMethod (originalMethod);
-            //modifiedMethod.SetBody (
-            //    ctx => Expression.Add (
-            //        Expression.Constant ("hello "),
-            //        Expression.Call (ctx.GetPreviousBody(), "ToString"),
-            //        s_stringConcatMethod));
+            var modifiedMethod = mutableType.GetMutableMethod (originalMethod);
+            modifiedMethod.SetBody (
+                ctx => Expression.Add (
+                    Expression.Constant ("hello "),
+                    Expression.Call (ctx.GetPreviousBody (), "ToString", null),
+                    s_stringConcatMethod));
           });
 
       var method = type.GetMethod ("AddedMethod");

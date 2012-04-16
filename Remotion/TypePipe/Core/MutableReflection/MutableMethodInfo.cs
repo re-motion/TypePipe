@@ -21,6 +21,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -89,8 +90,10 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.Body; }
     }
 
-    public void SetBody ()
+    public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
     {
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
       throw new NotImplementedException ("TODO 4785");
     }
 

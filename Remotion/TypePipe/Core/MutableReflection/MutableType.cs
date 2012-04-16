@@ -339,6 +339,13 @@ namespace Remotion.TypePipe.MutableReflection
       return AllMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
     }
 
+    public MutableMethodInfo GetMutableMethod (MethodInfo methodInfo)
+    {
+      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
+
+      throw new NotImplementedException ("TODO 4784");
+    }
+
     public virtual void Accept (ITypeModificationHandler modificationHandler)
     {
       ArgumentUtility.CheckNotNull ("modificationHandler", modificationHandler);
