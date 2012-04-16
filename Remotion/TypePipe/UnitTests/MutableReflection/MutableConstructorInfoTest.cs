@@ -45,31 +45,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-
-      var ctorInfo = new MutableConstructorInfo (_declaringType, underlyingCtorInfoDescriptor);
+      var ctorInfo = new MutableConstructorInfo (_declaringType, _descriptor);
 
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
     }
 
     [Test]
-    public void UnderlyingSystemConsructorInfo ()
+    public void UnderlyingSystemConstructorInfo ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
+      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
 
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (descriptor);
 
-      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo));
+      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemConstructorInfo));
     }
 
     [Test]
-    public void UnderlyingSystemConsructorInfo_ForNull ()
+    public void UnderlyingSystemConstructorInfo_ForNull ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Null);
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Null);
 
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (descriptor);
 
       Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (ctorInfo));
     }
@@ -77,10 +75,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNewConstructor_True ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Null);
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Null);
 
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (descriptor);
 
       Assert.That (ctorInfo.IsNewConstructor, Is.True);
     }
@@ -88,10 +86,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNewConstructor_False ()
     {
-      var underlyingCtorInfoDescriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (underlyingCtorInfoDescriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
+      Assert.That (descriptor.UnderlyingSystemConstructorInfo, Is.Not.Null);
 
-      var ctorInfo = Create (underlyingCtorInfoDescriptor);
+      var ctorInfo = Create (descriptor);
 
       Assert.That (ctorInfo.IsNewConstructor, Is.False);
     }
@@ -200,19 +198,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var paramDecl1 = ParameterDeclarationObjectMother.Create();
-      var paramDecl2 = ParameterDeclarationObjectMother.Create();
-      var ctorInfo = CreateWithParameters (paramDecl1, paramDecl2);
+      var parameter1 = ParameterDeclarationObjectMother.Create();
+      var parameter2 = ParameterDeclarationObjectMother.Create();
+      var ctorInfo = CreateWithParameters (parameter1, parameter2);
 
       var result = ctorInfo.GetParameters();
 
+      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray ();
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = paramDecl1.Type, paramDecl1.Name, paramDecl1.Attributes },
-              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = paramDecl2.Type, paramDecl2.Name, paramDecl2.Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
           };
-      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
     }
 

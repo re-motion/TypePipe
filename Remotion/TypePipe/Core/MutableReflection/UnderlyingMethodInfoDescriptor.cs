@@ -51,6 +51,13 @@ namespace Remotion.TypePipe.MutableReflection
       return new UnderlyingMethodInfoDescriptor (null, name, attributes, returnType, parameterDeclarationReadOnlyCollection, body);
     }
 
+    public static UnderlyingMethodInfoDescriptor Create (MethodInfo originalMethod)
+    {
+      ArgumentUtility.CheckNotNull ("originalMethod", originalMethod);
+
+      throw new NotImplementedException ();
+    }
+
     private readonly MethodInfo _underlyingSystemMethodInfo;
     private readonly string _name;
     private readonly MethodAttributes _attributes;

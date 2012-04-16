@@ -17,59 +17,91 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class MutableMethodInfoTest
   {
-    private string _name;
-    private Type _declaringType;
-    private Type _returnType;
-    private Expression _body;
+    private MutableType _declaringType;
+    private UnderlyingMethodInfoDescriptor _descriptor;
+
+    private MutableMethodInfo _methodInfo;
 
     [SetUp]
     public void SetUp ()
     {
-      _name = "MethodName";
-      _declaringType = ReflectionObjectMother.GetSomeType ();
-      _returnType = ReflectionObjectMother.GetSomeType ();
-      _body = ExpressionTreeObjectMother.GetSomeExpression (_returnType);
+      _declaringType = MutableTypeObjectMother.Create();
+
+      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      _methodInfo = Create(_descriptor);
     }
 
     [Test]
     public void Initialization ()
     {
-      var methodAttributes = MethodAttributes.Public;
-      var parameter1 = ParameterDeclarationObjectMother.Create();
-      var parameter2 = ParameterDeclarationObjectMother.Create();
+      var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
 
-      var method = new MutableMethodInfo (_declaringType, _name, methodAttributes, _returnType, new[] { parameter1, parameter2}, _body);
+      Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
+    }
 
-      Assert.That (method.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (method.Name, Is.EqualTo (_name));
-      Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
-      Assert.That (method.ReturnType, Is.SameAs (_returnType));
-      var expectedParameterInfos =
-          new[]
-          {
-              new { Member = (MemberInfo) method, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
-              new { Member = (MemberInfo) method, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
-          };
-      var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
-      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
-      Assert.That (method.Body, Is.SameAs (_body));
+    [Test]
+    [Ignore ("TODO 4772")]
+    public void UnderlyingSystemMethodInfo ()
+    {
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
+      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.Not.Null);
+
+      var methodInfo = Create (descriptor);
+
+      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (descriptor.UnderlyingSystemMethodInfo));
+    }
+
+    [Test]
+    public void UnderlyingSystemMethodInfo_ForNull ()
+    {
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.Null);
+
+      var methodInfo = Create (descriptor);
+
+      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (methodInfo));
+    }
+
+    [Test]
+    public void Name ()
+    {
+      Assert.That (_methodInfo.Name, Is.EqualTo (_descriptor.Name));
+      }
+
+    [Test]
+    public void Attributes ()
+    {
+      Assert.That (_methodInfo.Attributes, Is.EqualTo (_descriptor.Attributes));
+}
+
+    [Test]
+    public void ReturnType ()
+    {
+      Assert.That (_methodInfo.ReturnType, Is.SameAs (_descriptor.ReturnType));
+}
+
+    [Test]
+    public void Body ()
+    {
+      Assert.That (_methodInfo.Body, Is.SameAs (_descriptor.Body));
     }
 
     [Test]
     public void CallingConvention ()
     {
-      var instanceMethod = new MutableMethodInfo (_declaringType, _name, 0, _returnType, ParameterDeclaration.EmptyParameters, _body);
-      var staticMethod = new MutableMethodInfo (_declaringType, _name, MethodAttributes.Static, _returnType, ParameterDeclaration.EmptyParameters, _body);
+      var instanceDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0);
+      var staticDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static);
+
+      var instanceMethod = new MutableMethodInfo (_declaringType, instanceDescriptor);
+      var staticMethod = new MutableMethodInfo (_declaringType, staticDescriptor);
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -85,27 +117,57 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetParameters ()
+    {
+      var parameter1 = ParameterDeclarationObjectMother.Create();
+      var parameter2 = ParameterDeclarationObjectMother.Create ();
+      var methodInfo = CreateWithParameters (parameter1, parameter2);
+
+      var result = methodInfo.GetParameters();
+
+      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
+      var expectedParameterInfos =
+          new[]
+          {
+              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
+              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
+          };
+      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+    }
+
+    [Test]
+    public void GetParameters_ReturnsSameParameterInfoInstances ()
+    {
+      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create ());
+
+      var result1 = methodInfo.GetParameters ().Single ();
+      var result2 = methodInfo.GetParameters ().Single ();
+
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var method = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (1));
+      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (1));
 
-      var parameters = method.GetParameters ();
+      var parameters = methodInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
       parameters[0] = null;
 
-      var parametersAgain = method.GetParameters ();
+      var parametersAgain = methodInfo.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
 
-    private MutableMethodInfo CreateWithParameters (ParameterDeclaration[] parameterDeclarations)
+    private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor)
     {
-      return new MutableMethodInfo (
-          _declaringType, 
-          "UnspecifiedMethod",
-          MethodAttributes.Public,
-          ReflectionObjectMother.GetSomeType(),
-          parameterDeclarations,
-          ExpressionTreeObjectMother.GetSomeExpression());
+      return new MutableMethodInfo (_declaringType, descriptor);
+    }
+
+    private MutableMethodInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    {
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      return new MutableMethodInfo (_declaringType, descriptor);
     }
   }
 }

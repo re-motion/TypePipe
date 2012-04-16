@@ -19,24 +19,35 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class MutableMethodInfoObjectMother
+  public static class UnderlyingMethodInfoDescriptorObjectMother
   {
-    public static MutableMethodInfo Create (
-        MutableType declaringType = null,
+    private class UnspecifiedType { }
+
+    public static UnderlyingMethodInfoDescriptor CreateForNew (
         string name = "UnspecifiedMethod",
-        MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
+        MethodAttributes attributes =
+            MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
     {
-      if (returnType == null && body != null)
-        returnType = body.Type;
+      var actualReturnType = returnType ?? typeof (UnspecifiedType);
+      return UnderlyingMethodInfoDescriptor.Create (
+          name,
+          attributes,
+          actualReturnType,
+          parameterDeclarations ?? ParameterDeclaration.EmptyParameters,
+          body ?? ExpressionTreeObjectMother.GetSomeExpression (actualReturnType));
+    }
 
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (name, methodAttributes, returnType, parameterDeclarations, body);
-      return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create(), descriptor);
+    public static UnderlyingMethodInfoDescriptor CreateForExisting (
+        MethodInfo originalMethodInfo = null)
+    {
+      return UnderlyingMethodInfoDescriptor.Create (originalMethodInfo ?? ReflectionObjectMother.GetSomeMethod());
     }
   }
 }

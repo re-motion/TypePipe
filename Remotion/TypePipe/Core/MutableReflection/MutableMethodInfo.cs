@@ -30,35 +30,23 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : MethodInfo
   {
-    private readonly Type _declaringType;
-    private readonly string _name;
-    private readonly MethodAttributes _methodAttributes;
-    private readonly Type _returnType;
-    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
-    private readonly Expression _body;
+    private readonly MutableType _declaringType;
+    private readonly UnderlyingMethodInfoDescriptor _underlyingMethodInfoDescriptor;
 
-    public MutableMethodInfo (
-        Type declaringType,
-        string name,
-        MethodAttributes methodAttributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Expression body)
+    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+
+    public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      ArgumentUtility.CheckNotNull ("body", body);
+      ArgumentUtility.CheckNotNull ("underlyingMethodInfoDescriptor", underlyingMethodInfoDescriptor);
 
       _declaringType = declaringType;
-      _name = name;
-      _methodAttributes = methodAttributes;
-      _returnType = returnType;
-      _parameterDeclarations = parameterDeclarations.ToList().AsReadOnly();
-      _parameters = parameterDeclarations.Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd)).ToList().AsReadOnly();
-      _body = body;
+      _underlyingMethodInfoDescriptor = underlyingMethodInfoDescriptor;
+
+      _parameters = _underlyingMethodInfoDescriptor.ParameterDeclarations
+          .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
+          .ToList()
+          .AsReadOnly();
     }
 
     public override Type DeclaringType
@@ -66,14 +54,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
+    public MethodInfo UnderlyingSystemMethodInfo
+    {
+      get { return /* TODO 4772: _underlyingMethodInfoDescriptor.UnderlyingSystemMethodInfo ?? */this; }
+    }
+
     public override string Name
     {
-      get { return _name; }
+      get { return _underlyingMethodInfoDescriptor.Name; }
     }
 
     public override MethodAttributes Attributes
     {
-      get { return _methodAttributes; }
+      get { return _underlyingMethodInfoDescriptor.Attributes; }
     }
 
     public override CallingConventions CallingConvention
@@ -83,17 +76,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type ReturnType
     {
-      get { return _returnType; }
+      get { return _underlyingMethodInfoDescriptor.ReturnType; }
     }
 
     public IEnumerable<ParameterExpression> ParameterExpressions
     {
-      get { return _parameterDeclarations.Select (pd => pd.Expression); }
+      get { return _underlyingMethodInfoDescriptor.ParameterDeclarations.Select (pd => pd.Expression); }
     }
 
     public Expression Body
     {
-      get { return _body; }
+      get { return _underlyingMethodInfoDescriptor.Body; }
     }
 
     public override ParameterInfo[] GetParameters ()

@@ -320,9 +320,8 @@ namespace Remotion.TypePipe.MutableReflection
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      // TODO 4772
-      //var descriptor = UnderlyingMethodInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
-      var methodInfo = new MutableMethodInfo (this, name, attributes, returnType, parameterDeclarationCollection, body);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarationCollection, body);
+      var methodInfo = new MutableMethodInfo (this, descriptor);
 
       if (AllMethods.Where (m => m.Name == name).Any (method => _memberInfoEqualityComparer.Equals (method, methodInfo)))
       {
@@ -453,7 +452,9 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDeclarations = originalMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
       var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
       var body = new OriginalBodyExpression (originalMethod.ReturnType, parameterExpressions.Cast<Expression>());
-      return new MutableMethodInfo (this, originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations, body);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations, body);
+      return new MutableMethodInfo (this, descriptor);
     }
 
     #region Not YET implemented abstract members of Type class

@@ -87,17 +87,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 4772")]
     public void Initialization_Methods ()
     {
       var methods = _descriptor.Methods;
       Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
-      //var expectedMethod = methods.Single (m => m.Name == "PublicMethod");
+      var expectedMethod = methods.Single (m => m.Name == "PublicMethod");
 
       Assert.That (_mutableType.ExistingMethods.Count, Is.EqualTo(methods.Count));
       var mutableMethod = _mutableType.ExistingMethods.Single (m => m.Name == "PublicMethod");
 
-      // TODO: 4772
-      //Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
+      Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
     }
 
@@ -603,6 +603,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Correct method info instance
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.ReturnType, Is.EqualTo (returnType));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
@@ -850,14 +851,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Dev.Null = _mutableType.IsContextful; // IsContextfulImpl()
       Dev.Null = _mutableType.IsMarshalByRef; // IsMarshalByRefImpl()
 
-      _mutableType.FindInterfaces ((type, filterCriteria) => true, (object) null);
+      _mutableType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
       _mutableType.GetEvents ();
       _mutableType.GetMember ("name", BindingFlags.Default);
       _mutableType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
-      _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, (MemberFilter) null, (object) null);
-      _mutableType.IsSubclassOf ((Type) null);
-      _mutableType.IsInstanceOfType ((object) null);
-      _mutableType.IsAssignableFrom ((Type) null);
+      _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
+      _mutableType.IsSubclassOf (null);
+      _mutableType.IsInstanceOfType (null);
+      _mutableType.IsAssignableFrom (null);
     }
 
     [Test]
