@@ -15,8 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 
@@ -51,6 +54,66 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       UnderlyingMethodInfoDescriptor.Create ("Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, body);
+    }
+    
+    [Test]
+    [Ignore ("TODO 4772")]
+    public void Create_ForExisting ()
+    {
+      int v;
+      var originalMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+
+      Assert.That (descriptor.UnderlyingSystemMethodInfo, Is.SameAs (originalMethod));
+      Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
+      Assert.That (descriptor.Attributes, Is.EqualTo (originalMethod.Attributes));
+      Assert.That (descriptor.ReturnType, Is.SameAs (originalMethod.ReturnType));
+
+      var expectedParamterDecls =
+          new[]
+          {
+              new { Type = typeof (string), Name = "s", Attributes = ParameterAttributes.None },
+              new { Type = typeof (int).MakeByRefType(), Name = "i", Attributes = ParameterAttributes.Out },
+              new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
+              new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
+          };
+      var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
+
+      Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
+
+      var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
+      Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
+    }
+
+    [Test]
+    [Ignore ("TODO 4772")]
+    public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
+    {
+      var originalMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
+      Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+
+      var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
+      Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
+    }
+
+    private class DomainType
+    {
+      // ReSharper disable UnusedParameter.Local
+      public int Method (string s, out int i, [In] double d, [In, Out] object o)
+      // ReSharper restore UnusedParameter.Local
+      {
+        throw new NotImplementedException ();
+      }
+
+      protected internal string ProtectedInternalMethod ()
+      {
+        throw new NotImplementedException();
+      }
     }
   }
 }

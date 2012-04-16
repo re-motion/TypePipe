@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       int v;
-      var originalCtor = ReflectionObjectMother.GetConstructor (() => new ExampleType ("string", out v, 1.0, null));
+      var originalCtor = ReflectionObjectMother.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
 
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
-      var originalCtor = ReflectionObjectMother.GetConstructor (() => new ExampleType ());
+      var originalCtor = ReflectionObjectMother.GetConstructor (() => new DomainType ());
       Assert.That (originalCtor.IsFamilyOrAssembly, Is.True);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
@@ -93,16 +93,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
 
-    private class ExampleType
+    private class DomainType
     {
 // ReSharper disable UnusedParameter.Local
-      public ExampleType (string s, out int i, [In] double d, [In, Out] object o)
+      public DomainType (string s, out int i, [In] double d, [In, Out] object o)
 // ReSharper restore UnusedParameter.Local
       {
         i = 5;
       }
 
-      protected internal ExampleType ()
+      protected internal DomainType ()
       {
       }
     }

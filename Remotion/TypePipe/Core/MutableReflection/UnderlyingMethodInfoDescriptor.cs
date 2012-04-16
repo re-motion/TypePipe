@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("originalMethod", originalMethod);
 
-      throw new NotImplementedException ();
+      return null;
     }
 
     private readonly MethodInfo _underlyingSystemMethodInfo;
