@@ -45,6 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var context = new TestableMethodBodyContextBase (_mutableType, parameters, true);
 
+      Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
       Assert.That (context.IsStatic, Is.True);
     }

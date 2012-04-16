@@ -14,12 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Scripting.Ast;
-using Remotion.FunctionalProgramming;
-using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
@@ -28,49 +24,13 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// Provides access to parameters and custom expression for building the bodies of modified constructors. 
   /// See also <see cref="MutableConstructorInfo.SetBody"/>.
   /// </summary>
-  public class ConstructorBodyModificationContext : MethodBodyContextBase
+  public class ConstructorBodyModificationContext : MethodBodyModificationContext
   {
-    private readonly Expression _previousBody;
-
     public ConstructorBodyModificationContext (
-        MutableType declaringType,
-        IEnumerable<ParameterExpression> parameterExpressions,
-        Expression previousBody)
-        : base (declaringType, parameterExpressions, false)
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, Expression previousBody)
+        : base (declaringType, parameterExpressions, previousBody, false)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
-      _previousBody = previousBody;
-    }
-
-    public Expression GetPreviousBody ()
-    {
-      return _previousBody;
-    }
-
-    public Expression GetPreviousBody (params Expression[] arguments)
-    {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      return GetPreviousBody ((IEnumerable<Expression>) arguments);
-    }
-
-    public Expression GetPreviousBody (IEnumerable<Expression> arguments)
-    {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      var argumentCollection = arguments.ConvertToCollection();
-      if (argumentCollection.Count != Parameters.Count)
-      {
-        var message = string.Format ("The argument count ({0}) does not match the parameter count ({1}).", argumentCollection.Count, Parameters.Count);
-        throw new ArgumentException (message, "arguments");
-      }
-
-      var replacements = Parameters
-          .Select ((p, i) => new { Parameter = p, Index = i })
-          .Zip (argumentCollection, (t, a) => new { t.Parameter, Argument = EnsureCorrectType (a, t.Parameter.Type, t.Index, "arguments") })
-          .ToDictionary (t => (Expression) t.Parameter, t => t.Argument);
-      var visitor = new ReplacingExpressionVisitor (replacements);
-      return visitor.Visit (_previousBody);
     }
 
     public Expression GetConstructorCall (params Expression[] arguments)
@@ -85,19 +45,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       return ConstructorBodyContextUtility.GetConstructorCallExpression (This, arguments);
-    }
-
-    private Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)
-    {
-      try
-      {
-        return ExpressionTypeUtility.EnsureCorrectType (expression, type);
-      }
-      catch (InvalidOperationException ex)
-      {
-        var message = String.Format ("The argument at index {0} has an invalid type: {1}", argumentIndex, ex.Message);
-        throw new ArgumentException (message, parameterName, ex);
-      }
     }
   }
 }

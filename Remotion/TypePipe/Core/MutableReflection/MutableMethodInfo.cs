@@ -89,6 +89,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.Body; }
     }
 
+    public void SetBody ()
+    {
+      throw new NotImplementedException ("TODO 4785");
+    }
+
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();

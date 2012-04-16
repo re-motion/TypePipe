@@ -43,20 +43,25 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _isStatic = isStatic;
     }
 
-    public ReadOnlyCollection<ParameterExpression> Parameters
+    public MutableType DeclaringType
     {
-      get { return _parameters; }
+      get { return _declaringType; }
     }
 
     public Expression This
     {
-      get 
+      get
       {
         if (IsStatic)
           throw new InvalidOperationException ("Static methods cannot use 'This'.");
 
-        return new ThisExpression(_declaringType); 
+        return new ThisExpression (_declaringType);
       }
+    }
+
+    public ReadOnlyCollection<ParameterExpression> Parameters
+    {
+      get { return _parameters; }
     }
 
     public bool IsStatic
