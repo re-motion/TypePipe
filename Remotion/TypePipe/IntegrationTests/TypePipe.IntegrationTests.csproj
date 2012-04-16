@@ -58,6 +58,7 @@
     <Compile Include="KeepConstructorsTest.cs" />
     <Compile Include="ModifyConstructorBodyTest.cs" />
     <Compile Include="ModifyGenericTypeTest.cs" />
+    <Compile Include="ModifyMethodBodyTest.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="AddConstructorTest.cs" />
     <Compile Include="TypeAssemblerIntegrationTestBase.cs" />
