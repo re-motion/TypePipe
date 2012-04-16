@@ -53,8 +53,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void PrepareMethodBody_DoesNothingAndJustReturnsMethodBody ()
     {
-      // TODO 4753
-      // TODO 4772
+      // TODO 4786
       var body1 = Expression.Empty();
       var body2 = new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
 

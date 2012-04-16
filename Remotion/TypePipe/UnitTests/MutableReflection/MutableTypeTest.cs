@@ -87,7 +87,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4772")]
     public void Initialization_Methods ()
     {
       var methods = _descriptor.Methods;
@@ -145,7 +144,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AllMethods ()
     {
       Assert.That (_descriptor.Methods, Is.Not.Empty);
-      //var existingMethods = _descriptor.Methods;
+      var existingMethods = _descriptor.Methods;
       var addedMethod = AddMethod (_mutableType, "NewMethod");
 
       var allMethods = _mutableType.AllMethods.ToArray();
@@ -155,8 +154,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       for (int i = 0; i < expectedMethodCount - 1; i++)
       {
         Assert.That (allMethods[i].DeclaringType, Is.SameAs (_mutableType));
-        // TODO 4772
-        //Assert.That (allMethods[i].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[i]));
+        Assert.That (allMethods[i].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[i]));
       }
       Assert.That (allMethods.Last (), Is.SameAs (addedMethod));
     }

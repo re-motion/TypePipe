@@ -48,7 +48,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4772")]
     public void UnderlyingSystemMethodInfo ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();

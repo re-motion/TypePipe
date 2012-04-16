@@ -443,17 +443,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
-      return new MutableConstructorInfo (this, UnderlyingConstructorInfoDescriptor.Create (originalConstructor));
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalConstructor);
+      return new MutableConstructorInfo (this, descriptor);
     }
 
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
-      // TODO: 4772 extract into UnderlyingMethodInfoDescriptor
-      var parameterDeclarations = originalMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
-      var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
-      var body = new OriginalBodyExpression (originalMethod.ReturnType, parameterExpressions.Cast<Expression>());
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          originalMethod.Name, originalMethod.Attributes, originalMethod.ReturnType, parameterDeclarations, body);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
       return new MutableMethodInfo (this, descriptor);
     }
 

@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MethodInfo UnderlyingSystemMethodInfo
     {
-      get { return /* TODO 4772: _underlyingMethodInfoDescriptor.UnderlyingSystemMethodInfo ?? */this; }
+      get { return _underlyingMethodInfoDescriptor.UnderlyingSystemMethodBase ?? this; }
     }
 
     public override string Name
