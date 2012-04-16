@@ -31,7 +31,7 @@ namespace TypePipe.IntegrationTests
     private static readonly MethodInfo s_stringConcatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
 
     [Test]
-    public void ExistingPublicVirtualMethodUsePreviousBodyWithModifiedArguments ()
+    public void ExistingPublicVirtualMethod_PreviousBodyWithModifiedArguments ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -47,7 +47,38 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void ExistingProtectedVirtualMethodUsePreviousBody ()
+    public void MethodWithOutAndRefParameters ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            //var mutableMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
+            //mutableMethod.SetBody (
+            //    ctx =>
+            //    {
+            //      var tempLocal = Expression.Variable (typeof (int), "temp");
+            //      return Expression.Block (
+            //          tempLocal,
+            //          Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
+            //          ctx.GetPreviousBody (tempLocal, ctx.Parameters[1]),
+            //          Expression.Assign (
+            //              ctx.Parameters[1],
+            //              Expression.Add (ctx.Parameters[1], Expression.Constant (" test")),
+            //              s_stringConcatMethod));
+            //    });
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      string s;
+      int i = 2;
+      instance.MethodWithOutAndRefParameters (ref i, out s);
+
+      Assert.That (i, Is.EqualTo (7));
+      Assert.That (s, Is.EqualTo ("hello test"));
+    }
+
+    [Test]
+    public void ExistingProtectedVirtualMethod_PreviousBody ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -68,7 +99,28 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void CallsToOriginalMethodInvokeNewBody ()
+    public void AddedMethodBody_PreviousBody ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          mutableType.AddMethod (
+              "AddedMethod", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7)),
+          mutableType =>
+          {
+            var mutableMethod = mutableType.AddedMethods.Single ();
+            Assert.That (mutableMethod.IsVirtual, Is.False);
+            //mutableMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody(), Expression.Constant (1)));
+          });
+
+      var method = type.GetMethod ("AddedMethod");
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var result = method.Invoke (instance, null);
+
+      Assert.That (result, Is.EqualTo (8));
+    }
+
+    [Test]
+    public void CallsToOriginalMethod_InvokeNewBody ()
     {
       var type = AssembleType<DomainType> (
         mutableType =>
@@ -84,7 +136,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void ModifyingNonVirtualAndStaticMethodsThrows ()
+    public void ModifyingNonVirtualAndStaticMethods_Throws ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -136,27 +188,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void AddedMethodBodyUsePreviousBody ()
-    {
-      var type = AssembleType<DomainType> (
-          mutableType =>
-          mutableType.AddMethod (
-              "AddedMethod", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7)),
-          mutableType =>
-          {
-            var mutableMethod = mutableType.AddedMethods.Single();
-            Assert.That (mutableMethod.IsVirtual, Is.False);
-            //mutableMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody(), Expression.Constant (1)));
-          });
-
-      var method = type.GetMethod ("AddedMethod");
-      var instance = (DomainType) Activator.CreateInstance (type);
-      var result = method.Invoke (instance, null);
-
-      Assert.That (result, Is.EqualTo (8));
-    }
-
-    [Test]
     public void AddedMethodCallsModfiedMethod ()
     {
       var type = AssembleType<DomainType> (
@@ -205,6 +236,11 @@ namespace TypePipe.IntegrationTests
       public int PublicMethod () { return 12; }
       public static int PublicStaticMethod () { return 13; }
 
+      public virtual void MethodWithOutAndRefParameters (ref int i, out string s)
+      {
+        i++;
+        s = "hello";
+      }
     }
   }
 }
