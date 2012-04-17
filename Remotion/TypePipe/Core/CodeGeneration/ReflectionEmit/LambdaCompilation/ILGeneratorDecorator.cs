@@ -193,7 +193,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _innerILGenerator.Emit (opcode, meth);
     }
 
-   public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
+    public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
       // Optional parameters may be null
