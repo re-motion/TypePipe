@@ -38,9 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      var attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot;
-      if (BooleanObjectMother.GetSomeBoolean ())
-        attributes |= MethodAttributes.Static;
+      var attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual;
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: attributes, parameterDeclarations: parameters);
       _mutableMethod = Create(_descriptor);
@@ -125,11 +123,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       {
         Assert.That (_mutableMethod.ParameterExpressions, Is.Not.Empty);
         Assert.That (context.Parameters, Is.EqualTo (_mutableMethod.ParameterExpressions));
-        Assert.That (context.DeclaringType, Is.EqualTo (_declaringType));
-        var expectedIsStatic = (_descriptor.Attributes & MethodAttributes.Static) == MethodAttributes.Static;
-        Assert.That (context.IsStatic, Is.EqualTo (expectedIsStatic));
+        Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
+        Assert.That (context.IsStatic, Is.False);
 
-        var previousBody = context.GetPreviousBody (context.Parameters.Cast<Expression> ());
+        var previousBody = context.GetPreviousBody ();
         Assert.That (previousBody, Is.SameAs (_mutableMethod.Body));
 
         return fakeBody;
@@ -139,6 +136,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var expectedBody = Expression.Block (typeof (void), fakeBody);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableMethod.Body);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The body of the non-virtual method 'UnspecifiedMethod' cannot be replaced.")]
+    public void SetBody_NonVirtualMethod ()
+    {
+      MethodAttributes attributesOfNonVirtualMethod = 0;
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: attributesOfNonVirtualMethod);
+      var mutableMethod = Create (descriptor);
+
+      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
+      {
+        Assert.Fail ("Should not be called.");
+        return ExpressionTreeObjectMother.GetSomeExpression();
+      };
+
+      mutableMethod.SetBody (bodyProvider);
     }
 
     [Test]

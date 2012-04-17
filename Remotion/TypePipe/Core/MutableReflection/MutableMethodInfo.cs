@@ -97,6 +97,13 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
+      // TODO 4695
+      if (!IsVirtual)
+      {
+        var message = string.Format ("The body of the non-virtual method '{0}' cannot be replaced.", Name);
+        throw new NotSupportedException (message);
+      }
+
       var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
