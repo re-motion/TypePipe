@@ -33,8 +33,9 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingMethodInfoDescriptor _underlyingMethodInfoDescriptor;
-
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+
+    private Expression _body;
 
     public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor)
     {
@@ -48,6 +49,8 @@ namespace Remotion.TypePipe.MutableReflection
           .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
           .ToList()
           .AsReadOnly();
+
+      _body = _underlyingMethodInfoDescriptor.Body;
     }
 
     public override Type DeclaringType
@@ -87,14 +90,15 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Expression Body
     {
-      get { return _underlyingMethodInfoDescriptor.Body; }
+      get { return _body; }
     }
 
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      throw new NotImplementedException ("TODO 4785");
+      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic);
+      _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 
     public override ParameterInfo[] GetParameters ()

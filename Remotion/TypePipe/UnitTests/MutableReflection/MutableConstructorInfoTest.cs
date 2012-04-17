@@ -38,7 +38,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameters);
       _mutableCtor = Create (_descriptor);
     }
 
@@ -48,6 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = new MutableConstructorInfo (_declaringType, _descriptor);
 
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
     }
 
     [Test]
@@ -140,19 +142,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Body ()
-    {
-      Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
-    }
-
-    [Test]
     public void SetBody ()
     {
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
       {
+        Assert.That (_mutableCtor.ParameterExpressions, Is.Not.Empty);
         Assert.That (context.Parameters, Is.EqualTo (_mutableCtor.ParameterExpressions));
-        Assert.That (context.This.Type, Is.SameAs (_declaringType));
+        Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
+        Assert.That (context.IsStatic, Is.False);
 
         var previousBody = context.GetPreviousBody (context.Parameters.Cast<Expression>());
         Assert.That (previousBody, Is.SameAs (_mutableCtor.Body));

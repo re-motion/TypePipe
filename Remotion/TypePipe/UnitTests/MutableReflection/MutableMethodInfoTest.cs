@@ -17,8 +17,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -26,17 +29,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableMethodInfoTest
   {
     private MutableType _declaringType;
-    private UnderlyingMethodInfoDescriptor _descriptor;
 
-    private MutableMethodInfo _methodInfo;
+    private UnderlyingMethodInfoDescriptor _descriptor;
+    private MutableMethodInfo _mutableMethod;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
-      _methodInfo = Create(_descriptor);
+      var attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot;
+      if (BooleanObjectMother.GetSomeBoolean ())
+        attributes |= MethodAttributes.Static;
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: attributes, parameterDeclarations: parameters);
+      _mutableMethod = Create(_descriptor);
     }
 
     [Test]
@@ -45,6 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
 
       Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (mutableMethodInfo.Body, Is.SameAs (_descriptor.Body));
     }
 
     [Test]
@@ -72,25 +80,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Name ()
     {
-      Assert.That (_methodInfo.Name, Is.EqualTo (_descriptor.Name));
+      Assert.That (_mutableMethod.Name, Is.EqualTo (_descriptor.Name));
       }
 
     [Test]
     public void Attributes ()
     {
-      Assert.That (_methodInfo.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_mutableMethod.Attributes, Is.EqualTo (_descriptor.Attributes));
 }
 
     [Test]
     public void ReturnType ()
     {
-      Assert.That (_methodInfo.ReturnType, Is.SameAs (_descriptor.ReturnType));
-}
-
-    [Test]
-    public void Body ()
-    {
-      Assert.That (_methodInfo.Body, Is.SameAs (_descriptor.Body));
+      Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnType));
     }
 
     [Test]
@@ -116,10 +118,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void SetBody ()
+    {
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
+      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
+      {
+        Assert.That (_mutableMethod.ParameterExpressions, Is.Not.Empty);
+        Assert.That (context.Parameters, Is.EqualTo (_mutableMethod.ParameterExpressions));
+        Assert.That (context.DeclaringType, Is.EqualTo (_declaringType));
+        var expectedIsStatic = (_descriptor.Attributes & MethodAttributes.Static) == MethodAttributes.Static;
+        Assert.That (context.IsStatic, Is.EqualTo (expectedIsStatic));
+
+        var previousBody = context.GetPreviousBody (context.Parameters.Cast<Expression> ());
+        Assert.That (previousBody, Is.SameAs (_mutableMethod.Body));
+
+        return fakeBody;
+      };
+
+      _mutableMethod.SetBody (bodyProvider);
+
+      var expectedBody = Expression.Block (typeof (void), fakeBody);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableMethod.Body);
+    }
+
+    [Test]
     public void GetParameters ()
     {
       var parameter1 = ParameterDeclarationObjectMother.Create();
-      var parameter2 = ParameterDeclarationObjectMother.Create ();
+      var parameter2 = ParameterDeclarationObjectMother.Create();
       var methodInfo = CreateWithParameters (parameter1, parameter2);
 
       var result = methodInfo.GetParameters();

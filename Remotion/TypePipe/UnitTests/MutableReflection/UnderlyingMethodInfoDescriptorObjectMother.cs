@@ -29,8 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static UnderlyingMethodInfoDescriptor CreateForNew (
         string name = "UnspecifiedMethod",
-        MethodAttributes attributes =
-            MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
