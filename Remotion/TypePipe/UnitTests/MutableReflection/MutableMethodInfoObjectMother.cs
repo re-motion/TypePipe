@@ -38,5 +38,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (name, methodAttributes, returnType, parameterDeclarations, body);
       return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create(), descriptor);
     }
+
+    public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
+    {
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (originalMethodInfo);
+      return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create (), descriptor);
+    }
   }
 }

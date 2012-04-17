@@ -24,7 +24,6 @@ using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using System.Linq;

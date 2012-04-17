@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Remotion.Utilities;
@@ -85,6 +86,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MethodInfo GetSomeMethod ()
     {
       return GetRandomElement (s_methodInfos);
+    }
+
+    public static MethodInfo[] GetMultipeMethods (int count)
+    {
+      var result = s_methodInfos.Take (count).ToArray();
+      Assertion.IsTrue (result.Length == count, "Count must be at most {0} (or add elements to s_methodInfos).", s_methodInfos.Length);
+      return result;
     }
 
     public static ParameterInfo GetSomeParameter ()
