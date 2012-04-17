@@ -211,7 +211,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedMethod_DefinesMethod ()
     {
-      var mutableMethod = MutableMethodInfoObjectMother.Create (
+      var mutableMethod = MutableMethodInfoObjectMother.CreateForNew (
           parameterDeclarations: new[]
                                  {
                                      ParameterDeclarationObjectMother.Create (typeof (string), "p1", ParameterAttributes.In),
@@ -296,7 +296,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.Create()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.CreateForNew()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify ()));
       CheckThrowsForOperationAfterBuild (() => _builder.AddConstructor (MutableConstructorInfoObjectMother.Create()));

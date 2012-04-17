@@ -22,7 +22,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private static readonly Random s_random = new Random ();
 
-    public static bool GetSomeBoolean ()
+    public static bool GetRandomBoolean ()
     {
       return s_random.Next (2) == 1;
     }

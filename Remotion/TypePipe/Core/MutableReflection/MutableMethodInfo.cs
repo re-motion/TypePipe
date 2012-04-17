@@ -63,6 +63,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.UnderlyingSystemMethodBase ?? this; }
     }
 
+    public bool IsNewMethod
+    {
+      get { return _underlyingMethodInfoDescriptor.UnderlyingSystemMethodBase == null; }
+    }
+
+    public bool IsModified
+    {
+      get { return _body != _underlyingMethodInfoDescriptor.Body; }
+    }
+
     public override string Name
     {
       get { return _underlyingMethodInfoDescriptor.Name; }

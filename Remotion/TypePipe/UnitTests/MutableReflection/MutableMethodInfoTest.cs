@@ -76,6 +76,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsNewMethod_True ()
+    {
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
+
+      var methodInfo = Create (descriptor);
+
+      Assert.That (methodInfo.IsNewMethod, Is.True);
+    }
+
+    [Test]
+    public void IsNewMethod_False ()
+    {
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
+      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Not.Null);
+
+      var methodInfo = Create (descriptor);
+
+      Assert.That (methodInfo.IsNewMethod, Is.False);
+    }
+
+    [Test]
+    public void IsModified_False ()
+    {
+      Assert.That (_mutableMethod.IsModified, Is.False);
+    }
+
+    [Test]
+    public void IsModified_True ()
+    {
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      _mutableMethod.SetBody (ctx => fakeBody);
+
+      Assert.That (_mutableMethod.IsModified, Is.True);
+    }
+
+    [Test]
     public void Name ()
     {
       Assert.That (_mutableMethod.Name, Is.EqualTo (_descriptor.Name));
