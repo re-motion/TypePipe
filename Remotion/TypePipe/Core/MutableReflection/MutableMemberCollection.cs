@@ -25,10 +25,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO 4784 <see cref="Item(TMemberInfo)"/>
   /// <summary>
-  /// A container storing mutable members and providing convenience properties for <see cref="ExistingMembers"/> and <see cref="AddedMembers"/>.
-  /// The indexer xxxx can be used to retrieve the mutable version for an existing member.
+  /// A container storing mutable members and providing convenience properties for <see cref="Existing"/> and <see cref="Added"/>.
+  /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version for an existing member.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
@@ -53,19 +52,19 @@ namespace Remotion.TypePipe.MutableReflection
       _existingMembers = existingMembers.ToDictionary (member => member, mutableMemberProvider).AsReadOnly ();
     }
 
-    public ReadOnlyCollectionDecorator<TMutableMemberInfo> ExistingMembers
+    public ReadOnlyCollectionDecorator<TMutableMemberInfo> Existing
     {
       get { return _existingMembers.Values.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<TMutableMemberInfo> AddedMembers
+    public ReadOnlyCollection<TMutableMemberInfo> Added
     {
       get { return _addedMembers.AsReadOnly(); }
     }
 
     public IEnumerator<TMutableMemberInfo> GetEnumerator ()
     {
-      return ExistingMembers.Concat (AddedMembers).GetEnumerator ();
+      return Existing.Concat (Added).GetEnumerator ();
     }
 
     IEnumerator IEnumerable.GetEnumerator ()
@@ -73,28 +72,25 @@ namespace Remotion.TypePipe.MutableReflection
       return GetEnumerator ();
     }
 
-    public TMutableMemberInfo this [TMemberInfo existingMember]
+    public TMutableMemberInfo GetMutableMember (TMemberInfo member)
     {
-      get
+      ArgumentUtility.CheckNotNull ("member", member);
+      CheckDeclaringType ("member", member);
+
+      if (member is TMutableMemberInfo)
+        return (TMutableMemberInfo) member;
+
+      var mutableMember = _existingMembers.GetValueOrDefault (member);
+      if (mutableMember == null)
       {
-        ArgumentUtility.CheckNotNull ("existingMember", existingMember);
-        CheckDeclaringType ("existingMember", existingMember);
-
-        if (existingMember is TMutableMemberInfo)
-          return (TMutableMemberInfo) existingMember;
-
-        var mutableMember = _existingMembers.GetValueOrDefault (existingMember);
-        if (mutableMember == null)
-        {
-          var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName());
-          throw new NotSupportedException (message);
-        }
-
-        return mutableMember;
+        var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName());
+        throw new NotSupportedException (message);
       }
+
+      return mutableMember;
     }
 
-    public void AddMember (TMutableMemberInfo mutableMember)
+    public void Add (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
       CheckDeclaringType ("mutableMember", mutableMember);

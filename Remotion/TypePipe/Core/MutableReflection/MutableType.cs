@@ -41,12 +41,12 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
+    private readonly MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
+
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
-    private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
     private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo> ();
 
-    private readonly ReadOnlyDictionary<ConstructorInfo, MutableConstructorInfo> _existingConstructors;
     private readonly ReadOnlyDictionary<MethodInfo, MutableMethodInfo> _existingMethods;
 
     public MutableType (
@@ -62,7 +62,9 @@ namespace Remotion.TypePipe.MutableReflection
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
-      _existingConstructors = _underlyingTypeDescriptor.Constructors.ToDictionary (ctor => ctor, CreateExistingMutableConstructor).AsReadOnly();
+      _constructors = new MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> (
+          this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
+
       _existingMethods = _underlyingTypeDescriptor.Methods.ToDictionary (method => method, CreateExistingMutableMethod).AsReadOnly();
     }
 
@@ -78,7 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
-      get { return _addedConstructors.AsReadOnly(); }
+      get { return _constructors.Added; }
     }
 
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
@@ -98,7 +100,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingConstructors
     {
-      get { return _existingConstructors.Values.AsReadOnly(); }
+      get { return _constructors.Existing; }
     }
 
     public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMethods
@@ -118,7 +120,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<MutableConstructorInfo> AllConstructors
     {
-      get { return ExistingConstructors.Concat (AddedConstructors); }
+      get { return _constructors; }
     }
 
     public IEnumerable<MutableMethodInfo> AllMethods
@@ -274,7 +276,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (AllConstructors.Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
-      _addedConstructors.Add (constructorInfo);
+      _constructors.Add (constructorInfo);
 
       return constructorInfo;
     }
@@ -287,17 +289,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-
-      CheckDeclaringType (constructor, "constructor");
-
-      if (constructor is MutableConstructorInfo)
-        return (MutableConstructorInfo) constructor;
-
-      var matchingMutableConstructorInfo = _existingConstructors.GetValueOrDefault (constructor);
-      if (matchingMutableConstructorInfo == null)
-        throw new NotSupportedException ("The given constructor cannot be mutated.");
-      
-      return matchingMutableConstructorInfo;
+      return _constructors.GetMutableMember(constructor);
     }
 
     public MutableMethodInfo AddMethod (
@@ -355,7 +347,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var addedField in _addedFields)
         modificationHandler.HandleAddedField (addedField);
 
-      foreach (var addedConstructor in _addedConstructors)
+      foreach (var addedConstructor in _constructors.Added)
         modificationHandler.HandleAddedConstructor (addedConstructor);
 
       foreach (var addedMethod in _addedMethods)
@@ -435,16 +427,6 @@ namespace Remotion.TypePipe.MutableReflection
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
       return binder;
-    }
-
-    private void CheckDeclaringType (MemberInfo member, string parameterName)
-    {
-      if (!IsEquivalentTo (member.DeclaringType))
-      {
-        var memberKind = char.ToUpper (parameterName[0]) + parameterName.Substring (1);
-        var message = string.Format ("{0} is declared by a different type: '{1}'.", memberKind, member.DeclaringType);
-        throw new ArgumentException (message, parameterName);
-      }
     }
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)

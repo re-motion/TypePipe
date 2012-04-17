@@ -49,86 +49,86 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      Assert.That (_collection.AddedMembers, Is.Empty);
-      Assert.That (_collection.ExistingMembers.Select (mutableMember => mutableMember.UnderlyingSystemMethodInfo), Is.EquivalentTo (_existingMembers));
+      Assert.That (_collection.Added, Is.Empty);
+      Assert.That (_collection.Existing.Select (mutableMember => mutableMember.UnderlyingSystemMethodInfo), Is.EquivalentTo (_existingMembers));
     }
 
     [Test]
     public void GetEnumerator ()
     {
       var mutableMember = CreateMutableMember ();
-      _collection.AddMember (mutableMember);
-      Assert.That (_collection.ExistingMembers, Is.Not.Empty);
-      Assert.That (_collection.AddedMembers, Has.Count.EqualTo (1));
+      _collection.Add (mutableMember);
+      Assert.That (_collection.Existing, Is.Not.Empty);
+      Assert.That (_collection.Added, Has.Count.EqualTo (1));
 
       IEnumerable<MutableMethodInfo> enumerable = _collection;
 
-      Assert.That (enumerable, Is.EqualTo (_collection.ExistingMembers.Concat (mutableMember)));
+      Assert.That (enumerable, Is.EqualTo (_collection.Existing.Concat (mutableMember)));
     }
 
     [Test]
-    public void Indexer_MutableMethodInfo ()
+    public void GetMutableMember_MutableMethodInfo ()
     {
       var mutableMember = CreateMutableMember();
-      _collection.AddMember (mutableMember);
+      _collection.Add (mutableMember);
 
-      var result = _collection[mutableMember];
+      var result = _collection.GetMutableMember(mutableMember);
 
       Assert.That (result, Is.SameAs (mutableMember));
     }
 
     [Test]
-    public void Indexer_StandardMemberInfo ()
+    public void GetMutableMember_StandardMemberInfo ()
     {
       var standardMember = _existingMembers.First();
       Assert.That (standardMember, Is.Not.AssignableTo<MutableMethodInfo> ());
 
-      var result = _collection[standardMember];
+      var result = _collection.GetMutableMember(standardMember);
 
-      var expectedMutableMember = _collection.ExistingMembers.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
+      var expectedMutableMember = _collection.Existing.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
       Assert.That (result, Is.SameAs (expectedMutableMember));
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given MethodInfo cannot be modified.")]
-    public void Indexer_StandardMemberInfo_NoMatch ()
+    public void GetMutableMember_StandardMemberInfo_NoMatch ()
     {
       Assert.That (_excludedExistingMember, Is.Not.AssignableTo<MutableMethodInfo> ());
-      Dev.Null = _collection[_excludedExistingMember];
+      Dev.Null = _collection.GetMutableMember(_excludedExistingMember);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "MethodInfo is declared by a different type: 'System.String'.\r\nParameter name: existingMember")]
-    public void Indexer_NonEquivalentDeclaringType ()
+        "MethodInfo is declared by a different type: 'System.String'.\r\nParameter name: member")]
+    public void GetMutableMember_NonEquivalentDeclaringType ()
     {
       var memberStub = MockRepository.GenerateStub<MethodInfo> ();
       memberStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
 
-      Dev.Null = _collection[memberStub];
+      Dev.Null = _collection.GetMutableMember(memberStub);
     }
 
     [Test]
-    public void AddMember ()
+    public void Add ()
     {
       var mutableMember = CreateMutableMember ();
 
-      _collection.AddMember (mutableMember);
+      _collection.Add (mutableMember);
 
-      Assert.That (_collection.AddedMembers, Is.EqualTo (new[] { mutableMember }));
+      Assert.That (_collection.Added, Is.EqualTo (new[] { mutableMember }));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "MethodInfo is declared by a different type: 'Remotion.TypePipe.UnitTests.MutableReflection.MutableMemberCollectionTest'.\r\n"
         + "Parameter name: mutableMember")]
-    public void AddMember_NonEquivalentDeclaringType ()
+    public void Add_NonEquivalentDeclaringType ()
     {
       var declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (MutableMemberCollectionTest));
       Assert.That (_declaringType.IsEquivalentTo (declaringType), Is.False);
       var mutableMember = MutableMethodInfoObjectMother.CreateForExisting (declaringType);
 
-      _collection.AddMember (mutableMember);
+      _collection.Add (mutableMember);
     }
 
     private MutableMethodInfo CreateMutableMember ()

@@ -535,49 +535,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Constructor is declared by a different type: 'System.String'.\r\nParameter name: constructor")]
-    public void GetMutableConstructor_NotEquivalentDeclaringType ()
+    public void GetMutableConstructor ()
     {
-      var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
-      ctorStub.Stub (stub => stub.DeclaringType).Return (typeof(string));
+      var existingCtor = _descriptor.Constructors.Single ();
+      Assert.That (existingCtor, Is.Not.AssignableTo<MutableConstructorInfo>());
 
-      _mutableType.GetMutableConstructor (ctorStub);
-    }
+      var result = _mutableType.GetMutableConstructor (existingCtor);
 
-    [Test]
-    public void GetMutableConstructor_MutableConstructorInfo ()
-    {
-      var ctor = AddConstructor (_mutableType);
-
-      var result = _mutableType.GetMutableConstructor (ctor);
-
-      Assert.That (result, Is.SameAs (ctor));
-    }
-
-    [Test]
-    public void GetMutableConstructor_StandardConstructorInfo ()
-    {
-      var standardCtor = _descriptor.Constructors.Single ();
-      Assert.That (standardCtor, Is.Not.AssignableTo<MutableConstructorInfo>());
-
-      var result = _mutableType.GetMutableConstructor (standardCtor);
-
-      Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (standardCtor));
+      Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
       Assert.That (_mutableType.ExistingConstructors, Has.Member (result));
-    }
-
-    [Test]
-    public void GetMutableConstructor_StandardConstructorInfo_Twice ()
-    {
-      var standardCtor = _descriptor.Constructors.Single ();
-      Assert.That (standardCtor, Is.Not.AssignableTo<MutableConstructorInfo> ());
-
-      var result1 = _mutableType.GetMutableConstructor (standardCtor);
-      var result2 = _mutableType.GetMutableConstructor (standardCtor);
-
-      Assert.That (result1, Is.SameAs (result2));
     }
 
     [Test]
@@ -681,16 +647,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       Assert.That (methods, Is.Empty);
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given constructor cannot be mutated.")]
-    public void GetMutableConstructor_StandardConstructorInfo_Unknown ()
-    {
-      var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
-      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType.UnderlyingSystemType);
-
-      _mutableType.GetMutableConstructor (ctorStub);
     }
 
     [Test]
