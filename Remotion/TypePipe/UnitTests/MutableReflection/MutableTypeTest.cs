@@ -650,6 +650,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetMutableMethod ()
+    {
+      var existingMethod = _descriptor.Methods.Single (m => m.Name == "PublicMethod");
+      Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo> ());
+
+      var result = _mutableType.GetMutableMethod (existingMethod);
+
+      Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
+      Assert.That (_mutableType.ExistingMethods, Has.Member (result));
+    }
+
+    [Test]
     public void Accept_WithAddedAndUnmodifiedExistingMembers ()
     {
       Assert.That (_mutableType.ExistingInterfaces, Is.Not.Empty);

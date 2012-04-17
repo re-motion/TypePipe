@@ -283,10 +283,11 @@ namespace Remotion.TypePipe.MutableReflection
       return AllConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
-    public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
+    public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructorInfo)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      return _constructors.GetMutableMember(constructor);
+      ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
+
+      return _constructors.GetMutableMember(constructorInfo);
     }
 
     public MutableMethodInfo AddMethod (
@@ -331,7 +332,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
 
-      throw new NotImplementedException ("TODO 4784");
+      return _methods.GetMutableMember (methodInfo);
     }
 
     public virtual void Accept (ITypeModificationHandler modificationHandler)
