@@ -32,6 +32,11 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
     {
     }
 
+    public MethodInfo AdaptedMethodInfo
+    {
+      get { return InnerMethod; }
+    }
+
     public override ICustomAttributeProvider ReturnTypeCustomAttributes
     {
       get { return InnerMethod.ReturnTypeCustomAttributes; }

@@ -169,9 +169,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("meth", meth);
 
-      var baseConstructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
-      if (baseConstructorMethodInfo != null)
-        Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
+      var constructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
+      var baseCallMethodInfo = meth as BaseCallMethodInfoAdapter;
+
+      if (constructorMethodInfo != null)
+      {
+        Emit (opcode, constructorMethodInfo.ConstructorInfo);
+      }
+      else if (baseCallMethodInfo != null)
+      {
+        Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo);
+      }
       else
       {
         var builder = _reflectionToBuilderMap.GetBuilder (meth);
@@ -208,12 +216,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       // Optional parameters may be null
 
       var baseConstructorMethodInfo = methodInfo as ConstructorAsMethodInfoAdapter;
+      var baseCallMethodInfo = methodInfo as BaseCallMethodInfoAdapter;
+
       if (baseConstructorMethodInfo != null)
       {
         if (!ArrayUtility.IsNullOrEmpty (optionalParameterTypes))
           throw new InvalidOperationException ("Constructor calls cannot have optional parameters.");
 
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
+      }
+      else if (baseCallMethodInfo != null)
+      {
+        EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo, optionalParameterTypes);
       }
       else
       {
@@ -238,6 +252,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     public void MarkSequencePoint (ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
       _innerILGenerator.MarkSequencePoint (document, startLine, startColumn, endLine, endColumn);
+    }
+
+    private OpCode AdjustOpCodeForBaseCall (OpCode opcode)
+    {
+      return opcode == OpCodes.Callvirt ? OpCodes.Call : opcode;
     }
   }
 }

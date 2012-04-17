@@ -119,17 +119,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void Emit_MethodInfo_BaseConstructorMethodInfo ()
     {
-      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeConstructor());
-      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
-
-      _decorator.Emit (OpCodes.Call, methodInfo);
-
-      _innerILGeneratorMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void Emit_MethodInfo_BaseConstructorMethodInfo_WithMappedConstructor ()
-    {
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
       constructorBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
@@ -140,6 +129,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       _decorator.Emit (OpCodes.Call, methodInfo);
 
       constructorBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void Emit_MethodInfo_BaseCallMethodInfo ()
+    {
+      var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      methodBuilderMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
+      _reflectionToBuilderMap.AddMapping (mappedMethodInfo, methodBuilderMock);
+
+      var methodInfo = new BaseCallMethodInfoAdapter (mappedMethodInfo);
+
+      _decorator.Emit (OpCodes.Call, methodInfo);
+
+      methodBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void Emit_MethodInfo_BaseCallMethodInfo_TurnsCallvirt_IntoCall ()
+    {
+      var methodInfo = new BaseCallMethodInfoAdapter (ReflectionObjectMother.GetSomeMethod ());
+      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.AdaptedMethodInfo));
+
+      _decorator.Emit (OpCodes.Callvirt, methodInfo);
+
+      _innerILGeneratorMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -168,29 +183,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void EmitCall_MethodInfo_BaseConstructorMethodInfo_EmptyOptionalParameters ()
-    {
-      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
-      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
-
-      _decorator.EmitCall (OpCodes.Call, methodInfo, Type.EmptyTypes);
-
-      _innerILGeneratorMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void EmitCall_MethodInfo_BaseConstructorMethodInfo_NullOptionalParameters ()
-    {
-      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
-      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
-
-      _decorator.EmitCall (OpCodes.Call, methodInfo, null);
-
-      _innerILGeneratorMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void EmitCall_MethodInfo_BaseConstructorMethodInfo_WithMappedConstructor ()
+    public void EmitCall_MethodInfo_BaseConstructorMethodInfo ()
     {
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
@@ -205,12 +198,55 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    public void EmitCall_MethodInfo_BaseConstructorMethodInfo_EmptyOptionalParameters ()
+    {
+      var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
+      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo.ConstructorInfo));
+
+      _decorator.EmitCall (OpCodes.Call, methodInfo, Type.EmptyTypes);
+
+      _innerILGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Constructor calls cannot have optional parameters.")]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo_WithOptionalParameters ()
     {
       var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, new[] { ReflectionObjectMother.GetSomeType() });
+    }
+
+    [Test]
+    public void EmitCall_MethodInfo_BaseCallMethodInfo ()
+    {
+      var optionalParameterTypes = new[] { ReflectionObjectMother.GetSomeType () };
+
+      var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      methodBuilderMock.Expect (mock => mock.EmitCall (_decorator, OpCodes.Call, optionalParameterTypes));
+      _reflectionToBuilderMap.AddMapping (mappedMethodInfo, methodBuilderMock);
+
+      var methodInfo = new BaseCallMethodInfoAdapter (mappedMethodInfo);
+
+      _decorator.EmitCall (OpCodes.Call, methodInfo, optionalParameterTypes);
+
+      methodBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void EmitCall_MethodInfo_BaseCallMethodInfo_TurnsCallvirt_IntoCall ()
+    {
+      var optionalParameterTypes = new[] { ReflectionObjectMother.GetSomeType () };
+
+      var adaptedMethod = ReflectionObjectMother.GetSomeMethod ();
+      var methodInfo = new BaseCallMethodInfoAdapter (adaptedMethod);
+
+      _innerILGeneratorMock.Expect (mock => mock.EmitCall (OpCodes.Call, adaptedMethod, optionalParameterTypes));
+      
+      _decorator.EmitCall (OpCodes.Callvirt, methodInfo, optionalParameterTypes);
+
+      _innerILGeneratorMock.VerifyAllExpectations ();
     }
 
     [Test]
