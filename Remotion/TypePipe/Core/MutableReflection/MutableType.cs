@@ -42,12 +42,10 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
     private readonly MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
+    private readonly MutableMemberCollection<MethodInfo, MutableMethodInfo> _methods;
 
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
-    private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo> ();
-
-    private readonly ReadOnlyDictionary<MethodInfo, MutableMethodInfo> _existingMethods;
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -64,8 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _constructors = new MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
-
-      _existingMethods = _underlyingTypeDescriptor.Methods.ToDictionary (method => method, CreateExistingMutableMethod).AsReadOnly();
+      _methods = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -85,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
-      get { return _addedMethods.AsReadOnly(); }
+      get { return _methods.Added; }
     }
 
     public ReadOnlyCollection<Type> ExistingInterfaces
@@ -105,7 +102,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMethods
     {
-      get { return _existingMethods.Values.AsReadOnly (); }
+      get { return _methods.Existing; }
     }
 
     public IEnumerable<Type> AllInterfaces
@@ -320,7 +317,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (message, "name");
       }
 
-      _addedMethods.Add (methodInfo);
+      _methods.Add (methodInfo);
 
       return methodInfo;
     }
@@ -350,7 +347,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var addedConstructor in _constructors.Added)
         modificationHandler.HandleAddedConstructor (addedConstructor);
 
-      foreach (var addedMethod in _addedMethods)
+      foreach (var addedMethod in _methods.Added)
         modificationHandler.HandleAddedMethod (addedMethod);
 
       foreach (var modifiedConstructor in ExistingConstructors.Where (c => c.IsModified))
