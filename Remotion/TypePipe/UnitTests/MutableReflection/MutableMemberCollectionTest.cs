@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.FunctionalProgramming;
 using Rhino.Mocks;
@@ -66,6 +67,48 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Indexer_MutableMethodInfo ()
+    {
+      var mutableMember = CreateMutableMember();
+      _collection.AddMember (mutableMember);
+
+      var result = _collection[mutableMember];
+
+      Assert.That (result, Is.SameAs (mutableMember));
+    }
+
+    [Test]
+    public void Indexer_StandardMemberInfo ()
+    {
+      var standardMember = _existingMembers.First();
+      Assert.That (standardMember, Is.Not.AssignableTo<MutableMethodInfo> ());
+
+      var result = _collection[standardMember];
+
+      var expectedMutableMember = _collection.ExistingMembers.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
+      Assert.That (result, Is.SameAs (expectedMutableMember));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given MethodInfo cannot be modified.")]
+    public void Indexer_StandardMemberInfo_NoMatch ()
+    {
+      Assert.That (_excludedExistingMember, Is.Not.AssignableTo<MutableMethodInfo> ());
+      Dev.Null = _collection[_excludedExistingMember];
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "MethodInfo is declared by a different type: 'System.String'.\r\nParameter name: existingMember")]
+    public void Indexer_NonEquivalentDeclaringType ()
+    {
+      var memberStub = MockRepository.GenerateStub<MethodInfo> ();
+      memberStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
+
+      Dev.Null = _collection[memberStub];
+    }
+
+    [Test]
     public void AddMember ()
     {
       var mutableMember = CreateMutableMember ();
@@ -81,53 +124,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         + "Parameter name: mutableMember")]
     public void AddMember_NonEquivalentDeclaringType ()
     {
-      var declaringType = MutableTypeObjectMother.CreateForExistingType (typeof(MutableMemberCollectionTest));
-      Assert.That (_declaringType.IsEquivalentTo(declaringType), Is.False);
+      var declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (MutableMemberCollectionTest));
+      Assert.That (_declaringType.IsEquivalentTo (declaringType), Is.False);
       var mutableMember = MutableMethodInfoObjectMother.CreateForExisting (declaringType);
 
       _collection.AddMember (mutableMember);
-    }
-
-    [Test]
-    public void GetMutableMemberMember_MutableMethodInfo ()
-    {
-      var mutableMember = CreateMutableMember();
-      _collection.AddMember (mutableMember);
-
-      var result = _collection.GetMutableMember (mutableMember);
-
-      Assert.That (result, Is.SameAs (mutableMember));
-    }
-
-    [Test]
-    public void GetMutableMember_StandardMemberInfo ()
-    {
-      var standardMember = _existingMembers.First();
-      Assert.That (standardMember, Is.Not.AssignableTo<MutableMethodInfo> ());
-
-      var result = _collection.GetMutableMember (standardMember);
-
-      var expectedMutableMember = _collection.ExistingMembers.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
-      Assert.That (result, Is.SameAs (expectedMutableMember));
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given MethodInfo cannot be modified.")]
-    public void GetMutableMember_StandardMemberInfo_NoMatch ()
-    {
-      Assert.That (_excludedExistingMember, Is.Not.AssignableTo<MutableMethodInfo> ());
-      _collection.GetMutableMember (_excludedExistingMember);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "MethodInfo is declared by a different type: 'System.String'.\r\nParameter name: member")]
-    public void GetMutableMember_NonEquivalentDeclaringType ()
-    {
-      var memberStub = MockRepository.GenerateStub<MethodInfo> ();
-      memberStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
-
-      _collection.GetMutableMember (memberStub);
     }
 
     private MutableMethodInfo CreateMutableMember ()

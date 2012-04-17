@@ -25,9 +25,10 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  // TODO 4784 <see cref="Item(TMemberInfo)"/>
   /// <summary>
-  /// A container storing mutable members and providing convinience properties for <see cref="ExistingMembers"/> and <see cref="AddedMembers"/>.
-  /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version of a member.
+  /// A container storing mutable members and providing convenience properties for <see cref="ExistingMembers"/> and <see cref="AddedMembers"/>.
+  /// The indexer xxxx can be used to retrieve the mutable version for an existing member.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
@@ -72,30 +73,33 @@ namespace Remotion.TypePipe.MutableReflection
       return GetEnumerator ();
     }
 
+    public TMutableMemberInfo this [TMemberInfo existingMember]
+    {
+      get
+      {
+        ArgumentUtility.CheckNotNull ("existingMember", existingMember);
+        CheckDeclaringType ("existingMember", existingMember);
+
+        if (existingMember is TMutableMemberInfo)
+          return (TMutableMemberInfo) existingMember;
+
+        var mutableMember = _existingMembers.GetValueOrDefault (existingMember);
+        if (mutableMember == null)
+        {
+          var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName());
+          throw new NotSupportedException (message);
+        }
+
+        return mutableMember;
+      }
+    }
+
     public void AddMember (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
       CheckDeclaringType ("mutableMember", mutableMember);
 
       _addedMembers.Add (mutableMember);
-    }
-
-    public TMutableMemberInfo GetMutableMember (TMemberInfo member)
-    {
-      ArgumentUtility.CheckNotNull ("member", member);
-      CheckDeclaringType ("member", member);
-
-      if (member is TMutableMemberInfo)
-        return (TMutableMemberInfo) member;
-
-      var mutableMember = _existingMembers.GetValueOrDefault (member);
-      if (mutableMember == null)
-      {
-        var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName());
-        throw new NotSupportedException (message);
-      }
-
-      return mutableMember;
     }
 
     private void CheckDeclaringType (string parameterName, MemberInfo member)
