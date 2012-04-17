@@ -170,74 +170,80 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("meth", meth);
 
       var constructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
-      var baseCallMethodInfo = meth as BaseCallMethodInfoAdapter;
-
       if (constructorMethodInfo != null)
       {
         Emit (opcode, constructorMethodInfo.ConstructorInfo);
+        return;
       }
-      else if (baseCallMethodInfo != null)
+
+      var baseCallMethodInfo = meth as BaseCallMethodInfoAdapter;
+      if (baseCallMethodInfo != null)
       {
         Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo);
+        return;
       }
-      else
+      
+      var builder = _reflectionToBuilderMap.GetBuilder (meth);
+      if (builder != null)
       {
-        var builder = _reflectionToBuilderMap.GetBuilder (meth);
-        if (builder != null)
-          builder.Emit (this, opcode);
-        else
-          _innerILGenerator.Emit (opcode, meth);
+        builder.Emit (this, opcode);
+        return;
       }
+
+      _innerILGenerator.Emit (opcode, meth);
     }
 
-    public void Emit (OpCode opcode, Label[] labels)
-    {
-      _innerILGenerator.Emit (opcode, labels);
-    }
-
-    public void Emit (OpCode opcode)
-    {
-      _innerILGenerator.Emit (opcode);
-    }
-
-    public void Emit (OpCode opcode, string str)
-    {
-      _innerILGenerator.Emit (opcode, str);
-    }
-
-    public void Emit (OpCode opcode, LocalBuilder local)
-    {
-      _innerILGenerator.Emit (opcode, local);
-    }
-
-    public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
+   public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
       // Optional parameters may be null
 
       var baseConstructorMethodInfo = methodInfo as ConstructorAsMethodInfoAdapter;
-      var baseCallMethodInfo = methodInfo as BaseCallMethodInfoAdapter;
-
       if (baseConstructorMethodInfo != null)
       {
         if (!ArrayUtility.IsNullOrEmpty (optionalParameterTypes))
           throw new InvalidOperationException ("Constructor calls cannot have optional parameters.");
 
         Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
+        return;
       }
-      else if (baseCallMethodInfo != null)
+
+      var baseCallMethodInfo = methodInfo as BaseCallMethodInfoAdapter;
+      if (baseCallMethodInfo != null)
       {
         EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo, optionalParameterTypes);
+        return;
       }
-      else
+      
+      var builder = _reflectionToBuilderMap.GetBuilder (methodInfo);
+      if (builder != null)
       {
-        var builder = _reflectionToBuilderMap.GetBuilder (methodInfo);
-        if (builder != null)
-          builder.EmitCall (this, opcode, optionalParameterTypes);
-        else
-          _innerILGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
+        builder.EmitCall (this, opcode, optionalParameterTypes);
+        return;
       }
+      
+      _innerILGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
     }
+
+   public void Emit (OpCode opcode, Label[] labels)
+   {
+     _innerILGenerator.Emit (opcode, labels);
+   }
+
+   public void Emit (OpCode opcode)
+   {
+     _innerILGenerator.Emit (opcode);
+   }
+
+   public void Emit (OpCode opcode, string str)
+   {
+     _innerILGenerator.Emit (opcode, str);
+   }
+
+   public void Emit (OpCode opcode, LocalBuilder local)
+   {
+     _innerILGenerator.Emit (opcode, local);
+   }
 
     public void EndExceptionBlock ()
     {
