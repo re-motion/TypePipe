@@ -15,9 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -26,40 +26,40 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Replaces all occurences of <see cref="OriginalBodyExpression"/> with a base call to the underlying constructor.
   /// </summary>
-  public class OriginalConstructorBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
+  public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
   {
-    private readonly MutableConstructorInfo _mutableConstructorInfo;
+    private readonly IMutableMethodBase _mutableMethodBase;
+    private readonly MethodInfo _methodRepresentingOriginalBody;
 
-    public OriginalConstructorBodyReplacingExpressionVisitor (MutableConstructorInfo mutableConstructorInfo)
+    public OriginalBodyReplacingExpressionVisitor (IMutableMethodBase mutableMethodBase, MethodInfo methodRepresentingOriginalBody)
     {
-      ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
+      ArgumentUtility.CheckNotNull ("mutableMethodBase", mutableMethodBase);
+      ArgumentUtility.CheckNotNull ("methodRepresentingOriginalBody", methodRepresentingOriginalBody);
 
-      Assertion.IsFalse (mutableConstructorInfo.IsStatic, "Static constructors are not (yet) supported.");
-
-      _mutableConstructorInfo = mutableConstructorInfo;
+      _mutableMethodBase = mutableMethodBase;
+      _methodRepresentingOriginalBody = methodRepresentingOriginalBody;
     }
 
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      if (_mutableConstructorInfo.IsNewConstructor)
+      if (_mutableMethodBase.IsNew || _mutableMethodBase.IsStatic)
       {
         var message = string.Format (
-            "The body of an added constructor ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.", 
-            _mutableConstructorInfo, 
-            _mutableConstructorInfo.DeclaringType.Name);
+            "The body of an added or static member ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.", 
+            _mutableMethodBase, 
+            _mutableMethodBase.DeclaringType.Name);
         throw new NotSupportedException (message);
       }
 
-      var baseMethod = new ConstructorAsMethodInfoAdapter (_mutableConstructorInfo.UnderlyingSystemConstructorInfo);
-      var thisExpression = new ThisExpression (_mutableConstructorInfo.DeclaringType);
-      // Since _mutableConstructorInfo.DeclaringType is a MutableType, we need to convert the ThisExpression to its underlying
+      var thisExpression = new ThisExpression (_mutableMethodBase.DeclaringType);
+      // Since _mutableMethodBase.DeclaringType is a MutableType, we need to convert the ThisExpression to its underlying
       // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
       var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
 
-      var baseCall = Expression.Call (convertedThisExpression, baseMethod, expression.Arguments);
+      var baseCall = Expression.Call (convertedThisExpression, _methodRepresentingOriginalBody, expression.Arguments);
       return Visit (baseCall);
     }
   }

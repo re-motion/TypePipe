@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
 
       Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (((IMutableMethodBase) mutableMethodInfo).DeclaringType, Is.SameAs (_declaringType));
       Assert.That (mutableMethodInfo.Body, Is.SameAs (_descriptor.Body));
     }
 
@@ -83,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var methodInfo = Create (descriptor);
 
-      Assert.That (methodInfo.IsNewMethod, Is.True);
+      Assert.That (methodInfo.IsNew, Is.True);
     }
 
     [Test]
@@ -94,7 +95,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var methodInfo = Create (descriptor);
 
-      Assert.That (methodInfo.IsNewMethod, Is.False);
+      Assert.That (methodInfo.IsNew, Is.False);
     }
 
     [Test]

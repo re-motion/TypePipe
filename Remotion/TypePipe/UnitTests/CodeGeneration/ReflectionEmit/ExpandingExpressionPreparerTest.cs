@@ -48,23 +48,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var result = _preparer.PrepareConstructorBody (ctor);
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
+      var methodCallExpression = ((MethodCallExpression) result);
+      Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+      Assert.That (((ConstructorAsMethodInfoAdapter) methodCallExpression.Method).ConstructorInfo, Is.SameAs (ctor.UnderlyingSystemConstructorInfo));
     }
-    
+
     [Test]
-    public void PrepareMethodBody_DoesNothingAndJustReturnsMethodBody ()
+    public void PrepareMethodBody_ExpandsOriginalBodyExpressions ()
     {
-      // TODO 4786
-      var body1 = Expression.Empty();
-      var body2 = new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
+      var method = mutableType.ExistingMethods.First ();
+      Assert.That (method.Body, Is.TypeOf<OriginalBodyExpression> ());
 
-      var method1 = MutableMethodInfoObjectMother.Create (body: body1);
-      var method2 = MutableMethodInfoObjectMother.Create (body: body2);
+      var result = _preparer.PrepareMethodBody (method);
 
-      var result1 = _preparer.PrepareMethodBody (method1);
-      var result2 = _preparer.PrepareMethodBody (method2);
-
-      Assert.That (result1, Is.SameAs (body1));
-      Assert.That (result2, Is.SameAs (body2));
+      Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
+      var methodCallExpression = ((MethodCallExpression) result);
+      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
+      Assert.That (((BaseCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.SameAs (method.UnderlyingSystemMethodInfo));
     }
   }
 }

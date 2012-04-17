@@ -19,6 +19,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -34,16 +35,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
 
-      var visitor = new OriginalConstructorBodyReplacingExpressionVisitor (mutableConstructorInfo);
+      var methodRepresentingOriginalBody = new ConstructorAsMethodInfoAdapter (mutableConstructorInfo.UnderlyingSystemConstructorInfo);
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableConstructorInfo, methodRepresentingOriginalBody);
       return visitor.Visit (mutableConstructorInfo.Body);
     }
 
-    // TODO RM-4753
     public Expression PrepareMethodBody (MutableMethodInfo mutableMethodInfo)
     {
       ArgumentUtility.CheckNotNull ("mutableMethodInfo", mutableMethodInfo);
 
-      return mutableMethodInfo.Body;
+      var methodRepresentingOriginalBody = new BaseCallMethodInfoAdapter (mutableMethodInfo.UnderlyingSystemMethodInfo);
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodInfo, methodRepresentingOriginalBody);
+      return visitor.Visit (mutableMethodInfo.Body);
     }
   }
 }

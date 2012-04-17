@@ -30,22 +30,25 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class OriginalConstructorBodyReplacingExpressionVisitorTest
+  public class OriginalBodyReplacingExpressionVisitorTest
   {
     private MutableType _declaringType;
-    private ConstructorInfo _underlyingCtorInfo;
-    private MutableConstructorInfo _ctorInfo;
+    private IMutableMethodBase _mutableMethodStub;
+    private MethodInfo _methodRepresentingOriginalBody;
 
-    private OriginalConstructorBodyReplacingExpressionVisitor _visitorPartialMock;
+    private OriginalBodyReplacingExpressionVisitor _visitorPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
-      _underlyingCtorInfo = ReflectionObjectMother.GetConstructor (() => new DomainClass (7, "string"));
-      _ctorInfo = _declaringType.GetMutableConstructor (_underlyingCtorInfo);
+      _mutableMethodStub = MockRepository.GenerateStub<IMutableMethodBase>();
+      _mutableMethodStub.Stub (stub => stub.DeclaringType).Return (_declaringType);
+      _methodRepresentingOriginalBody = ReflectionObjectMother.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalConstructorBodyReplacingExpressionVisitor> (_ctorInfo);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (
+          _mutableMethodStub, 
+          _methodRepresentingOriginalBody);
     }
 
     [Test]
@@ -54,6 +57,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
       var expression = new OriginalBodyExpression (typeof (void), arguments);
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
+
+      _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
+      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
 
       _visitorPartialMock
           .Expect (mock => mock.Visit (Arg<Expression>.Matches (e => e is MethodCallExpression)))
@@ -68,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                 Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (_declaringType));
             Assert.That (
                 methodCallExpression.Method, 
-                Is.TypeOf<ConstructorAsMethodInfoAdapter>().With.Property ("ConstructorInfo").SameAs (_underlyingCtorInfo));
+                Is.SameAs (_methodRepresentingOriginalBody));
             Assert.That (methodCallExpression.Arguments, Is.EqualTo (arguments));
           });
 
@@ -79,27 +85,45 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The body of an added constructor ('System.Void .ctor(System.String)', declared for mutable type 'DomainClass') must not "
-        + "contain an OriginalBodyExpression.")]
-    public void VisitOriginalBody_WithAddedConstructor ()
+    public void VisitOriginalBody_WithNewMember ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
-      var ctorInfo = mutableType.AddConstructor (
-          MethodAttributes.Public, 
-          new[] { new ParameterDeclaration (typeof (string), "p1") }, 
-          context => Expression.Empty());
-      var visitorPartialMock = new OriginalConstructorBodyReplacingExpressionVisitor (ctorInfo);
+      _mutableMethodStub.Stub (stub => stub.IsNew).Return (true);
+      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
+
+      var visitorPartialMock = new OriginalBodyReplacingExpressionVisitor (_mutableMethodStub, _methodRepresentingOriginalBody);
 
       var expression = new OriginalBodyExpression (typeof (void), Enumerable.Empty<Expression>());
 
-      TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitorPartialMock, expression);
+      var expectedMessage = string.Format (
+          "The body of an added or static member ('{0}', declared for mutable type 'DomainClass') must not contain an OriginalBodyExpression.", 
+          _mutableMethodStub);
+      Assert.That (
+          () => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitorPartialMock, expression),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (expectedMessage));
+    }
+
+    [Test]
+    public void VisitOriginalBody_WithStaticMember ()
+    {
+      _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
+      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (true);
+
+      var visitorPartialMock = new OriginalBodyReplacingExpressionVisitor (_mutableMethodStub, _methodRepresentingOriginalBody);
+
+      var expression = new OriginalBodyExpression (typeof (void), Enumerable.Empty<Expression> ());
+
+      var expectedMessage = string.Format (
+          "The body of an added or static member ('{0}', declared for mutable type 'DomainClass') must not contain an OriginalBodyExpression.",
+          _mutableMethodStub);
+      Assert.That (
+          () => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitorPartialMock, expression),
+          Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (expectedMessage));
     }
 
     public class DomainClass
     {
 // ReSharper disable UnusedParameter.Local
-      public DomainClass (int p1, string p2)
+      public void Method (int p1, string p2)
 // ReSharper restore UnusedParameter.Local
       {
         throw new NotImplementedException();

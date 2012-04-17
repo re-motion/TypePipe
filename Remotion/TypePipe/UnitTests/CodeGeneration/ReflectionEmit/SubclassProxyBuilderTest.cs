@@ -363,7 +363,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructor = isNewConstructor ? MutableConstructorInfoObjectMother.CreateForNew() : MutableConstructorInfoObjectMother.CreateForExisting();
       if (isModified)
         MutableConstructorInfoTestHelper.ModifyConstructor (constructor);
-      Assert.That (constructor.IsNewConstructor, Is.EqualTo (isNewConstructor));
+      Assert.That (constructor.IsNew, Is.EqualTo (isNewConstructor));
       Assert.That (constructor.IsModified, Is.EqualTo (isModified));
 
       Assert.That (() => methodInvocation (constructor), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));

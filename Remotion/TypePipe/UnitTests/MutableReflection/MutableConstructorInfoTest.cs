@@ -49,6 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = new MutableConstructorInfo (_declaringType, _descriptor);
 
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (((IMutableMethodBase) _mutableCtor).DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
     }
 
@@ -82,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var ctorInfo = Create (descriptor);
 
-      Assert.That (ctorInfo.IsNewConstructor, Is.True);
+      Assert.That (ctorInfo.IsNew, Is.True);
     }
 
     [Test]
@@ -93,7 +94,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var ctorInfo = Create (descriptor);
 
-      Assert.That (ctorInfo.IsNewConstructor, Is.False);
+      Assert.That (ctorInfo.IsNew, Is.False);
     }
 
     [Test]

@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableConstructorInfo : ConstructorInfo
+  public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
@@ -62,12 +62,17 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
+    MutableType IMutableMethodBase.DeclaringType
+    {
+      get { return _declaringType; }
+    }
+
     public ConstructorInfo UnderlyingSystemConstructorInfo
     {
       get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemMethodBase ?? this; }
     }
 
-    public bool IsNewConstructor
+    public bool IsNew
     {
       get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemMethodBase == null; }
     }

@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
       EnsureNotBuilt ();
 
-      if (!addedConstructor.IsNewConstructor)
+      if (!addedConstructor.IsNew)
         throw new ArgumentException ("The supplied constructor must be a new constructor.", "addedConstructor");
 
       AddConstructor (addedConstructor);
@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);
       EnsureNotBuilt ();
 
-      if (modifiedConstructor.IsNewConstructor || !modifiedConstructor.IsModified)
+      if (modifiedConstructor.IsNew || !modifiedConstructor.IsModified)
         throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "modifiedConstructor");
 
       AddConstructor (modifiedConstructor);
