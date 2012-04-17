@@ -43,11 +43,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var parameter2 = Expression.Parameter (ReflectionObjectMother.GetSomeType ());
       var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
 
-      var context = new TestableMethodBodyContextBase (_mutableType, parameters, true);
+      var isStatic = BooleanObjectMother.GetRandomBoolean();
+      var context = new TestableMethodBodyContextBase (_mutableType, parameters, isStatic);
 
       Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
-      Assert.That (context.IsStatic, Is.True);
+      Assert.That (context.IsStatic, Is.EqualTo(isStatic));
     }
 
     [Test]

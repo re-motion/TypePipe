@@ -30,6 +30,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private MutableType _declaringType;
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
+    private bool _isStatic;
+
     private MethodBodyModificationContext _context;
 
     [SetUp]
@@ -38,7 +40,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _declaringType = MutableTypeObjectMother.Create ();
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
-      _context = new MethodBodyModificationContext (_declaringType, _parameters, _previousBody, true);
+      _isStatic = BooleanObjectMother.GetRandomBoolean();
+
+      _context = new MethodBodyModificationContext (_declaringType, _parameters, _previousBody, _isStatic);
     }
 
     [Test]
@@ -47,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (_context.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_context.Parameters, Is.EqualTo (_parameters));
       Assert.That (_context.GetPreviousBody (), Is.SameAs (_previousBody));
-      Assert.That (_context.IsStatic, Is.True);
+      Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
     }
 
     [Test]
