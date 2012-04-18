@@ -204,7 +204,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4773")]
     public void MethodsRequiringForwardDeclarations ()
     {
       // public static int Method1 (int i)
@@ -228,19 +227,18 @@ namespace TypePipe.IntegrationTests
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Throw (Expression.Constant (new NotImplementedException()), typeof (int)));
 
-            /*var method2 =*/ mutableType.AddMethod (
+            var method2 = mutableType.AddMethod (
                 "Method2",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Call (method1, Expression.Decrement (ctx.Parameters[0])));
 
-            /*method1.SetBody (
-                ctx =>
-                Expression.IfThenElse (
+            method1.SetBody (
+                ctx => Expression.Condition (
                     Expression.LessThanOrEqual (ctx.Parameters[0], Expression.Constant (0)),
                     ctx.Parameters[0],
-                    Expression.Call (method2, ctx.Parameters[0])));*/
+                    Expression.Call (method2, ctx.Parameters[0])));
           });
 
       var addedMethod = type.GetMethod ("Method1");
