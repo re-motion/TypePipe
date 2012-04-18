@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
     private static readonly MethodInfo[] s_methodInfos = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (ReflectionObjectMother).GetMethod ("GetRandomElement", BindingFlags.NonPublic | BindingFlags.Static) });
+    private static readonly MethodInfo[] s_modifiableMethodInfos = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("Equals", new[] { typeof (object ) }) });
     private static readonly ParameterInfo[] s_parameterInfos = EnsureNoNulls (typeof (Dictionary<,>).GetMethod ("TryGetValue").GetParameters());
 
     public static Type GetSomeType ()
@@ -86,6 +87,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MethodInfo GetSomeMethod ()
     {
       return GetRandomElement (s_methodInfos);
+    }
+
+    public static MethodInfo GetSomeModifiableMethod ()
+    {
+      return GetRandomElement (s_modifiableMethodInfos);
     }
 
     public static MethodInfo[] GetMultipeMethods (int count)

@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     public MethodBuilderAdapter (MethodBuilder methodBuilder)
     {
       ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
+
       _methodBuilder = methodBuilder;
     }
 
@@ -73,6 +74,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       // optionalParameterTypes may be null
 
       ilGenerator.EmitCall (opCode, _methodBuilder, optionalParameterTypes);
+    }
+
+    public void DefineOverride (MethodInfo methodInfoDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
+
+      var typeBuilder = (TypeBuilder) _methodBuilder.DeclaringType;
+      typeBuilder.DefineMethodOverride (_methodBuilder, methodInfoDeclaration);
     }
   }
 }

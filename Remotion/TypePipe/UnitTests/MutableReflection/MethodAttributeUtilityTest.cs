@@ -16,20 +16,23 @@
 // 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// Defines an interface for <see cref="MethodBuilder"/>.
-  /// </summary>
-  [CLSCompliant (false)]
-  public interface IMethodBuilder : IMethodBaseBuilder
+  [TestFixture]
+  public class MethodAttributeUtilityTest
   {
-    [CLSCompliant (false)]
-    void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes);
+    [Test]
+    public void ChangeVisibility ()
+    {
+      var originalAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
-    void DefineOverride (MethodInfo methodInfoDeclaration);
+      var adjustedAttributes = MethodAttributeUtility.ChangeVisibility (originalAttributes, MethodAttributes.Private);
+
+      var expectedAttributes = MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.Virtual;
+      Assert.That (adjustedAttributes, Is.EqualTo (expectedAttributes));
+    }
   }
 }

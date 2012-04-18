@@ -189,10 +189,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddMethod_RegistersBuildAction ()
+    public void HandleAddedMethod_RegistersBuildAction ()
     {
       var mutableMethod = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclaration.EmptyParameters);
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      // Use a dynamic mock to ignore any DefineParameter calls.
+      var methodBuilderMock = MockRepository.GenerateMock<IMethodBuilder> ();
       _typeBuilderMock
           .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (methodBuilderMock);
@@ -219,6 +220,55 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: true, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: true, isModified: false);
       CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: false, isModified: false);
+    }
+
+    [Test]
+    public void HandleModifiedMethod ()
+    {
+      var originalMethod = ReflectionObjectMother.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
+      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
+
+      var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType.Method";
+      var expectedAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+      var expectedReturnType = typeof(string);
+      var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
+          .Return (methodBuilderMock);
+      methodBuilderMock.Expect (mock => mock.DefineOverride (originalMethod));
+
+      _expressionPreparerMock
+          .Expect (mock => mock.PrepareMethodBody (modifiedMethod))
+          .Return (_fakeBody)
+          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (modifiedMethod), Is.SameAs (methodBuilderMock)));
+
+      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
+      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
+
+      _builder.HandleModifiedMethod (modifiedMethod);
+
+      _typeBuilderMock.VerifyAllExpectations();
+      _expressionPreparerMock.VerifyAllExpectations();
+      methodBuilderMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void HandleModifiedMethod_RegistersBuildAction ()
+    {
+      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify();
+      // Use a dynamic mock to ignore any DefineParameter calls.
+      var methodBuilderMock = MockRepository.GenerateMock<IMethodBuilder> ();
+      _typeBuilderMock
+          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Return (methodBuilderMock);
+      _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (modifiedMethod)).Return (_fakeBody);
+
+      Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
+
+      _builder.HandleModifiedMethod (modifiedMethod);
+
+      CheckSingleSetBodyBuildAction (methodBuilderMock, modifiedMethod.ParameterExpressions);
     }
 
     [Test]
@@ -262,8 +312,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddConstructor_RegistersBuildAction ()
     {
-      var mutableConstructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters();
-      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
+      var mutableConstructor = MutableConstructorInfoObjectMother.CreateForNew();
+      // Use a dynamic mock to ignore any DefineParameter calls.
+      var constructorBuilderMock = MockRepository.GenerateMock<IConstructorBuilder> ();
       _typeBuilderMock
           .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderMock);
@@ -444,6 +495,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       public string CtorArgument { get; private set; }
       public int Property { get; set; }
+    }
+
+    public class DomainType
+    {
+      public virtual string Method (int i, out double d)
+      {
+        Dev.Null = i;
+        d = Dev<double>.Null;
+        return "";
+      }
     }
   }
 }

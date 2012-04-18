@@ -169,6 +169,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       if (modifiedMethod.IsNew || !modifiedMethod.IsModified)
         throw new ArgumentException ("The supplied method must be a modified existing method.", "modifiedMethod");
+
+      var name = modifiedMethod.DeclaringType.FullName + "." + modifiedMethod.Name;
+      var attributes = MethodAttributeUtility.ChangeVisibility (modifiedMethod.Attributes, MethodAttributes.Private);
+      var parameterTypes = GetParameterTypes (modifiedMethod);
+      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, modifiedMethod.ReturnType, parameterTypes);
+      _reflectionToBuilderMap.AddMapping (modifiedMethod, methodBuilder);
+      methodBuilder.DefineOverride (modifiedMethod.UnderlyingSystemMethodInfo);
+
+      DefineParameters (methodBuilder, modifiedMethod.GetParameters ());
+
+      var body = _expressionPreparer.PrepareMethodBody (modifiedMethod);
+      RegisterBodyBuildAction (methodBuilder, modifiedMethod.ParameterExpressions, body);
     }
 
     public void AddConstructor (MutableConstructorInfo constructor)

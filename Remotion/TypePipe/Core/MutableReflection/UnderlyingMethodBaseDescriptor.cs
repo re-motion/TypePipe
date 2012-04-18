@@ -49,13 +49,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("originalMethodBase", originalMethodBase);
 
       return originalMethodBase.IsFamilyOrAssembly
-                 ? ChangeVisibility (originalMethodBase.Attributes, MethodAttributes.Family)
+                 ? MethodAttributeUtility.ChangeVisibility (originalMethodBase.Attributes, MethodAttributes.Family)
                  : originalMethodBase.Attributes;
-    }
-
-    private static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
-    {
-      return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
     }
 
     private readonly TMethodBase _underlyingSystemMethodBase;

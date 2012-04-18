@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,22 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
-using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines an interface for <see cref="MethodBuilder"/>.
+  /// Provides utility functions for manipulating method attributes.
   /// </summary>
-  [CLSCompliant (false)]
-  public interface IMethodBuilder : IMethodBaseBuilder
+  public static class MethodAttributeUtility
   {
-    [CLSCompliant (false)]
-    void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes);
-
-    void DefineOverride (MethodInfo methodInfoDeclaration);
+    public static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
+    {
+      return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
+    }
   }
 }
