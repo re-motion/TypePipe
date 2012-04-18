@@ -110,14 +110,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body; }
     }
 
+    public bool CanSetBody
+    {
+      // TODO 4695
+      get { return IsNew || IsVirtual; }
+    }
+
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      // TODO 4695
-      if (!IsVirtual)
+      if (!CanSetBody)
       {
-        var message = string.Format ("The body of the non-virtual method '{0}' cannot be replaced.", Name);
+        var message = string.Format ("The body of the existing non-virtual method '{0}' cannot be replaced.", Name);
         throw new NotSupportedException (message);
       }
 

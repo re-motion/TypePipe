@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using AssertionException = Remotion.Utilities.AssertionException;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -154,6 +155,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CanSetBody ()
+    {
+      var newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
+      var newVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
+
+      var nonVirtualUnderlyingMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
+      var existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
+
+      var virtualUnderlyingMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.VirtualMethod ());
+      var existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
+
+      Assert.That (newNonVirtualMethod.CanSetBody, Is.True);
+      Assert.That (newVirtualMethod.CanSetBody, Is.True);
+      Assert.That (existingNonVirtualMethod.CanSetBody, Is.False);
+      Assert.That (existingVirtualMethod.CanSetBody, Is.True);
+    }
+
+    [Test]
     public void SetBody ()
     {
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
@@ -178,17 +197,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The body of the non-virtual method 'UnspecifiedMethod' cannot be replaced.")]
-    public void SetBody_NonVirtualMethod ()
+        "The body of the existing non-virtual method 'NonVirtualMethod' cannot be replaced.")]
+    public void SetBody_NonSettableMethod ()
     {
-      MethodAttributes attributesOfNonVirtualMethod = 0;
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: attributesOfNonVirtualMethod);
+      var nonVirtualMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
       var mutableMethod = Create (descriptor);
 
       Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
       {
         Assert.Fail ("Should not be called.");
-        return ExpressionTreeObjectMother.GetSomeExpression();
+        throw new NotImplementedException ();
       };
 
       mutableMethod.SetBody (bodyProvider);
@@ -272,6 +291,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
       return new MutableMethodInfo (_declaringType, descriptor);
+    }
+
+    public class DomainType
+    {
+      public virtual void VirtualMethod () { }
+      public void NonVirtualMethod () { }
     }
   }
 }
