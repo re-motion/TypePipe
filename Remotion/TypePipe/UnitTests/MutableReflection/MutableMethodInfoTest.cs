@@ -195,6 +195,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public new void ToString ()
+    {
+      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Method");
+      Assert.That (methodInfo.ToString(), Is.EqualTo ("System.String Method()"));
+    }
+
+    [Test]
+    public void ToString_WithParameters ()
+    {
+      var parameters = new[]
+                       {
+                           ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
+                           ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
+                       };
+      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDeclarations: parameters);
+
+      Assert.That (methodInfo.ToString(), Is.EqualTo ("System.String Xxx(System.Int32, System.String&)"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      var methodInfo = MutableMethodInfoObjectMother.Create (
+          declaringType: MutableTypeObjectMother.CreateForExistingType (GetType()),
+          returnType: typeof (void),
+          name: "Xxx",
+          parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create (typeof (int), "p1") });
+
+      var expected = "MutableMethod = \"System.Void Xxx(System.Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
+      Assert.That (methodInfo.ToDebugString(), Is.EqualTo (expected));
+    }
+
+    [Test]
     public void GetParameters ()
     {
       var parameter1 = ParameterDeclarationObjectMother.Create();

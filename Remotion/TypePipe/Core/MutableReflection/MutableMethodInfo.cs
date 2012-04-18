@@ -17,10 +17,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
@@ -29,6 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a method that does not exist yet. This is used to represent methods yet to be generated within an expression tree.
   /// </summary>
+  [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
@@ -121,6 +124,17 @@ namespace Remotion.TypePipe.MutableReflection
 
       var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
+    }
+
+    public override string ToString ()
+    {
+      var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));
+      return ReturnType + " " + Name + "(" + parameterTypes + ")";
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType.Name);
     }
 
     public override ParameterInfo[] GetParameters ()
