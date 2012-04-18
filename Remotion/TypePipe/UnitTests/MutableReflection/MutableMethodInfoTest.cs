@@ -204,7 +204,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                        };
       var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDeclarations: parameters);
 
-      Assert.That (methodInfo.ToString(), Is.EqualTo ("System.String Xxx(System.Int32, System.String&)"));
+      Assert.That (methodInfo.ToString(), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
 
     [Test]
@@ -216,7 +216,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           name: "Xxx",
           parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create (typeof (int), "p1") });
 
-      var expected = "MutableMethod = \"System.Void Xxx(System.Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
+      var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
       Assert.That (methodInfo.ToDebugString(), Is.EqualTo (expected));
     }
 

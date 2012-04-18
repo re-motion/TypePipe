@@ -121,8 +121,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string ToString ()
     {
-      var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));
-      return typeof (void) + " " + Name + "(" + parameterTypes + ")";
+      return SignatureDebugStringGenerator.GetConstructorSignatureString (this);
     }
 
     public string ToDebugString()

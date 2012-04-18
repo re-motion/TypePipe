@@ -172,7 +172,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
           ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out));
 
-      Assert.That (ctorInfo.ToString (), Is.EqualTo ("System.Void .ctor(System.Int32, System.String&)"));
+      Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
 
     [Test]
@@ -183,7 +183,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType,
           ParameterDeclarationObjectMother.Create (typeof (int), "p1"));
 
-      var expected = "MutableConstructor = \"System.Void .ctor(System.Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
+      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
       Assert.That (ctorInfo.ToDebugString (), Is.EqualTo (expected));
     }
 

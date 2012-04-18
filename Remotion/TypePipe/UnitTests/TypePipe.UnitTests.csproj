@@ -85,6 +85,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BooleanObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMemberCollectionTest.cs" />
+    <Compile Include="MutableReflection\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorObjectMother.cs" />

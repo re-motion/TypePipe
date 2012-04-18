@@ -22,7 +22,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
@@ -128,8 +127,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string ToString ()
     {
-      var parameterTypes = SeparatedStringBuilder.Build (", ", _parameters.Select (p => p.ParameterType));
-      return ReturnType + " " + Name + "(" + parameterTypes + ")";
+      return SignatureDebugStringGenerator.GetMethodSignatureString (this);
     }
 
     public string ToDebugString ()
