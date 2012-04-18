@@ -14,19 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// Defines members implemented by <see cref="MutableConstructorInfo"/> and <see cref="MutableMethodInfo"/>.
-  /// </summary>
-  public interface IMutableMethodBase
+  public static class MutableMethodInfoTestHelper
   {
-    MutableType DeclaringType { get; }
-
-    bool IsNew { get; }
-    bool IsModified { get; }
-
-    bool IsStatic { get; }
+    public static void ModifyMethod (MutableMethodInfo mutableMethod)
+    {
+      mutableMethod.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression (mutableMethod.ReturnType));
+    }
   }
 }

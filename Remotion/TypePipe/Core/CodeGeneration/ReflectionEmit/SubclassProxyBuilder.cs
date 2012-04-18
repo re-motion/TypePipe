@@ -141,6 +141,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("addedMethod", addedMethod);
       EnsureNotBuilt ();
 
+      if (!addedMethod.IsNew)
+        throw new ArgumentException ("The supplied method must be a new method.", "addedMethod");
+
       var parameterTypes = GetParameterTypes (addedMethod);
       var methodBuilder = _typeBuilder.DefineMethod (addedMethod.Name, addedMethod.Attributes, addedMethod.ReturnType, parameterTypes);
       _reflectionToBuilderMap.AddMapping (addedMethod, methodBuilder);
@@ -160,6 +163,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "modifiedConstructor");
 
       AddConstructor (modifiedConstructor);
+    }
+
+    public void HandleModifiedMethod (MutableMethodInfo modifiedMethod)
+    {
+      if (modifiedMethod.IsNew || !modifiedMethod.IsModified)
+        throw new ArgumentException ("The supplied method must be a modified existing method.", "modifiedMethod");
     }
 
     public void AddConstructor (MutableConstructorInfo constructor)

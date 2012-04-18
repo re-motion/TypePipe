@@ -29,5 +29,6 @@ namespace Remotion.TypePipe.MutableReflection
     void HandleAddedMethod (MutableMethodInfo addedMethod);
 
     void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor);
+    void HandleModifiedMethod (MutableMethodInfo modifiedMethod);
   }
 }

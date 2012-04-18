@@ -41,9 +41,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create (), descriptor);
     }
 
+    public static MutableMethodInfo CreateForExistingAndModify (MethodInfo originalMethodInfo = null)
+    {
+      var method = CreateForExisting (originalMethodInfo: originalMethodInfo);
+      MutableMethodInfoTestHelper.ModifyMethod (method);
+      return method;
+    }
+
     public static MutableMethodInfo CreateForNew (MutableType declaringType = null,
         string name = "UnspecifiedMethod",
-        MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
@@ -51,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (returnType == null && body != null)
         returnType = body.Type;
 
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (name, methodAttributes, returnType, parameterDeclarations, body);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (name, attributes, returnType, parameterDeclarations, body);
       return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create (), descriptor);
     }
   }
