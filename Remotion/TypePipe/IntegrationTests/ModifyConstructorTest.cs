@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class ModifyConstructorBodyTest : TypeAssemblerIntegrationTestBase
+  public class ModifyConstructorTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void ModifyExistingConstructor ()

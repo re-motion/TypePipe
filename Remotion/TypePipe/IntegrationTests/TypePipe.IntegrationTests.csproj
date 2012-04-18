@@ -57,9 +57,10 @@
     <Compile Include="AddMethodTest.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="KeepConstructorsTest.cs" />
-    <Compile Include="ModifyConstructorBodyTest.cs" />
+    <Compile Include="ModifyConstructorTest.cs" />
+    <Compile Include="ModifyGenericMethodTest.cs" />
     <Compile Include="ModifyGenericTypeTest.cs" />
-    <Compile Include="ModifyMethodBodyTest.cs" />
+    <Compile Include="ModifyMethodTest.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="AddConstructorTest.cs" />
     <Compile Include="TypeAssemblerIntegrationTestBase.cs" />

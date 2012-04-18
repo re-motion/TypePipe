@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +26,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class ModifyMethodBodyTest : TypeAssemblerIntegrationTestBase
+  public class ModifyMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void ExistingPublicVirtualMethod_PreviousBodyWithModifiedArguments ()
@@ -226,43 +225,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (result, Is.EqualTo ("hello 7"));
     }
 
-    [Test]
-    [Ignore ("TODO 4789")]
-    public void ExistingMethodWithGenericParameters ()
-    {
-      var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var mutableMethod = mutableType.ExistingMethods.Single (m => m.Name == "GenericMethod");
-            Assert.That (mutableMethod.IsGenericMethod, Is.True);
-            Assert.That (mutableMethod.IsGenericMethodDefinition, Is.True);
-            var genericParameters = mutableMethod.GetGenericArguments();
-            var genericParameterNames = genericParameters.Select (t => t.Name);
-            Assert.That (genericParameterNames, Is.EqualTo (new[] { "TKey", "TValue" }));
-
-            mutableMethod.SetBody (
-                ctx =>
-                {
-                  Assert.That (ctx.Parameters[0].Type, Is.SameAs (typeof (IDictionary<,>).MakeGenericType (genericParameters)));
-                  var containsKeyMethod = ctx.Parameters[0].Type.GetMethod ("ContainsKey");
-                  return Expression.IfThenElse (
-                      Expression.Call (ctx.Parameters[0], containsKeyMethod, ctx.Parameters[1]),
-                      ctx.GetPreviousBody(),
-                      Expression.Default (ctx.Parameters[1].Type));
-                });
-          });
-
-      var method = type.GetMethod ("GenericMethod").MakeGenericMethod (typeof (int), typeof (string));
-      var instance = (DomainType) Activator.CreateInstance (type);
-
-      var dict = new Dictionary<int, string> { { 7, "seven" } };
-      var result1 = method.Invoke (instance, new object[] { dict, 7 });
-      var result2 = method.Invoke (instance, new object[] { dict, 8 });
-
-      Assert.That (result1, Is.EqualTo ("seven"));
-      Assert.That (result2, Is.EqualTo (null));
-    }
-
     public class DomainType
     {
       public virtual string PublicVirtualMethod(int i)
@@ -287,13 +249,6 @@ namespace TypePipe.IntegrationTests
       {
         i++;
         s = "hello";
-      }
-
-      public virtual TValue GenericMethod<TKey, TValue> (IDictionary<TKey, TValue> dict, TKey key)
-          where TKey : IComparable<TKey>
-          where TValue : class
-      {
-        return dict[key];
       }
     }
   }
