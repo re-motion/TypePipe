@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedConstructor_CallsAddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForNew();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleAddedConstructor, ctor);
+      CheckAddConstructorIsCalled (_builder.HandleAddedConstructor, ctor);
     }
 
     [Test]
@@ -160,24 +160,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expectedAttributes = mutableMethod.Attributes;
       var expectedReturnType = mutableMethod.ReturnType;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType () };
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
-          .Return (methodBuilderMock);
+      Action<IMethodBuilder> expectedParameterDefinitions = methodBuilderMock =>
+      {
+        methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
+        methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
+      };
 
-      _expressionPreparerMock
-          .Expect (mock => mock.PrepareMethodBody (mutableMethod))
-          .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (mutableMethod), Is.SameAs (methodBuilderMock)));
-
-      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
-      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
-
-      _builder.HandleAddedMethod (mutableMethod);
-
-      _typeBuilderMock.VerifyAllExpectations ();
-      _expressionPreparerMock.VerifyAllExpectations ();
-      methodBuilderMock.VerifyAllExpectations ();
+      CheckMethodIsDefined (
+          _builder.HandleAddedMethod,
+          mutableMethod,
+          expectedName,
+          expectedAttributes,
+          expectedReturnType,
+          expectedParameterTypes,
+          false,
+          null,
+          expectedParameterDefinitions);
     }
 
     [Test]
@@ -192,25 +190,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedMethod_RegistersBuildAction ()
     {
       var mutableMethod = MutableMethodInfoObjectMother.Create (parameterDeclarations: ParameterDeclaration.EmptyParameters);
-      // Use a dynamic mock to ignore any DefineParameter calls.
-      var methodBuilderMock = MockRepository.GenerateMock<IMethodBuilder> ();
-      _typeBuilderMock
-          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
-          .Return (methodBuilderMock);
-      _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (mutableMethod)).Return (_fakeBody);
-
-      Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
-
-      _builder.HandleAddedMethod (mutableMethod);
-
-      CheckSingleSetBodyBuildAction (methodBuilderMock, mutableMethod.ParameterExpressions);
+      CheckSetBodyBuildActionIsRegistered (_builder.HandleAddedMethod, mutableMethod);
     }
 
     [Test]
     public void HandleModifiedConstructor_CallsAddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForExistingAndModify();
-      CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (_builder.HandleModifiedConstructor, ctor);
+      CheckAddConstructorIsCalled (_builder.HandleModifiedConstructor, ctor);
     }
 
     [Test]
@@ -223,7 +210,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleModifiedMethod ()
+    public void HandleModifiedMethod_DefinesMethod ()
     {
       var originalMethod = ReflectionObjectMother.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
@@ -232,43 +219,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expectedAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
       var expectedReturnType = typeof(string);
       var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
-          .Return (methodBuilderMock);
-      methodBuilderMock.Expect (mock => mock.DefineOverride (originalMethod));
-
-      _expressionPreparerMock
-          .Expect (mock => mock.PrepareMethodBody (modifiedMethod))
-          .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (modifiedMethod), Is.SameAs (methodBuilderMock)));
-
-      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
-      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
-
-      _builder.HandleModifiedMethod (modifiedMethod);
-
-      _typeBuilderMock.VerifyAllExpectations();
-      _expressionPreparerMock.VerifyAllExpectations();
-      methodBuilderMock.VerifyAllExpectations();
+      Action<IMethodBuilder> expectedParameterDefinitions = methodBuilderMock =>
+      {
+        methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
+        methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
+      };
+      CheckMethodIsDefined (
+          _builder.HandleModifiedMethod,
+          modifiedMethod,
+          expectedName,
+          expectedAttributes,
+          expectedReturnType,
+          expectedParameterTypes,
+          true,
+          originalMethod,
+          expectedParameterDefinitions);
     }
 
     [Test]
     public void HandleModifiedMethod_RegistersBuildAction ()
     {
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify();
-      // Use a dynamic mock to ignore any DefineParameter calls.
-      var methodBuilderMock = MockRepository.GenerateMock<IMethodBuilder> ();
-      _typeBuilderMock
-          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
-          .Return (methodBuilderMock);
-      _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (modifiedMethod)).Return (_fakeBody);
-
-      Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
-
-      _builder.HandleModifiedMethod (modifiedMethod);
-
-      CheckSingleSetBodyBuildAction (methodBuilderMock, modifiedMethod.ParameterExpressions);
+      CheckSetBodyBuildActionIsRegistered (_builder.HandleModifiedMethod, modifiedMethod);
     }
 
     [Test]
@@ -410,8 +382,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (actualBlob, Is.EqualTo (expectedBlob));
     }
 
-    private void CheckThatMethodIsDelegatedToAddConstructorToSubclassProxy (
-        Action<MutableConstructorInfo> methodInvocation, MutableConstructorInfo mutableConstructor)
+    private void CheckAddConstructorIsCalled (Action<MutableConstructorInfo> testedAction, MutableConstructorInfo mutableConstructor)
     {
       var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
       _typeBuilderMock
@@ -422,21 +393,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Stub (mock => mock.PrepareConstructorBody (mutableConstructor))
           .Return (fakeBody);
 
-      methodInvocation (mutableConstructor);
+      testedAction (mutableConstructor);
 
       _typeBuilderMock.VerifyAllExpectations();
     }
 
-    private void CheckThrowsForInvalidArguments (Action<MutableConstructorInfo> methodInvocation, string exceptionMessage, bool isNew, bool isModified)
+    private void CheckThrowsForInvalidArguments (Action<MutableConstructorInfo> testedAction, string exceptionMessage, bool isNew, bool isModified)
     {
       var constructor = isNew ? MutableConstructorInfoObjectMother.CreateForNew() : MutableConstructorInfoObjectMother.CreateForExisting();
       if (isModified)
         MutableConstructorInfoTestHelper.ModifyConstructor (constructor);
 
-      CheckThrowsForInvalidArguments (constructor, isNew, isModified, methodInvocation, exceptionMessage);
+      CheckThrowsForInvalidArguments (testedAction, constructor, isNew, isModified, exceptionMessage);
     }
 
-    private void CheckThrowsForInvalidArguments (Action<MutableMethodInfo> methodInvocation, string exceptionMessage, bool isNew, bool isModified)
+    private void CheckThrowsForInvalidArguments (Action<MutableMethodInfo> testedAction, string exceptionMessage, bool isNew, bool isModified)
     {
       var method = isNew
                        ? MutableMethodInfoObjectMother.CreateForNew (attributes: MethodAttributes.Virtual)
@@ -445,17 +416,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       if (isModified)
         MutableMethodInfoTestHelper.ModifyMethod (method);
 
-      CheckThrowsForInvalidArguments (method, isNew, isModified, methodInvocation, exceptionMessage);
+      CheckThrowsForInvalidArguments (testedAction, method, isNew, isModified, exceptionMessage);
     }
 
-    private void CheckThrowsForInvalidArguments<T> (
-        T mutableMethodBase, bool isNew, bool isModified, Action<T> methodInvocation, string exceptionMessage)
+    private void CheckThrowsForInvalidArguments<T> (Action<T> testedAction, T mutableMethodBase, bool isNew, bool isModified, string exceptionMessage)
         where T: IMutableMethodBase
     {
       Assert.That (mutableMethodBase.IsNew, Is.EqualTo (isNew));
       Assert.That (mutableMethodBase.IsModified, Is.EqualTo (isModified));
 
-      Assert.That (() => methodInvocation (mutableMethodBase), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
+      Assert.That (() => testedAction (mutableMethodBase), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
     }
 
     private void CheckSingleSetBodyBuildAction (IMethodBaseBuilder methodBuilderMock, IEnumerable<ParameterExpression> parameterExpressions)
@@ -479,6 +449,54 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.VerifyAllExpectations ();
     }
 
+    private void CheckSetBodyBuildActionIsRegistered (Action<MutableMethodInfo> testedAction, MutableMethodInfo modifiedMethod)
+    {
+      // Use a dynamic mock to ignore any DefineParameter and DefineOverride calls.
+      var methodBuilderMock = MockRepository.GenerateMock<IMethodBuilder> ();
+      _typeBuilderMock
+          .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
+          .Return (methodBuilderMock);
+      _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (modifiedMethod)).Return (_fakeBody);
+
+      Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
+
+      testedAction (modifiedMethod);
+
+      CheckSingleSetBodyBuildAction (methodBuilderMock, modifiedMethod.ParameterExpressions);
+    }
+
+    private void CheckMethodIsDefined (
+        Action<MutableMethodInfo> testedAction,
+        MutableMethodInfo definedMethod,
+        string expectedName,
+        MethodAttributes expectedAttributes,
+        Type expectedReturnType,
+        Type[] expectedParameterTypes,
+        bool expectOverride,
+        MethodInfo overriddenMethod,
+        Action<IMethodBuilder> parameterDefinitionExpectationAction)
+    {
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
+          .Return (methodBuilderMock);
+
+      if (expectOverride)
+        methodBuilderMock.Expect (mock => mock.DefineOverride (overriddenMethod));
+
+      _expressionPreparerMock
+          .Expect (mock => mock.PrepareMethodBody (definedMethod))
+          .Return (_fakeBody)
+          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (definedMethod), Is.SameAs (methodBuilderMock)));
+
+      parameterDefinitionExpectationAction (methodBuilderMock);
+
+      testedAction (definedMethod);
+
+      _typeBuilderMock.VerifyAllExpectations ();
+      _expressionPreparerMock.VerifyAllExpectations ();
+      methodBuilderMock.VerifyAllExpectations ();
+    }
 
     public class CustomAttribute : Attribute
     {
