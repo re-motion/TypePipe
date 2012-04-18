@@ -165,6 +165,26 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    public void ModifyingNonVirtualAddedMethod ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var nonVirtualAttributes = MethodAttributes.Public;
+            mutableType.AddMethod ("Method", nonVirtualAttributes, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
+          },
+          mutableType =>
+          {
+            var addedMethod = mutableType.AddedMethods.Single();
+            addedMethod.SetBody (ctx => Expression.Constant (8));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var method = type.GetMethod ("Method");
+      Assert.That (method.Invoke (instance, null), Is.EqualTo (8));
+    }
+
+    [Test]
     public void ChainPreviousBodyInvocations ()
     {
       var type = AssembleType<DomainType> (
