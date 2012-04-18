@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -25,7 +26,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 4785")]
   public class ModifyMethodBodyTest : TypeAssemblerIntegrationTestBase
   {
     private static readonly MethodInfo s_stringConcatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
@@ -58,10 +58,11 @@ namespace TypePipe.IntegrationTests
                 {
                   var tempLocal = Expression.Variable (typeof (int), "temp");
                   return Expression.Block (
-                      tempLocal,
+                      new[] { tempLocal },
                       Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
                       ctx.GetPreviousBody (tempLocal, ctx.Parameters[1]),
-                      Expression.Assign (ctx.Parameters[1], Expression.Add (ctx.Parameters[1], Expression.Constant (" test"), s_stringConcatMethod)));
+                      Expression.Assign (ctx.Parameters[1], Expression.Add (ctx.Parameters[1], Expression.Constant (" test"), s_stringConcatMethod)),
+                      Expression.Assign (ctx.Parameters[0], tempLocal));
                 });
           });
 
@@ -141,8 +142,8 @@ namespace TypePipe.IntegrationTests
             var nonVirtualMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicMethod"));
             Assert.That (
                 () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
-                Throws.InvalidOperationException.With.Message.EqualTo (
-                    "Non-virtual methods cannot be replaced with ReflectionEmit code generation strategy."));
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
+                    "The body of the existing non-virtual method 'PublicMethod' cannot be replaced."));
 
             var staticMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicStaticMethod"));
             Assert.That (
@@ -152,15 +153,15 @@ namespace TypePipe.IntegrationTests
                       Assert.That (ctx.IsStatic, Is.True);
                       return Expression.Constant (8);
                     }),
-                Throws.InvalidOperationException.With.Message.EqualTo (
-                    "Static methods cannot be replaced with ReflectionEmit code generation strategy."));
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
+                    "The body of the existing non-virtual method 'PublicStaticMethod' cannot be replaced."));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      Assert.That (instance.PublicMethod (), Is.EqualTo (12));
+      Assert.That (instance.PublicMethod(), Is.EqualTo (12));
 
-      var method = type.GetMethod ("PublicStaticMethod");
-      Assert.That (method.Invoke(null, null), Is.EqualTo (13));
+      var method = type.GetMethod ("PublicStaticMethod", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+      Assert.That (method.Invoke (null, null), Is.EqualTo (13));
     }
 
     [Test]
@@ -222,7 +223,7 @@ namespace TypePipe.IntegrationTests
 
       protected virtual string ProtectedVirtualMethod (double d)
       {
-        return d.ToString();
+        return d.ToString (CultureInfo.InvariantCulture);
       }
 
       public string CallsOriginalMethod (int i)
