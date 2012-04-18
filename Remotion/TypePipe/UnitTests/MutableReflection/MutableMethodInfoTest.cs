@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -282,6 +283,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var parametersAgain = methodInfo.GetParameters ();
       Assert.That (parametersAgain[0], Is.Not.Null);
+    }
+
+    [Test]
+    public void VirtualMethodsImplementedByMethodInfo ()
+    {
+      var method = MutableMethodInfoObjectMother.CreateForExisting (
+          originalMethodInfo: ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod()));
+
+      // None of these members should throw an exception 
+      Dev.Null = method.MemberType;
+    }
+
+    [Test]
+    public void UnsupportedMembers ()
+    {
+      var method = MutableMethodInfoObjectMother.CreateForExisting (
+          originalMethodInfo: ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod ()));
+
+      CheckThrowsNotSupported (() => Dev.Null = method.MetadataToken, "Property", "MetadataToken");
+      CheckThrowsNotSupported (() => Dev.Null = method.Module, "Property", "Module");
+    }
+
+    private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
+    {
+      var message = string.Format ("{0} MutableMethodInfo.{1} is not supported.", memberType, memberName);
+      Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
     }
 
     private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor)

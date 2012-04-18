@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.MutableReflection
       return _parameters.ToArray();
     }
 
-    #region Not Implemented from MethodInfo interface
+    #region Not YET Implemented from MethodInfo interface
 
     public override object[] GetCustomAttributes (bool inherit)
     {
@@ -191,6 +191,61 @@ namespace Remotion.TypePipe.MutableReflection
     {
       throw new NotImplementedException();
     }
-    #endregion 
+
+    public override Type[] GetGenericArguments ()
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override MethodInfo GetGenericMethodDefinition ()
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override ParameterInfo ReturnParameter
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public override bool IsGenericMethodDefinition
+    {
+      get { return base.IsGenericMethodDefinition; }
+    }
+
+    public override bool ContainsGenericParameters
+    {
+      get { return base.ContainsGenericParameters; }
+    }
+
+    public override bool IsGenericMethod
+    {
+      get { return base.IsGenericMethod; }
+    }
+
+    public override MethodBody GetMethodBody ()
+    {
+      throw new NotImplementedException ();
+    }
+
+    #endregion
+
+    #region Unsupported Members
+
+    public override int MetadataToken
+    {
+      get { throw new NotSupportedException ("Property MutableMethodInfo.MetadataToken is not supported."); }
+    }
+
+    public override Module Module
+    {
+      get { throw new NotSupportedException ("Property MutableMethodInfo.Module is not supported."); }
+    }
+
+    #endregion
   }
 }
