@@ -44,7 +44,7 @@ namespace TypePipe.IntegrationTests
                 {
                   Assert.That (ctx.Parameters[0].Type, Is.SameAs (typeof (IDictionary<,>).MakeGenericType (genericParameters)));
                   var containsKeyMethod = ctx.Parameters[0].Type.GetMethod ("ContainsKey");
-                  return Expression.IfThenElse (
+                  return Expression.Condition (
                       Expression.Call (ctx.Parameters[0], containsKeyMethod, ctx.Parameters[1]),
                       ctx.GetPreviousBody (),
                       Expression.Default (ctx.Parameters[1].Type));
