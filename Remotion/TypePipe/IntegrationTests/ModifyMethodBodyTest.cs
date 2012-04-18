@@ -29,8 +29,6 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class ModifyMethodBodyTest : TypeAssemblerIntegrationTestBase
   {
-    private static readonly MethodInfo s_stringConcatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
-
     [Test]
     public void ExistingPublicVirtualMethod_PreviousBodyWithModifiedArguments ()
     {
@@ -62,7 +60,7 @@ namespace TypePipe.IntegrationTests
                       new[] { tempLocal },
                       Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
                       ctx.GetPreviousBody (tempLocal, ctx.Parameters[1]),
-                      Expression.Assign (ctx.Parameters[1], Expression.Add (ctx.Parameters[1], Expression.Constant (" test"), s_stringConcatMethod)),
+                      Expression.Assign (ctx.Parameters[1], ExpressionHelper.StringConcat (ctx.Parameters[1], Expression.Constant (" test"))),
                       Expression.Assign (ctx.Parameters[0], tempLocal));
                 });
           });
@@ -85,10 +83,7 @@ namespace TypePipe.IntegrationTests
             var method = typeof (DomainType).GetMethod ("ProtectedVirtualMethod", BindingFlags.NonPublic | BindingFlags.Instance);
             var mutableMethod = mutableType.GetMutableMethod (method);
             mutableMethod.SetBody (
-                ctx => Expression.Add (
-                    Expression.Constant ("hello "),
-                    Expression.Call (ctx.GetPreviousBody(), "ToString", null),
-                    s_stringConcatMethod));
+                ctx => ExpressionHelper.StringConcat (Expression.Constant ("hello "), Expression.Call (ctx.GetPreviousBody(), "ToString", null)));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -221,11 +216,7 @@ namespace TypePipe.IntegrationTests
                 ctx => Expression.Call (ctx.This, originalMethod, Expression.Constant(7)));
 
             var modifiedMethod = mutableType.GetMutableMethod (originalMethod);
-            modifiedMethod.SetBody (
-                ctx => Expression.Add (
-                    Expression.Constant ("hello "),
-                    Expression.Call (ctx.GetPreviousBody (), "ToString", null),
-                    s_stringConcatMethod));
+            modifiedMethod.SetBody (ctx => ExpressionHelper.StringConcat(Expression.Constant ("hello "), Expression.Call (ctx.GetPreviousBody (), "ToString", null)));
           });
 
       var method = type.GetMethod ("AddedMethod");
@@ -242,17 +233,23 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMetod = mutableType.ExistingMethods.Single (m => m.Name == "GenericMethod");
-            Assert.That (mutableMetod.IsGenericMethod, Is.True);
-            Assert.That (mutableMetod.IsGenericMethodDefinition, Is.True);
-            var genericArgumentNames = mutableMetod.GetGenericArguments().Select (t => t.Name);
-            Assert.That (genericArgumentNames, Is.EqualTo (new[] { "TKey", "TValue" }));
+            var mutableMethod = mutableType.ExistingMethods.Single (m => m.Name == "GenericMethod");
+            Assert.That (mutableMethod.IsGenericMethod, Is.True);
+            Assert.That (mutableMethod.IsGenericMethodDefinition, Is.True);
+            var genericParameters = mutableMethod.GetGenericArguments();
+            var genericParameterNames = genericParameters.Select (t => t.Name);
+            Assert.That (genericParameterNames, Is.EqualTo (new[] { "TKey", "TValue" }));
 
-            mutableMetod.SetBody (
-                ctx => Expression.IfThenElse (
-                    Expression.Call (ctx.Parameters[0], typeof (IDictionary<,>).GetMethod ("Contains"), ctx.Parameters[1]),
-                    ctx.GetPreviousBody(),
-                    Expression.Default (ctx.Parameters[1].GetType())));
+            mutableMethod.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.Parameters[0].Type, Is.SameAs (typeof (IDictionary<,>).MakeGenericType (genericParameters)));
+                  var containsKeyMethod = ctx.Parameters[0].Type.GetMethod ("ContainsKey");
+                  return Expression.IfThenElse (
+                      Expression.Call (ctx.Parameters[0], containsKeyMethod, ctx.Parameters[1]),
+                      ctx.GetPreviousBody(),
+                      Expression.Default (ctx.Parameters[1].Type));
+                });
           });
 
       var method = type.GetMethod ("GenericMethod").MakeGenericMethod (typeof (int), typeof (string));
@@ -293,7 +290,7 @@ namespace TypePipe.IntegrationTests
       }
 
       public virtual TValue GenericMethod<TKey, TValue> (IDictionary<TKey, TValue> dict, TKey key)
-          where TKey : IComparable
+          where TKey : IComparable<TKey>
           where TValue : class
       {
         return dict[key];

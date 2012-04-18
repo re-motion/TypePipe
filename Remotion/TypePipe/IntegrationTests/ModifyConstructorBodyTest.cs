@@ -34,10 +34,9 @@ namespace TypePipe.IntegrationTests
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
             var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
-            var concatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
             mutableCtor.SetBody (
                 ctx => Expression.Block (
-                    ctx.GetPreviousBody (Expression.Add (ctx.Parameters[0], Expression.Constant (" cd"), concatMethod)),
+                    ctx.GetPreviousBody (ExpressionHelper.StringConcat (ctx.Parameters[0], Expression.Constant (" cd"))),
                     // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
                     Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[0])));
           });

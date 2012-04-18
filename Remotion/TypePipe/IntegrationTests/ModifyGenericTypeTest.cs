@@ -52,14 +52,14 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethod = mutableType.ExistingMethods.Single (m => m.Name == "Method");
-            mutableMethod.SetBody (ctx => ctx.Parameters[0]);
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody (), Expression.Constant (" test")));
           });
 
       var instance = Activator.CreateInstance (type);
       var method = type.GetMethod ("Method");
       var result = method.Invoke (instance, new object[] { "hello" });
 
-      Assert.That (result, Is.EqualTo ("hello"));
+      Assert.That (result, Is.EqualTo ("hello test"));
     }
 
     [Test]
@@ -75,8 +75,7 @@ namespace TypePipe.IntegrationTests
     {
       public virtual T Method (T t)
       {
-        Dev.Null = t;
-        throw new NotImplementedException();
+        return t;
       }
     }
   }
