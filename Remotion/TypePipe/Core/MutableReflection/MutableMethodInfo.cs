@@ -100,6 +100,21 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.ReturnType; }
     }
 
+    public override bool IsGenericMethod
+    {
+      get { return _underlyingMethodInfoDescriptor.IsGenericMethod; }
+    }
+
+    public override bool IsGenericMethodDefinition
+    {
+      get { return _underlyingMethodInfoDescriptor.IsGenericMethodDefinition; }
+    }
+
+    public override bool ContainsGenericParameters
+    {
+      get { return _underlyingMethodInfoDescriptor.ContainsGenericParameters; }
+    }
+
     public IEnumerable<ParameterExpression> ParameterExpressions
     {
       get { return _underlyingMethodInfoDescriptor.ParameterDeclarations.Select (pd => pd.Expression); }
@@ -210,21 +225,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo ReturnParameter
     {
       get { throw new NotImplementedException (); }
-    }
-
-    public override bool IsGenericMethodDefinition
-    {
-      get { return base.IsGenericMethodDefinition; }
-    }
-
-    public override bool ContainsGenericParameters
-    {
-      get { return base.ContainsGenericParameters; }
-    }
-
-    public override bool IsGenericMethod
-    {
-      get { return base.IsGenericMethod; }
     }
 
     public override MethodBody GetMethodBody ()

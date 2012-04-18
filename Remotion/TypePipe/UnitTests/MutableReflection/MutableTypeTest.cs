@@ -571,6 +571,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.ReturnType, Is.EqualTo (returnType));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
+      Assert.That (method.IsGenericMethod, Is.False);
+      Assert.That (method.IsGenericMethodDefinition, Is.False);
+      Assert.That (method.ContainsGenericParameters, Is.False);
       var expectedParameterInfos =
           new[]
           {

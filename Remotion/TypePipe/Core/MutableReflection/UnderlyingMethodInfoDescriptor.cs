@@ -37,6 +37,9 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
+        bool isGenericMethod,
+        bool isGenericMethodDefinition,
+        bool containsGenericParameters,
         Expression body)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -48,7 +51,16 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
 
       var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList().AsReadOnly();
-      return new UnderlyingMethodInfoDescriptor (null, name, attributes, returnType, parameterDeclarationReadOnlyCollection, body);
+      return new UnderlyingMethodInfoDescriptor (
+          null,
+          name,
+          attributes,
+          returnType,
+          parameterDeclarationReadOnlyCollection,
+          isGenericMethod,
+          isGenericMethodDefinition,
+          containsGenericParameters,
+          body);
     }
 
     public static UnderlyingMethodInfoDescriptor Create (MethodInfo originalMethod)
@@ -67,10 +79,16 @@ namespace Remotion.TypePipe.MutableReflection
           attributes,
           originalMethod.ReturnType,
           parameterDeclarations,
+          originalMethod.IsGenericMethod,
+          originalMethod.IsGenericMethodDefinition,
+          originalMethod.ContainsGenericParameters,
           body);
     }
 
     private readonly Type _returnType;
+    private readonly bool _isGenericMethod;
+    private readonly bool _isGenericMethodDefinition;
+    private readonly bool _containsGenericParameters;
 
     private UnderlyingMethodInfoDescriptor (
         MethodInfo underlyingSystemMethodInfo,
@@ -78,18 +96,39 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
+        bool isGenericMethod,
+        bool isGenericMethodDefinition,
+        bool containsGenericParameters,
         Expression body)
-        : base(underlyingSystemMethodInfo, name, attributes, parameterDeclarations, body)
+        : base (underlyingSystemMethodInfo, name, attributes, parameterDeclarations, body)
     {
       Assertion.IsNotNull (returnType);
       Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));
 
       _returnType = returnType;
+      _isGenericMethod = isGenericMethod;
+      _isGenericMethodDefinition = isGenericMethodDefinition;
+      _containsGenericParameters = containsGenericParameters;
     }
 
     public Type ReturnType
     {
       get { return _returnType; }
+    }
+
+    public bool IsGenericMethod
+    {
+      get { return _isGenericMethod; }
+    }
+
+    public bool IsGenericMethodDefinition
+    {
+      get { return _isGenericMethodDefinition; }
+    }
+
+    public bool ContainsGenericParameters
+    {
+      get { return _containsGenericParameters; }
     }
   }
 }

@@ -122,12 +122,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Attributes ()
     {
       Assert.That (_mutableMethod.Attributes, Is.EqualTo (_descriptor.Attributes));
-}
-
-    [Test]
-    public void ReturnType ()
-    {
-      Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnType));
     }
 
     [Test]
@@ -141,6 +135,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
+    }
+
+    [Test]
+    public void ReturnType ()
+    {
+      Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnType));
+    }
+
+    [Test]
+    public void IsGenericMethod ()
+    {
+      var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
+      var method = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (isGenericMethod: isGenericMethod));
+
+      Assert.That (method.IsGenericMethod, Is.EqualTo (isGenericMethod));
+    }
+
+    [Test]
+    public void IsGenericMethodDefinition ()
+    {
+      var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean ();
+      var method = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (isGenericMethodDefinition: isGenericMethodDefinition));
+
+      Assert.That (method.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
+    }
+
+    [Test]
+    public void ContainsGenericParameters ()
+    {
+      var containsGenericParameters = BooleanObjectMother.GetRandomBoolean ();
+      var method = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (containsGenericParameters: containsGenericParameters));
+
+      Assert.That (method.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
     }
 
     [Test]

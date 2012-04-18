@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (returnType == null && body != null)
         returnType = body.Type;
 
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (name, attributes, returnType, parameterDeclarations, body);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (name, attributes, returnType, parameterDeclarations, body: body);
       return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create (), descriptor);
     }
   }

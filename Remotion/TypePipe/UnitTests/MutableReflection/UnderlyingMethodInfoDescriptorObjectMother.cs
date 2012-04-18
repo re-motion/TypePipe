@@ -32,6 +32,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        bool isGenericMethod = false,
+        bool isGenericMethodDefinition = false,
+        bool containsGenericParameters = false,
         Expression body = null)
     {
       var actualReturnType = returnType ?? typeof (UnspecifiedType);
@@ -40,6 +43,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           attributes,
           actualReturnType,
           parameterDeclarations ?? ParameterDeclaration.EmptyParameters,
+          isGenericMethod,
+          isGenericMethodDefinition,
+          containsGenericParameters,
           body ?? ExpressionTreeObjectMother.GetSomeExpression (actualReturnType));
     }
 

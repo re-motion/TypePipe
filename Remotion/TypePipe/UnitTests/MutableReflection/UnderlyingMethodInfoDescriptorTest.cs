@@ -36,14 +36,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var returnType = ReflectionObjectMother.GetSomeType();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
+      var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
+      var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean();
+      var containsGenericParameters = BooleanObjectMother.GetRandomBoolean();
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarations, body);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          name, attributes, returnType, parameterDeclarations, isGenericMethod, isGenericMethodDefinition, containsGenericParameters, body);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (returnType));
       Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
+      Assert.That (descriptor.IsGenericMethod, Is.EqualTo (isGenericMethod));
+      Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
+      Assert.That (descriptor.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
       Assert.That (descriptor.Body, Is.SameAs (body));
     }
 
@@ -53,7 +60,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForNew_ThrowsForInvalidBodyReturnType ()
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
-      UnderlyingMethodInfoDescriptor.Create ("Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, body);
+      UnderlyingMethodInfoDescriptor.Create (
+          "Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, false, false, false, body: body);
     }
     
     [Test]
