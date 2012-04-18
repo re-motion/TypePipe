@@ -195,13 +195,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
-    {
-      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Method");
-      Assert.That (methodInfo.ToString(), Is.EqualTo ("System.String Method()"));
-    }
-
-    [Test]
     public void ToString_WithParameters ()
     {
       var parameters = new[]

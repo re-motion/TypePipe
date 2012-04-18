@@ -166,13 +166,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
-    {
-      var ctorInfo = CreateWithParameters ();
-      Assert.That (ctorInfo.ToString (), Is.EqualTo ("System.Void .ctor()"));
-    }
-
-    [Test]
     public void ToString_WithParameters ()
     {
       var ctorInfo = CreateWithParameters (
