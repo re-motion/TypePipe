@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using AssertionException = Remotion.Utilities.AssertionException;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -39,9 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      var attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual;
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: attributes, parameterDeclarations: parameters);
+      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
       _mutableMethod = Create(_descriptor);
     }
 
@@ -108,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsModified_True ()
     {
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnType);
       _mutableMethod.SetBody (ctx => fakeBody);
 
       Assert.That (_mutableMethod.IsModified, Is.True);
@@ -175,24 +172,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody ()
     {
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
+      MethodAttributes nonVirtualAttribtes = 0;
+      var returnType = typeof (object);
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ("Method", nonVirtualAttribtes, returnType, parameterDeclarations);
+      var mutableMethod = Create (descriptor);
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
       {
-        Assert.That (_mutableMethod.ParameterExpressions, Is.Not.Empty);
-        Assert.That (context.Parameters, Is.EqualTo (_mutableMethod.ParameterExpressions));
-        Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
+        Assert.That (mutableMethod.ParameterExpressions, Is.Not.Empty);
+        Assert.That (context.Parameters, Is.EqualTo (mutableMethod.ParameterExpressions));
+        Assert.That (context.DeclaringType, Is.SameAs (mutableMethod.DeclaringType));
         Assert.That (context.IsStatic, Is.False);
 
-        var previousBody = context.GetPreviousBody ();
-        Assert.That (previousBody, Is.SameAs (_mutableMethod.Body));
+        var previousBody = context.GetPreviousBody();
+        Assert.That (previousBody, Is.SameAs (mutableMethod.Body));
 
         return fakeBody;
       };
 
-      _mutableMethod.SetBody (bodyProvider);
+      mutableMethod.SetBody (bodyProvider);
 
-      var expectedBody = Expression.Block (typeof (void), fakeBody);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableMethod.Body);
+      var expectedBody = Expression.Convert (fakeBody, returnType);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, mutableMethod.Body);
     }
 
     [Test]

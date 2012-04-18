@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic);
-      _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
+      _body = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
     }
 
     public override string ToString ()
