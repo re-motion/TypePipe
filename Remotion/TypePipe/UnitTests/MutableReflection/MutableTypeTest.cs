@@ -692,15 +692,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Accept_WithModifiedConstructors ()
     {
       Assert.That (_mutableType.ExistingConstructors, Is.Not.Empty);
-      var existingConstructorInfo = _mutableType.ExistingConstructors.Single();
-      MutableConstructorInfoTestHelper.ModifyConstructor (existingConstructorInfo);
+      var modifiedExistingConstructorInfo = _mutableType.ExistingConstructors.First();
+      MutableConstructorInfoTestHelper.ModifyConstructor (modifiedExistingConstructorInfo);
 
-      var addedConstructorInfo = AddConstructor (_mutableType);
-      MutableConstructorInfoTestHelper.ModifyConstructor (addedConstructorInfo);
+      var modifiedAddedConstructorInfo = AddConstructor (_mutableType);
+      MutableConstructorInfoTestHelper.ModifyConstructor (modifiedAddedConstructorInfo);
 
       var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler> ();
-      handlerMock.Expect (mock => mock.HandleModifiedConstructor (existingConstructorInfo));
-      handlerMock.Expect (mock => mock.HandleAddedConstructor (addedConstructorInfo));
+      handlerMock.Expect (mock => mock.HandleModifiedConstructor (modifiedExistingConstructorInfo));
+      handlerMock.Expect (mock => mock.HandleAddedConstructor (modifiedAddedConstructorInfo));
+
+      _mutableType.Accept (handlerMock);
+
+      handlerMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void Accept_WitModifiedMethod ()
+    {
+      Assert.That (_mutableType.ExistingMethods, Is.Not.Empty);
+      var modifiedExistingMethodInfo = _mutableType.ExistingMethods.Single (m => m.Name == "VirtualMethod");
+      MutableMethodInfoTestHelper.ModifyMethod (modifiedExistingMethodInfo);
+
+      var modifiedAddedMethodInfo = AddMethod (_mutableType, "ModifiedAddedMethod");
+      MutableMethodInfoTestHelper.ModifyMethod (modifiedAddedMethodInfo);
+
+      var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler> ();
+      handlerMock.Expect (mock => mock.HandleModifiedMethod (modifiedExistingMethodInfo));
+      handlerMock.Expect (mock => mock.HandleAddedMethod (modifiedAddedMethodInfo));
 
       _mutableType.Accept (handlerMock);
 
@@ -883,6 +902,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
 
       public void PublicMethod () { }
+
+      public virtual void VirtualMethod () { }
     }
 
     public interface IDomainInterface

@@ -353,6 +353,9 @@ namespace Remotion.TypePipe.MutableReflection
 
       foreach (var modifiedConstructor in ExistingConstructors.Where (c => c.IsModified))
         modificationHandler.HandleModifiedConstructor (modifiedConstructor);
+
+      foreach (var modifiedMethod in ExistingMethods.Where (m => m.IsModified))
+        modificationHandler.HandleModifiedMethod (modifiedMethod);
     }
 
     public override Type GetElementType ()
