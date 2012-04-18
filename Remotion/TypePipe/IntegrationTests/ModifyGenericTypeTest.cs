@@ -15,9 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
@@ -28,7 +30,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ClosedGenericType_AddMethod ()
     {
-      var type = AssembleType<GenericDomainType<string>> (
+      var type = AssembleType<DomainType<string>> (
           mutableType => mutableType.AddMethod (
               "AnotherMethod",
               MethodAttributes.Public | MethodAttributes.Static,
@@ -41,13 +43,23 @@ namespace TypePipe.IntegrationTests
       Assert.That (result, Is.EqualTo (7));
     }
 
-    // TODO 4775: Modify closed generic type: add method, replace body of a method using the generic parameter.
     // TODO 4744: Implement MutableType.GetGenericArguments, GetGenericTypeDefinition, IsGenericType, IsGenericTypeDefinition, etc.; use them in an integration test.
 
     [Test]
-    [Ignore ("TODO 4775")]
-    public void ClosedGenericType_ReplaceMethodBodyUsingGenericParameter ()
+    public void ClosedGenericType_ReplaceBodyOfMethodWithGenericParameter ()
     {
+      var type = AssembleType<DomainType<string>> (
+          mutableType =>
+          {
+            var mutableMethod = mutableType.ExistingMethods.Single (m => m.Name == "Method");
+            mutableMethod.SetBody (ctx => ctx.Parameters[0]);
+          });
+
+      var instance = Activator.CreateInstance (type);
+      var method = type.GetMethod ("Method");
+      var result = method.Invoke (instance, new object[] { "hello" });
+
+      Assert.That (result, Is.EqualTo ("hello"));
     }
 
     [Test]
@@ -56,13 +68,16 @@ namespace TypePipe.IntegrationTests
         + "contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType")]
     public void OpenGenericType_Throws ()
     {
-      AssembleType (typeof (GenericDomainType<>));
+      AssembleType (typeof (DomainType<>));
     }
 
-// ReSharper disable UnusedTypeParameter
-    public class GenericDomainType<T>
-// ReSharper restore UnusedTypeParameter
+    public class DomainType<T>
     {
+      public virtual T Method (T t)
+      {
+        Dev.Null = t;
+        throw new NotImplementedException();
+      }
     }
   }
 }
