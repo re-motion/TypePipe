@@ -59,7 +59,9 @@ namespace TypePipe.IntegrationTests
       AssembleType (typeof (GenericDomainType<>));
     }
 
+// ReSharper disable UnusedTypeParameter
     public class GenericDomainType<T>
+// ReSharper restore UnusedTypeParameter
     {
     }
   }

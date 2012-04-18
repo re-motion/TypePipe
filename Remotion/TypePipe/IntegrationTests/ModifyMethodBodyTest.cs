@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -234,6 +235,37 @@ namespace TypePipe.IntegrationTests
       Assert.That (result, Is.EqualTo ("hello 7"));
     }
 
+    [Test]
+    [Ignore ("TODO 4789")]
+    public void ExistingMethodWithGenericParameters ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var mutableMetod = mutableType.ExistingMethods.Single (m => m.Name == "GenericMethod");
+            Assert.That (mutableMetod.IsGenericMethod, Is.True);
+            Assert.That (mutableMetod.IsGenericMethodDefinition, Is.True);
+            var genericArgumentNames = mutableMetod.GetGenericArguments().Select (t => t.Name);
+            Assert.That (genericArgumentNames, Is.EqualTo (new[] { "TKey", "TValue" }));
+
+            mutableMetod.SetBody (
+                ctx => Expression.IfThenElse (
+                    Expression.Call (ctx.Parameters[0], typeof (IDictionary<,>).GetMethod ("Contains"), ctx.Parameters[1]),
+                    ctx.GetPreviousBody(),
+                    Expression.Default (ctx.Parameters[1].GetType())));
+          });
+
+      var method = type.GetMethod ("GenericMethod").MakeGenericMethod (typeof (int), typeof (string));
+      var instance = (DomainType) Activator.CreateInstance (type);
+
+      var dict = new Dictionary<int, string> { { 7, "seven" } };
+      var result1 = method.Invoke (instance, new object[] { dict, 7 });
+      var result2 = method.Invoke (instance, new object[] { dict, 8 });
+
+      Assert.That (result1, Is.EqualTo ("seven"));
+      Assert.That (result2, Is.EqualTo (null));
+    }
+
     public class DomainType
     {
       public virtual string PublicVirtualMethod(int i)
@@ -258,6 +290,13 @@ namespace TypePipe.IntegrationTests
       {
         i++;
         s = "hello";
+      }
+
+      public virtual TValue GenericMethod<TKey, TValue> (IDictionary<TKey, TValue> dict, TKey key)
+          where TKey : IComparable
+          where TValue : class
+      {
+        return dict[key];
       }
     }
   }
