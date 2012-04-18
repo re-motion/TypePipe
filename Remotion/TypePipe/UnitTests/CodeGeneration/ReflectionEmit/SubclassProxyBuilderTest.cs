@@ -367,6 +367,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.CreateForNew()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify ()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedMethod (MutableMethodInfoObjectMother.CreateForNew ()));
+
       CheckThrowsForOperationAfterBuild (() => _builder.AddConstructor (MutableConstructorInfoObjectMother.Create()));
     }
 

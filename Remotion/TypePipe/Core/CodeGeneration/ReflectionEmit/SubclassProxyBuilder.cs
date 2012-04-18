@@ -144,14 +144,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (!addedMethod.IsNew)
         throw new ArgumentException ("The supplied method must be a new method.", "addedMethod");
 
-      var parameterTypes = GetParameterTypes (addedMethod);
-      var methodBuilder = _typeBuilder.DefineMethod (addedMethod.Name, addedMethod.Attributes, addedMethod.ReturnType, parameterTypes);
-      _reflectionToBuilderMap.AddMapping (addedMethod, methodBuilder);
-
-      DefineParameters (methodBuilder, addedMethod.GetParameters ());
-
-      var body = _expressionPreparer.PrepareMethodBody (addedMethod);
-      RegisterBodyBuildAction (methodBuilder, addedMethod.ParameterExpressions, body);
+      AddMethod (addedMethod, addedMethod.Name, addedMethod.Attributes, overriddenMethod: null);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
@@ -167,20 +160,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void HandleModifiedMethod (MutableMethodInfo modifiedMethod)
     {
+      ArgumentUtility.CheckNotNull ("modifiedMethod", modifiedMethod);
+      EnsureNotBuilt ();
+
       if (modifiedMethod.IsNew || !modifiedMethod.IsModified)
         throw new ArgumentException ("The supplied method must be a modified existing method.", "modifiedMethod");
 
-      var name = modifiedMethod.DeclaringType.FullName + "." + modifiedMethod.Name;
-      var attributes = MethodAttributeUtility.ChangeVisibility (modifiedMethod.Attributes, MethodAttributes.Private);
-      var parameterTypes = GetParameterTypes (modifiedMethod);
-      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, modifiedMethod.ReturnType, parameterTypes);
-      _reflectionToBuilderMap.AddMapping (modifiedMethod, methodBuilder);
-      methodBuilder.DefineOverride (modifiedMethod.UnderlyingSystemMethodInfo);
-
-      DefineParameters (methodBuilder, modifiedMethod.GetParameters ());
-
-      var body = _expressionPreparer.PrepareMethodBody (modifiedMethod);
-      RegisterBodyBuildAction (methodBuilder, modifiedMethod.ParameterExpressions, body);
+      var explicitMethodOverrideName = modifiedMethod.DeclaringType.FullName + "." + modifiedMethod.Name;
+      var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (modifiedMethod.Attributes, MethodAttributes.Private);
+      var overriddenMethodInfo = modifiedMethod.UnderlyingSystemMethodInfo;
+      AddMethod (modifiedMethod, explicitMethodOverrideName, explicitMethodOverrideAttributes, overriddenMethodInfo);
     }
 
     public void AddConstructor (MutableConstructorInfo constructor)
@@ -216,8 +205,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (_hasBeenBuilt)
         throw new InvalidOperationException ("Subclass proxy has already been built.");
     }
-
-
+    
     private Type[] GetParameterTypes (MethodBase methodBase)
     {
       return methodBase.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
@@ -235,6 +223,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
       _buildActions.Add (() => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
+    }
+
+    private void AddMethod (MutableMethodInfo method, string name, MethodAttributes attributes, MethodInfo overriddenMethod)
+    {
+      var parameterTypes = GetParameterTypes (method);
+      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
+      _reflectionToBuilderMap.AddMapping (method, methodBuilder);
+
+      if (overriddenMethod != null)
+        methodBuilder.DefineOverride (overriddenMethod);
+
+      DefineParameters (methodBuilder, method.GetParameters ());
+
+      var body = _expressionPreparer.PrepareMethodBody (method);
+      RegisterBodyBuildAction (methodBuilder, method.ParameterExpressions, body);
     }
   }
 }
