@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string ToString ()
     {
-      return SignatureDebugStringGenerator.GetConstructorSignatureString (this);
+      return SignatureDebugStringGenerator.GetConstructorSignature (this);
     }
 
     public string ToDebugString()

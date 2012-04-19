@@ -27,14 +27,19 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class SignatureDebugStringGenerator
   {
-    public static string GetMethodSignatureString (MethodInfo methodInfo)
+    public static string GetFieldSignature (FieldInfo fieldInfo)
     {
-      return GetSignatureString (methodInfo.ReturnType, methodInfo.Name, methodInfo.GetParameters());
+      return GetShortTypeName (fieldInfo.FieldType) + " " + fieldInfo.Name;
     }
 
-    public static string GetConstructorSignatureString (ConstructorInfo constructorInfo)
+    public static string GetConstructorSignature (ConstructorInfo constructorInfo)
     {
       return GetSignatureString (typeof (void), constructorInfo.Name, constructorInfo.GetParameters());
+    }
+
+    public static string GetMethodSignature (MethodInfo methodInfo)
+    {
+      return GetSignatureString (methodInfo.ReturnType, methodInfo.Name, methodInfo.GetParameters());
     }
 
     private static string GetSignatureString (Type returnType, string name, IEnumerable<ParameterInfo> parameters)

@@ -26,31 +26,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class SignatureDebugStringGeneratorTest
   {
     [Test]
-    public void GetMethodSignatureString ()
+    public void GetFieldSignature ()
     {
-      var method = ReflectionObjectMother.GetMethod ((DomainType dt) => dt.Method (ref Dev<int>.Dummy, null));
+      var field = ReflectionObjectMother.GetField ((DomainType obj) => obj.Field);
 
-      var result = SignatureDebugStringGenerator.GetMethodSignatureString (method);
+      var result = SignatureDebugStringGenerator.GetFieldSignature (field);
 
-      Assert.That (result, Is.EqualTo ("String Method(Int32&, Dictionary`2[Int32,DateTime])"));
+      Assert.That (result, Is.EqualTo ("IEnumerable`1[DomainType] Field"));
     }
 
     [Test]
-    public void GetConstructorSignatureString ()
+    public void GetConstructorSignature ()
     {
       var constructor = ReflectionObjectMother.GetConstructor (() => new DomainType(7, ref Dev<string>.Dummy));
 
-      var result = SignatureDebugStringGenerator.GetConstructorSignatureString (constructor);
+      var result = SignatureDebugStringGenerator.GetConstructorSignature (constructor);
 
       Assert.That (result, Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
 
+    [Test]
+    public void GetMethodSignature ()
+    {
+      var method = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
+
+      var result = SignatureDebugStringGenerator.GetMethodSignature (method);
+
+      Assert.That (result, Is.EqualTo ("String Method(Int32&, Dictionary`2[Int32,DateTime])"));
+    }
+
     class DomainType
     {
+      internal readonly IEnumerable<DomainType> Field;
+
       public DomainType (int i, ref string s)
       {
         Dev.Null = i;
         s = null;
+        Field = null;
       }
 
       public string Method (ref int i, Dictionary<int, DateTime> dictionary)
