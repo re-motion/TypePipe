@@ -92,17 +92,44 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void AddedMethodBody_PreviousBody ()
+    public void SetBodyOfAddedMethod_Virtual ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
-          mutableType.AddMethod (
-              "AddedMethod", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7)),
+          mutableType => mutableType.AddMethod (
+              "AddedMethod",
+              MethodAttributes.Public | MethodAttributes.Virtual,
+              typeof (int),
+              ParameterDeclaration.EmptyParameters,
+              ctx => Expression.Constant (7)),
           mutableType =>
           {
-            var mutableMethod = mutableType.AddedMethods.Single ();
-            Assert.That (mutableMethod.IsVirtual, Is.False);
-            mutableMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody (), Expression.Constant (1)));
+            var addedMethod = mutableType.AddedMethods.Single();
+            Assert.That (addedMethod.IsVirtual, Is.True);
+            addedMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody(), Expression.Constant (1)));
+          });
+
+      var method = type.GetMethod ("AddedMethod");
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var result = method.Invoke (instance, null);
+
+      Assert.That (result, Is.EqualTo (8));
+    }
+
+    [Test]
+    public void SetBodyOfAddedMethod_NonVirtual ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType => mutableType.AddMethod (
+              "AddedMethod",
+              MethodAttributes.Public,
+              typeof (int),
+              ParameterDeclaration.EmptyParameters,
+              ctx => Expression.Constant (7)),
+          mutableType =>
+          {
+            var addedMethod = mutableType.AddedMethods.Single();
+            Assert.That (addedMethod.IsVirtual, Is.False);
+            addedMethod.SetBody (ctx => Expression.Add (ctx.GetPreviousBody (), Expression.Constant (1)));
           });
 
       var method = type.GetMethod ("AddedMethod");
@@ -157,26 +184,6 @@ namespace TypePipe.IntegrationTests
 
       var method = type.GetMethod ("PublicStaticMethod", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
       Assert.That (method.Invoke (null, null), Is.EqualTo (13));
-    }
-
-    [Test]
-    public void ModifyingNonVirtualAddedMethod ()
-    {
-      var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var nonVirtualAttributes = MethodAttributes.Public;
-            mutableType.AddMethod ("Method", nonVirtualAttributes, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
-          },
-          mutableType =>
-          {
-            var addedMethod = mutableType.AddedMethods.Single();
-            addedMethod.SetBody (ctx => Expression.Constant (8));
-          });
-
-      var instance = (DomainType) Activator.CreateInstance (type);
-      var method = type.GetMethod ("Method");
-      Assert.That (method.Invoke (instance, null), Is.EqualTo (8));
     }
 
     [Test]
