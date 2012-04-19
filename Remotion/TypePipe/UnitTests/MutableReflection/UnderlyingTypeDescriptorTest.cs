@@ -47,7 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Methods
       var allMethods = typeof (ExampleType).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-      var filteredMethods = new[] { ReflectionObjectMother.GetSomeMethod() };
+      var nonGenericMethod = ReflectionObjectMother.GetSomeNonGenericMethod();
+      var filteredMethods = new[] { nonGenericMethod, ReflectionObjectMother.GetSomeGenericMethod() };
       memberFilterMock.Expect (mock => mock.FilterMethods (allMethods)).Return (filteredMethods);
 
       var descriptor = UnderlyingTypeDescriptor.Create (originalType, memberFilterMock);
@@ -64,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Interfaces, Is.EquivalentTo (new[] { typeof (IDisposable) }));
       Assert.That (descriptor.Fields, Is.EqualTo (filteredFields));
       Assert.That (descriptor.Constructors, Is.EqualTo (filteredCtors));
-      Assert.That (descriptor.Methods, Is.EqualTo (filteredMethods));
+      Assert.That (descriptor.Methods, Is.EqualTo (new[] { nonGenericMethod }));
     }
 
     [Test]

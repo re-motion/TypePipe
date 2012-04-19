@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
           Array.AsReadOnly (originalType.GetInterfaces ()),
           memberFilter.FilterFields (originalType.GetFields (c_allMembers)).ToList().AsReadOnly(),
           memberFilter.FilterConstructors (originalType.GetConstructors (c_allInstanceMembers)).ToList().AsReadOnly(),
-          memberFilter.FilterMethods (originalType.GetMethods (c_allMembers)).ToList().AsReadOnly());
+          memberFilter.FilterMethods (originalType.GetMethods (c_allMembers)).Where (m => !m.IsGenericMethod).ToList().AsReadOnly());
     }
 
     private static bool CanNotBeSubclassed (Type type, IMemberFilter memberFilter)
