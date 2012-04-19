@@ -30,7 +30,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, Expression previousBody)
         : base (declaringType, parameterExpressions, previousBody, false)
     {
-      ArgumentUtility.CheckNotNull ("previousBody", previousBody);
     }
 
     public Expression GetConstructorCall (params Expression[] arguments)

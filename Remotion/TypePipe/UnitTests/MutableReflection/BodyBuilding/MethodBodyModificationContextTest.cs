@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -106,6 +108,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var invokedBody = _context.GetPreviousBody (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, Expression.Convert (arg2, typeof (object)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
+    }
+
+    [Test]
+    public void GetPreviousBody_Enumerable ()
+    {
+      var invokedBody = _context.GetPreviousBody (_parameters.Cast<Expression> ().AsOneTime ());
+
+      var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
   }

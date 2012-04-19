@@ -19,7 +19,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   public class TestableMethodBodyContextBase : MethodBodyContextBase
   {

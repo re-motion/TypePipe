@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<MutableMethodInfo> AllMethods
     {
-      get { return ExistingMethods.Concat (AddedMethods); }
+      get { return _methods; }
     }
 
     public override Type UnderlyingSystemType

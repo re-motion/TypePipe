@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -464,7 +465,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         return fakeBody;
       };
 
-      var ctorInfo = _mutableType.AddConstructor (attributes, parameterDeclarations, bodyProvider);
+      var ctorInfo = _mutableType.AddConstructor (attributes, parameterDeclarations.AsOneTime(), bodyProvider);
 
       // Correct constructor info instance
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_mutableType));
@@ -563,7 +564,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         return fakeBody;
       };
 
-      var method = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
       // Correct method info instance
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
@@ -882,7 +883,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)
     {
-      return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations, context => Expression.Empty());
+      return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations.AsOneTime(), context => Expression.Empty());
     }
 
     private MutableMethodInfo AddMethod (MutableType mutableType, string name, params ParameterDeclaration[] parameterDeclarations)
@@ -890,7 +891,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = ReflectionObjectMother.GetSomeType();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations, ctx => body);
+      return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
     }
 
     public class DomainClass : IDomainInterface

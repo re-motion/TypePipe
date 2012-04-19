@@ -21,6 +21,7 @@ using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -32,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       var thisExpression = ExpressionTreeObjectMother.GetSomeExpression(typeof(ClassWithConstructors));
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
-      var result = ConstructorBodyContextUtility.GetConstructorCallExpression (thisExpression, argumentExpressions);
+      var result = ConstructorBodyContextUtility.GetConstructorCallExpression (thisExpression, argumentExpressions.AsOneTime());
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result;
@@ -41,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter> ());
       var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) methodCallExpression.Method;
 
-      var expectedCtor = typeof(ClassWithConstructors).GetConstructor (new[] { typeof (object) });
+      var expectedCtor = ReflectionObjectMother.GetConstructor(() => new ClassWithConstructors(null));
       Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.EqualTo (expectedCtor));
 
       Assert.That (methodCallExpression.Arguments, Is.EqualTo (argumentExpressions));
@@ -60,10 +61,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     private class ClassWithConstructors
     {
-      public ClassWithConstructors ()
-      {
-      }
-
       public ClassWithConstructors (object o)
       {
         Dev.Null = o;

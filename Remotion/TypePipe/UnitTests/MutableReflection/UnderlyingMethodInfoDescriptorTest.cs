@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -41,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var containsGenericParameters = BooleanObjectMother.GetRandomBoolean();
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDeclarations, isGenericMethod, isGenericMethodDefinition, containsGenericParameters, body);
+          name, attributes, returnType, parameterDeclarations.AsOneTime(), isGenericMethod, isGenericMethodDefinition, containsGenericParameters, body);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));

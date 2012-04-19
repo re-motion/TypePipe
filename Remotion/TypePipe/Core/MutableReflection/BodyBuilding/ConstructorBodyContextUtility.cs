@@ -21,6 +21,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.Text;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -34,8 +35,10 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("thisExpression", thisExpression);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
+      var argumentCollection = arguments.ConvertToCollection();
+
       var declaringType = thisExpression.Type;
-      var argumentTypes = arguments.Select (e => e.Type).ToArray();
+      var argumentTypes = argumentCollection.Select (e => e.Type).ToArray ();
       var constructor = declaringType.GetConstructor (argumentTypes);
       if (constructor == null)
       {
@@ -46,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
       var adapter = new ConstructorAsMethodInfoAdapter (constructor);
 
-      return Expression.Call (thisExpression, adapter, arguments);
+      return Expression.Call (thisExpression, adapter, argumentCollection);
     }
   }
 }

@@ -23,6 +23,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.FunctionalProgramming;
 using Rhino.Mocks;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -43,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _existingMembers = allExistingMembers.Skip (1).ToArray();
       Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
 
-      _collection = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _existingMembers, mutableMemberProvider);
+      _collection = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _existingMembers.AsOneTime(), mutableMemberProvider);
     }
 
     [Test]

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -35,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations, body);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations.AsOneTime(), body);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));

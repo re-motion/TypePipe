@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
@@ -33,8 +34,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participants = new[] { MockRepository.GenerateStub<ITypeAssemblyParticipant>() };
       var codeGenerator = MockRepository.GenerateStub<ITypeModifier>();
 
-      var typeAssembler = new TypeAssembler(participants, codeGenerator);
+      var typeAssembler = new TypeAssembler(participants.AsOneTime(), codeGenerator);
 
+      Assert.That (typeAssembler.Participants, Is.EqualTo(participants));
+      // Make sure that participants are iterated only once
       Assert.That (typeAssembler.Participants, Is.EqualTo(participants));
       Assert.That (typeAssembler.TypeModifier, Is.SameAs(codeGenerator));
     }

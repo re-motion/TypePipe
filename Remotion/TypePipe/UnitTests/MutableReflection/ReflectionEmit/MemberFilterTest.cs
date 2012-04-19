@@ -21,6 +21,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using MemberFilter = Remotion.TypePipe.MutableReflection.ReflectionEmit.MemberFilter;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
 {
@@ -46,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
           GetMemberNames (allFields),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField", "InternalField", "_privateField" }));
 
-      var filteredFields = _memberFilter.FilterFields(allFields);
+      var filteredFields = _memberFilter.FilterFields(allFields.AsOneTime());
 
       Assert.That (
           GetMemberNames (filteredFields.Cast<MemberInfo> ()),
@@ -61,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
           GetCtorSignatures (constructors),
           Is.EquivalentTo (new[] { ".ctor()", ".ctor(Int32)", ".ctor(System.String)", ".ctor(Double)", ".ctor(Int64)" }));
 
-      var filteredConstructors = _memberFilter.FilterConstructors (constructors);
+      var filteredConstructors = _memberFilter.FilterConstructors (constructors.AsOneTime());
 
       Assert.That (GetCtorSignatures (filteredConstructors), Is.EquivalentTo (new[] { ".ctor()", ".ctor(Int32)", ".ctor(System.String)" }));
     }
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
           new[] { "PublicMethod", "ProtectedOrInternalMethod", "ProtectedMethod", "InternalMethod", "PrivateMethod" },
           Is.SubsetOf (GetMemberNames (allMethods)));
 
-      var filteredMethods = _memberFilter.FilterMethods (allMethods);
+      var filteredMethods = _memberFilter.FilterMethods (allMethods.AsOneTime());
 
       Assert.That (
           new[] { "PublicMethod", "ProtectedOrInternalMethod", "ProtectedMethod" },

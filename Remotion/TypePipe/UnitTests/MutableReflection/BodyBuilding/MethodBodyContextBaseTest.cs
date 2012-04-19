@@ -20,6 +20,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -44,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
 
       var isStatic = BooleanObjectMother.GetRandomBoolean();
-      var context = new TestableMethodBodyContextBase (_mutableType, parameters, isStatic);
+      var context = new TestableMethodBodyContextBase (_mutableType, parameters.AsOneTime(), isStatic);
 
       Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));

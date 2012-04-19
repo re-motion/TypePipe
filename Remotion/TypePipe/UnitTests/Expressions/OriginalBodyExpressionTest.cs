@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       _returnType = ReflectionObjectMother.GetSomeType ();
       _argumentExpressions = new ArgumentTestHelper (7, "string").Expressions;
 
-      _expression = new OriginalBodyExpression (_returnType, _argumentExpressions); 
+      _expression = new OriginalBodyExpression (_returnType, _argumentExpressions.AsOneTime()); 
     }
 
     [Test]
