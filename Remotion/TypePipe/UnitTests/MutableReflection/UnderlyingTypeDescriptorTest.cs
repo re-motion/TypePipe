@@ -68,10 +68,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Original type must not be another mutable type.\r\nParameter name: originalType")]
+    public void Create_ThrowsIfOriginalTypeIsMutableType ()
+    {
+      Create (MutableTypeObjectMother.Create());
+    }
+
+    [Test]
     public void Create_ThrowsIfOriginalTypeCannotBeSubclassed ()
     {
-      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
-                + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType";
+      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, a generic "
+                + "parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType";
       // sealed
       Assert.That (() => Create (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // interface

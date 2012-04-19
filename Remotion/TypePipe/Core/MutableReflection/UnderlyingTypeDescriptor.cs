@@ -38,6 +38,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("originalType", originalType);
       ArgumentUtility.CheckNotNull ("memberFilter", memberFilter);
 
+      if (originalType is MutableType)
+        throw new ArgumentException ("Original type must not be another mutable type.", "originalType");
+
       // TODO 4695
       if (CanNotBeSubclassed (originalType, memberFilter))
         throw new ArgumentException (
