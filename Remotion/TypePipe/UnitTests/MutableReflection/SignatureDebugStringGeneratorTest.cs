@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFieldSignature ()
     {
-      var field = ReflectionObjectMother.GetField ((DomainType obj) => obj.Field);
+      var field = MemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
 
       var result = SignatureDebugStringGenerator.GetFieldSignature (field);
 
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorSignature ()
     {
-      var constructor = ReflectionObjectMother.GetConstructor (() => new DomainType(7, ref Dev<string>.Dummy));
+      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType(7, ref Dev<string>.Dummy));
 
       var result = SignatureDebugStringGenerator.GetConstructorSignature (constructor);
 
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMethodSignature ()
     {
-      var method = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
 
       var result = SignatureDebugStringGenerator.GetMethodSignature (method);
 

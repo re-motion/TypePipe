@@ -185,10 +185,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
       var newVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
 
-      var nonVirtualUnderlyingMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
+      var nonVirtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
 
-      var virtualUnderlyingMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.VirtualMethod ());
+      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
       var existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
 
       Assert.That (newNonVirtualMethod.CanSetBody, Is.True);
@@ -230,7 +230,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "The body of the existing non-virtual method 'NonVirtualMethod' cannot be replaced.")]
     public void SetBody_NonSettableMethod ()
     {
-      var nonVirtualMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
+      var nonVirtualMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
       var mutableMethod = Create (descriptor);
 
@@ -316,7 +316,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void VirtualMethodsImplementedByMethodInfo ()
     {
       var method = MutableMethodInfoObjectMother.CreateForExisting (
-          originalMethodInfo: ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod()));
+          originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod()));
 
       // None of these members should throw an exception 
       Dev.Null = method.MemberType;
@@ -326,7 +326,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnsupportedMembers ()
     {
       var method = MutableMethodInfoObjectMother.CreateForExisting (
-          originalMethodInfo: ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonVirtualMethod ()));
+          originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ()));
 
       CheckThrowsNotSupported (() => Dev.Null = method.MetadataToken, "Property", "MetadataToken");
       CheckThrowsNotSupported (() => Dev.Null = method.Module, "Property", "Module");

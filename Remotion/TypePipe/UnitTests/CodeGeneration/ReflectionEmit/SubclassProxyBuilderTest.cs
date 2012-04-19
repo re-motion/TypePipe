@@ -99,9 +99,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedField_WithCustomAttribute ()
     {
-      var constructor = ReflectionObjectMother.GetConstructor (() => new CustomAttribute(""));
-      var property = ReflectionObjectMother.GetProperty ((CustomAttribute attr) => attr.Property);
-      var field = ReflectionObjectMother.GetField ((CustomAttribute attr) => attr.Field);
+      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute(""));
+      var property = MemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
+      var field = MemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
       var constructorArguments = new object[] { "ctorArgs" };
       var declaration = new CustomAttributeDeclaration (
           constructor,
@@ -212,7 +212,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedMethod_DefinesMethod ()
     {
-      var originalMethod = ReflectionObjectMother.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
+      var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
 
       var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType.Method";
@@ -412,7 +412,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = isNew
                        ? MutableMethodInfoObjectMother.CreateForNew (attributes: MethodAttributes.Virtual)
                        : MutableMethodInfoObjectMother.CreateForExisting (
-                           originalMethodInfo: ReflectionObjectMother.GetMethod ((object obj) => obj.ToString()));
+                           originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
       if (isModified)
         MutableMethodInfoTestHelper.ModifyMethod (method);
 

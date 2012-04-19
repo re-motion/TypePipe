@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateForEquivalentSignature ()
     {
       string v;
-      var method = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.Method (42, out v));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (42, out v));
 
       var result = ParameterDeclaration.CreateForEquivalentSignature (method);
 

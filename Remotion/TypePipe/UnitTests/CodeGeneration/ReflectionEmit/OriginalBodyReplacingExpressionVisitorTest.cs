@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
       _mutableMethodStub = MockRepository.GenerateStub<IMutableMethodBase>();
       _mutableMethodStub.Stub (stub => stub.DeclaringType).Return (_declaringType);
-      _methodRepresentingOriginalBody = ReflectionObjectMother.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
+      _methodRepresentingOriginalBody = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
 
       _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (
           _mutableMethodStub, 

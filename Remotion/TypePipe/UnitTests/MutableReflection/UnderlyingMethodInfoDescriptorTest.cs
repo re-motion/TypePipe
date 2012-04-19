@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       int v;
-      var originalMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
+      var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
 
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
-      var originalMethod = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
+      var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
       Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);

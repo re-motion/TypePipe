@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMethodAttributesWithAdjustedVisibiity_NonFamilyOrAssemblyMethod ()
     {
-      var method = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.NonFamilyOrAssemblyMethod ());
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonFamilyOrAssemblyMethod ());
 
       var attributes = TestableUnderlyingMethodBaseDescriptor<MethodBase>.GetMethodAttributesWithAdjustedVisibiity (method);
 
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMethodAttributesWithAdjustedVisibiity_FamilyOrAssemblyMethod ()
     {
-      var method = ReflectionObjectMother.GetMethod ((DomainType obj) => obj.FamilyOrAssemblyMethod ());
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FamilyOrAssemblyMethod ());
       Assert.That (method.Attributes, Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.HideBySig));
 
       var attributes = TestableUnderlyingMethodBaseDescriptor<MethodBase>.GetMethodAttributesWithAdjustedVisibiity (method);

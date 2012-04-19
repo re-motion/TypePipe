@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter> ());
       var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) methodCallExpression.Method;
 
-      var expectedCtor = ReflectionObjectMother.GetConstructor(() => new ClassWithConstructors(null));
+      var expectedCtor = MemberInfoFromExpressionUtility.GetConstructor(() => new ClassWithConstructors(null));
       Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.EqualTo (expectedCtor));
 
       Assert.That (methodCallExpression.Arguments, Is.EqualTo (argumentExpressions));

@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       int v;
-      var originalCtor = ReflectionObjectMother.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
+      var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
 
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
-      var originalCtor = ReflectionObjectMother.GetConstructor (() => new DomainType ());
+      var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
       Assert.That (originalCtor.IsFamilyOrAssembly, Is.True);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
