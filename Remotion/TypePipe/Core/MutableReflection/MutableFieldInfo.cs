@@ -76,12 +76,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string ToString ()
     {
-      return FieldType + " " + Name;
+      return SignatureDebugStringGenerator.GetFieldSignature (this);
     }
 
     public string ToDebugString ()
     {
-      return string.Format ("MutableField = \"{0} {1}\", DeclaringType = \"{2}\"", FieldType.Name, Name, DeclaringType.Name);
+      return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType.Name);
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations

@@ -58,9 +58,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      var expected = _fieldInfo.FieldType + " " + _fieldInfo.Name;
+      var field = MutableFieldInfoObjectMother.Create (fieldType: typeof (MutableFieldInfoTest), name: "_field");
 
-      Assert.That (_fieldInfo.ToString(), Is.EqualTo (expected));
+      Assert.That (field.ToString (), Is.EqualTo ("MutableFieldInfoTest _field"));
     }
 
     [Test]
