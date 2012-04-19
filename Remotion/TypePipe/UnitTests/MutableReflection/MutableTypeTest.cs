@@ -609,18 +609,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method 'ToString' with equal signature already exists.\r\nParameter name: name")]
+        "Method 'PublicMethod' with equal signature already exists.\r\nParameter name: name")]
     public void AddMethod_ThrowsIfAlreadyExists ()
     {
-      var toStringMethod = _mutableType.ExistingMethods.Single (m => m.Name == "ToString");
-      Assert.That (toStringMethod, Is.Not.Null);
-      Assert.That (toStringMethod.GetParameters(), Is.Empty);
+      var method = _mutableType.ExistingMethods.Single (m => m.Name == "PublicMethod");
+      Assert.That (method, Is.Not.Null);
+      Assert.That (method.ReturnType, Is.SameAs(typeof(void)));
+      Assert.That (method.GetParameters(), Is.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
-      _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, context => Expression.Constant ("string"));
+      _mutableType.AddMethod ("PublicMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+    }
+
+    [Test]
+    public void AddMethod_AllowsShadowing ()
+    {
+      var toStringMethod = _mutableType.ExistingMethods.Single (m => m.Name == "ToString");
+      Assert.That (toStringMethod, Is.Not.Null);
+      Assert.That (toStringMethod.GetParameters (), Is.Empty);
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
+
+      Assert.That (
+          () => _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string")),
+          Throws.Nothing);
     }
 
     [Test]
