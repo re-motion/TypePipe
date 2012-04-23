@@ -33,79 +33,79 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <see cref="ITypeBuilder"/>, <see cref="IConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
   /// references to the mutable Reflection objects when it emits code.
   /// </remarks>
-  public class ReflectionToBuilderMap
+  public class EmittableOperandProvider
   {
-    private readonly Dictionary<Type, ITypeBuilder> _mappedTypes = new Dictionary<Type, ITypeBuilder> ();
-    private readonly Dictionary<FieldInfo, IFieldBuilder> _mappedFieldInfos = new Dictionary<FieldInfo, IFieldBuilder> ();
-    private readonly Dictionary<ConstructorInfo, IConstructorBuilder> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IConstructorBuilder> ();
-    private readonly Dictionary<MethodInfo, IMethodBuilder> _mappedMethodInfos = new Dictionary<MethodInfo, IMethodBuilder>();
+    private readonly Dictionary<Type, IEmittableOperand> _mappedTypes = new Dictionary<Type, IEmittableOperand> ();
+    private readonly Dictionary<FieldInfo, IEmittableOperand> _mappedFieldInfos = new Dictionary<FieldInfo, IEmittableOperand> ();
+    private readonly Dictionary<ConstructorInfo, IEmittableOperand> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IEmittableOperand> ();
+    private readonly Dictionary<MethodInfo, IEmittableMethodOperand> _mappedMethodInfos = new Dictionary<MethodInfo, IEmittableMethodOperand> ();
 
     [CLSCompliant (false)]
-    public void AddMapping (Type mappedType, ITypeBuilder typeBuilder)
+    public void AddMapping (Type mappedType, IEmittableOperand typeOperand)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
+      ArgumentUtility.CheckNotNull ("typeOperand", typeOperand);
 
-      AddMapping (_mappedTypes, mappedType, typeBuilder);
+      AddMapping (_mappedTypes, mappedType, typeOperand);
     }
 
     [CLSCompliant (false)]
-    public void AddMapping (FieldInfo mappedFieldInfo, IFieldBuilder fieldBuilder)
+    public void AddMapping (FieldInfo mappedFieldInfo, IEmittableOperand fieldOperand)
     {
       ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
-      ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
+      ArgumentUtility.CheckNotNull ("fieldOperand", fieldOperand);
 
-      AddMapping (_mappedFieldInfos, mappedFieldInfo, fieldBuilder);
+      AddMapping (_mappedFieldInfos, mappedFieldInfo, fieldOperand);
     }
 
     [CLSCompliant (false)]
-    public void AddMapping (ConstructorInfo mappedConstructorInfo, IConstructorBuilder constructorBuilder)
+    public void AddMapping (ConstructorInfo mappedConstructorInfo, IEmittableOperand constructorOperand)
     {
       ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
-      ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
+      ArgumentUtility.CheckNotNull ("constructorOperand", constructorOperand);
 
-      AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorBuilder);
+      AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorOperand);
     }
 
     [CLSCompliant (false)]
-    public void AddMapping (MethodInfo mappedMethodInfo, IMethodBuilder methodBuilder)
+    public void AddMapping (MethodInfo mappedMethodInfo, IEmittableMethodOperand methodOperand)
     {
       ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
-      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
+      ArgumentUtility.CheckNotNull ("methodOperand", methodOperand);
 
-      AddMapping (_mappedMethodInfos, mappedMethodInfo, methodBuilder);
+      AddMapping (_mappedMethodInfos, mappedMethodInfo, methodOperand);
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder GetBuilder (Type mappedType)
+    public IEmittableOperand GetEmittableOperand (Type mappedType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
 
-      return GetBuilder (_mappedTypes, mappedType);
+      return GetEmittableOperand (_mappedTypes, mappedType);
     }
 
     [CLSCompliant (false)]
-    public IFieldBuilder GetBuilder (FieldInfo mappedFieldInfo)
+    public IEmittableOperand GetEmittableOperand (FieldInfo mappedFieldInfo)
     {
       ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
 
-      return GetBuilder (_mappedFieldInfos, mappedFieldInfo);
+      return GetEmittableOperand (_mappedFieldInfos, mappedFieldInfo);
     }
 
     [CLSCompliant (false)]
-    public IConstructorBuilder GetBuilder (ConstructorInfo mappedConstructorInfo)
+    public IEmittableOperand GetEmittableOperand (ConstructorInfo mappedConstructorInfo)
     {
       ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
 
-      return GetBuilder (_mappedConstructorInfos, mappedConstructorInfo);
+      return GetEmittableOperand (_mappedConstructorInfos, mappedConstructorInfo);
     }
 
     [CLSCompliant (false)]
-    public IMethodBuilder GetBuilder (MethodInfo mappedMethodInfo)
+    public IEmittableMethodOperand GetEmittableOperand (MethodInfo mappedMethodInfo)
     {
       ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
 
-      return GetBuilder (_mappedMethodInfos, mappedMethodInfo);
+      return GetEmittableOperand (_mappedMethodInfos, mappedMethodInfo);
     }
 
     private void AddMapping<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem, TValue builder)
@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (mappedItem, builder);
     }
 
-    private TValue GetBuilder<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem)
+    private TValue GetEmittableOperand<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem)
     {
       return mapping.GetValueOrDefault (mappedItem);
     }

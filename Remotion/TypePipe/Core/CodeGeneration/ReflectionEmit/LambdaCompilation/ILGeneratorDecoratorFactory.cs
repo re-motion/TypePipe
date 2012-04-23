@@ -26,16 +26,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratorDecoratorFactory : IILGeneratorFactory
   {
     private readonly IILGeneratorFactory _innerFactory;
-    private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
+    private readonly EmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
-    public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory, ReflectionToBuilderMap reflectionToBuilderMap)
+    public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory, EmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("innerFactory", innerFactory);
-      ArgumentUtility.CheckNotNull ("reflectionToBuilderMap", reflectionToBuilderMap);
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
       _innerFactory = innerFactory;
-      _reflectionToBuilderMap = reflectionToBuilderMap;
+      _emittableOperandProvider = emittableOperandProvider;
     }
 
     [CLSCompliant (false)]
@@ -44,9 +44,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerFactory; }
     }
 
-    public ReflectionToBuilderMap ReflectionToBuilderMap
+    public EmittableOperandProvider EmittableOperandProvider
     {
-      get { return _reflectionToBuilderMap; }
+      get { return _emittableOperandProvider; }
     }
 
     [CLSCompliant (false)]
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);
 
       var innerILGenerator = _innerFactory.CreateAdaptedILGenerator (realILGenerator);
-      return new ILGeneratorDecorator (innerILGenerator, _reflectionToBuilderMap);
+      return new ILGeneratorDecorator (innerILGenerator, _emittableOperandProvider);
     }
   }
 }

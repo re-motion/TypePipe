@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly ITypeBuilder _typeBuilder;
     private readonly IExpressionPreparer _expressionPreparer;
-    private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
+    private readonly EmittableOperandProvider _emittableOperandProvider;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
@@ -48,18 +48,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public SubclassProxyBuilder (
         ITypeBuilder typeBuilder,
         IExpressionPreparer expressionPreparer,
-        ReflectionToBuilderMap reflectionToBuilderMap,
+        EmittableOperandProvider emittableOperandProvider,
         IILGeneratorFactory ilGeneratorFactory,
         DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
-      ArgumentUtility.CheckNotNull ("reflectionToBuilderMap", reflectionToBuilderMap);
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
       _typeBuilder = typeBuilder;
       _expressionPreparer = expressionPreparer;
-      _reflectionToBuilderMap = reflectionToBuilderMap;
+      _emittableOperandProvider = emittableOperandProvider;
       _ilGeneratorFactory = ilGeneratorFactory;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
     }
@@ -75,9 +75,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _expressionPreparer; }
     }
 
-    public ReflectionToBuilderMap ReflectionToBuilderMap
+    public EmittableOperandProvider EmittableOperandProvider
     {
-      get { return _reflectionToBuilderMap; }
+      get { return _emittableOperandProvider; }
     }
 
     [CLSCompliant (false)]
@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
 
       var fieldBuilder = _typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
-      _reflectionToBuilderMap.AddMapping (addedField, fieldBuilder);
+      _emittableOperandProvider.AddMapping (addedField, fieldBuilder);
 
       foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
       {
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = GetParameterTypes (constructor);
       var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
-      _reflectionToBuilderMap.AddMapping (constructor, ctorBuilder);
+      _emittableOperandProvider.AddMapping (constructor, ctorBuilder);
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());
 
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var parameterTypes = GetParameterTypes (method);
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
-      _reflectionToBuilderMap.AddMapping (method, methodBuilder);
+      _emittableOperandProvider.AddMapping (method, methodBuilder);
 
       if (overriddenMethod != null)
         methodBuilder.DefineOverride (overriddenMethod);

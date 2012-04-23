@@ -30,16 +30,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratorDecorator : IILGenerator
   {
     private readonly IILGenerator _innerILGenerator;
-    private readonly ReflectionToBuilderMap _reflectionToBuilderMap;
+    private readonly EmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
-    public ILGeneratorDecorator (IILGenerator innerIlGenerator, ReflectionToBuilderMap reflectionToBuilderMap)
+    public ILGeneratorDecorator (IILGenerator innerIlGenerator, EmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
-      ArgumentUtility.CheckNotNull ("reflectionToBuilderMap", reflectionToBuilderMap);
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
       _innerILGenerator = innerIlGenerator;
-      _reflectionToBuilderMap = reflectionToBuilderMap;
+      _emittableOperandProvider = emittableOperandProvider;
     }
 
     [CLSCompliant (false)]
@@ -48,9 +48,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerILGenerator; }
     }
 
-    public ReflectionToBuilderMap ReflectionToBuilderMap
+    public EmittableOperandProvider EmittableOperandProvider
     {
-      get { return _reflectionToBuilderMap; }
+      get { return _emittableOperandProvider; }
     }
 
     public int ILOffset
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     [CLSCompliant (false)]
     public IILGeneratorFactory GetFactory ()
     {
-      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory(), _reflectionToBuilderMap);
+      return new ILGeneratorDecoratorFactory (_innerILGenerator.GetFactory(), _emittableOperandProvider);
     }
 
     public void BeginCatchBlock (Type exceptionType)
@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("con", con);
 
-      var constructorBuilder = _reflectionToBuilderMap.GetBuilder (con);
+      var constructorBuilder = _emittableOperandProvider.GetEmittableOperand (con);
       if (constructorBuilder != null)
         constructorBuilder.Emit (this, opcode);
       else
@@ -158,7 +158,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      var builder = _reflectionToBuilderMap.GetBuilder (field);
+      var builder = _emittableOperandProvider.GetEmittableOperand (field);
       if (builder != null)
         builder.Emit (this, opcode);
       else
@@ -183,7 +183,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
       
-      var builder = _reflectionToBuilderMap.GetBuilder (meth);
+      var builder = _emittableOperandProvider.GetEmittableOperand (meth);
       if (builder != null)
       {
         builder.Emit (this, opcode);
@@ -215,7 +215,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
       
-      var builder = _reflectionToBuilderMap.GetBuilder (methodInfo);
+      var builder = _emittableOperandProvider.GetEmittableOperand (methodInfo);
       if (builder != null)
       {
         builder.EmitCall (this, opcode, optionalParameterTypes);

@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
-      var reflectionToBuilderMap = new ReflectionToBuilderMap ();
+      var reflectionToBuilderMap = new EmittableOperandProvider ();
       reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);

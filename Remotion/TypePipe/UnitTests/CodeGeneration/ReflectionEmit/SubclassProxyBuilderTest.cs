@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _typeBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
     private DebugInfoGenerator _debugInfoGeneratorStub;
-    private ReflectionToBuilderMap _reflectionToBuilderMap;
+    private EmittableOperandProvider _emittableOperandProvider;
 
     private SubclassProxyBuilder _builder;
 
@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
-      _reflectionToBuilderMap = new ReflectionToBuilderMap();
+      _emittableOperandProvider = new EmittableOperandProvider();
 
       _builder = new SubclassProxyBuilder (
-          _typeBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+          _typeBuilderMock, _expressionPreparerMock, _emittableOperandProvider, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Initialization_NullDebugInfoGenerator ()
     {
       var handler = new SubclassProxyBuilder (
-          _typeBuilderMock, _expressionPreparerMock, _reflectionToBuilderMap, _ilGeneratorFactoryStub, null);
+          _typeBuilderMock, _expressionPreparerMock, _emittableOperandProvider, _ilGeneratorFactoryStub, null);
       Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
 
@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder.HandleAddedField (addedField);
 
       _typeBuilderMock.VerifyAllExpectations ();
-      Assert.That (_reflectionToBuilderMap.GetBuilder (addedField), Is.SameAs (fieldBuilderStub));
+      Assert.That (_emittableOperandProvider.GetEmittableOperand (addedField), Is.SameAs (fieldBuilderStub));
     }
 
     [Test]
@@ -270,7 +270,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _expressionPreparerMock
           .Expect (mock => mock.PrepareConstructorBody (mutableConstructor))
           .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (mutableConstructor), Is.SameAs (constructorBuilderMock)));
+          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableOperand (mutableConstructor), Is.SameAs (constructorBuilderMock)));
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
@@ -488,7 +488,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _expressionPreparerMock
           .Expect (mock => mock.PrepareMethodBody (definedMethod))
           .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_reflectionToBuilderMap.GetBuilder (definedMethod), Is.SameAs (methodBuilderMock)));
+          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableOperand (definedMethod), Is.SameAs (methodBuilderMock)));
 
       parameterDefinitionExpectationAction (methodBuilderMock);
 

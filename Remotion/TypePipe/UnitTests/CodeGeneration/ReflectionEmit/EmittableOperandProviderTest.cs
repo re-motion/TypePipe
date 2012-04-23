@@ -25,9 +25,9 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class ReflectionToBuilderMapTest
+  public class EmittableOperandProviderTest
   {
-    private ReflectionToBuilderMap _map;
+    private EmittableOperandProvider _map;
 
     private Type _someType;
     private FieldInfo _someFieldInfo;
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _map = new ReflectionToBuilderMap();
+      _map = new EmittableOperandProvider();
 
       _someType = ReflectionObjectMother.GetSomeType();
       _someFieldInfo = ReflectionObjectMother.GetSomeField ();
@@ -48,10 +48,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping ()
     {
-      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someType);
-      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someFieldInfo);
-      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someConstructorInfo);
-      CheckAddMapping (_map.AddMapping, _map.GetBuilder, _someMethodInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someType);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someFieldInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someConstructorInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someMethodInfo);
     }
 
     [Test]
@@ -70,10 +70,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetBuilder_NoMapping ()
     {
-      Assert.That (_map.GetBuilder (_someType), Is.Null);
-      Assert.That (_map.GetBuilder (_someFieldInfo), Is.Null);
-      Assert.That (_map.GetBuilder (_someConstructorInfo), Is.Null);
-      Assert.That (_map.GetBuilder (_someMethodInfo), Is.Null);
+      Assert.That (_map.GetEmittableOperand (_someType), Is.Null);
+      Assert.That (_map.GetEmittableOperand (_someFieldInfo), Is.Null);
+      Assert.That (_map.GetEmittableOperand (_someConstructorInfo), Is.Null);
+      Assert.That (_map.GetEmittableOperand (_someMethodInfo), Is.Null);
     }
 
     private void CheckAddMapping<TMappedObject, TBuilder> (
