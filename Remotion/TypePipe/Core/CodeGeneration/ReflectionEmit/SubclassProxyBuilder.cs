@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
 
       var fieldBuilder = _typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
-      _emittableOperandProvider.AddMapping (addedField, fieldBuilder);
+      _emittableOperandProvider.AddMapping (addedField, fieldBuilder.GetEmittableOperand());
 
       foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
       {
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = GetParameterTypes (constructor);
       var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
-      _emittableOperandProvider.AddMapping (constructor, ctorBuilder);
+      _emittableOperandProvider.AddMapping (constructor, ctorBuilder.GetEmittableOperand());
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());
 
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var parameterTypes = GetParameterTypes (method);
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
-      _emittableOperandProvider.AddMapping (method, methodBuilder);
+      _emittableOperandProvider.AddMapping (method, methodBuilder.GetEmittableOperand());
 
       if (overriddenMethod != null)
         methodBuilder.DefineOverride (overriddenMethod);

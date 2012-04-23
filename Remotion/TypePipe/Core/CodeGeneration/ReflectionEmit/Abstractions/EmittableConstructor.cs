@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _constructorInfo = constructorInfo;
     }
 
+    [CLSCompliant (false)]
     public void Emit (IILGenerator ilGenerator, OpCode opCode)
     {
       ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);

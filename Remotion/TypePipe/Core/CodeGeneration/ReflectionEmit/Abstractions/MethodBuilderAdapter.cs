@@ -83,5 +83,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       var typeBuilder = (TypeBuilder) _methodBuilder.DeclaringType;
       typeBuilder.DefineMethodOverride (_methodBuilder, methodInfoDeclaration);
     }
+
+    [CLSCompliant (false)]
+    public IEmittableMethodOperand GetEmittableOperand ()
+    {
+      return new EmittableMethod (_methodBuilder);
+    }
+
+    IEmittableOperand IMemberBuilder.GetEmittableOperand ()
+    {
+      return GetEmittableOperand();
+    }
   }
 }

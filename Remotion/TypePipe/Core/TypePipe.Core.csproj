@@ -57,6 +57,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EmittableField.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EmittableMethod.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EmittableType.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMemberBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IEmittableMethodOperand.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IEmittableOperand.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBaseBuilder.cs" />

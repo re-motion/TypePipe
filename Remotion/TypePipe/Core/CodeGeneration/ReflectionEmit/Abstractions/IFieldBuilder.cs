@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Defines an interface for <see cref="FieldBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IFieldBuilder : IEmittableOperand
+  public interface IFieldBuilder : IMemberBuilder
   {
     void SetCustomAttribute (CustomAttributeBuilder customBuilder);
   }

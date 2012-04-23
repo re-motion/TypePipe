@@ -46,11 +46,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
-    public void Emit (IILGenerator ilGenerator, OpCode opCode)
+    public IEmittableOperand GetEmittableOperand ()
     {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
-
-      ilGenerator.Emit (opCode, _fieldBuilder);
+      return new EmittableField (_fieldBuilder);
     }
   }
 }

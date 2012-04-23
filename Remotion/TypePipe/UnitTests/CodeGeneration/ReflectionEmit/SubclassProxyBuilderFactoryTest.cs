@@ -62,20 +62,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (mutableType)).Return ("foofoo");
 
-      var typeBuilderStub = MockRepository.GenerateStub<ITypeBuilder> ();
+      var typeBuildermock = MockRepository.GenerateMock<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _moduleBuilderMock
-          .Expect (mock => mock.DefineType ("foofoo", attributes, originalType))
-          .Return (typeBuilderStub);
+      _moduleBuilderMock.Expect (mock => mock.DefineType ("foofoo", attributes, originalType)).Return (typeBuildermock);
+      var emittableOperandStub = MockRepository.GenerateStub<IEmittableOperand>();
+      typeBuildermock.Expect (mock => mock.GetEmittableOperand()).Return (emittableOperandStub);
 
       var result = _builderFactory.CreateBuilder (mutableType);
 
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
       var builder = (SubclassProxyBuilder) result;
 
-      Assert.That (builder.TypeBuilder, Is.SameAs (typeBuilderStub));
+      Assert.That (builder.TypeBuilder, Is.SameAs (typeBuildermock));
       Assert.That (builder.ExpressionPreparer, Is.SameAs (_expressionPreparer));
-      Assert.That (builder.EmittableOperandProvider.GetEmittableOperand (mutableType), Is.SameAs (typeBuilderStub));
+      Assert.That (builder.EmittableOperandProvider.GetEmittableOperand (mutableType), Is.SameAs (emittableOperandStub));
 
       Assert.That (builder.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) builder.ILGeneratorFactory;

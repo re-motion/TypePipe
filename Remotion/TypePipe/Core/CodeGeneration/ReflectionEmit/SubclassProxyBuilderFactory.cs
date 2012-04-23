@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           mutableType.UnderlyingSystemType);
 
       var reflectionToBuilderMap = new EmittableOperandProvider ();
-      reflectionToBuilderMap.AddMapping (mutableType, typeBuilder);
+      reflectionToBuilderMap.AddMapping (mutableType, typeBuilder.GetEmittableOperand());
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
 

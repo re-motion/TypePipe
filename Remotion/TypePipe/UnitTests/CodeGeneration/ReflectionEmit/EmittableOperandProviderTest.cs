@@ -1,19 +1,3 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
-//
-// See the NOTICE file distributed with this work for additional information
-// regarding copyright ownership.  rubicon licenses this file to you under 
-// the Apache License, Version 2.0 (the "License"); you may not use this 
-// file except in compliance with the License.  You may obtain a copy of the 
-// License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software 
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
-// License for the specific language governing permissions and limitations
-// under the License.
-// 
 using System;
 using System.Reflection;
 using NUnit.Framework;
@@ -57,13 +41,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping_Twice ()
     {
-      CheckAddMappingTwiceThrows<Type, ITypeBuilder> (
+      CheckAddMappingTwiceThrows<Type, IEmittableOperand> (
           _map.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
-      CheckAddMappingTwiceThrows<FieldInfo, IFieldBuilder> (
+      CheckAddMappingTwiceThrows<FieldInfo, IEmittableOperand> (
           _map.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
-      CheckAddMappingTwiceThrows<ConstructorInfo, IConstructorBuilder> (
+      CheckAddMappingTwiceThrows<ConstructorInfo, IEmittableOperand> (
           _map.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
-      CheckAddMappingTwiceThrows<MethodInfo, IMethodBuilder> (
+      CheckAddMappingTwiceThrows<MethodInfo, IEmittableMethodOperand> (
           _map.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
     }
     
@@ -76,15 +60,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_map.GetEmittableOperand (_someMethodInfo), Is.Null);
     }
 
-    private void CheckAddMapping<TMappedObject, TBuilder> (
-        Action<TMappedObject, TBuilder> addMappingMethod, Func<TMappedObject, TBuilder> getBuilderMethod, TMappedObject mappedObject)
-        where TBuilder: class
+    private void CheckAddMapping<TMappedObject, TEmittableOperand> (
+        Action<TMappedObject, TEmittableOperand> addMappingMethod,
+        Func<TMappedObject, TEmittableOperand> getEmittableOperandMethod,
+        TMappedObject mappedObject)
+        where TEmittableOperand : class, IEmittableOperand
     {
-      var fakeBuilder = MockRepository.GenerateStub<TBuilder>();
+      var fakeBuilder = MockRepository.GenerateStub<TEmittableOperand>();
      
       addMappingMethod (mappedObject, fakeBuilder);
 
-      var result = getBuilderMethod (mappedObject);
+      var result = getEmittableOperandMethod (mappedObject);
       Assert.That (result, Is.SameAs (fakeBuilder));
     }
 

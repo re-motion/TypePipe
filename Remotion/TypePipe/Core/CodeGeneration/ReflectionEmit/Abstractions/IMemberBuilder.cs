@@ -15,19 +15,15 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
-using System.Reflection.Emit;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="MethodBuilder"/>.
+  /// Defines a common base interface for most builder abstractions.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IMethodBuilder : IMethodBaseBuilder
+  public interface IMemberBuilder
   {
-    void DefineOverride (MethodInfo methodInfoDeclaration);
-
-    new IEmittableMethodOperand GetEmittableOperand ();
+    IEmittableOperand GetEmittableOperand ();
   }
 }

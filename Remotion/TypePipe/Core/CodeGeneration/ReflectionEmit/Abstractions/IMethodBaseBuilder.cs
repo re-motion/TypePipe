@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IMethodBaseBuilder : IEmittableOperand
+  public interface IMethodBaseBuilder : IMemberBuilder
   {
     void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName);
     void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);

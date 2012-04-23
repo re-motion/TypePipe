@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _type = type;
     }
 
+    [CLSCompliant (false)]
     public void Emit (IILGenerator ilGenerator, OpCode opCode)
     {
       ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);

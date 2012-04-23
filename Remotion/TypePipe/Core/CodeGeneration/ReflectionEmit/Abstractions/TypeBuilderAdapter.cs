@@ -88,5 +88,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       ilGenerator.Emit (opCode, _typeBuilder);
     }
+
+    [CLSCompliant (false)]
+    public IEmittableOperand GetEmittableOperand ()
+    {
+      return new EmittableType (_typeBuilder);
+    }
   }
 }
