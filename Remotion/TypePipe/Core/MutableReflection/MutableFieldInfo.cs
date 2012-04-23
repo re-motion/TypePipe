@@ -49,6 +49,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
+    public FieldInfo UnderlyingSystemFieldInfo
+    {
+      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemFieldInfo ?? this; }
+    }
+
     public bool IsNew
     {
       get { return _underlyingFieldInfoDescriptor.UnderlyingSystemFieldInfo == null; }

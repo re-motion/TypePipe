@@ -52,11 +52,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               attributes));
     }
 
-    public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, UnderlyingFieldInfoDescriptor descriptor = null)
+    public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo originalField = null)
     {
+      var fieldInfo = originalField ?? MemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnsepcifiedField);
+
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          descriptor ?? UnderlyingFieldInfoDescriptor.Create (MemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnsepcifiedField)));
+          UnderlyingFieldInfoDescriptor.Create (fieldInfo));
     }
   }
 }

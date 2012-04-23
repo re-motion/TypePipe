@@ -48,6 +48,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void UnderlyingSystemFieldInfo()
+    {
+      var originalField = ReflectionObjectMother.GetSomeField();
+      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField: originalField);
+
+      Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.SameAs (originalField));
+    }
+
+    [Test]
+    public void UnderlyingSystemFieldInfo_ForNull ()
+    {
+      var mutableField = MutableFieldInfoObjectMother.CreateForNew();
+
+      Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.SameAs (mutableField));
+    }
+
+    [Test]
     public void IsNew_True ()
     {
       var fieldInfo = MutableFieldInfoObjectMother.CreateForNew();
