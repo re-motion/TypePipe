@@ -117,13 +117,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AllFields ()
     {
-      Assert.That (_descriptor.Fields, Has.Count.EqualTo (2));
-      var existingFields = _descriptor.Fields;
+      Assert.That (_descriptor.Fields, Has.Count.EqualTo (1));
+      var existingField = _descriptor.Fields.Single();
       var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_addedField");
 
-      var allFields = _mutableType.AllFields;
+      var allFields = _mutableType.AllFields.ToArray();
 
-      Assert.That (allFields, Is.EqualTo (new[] { existingFields[0], existingFields[1], addedField }));
+      Assert.That (allFields, Has.Length.EqualTo (2));
+      Assert.That (allFields[0].DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (allFields[0].UnderlyingSystemFieldInfo, Is.SameAs (existingField));
+      Assert.That (allFields[1], Is.SameAs (addedField));
     }
 
     [Test]
@@ -405,11 +408,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields_FilterAddedWithUtility ()
     {
-      var allFields = _mutableType.AllFields.ToArray();
-      Assert.That (allFields, Has.Length.EqualTo(2));
+      Assert.That (_descriptor.Fields.Count, Is.EqualTo (1));
+      var fieldInfo = _descriptor.Fields.Single();
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (allFields[0].Attributes, bindingFlags)).Return (false).Repeat.Once();
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (allFields[1].Attributes, bindingFlags)).Return (false).Repeat.Once();
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fieldInfo.Attributes, bindingFlags)).Return (false);
 
       var fields = _mutableType.GetFields (bindingFlags);
 
@@ -420,15 +422,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetField ()
     {
-      Assert.That (_descriptor.Fields, Has.Count.GreaterThan (1));
+      var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_blah");
+      Assert.That (_mutableType.AllFields.Count(), Is.GreaterThan (1));
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
-      var field = _descriptor.Fields.Last();
 
-      var resultField = _mutableType.GetField (field.Name, BindingFlags.NonPublic | BindingFlags.Instance);
+      var resultField = _mutableType.GetField ("_blah", BindingFlags.NonPublic | BindingFlags.Instance);
 
-      Assert.That (resultField, Is.SameAs (field));
+      Assert.That (resultField, Is.SameAs (addedField));
     }
 
     [Test]
@@ -438,10 +440,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'Field1'.")]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'ProtectedField'.")]
     public void GetField_Ambigious ()
     {
-      var fieldName = "Field1";
+      var fieldName = "ProtectedField";
       _mutableType.AddField (typeof (string), fieldName, 0);
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
@@ -913,13 +915,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class DomainClass : IDomainInterface
     {
-      protected int Field1 = 1;
-      protected int Field2 = 2;
+      protected int ProtectedField;
 
       public DomainClass ()
       {
-        Dev.Null = Field1;
-        Dev.Null = Field2;
+        ProtectedField = Dev<int>.Null;
       }
 
       public void PublicMethod () { }

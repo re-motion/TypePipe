@@ -41,11 +41,11 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
+    private readonly MutableMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableMemberCollection<MethodInfo, MutableMethodInfo> _methods;
 
     private readonly List<Type> _addedInterfaces = new List<Type>();
-    private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -60,6 +60,7 @@ namespace Remotion.TypePipe.MutableReflection
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
+      _fields = new MutableMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
@@ -72,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<MutableFieldInfo> AddedFields
     {
-      get { return _addedFields.AsReadOnly(); }
+      get { return _fields.Added; }
     }
 
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
@@ -110,9 +111,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return ExistingInterfaces.Concat (_addedInterfaces); }
     }
 
-    public IEnumerable<FieldInfo> AllFields
+    public IEnumerable<MutableFieldInfo> AllFields
     {
-      get { return ExistingFields.Concat(_addedFields.Cast<FieldInfo>()); }
+      get { return _fields; }
     }
 
     public IEnumerable<MutableConstructorInfo> AllConstructors
@@ -227,7 +228,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (AllFields.Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
-      _addedFields.Add (fieldInfo);
+      _fields.Add (fieldInfo);
 
       return fieldInfo;
     }
@@ -345,7 +346,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var addedInterface in _addedInterfaces)
         modificationHandler.HandleAddedInterface (addedInterface);
 
-      foreach (var addedField in _addedFields)
+      foreach (var addedField in _fields.Added)
         modificationHandler.HandleAddedField (addedField);
 
       foreach (var addedConstructor in _constructors.Added)
@@ -431,6 +432,12 @@ namespace Remotion.TypePipe.MutableReflection
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
       return binder;
+    }
+
+    private MutableFieldInfo CreateExistingField (FieldInfo originalField)
+    {
+      var descriptor = UnderlyingFieldInfoDescriptor.Create (originalField);
+      return new MutableFieldInfo (this, descriptor);
     }
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
