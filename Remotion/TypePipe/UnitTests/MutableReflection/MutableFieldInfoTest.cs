@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = ReflectionObjectMother.GetSomeType();
+      var declaringType = MutableTypeObjectMother.Create();
       var fieldType = ReflectionObjectMother.GetSomeType ();
       var name = "_fieldName";
       var attributes = FieldAttributes.InitOnly;

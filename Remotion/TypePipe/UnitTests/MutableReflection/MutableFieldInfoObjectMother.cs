@@ -25,13 +25,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private class UnspecifiedType { }
 
     public static MutableFieldInfo Create (
-        Type declaringType = null,
+        MutableType declaringType = null,
         Type fieldType = null,
         string name = "_newField",
         FieldAttributes attributes = FieldAttributes.Private)
     {
       return new MutableFieldInfo (
-          declaringType ?? typeof (UnspecifiedType),
+          declaringType ?? MutableTypeObjectMother.Create(),
           fieldType ?? typeof (UnspecifiedType),
           name, attributes);
     }

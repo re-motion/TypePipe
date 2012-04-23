@@ -31,13 +31,13 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableFieldInfo : FieldInfo
   {
-    private readonly Type _declaringType;
+    private readonly MutableType _declaringType;
     private readonly Type _fieldType;
     private readonly string _name;
     private readonly FieldAttributes _attributes;
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
-    public MutableFieldInfo (Type declaringType, Type fieldType, string name, FieldAttributes attributes)
+    public MutableFieldInfo (MutableType declaringType, Type fieldType, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);
