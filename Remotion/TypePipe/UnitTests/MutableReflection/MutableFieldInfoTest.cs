@@ -97,11 +97,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddCustomAttribute ()
     {
-      var customAttribute = CustomAttributeDeclarationObjectMother.Create();
+      Assert.That (_fieldInfo.IsNew, Is.True);
+      var declaration = CustomAttributeDeclarationObjectMother.Create();
 
-      _fieldInfo.AddCustomAttribute (customAttribute);
+      _fieldInfo.AddCustomAttribute (declaration);
 
-      Assert.That (_fieldInfo.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { customAttribute }));
+      Assert.That (_fieldInfo.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+    }
+
+    [Test]
+    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Adding attributes to existing fields is not supported.")]
+    public void AddCustomAttribute_ThrowsForExisting ()
+    {
+      var fieldInfo = MutableFieldInfoObjectMother.CreateForExisting ();
+      Assert.That (fieldInfo.IsNew, Is.False);
+
+      fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create ());
     }
 
     [Test]
