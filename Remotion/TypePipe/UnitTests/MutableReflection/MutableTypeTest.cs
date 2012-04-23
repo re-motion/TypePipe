@@ -68,16 +68,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_Fields ()
     {
-      Assert.That (_descriptor.Fields, Is.Not.Empty);
+      var fields = _descriptor.Fields;
+      Assert.That (fields, Has.Count.EqualTo (1));
+      var expectedField = fields.Single();
 
-      Assert.That (_mutableType.ExistingFields, Is.EqualTo (_descriptor.Fields));
+      Assert.That (_mutableType.ExistingFields, Has.Count.EqualTo (1));
+      var mutableField = _mutableType.ExistingFields.Single ();
+
+      Assert.That (mutableField.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.EqualTo (expectedField));
     }
 
     [Test]
     public void Initialization_Constructors ()
     {
       var ctors = _descriptor.Constructors;
-      Assert.That (ctors, Is.Not.Empty.And.Count.EqualTo (1));
+      Assert.That (ctors, Has.Count.EqualTo (1));
       var expectedCtor = ctors.Single ();
 
       Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));

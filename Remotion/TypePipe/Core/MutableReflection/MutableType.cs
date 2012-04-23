@@ -91,9 +91,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingTypeDescriptor.Interfaces; }
     }
 
-    public ReadOnlyCollection<FieldInfo> ExistingFields
+    public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingFields
     {
-      get { return _underlyingTypeDescriptor.Fields; }
+      get { return _fields.Existing; }
     }
 
     public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingConstructors
