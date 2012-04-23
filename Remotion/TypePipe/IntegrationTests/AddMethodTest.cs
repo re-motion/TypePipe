@@ -19,7 +19,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
@@ -204,6 +206,32 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 4811")]
+    public void MethodUsingExistingMembers ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var existingField = mutableType.ExistingFields.Single (f => f.Name == "ExistingField");
+            var existingMethod = mutableType.ExistingMethods.Single (m => m.Name == "ExistingMethod");
+            mutableType.AddMethod (
+                "AddedMethod",
+                MethodAttributes.Public,
+                typeof (string),
+                ParameterDeclaration.EmptyParameters,
+                ctx => Expression.Block (
+                    Expression.Assign (Expression.Field (ctx.This, existingField), Expression.Constant ("blah")),
+                    Expression.Call (ctx.This, existingMethod)));
+          });
+
+      var addedMethod = type.GetMethod ("AddedMethod");
+      var instance = Activator.CreateInstance (type);
+      var result = addedMethod.Invoke (instance, null);
+
+      Assert.That (result, Is.EqualTo ("blah"));
+    }
+
+    [Test]
     public void MethodsRequiringForwardDeclarations ()
     {
       // public static int Method1 (int i)
@@ -256,7 +284,14 @@ namespace TypePipe.IntegrationTests
 
     public class DomainType
     {
+      public string ExistingField;
+
       public string SettableProperty { get; set; }
+
+      public string ExistingMethod ()
+      {
+        return ExistingField;
+      }
     }
   }
 }
