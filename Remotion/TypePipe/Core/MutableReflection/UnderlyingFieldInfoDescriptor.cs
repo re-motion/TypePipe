@@ -30,26 +30,38 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static UnderlyingFieldInfoDescriptor Create (Type fieldType, string name, FieldAttributes attributes)
     {
-      return new UnderlyingFieldInfoDescriptor (fieldType, name, attributes);
+      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes);
     }
 
     public static UnderlyingFieldInfoDescriptor Create (FieldInfo originalField)
     {
-      return new UnderlyingFieldInfoDescriptor (originalField.FieldType, originalField.Name, originalField.Attributes);
+      ArgumentUtility.CheckNotNull ("originalField", originalField);
+
+      return new UnderlyingFieldInfoDescriptor (originalField, originalField.FieldType, originalField.Name, originalField.Attributes);
     }
 
+    private readonly FieldInfo _underlyingSystemFieldInfo;
     private readonly string _name;
     private readonly FieldAttributes _attributes;
     private readonly Type _fieldType;
 
-    private UnderlyingFieldInfoDescriptor (Type fieldType, string name, FieldAttributes attributes)
+    private UnderlyingFieldInfoDescriptor (FieldInfo underlyingSystemFieldInfo, Type fieldType, string name, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      Assertion.IsNotNull (fieldType);
+      Assertion.IsNotNull (name);
 
+      _underlyingSystemFieldInfo = underlyingSystemFieldInfo;
       _fieldType = fieldType;
       _name = name;
       _attributes = attributes;
+    }
+
+    public FieldInfo UnderlyingSystemFieldInfo
+    {
+      get { return _underlyingSystemFieldInfo; }
     }
 
     public Type FieldType

@@ -48,9 +48,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsNewField ()
+    public void IsNew_True ()
     {
-      Assert.That (_fieldInfo.IsNewField, Is.True);
+      var fieldInfo = MutableFieldInfoObjectMother.CreateForNew();
+      Assert.That (fieldInfo.IsNew, Is.True);
+    }
+
+    [Test]
+    public void IsNew_Fase ()
+    {
+      var fieldInfo = MutableFieldInfoObjectMother.CreateForExisting ();
+      Assert.That (fieldInfo.IsNew, Is.False);
+    }
+
+    [Test]
+    public void IsModified_False ()
+    {
+      Assert.That (_fieldInfo.IsModified, Is.False);
+    }
+
+    [Test]
+    public void IsModified_True ()
+    {
+      _fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
+
+      Assert.That (_fieldInfo.IsModified, Is.True);
     }
 
     [Test]

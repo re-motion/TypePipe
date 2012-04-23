@@ -49,9 +49,14 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public bool IsNewField
+    public bool IsNew
     {
-      get { return true; }
+      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemFieldInfo == null; }
+    }
+
+    public bool IsModified
+    {
+      get { return _addedCustomAttributeDeclarations.Count != 0; }
     }
 
     public override Type FieldType
