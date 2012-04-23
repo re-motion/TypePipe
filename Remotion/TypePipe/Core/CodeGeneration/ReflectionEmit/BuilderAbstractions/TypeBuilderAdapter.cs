@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
@@ -78,6 +79,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
+    }
+
+    [CLSCompliant (false)]
+    public void Emit (IILGenerator ilGenerator, OpCode opCode)
+    {
+      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
+
+      ilGenerator.Emit (opCode, _typeBuilder);
     }
   }
 }

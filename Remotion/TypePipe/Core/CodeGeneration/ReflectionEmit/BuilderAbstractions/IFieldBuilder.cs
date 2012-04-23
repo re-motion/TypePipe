@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
@@ -24,9 +23,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// Defines an interface for <see cref="FieldBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IFieldBuilder
+  public interface IFieldBuilder : IEmittableOperand
   {
     void SetCustomAttribute (CustomAttributeBuilder customBuilder);
-    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }

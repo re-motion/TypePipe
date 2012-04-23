@@ -17,7 +17,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
@@ -25,11 +24,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
   /// Defines an interface for <see cref="MethodBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IMethodBuilder : IMethodBaseBuilder
+  public interface IMethodBuilder : IMethodBaseBuilder, IEmittableMethodOperand
   {
-    [CLSCompliant (false)]
-    void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes);
-
     void DefineOverride (MethodInfo methodInfoDeclaration);
   }
 }

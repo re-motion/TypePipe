@@ -53,6 +53,8 @@
     </Compile>
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ConstructorBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IEmittableMethodOperand.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IEmittableOperand.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IMethodBaseBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IMethodBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />

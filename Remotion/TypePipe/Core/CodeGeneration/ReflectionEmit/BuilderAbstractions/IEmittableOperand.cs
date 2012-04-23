@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,22 +15,17 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="TypeBuilder"/>.
+  /// Defines a common interface for emittable operands, e.g. <see cref="IMethodBuilder"/>, <see cref="IFieldBuilder"/> etc.
   /// </summary>
   [CLSCompliant (false)]
-  public interface ITypeBuilder : IEmittableOperand
+  public interface IEmittableOperand
   {
-    void AddInterfaceImplementation (Type interfaceType);
-    IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
-    IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
-    IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes);
-
-    Type CreateType ();
+    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }
