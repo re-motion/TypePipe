@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,17 +15,17 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="MethodBuilder"/>.
+  /// Defines a common interface for emittable operands, e.g. <see cref="IMethodBuilder"/>, <see cref="IFieldBuilder"/> etc.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IMethodBuilder : IMethodBaseBuilder, IEmittableMethodOperand
+  public interface IEmittableOperand
   {
-    void DefineOverride (MethodInfo methodInfoDeclaration);
+    void Emit (IILGenerator ilGenerator, OpCode opCode);
   }
 }

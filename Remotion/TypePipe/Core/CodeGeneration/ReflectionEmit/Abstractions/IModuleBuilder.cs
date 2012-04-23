@@ -18,19 +18,14 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="TypeBuilder"/>.
+  /// Defines an interface for <see cref="ModuleBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface ITypeBuilder : IEmittableOperand
+  public interface IModuleBuilder
   {
-    void AddInterfaceImplementation (Type interfaceType);
-    IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
-    IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
-    IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes);
-
-    Type CreateType ();
+    ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent);
   }
 }

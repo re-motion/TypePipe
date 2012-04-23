@@ -17,19 +17,20 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/>.
+  /// Defines an interface for <see cref="TypeBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IMethodBaseBuilder : IEmittableOperand
+  public interface ITypeBuilder : IEmittableOperand
   {
-    void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName);
-    void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);
+    void AddInterfaceImplementation (Type interfaceType);
+    IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
+    IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
+    IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes);
+
+    Type CreateType ();
   }
 }

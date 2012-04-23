@@ -16,16 +16,14 @@
 // 
 using System;
 using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for emittable method operands.
+  /// Defines an interface for <see cref="ConstructorBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IEmittableMethodOperand : IEmittableOperand
+  public interface IConstructorBuilder : IMethodBaseBuilder
   {
-    void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes);
   }
 }

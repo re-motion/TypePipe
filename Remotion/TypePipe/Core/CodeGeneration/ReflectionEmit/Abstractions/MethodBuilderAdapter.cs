@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -23,30 +23,30 @@ using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Adapts <see cref="ConstructorBuilder"/> with the <see cref="IConstructorBuilder"/> interface.
+  /// Adapts <see cref="MethodBuilder"/> with the <see cref="IMethodBaseBuilder"/> interface.
   /// </summary>
-  public class ConstructorBuilderAdapter : IConstructorBuilder
+  public class MethodBuilderAdapter : IMethodBuilder
   {
-    private readonly ConstructorBuilder _constructorBuilder;
+    private readonly MethodBuilder _methodBuilder;
 
-    public ConstructorBuilderAdapter (ConstructorBuilder constructorBuilder)
+    public MethodBuilderAdapter (MethodBuilder methodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
+      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
 
-      _constructorBuilder = constructorBuilder;
+      _methodBuilder = methodBuilder;
     }
 
-    public ConstructorBuilder ConstructorBuilder
+    public MethodBuilder MethodBuilder
     {
-      get { return _constructorBuilder; }
+      get { return _methodBuilder; }
     }
 
     public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
-      _constructorBuilder.DefineParameter (iSequence, attributes, strParamName);
+      _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
     }
 
     [CLSCompliant (false)]
@@ -55,10 +55,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
 
-      if (body.ReturnType != typeof (void))
-        throw new ArgumentException("Body must be of void type.", "body");
-
-      var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
+      var builderForLambdaCompiler = new MethodBuilderForLambdaCompiler (_methodBuilder, ilGeneratorFactory, true);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
     }
 
@@ -67,7 +64,24 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
     {
       ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
 
-      ilGenerator.Emit (opCode, _constructorBuilder);
+      ilGenerator.Emit (opCode, _methodBuilder);
+    }
+
+    [CLSCompliant (false)]
+    public void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes)
+    {
+      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
+      // optionalParameterTypes may be null
+
+      ilGenerator.EmitCall (opCode, _methodBuilder, optionalParameterTypes);
+    }
+
+    public void DefineOverride (MethodInfo methodInfoDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
+
+      var typeBuilder = (TypeBuilder) _methodBuilder.DeclaringType;
+      typeBuilder.DefineMethodOverride (_methodBuilder, methodInfoDeclaration);
     }
   }
 }

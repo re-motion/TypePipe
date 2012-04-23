@@ -19,7 +19,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
   /// Adapts <see cref="ModuleBuilder"/> with the <see cref="IModuleBuilder"/> interface.

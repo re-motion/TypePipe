@@ -19,7 +19,7 @@ using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
   /// Adapts <see cref="FieldBuilder"/> with the <see cref="IFieldBuilder"/> interface.

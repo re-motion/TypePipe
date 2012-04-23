@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,15 +16,16 @@
 // 
 using System;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="FieldBuilder"/>.
+  /// Defines an interface for emittable method operands.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IFieldBuilder : IEmittableOperand
+  public interface IEmittableMethodOperand : IEmittableOperand
   {
-    void SetCustomAttribute (CustomAttributeBuilder customBuilder);
+    void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes);
   }
 }

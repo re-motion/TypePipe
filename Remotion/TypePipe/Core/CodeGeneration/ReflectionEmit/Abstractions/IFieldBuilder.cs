@@ -15,17 +15,16 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.BuilderAbstractions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="ModuleBuilder"/>.
+  /// Defines an interface for <see cref="FieldBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IModuleBuilder
+  public interface IFieldBuilder : IEmittableOperand
   {
-    ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent);
+    void SetCustomAttribute (CustomAttributeBuilder customBuilder);
   }
 }

@@ -52,15 +52,15 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ConstructorBuilderAdapter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IEmittableMethodOperand.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IEmittableOperand.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IMethodBaseBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IMethodBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\FieldBuilderAdapter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IConstructorBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IFieldBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\MethodBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IEmittableMethodOperand.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IEmittableOperand.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBaseBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IConstructorBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IFieldBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
@@ -91,10 +91,10 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\MethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyNameProvider.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\IModuleBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ITypeBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\ModuleBuilderAdapter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\BuilderAbstractions\TypeBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IModuleBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ITypeBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderAdapter.cs" />
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpression.cs" />
