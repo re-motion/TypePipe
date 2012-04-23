@@ -32,21 +32,16 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableFieldInfo : FieldInfo
   {
     private readonly MutableType _declaringType;
-    private readonly Type _fieldType;
-    private readonly string _name;
-    private readonly FieldAttributes _attributes;
+    private readonly UnderlyingFieldInfoDescriptor _underlyingFieldInfoDescriptor;
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
-    public MutableFieldInfo (MutableType declaringType, Type fieldType, string name, FieldAttributes attributes)
+    public MutableFieldInfo (MutableType declaringType, UnderlyingFieldInfoDescriptor underlyingFieldInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("underlyingFieldInfoDescriptor", underlyingFieldInfoDescriptor);
 
       _declaringType = declaringType;
-      _name = name;
-      _fieldType = fieldType;
-      _attributes = attributes;
+      _underlyingFieldInfoDescriptor = underlyingFieldInfoDescriptor;
     }
 
     public override Type DeclaringType
@@ -61,17 +56,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type FieldType
     {
-      get { return _fieldType; }
+      get { return _underlyingFieldInfoDescriptor.FieldType; }
     }
 
     public override string Name
     {
-      get { return _name; }
+      get { return _underlyingFieldInfoDescriptor.Name; }
     }
 
     public override FieldAttributes Attributes
     {
-      get { return _attributes; }
+      get { return _underlyingFieldInfoDescriptor.Attributes; }
     }
 
     public override string ToString ()

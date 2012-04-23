@@ -221,7 +221,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var fieldInfo = new MutableFieldInfo (this, type, name, attributes);
+      var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
+      var fieldInfo = new MutableFieldInfo (this, descriptor);
 
       if (AllFields.Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");

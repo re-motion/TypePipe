@@ -16,13 +16,18 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableFieldInfoObjectMother
   {
-    private class UnspecifiedType { }
+    private class UnspecifiedType
+    {
+      internal static readonly UnspecifiedType UnsepcifiedField = Dev<UnspecifiedType>.Null;
+    }
 
     public static MutableFieldInfo Create (
         MutableType declaringType = null,
@@ -30,10 +35,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "_newField",
         FieldAttributes attributes = FieldAttributes.Private)
     {
+      return CreateForNew (declaringType, fieldType, name, attributes);
+    }
+
+    public static MutableFieldInfo CreateForNew (
+        MutableType declaringType = null,
+        Type fieldType = null,
+        string name = "_newField",
+        FieldAttributes attributes = FieldAttributes.Private)
+    {
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          fieldType ?? typeof (UnspecifiedType),
-          name, attributes);
+          UnderlyingFieldInfoDescriptor.Create (
+              fieldType ?? typeof (UnspecifiedType),
+              name,
+              attributes));
+    }
+
+    public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, UnderlyingFieldInfoDescriptor descriptor = null)
+    {
+      return new MutableFieldInfo (
+          declaringType ?? MutableTypeObjectMother.Create(),
+          descriptor ?? UnderlyingFieldInfoDescriptor.Create (MemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnsepcifiedField)));
     }
   }
 }

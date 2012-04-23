@@ -89,6 +89,7 @@
     <Compile Include="MutableReflection\MutableMemberCollectionTest.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
+    <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationObjectMother.cs" />

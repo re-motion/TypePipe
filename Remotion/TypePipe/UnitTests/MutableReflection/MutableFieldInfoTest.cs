@@ -36,16 +36,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var declaringType = MutableTypeObjectMother.Create();
-      var fieldType = ReflectionObjectMother.GetSomeType ();
-      var name = "_fieldName";
-      var attributes = FieldAttributes.InitOnly;
+      var descriptor = UnderlyingFieldInfoDescriptor.Create (ReflectionObjectMother.GetSomeType (), "_fieldName", FieldAttributes.InitOnly);
 
-      var fieldInfo = new MutableFieldInfo (declaringType, fieldType, name, attributes);
-      
+      var fieldInfo = new MutableFieldInfo (declaringType, descriptor);
+
       Assert.That (fieldInfo.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (fieldInfo.FieldType, Is.SameAs (fieldType));
-      Assert.That (fieldInfo.Name, Is.EqualTo (name));
-      Assert.That (fieldInfo.Attributes, Is.EqualTo (attributes));
+      Assert.That (fieldInfo.FieldType, Is.SameAs (descriptor.FieldType));
+      Assert.That (fieldInfo.Name, Is.EqualTo (descriptor.Name));
+      Assert.That (fieldInfo.Attributes, Is.EqualTo (descriptor.Attributes));
       Assert.That (fieldInfo.AddedCustomAttributeDeclarations, Is.Empty);
     }
 
