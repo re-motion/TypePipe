@@ -26,12 +26,14 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// A container storing mutable members and providing convenience properties for <see cref="ExistingDeclaredMembers"/> and <see cref="AddedMembers"/>.
+  /// A container storing members and providing convenience properties for <see cref="ExistingDeclaredMembers"/> <see cref="ExistingBaseMembers"/>
+  /// and <see cref="AddedMembers"/>.
   /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version for an existing member.
+  /// This class is an implementation detail of <see cref="MutableType"/>.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
-  public class MutableMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMemberInfo>
+  public class MutableTypeMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMemberInfo>
     where TMemberInfo : MemberInfo
     where TMutableMemberInfo : TMemberInfo
   {
@@ -40,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyCollection<TMemberInfo> _existingBaseMembers;
     private readonly List<TMutableMemberInfo> _addedMembers = new List<TMutableMemberInfo>();
 
-    public MutableMemberCollection (
+    public MutableTypeMemberCollection (
         MutableType declaringType,
         IEnumerable<TMemberInfo> existingMembers,
         Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)

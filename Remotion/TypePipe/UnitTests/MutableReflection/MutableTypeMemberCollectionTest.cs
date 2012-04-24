@@ -28,7 +28,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class MutableMemberCollectionTest
+  public class MutableTypeMemberCollectionTest
   {
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MethodInfo[] _baseMembers;
     private MethodInfo[] _allExistingMembers;
 
-    private MutableMemberCollection<MethodInfo, MutableMethodInfo> _collection;
+    private MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _collection;
 
     [SetUp]
     public void SetUp ()
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _allExistingMembers = _declaredMembers.Concat (_baseMembers).ToArray();
       Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
 
-      _collection = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers.AsOneTime(), mutableMemberProvider);
+      _collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers.AsOneTime(), mutableMemberProvider);
     }
 
     [Test]
@@ -147,11 +147,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "MethodInfo is declared by a different type: 'Remotion.TypePipe.UnitTests.MutableReflection.MutableMemberCollectionTest'.\r\n"
+        "MethodInfo is declared by a different type: 'Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeMemberCollectionTest'.\r\n"
         + "Parameter name: mutableMember")]
     public void Add_NonEquivalentDeclaringType ()
     {
-      var declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (MutableMemberCollectionTest));
+      var declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (MutableTypeMemberCollectionTest));
       Assert.That (_declaringType.IsEquivalentTo (declaringType), Is.False);
       var mutableMember = MutableMethodInfoObjectMother.CreateForExisting (declaringType);
 

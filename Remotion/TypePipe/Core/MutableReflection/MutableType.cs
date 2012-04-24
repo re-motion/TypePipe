@@ -41,9 +41,9 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
-    private readonly MutableMemberCollection<FieldInfo, MutableFieldInfo> _fields;
-    private readonly MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
-    private readonly MutableMemberCollection<MethodInfo, MutableMethodInfo> _methods;
+    private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
+    private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
+    private readonly MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _methods;
 
     private readonly List<Type> _addedInterfaces = new List<Type>();
 
@@ -60,10 +60,10 @@ namespace Remotion.TypePipe.MutableReflection
       _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
-      _fields = new MutableMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
-      _constructors = new MutableMemberCollection<ConstructorInfo, MutableConstructorInfo> (
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
+      _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
-      _methods = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
+      _methods = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
