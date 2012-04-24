@@ -206,7 +206,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4811")]
     public void MethodUsingExistingMembers ()
     {
       var type = AssembleType<DomainType> (

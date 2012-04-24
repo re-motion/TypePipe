@@ -27,7 +27,6 @@ namespace TypePipe.IntegrationTests
   public class AddConstructorTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore ("TODO 4811")]
     public void Standard ()
     {
       var type = AssembleType<DomainType> (
