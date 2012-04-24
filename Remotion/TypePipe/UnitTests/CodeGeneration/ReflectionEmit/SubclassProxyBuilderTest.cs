@@ -147,7 +147,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedConstructor_Throws ()
     {
-      var message = "The supplied constructor must be a new constructor.\r\nParameter name: addedConstructor";
+      var message = "The supplied constructor must be a new constructor.\r\nParameter name: constructor";
       CheckThrowsForInvalidArguments (_builder.HandleAddedConstructor, message, isNew: false, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleAddedConstructor, message, isNew: false, isModified: false);
     }
@@ -187,7 +187,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedMethod_Throws ()
     {
-      var message = "The supplied method must be a new method.\r\nParameter name: addedMethod";
+      var message = "The supplied method must be a new method.\r\nParameter name: method";
       CheckThrowsForInvalidArguments (_builder.HandleAddedMethod, message, isNew: false, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleAddedMethod, message, isNew: false, isModified: false);
     }
@@ -209,7 +209,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedConstructor_Throws ()
     {
-      var message = "The supplied constructor must be a modified existing constructor.\r\nParameter name: modifiedConstructor";
+      var message = "The supplied constructor must be a modified existing constructor.\r\nParameter name: constructor";
       CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: true, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: true, isModified: false);
       CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: false, isModified: false);
@@ -253,7 +253,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedMethod_Throws ()
     {
-      var message = "The supplied method must be a modified existing method.\r\nParameter name: modifiedMethod";
+      var message = "The supplied method must be a modified existing method.\r\nParameter name: method";
       CheckThrowsForInvalidArguments (_builder.HandleModifiedMethod, message, isNew: true, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleModifiedMethod, message, isNew: true, isModified: false);
       CheckThrowsForInvalidArguments (_builder.HandleModifiedMethod, message, isNew: false, isModified: false);

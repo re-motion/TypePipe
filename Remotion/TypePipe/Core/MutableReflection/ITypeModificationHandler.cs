@@ -23,12 +23,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface ITypeModificationHandler
   {
-    void HandleAddedInterface (Type addedInterface);
-    void HandleAddedField (MutableFieldInfo addedField);
-    void HandleAddedConstructor (MutableConstructorInfo addedConstructor);
-    void HandleAddedMethod (MutableMethodInfo addedMethod);
+    void HandleAddedInterface (Type interfaceType);
+    void HandleAddedField (MutableFieldInfo field);
+    void HandleAddedConstructor (MutableConstructorInfo constructor);
+    void HandleAddedMethod (MutableMethodInfo method);
 
-    void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor);
-    void HandleModifiedMethod (MutableMethodInfo modifiedMethod);
+    void HandleModifiedConstructor (MutableConstructorInfo constructor);
+    void HandleModifiedMethod (MutableMethodInfo method);
   }
 }

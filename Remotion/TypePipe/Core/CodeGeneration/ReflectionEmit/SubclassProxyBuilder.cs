@@ -91,23 +91,23 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
-    public void HandleAddedInterface (Type addedInterface)
+    public void HandleAddedInterface (Type interfaceType)
     {
-      ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
+      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
       EnsureNotBuilt ();
       
-      _typeBuilder.AddInterfaceImplementation (addedInterface);
+      _typeBuilder.AddInterfaceImplementation (interfaceType);
     }
 
-    public void HandleAddedField (MutableFieldInfo addedField)
+    public void HandleAddedField (MutableFieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("addedField", addedField);
+      ArgumentUtility.CheckNotNull ("field", field);
       EnsureNotBuilt ();
 
-      var fieldBuilder = _typeBuilder.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes);
-      _emittableOperandProvider.AddMapping (addedField, fieldBuilder.GetEmittableOperand());
+      var fieldBuilder = _typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
+      _emittableOperandProvider.AddMapping (field, fieldBuilder.GetEmittableOperand());
 
-      foreach (var declaration in addedField.AddedCustomAttributeDeclarations)
+      foreach (var declaration in field.AddedCustomAttributeDeclarations)
       {
         var propertyArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property);
         var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field);
@@ -125,51 +125,66 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    public void HandleAddedConstructor (MutableConstructorInfo addedConstructor)
+    public void HandleAddedConstructor (MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("addedConstructor", addedConstructor);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt ();
 
-      if (!addedConstructor.IsNew)
-        throw new ArgumentException ("The supplied constructor must be a new constructor.", "addedConstructor");
+      if (!constructor.IsNew)
+        throw new ArgumentException ("The supplied constructor must be a new constructor.", "constructor");
 
-      AddConstructor (addedConstructor);
+      AddConstructor (constructor);
     }
 
-    public void HandleAddedMethod (MutableMethodInfo addedMethod)
+    public void HandleAddedMethod (MutableMethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("addedMethod", addedMethod);
+      ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt ();
 
-      if (!addedMethod.IsNew)
-        throw new ArgumentException ("The supplied method must be a new method.", "addedMethod");
+      if (!method.IsNew)
+        throw new ArgumentException ("The supplied method must be a new method.", "method");
 
-      AddMethod (addedMethod, addedMethod.Name, addedMethod.Attributes, overriddenMethod: null);
+      AddMethod (method, method.Name, method.Attributes, overriddenMethod: null);
     }
 
-    public void HandleModifiedConstructor (MutableConstructorInfo modifiedConstructor)
+    public void HandleModifiedConstructor (MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("modifiedConstructor", modifiedConstructor);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt ();
 
-      if (modifiedConstructor.IsNew || !modifiedConstructor.IsModified)
-        throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "modifiedConstructor");
+      if (constructor.IsNew || !constructor.IsModified)
+        throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "constructor");
 
-      AddConstructor (modifiedConstructor);
+      AddConstructor (constructor);
     }
 
-    public void HandleModifiedMethod (MutableMethodInfo modifiedMethod)
+    public void HandleModifiedMethod (MutableMethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("modifiedMethod", modifiedMethod);
+      ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt ();
 
-      if (modifiedMethod.IsNew || !modifiedMethod.IsModified)
-        throw new ArgumentException ("The supplied method must be a modified existing method.", "modifiedMethod");
+      if (method.IsNew || !method.IsModified)
+        throw new ArgumentException ("The supplied method must be a modified existing method.", "method");
 
-      var explicitMethodOverrideName = modifiedMethod.DeclaringType.FullName + "." + modifiedMethod.Name;
-      var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (modifiedMethod.Attributes, MethodAttributes.Private);
-      var overriddenMethodInfo = modifiedMethod.UnderlyingSystemMethodInfo;
-      AddMethod (modifiedMethod, explicitMethodOverrideName, explicitMethodOverrideAttributes, overriddenMethodInfo);
+      var explicitMethodOverrideName = method.DeclaringType.FullName + "." + method.Name;
+      var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (method.Attributes, MethodAttributes.Private);
+      var overriddenMethodInfo = method.UnderlyingSystemMethodInfo;
+      AddMethod (method, explicitMethodOverrideName, explicitMethodOverrideAttributes, overriddenMethodInfo);
+    }
+
+    public void HandleUnmodifiedField (MutableFieldInfo field)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public void HandleUnmodifiedMethod (MutableMethodInfo method)
+    {
+      throw new NotImplementedException ();
     }
 
     public void AddConstructor (MutableConstructorInfo constructor)
