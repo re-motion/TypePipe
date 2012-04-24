@@ -115,6 +115,7 @@
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContext.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
+    <Compile Include="MutableReflection\IMutableMethodBase.cs" />
     <Compile Include="MutableReflection\IMutableTypeMemberHandler.cs" />
     <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\IMutableMember.cs" />

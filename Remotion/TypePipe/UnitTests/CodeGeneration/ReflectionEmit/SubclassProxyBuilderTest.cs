@@ -497,13 +497,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForInvalidArguments (testedAction, method, isNew, isModified, exceptionMessage);
     }
 
-    private void CheckThrowsForInvalidArguments<T> (Action<T> testedAction, T mutableMethodBase, bool isNew, bool isModified, string exceptionMessage)
+    private void CheckThrowsForInvalidArguments<T> (Action<T> testedAction, T mutableMember, bool isNew, bool isModified, string exceptionMessage)
         where T: IMutableMember
     {
-      Assert.That (mutableMethodBase.IsNew, Is.EqualTo (isNew));
-      Assert.That (mutableMethodBase.IsModified, Is.EqualTo (isModified));
+      Assert.That (mutableMember.IsNew, Is.EqualTo (isNew));
+      Assert.That (mutableMember.IsModified, Is.EqualTo (isModified));
 
-      Assert.That (() => testedAction (mutableMethodBase), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
+      Assert.That (() => testedAction (mutableMember), Throws.ArgumentException.With.Message.EqualTo (exceptionMessage));
     }
 
     private void CheckConstrucorIsDefined (

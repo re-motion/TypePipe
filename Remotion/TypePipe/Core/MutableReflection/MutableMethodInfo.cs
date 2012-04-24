@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a method that does not exist yet. This is used to represent methods yet to be generated within an expression tree.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableMethodInfo : MethodInfo, IMutableMember
+  public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingMethodInfoDescriptor _underlyingMethodInfoDescriptor;

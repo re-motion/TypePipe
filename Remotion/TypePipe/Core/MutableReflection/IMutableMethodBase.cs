@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,19 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines a common interface for mutable members, e.g. <see cref="MutableFieldInfo"/>, <see cref="MutableMethodInfo"/> etc.
+  /// Defines a common interface for <see cref="MutableConstructorInfo"/> and <see cref="MutableMethodInfo"/>.
   /// </summary>
-  public interface IMutableMember
+  public interface IMutableMethodBase : IMutableMember
   {
-    MutableType DeclaringType { get; }
-
-    bool IsNew { get; }
-    bool IsModified { get; }
-
-    bool IsStatic { get; }
   }
 }

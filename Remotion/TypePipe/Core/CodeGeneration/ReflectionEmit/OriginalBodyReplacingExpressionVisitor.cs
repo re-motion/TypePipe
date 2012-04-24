@@ -28,10 +28,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
   {
-    private readonly IMutableMember _mutableMethodBase;
+    private readonly IMutableMethodBase _mutableMethodBase;
     private readonly MethodInfo _methodRepresentingOriginalBody;
 
-    public OriginalBodyReplacingExpressionVisitor (IMutableMember mutableMethodBase, MethodInfo methodRepresentingOriginalBody)
+    public OriginalBodyReplacingExpressionVisitor (IMutableMethodBase mutableMethodBase, MethodInfo methodRepresentingOriginalBody)
     {
       ArgumentUtility.CheckNotNull ("mutableMethodBase", mutableMethodBase);
       ArgumentUtility.CheckNotNull ("methodRepresentingOriginalBody", methodRepresentingOriginalBody);

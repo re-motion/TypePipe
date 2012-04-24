@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class OriginalBodyReplacingExpressionVisitorTest
   {
     private MutableType _declaringType;
-    private IMutableMember _mutableMethodStub;
+    private IMutableMethodBase _mutableMethodStub;
     private MethodInfo _methodRepresentingOriginalBody;
 
     private OriginalBodyReplacingExpressionVisitor _visitorPartialMock;
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
-      _mutableMethodStub = MockRepository.GenerateStub<IMutableMember>();
+      _mutableMethodStub = MockRepository.GenerateStub<IMutableMethodBase>();
       _mutableMethodStub.Stub (stub => stub.DeclaringType).Return (_declaringType);
       _methodRepresentingOriginalBody = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
 
