@@ -77,6 +77,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    public void Emit_Type ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      _emittableOperandProvider.AddMapping (type, _emittableOperandMock);
+      var opcode = OpCodes.Newarr;
+      _emittableOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, opcode));
+
+      _decorator.Emit (opcode, type);
+
+      _emittableOperandMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     public void Emit_FieldInfo ()
     {
       var fieldInfo = ReflectionObjectMother.GetSomeField();

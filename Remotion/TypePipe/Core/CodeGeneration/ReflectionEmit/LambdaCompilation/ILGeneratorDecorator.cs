@@ -129,7 +129,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, Type cls)
     {
-      _innerILGenerator.Emit (opcode, cls);
+      ArgumentUtility.CheckNotNull ("cls", cls);
+
+      var emittableOperand = _emittableOperandProvider.GetEmittableOperand (cls);
+      emittableOperand.Emit (_innerILGenerator, opcode);
     }
 
     public void Emit (OpCode opcode, float arg)
