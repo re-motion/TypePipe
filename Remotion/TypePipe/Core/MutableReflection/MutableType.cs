@@ -86,11 +86,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methods.AddedMembers; }
     }
 
-    public ReadOnlyCollection<Type> ExistingInterfaces
-    {
-      get { return _underlyingTypeDescriptor.Interfaces; }
-    }
-
     public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
     {
       get { return _fields.ExistingDeclaredMembers; }
@@ -104,11 +99,6 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMutableMethods
     {
       get { return _methods.ExistingDeclaredMembers; }
-    }
-
-    public IEnumerable<Type> AllInterfaces
-    {
-      get { return ExistingInterfaces.Concat (_addedInterfaces); }
     }
 
     public IEnumerable<MutableFieldInfo> AllMutableFields
@@ -188,7 +178,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      if (AllInterfaces.Contains (interfaceType))
+      if (GetInterfaces().Contains (interfaceType))
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
         throw new ArgumentException (message, "interfaceType");
@@ -199,7 +189,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type[] GetInterfaces ()
     {
-      return AllInterfaces.ToArray();
+      return _underlyingTypeDescriptor.Interfaces.Concat (_addedInterfaces).ToArray();
     }
 
     public override Type GetInterface (string name, bool ignoreCase)
@@ -207,7 +197,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-      var interfaces = AllInterfaces.Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
+      var interfaces = GetInterfaces().Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
 
       if (interfaces.Length == 0)
         return null;

@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_descriptor.Interfaces, Is.Not.Empty);
 
-      Assert.That (_mutableType.ExistingInterfaces, Is.EqualTo (_descriptor.Interfaces));
+      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (_descriptor.Interfaces));
     }
 
     [Test]
@@ -105,19 +105,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
-    }
-
-    [Test]
-    public void AllInterfaces ()
-    {
-      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
-      var existingInterface = _descriptor.Interfaces.Single();
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      _mutableType.AddInterface (addedInterface);
-
-      var allInterfaces = _mutableType.AllInterfaces;
-
-      Assert.That (allInterfaces, Is.EqualTo (new[] { existingInterface, addedInterface }));
     }
 
     [Test]
@@ -298,16 +285,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterfaces ()
     {
-      var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
+      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
+      var existingInterface = _descriptor.Interfaces.Single ();
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType ();
       _mutableType.AddInterface (addedInterface);
 
-      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (_mutableType.AllInterfaces));
+      var interfaces = _mutableType.GetInterfaces();
+
+      Assert.That (interfaces, Is.EqualTo (new[] { existingInterface, addedInterface }));
     }
 
     [Test]
     public void GetInterface_NoMatch ()
     {
-      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (1));
+      Assert.That (_mutableType.GetInterfaces().Count (), Is.EqualTo (1));
 
       var result = _mutableType.GetInterface ("IMyInterface", false);
 
@@ -318,7 +309,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetInterface_CaseSensitive_NoMatch ()
     {
       _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (2));
+      Assert.That (_mutableType.GetInterfaces().Count (), Is.EqualTo (2));
 
       var result = _mutableType.GetInterface ("Imyinterface", false);
 
@@ -329,7 +320,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetInterface_CaseSensitive ()
     {
       _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (2));
+      Assert.That (_mutableType.GetInterfaces().Count (), Is.EqualTo (2));
 
       var result = _mutableType.GetInterface ("IMyInterface", false);
 
@@ -340,7 +331,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetInterface_IgnoreCase ()
     {
       _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (2));
+      Assert.That (_mutableType.GetInterfaces ().Count (), Is.EqualTo (2));
 
       var result = _mutableType.GetInterface ("Imyinterface", true);
 
@@ -353,7 +344,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _mutableType.AddInterface (typeof (IMyInterface));
       _mutableType.AddInterface (typeof (Imyinterface));
-      Assert.That (_mutableType.AllInterfaces.Count (), Is.EqualTo (3));
+      Assert.That (_mutableType.GetInterfaces ().Count (), Is.EqualTo (3));
 
       _mutableType.GetInterface ("Imyinterface", true);
     }
@@ -689,9 +680,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_WithAddedAndUnmodifiedExistingMembers ()
     {
-      Assert.That (_mutableType.ExistingInterfaces, Is.Not.Empty);
+      Assert.That (_mutableType.GetInterfaces(), Has.Length.EqualTo (1));
       var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType ();
       _mutableType.AddInterface (addedInterface);
+      Assert.That (_mutableType.GetInterfaces (), Has.Length.EqualTo (2));
 
       Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo(1));
       var unmodfiedField = _mutableType.ExistingMutableFields.Single();
