@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
 
-      return GetEmittableOperand (_mappedTypes, mappedType);
+      return GetEmittableOperand (_mappedTypes, mappedType, typeof (MutableType), t => new EmittableType (mappedType));
     }
 
     [CLSCompliant (false)]
@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
 
-      return GetEmittableOperand (_mappedFieldInfos, mappedFieldInfo);
+      return GetEmittableOperand (_mappedFieldInfos, mappedFieldInfo, typeof (FieldInfo), fi => new EmittableField (mappedFieldInfo));
     }
 
     [CLSCompliant (false)]
@@ -97,7 +97,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
 
-      return GetEmittableOperand (_mappedConstructorInfos, mappedConstructorInfo);
+      return GetEmittableOperand (
+          _mappedConstructorInfos, mappedConstructorInfo, typeof (ConstructorInfo), ci => new EmittableConstructor (mappedConstructorInfo));
     }
 
     [CLSCompliant (false)]
@@ -105,7 +106,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
 
-      return GetEmittableOperand (_mappedMethodInfos, mappedMethodInfo);
+      return GetEmittableOperand (_mappedMethodInfos, mappedMethodInfo, typeof (MutableMethodInfo), mi => new EmittableMethod (mappedMethodInfo));
     }
 
     private void AddMapping<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem, TValue builder)
@@ -120,9 +121,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (mappedItem, builder);
     }
 
-    private TValue GetEmittableOperand<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem)
+    private TValue GetEmittableOperand<TKey, TValue> (
+        Dictionary<TKey, TValue> mapping, TKey mappedItem, Type mutableMemberType, Func<TKey, TValue> wrapperCreator)
+        where TValue: class
     {
-      return mapping.GetValueOrDefault (mappedItem);
+      var operand = mapping.GetValueOrDefault (mappedItem);
+      if (operand != null)
+        return operand;
+
+      Assertion.IsTrue (mappedItem.GetType() != mutableMemberType, "Wrapped object must not be of type {0}.", mutableMemberType);
+      return wrapperCreator (mappedItem);
     }
   }
 }

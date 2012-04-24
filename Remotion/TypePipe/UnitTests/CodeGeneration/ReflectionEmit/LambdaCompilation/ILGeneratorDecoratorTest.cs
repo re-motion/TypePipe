@@ -31,14 +31,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
   {
     private IILGenerator _innerILGeneratorMock;
     private EmittableOperandProvider _emittableOperandProvider;
+
     private ILGeneratorDecorator _decorator;
+
+    private IEmittableOperand _emittableOperandMock;
+    private IEmittableMethodOperand _emittableMethodOperandMock;
+
 
     [SetUp]
     public void SetUp ()
     {
       _innerILGeneratorMock = MockRepository.GenerateStrictMock<IILGenerator>();
       _emittableOperandProvider = new EmittableOperandProvider();
+
       _decorator = new ILGeneratorDecorator (_innerILGeneratorMock, _emittableOperandProvider);
+
+      _emittableOperandMock = MockRepository.GenerateStrictMock<IEmittableOperand>();
+      _emittableMethodOperandMock = MockRepository.GenerateStrictMock<IEmittableMethodOperand>();
     }
 
     [Test]
@@ -56,94 +65,67 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void Emit_ConstructorInfo_Standard ()
+    public void Emit_ConstructorInfo ()
     {
       var constructorInfo = ReflectionObjectMother.GetSomeConstructor();
-      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, constructorInfo));
+      _emittableOperandProvider.AddMapping (constructorInfo, _emittableOperandMock);
+      _emittableOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, OpCodes.Call));
 
       _decorator.Emit (OpCodes.Call, constructorInfo);
 
-      _innerILGeneratorMock.VerifyAllExpectations ();
+      _emittableOperandMock.VerifyAllExpectations();
     }
 
     [Test]
-    public void Emit_ConstructorInfo_MappedConstructorInfo ()
+    public void Emit_FieldInfo ()
     {
-      var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor();
-      var emittableOperandMock = MockRepository.GenerateStrictMock<IEmittableOperand>();
-      emittableOperandMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _emittableOperandProvider.AddMapping (mappedConstructorInfo, emittableOperandMock);
+      var fieldInfo = ReflectionObjectMother.GetSomeField();
+      _emittableOperandProvider.AddMapping (fieldInfo, _emittableOperandMock);
+      _emittableOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, OpCodes.Ldfld));
 
-      _decorator.Emit (OpCodes.Call, mappedConstructorInfo);
+      _decorator.Emit (OpCodes.Ldfld, fieldInfo);
 
-      emittableOperandMock.VerifyAllExpectations ();
+      _emittableOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
-    public void Emit_FieldInfo_Standard ()
-    {
-      var FieldInfo = ReflectionObjectMother.GetSomeField ();
-
-      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldfld, FieldInfo));
-
-      _decorator.Emit (OpCodes.Ldfld, FieldInfo);
-
-      _innerILGeneratorMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void Emit_FieldInfo_MappedFieldInfo ()
-    {
-      var mappedFieldInfo = ReflectionObjectMother.GetSomeField ();
-      var emittableOperandMock = MockRepository.GenerateStrictMock<IEmittableOperand> ();
-      emittableOperandMock.Expect (mock => mock.Emit (_decorator, OpCodes.Ldfld));
-      _emittableOperandProvider.AddMapping (mappedFieldInfo, emittableOperandMock);
-
-      _decorator.Emit (OpCodes.Ldfld, mappedFieldInfo);
-
-      emittableOperandMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void Emit_MethodInfo_Standard ()
+    public void Emit_MethodInfo ()
     {
       var methodInfo = ReflectionObjectMother.GetSomeMethod();
-
-      _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, methodInfo));
+      _emittableOperandProvider.AddMapping (methodInfo, _emittableMethodOperandMock);
+      _emittableMethodOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, OpCodes.Call));
 
       _decorator.Emit (OpCodes.Call, methodInfo);
 
-      _innerILGeneratorMock.VerifyAllExpectations();
+      _emittableMethodOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
     public void Emit_MethodInfo_BaseConstructorMethodInfo ()
     {
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
-      var emittableOperandMock = MockRepository.GenerateStrictMock<IEmittableOperand> ();
-      emittableOperandMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _emittableOperandProvider.AddMapping (mappedConstructorInfo, emittableOperandMock);
+      _emittableMethodOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, OpCodes.Call));
+      _emittableOperandProvider.AddMapping (mappedConstructorInfo, _emittableMethodOperandMock);
 
       var methodInfo = new ConstructorAsMethodInfoAdapter (mappedConstructorInfo);
 
       _decorator.Emit (OpCodes.Call, methodInfo);
 
-      emittableOperandMock.VerifyAllExpectations ();
+      _emittableMethodOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
     public void Emit_MethodInfo_BaseCallMethodInfo ()
     {
       var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
-      var emittableMethodOperandMock = MockRepository.GenerateStrictMock<IEmittableMethodOperand> ();
-      emittableMethodOperandMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _emittableOperandProvider.AddMapping (mappedMethodInfo, emittableMethodOperandMock);
+      _emittableMethodOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, OpCodes.Call));
+      _emittableOperandProvider.AddMapping (mappedMethodInfo, _emittableMethodOperandMock);
 
       var methodInfo = new BaseCallMethodInfoAdapter (mappedMethodInfo);
 
       _decorator.Emit (OpCodes.Call, methodInfo);
 
-      emittableMethodOperandMock.VerifyAllExpectations ();
+      _emittableMethodOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -158,43 +140,30 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void Emit_MethodInfo_MappedMethodInfo ()
-    {
-      var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
-      var emittableMethodOperandMock = MockRepository.GenerateStrictMock<IEmittableMethodOperand> ();
-      emittableMethodOperandMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _emittableOperandProvider.AddMapping (mappedMethodInfo, emittableMethodOperandMock);
-
-      _decorator.Emit (OpCodes.Call, mappedMethodInfo);
-
-      emittableMethodOperandMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void EmitCall_MethodInfo_Standard ()
+    public void EmitCall_MethodInfo ()
     {
       var methodInfo = ReflectionObjectMother.GetSomeMethod ();
       var optionalParameterTypes = new[] { ReflectionObjectMother.GetSomeType() };
-      _innerILGeneratorMock.Expect (mock => mock.EmitCall (OpCodes.Call, methodInfo, optionalParameterTypes));
+      _emittableMethodOperandMock.Expect (mock => mock.EmitCall (_innerILGeneratorMock, OpCodes.Call, optionalParameterTypes));
+      _emittableOperandProvider.AddMapping (methodInfo, _emittableMethodOperandMock);
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, optionalParameterTypes);
 
-      _innerILGeneratorMock.VerifyAllExpectations ();
+      _emittableMethodOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo ()
     {
       var mappedConstructorInfo = ReflectionObjectMother.GetSomeConstructor ();
-      var emittableOperandMock = MockRepository.GenerateStrictMock<IEmittableOperand> ();
-      emittableOperandMock.Expect (mock => mock.Emit (_decorator, OpCodes.Call));
-      _emittableOperandProvider.AddMapping (mappedConstructorInfo, emittableOperandMock);
+      _emittableOperandMock.Expect (mock => mock.Emit (_innerILGeneratorMock, OpCodes.Call));
+      _emittableOperandProvider.AddMapping (mappedConstructorInfo, _emittableOperandMock);
 
       var methodInfo = new ConstructorAsMethodInfoAdapter (mappedConstructorInfo);
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, null);
 
-      emittableOperandMock.VerifyAllExpectations ();
+      _emittableOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -220,18 +189,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void EmitCall_MethodInfo_BaseCallMethodInfo ()
     {
-      var optionalParameterTypes = new[] { ReflectionObjectMother.GetSomeType () };
-
       var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
-      var emittableMethodOperandMock = MockRepository.GenerateStrictMock<IEmittableMethodOperand> ();
-      emittableMethodOperandMock.Expect (mock => mock.EmitCall (_decorator, OpCodes.Call, optionalParameterTypes));
-      _emittableOperandProvider.AddMapping (mappedMethodInfo, emittableMethodOperandMock);
+      var optionalParameterTypes = new[] { ReflectionObjectMother.GetSomeType () };
+      _emittableMethodOperandMock.Expect (mock => mock.EmitCall (_innerILGeneratorMock, OpCodes.Call, optionalParameterTypes));
+      _emittableOperandProvider.AddMapping (mappedMethodInfo, _emittableMethodOperandMock);
 
       var methodInfo = new BaseCallMethodInfoAdapter (mappedMethodInfo);
 
       _decorator.EmitCall (OpCodes.Call, methodInfo, optionalParameterTypes);
 
-      emittableMethodOperandMock.VerifyAllExpectations ();
+      _emittableMethodOperandMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -250,32 +217,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void EmitCall_MethodInfo_MappedMethodInfo ()
-    {
-      var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
-      var optionalParameterTypes = new[] { ReflectionObjectMother.GetSomeType() };
-
-      var emittableMethodOperandMock = MockRepository.GenerateStrictMock<IEmittableMethodOperand> ();
-      emittableMethodOperandMock.Expect (mock => mock.EmitCall (_decorator, OpCodes.Call, optionalParameterTypes));
-      _emittableOperandProvider.AddMapping (mappedMethodInfo, emittableMethodOperandMock);
-
-      _decorator.EmitCall (OpCodes.Call, mappedMethodInfo, optionalParameterTypes);
-
-      emittableMethodOperandMock.VerifyAllExpectations ();
-    }
-
-    [Test]
     public void EmitCall_MethodInfo_MappedMethodInfo_NullOptionalParameters ()
     {
       var mappedMethodInfo = ReflectionObjectMother.GetSomeMethod ();
-
-      var emittableMethodOperandMock = MockRepository.GenerateStrictMock<IEmittableMethodOperand> ();
-      emittableMethodOperandMock.Expect (mock => mock.EmitCall (_decorator, OpCodes.Call, null));
-      _emittableOperandProvider.AddMapping (mappedMethodInfo, emittableMethodOperandMock);
+      _emittableMethodOperandMock.Expect (mock => mock.EmitCall (_innerILGeneratorMock, OpCodes.Call, null));
+      _emittableOperandProvider.AddMapping (mappedMethodInfo, _emittableMethodOperandMock);
 
       _decorator.EmitCall (OpCodes.Call, mappedMethodInfo, null);
 
-      emittableMethodOperandMock.VerifyAllExpectations ();
+      _emittableMethodOperandMock.VerifyAllExpectations ();
     }
   }
 }

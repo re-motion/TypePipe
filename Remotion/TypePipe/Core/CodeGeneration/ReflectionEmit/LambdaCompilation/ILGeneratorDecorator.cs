@@ -19,7 +19,6 @@ using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -124,14 +123,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("con", con);
 
-      var constructorBuilder = _emittableOperandProvider.GetEmittableOperand (con);
-      if (constructorBuilder != null)
-        constructorBuilder.Emit (this, opcode);
-      else
-      {
-        Assertion.IsFalse (con is MutableConstructorInfo);
-        _innerILGenerator.Emit (opcode, con);
-      }
+      var emittableOperand = _emittableOperandProvider.GetEmittableOperand (con);
+      emittableOperand.Emit (_innerILGenerator, opcode);
     }
 
     public void Emit (OpCode opcode, Type cls)
@@ -158,11 +151,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      var builder = _emittableOperandProvider.GetEmittableOperand (field);
-      if (builder != null)
-        builder.Emit (this, opcode);
-      else
-        _innerILGenerator.Emit (opcode, field);
+      var emittableOperand = _emittableOperandProvider.GetEmittableOperand (field);
+      emittableOperand.Emit (_innerILGenerator, opcode);
     }
 
     public void Emit (OpCode opcode, MethodInfo meth)
@@ -182,15 +172,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo);
         return;
       }
-      
-      var builder = _emittableOperandProvider.GetEmittableOperand (meth);
-      if (builder != null)
-      {
-        builder.Emit (this, opcode);
-        return;
-      }
 
-      _innerILGenerator.Emit (opcode, meth);
+      var emittableMethodOperand = _emittableOperandProvider.GetEmittableOperand (meth);
+      emittableMethodOperand.Emit (_innerILGenerator, opcode);
     }
 
     public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
@@ -214,15 +198,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo, optionalParameterTypes);
         return;
       }
-      
-      var builder = _emittableOperandProvider.GetEmittableOperand (methodInfo);
-      if (builder != null)
-      {
-        builder.EmitCall (this, opcode, optionalParameterTypes);
-        return;
-      }
-      
-      _innerILGenerator.EmitCall (opcode, methodInfo, optionalParameterTypes);
+
+      var emittableMethodOperand = _emittableOperandProvider.GetEmittableOperand (methodInfo);
+      emittableMethodOperand.EmitCall (_innerILGenerator, opcode, optionalParameterTypes);
     }
 
    public void Emit (OpCode opcode, Label[] labels)

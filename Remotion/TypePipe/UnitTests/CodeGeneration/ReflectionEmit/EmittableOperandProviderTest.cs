@@ -1,3 +1,19 @@
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
+// 
 using System;
 using System.Reflection;
 using NUnit.Framework;
@@ -52,12 +68,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
     
     [Test]
-    public void GetBuilder_NoMapping ()
+    public void GetEmittableOperand_NoMapping ()
     {
-      Assert.That (_map.GetEmittableOperand (_someType), Is.Null);
-      Assert.That (_map.GetEmittableOperand (_someFieldInfo), Is.Null);
-      Assert.That (_map.GetEmittableOperand (_someConstructorInfo), Is.Null);
-      Assert.That (_map.GetEmittableOperand (_someMethodInfo), Is.Null);
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someType, typeof (EmittableType));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someFieldInfo, typeof (EmittableField));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someConstructorInfo, typeof (EmittableConstructor));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someMethodInfo, typeof (EmittableMethod));
     }
 
     private void CheckAddMapping<TMappedObject, TEmittableOperand> (
@@ -66,12 +82,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         TMappedObject mappedObject)
         where TEmittableOperand : class, IEmittableOperand
     {
-      var fakeBuilder = MockRepository.GenerateStub<TEmittableOperand>();
+      var fakeOperand = MockRepository.GenerateStub<TEmittableOperand>();
      
-      addMappingMethod (mappedObject, fakeBuilder);
+      addMappingMethod (mappedObject, fakeOperand);
 
       var result = getEmittableOperandMethod (mappedObject);
-      Assert.That (result, Is.SameAs (fakeBuilder));
+      Assert.That (result, Is.SameAs (fakeOperand));
     }
 
     private void CheckAddMappingTwiceThrows<TMappedObject, TBuilder> (
@@ -83,6 +99,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (
           () => addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>()),
           Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
+    }
+
+    private void CheckGetEmitableOperandWithNoMapping<TMappedObject, TEmittableOperand> (
+        Func<TMappedObject, TEmittableOperand> getEmittableOperandMethod, TMappedObject mappedObject, Type mappedObjectWrapper)
+    {
+      var result = getEmittableOperandMethod (mappedObject);
+
+      Assert.That (result, Is.Not.Null);
+      Assert.That (result, Is.TypeOf (mappedObjectWrapper));
     }
   }
 }
