@@ -103,6 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("field", field);
       EnsureNotBuilt ();
+      CheckMemberState (field, "field", isNew: true, isModified: null);
 
       var fieldBuilder = _typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
       _emittableOperandProvider.AddMapping (field, fieldBuilder.GetEmittableOperand());
@@ -129,9 +130,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt ();
-
-      if (!constructor.IsNew)
-        throw new ArgumentException ("The supplied constructor must be a new constructor.", "constructor");
+      CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
       AddConstructor (constructor);
     }
@@ -140,9 +139,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt ();
-
-      if (!method.IsNew)
-        throw new ArgumentException ("The supplied method must be a new method.", "method");
+      CheckMemberState (method, "method", isNew: true, isModified: null);
 
       AddMethod (method, method.Name, method.Attributes, overriddenMethod: null);
     }
@@ -151,9 +148,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt ();
-
-      if (constructor.IsNew || !constructor.IsModified)
-        throw new ArgumentException ("The supplied constructor must be a modified existing constructor.", "constructor");
+      CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
       AddConstructor (constructor);
     }
@@ -162,9 +157,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt ();
-
-      if (method.IsNew || !method.IsModified)
-        throw new ArgumentException ("The supplied method must be a modified existing method.", "method");
+      CheckMemberState (method, "method", isNew: false, isModified: true);
 
       var explicitMethodOverrideName = method.DeclaringType.FullName + "." + method.Name;
       var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (method.Attributes, MethodAttributes.Private);
@@ -174,17 +167,30 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void HandleUnmodifiedField (MutableFieldInfo field)
     {
-      throw new NotImplementedException ();
+      ArgumentUtility.CheckNotNull ("field", field);
+      EnsureNotBuilt();
+      CheckMemberState (field, "field", isNew: false, isModified: false);
+
+      _emittableOperandProvider.AddMapping (field, new EmittableField (field.UnderlyingSystemFieldInfo));
     }
 
     public void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
     {
-      throw new NotImplementedException ();
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      EnsureNotBuilt();
+      CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
+
+      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      AddConstructor (constructor);
     }
 
     public void HandleUnmodifiedMethod (MutableMethodInfo method)
     {
-      throw new NotImplementedException ();
+      ArgumentUtility.CheckNotNull ("method", method);
+      EnsureNotBuilt ();
+      CheckMemberState (method, "method", isNew: false, isModified: false);
+
+      _emittableOperandProvider.AddMapping (method, new EmittableMethod (method.UnderlyingSystemMethodInfo));
     }
 
     public void AddConstructor (MutableConstructorInfo constructor)
@@ -219,6 +225,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       if (_hasBeenBuilt)
         throw new InvalidOperationException ("Subclass proxy has already been built.");
+    }
+
+    private void CheckMemberState (IMutableMember member, string memberType, bool isNew, bool? isModified)
+    {
+      if (member.IsNew != isNew || (isModified.HasValue && member.IsModified != isModified.Value))
+      {
+        var modifiedOrUnmodifiedOrEmpty = isModified.HasValue ? (isModified.Value ? "modified " : "unmodified ") : "";
+        var newOrExisting = isNew ? "new" : "existing";
+        var message = string.Format ("The supplied {0} must be a {1}{2} {0}.", memberType, modifiedOrUnmodifiedOrEmpty, newOrExisting);
+        throw new ArgumentException (message, memberType);
+      }
     }
     
     private Type[] GetParameterTypes (MethodBase methodBase)

@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a field that does not exist yet. This is used to represent fields yet to be generated within an expression tree.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableFieldInfo : FieldInfo
+  public class MutableFieldInfo : FieldInfo, IMutableMember
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingFieldInfoDescriptor _underlyingFieldInfoDescriptor;
@@ -45,6 +45,11 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public override Type DeclaringType
+    {
+      get { return _declaringType; }
+    }
+
+    MutableType IMutableMember.DeclaringType
     {
       get { return _declaringType; }
     }

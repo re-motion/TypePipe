@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorInfo = new MutableConstructorInfo (_declaringType, _descriptor);
 
       Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (((IMutableMethodBase) _mutableCtor).DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (((IMutableMember) _mutableCtor).DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
     }
 

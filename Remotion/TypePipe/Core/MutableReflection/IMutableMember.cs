@@ -18,9 +18,9 @@
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines members implemented by <see cref="MutableConstructorInfo"/> and <see cref="MutableMethodInfo"/>.
+  /// Defines a common interface for mutable members, e.g. <see cref="MutableConstructorInfo"/>, <see cref="MutableMethodInfo"/> etc.
   /// </summary>
-  public interface IMutableMethodBase
+  public interface IMutableMember
   {
     MutableType DeclaringType { get; }
 

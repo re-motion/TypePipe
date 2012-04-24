@@ -138,6 +138,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleAddedField_Throws ()
+    {
+      var message = "The supplied field must be a new field.\r\nParameter name: field";
+      // Modifying existing fields is not supported (TODO 4695)
+      //CheckThrowsForInvalidArguments (_builder.HandleAddedField, message, isNew: false, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleAddedField, message, isNew: false, isModified: false);
+    }
+
+    [Test]
     public void HandleAddedConstructor_CallsAddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForNew();
@@ -260,6 +269,69 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleUnmodifiedField ()
+    {
+      var field = MutableFieldInfoObjectMother.CreateForExisting();
+
+      _builder.HandleUnmodifiedField (field);
+
+      var result = _emittableOperandProvider.GetEmittableField (field);
+      Assert.That (result, Is.TypeOf<EmittableField>());
+
+      var innerField = PrivateInvoke.GetNonPublicField (result, "_fieldInfo");
+      Assert.That (innerField, Is.SameAs (field.UnderlyingSystemFieldInfo));
+    }
+
+    [Test]
+    public void HandleUnmodifiedField_Throws()
+    {
+      var message = "The supplied field must be a unmodified existing field.\r\nParameter name: field";
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedField, message, isNew: true, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedField, message, isNew: true, isModified: false);
+      // Modifying existing fields is not supported (TODO 4695)
+      //CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedField, message, isNew: false, isModified: true);
+    }
+
+    [Test]
+    public void HandleUnmodifiedConstructor_CallsAddConstructor ()
+    {
+      var ctor = MutableConstructorInfoObjectMother.CreateForExisting();
+      CheckAddConstructorIsCalled (_builder.HandleUnmodifiedConstructor, ctor);
+    }
+
+    [Test]
+    public void HandleUnmodifiedConstructor_Throws ()
+    {
+      var message = "The supplied constructor must be a unmodified existing constructor.\r\nParameter name: constructor";
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNew: true, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNew: true, isModified: false);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNew: false, isModified: true);
+    }
+
+    [Test]
+    public void HandleUnmodifiedMethod ()
+    {
+      var method = MutableMethodInfoObjectMother.CreateForExisting ();
+
+      _builder.HandleUnmodifiedMethod (method);
+
+      var result = _emittableOperandProvider.GetEmittableMethod (method);
+      Assert.That (result, Is.TypeOf<EmittableMethod> ());
+
+      var innerMethod = PrivateInvoke.GetNonPublicField (result, "_methodInfo");
+      Assert.That (innerMethod, Is.SameAs (method.UnderlyingSystemMethodInfo));
+    }
+
+    [Test]
+    public void HandleUnmodifiedMethod_Throws ()
+    {
+      var message = "The supplied method must be a unmodified existing method.\r\nParameter name: method";
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedMethod, message, isNew: true, isModified: true);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedMethod, message, isNew: true, isModified: false);
+      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedMethod, message, isNew: false, isModified: true);
+    }
+
+    [Test]
     public void AddConstructor_DefinesConstructor ()
     {
       var mutableConstructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
@@ -344,13 +416,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.Stub (mock => mock.CreateType ());
       _builder.Build ();
 
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType ()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.CreateForNew()));
 
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify ()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedMethod (MutableMethodInfoObjectMother.CreateForNew ()));
+
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedField (MutableFieldInfoObjectMother.CreateForExisting()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.AddConstructor (MutableConstructorInfoObjectMother.Create()));
     }
@@ -412,6 +488,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.VerifyAllExpectations();
     }
 
+    private void CheckThrowsForInvalidArguments (Action<MutableFieldInfo> testedAction, string exceptionMessage, bool isNew, bool isModified)
+    {
+      var field = isNew ? MutableFieldInfoObjectMother.CreateForNew () : MutableFieldInfoObjectMother.CreateForExisting ();
+      if (isModified)
+        MutableFieldInfoTestHelper.ModifyField (field);
+
+      CheckThrowsForInvalidArguments (testedAction, field, isNew, isModified, exceptionMessage);
+    }
+
     private void CheckThrowsForInvalidArguments (Action<MutableConstructorInfo> testedAction, string exceptionMessage, bool isNew, bool isModified)
     {
       var constructor = isNew ? MutableConstructorInfoObjectMother.CreateForNew() : MutableConstructorInfoObjectMother.CreateForExisting();
@@ -434,7 +519,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckThrowsForInvalidArguments<T> (Action<T> testedAction, T mutableMethodBase, bool isNew, bool isModified, string exceptionMessage)
-        where T: IMutableMethodBase
+        where T: IMutableMember
     {
       Assert.That (mutableMethodBase.IsNew, Is.EqualTo (isNew));
       Assert.That (mutableMethodBase.IsModified, Is.EqualTo (isModified));
