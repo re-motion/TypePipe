@@ -21,7 +21,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.FunctionalProgramming;
+using Remotion.Utilities;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 
@@ -30,41 +30,67 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableMemberCollectionTest
   {
+    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
     private MutableType _declaringType;
-    private MethodInfo _excludedExistingMember;
-    private MethodInfo[] _existingMembers;
+    private MethodInfo _excludedDeclaredMember;
+    private MethodInfo[] _declaredMembers;
+    private MethodInfo[] _baseMembers;
+    private MethodInfo[] _allExistingMembers;
+
     private MutableMemberCollection<MethodInfo, MutableMethodInfo> _collection;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.CreateForExistingType(typeof(object));
-      var allExistingMembers = _declaringType.UnderlyingSystemType.GetMethods();
-      _excludedExistingMember = allExistingMembers.First();
-      _existingMembers = allExistingMembers.Skip (1).ToArray();
+      _declaringType = MutableTypeObjectMother.CreateForExistingType(typeof(DomainType));
+      _excludedDeclaredMember = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExcludedMember());
+      var allDeclaredMembers = typeof (DomainType).GetMethods (c_all | BindingFlags.DeclaredOnly);
+      _declaredMembers = allDeclaredMembers.Except (new[] { _excludedDeclaredMember }).ToArray();
+      _baseMembers = typeof (DomainType).GetMethods (c_all).Except (allDeclaredMembers).ToArray();
+      _allExistingMembers = _declaredMembers.Concat (_baseMembers).ToArray();
       Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
 
-      _collection = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _existingMembers.AsOneTime(), mutableMemberProvider);
+      _collection = new MutableMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers.AsOneTime(), mutableMemberProvider);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_collection.Added, Is.Empty);
-      Assert.That (_collection.Existing.Select (mutableMember => mutableMember.UnderlyingSystemMethodInfo), Is.EquivalentTo (_existingMembers));
+      Assert.That (_declaredMembers, Is.Not.Empty);
+      Assert.That (_baseMembers, Is.Not.Empty);
+
+      Assert.That (_collection.AddedMembers, Is.Empty);
+      Assert.That (_collection.ExistingDeclaredMembers.Select (mm => mm.UnderlyingSystemMethodInfo), Is.EqualTo(_declaredMembers));
+      Assert.That (_collection.ExistingBaseMembers, Is.EqualTo (_baseMembers));
+    }
+
+    [Test]
+    public void AllMutableMembers ()
+    {
+      var addedMember = CreateMutableMember ();
+      _collection.Add (addedMember);
+      Assert.That (_collection.AddedMembers, Has.Count.EqualTo (1));
+      Assert.That (_collection.ExistingDeclaredMembers, Has.Count.EqualTo (1));
+      var declaredMember = _collection.ExistingDeclaredMembers.Single ();
+
+      Assert.That (_collection.AllMutableMembers, Is.EqualTo (new[] { declaredMember, addedMember }));
     }
 
     [Test]
     public void GetEnumerator ()
     {
-      var mutableMember = CreateMutableMember ();
-      _collection.Add (mutableMember);
-      Assert.That (_collection.Existing, Is.Not.Empty);
-      Assert.That (_collection.Added, Has.Count.EqualTo (1));
+      var addedMember = CreateMutableMember ();
+      _collection.Add (addedMember);
+      Assert.That (_collection.AddedMembers, Has.Count.EqualTo (1));
+      Assert.That (_collection.ExistingDeclaredMembers, Has.Count.EqualTo(1));
+      var declaredMember = _collection.ExistingDeclaredMembers.Single();
+      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
+      
+      IEnumerable<MethodInfo> enumerable = _collection;
 
-      IEnumerable<MutableMethodInfo> enumerable = _collection;
-
-      Assert.That (enumerable, Is.EqualTo (_collection.Existing.Concat (mutableMember)));
+      var expectedAllMembers = new MethodInfo[] { declaredMember, addedMember }.Concat (_collection.ExistingBaseMembers);
+      Assert.That (enumerable, Is.EqualTo (expectedAllMembers));
     }
 
     [Test]
@@ -81,12 +107,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableMember_StandardMemberInfo ()
     {
-      var standardMember = _existingMembers.First();
+      var standardMember = _declaredMembers.First();
       Assert.That (standardMember, Is.Not.AssignableTo<MutableMethodInfo> ());
 
       var result = _collection.GetMutableMember(standardMember);
 
-      var expectedMutableMember = _collection.Existing.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
+      var expectedMutableMember = _collection.ExistingDeclaredMembers.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
       Assert.That (result, Is.SameAs (expectedMutableMember));
     }
 
@@ -94,8 +120,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given MethodInfo cannot be modified.")]
     public void GetMutableMember_StandardMemberInfo_NoMatch ()
     {
-      Assert.That (_excludedExistingMember, Is.Not.AssignableTo<MutableMethodInfo> ());
-      Dev.Null = _collection.GetMutableMember(_excludedExistingMember);
+      Assert.That (_excludedDeclaredMember, Is.Not.AssignableTo<MutableMethodInfo> ());
+      Dev.Null = _collection.GetMutableMember(_excludedDeclaredMember);
     }
 
     [Test]
@@ -116,7 +142,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _collection.Add (mutableMember);
 
-      Assert.That (_collection.Added, Is.EqualTo (new[] { mutableMember }));
+      Assert.That (_collection.AddedMembers, Is.EqualTo (new[] { mutableMember }));
     }
 
     [Test]
@@ -135,6 +161,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableMethodInfo CreateMutableMember ()
     {
       return MutableMethodInfoObjectMother.Create (declaringType: _declaringType);
+    }
+
+    public class DomainType
+    {
+      public void Member () { }
+      public void ExcludedMember () { }
     }
   }
 }

@@ -211,8 +211,8 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var existingField = mutableType.ExistingFields.Single (f => f.Name == "ExistingField");
-            var existingMethod = mutableType.ExistingMethods.Single (m => m.Name == "ExistingMethod");
+            var existingField = mutableType.ExistingMutableFields.Single (f => f.Name == "ExistingField");
+            var existingMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod");
             mutableType.AddMethod (
                 "AddedMethod",
                 MethodAttributes.Public,

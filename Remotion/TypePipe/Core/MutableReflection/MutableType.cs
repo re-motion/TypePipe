@@ -73,17 +73,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<MutableFieldInfo> AddedFields
     {
-      get { return _fields.Added; }
+      get { return _fields.AddedMembers; }
     }
 
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
-      get { return _constructors.Added; }
+      get { return _constructors.AddedMembers; }
     }
 
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
-      get { return _methods.Added; }
+      get { return _methods.AddedMembers; }
     }
 
     public ReadOnlyCollection<Type> ExistingInterfaces
@@ -91,19 +91,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingTypeDescriptor.Interfaces; }
     }
 
-    public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingFields
+    public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
     {
-      get { return _fields.Existing; }
+      get { return _fields.ExistingDeclaredMembers; }
     }
 
-    public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingConstructors
+    public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingMutableConstructors
     {
-      get { return _constructors.Existing; }
+      get { return _constructors.ExistingDeclaredMembers; }
     }
 
-    public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMethods
+    public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMutableMethods
     {
-      get { return _methods.Existing; }
+      get { return _methods.ExistingDeclaredMembers; }
     }
 
     public IEnumerable<Type> AllInterfaces
@@ -111,19 +111,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return ExistingInterfaces.Concat (_addedInterfaces); }
     }
 
-    public IEnumerable<MutableFieldInfo> AllFields
+    public IEnumerable<MutableFieldInfo> AllMutableFields
     {
-      get { return _fields; }
+      get { return _fields.AllMutableMembers; }
     }
 
-    public IEnumerable<MutableConstructorInfo> AllConstructors
+    public IEnumerable<MutableConstructorInfo> AllMutableConstructors
     {
-      get { return _constructors; }
+      get { return _constructors.AllMutableMembers; }
     }
 
-    public IEnumerable<MutableMethodInfo> AllMethods
+    public IEnumerable<MutableMethodInfo> AllMutableMethods
     {
-      get { return _methods; }
+      get { return _methods.AllMutableMembers; }
     }
 
     public override Type UnderlyingSystemType
@@ -225,7 +225,7 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
       var fieldInfo = new MutableFieldInfo (this, descriptor);
 
-      if (AllFields.Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
+      if (AllMutableFields.Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
       _fields.Add (fieldInfo);
@@ -249,7 +249,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return AllFields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
+      return _fields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -272,7 +272,7 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
-      if (AllConstructors.Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
+      if (AllMutableConstructors.Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       _constructors.Add (constructorInfo);
@@ -282,7 +282,7 @@ namespace Remotion.TypePipe.MutableReflection
     
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return AllConstructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
+      return _constructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructorInfo)
@@ -314,7 +314,7 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarationCollection, false, false, false, body);
       var methodInfo = new MutableMethodInfo (this, descriptor);
 
-      if (AllMethods
+      if (AllMutableMethods
           .Where (m => m.UnderlyingSystemMethodInfo.DeclaringType == UnderlyingSystemType && m.Name == name)
           .Any (method => _memberInfoEqualityComparer.Equals (method, methodInfo)))
       {
@@ -329,7 +329,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      return AllMethods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray ();
+      return _methods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray();
     }
 
     public MutableMethodInfo GetMutableMethod (MethodInfo methodInfo)
@@ -344,25 +344,25 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("memberHandler", memberHandler);
 
       // Unmodified
-      foreach (var field in ExistingFields.Where (f => !f.IsModified))
+      foreach (var field in ExistingMutableFields.Where (f => !f.IsModified))
         memberHandler.HandleUnmodifiedField (field);
-      foreach (var ctor in ExistingConstructors.Where (c => !c.IsModified))
+      foreach (var ctor in ExistingMutableConstructors.Where (c => !c.IsModified))
         memberHandler.HandleUnmodifiedConstructor (ctor);
-      foreach (var method in ExistingMethods.Where (m => !m.IsModified))
+      foreach (var method in ExistingMutableMethods.Where (m => !m.IsModified))
         memberHandler.HandleUnmodifiedMethod (method);
 
       // Added
-      foreach (var field in _fields.Added)
+      foreach (var field in _fields.AddedMembers)
         memberHandler.HandleAddedField (field);
-      foreach (var ctor in _constructors.Added)
+      foreach (var ctor in _constructors.AddedMembers)
         memberHandler.HandleAddedConstructor (ctor);
-      foreach (var method in _methods.Added)
+      foreach (var method in _methods.AddedMembers)
         memberHandler.HandleAddedMethod (method);
 
       // Modfied
-      foreach (var ctor in ExistingConstructors.Where (c => c.IsModified))
+      foreach (var ctor in ExistingMutableConstructors.Where (c => c.IsModified))
         memberHandler.HandleModifiedConstructor (ctor);
-      foreach (var method in ExistingMethods.Where (m => m.IsModified))
+      foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
         memberHandler.HandleModifiedMethod (method);
     }
 

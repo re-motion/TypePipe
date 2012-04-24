@@ -50,7 +50,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType<string>> (
           mutableType =>
           {
-            var mutableMethod = mutableType.ExistingMethods.Single (m => m.Name == "Method");
+            var mutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
             mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody (), Expression.Constant (" test")));
           });
 

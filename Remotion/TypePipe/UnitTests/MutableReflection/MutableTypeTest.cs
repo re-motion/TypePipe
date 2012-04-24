@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _descriptor = UnderlyingTypeDescriptorObjectMother.Create(originalType: typeof (DomainClass));
+      _descriptor = UnderlyingTypeDescriptorObjectMother.Create(originalType: typeof (DomainType));
       _memberInfoEqualityComparerStub = MockRepository.GenerateStub<IEqualityComparer<MemberInfo>>();
       _bindingFlagsEvaluatorMock = MockRepository.GenerateMock<IBindingFlagsEvaluator>();
 
@@ -72,8 +72,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (fields, Has.Count.EqualTo (1));
       var expectedField = fields.Single();
 
-      Assert.That (_mutableType.ExistingFields, Has.Count.EqualTo (1));
-      var mutableField = _mutableType.ExistingFields.Single ();
+      Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
+      var mutableField = _mutableType.ExistingMutableFields.Single ();
 
       Assert.That (mutableField.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.EqualTo (expectedField));
@@ -86,8 +86,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (ctors, Has.Count.EqualTo (1));
       var expectedCtor = ctors.Single ();
 
-      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
-      var mutableCtor = _mutableType.ExistingConstructors.Single();
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var mutableCtor = _mutableType.ExistingMutableConstructors.Single();
 
       Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedCtor));
       Assert.That (mutableCtor.DeclaringType, Is.SameAs (_mutableType));
@@ -100,8 +100,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
       var expectedMethod = methods.Single (m => m.Name == "PublicMethod");
 
-      Assert.That (_mutableType.ExistingMethods.Count, Is.EqualTo(methods.Count));
-      var mutableMethod = _mutableType.ExistingMethods.Single (m => m.Name == "PublicMethod");
+      Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo(2));
+      var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "PublicMethod");
 
       Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
@@ -121,13 +121,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AllFields ()
+    public void AllMutableFields ()
     {
       Assert.That (_descriptor.Fields, Has.Count.EqualTo (1));
       var existingField = _descriptor.Fields.Single();
       var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_addedField");
 
-      var allFields = _mutableType.AllFields.ToArray();
+      var allFields = _mutableType.AllMutableFields.ToArray();
 
       Assert.That (allFields, Has.Length.EqualTo (2));
       Assert.That (allFields[0].DeclaringType, Is.SameAs (_mutableType));
@@ -136,13 +136,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AllConstructors ()
+    public void AllMutableConstructors ()
     {
       Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
       var existingCtor = _descriptor.Constructors.Single ();
       var addedCtor = AddConstructor (_mutableType, new ArgumentTestHelper (7).ParameterDeclarations); // Need different signature
 
-      var allConstructors = _mutableType.AllConstructors.ToArray();
+      var allConstructors = _mutableType.AllMutableConstructors.ToArray();
 
       Assert.That (allConstructors, Has.Length.EqualTo (2));
       Assert.That (allConstructors[0].DeclaringType, Is.SameAs(_mutableType));
@@ -151,15 +151,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AllMethods ()
+    public void AllMutableMethods ()
     {
       Assert.That (_descriptor.Methods, Is.Not.Empty);
       var existingMethods = _descriptor.Methods;
       var addedMethod = AddMethod (_mutableType, "NewMethod");
 
-      var allMethods = _mutableType.AllMethods.ToArray();
+      var allMethods = _mutableType.AllMutableMethods.ToArray();
 
-      var expectedMethodCount = _descriptor.Methods.Count + 1;
+      var expectedMethodCount = 3;
       Assert.That (allMethods, Has.Length.EqualTo (expectedMethodCount));
       for (int i = 0; i < expectedMethodCount - 1; i++)
       {
@@ -401,14 +401,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields ()
     {
-      Assert.That (_mutableType.AllFields, Is.Not.Empty);
+      Assert.That (_mutableType.AllMutableFields, Is.Not.Empty);
       _bindingFlagsEvaluatorMock
         .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
         .Return (true);
 
       var fields = _mutableType.GetFields (0);
 
-      Assert.That (fields, Is.EqualTo(_mutableType.AllFields));
+      Assert.That (fields, Is.EqualTo(_mutableType.AllMutableFields));
     }
 
     [Test]
@@ -429,7 +429,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetField ()
     {
       var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_blah");
-      Assert.That (_mutableType.AllFields.Count(), Is.GreaterThan (1));
+      Assert.That (_mutableType.AllMutableFields.Count(), Is.GreaterThan (1));
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
@@ -506,8 +506,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void AddConstructor_ThrowsIfAlreadyExists ()
     {
-      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
-      Assert.That (_mutableType.ExistingConstructors.Single ().GetParameters (), Is.Empty);
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      Assert.That (_mutableType.ExistingMutableConstructors.Single ().GetParameters (), Is.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
@@ -519,21 +519,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructors ()
     {
-      Assert.That (_mutableType.AllConstructors, Is.Not.Empty);
+      Assert.That (_mutableType.AllMutableConstructors, Is.Not.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
 
       var constructors = _mutableType.GetConstructors (0);
 
-      Assert.That (constructors, Is.EqualTo(_mutableType.AllConstructors));
+      Assert.That (constructors, Is.EqualTo(_mutableType.AllMutableConstructors));
     }
 
     [Test]
     public void GetConstructors_FilterWithUtility ()
     {
-      Assert.That (_mutableType.AllConstructors.Count(), Is.EqualTo(1));
-      var ctor = _mutableType.AllConstructors.Single();
+      Assert.That (_mutableType.AllMutableConstructors.Count(), Is.EqualTo(1));
+      var ctor = _mutableType.AllMutableConstructors.Single();
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (ctor.Attributes, bindingFlags)).Return (false);
 
@@ -552,7 +552,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = _mutableType.GetMutableConstructor (existingCtor);
 
       Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
-      Assert.That (_mutableType.ExistingConstructors, Has.Member (result));
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Member (result));
     }
 
     [Test]
@@ -620,7 +620,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Method 'PublicMethod' with equal signature already exists.\r\nParameter name: name")]
     public void AddMethod_ThrowsIfAlreadyExists ()
     {
-      var method = _mutableType.ExistingMethods.Single (m => m.Name == "PublicMethod");
+      var method = _mutableType.ExistingMutableMethods.Single (m => m.Name == "PublicMethod");
       Assert.That (method, Is.Not.Null);
       Assert.That (method.ReturnType, Is.SameAs(typeof(void)));
       Assert.That (method.GetParameters(), Is.Empty);
@@ -635,25 +635,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddMethod_AllowsShadowing ()
     {
-      var toStringMethod = _mutableType.ExistingMethods.Single (m => m.Name == "ToString");
-      Assert.That (toStringMethod, Is.Not.Null);
-      Assert.That (toStringMethod.GetParameters (), Is.Empty);
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
       _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
-      Assert.That (
-          () => _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string")),
-          Throws.Nothing);
+      _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string"));
+      Assert.That (_mutableType.GetMethods().Where (m => m.Name == "ToString").Count(), Is.EqualTo (2));
     }
 
     [Test]
     public void GetMethods ()
     {
       AddMethod (_mutableType, "Method");
-
-      Assert.That (_mutableType.ExistingMethods, Is.Not.Empty);
+      var baseMethods = _descriptor.Methods.Where (m => m.DeclaringType != typeof (DomainType));
+      Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
       Assert.That (_mutableType.AddedMethods, Is.Not.Empty);
 
       _bindingFlagsEvaluatorMock
@@ -662,13 +658,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var methods = _mutableType.GetMethods (0);
 
-      Assert.That (methods, Is.EqualTo (_mutableType.AllMethods));
+      Assert.That (methods, Is.EqualTo (_mutableType.AllMutableMethods.Cast<MethodInfo>().Concat(baseMethods)));
     }
 
     [Test]
     public void GetMethods_FilterWithUtility ()
     {
-      Assert.That (_mutableType.AllMethods, Is.Not.Empty);
+      Assert.That (_mutableType.AllMutableMethods, Is.Not.Empty);
       var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is(bindingFlags))).Return (false);
 
@@ -687,7 +683,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = _mutableType.GetMutableMethod (existingMethod);
 
       Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
-      Assert.That (_mutableType.ExistingMethods, Has.Member (result));
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
     }
 
     [Test]
@@ -697,12 +693,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType ();
       _mutableType.AddInterface (addedInterface);
 
-      Assert.That (_mutableType.ExistingFields, Has.Count.EqualTo(1));
-      var unmodfiedField = _mutableType.ExistingFields.Single();
+      Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo(1));
+      var unmodfiedField = _mutableType.ExistingMutableFields.Single();
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
-      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
-      var unmodfiedConstructor = _mutableType.ExistingConstructors.Single();
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single();
       var addedConstructorInfo = AddConstructor (_mutableType);
 
       // TODO 4809
@@ -730,8 +726,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_WithModifiedConstructors ()
     {
-      Assert.That (_mutableType.ExistingConstructors, Is.Not.Empty);
-      var modifiedExistingConstructorInfo = _mutableType.ExistingConstructors.First();
+      Assert.That (_mutableType.ExistingMutableConstructors, Is.Not.Empty);
+      var modifiedExistingConstructorInfo = _mutableType.ExistingMutableConstructors.First();
       MutableConstructorInfoTestHelper.ModifyConstructor (modifiedExistingConstructorInfo);
 
       var modifiedAddedConstructorInfo = AddConstructor (_mutableType);
@@ -750,8 +746,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_WitModifiedMethod ()
     {
-      Assert.That (_mutableType.ExistingMethods, Is.Not.Empty);
-      var modifiedExistingMethodInfo = _mutableType.ExistingMethods.Single (m => m.Name == "VirtualMethod");
+      Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
+      var modifiedExistingMethodInfo = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
       MutableMethodInfoTestHelper.ModifyMethod (modifiedExistingMethodInfo);
 
       var modifiedAddedMethodInfo = AddMethod (_mutableType, "ModifiedAddedMethod");
@@ -933,11 +929,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private void SetupUnmodifiedMembersExpectations (IMutableTypeMemberHandler handlerMock)
     {
-      Assert.That (_mutableType.ExistingFields, Has.Count.EqualTo (1));
-      var unmodfiedField = _mutableType.ExistingFields.Single ();
+      Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
+      var unmodfiedField = _mutableType.ExistingMutableFields.Single ();
 
-      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
-      var unmodfiedConstructor = _mutableType.ExistingConstructors.Single ();
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single ();
 
       // TODO 4809
       //Assert.That (_mutableType.ExistingMethods, Has.Count.EqualTo (1));
@@ -949,11 +945,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.Anything)).Repeat.Any ();
     }
 
-    public class DomainClass : IDomainInterface
+    public class DomainType : IDomainInterface
     {
       protected int ProtectedField;
 
-      public DomainClass ()
+      public DomainType ()
       {
         ProtectedField = Dev<int>.Null;
       }

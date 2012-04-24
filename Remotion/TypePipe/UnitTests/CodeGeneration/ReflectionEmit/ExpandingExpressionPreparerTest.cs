@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void PrepareConstructorBody_ExpandsOriginalBodyExpressions ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
-      var ctor = mutableType.ExistingConstructors.Single();
+      var ctor = mutableType.ExistingMutableConstructors.Single();
       Assert.That (ctor.Body, Is.TypeOf<OriginalBodyExpression>());
 
       var result = _preparer.PrepareConstructorBody (ctor);
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void PrepareMethodBody_ExpandsOriginalBodyExpressions ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
-      var method = mutableType.ExistingMethods.First ();
+      var method = mutableType.ExistingMutableMethods.First ();
       Assert.That (method.Body, Is.TypeOf<OriginalBodyExpression> ());
 
       var result = _preparer.PrepareMethodBody (method);

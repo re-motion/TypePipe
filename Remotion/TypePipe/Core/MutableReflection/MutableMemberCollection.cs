@@ -26,17 +26,18 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// A container storing mutable members and providing convenience properties for <see cref="Existing"/> and <see cref="Added"/>.
+  /// A container storing mutable members and providing convenience properties for <see cref="ExistingDeclaredMembers"/> and <see cref="AddedMembers"/>.
   /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version for an existing member.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
-  public class MutableMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMutableMemberInfo>
+  public class MutableMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMemberInfo>
     where TMemberInfo : MemberInfo
     where TMutableMemberInfo : TMemberInfo
   {
     private readonly MutableType _declaringType;
-    private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingMembers;
+    private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingDeclaredMembers;
+    private readonly ReadOnlyCollection<TMemberInfo> _existingBaseMembers;
     private readonly List<TMutableMemberInfo> _addedMembers = new List<TMutableMemberInfo>();
 
     public MutableMemberCollection (
@@ -49,22 +50,44 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("mutableMemberProvider", mutableMemberProvider);
 
       _declaringType = declaringType;
-      _existingMembers = existingMembers.ToDictionary (member => member, mutableMemberProvider).AsReadOnly ();
+
+      var declaredMembers = new Dictionary<TMemberInfo, TMutableMemberInfo>();
+      var baseMembers = new List<TMemberInfo>();
+      foreach (var member in existingMembers)
+      {
+        if (declaringType.IsEquivalentTo (member.DeclaringType))
+          declaredMembers.Add (member, mutableMemberProvider (member));
+        else
+          baseMembers.Add (member);
+      }
+
+      _existingDeclaredMembers = declaredMembers.AsReadOnly();
+      _existingBaseMembers = baseMembers.AsReadOnly();
     }
 
-    public ReadOnlyCollectionDecorator<TMutableMemberInfo> Existing
+    public ReadOnlyCollectionDecorator<TMutableMemberInfo> ExistingDeclaredMembers
     {
-      get { return _existingMembers.Values.AsReadOnly(); }
+      get { return _existingDeclaredMembers.Values.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<TMutableMemberInfo> Added
+    public ReadOnlyCollection<TMemberInfo> ExistingBaseMembers
+    {
+      get { return _existingBaseMembers; }
+    }
+
+    public ReadOnlyCollection<TMutableMemberInfo> AddedMembers
     {
       get { return _addedMembers.AsReadOnly(); }
     }
 
-    public IEnumerator<TMutableMemberInfo> GetEnumerator ()
+    public IEnumerable<TMutableMemberInfo> AllMutableMembers
     {
-      return Existing.Concat (Added).GetEnumerator ();
+      get { return ExistingDeclaredMembers.Concat (AddedMembers); }
+    }
+
+    public IEnumerator<TMemberInfo> GetEnumerator ()
+    {
+      return AllMutableMembers.Cast<TMemberInfo>().Concat (_existingBaseMembers).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator ()
@@ -80,7 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (member is TMutableMemberInfo)
         return (TMutableMemberInfo) member;
 
-      var mutableMember = _existingMembers.GetValueOrDefault (member);
+      var mutableMember = _existingDeclaredMembers.GetValueOrDefault (member);
       if (mutableMember == null)
       {
         var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName());
