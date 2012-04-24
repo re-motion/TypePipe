@@ -48,10 +48,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping ()
     {
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someType);
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someFieldInfo);
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someConstructorInfo);
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableOperand, _someMethodInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableType, _someType);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableField, _someFieldInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableConstructor, _someConstructorInfo);
+      CheckAddMapping (_map.AddMapping, _map.GetEmittableMethod, _someMethodInfo);
     }
 
     [Test]
@@ -70,10 +70,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableOperand_NoMapping ()
     {
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someType, typeof (EmittableType));
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someFieldInfo, typeof (EmittableField));
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someConstructorInfo, typeof (EmittableConstructor));
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableOperand, _someMethodInfo, typeof (EmittableMethod));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableType, _someType, typeof (EmittableType));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableField, _someFieldInfo, typeof (EmittableField));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableConstructor, _someConstructorInfo, typeof (EmittableConstructor));
+      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableMethod, _someMethodInfo, typeof (EmittableMethod));
     }
 
     private void CheckAddMapping<TMappedObject, TEmittableOperand> (

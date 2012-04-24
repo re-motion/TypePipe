@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _typeBuilderMock.VerifyAllExpectations();
       fieldBuilderMock.VerifyAllExpectations();
-      Assert.That (_emittableOperandProvider.GetEmittableOperand (addedField), Is.SameAs (emittableOperand));
+      Assert.That (_emittableOperandProvider.GetEmittableField (addedField), Is.SameAs (emittableOperand));
     }
 
     [Test]
@@ -278,7 +278,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _expressionPreparerMock
           .Expect (mock => mock.PrepareConstructorBody (mutableConstructor))
           .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableOperand (mutableConstructor), Is.SameAs (emittableOperand)));
+          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableConstructor (mutableConstructor), Is.SameAs (emittableOperand)));
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
@@ -506,7 +506,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _expressionPreparerMock
           .Expect (mock => mock.PrepareMethodBody (definedMethod))
           .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableOperand (definedMethod), Is.SameAs (emittableMethodOperand)));
+          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableMethod (definedMethod), Is.SameAs (emittableMethodOperand)));
 
       parameterDefinitionExpectationAction (methodBuilderMock);
 

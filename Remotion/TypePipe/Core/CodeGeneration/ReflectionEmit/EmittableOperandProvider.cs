@@ -77,36 +77,35 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableOperand (Type mappedType)
+    public IEmittableOperand GetEmittableType (Type type)
     {
-      ArgumentUtility.CheckNotNull ("mappedType", mappedType);
+      ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand (_mappedTypes, mappedType, typeof (MutableType), t => new EmittableType (mappedType));
+      return GetEmittableOperand (_mappedTypes, type, typeof (MutableType), t => new EmittableType (type));
     }
 
     [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableOperand (FieldInfo mappedFieldInfo)
+    public IEmittableOperand GetEmittableField (FieldInfo fieldInfo)
     {
-      ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
+      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
-      return GetEmittableOperand (_mappedFieldInfos, mappedFieldInfo, typeof (FieldInfo), fi => new EmittableField (mappedFieldInfo));
+      return GetEmittableOperand (_mappedFieldInfos, fieldInfo, typeof (FieldInfo), fi => new EmittableField (fieldInfo));
     }
 
     [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableOperand (ConstructorInfo mappedConstructorInfo)
+    public IEmittableOperand GetEmittableConstructor (ConstructorInfo constructorInfo)
     {
-      ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
+      ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
 
-      return GetEmittableOperand (
-          _mappedConstructorInfos, mappedConstructorInfo, typeof (ConstructorInfo), ci => new EmittableConstructor (mappedConstructorInfo));
+      return GetEmittableOperand (_mappedConstructorInfos, constructorInfo, typeof (ConstructorInfo), ci => new EmittableConstructor (constructorInfo));
     }
 
     [CLSCompliant (false)]
-    public IEmittableMethodOperand GetEmittableOperand (MethodInfo mappedMethodInfo)
+    public IEmittableMethodOperand GetEmittableMethod (MethodInfo methodInfo)
     {
-      ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
+      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
 
-      return GetEmittableOperand (_mappedMethodInfos, mappedMethodInfo, typeof (MutableMethodInfo), mi => new EmittableMethod (mappedMethodInfo));
+      return GetEmittableOperand (_mappedMethodInfos, methodInfo, typeof (MutableMethodInfo), mi => new EmittableMethod (methodInfo));
     }
 
     private void AddMapping<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem, TValue builder)

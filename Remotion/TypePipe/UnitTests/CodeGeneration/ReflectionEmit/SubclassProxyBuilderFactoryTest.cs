@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (builder.TypeBuilder, Is.SameAs (typeBuildermock));
       Assert.That (builder.ExpressionPreparer, Is.SameAs (_expressionPreparer));
-      Assert.That (builder.EmittableOperandProvider.GetEmittableOperand (mutableType), Is.SameAs (emittableOperandStub));
+      Assert.That (builder.EmittableOperandProvider.GetEmittableType (mutableType), Is.SameAs (emittableOperandStub));
 
       Assert.That (builder.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) builder.ILGeneratorFactory;

@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("con", con);
 
-      var emittableOperand = _emittableOperandProvider.GetEmittableOperand (con);
+      var emittableOperand = _emittableOperandProvider.GetEmittableConstructor (con);
       emittableOperand.Emit (_innerILGenerator, opcode);
     }
 
@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("cls", cls);
 
-      var emittableOperand = _emittableOperandProvider.GetEmittableOperand (cls);
+      var emittableOperand = _emittableOperandProvider.GetEmittableType (cls);
       emittableOperand.Emit (_innerILGenerator, opcode);
     }
 
@@ -154,7 +154,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      var emittableOperand = _emittableOperandProvider.GetEmittableOperand (field);
+      var emittableOperand = _emittableOperandProvider.GetEmittableField (field);
       emittableOperand.Emit (_innerILGenerator, opcode);
     }
 
@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
 
-      var emittableMethodOperand = _emittableOperandProvider.GetEmittableOperand (meth);
+      var emittableMethodOperand = _emittableOperandProvider.GetEmittableMethod (meth);
       emittableMethodOperand.Emit (_innerILGenerator, opcode);
     }
 
@@ -202,7 +202,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
 
-      var emittableMethodOperand = _emittableOperandProvider.GetEmittableOperand (methodInfo);
+      var emittableMethodOperand = _emittableOperandProvider.GetEmittableMethod (methodInfo);
       emittableMethodOperand.EmitCall (_innerILGenerator, opcode, optionalParameterTypes);
     }
 
