@@ -193,21 +193,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _emittableOperandProvider.AddMapping (method, new EmittableMethod (method.UnderlyingSystemMethodInfo));
     }
 
-    public void AddConstructor (MutableConstructorInfo constructor)
-    {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt ();
-
-      var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
-      _emittableOperandProvider.AddMapping (constructor, ctorBuilder.GetEmittableOperand());
-
-      DefineParameters (ctorBuilder, constructor.GetParameters ());
-
-      var body = _expressionPreparer.PrepareConstructorBody (constructor);
-      RegisterBodyBuildAction (ctorBuilder, constructor.ParameterExpressions, body);
-    }
-
     public Type Build ()
     {
       if (_hasBeenBuilt)
@@ -249,12 +234,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         methodBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
     }
 
-    private void RegisterBodyBuildAction (IMethodBaseBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
+    private void AddConstructor (MutableConstructorInfo constructor)
     {
-      var bodyLambda = Expression.Lambda (body, parameterExpressions);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      EnsureNotBuilt ();
 
-      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
-      _buildActions.Add (() => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
+      var parameterTypes = GetParameterTypes (constructor);
+      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
+      _emittableOperandProvider.AddMapping (constructor, ctorBuilder.GetEmittableOperand ());
+
+      DefineParameters (ctorBuilder, constructor.GetParameters ());
+
+      var body = _expressionPreparer.PrepareConstructorBody (constructor);
+      RegisterBodyBuildAction (ctorBuilder, constructor.ParameterExpressions, body);
     }
 
     private void AddMethod (MutableMethodInfo method, string name, MethodAttributes attributes, MethodInfo overriddenMethod)
@@ -270,6 +262,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var body = _expressionPreparer.PrepareMethodBody (method);
       RegisterBodyBuildAction (methodBuilder, method.ParameterExpressions, body);
+    }
+
+    private void RegisterBodyBuildAction (IMethodBaseBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
+    {
+      var bodyLambda = Expression.Lambda (body, parameterExpressions);
+
+      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
+      _buildActions.Add (() => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
     }
   }
 }
