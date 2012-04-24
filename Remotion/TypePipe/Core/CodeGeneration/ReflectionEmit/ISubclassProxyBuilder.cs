@@ -24,8 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyBuilder : IExtendedTypeModificationHandler
   {
-    void AddConstructor (MutableConstructorInfo constructor);
-
     Type Build ();
   }
 }
