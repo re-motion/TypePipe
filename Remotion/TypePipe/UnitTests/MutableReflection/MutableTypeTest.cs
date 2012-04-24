@@ -100,8 +100,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
       var expectedMethod = methods.Single (m => m.Name == "PublicMethod");
 
-      Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo(2));
-      var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "PublicMethod");
+      Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo(1));
+      var mutableMethod = _mutableType.ExistingMutableMethods.Single ();
 
       Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
@@ -146,14 +146,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var allMethods = _mutableType.AllMutableMethods.ToArray();
 
-      var expectedMethodCount = 3;
-      Assert.That (allMethods, Has.Length.EqualTo (expectedMethodCount));
-      for (int i = 0; i < expectedMethodCount - 1; i++)
-      {
-        Assert.That (allMethods[i].DeclaringType, Is.SameAs (_mutableType));
-        Assert.That (allMethods[i].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[i]));
-      }
-      Assert.That (allMethods.Last (), Is.SameAs (addedMethod));
+      Assert.That (allMethods, Has.Length.EqualTo (2));
+      Assert.That (allMethods[0].DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (allMethods[0].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[0]));
+      Assert.That (allMethods[1], Is.SameAs (addedMethod));
     }
 
     [Test]
@@ -693,18 +689,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single();
       var addedConstructorInfo = AddConstructor (_mutableType);
 
-      // TODO 4809
-      //Assert.That (_mutableType.ExistingMethods, Has.Count.EqualTo (1));
-      //var unmodfiedMethod = _mutableType.ExistingMethods.Single();
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
+      var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single();
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeMemberHandler>();
 
       handlerMock.Expect (mock => mock.HandleUnmodifiedField (unmodfiedField));
       handlerMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodfiedConstructor));
-      // TODO 4809
-      //handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod));
-      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.Anything)).Repeat.Any();
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod));
 
       handlerMock.Expect (mock => mock.HandleAddedField (addedFieldInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (addedConstructorInfo));
@@ -738,8 +731,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_WitModifiedMethod ()
     {
-      Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
-      var modifiedExistingMethodInfo = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
+      var modifiedExistingMethodInfo = _mutableType.ExistingMutableMethods.Single ();
       MutableMethodInfoTestHelper.ModifyMethod (modifiedExistingMethodInfo);
 
       var modifiedAddedMethodInfo = AddMethod (_mutableType, "ModifiedAddedMethod");
@@ -927,14 +920,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
       var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single ();
 
-      // TODO 4809
-      //Assert.That (_mutableType.ExistingMethods, Has.Count.EqualTo (1));
-      //var unmodfiedMethod = _mutableType.ExistingMethods.Single();
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
+      var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single ();
 
       handlerMock.Expect (mock => mock.HandleUnmodifiedField (unmodfiedField)).Repeat.Any ();
       handlerMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodfiedConstructor)).Repeat.Any ();
-      //handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod)).Repeat.Any ();
-      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.Anything)).Repeat.Any ();
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod)).Repeat.Any ();
     }
 
     public class DomainType : IDomainInterface
@@ -946,9 +937,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         ProtectedField = Dev<int>.Null;
       }
 
-      public void PublicMethod () { }
-
-      public virtual void VirtualMethod () { }
+      public virtual void PublicMethod () { }
     }
 
     public interface IDomainInterface

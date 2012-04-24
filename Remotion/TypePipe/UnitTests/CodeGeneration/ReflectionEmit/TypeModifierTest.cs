@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class ClassWithMembers
   {
     public int Field1;
-    //public int Field2;  TODO 4809
+    public int Field2;
 
     public ClassWithMembers () { }
     public ClassWithMembers (int i)
