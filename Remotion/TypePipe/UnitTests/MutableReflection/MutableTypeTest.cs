@@ -697,17 +697,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType ();
       _mutableType.AddInterface (addedInterface);
 
-      Assert.That (_mutableType.ExistingFields, Is.Not.Empty);
+      Assert.That (_mutableType.ExistingFields, Has.Count.EqualTo(1));
+      var unmodfiedField = _mutableType.ExistingFields.Single();
       var addedFieldInfo = _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
 
-      Assert.That (_mutableType.ExistingConstructors, Is.Not.Empty);
+      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
+      var unmodfiedConstructor = _mutableType.ExistingConstructors.Single();
       var addedConstructorInfo = AddConstructor (_mutableType);
 
-      Assert.That (_mutableType.ExistingMethods, Is.Not.Empty);
+      // TODO 4809
+      //Assert.That (_mutableType.ExistingMethods, Has.Count.EqualTo (1));
+      //var unmodfiedMethod = _mutableType.ExistingMethods.Single();
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
 
-      var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler>();
-      handlerMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeMemberHandler>();
+
+      handlerMock.Expect (mock => mock.HandleUnmodifiedField (unmodfiedField));
+      handlerMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodfiedConstructor));
+      // TODO 4809
+      //handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod));
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.Anything)).Repeat.Any();
+
       handlerMock.Expect (mock => mock.HandleAddedField (addedFieldInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (addedConstructorInfo));
       handlerMock.Expect (mock => mock.HandleAddedMethod (addedMethod));
@@ -727,9 +737,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var modifiedAddedConstructorInfo = AddConstructor (_mutableType);
       MutableConstructorInfoTestHelper.ModifyConstructor (modifiedAddedConstructorInfo);
 
-      var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler> ();
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeMemberHandler> ();
       handlerMock.Expect (mock => mock.HandleModifiedConstructor (modifiedExistingConstructorInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (modifiedAddedConstructorInfo));
+      SetupUnmodifiedMembersExpectations (handlerMock);
 
       _mutableType.Accept (handlerMock);
 
@@ -746,9 +757,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var modifiedAddedMethodInfo = AddMethod (_mutableType, "ModifiedAddedMethod");
       MutableMethodInfoTestHelper.ModifyMethod (modifiedAddedMethodInfo);
 
-      var handlerMock = MockRepository.GenerateStrictMock<ITypeModificationHandler> ();
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeMemberHandler> ();
       handlerMock.Expect (mock => mock.HandleModifiedMethod (modifiedExistingMethodInfo));
       handlerMock.Expect (mock => mock.HandleAddedMethod (modifiedAddedMethodInfo));
+      SetupUnmodifiedMembersExpectations (handlerMock);
 
       _mutableType.Accept (handlerMock);
 
@@ -917,6 +929,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
+    }
+
+    private void SetupUnmodifiedMembersExpectations (IMutableTypeMemberHandler handlerMock)
+    {
+      Assert.That (_mutableType.ExistingFields, Has.Count.EqualTo (1));
+      var unmodfiedField = _mutableType.ExistingFields.Single ();
+
+      Assert.That (_mutableType.ExistingConstructors, Has.Count.EqualTo (1));
+      var unmodfiedConstructor = _mutableType.ExistingConstructors.Single ();
+
+      // TODO 4809
+      //Assert.That (_mutableType.ExistingMethods, Has.Count.EqualTo (1));
+      //var unmodfiedMethod = _mutableType.ExistingMethods.Single();
+
+      handlerMock.Expect (mock => mock.HandleUnmodifiedField (unmodfiedField)).Repeat.Any ();
+      handlerMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodfiedConstructor)).Repeat.Any ();
+      //handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod)).Repeat.Any ();
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.Anything)).Repeat.Any ();
     }
 
     public class DomainClass : IDomainInterface

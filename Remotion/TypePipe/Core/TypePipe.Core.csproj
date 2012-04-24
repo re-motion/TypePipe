@@ -115,10 +115,9 @@
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContext.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
-    <Compile Include="MutableReflection\IExtendedTypeModificationHandler.cs" />
+    <Compile Include="MutableReflection\IMutableTypeMemberHandler.cs" />
     <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\IMutableMember.cs" />
-    <Compile Include="MutableReflection\ITypeModificationHandler.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -74,7 +75,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var typeBuilder = _moduleBuilder.DefineType (
           subclassProxyName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          mutableType.UnderlyingSystemType);
+          mutableType.UnderlyingSystemType,
+          mutableType.AddedInterfaces.ToArray());
 
       var reflectionToBuilderMap = new EmittableOperandProvider ();
       reflectionToBuilderMap.AddMapping (mutableType, typeBuilder.GetEmittableOperand());

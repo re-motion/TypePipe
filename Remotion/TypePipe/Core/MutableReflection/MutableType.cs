@@ -339,27 +339,31 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods.GetMutableMember (methodInfo);
     }
 
-    public virtual void Accept (ITypeModificationHandler modificationHandler)
+    public virtual void Accept (IMutableTypeMemberHandler memberHandler)
     {
-      ArgumentUtility.CheckNotNull ("modificationHandler", modificationHandler);
+      ArgumentUtility.CheckNotNull ("memberHandler", memberHandler);
 
-      foreach (var addedInterface in _addedInterfaces)
-        modificationHandler.HandleAddedInterface (addedInterface);
+      // Unmodified
+      foreach (var field in ExistingFields.Where (f => !f.IsModified))
+        memberHandler.HandleUnmodifiedField (field);
+      foreach (var ctor in ExistingConstructors.Where (c => !c.IsModified))
+        memberHandler.HandleUnmodifiedConstructor (ctor);
+      foreach (var method in ExistingMethods.Where (m => !m.IsModified))
+        memberHandler.HandleUnmodifiedMethod (method);
 
-      foreach (var addedField in _fields.Added)
-        modificationHandler.HandleAddedField (addedField);
+      // Added
+      foreach (var field in _fields.Added)
+        memberHandler.HandleAddedField (field);
+      foreach (var ctor in _constructors.Added)
+        memberHandler.HandleAddedConstructor (ctor);
+      foreach (var method in _methods.Added)
+        memberHandler.HandleAddedMethod (method);
 
-      foreach (var addedConstructor in _constructors.Added)
-        modificationHandler.HandleAddedConstructor (addedConstructor);
-
-      foreach (var addedMethod in _methods.Added)
-        modificationHandler.HandleAddedMethod (addedMethod);
-
-      foreach (var modifiedConstructor in ExistingConstructors.Where (c => c.IsModified))
-        modificationHandler.HandleModifiedConstructor (modifiedConstructor);
-
-      foreach (var modifiedMethod in ExistingMethods.Where (m => m.IsModified))
-        modificationHandler.HandleModifiedMethod (modifiedMethod);
+      // Modfied
+      foreach (var ctor in ExistingConstructors.Where (c => c.IsModified))
+        memberHandler.HandleModifiedConstructor (ctor);
+      foreach (var method in ExistingMethods.Where (m => m.IsModified))
+        memberHandler.HandleModifiedMethod (method);
     }
 
     public override Type GetElementType ()

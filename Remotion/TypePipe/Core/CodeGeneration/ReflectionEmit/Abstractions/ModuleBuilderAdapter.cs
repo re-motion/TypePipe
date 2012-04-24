@@ -36,12 +36,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
+    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent, Type[] interfaces)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("parent", parent);
+      ArgumentUtility.CheckNotNull ("interfaces", interfaces);
 
-      var typeBuilder = _moduleBuilder.DefineType (name, attr, parent);
+      var typeBuilder = _moduleBuilder.DefineType (name, attr, parent, interfaces);
       return new TypeBuilderAdapter (typeBuilder);
     }
   }

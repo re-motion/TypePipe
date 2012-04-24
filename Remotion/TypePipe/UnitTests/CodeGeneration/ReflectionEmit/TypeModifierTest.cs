@@ -22,7 +22,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -40,44 +39,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           new MemberSignatureEqualityComparer (),
           new BindingFlagsEvaluator ());
 
-      // Fields
-      var existingFields = mutableTypePartialMock.ExistingFields.ToArray ();
-      Assert.That (existingFields, Has.Length.EqualTo (1  /* 2 TODO 4695 */));
-      //var modifiedField = existingFields[0];
-      // Modifying existing fields is not supported (TODO 4695)
-      //MutableFieldInfoTestHelper.ModifyField (modifiedField);
-      var unmodifiedField = existingFields[0 /* 2  TODO 4695 */];
-
-      // Constructors
-      var existingConstructors = mutableTypePartialMock.ExistingConstructors.ToArray ();
-      Assert.That (existingConstructors, Has.Length.EqualTo (2));
-      var modifiedConstructor = existingConstructors[0];
-      MutableConstructorInfoTestHelper.ModifyConstructor (modifiedConstructor);
-      var unmodifiedConstructor = existingConstructors[1];
-
-      // Methods
-      // TODO 4809  Remove the weird Where matching by name
-      var existingMethods = mutableTypePartialMock.ExistingMethods.Where(m => m.Name.StartsWith("Method")).ToArray ();
-      Assert.That (existingMethods, Has.Length.EqualTo (2));
-      var modifiedMethod = existingMethods[0];
-      MutableMethodInfoTestHelper.ModifyMethod (modifiedMethod);
-      var unmodifiedMethod = existingMethods[1];
-
       var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder>();
       handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
 
-      // TODO 4809 Remove
-      foreach (var inheritedMethods in mutableTypePartialMock.ExistingMethods.Except(existingMethods))
-      {
-        MutableMethodInfo info = inheritedMethods;
-        builderMock.Expect (mock => mock.HandleUnmodifiedMethod (info));
-      }
-
       bool buildCalled = false;
 // ReSharper disable AccessToModifiedClosure
-      builderMock.Expect (mock => mock.HandleUnmodifiedField (unmodifiedField)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
-      builderMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodifiedConstructor)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
-      builderMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodifiedMethod)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
       mutableTypePartialMock.Expect (mock => mock.Accept (builderMock)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
 // ReSharper restore AccessToModifiedClosure
 

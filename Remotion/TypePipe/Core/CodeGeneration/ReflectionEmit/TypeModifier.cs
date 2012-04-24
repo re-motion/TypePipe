@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -44,26 +43,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var builder = _builderFactory.CreateBuilder (mutableType);
 
-      ExtendedTypeModificationHandlerExtensions.Accept (mutableType, builder);
+      mutableType.Accept (builder);
 
       return builder.Build();
-    }
-  }
-
-  public static class ExtendedTypeModificationHandlerExtensions
-  {
-    public static void Accept (this MutableType mutableType, IExtendedTypeModificationHandler extendedHandler)
-    {
-      foreach (var field in mutableType.ExistingFields.Where (ctor => !ctor.IsModified))
-        extendedHandler.HandleUnmodifiedField (field);
-
-      foreach (var constructor in mutableType.ExistingConstructors.Where (ctor => !ctor.IsModified))
-        extendedHandler.HandleUnmodifiedConstructor (constructor);
-
-      foreach (var method in mutableType.ExistingMethods.Where(ctor => !ctor.IsModified))
-        extendedHandler.HandleUnmodifiedMethod (method);
-
-      mutableType.Accept (extendedHandler);
     }
   }
 }

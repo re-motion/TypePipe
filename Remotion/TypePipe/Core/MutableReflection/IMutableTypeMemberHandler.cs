@@ -19,11 +19,14 @@ using System;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines an interface for classes that handle modifications made to a <see cref="MutableType"/>.
+  /// Defines an interface for classes that handle unmodified, added and modfied members of a <see cref="MutableType"/>.
   /// </summary>
-  public interface ITypeModificationHandler
+  public interface IMutableTypeMemberHandler
   {
-    void HandleAddedInterface (Type interfaceType);
+    void HandleUnmodifiedField (MutableFieldInfo field);
+    void HandleUnmodifiedConstructor (MutableConstructorInfo constructor);
+    void HandleUnmodifiedMethod (MutableMethodInfo method);
+
     void HandleAddedField (MutableFieldInfo field);
     void HandleAddedConstructor (MutableConstructorInfo constructor);
     void HandleAddedMethod (MutableMethodInfo method);
