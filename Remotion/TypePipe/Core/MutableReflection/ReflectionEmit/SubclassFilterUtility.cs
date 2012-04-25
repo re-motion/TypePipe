@@ -14,19 +14,25 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Collections.Generic;
+using System;
 using System.Reflection;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.ReflectionEmit
 {
   /// <summary>
-  /// Used by <see cref="UnderlyingTypeDescriptor.Create"/> to filter the returned members.
+  /// Determines if an member is visible from a dervied type.
   /// </summary>
-  // TODO 4695 (This is already part of the RefEmit abstraction.)
-  public interface IMemberFilter
+  // TODO 4695 : Remove this class and replace with code generation dependent strategy.
+  public static class SubclassFilterUtility
   {
-    IEnumerable<FieldInfo> FilterFields (IEnumerable<FieldInfo> fieldInfos);
-    IEnumerable<ConstructorInfo> FilterConstructors (IEnumerable<ConstructorInfo> constructorInfos);
-    IEnumerable<MethodInfo> FilterMethods (IEnumerable<MethodInfo> methodInfos);
+    public static bool IsVisibleFromSubclass (FieldInfo fieldInfo)
+    {
+      return fieldInfo.IsPublic || fieldInfo.IsFamilyOrAssembly || fieldInfo.IsFamily;
+    }
+
+    public static bool IsVisibleFromSubclass (MethodBase methodBase)
+    {
+      return methodBase.IsPublic || methodBase.IsFamilyOrAssembly || methodBase.IsFamily;
+    }
   }
 }

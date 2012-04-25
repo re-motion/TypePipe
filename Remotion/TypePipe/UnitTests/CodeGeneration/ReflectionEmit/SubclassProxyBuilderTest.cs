@@ -344,6 +344,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleUnmodifiedConstructor_IgnoresCtorsThatAreNotVisibleFromSubclass ()
+    {
+      var internalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
+      var ctor = MutableConstructorInfoObjectMother.CreateForExisting (internalCtor);
+
+      _builder.HandleUnmodifiedConstructor (ctor);
+
+      _typeBuilderMock.AssertWasNotCalled (
+          mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything));
+    }
+
+    [Test]
     public void HandleUnmodifiedConstructor_RegistersBuildAction ()
     {
       var constructor = MutableConstructorInfoObjectMother.CreateForExisting();
@@ -654,6 +666,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         Dev.Null = i;
         d = Dev<double>.Null;
       }
+
+      internal DomainType() { }
 
       public virtual string Method (int i, out double d)
       {

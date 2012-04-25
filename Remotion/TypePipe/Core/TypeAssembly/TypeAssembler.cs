@@ -21,7 +21,6 @@ using System.Linq;
 using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly
@@ -57,6 +56,7 @@ namespace Remotion.TypePipe.TypeAssembly
     public Type AssembleType (Type requestedType)
     {
       var mutableType = CreateMutableType (requestedType);
+
       foreach (var participant in _participants)
         participant.ModifyType (mutableType);
 
@@ -65,10 +65,7 @@ namespace Remotion.TypePipe.TypeAssembly
 
     private MutableType CreateMutableType (Type requestedType)
     {
-      return new MutableType (
-          UnderlyingTypeDescriptor.Create(requestedType, new MemberFilter ()), // TODO 4695 RefEmit dependent!
-          new MemberSignatureEqualityComparer(),
-          new BindingFlagsEvaluator());
+      return new MutableType (UnderlyingTypeDescriptor.Create (requestedType), new MemberSignatureEqualityComparer(), new BindingFlagsEvaluator());
     }
   }
 }

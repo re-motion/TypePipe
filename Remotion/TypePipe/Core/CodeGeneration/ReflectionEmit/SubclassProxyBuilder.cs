@@ -24,6 +24,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -180,8 +181,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
 
-      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-      AddConstructor (constructor);
+      // TODO 4695 
+      if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
+        // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+        AddConstructor (constructor);
     }
 
     public void HandleUnmodifiedMethod (MutableMethodInfo method)

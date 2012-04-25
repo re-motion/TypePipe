@@ -18,6 +18,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -33,16 +34,15 @@ namespace Remotion.TypePipe.MutableReflection
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
 
-    public static UnderlyingTypeDescriptor Create (Type originalType, IMemberFilter memberFilter)
+    public static UnderlyingTypeDescriptor Create (Type originalType)
     {
       ArgumentUtility.CheckNotNull ("originalType", originalType);
-      ArgumentUtility.CheckNotNull ("memberFilter", memberFilter);
 
       if (originalType is MutableType)
         throw new ArgumentException ("Original type must not be another mutable type.", "originalType");
 
       // TODO 4695
-      if (CanNotBeSubclassed (originalType, memberFilter))
+      if (CanNotBeSubclassed (originalType))
         throw new ArgumentException (
           "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
           + "a generic parameter, contain generic parameters and must have an accessible constructor.", "originalType");
@@ -56,23 +56,24 @@ namespace Remotion.TypePipe.MutableReflection
           originalType.ToString (),
           originalType.Attributes,
           Array.AsReadOnly (originalType.GetInterfaces ()),
-          memberFilter.FilterFields (originalType.GetFields (c_allMembers)).ToList().AsReadOnly(),
-          memberFilter.FilterConstructors (originalType.GetConstructors (c_allInstanceMembers)).ToList().AsReadOnly(),
-          memberFilter.FilterMethods (originalType.GetMethods (c_allMembers)).Where (m => !m.IsGenericMethod).ToList().AsReadOnly());
+          originalType.GetFields (c_allMembers).ToList().AsReadOnly(),
+          originalType.GetConstructors (c_allInstanceMembers).ToList().AsReadOnly(),
+          originalType.GetMethods (c_allMembers).Where (m => !m.IsGenericMethod).ToList().AsReadOnly());
     }
 
-    private static bool CanNotBeSubclassed (Type type, IMemberFilter memberFilter)
+    private static bool CanNotBeSubclassed (Type type)
     {
       return type.IsSealed
              || type.IsInterface
              || typeof (Delegate).IsAssignableFrom (type)
              || type.ContainsGenericParameters
-             || !HasAccessibleConstructor (type, memberFilter);
+             || !HasAccessibleConstructor (type);
     }
 
-    private static bool HasAccessibleConstructor (Type type, IMemberFilter memberFilter)
+    private static bool HasAccessibleConstructor (Type type)
     {
-      return memberFilter.FilterConstructors (type.GetConstructors (c_allInstanceMembers)).Any();
+      // TODO 4695 
+      return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any();
     }
 
     private readonly Type _underlyingSystemType;

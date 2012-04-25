@@ -20,24 +20,15 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using MemberFilter = Remotion.TypePipe.MutableReflection.ReflectionEmit.MemberFilter;
-using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
 {
   [TestFixture]
-  public class MemberFilterTest
+  public class SubclassFilterUtilityTest
   {
-    private const BindingFlags c_allButStaticMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-    private const BindingFlags c_allMembers = c_allButStaticMembers | BindingFlags.Static;
-
-    private MemberFilter _memberFilter;
-
-    [SetUp]
-    public void SetUp ()
-    {
-      _memberFilter = new MemberFilter();
-    }
+    private const BindingFlags c_instanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+    private const BindingFlags c_allMembers = c_instanceMembers | BindingFlags.Static;
 
     [Test]
     public void FilterFields ()
@@ -47,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
           GetMemberNames (allFields),
           Is.EquivalentTo (new[] { "PublicField", "ProtectedOrInternalField", "ProtectedField", "InternalField", "_privateField" }));
 
-      var filteredFields = _memberFilter.FilterFields(allFields.AsOneTime());
+      var filteredFields = allFields.Where (SubclassFilterUtility.IsVisibleFromSubclass);
 
       Assert.That (
           GetMemberNames (filteredFields.Cast<MemberInfo> ()),
@@ -57,12 +48,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
     [Test]
     public void FilterConstructors ()
     {
-      var constructors = typeof (TestDomain).GetConstructors (c_allButStaticMembers);
+      var instanceConstructors = typeof (TestDomain).GetConstructors (c_instanceMembers);
       Assert.That (
-          GetCtorSignatures (constructors),
+          GetCtorSignatures (instanceConstructors),
           Is.EquivalentTo (new[] { ".ctor()", ".ctor(Int32)", ".ctor(System.String)", ".ctor(Double)", ".ctor(Int64)" }));
 
-      var filteredConstructors = _memberFilter.FilterConstructors (constructors.AsOneTime());
+      var filteredConstructors = instanceConstructors.Where (SubclassFilterUtility.IsVisibleFromSubclass);
 
       Assert.That (GetCtorSignatures (filteredConstructors), Is.EquivalentTo (new[] { ".ctor()", ".ctor(Int32)", ".ctor(System.String)" }));
     }
@@ -76,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
           new[] { "PublicMethod", "ProtectedOrInternalMethod", "ProtectedMethod", "InternalMethod", "PrivateMethod" },
           Is.SubsetOf (GetMemberNames (allMethods)));
 
-      var filteredMethods = _memberFilter.FilterMethods (allMethods.AsOneTime());
+      var filteredMethods = allMethods.Where (SubclassFilterUtility.IsVisibleFromSubclass);
 
       Assert.That (
           new[] { "PublicMethod", "ProtectedOrInternalMethod", "ProtectedMethod" },

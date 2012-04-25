@@ -117,13 +117,13 @@
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMutableMethodBase.cs" />
     <Compile Include="MutableReflection\IMutableTypeMemberHandler.cs" />
-    <Compile Include="MutableReflection\IMemberFilter.cs" />
     <Compile Include="MutableReflection\IMutableMember.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />
     <Compile Include="MutableReflection\MethodAttributeUtility.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberCollection.cs" />
+    <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
@@ -257,7 +257,6 @@
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
-    <Compile Include="MutableReflection\ReflectionEmit\MemberFilter.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssembler.cs" />

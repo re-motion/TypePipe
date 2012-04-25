@@ -88,6 +88,7 @@
     <Compile Include="MutableReflection\MethodAttributeUtilityTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberCollectionTest.cs" />
+    <Compile Include="MutableReflection\ReflectionEmit\MemberFilterTest.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptorTest.cs" />
@@ -126,7 +127,6 @@
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorTest.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
-    <Compile Include="MutableReflection\ReflectionEmit\MemberFilterTest.cs" />
     <Compile Include="MutableReflection\ReflectionObjectMother.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
