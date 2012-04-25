@@ -55,7 +55,9 @@
     <Compile Include="AddFieldTest.cs" />
     <Compile Include="AddInterfaceTest.cs" />
     <Compile Include="AddMethodTest.cs" />
+    <Compile Include="ShadowingTest.cs" />
     <Compile Include="ExpressionHelper.cs" />
+    <Compile Include="ImplicitOverridesTest.cs" />
     <Compile Include="KeepConstructorsTest.cs" />
     <Compile Include="ModifyConstructorTest.cs" />
     <Compile Include="ModifyGenericMethodTest.cs" />
