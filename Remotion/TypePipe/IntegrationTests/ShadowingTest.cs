@@ -23,7 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore("TODO 4817")]
+  [Ignore("TODO 4818")]
   public class ShadowingTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -39,7 +39,10 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.IsOverridde, Is.False);
+                  //Assert.That (ctx.HasBaseMethod, Is.False);
+                  //Assert.That (
+                  //    () => ctx.BaseMethod,
+                  //    Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall(), Expression.Constant (" shadowed"));
                   return Expression.Default(typeof(string));
                 });
@@ -69,7 +72,7 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.IsOverridde, Is.False);
+                  //Assert.That (ctx.HasBaseMethod, Is.False);
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall(), Expression.Constant (" shadowed"));
                   return Expression.Default (typeof (string));
                 });
@@ -84,13 +87,6 @@ namespace TypePipe.IntegrationTests
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("DomainType shadowed"));
       Assert.That (instance.OverridableMethod (), Is.EqualTo ("DomainType"));
-    }
-
-    private MethodInfo GetDeclaredMethod (Type type, string name)
-    {
-      var method = type.GetMethod (name, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-      Assert.That (method, Is.Not.Null);
-      return method;
     }
 
     public class DomainType

@@ -96,6 +96,26 @@ namespace TypePipe.IntegrationTests
       return AssembleType (originalType, GetNameForThisTest (1), participantActions);
     }
 
+    protected MethodInfo GetDeclaredMethod (Type type, string name)
+    {
+      var method = type.GetMethod (name, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+      Assert.That (method, Is.Not.Null);
+      return method;
+    }
+
+    protected void CheckMemberEquality<T> (T expectedMember, T actualMember) 
+        where T: MemberInfo
+    {
+      Assert.That (
+          MemberInfoEqualityComparer<T>.Instance.Equals (actualMember, expectedMember),
+          Is.True,
+          "Expected '{0}.{1}', but was '{2}.{3}'",
+          expectedMember.DeclaringType.Name,
+          expectedMember.Name,
+          actualMember.DeclaringType.Name,
+          actualMember.Name);
+    }
+
     private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();
