@@ -137,6 +137,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (!CanSetBody)
       {
+        // TODO 4695
         var message = string.Format ("The body of the existing non-virtual method '{0}' cannot be replaced.", Name);
         throw new NotSupportedException (message);
       }

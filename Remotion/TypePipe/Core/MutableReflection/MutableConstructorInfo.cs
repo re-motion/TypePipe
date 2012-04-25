@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -110,9 +111,22 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body; }
     }
 
+    public bool CanSetBody
+    {
+      // TODO 4695
+      get { return IsNew || SubclassFilterUtility.IsVisibleFromSubclass (this); }
+    }
+
     public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      if (!CanSetBody)
+      {
+        // TODO 4695
+        var message = string.Format ("The body of the existing inaccessible constructor '{0}' cannot be replaced.", this);
+        throw new NotSupportedException (message);
+      }
 
       var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);

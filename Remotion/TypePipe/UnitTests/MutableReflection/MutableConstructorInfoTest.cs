@@ -18,10 +18,12 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -143,6 +145,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CanSetBody ()
+    {
+      var newInaccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Assembly));
+      var newAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Family));
+
+      var existingInaccesibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
+          MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7))));
+      var existingAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
+          MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ())));
+
+      Assert.That (newInaccessibleCtor.CanSetBody, Is.True);
+      Assert.That (newAccessibleCtor.CanSetBody, Is.True);
+      Assert.That (existingInaccesibleCtor.CanSetBody, Is.False);
+      Assert.That (existingAccessibleCtor.CanSetBody, Is.True);
+    }
+
+    [Test]
     public void SetBody ()
     {
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
@@ -163,6 +182,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var expectedBody = Expression.Block (typeof (void), fakeBody);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableCtor.Body);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The body of the existing inaccessible constructor 'Void .ctor(Int32)' cannot be replaced.")]
+    public void SetBody_NonSettableCtor ()
+    {
+      var inaccessibleCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
+      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (inaccessibleCtor);
+      var mutableCtor = Create (descriptor);
+
+      Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
+      {
+        Assert.Fail ("Should not be called.");
+        throw new NotImplementedException ();
+      };
+
+      mutableCtor.SetBody (bodyProvider);
     }
 
     [Test]
@@ -238,6 +275,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
     {
       return Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations));
+    }
+
+    public class DomainType
+    {
+      public DomainType () { }
+      internal DomainType (int i) { Dev.Null = i; }
     }
   }
 }
