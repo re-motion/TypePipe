@@ -108,7 +108,7 @@ namespace TypePipe.IntegrationTests
       var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();
       participantStub
           .Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything))
-          .Do (typeModification);
+          .WhenCalled (mi => typeModification ((MutableType) mi.Arguments[0]));
 
       return participantStub;
     }
