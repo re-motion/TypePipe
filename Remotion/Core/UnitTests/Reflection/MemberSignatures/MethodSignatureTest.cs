@@ -59,5 +59,25 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
 
       Assert.That (signature.ToString (), Is.EqualTo ("[0]([1])`2"));
     }
+
+    // TODO 4816: Equals/GetHashCode: tests needed for these scenarios: M1.Equals (M2), !M1.Equals (M3), M1.GetHashCode().Equals (M2.GetHashCode())
+    public class ClassWithTwoEquals
+    {
+      public T1 M1<T1, T2> (T2 t)
+      {
+        throw new NotImplementedException();
+      }
+
+      public T1 M2<T1, T2> (T2 t)
+      {
+        throw new NotImplementedException ();
+      }
+
+      // should be different!
+      public T2 M3<T1, T2> (T1 t)
+      {
+        throw new NotImplementedException ();
+      }
+    }
   }
 }
