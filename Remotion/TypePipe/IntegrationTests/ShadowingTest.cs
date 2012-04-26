@@ -29,7 +29,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ShadowMethod_NonVirtual ()
     {
-      var type = AssembleType<DomainType> (
+      var type = AssembleType<ModifiedType> (
           mutableType =>
           {
             var mutableMethodInfo = mutableType.AddMethod (
@@ -50,7 +50,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
           });
 
-      var instance = (DomainType) Activator.CreateInstance (type);
+      var instance = (ModifiedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethod");
 
       Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
@@ -63,7 +63,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ShadowMethod_VirtualAndNewSlot ()
     {
-      var type = AssembleType<DomainType> (
+      var type = AssembleType<ModifiedType> (
           mutableType =>
           {
             var mutableMethodInfo = mutableType.AddMethod (
@@ -81,7 +81,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.SameAs (mutableMethodInfo));
           });
 
-      var instance = (DomainType) Activator.CreateInstance (type);
+      var instance = (ModifiedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethod");
 
       Assert.That (method.GetBaseDefinition (), Is.SameAs (method));
@@ -97,6 +97,10 @@ namespace TypePipe.IntegrationTests
       {
         return "DomainType";
       }
+    }
+
+    public class ModifiedType : DomainType
+    {
     }
   }
 }
