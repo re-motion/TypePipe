@@ -401,7 +401,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (candidates.Length == 0)
         return null;
 
-      return (ConstructorInfo) SafeGetBinder (binderOrNull).SelectMethod (bindingAttr, candidates, types, modifiers);
+      return (ConstructorInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, types, modifiers);
     }
 
     protected override MethodInfo GetMethodImpl (
@@ -416,14 +416,16 @@ namespace Remotion.TypePipe.MutableReflection
       if (candidates.Length == 0)
         return null;
 
-      return (MethodInfo) SafeGetBinder (binderOrNull).SelectMethod (bindingAttr, candidates, types, modifiers);
+      return (MethodInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, types ?? EmptyTypes, modifiers);
     }
 
-    private Binder SafeGetBinder (Binder binderOrNull)
+    private MethodBase SafeSelectMethod (
+        Binder binderOrNull, BindingFlags bindingAttr, MethodBase[] candidates, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
-      return binder;
+
+      return binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
@@ -478,6 +480,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
     {
+      //types = types ?? Type.EmptyTypes;
       throw new NotImplementedException();
     }
 
