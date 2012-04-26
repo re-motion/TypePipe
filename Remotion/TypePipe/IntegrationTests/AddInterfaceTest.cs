@@ -15,7 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
@@ -32,6 +35,46 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
     }
 
+    [Test]
+    [Ignore("TODO 4813")]
+    public void AddMethodAsExplicitInterfaceImplementation ()
+    {
+      var interfaceMethod = GetDeclaredMethod (typeof (IInterfaceWithMethod), "Method");
+      var type = AssembleType<OriginalType> (
+          mutableType =>
+          {
+            mutableType.AddInterface (typeof (IInterfaceWithMethod));
+            var mutableMethodInfo = mutableType.AddMethod (
+                "DifferentName",
+                MethodAttributes.Private | MethodAttributes.Virtual,
+                typeof (string),
+                ParameterDeclaration.EmptyParameters,
+                ctx =>
+                {
+                  //Assert.That (ctx.HasBaseMethod, Is.False);
+                  //return ExpressionHelper.StringConcat (Expression.Constant ("explicitly implemented"));
+                  return Expression.Default (typeof (string));
+                });
+            //mutableType.AddExplicitOverride (interfaceMethod, mutableMethodInfo);
+            //Assert.That (mutableType.AddedExplicitOverrides[interfaceMethod], Is.SameAs (mutableMethodInfo));
+            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
+            CheckMemberEquality (mutableMethodInfo, mutableMethodInfo.GetBaseDefinition ());
+          });
+
+      var instance = (OriginalType) Activator.CreateInstance (type);
+      Assert.That (instance, Is.AssignableTo<IInterfaceWithMethod>());
+
+      var method = GetDeclaredMethod (type, "DifferentName");
+
+      // Reflection doesn't handle explicit overrides in GetBaseDefinition.
+      // If this changes, MutableMethodInfo.GetBaseDefinition() must be changed as well.
+      CheckMemberEquality (method, method.GetBaseDefinition ());
+
+      var result = method.Invoke (instance, null);
+      Assert.That (result, Is.EqualTo ("explicitly implemented"));
+      Assert.That (((IInterfaceWithMethod) instance).Method (), Is.EqualTo ("explicitly implemented"));
+    }
+
     public class OriginalType : IOriginalInterface
     {
     }
@@ -42,6 +85,11 @@ namespace TypePipe.IntegrationTests
 
     public interface IMarkerInterface
     {
+    }
+
+    public interface IInterfaceWithMethod
+    {
+      string Method ();
     }
   }
 }

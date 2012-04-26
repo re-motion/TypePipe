@@ -46,6 +46,7 @@ namespace TypePipe.IntegrationTests
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall(), Expression.Constant (" shadowed"));
                   return Expression.Default(typeof(string));
                 });
+            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
           });
 
@@ -76,6 +77,7 @@ namespace TypePipe.IntegrationTests
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall(), Expression.Constant (" shadowed"));
                   return Expression.Default (typeof (string));
                 });
+            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.SameAs (mutableMethodInfo));
           });
 

@@ -46,7 +46,8 @@ namespace TypePipe.IntegrationTests
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden"));
                   return Expression.Default (typeof (string));
                 });
-            CheckMemberEquality (overriddenMethod, mutableMethodInfo.GetBaseDefinition());
+            //CheckMemberEquality (overriddenMethod, mutableMethodInfo.BaseMethod);
+            CheckMemberEquality (overriddenMethod, mutableMethodInfo.GetBaseDefinition ());
           });
 
       var instance = (B) Activator.CreateInstance (type);
@@ -78,6 +79,7 @@ namespace TypePipe.IntegrationTests
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod, ctx.Parameters), Expression.Constant (" overridden"));
                   return Expression.Default (typeof (string));
                 });
+            //CheckMemberEquality (overriddenMethod, mutableMethodInfo.BaseMethod);
             CheckMemberEquality (overriddenMethod, mutableMethodInfo.GetBaseDefinition ());
           });
 
@@ -99,6 +101,7 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethodInfo = mutableType.ExistingMutableMethods.Single (m => m.Name == "MethodOverriddenByB");
+            //CheckMemberEquality (overriddenMethod, mutableMethodInfo.BaseMethod);
             CheckMemberEquality (overriddenMethod, mutableMethodInfo.GetBaseDefinition ());
             mutableMethodInfo.SetBody(ctx =>
                 {
@@ -143,7 +146,8 @@ namespace TypePipe.IntegrationTests
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden")));
                   return Expression.Default (typeof (string));
                 });
-            CheckMemberEquality (overriddenMethodInA, mutableMethodInfo.GetBaseDefinition());
+            //CheckMemberEquality (overriddenMethodInB, mutableMethodInfo.BaseMethod);
+            CheckMemberEquality (overriddenMethodInA, mutableMethodInfo.GetBaseDefinition ());
           });
 
       A instance = (C) Activator.CreateInstance (type);
