@@ -395,13 +395,13 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     protected override ConstructorInfo GetConstructorImpl (
-        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
       var candidates = GetConstructors (bindingAttr);
       if (candidates.Length == 0)
         return null;
 
-      return (ConstructorInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, types, modifiers);
+      return (ConstructorInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     protected override MethodInfo GetMethodImpl (
@@ -409,14 +409,14 @@ namespace Remotion.TypePipe.MutableReflection
         BindingFlags bindingAttr,
         Binder binderOrNull,
         CallingConventions callConvention,
-        Type[] types,
-        ParameterModifier[] modifiers)
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
     {
       var candidates = GetMethods (bindingAttr).Where (m => m.Name == name).ToArray();
       if (candidates.Length == 0)
         return null;
 
-      return (MethodInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, types ?? EmptyTypes, modifiers);
+      return (MethodInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     private MethodBase SafeSelectMethod (
@@ -424,8 +424,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
+      var types = typesOrNull ?? EmptyTypes;
 
-      return binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      return binder.SelectMethod (bindingAttr, candidates, types, modifiersOrNull);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
