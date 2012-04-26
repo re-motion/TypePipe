@@ -603,15 +603,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 4812")]
     public void AddMethod_AllowsShadowing ()
     {
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
+      var baseMethod = _mutableType.GetMethod ("ToString");
+      Assert.That (baseMethod, Is.Not.Null);
+      Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
 
       _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string"));
 
-      Assert.That (_mutableType.GetMethods().Where (m => m.Name == "ToString").Count(), Is.EqualTo (2));
+      var newMethod = _mutableType.GetMethod ("ToString");
+      Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
+      Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
     }
 
     [Test]

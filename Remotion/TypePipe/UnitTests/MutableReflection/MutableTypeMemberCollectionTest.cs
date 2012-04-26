@@ -94,6 +94,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 4812")]
+    public void GetEnumerator_FiltersShadowedMembers ()
+    {
+      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
+      var existingBaseMember = _collection.ExistingBaseMembers.First();
+
+      var addedMember = CreateShadowingMutableMember (existingBaseMember);
+      _collection.Add (addedMember);
+
+      Assert.That (_collection.AddedMembers, Has.Count.EqualTo (1));
+      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
+
+      IEnumerable<MethodInfo> enumerable = _collection;
+
+      Assert.That (enumerable, Has.Member (addedMember));
+      Assert.That (enumerable, Has.No.Member (existingBaseMember));
+    }
+
+    [Test]
     public void GetMutableMember_MutableMethodInfo ()
     {
       var mutableMember = CreateMutableMember();
@@ -161,6 +180,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableMethodInfo CreateMutableMember ()
     {
       return MutableMethodInfoObjectMother.Create (declaringType: _declaringType);
+    }
+
+    private MutableMethodInfo CreateShadowingMutableMember (MethodInfo shadowedMember)
+    {
+      return MutableMethodInfoObjectMother.Create (
+          declaringType: _declaringType,
+          name: shadowedMember.Name,
+          returnType: shadowedMember.ReturnType,
+          parameterDeclarations: ParameterDeclaration.CreateForEquivalentSignature (shadowedMember));
     }
 
     public class DomainType
