@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -33,7 +32,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableTypeTest
   {
     private UnderlyingTypeDescriptor _descriptor;
-    private IEqualityComparer<MemberInfo> _memberInfoEqualityComparerStub;
     private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
 
     private MutableType _mutableType;
@@ -42,10 +40,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create(originalType: typeof (DomainType));
-      _memberInfoEqualityComparerStub = MockRepository.GenerateStub<IEqualityComparer<MemberInfo>>();
       _bindingFlagsEvaluatorMock = MockRepository.GenerateMock<IBindingFlagsEvaluator>();
 
-      _mutableType = new MutableType (_descriptor, _memberInfoEqualityComparerStub, _bindingFlagsEvaluatorMock);
+      _mutableType = new MutableType (_descriptor, _bindingFlagsEvaluatorMock);
     }
 
     [Test]
@@ -364,23 +361,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Field with equal name and signature already exists.\r\nParameter name: name")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
-      var field = _descriptor.Fields.First();
-      _memberInfoEqualityComparerStub
-          .Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
-          .Return (true);
-
+      var field = _descriptor.Fields.Single();
       _mutableType.AddField (field.FieldType, field.Name, FieldAttributes.Private);
     }
 
     [Test]
     public void AddField_ReliesOnFieldSignature ()
     {
-      var field = _descriptor.Fields.First ();
-      _memberInfoEqualityComparerStub
-          .Stub (stub => stub.Equals (Arg<FieldInfo>.Is.Anything, Arg<FieldInfo>.Is.Anything))
-          .Return (false);
+      var field = _descriptor.Fields.Single();
+      Assert.That (field.FieldType, Is.Not.SameAs (typeof (string)));
 
-      _mutableType.AddField (field.FieldType, field.Name, FieldAttributes.Private);
+      _mutableType.AddField (typeof (string), field.Name, FieldAttributes.Private);
 
       Assert.That (_mutableType.AddedFields, Has.Count.EqualTo (1));
     }
@@ -495,10 +486,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
       Assert.That (_mutableType.ExistingMutableConstructors.Single ().GetParameters (), Is.Empty);
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
       _mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, context => Expression.Empty());
     }
@@ -611,10 +598,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method, Is.Not.Null);
       Assert.That (method.ReturnType, Is.SameAs(typeof(void)));
       Assert.That (method.GetParameters(), Is.Empty);
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
       _mutableType.AddMethod ("PublicMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
     }
@@ -625,9 +608,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
-      _memberInfoEqualityComparerStub.Stub (stub => stub.Equals (Arg<MemberInfo>.Is.Anything, Arg<MemberInfo>.Is.Anything)).Return (true);
 
       _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string"));
+
       Assert.That (_mutableType.GetMethods().Where (m => m.Name == "ToString").Count(), Is.EqualTo (2));
     }
 
@@ -687,7 +670,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
       var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single();
-      var addedConstructorInfo = AddConstructor (_mutableType);
+      var addedConstructorInfo = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
 
       Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
       var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single();
@@ -715,7 +698,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var modifiedExistingConstructorInfo = _mutableType.ExistingMutableConstructors.First();
       MutableConstructorInfoTestHelper.ModifyConstructor (modifiedExistingConstructorInfo);
 
-      var modifiedAddedConstructorInfo = AddConstructor (_mutableType);
+      var modifiedAddedConstructorInfo = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
       MutableConstructorInfoTestHelper.ModifyConstructor (modifiedAddedConstructorInfo);
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeMemberHandler> ();
@@ -930,7 +913,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class DomainType : IDomainInterface
     {
+// ReSharper disable UnaccessedField.Global
       protected int ProtectedField;
+// ReSharper restore UnaccessedField.Global
 
       public DomainType ()
       {

@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using System.Linq;
@@ -38,7 +39,6 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : Type
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
-    private readonly IEqualityComparer<MemberInfo> _memberInfoEqualityComparer;
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
@@ -49,15 +49,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
-      IEqualityComparer<MemberInfo> memberInfoEqualityComparer,
       IBindingFlagsEvaluator bindingFlagsEvaluator)
     {
       ArgumentUtility.CheckNotNull ("underlyingTypeDescriptor", underlyingTypeDescriptor);
-      ArgumentUtility.CheckNotNull ("memberInfoEqualityComparer", memberInfoEqualityComparer);
       ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
 
       _underlyingTypeDescriptor = underlyingTypeDescriptor;
-      _memberInfoEqualityComparer = memberInfoEqualityComparer;
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
@@ -212,11 +209,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
+      var signature = new FieldSignature (type);
+      if (AllMutableFields.Any (field => field.Name == name && FieldSignature.Create (field).Equals (signature)))
+        throw new ArgumentException ("Field with equal name and signature already exists.", "name");
+
       var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
       var fieldInfo = new MutableFieldInfo (this, descriptor);
-
-      if (AllMutableFields.Any (field => field.Name == name && _memberInfoEqualityComparer.Equals(field, fieldInfo)))
-        throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
       _fields.Add (fieldInfo);
 
@@ -254,16 +252,17 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
-      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
 
+      var signature = new MethodSignature (typeof (void), parameterDeclarationCollection.Select (pd => pd.Type), 0);
+      if (AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
+        throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
+      
+      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var context = new ConstructorBodyCreationContext (this, parameterExpressions);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
       
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
-
-      if (AllMutableConstructors.Any (ctor => _memberInfoEqualityComparer.Equals(ctor, constructorInfo)))
-        throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       _constructors.Add (constructorInfo);
 
@@ -295,20 +294,21 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
-      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
 
+      var signature = new MethodSignature (returnType, parameterDeclarationCollection.Select (pd => pd.Type), 0);
+      if (AllMutableMethods.Where (m => m.Name == name).Any (method => signature.Equals (MethodSignature.Create (method))))
+      {
+        var message = string.Format ("Method '{0}' with equal signature already exists.", name);
+        throw new ArgumentException (message, "name");
+      }
+
+      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarationCollection, false, false, false, body);
       var methodInfo = new MutableMethodInfo (this, descriptor);
-
-      if (AllMutableMethods.Where (m => m.Name == name).Any (method => _memberInfoEqualityComparer.Equals (method, methodInfo)))
-      {
-        var message = string.Format ("Method '{0}' with equal signature already exists.", name);
-        throw new ArgumentException (message, "name");
-      }
 
       _methods.Add (methodInfo);
 

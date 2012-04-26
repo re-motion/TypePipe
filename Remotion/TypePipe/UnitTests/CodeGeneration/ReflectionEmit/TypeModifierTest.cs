@@ -17,8 +17,6 @@
 using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Reflection;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -37,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (ClassWithMembers));
       var mutableTypePartialMock = MockRepository.GeneratePartialMock<MutableType> (
           descriptor,
-          new MemberSignatureEqualityComparer (),
           new BindingFlagsEvaluator ());
 
       var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder>();

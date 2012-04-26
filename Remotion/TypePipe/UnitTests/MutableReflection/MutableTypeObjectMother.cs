@@ -15,10 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Remotion.Reflection;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -27,12 +23,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static MutableType Create (
         UnderlyingTypeDescriptor underlyingTypeDescriptor = null,
-        IEqualityComparer<MemberInfo> memberInfoEqualityComparer = null,
         IBindingFlagsEvaluator bindingFlagsEvaluator = null)
     {
       return new MutableType (
           underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create(),
-          memberInfoEqualityComparer ?? new MemberSignatureEqualityComparer(),
           bindingFlagsEvaluator ?? new BindingFlagsEvaluator());
     }
 
