@@ -24,6 +24,15 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
   public class EventSignatureTest
   {
     [Test]
+    public void Create ()
+    {
+      var eventInfo = typeof (AppDomain).GetEvent ("AssemblyResolve");
+      var signature = EventSignature.Create (eventInfo);
+
+      Assert.That (signature.EventHandlerType, Is.SameAs (typeof (ResolveEventHandler)));
+    }
+
+    [Test]
     public new void ToString ()
     {
       var signature = new EventSignature (typeof (EventHandler));

@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Reflection.MemberSignatures;
 
@@ -23,6 +24,16 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
   [TestFixture]
   public class PropertySignatureTest
   {
+    [Test]
+    public void Create ()
+    {
+      var property = typeof (Dictionary<int,string>).GetProperty ("Item");
+      var signature = PropertySignature.Create (property);
+
+      Assert.That (signature.PropertyType, Is.SameAs (typeof (string)));
+      Assert.That (signature.IndexParameterTypes, Is.EqualTo (new[] { typeof (int) }));
+    }
+
     [Test]
     public void ToString_WithIndexParameters ()
     {

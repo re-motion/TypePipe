@@ -40,6 +40,17 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     }
 
     [Test]
+    public void Create_NonGenericMethod ()
+    {
+      var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.Equals(null));
+      var signature = MethodSignature.Create (method);
+
+      Assert.That (signature.ReturnType, Is.SameAs (typeof (bool)));
+      Assert.That (signature.GenericParameterCount, Is.EqualTo (0));
+      Assert.That (signature.ParameterTypes, Is.EqualTo (new[] { typeof (object) }));
+    }
+
+    [Test]
     public void Create_OpenGenericMethod ()
     {
       var signature = MethodSignature.Create (_genericMethod1);

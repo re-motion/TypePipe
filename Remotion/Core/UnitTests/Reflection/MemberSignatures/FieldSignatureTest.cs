@@ -17,12 +17,22 @@
 using System;
 using NUnit.Framework;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
   [TestFixture]
   public class FieldSignatureTest
   {
+    [Test]
+    public void Create ()
+    {
+      var field = MemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
+      var signature = FieldSignature.Create (field);
+
+      Assert.That (signature.FieldType, Is.SameAs (typeof(Type[])));
+    }
+
     [Test]
     public new void ToString ()
     {
