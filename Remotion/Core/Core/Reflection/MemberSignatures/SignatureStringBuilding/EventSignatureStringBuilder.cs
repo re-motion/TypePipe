@@ -15,7 +15,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System.Reflection;
-using System.Text;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
@@ -38,8 +37,6 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
   /// </remarks>
   public class EventSignatureStringBuilder : IMemberSignatureStringBuilder
   {
-    private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
-
     public string BuildSignatureString (EventInfo eventInfo)
     {
       ArgumentUtility.CheckNotNull ("eventInfo", eventInfo);
@@ -52,9 +49,7 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("eventSignature", eventSignature);
 
-      var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, eventSignature.EventHandlerType);
-      return sb.ToString ();
+      return eventSignature.ToString();
     }
 
     string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)

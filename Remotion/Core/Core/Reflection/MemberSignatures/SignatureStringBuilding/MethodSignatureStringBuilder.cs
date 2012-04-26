@@ -16,9 +16,7 @@
 // 
 using System;
 using System.Reflection;
-using System.Text;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
 {
@@ -44,8 +42,6 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
   /// </remarks>
   public class MethodSignatureStringBuilder : IMemberSignatureStringBuilder
   {
-    private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
-
     public string BuildSignatureString (MethodBase methodBase)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
@@ -60,18 +56,7 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("methodSignature", methodSignature);
 
-      var sb = new StringBuilder ();
-
-      _helper.AppendTypeString (sb, methodSignature.ReturnType);
-
-      sb.Append ("(");
-      _helper.AppendSeparatedTypeStrings (sb, methodSignature.ParameterTypes);
-      sb.Append (")");
-
-      if (methodSignature.GenericParameterCount > 0)
-        sb.Append ("`").Append (methodSignature.GenericParameterCount);
-
-      return sb.ToString ();
+      return methodSignature.ToString();
     }
 
     string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
