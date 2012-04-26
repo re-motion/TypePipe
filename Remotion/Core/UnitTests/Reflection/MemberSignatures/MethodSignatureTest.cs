@@ -34,9 +34,9 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [SetUp]
     public void SetUp ()
     {
-      _genericMethod1 = MemberInfoFromExpressionUtility.GetMethod ((ClassWithGenericMethods c) => c.M1<Dev.T, Dev.T> (null)).GetGenericMethodDefinition ();
-      _genericMethod2 = MemberInfoFromExpressionUtility.GetMethod ((ClassWithGenericMethods c) => c.M2<Dev.T, Dev.T> (null)).GetGenericMethodDefinition ();
-      _genericMethod3 = MemberInfoFromExpressionUtility.GetMethod ((ClassWithGenericMethods c) => c.M3<Dev.T, Dev.T> (null)).GetGenericMethodDefinition ();
+      _genericMethod1 = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M1<Dev.T, Dev.T> (null));
+      _genericMethod2 = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M2<Dev.T, Dev.T> (null));
+      _genericMethod3 = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M3<Dev.T, Dev.T> (null));
     }
 
     [Test]
