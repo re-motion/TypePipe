@@ -64,14 +64,14 @@ namespace Remotion.Reflection.MemberSignatures
       return Equals(other);
     }
 
-    public override int GetHashCode ()
-    {
-      return EventHandlerType.GetHashCode();
-    }
-
     bool IEquatable<IMemberSignature>.Equals (IMemberSignature other)
     {
       return Equals (other);
+    }
+
+    public override int GetHashCode ()
+    {
+      return EventHandlerType.GetHashCode();
     }
   }
 }
