@@ -19,8 +19,8 @@ using System;
 namespace Remotion.Reflection.MemberSignatures
 {
   /// <summary>
-  /// Defines a common interface member equatable signatures, that is <see cref="MethodSignature"/>, <see cref="FieldSignature"/>,
-  /// <see cref="PropertySignature"/> and <see cref="EventSignature"/>.
+  /// Defines a common interface for equatable member signatures.
+  /// That is <see cref="MethodSignature"/>, <see cref="FieldSignature"/>, <see cref="PropertySignature"/> and <see cref="EventSignature"/>.
   /// </summary>
   public interface IMemberSignature : IEquatable<IMemberSignature>
   {
