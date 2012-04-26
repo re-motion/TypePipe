@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -42,6 +43,11 @@ namespace Remotion.Reflection.MemberSignatures
     public Type EventHandlerType
     {
       get { return _eventHandlerType; }
+    }
+
+    public override string ToString ()
+    {
+      return new EventSignatureStringBuilder().BuildSignatureString (this);
     }
   }
 }

@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -41,6 +42,11 @@ namespace Remotion.Reflection.MemberSignatures
     public Type FieldType
     {
       get { return _fieldType; }
+    }
+
+    public override string ToString ()
+    {
+      return new FieldSignatureStringBuilder ().BuildSignatureString (this);
     }
   }
 }

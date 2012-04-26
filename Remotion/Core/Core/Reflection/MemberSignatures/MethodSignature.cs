@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -78,5 +79,9 @@ namespace Remotion.Reflection.MemberSignatures
       get { return _genericParameterCount; }
     }
 
+    public override string ToString ()
+    {
+      return new MethodSignatureStringBuilder ().BuildSignatureString (this);
+    }
   }
 }

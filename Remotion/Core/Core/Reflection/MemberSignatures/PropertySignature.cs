@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -58,6 +59,11 @@ namespace Remotion.Reflection.MemberSignatures
     public IEnumerable<Type> IndexParameterTypes
     {
       get { return _indexParameterTypes; }
+    }
+
+    public override string ToString ()
+    {
+      return new PropertySignatureStringBuilder ().BuildSignatureString (this);
     }
   }
 }
