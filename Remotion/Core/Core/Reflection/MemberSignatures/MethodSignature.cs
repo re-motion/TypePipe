@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
@@ -28,6 +29,8 @@ namespace Remotion.Reflection.MemberSignatures
   /// </summary>
   public class MethodSignature
   {
+    private static readonly MemberSignatureStringBuilderHelper s_helper = new MemberSignatureStringBuilderHelper();
+
     public static MethodSignature Create (MethodBase methodBase)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
@@ -84,7 +87,18 @@ namespace Remotion.Reflection.MemberSignatures
 
     public override string ToString ()
     {
-      return new MethodSignatureStringBuilder ().BuildSignatureString (this);
+      var sb = new StringBuilder ();
+
+      s_helper.AppendTypeString (sb, ReturnType);
+
+      sb.Append ("(");
+      s_helper.AppendSeparatedTypeStrings (sb, ParameterTypes);
+      sb.Append (")");
+
+      if (GenericParameterCount > 0)
+        sb.Append ("`").Append (GenericParameterCount);
+
+      return sb.ToString ();
     }
   }
 }
