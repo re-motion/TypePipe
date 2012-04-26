@@ -94,22 +94,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4812")]
-    public void GetEnumerator_FiltersShadowedMembers ()
+    public void GetEnumerator_FiltersBaseMembersWithSameNameAndSignature ()
     {
       Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
       var existingBaseMember = _collection.ExistingBaseMembers.First();
 
-      var addedMember = CreateShadowingMutableMember (existingBaseMember);
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (existingBaseMember);
+      var addedMember = CreateMutableMember (existingBaseMember.Name, existingBaseMember.ReturnType, parameterDeclarations);
       _collection.Add (addedMember);
 
-      Assert.That (_collection.AddedMembers, Has.Count.EqualTo (1));
-      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
-
       IEnumerable<MethodInfo> enumerable = _collection;
-
       Assert.That (enumerable, Has.Member (addedMember));
       Assert.That (enumerable, Has.No.Member (existingBaseMember));
+    }
+
+    [Test]
+    public void GetEnumerator_DoesNotFilterMembersWithSameName()
+    {
+      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
+      var existingBaseMember = _collection.ExistingBaseMembers.First();
+
+      var addedMember = CreateMutableMember (name: existingBaseMember.Name);
+      _collection.Add (addedMember);
+
+      IEnumerable<MethodInfo> enumerable = _collection;
+      Assert.That (enumerable, Has.Member (addedMember));
+      Assert.That (enumerable, Has.Member (existingBaseMember));
+    }
+
+    [Test]
+    public void GetEnumerator_DoesNotFilterMembersWithSameSignature ()
+    {
+      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
+      var existingBaseMember = _collection.ExistingBaseMembers.First ();
+
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (existingBaseMember);
+      var addedMember = CreateMutableMember (returnType: existingBaseMember.ReturnType, parameterDeclarations: parameterDeclarations);
+      _collection.Add (addedMember);
+
+      IEnumerable<MethodInfo> enumerable = _collection;
+      Assert.That (enumerable, Has.Member (addedMember));
+      Assert.That (enumerable, Has.Member (existingBaseMember));
     }
 
     [Test]
@@ -177,18 +202,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _collection.Add (mutableMember);
     }
 
-    private MutableMethodInfo CreateMutableMember ()
-    {
-      return MutableMethodInfoObjectMother.Create (declaringType: _declaringType);
-    }
-
-    private MutableMethodInfo CreateShadowingMutableMember (MethodInfo shadowedMember)
+    private MutableMethodInfo CreateMutableMember (
+        string name = "UnspecifiedMember",
+        Type returnType = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null)
     {
       return MutableMethodInfoObjectMother.Create (
           declaringType: _declaringType,
-          name: shadowedMember.Name,
-          returnType: shadowedMember.ReturnType,
-          parameterDeclarations: ParameterDeclaration.CreateForEquivalentSignature (shadowedMember));
+          name: name,
+          returnType: returnType,
+          parameterDeclarations: parameterDeclarations);
     }
 
     public class DomainType
