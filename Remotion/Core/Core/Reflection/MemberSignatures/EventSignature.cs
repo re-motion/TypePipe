@@ -23,7 +23,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents an event signature and allows signatures to be compared to each other.
   /// </summary>
-  public class EventSignature : IEquatable<EventSignature>
+  public class EventSignature : IMemberSignature, IEquatable<EventSignature>
   {
     public static EventSignature Create (EventInfo eventInfo)
     {
@@ -67,6 +67,11 @@ namespace Remotion.Reflection.MemberSignatures
     public override int GetHashCode ()
     {
       return EventHandlerType.GetHashCode();
+    }
+
+    bool IEquatable<IMemberSignature>.Equals (IMemberSignature other)
+    {
+      return Equals (other);
     }
   }
 }

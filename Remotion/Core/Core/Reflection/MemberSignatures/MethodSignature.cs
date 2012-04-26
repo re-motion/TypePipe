@@ -27,7 +27,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents a method signature and allows signatures to be compared to each other.
   /// </summary>
-  public class MethodSignature
+  public class MethodSignature : IMemberSignature, IEquatable<MethodSignature>
   {
     private static readonly MemberSignatureStringBuilderHelper s_helper = new MemberSignatureStringBuilderHelper();
 
@@ -119,6 +119,11 @@ namespace Remotion.Reflection.MemberSignatures
     public override int GetHashCode ()
     {
       return ToString().GetHashCode();
+    }
+
+    bool IEquatable<IMemberSignature>.Equals (IMemberSignature other)
+    {
+      return Equals (other);
     }
   }
 }

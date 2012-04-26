@@ -23,7 +23,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents a field signature and allows signatures to be compared to each other.
   /// </summary>
-  public class FieldSignature : IEquatable<FieldSignature>
+  public class FieldSignature : IMemberSignature, IEquatable<FieldSignature>
   {
     public static FieldSignature Create (FieldInfo fieldInfo)
     {
@@ -66,6 +66,11 @@ namespace Remotion.Reflection.MemberSignatures
     public override int GetHashCode ()
     {
       return FieldType.GetHashCode ();
+    }
+
+    bool IEquatable<IMemberSignature>.Equals (IMemberSignature other)
+    {
+      return Equals (other);
     }
   }
 }

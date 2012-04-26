@@ -27,7 +27,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents a property signature and allows signatures to be compared to each other.
   /// </summary>
-  public class PropertySignature : IEquatable<PropertySignature>
+  public class PropertySignature : IMemberSignature, IEquatable<PropertySignature>
   {
     public static PropertySignature Create (PropertyInfo propertyInfo)
     {
@@ -85,6 +85,11 @@ namespace Remotion.Reflection.MemberSignatures
     public override int GetHashCode ()
     {
       return PropertyType.GetHashCode() ^ EqualityUtility.GetRotatedHashCode (IndexParameterTypes);
+    }
+
+    bool IEquatable<IMemberSignature>.Equals (IMemberSignature other)
+    {
+      return Equals (other);
     }
   }
 }
