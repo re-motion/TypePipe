@@ -304,9 +304,7 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarationCollection, false, false, false, body);
       var methodInfo = new MutableMethodInfo (this, descriptor);
 
-      if (AllMutableMethods
-          .Where (m => m.UnderlyingSystemMethodInfo.DeclaringType == UnderlyingSystemType && m.Name == name)
-          .Any (method => _memberInfoEqualityComparer.Equals (method, methodInfo)))
+      if (AllMutableMethods.Where (m => m.Name == name).Any (method => _memberInfoEqualityComparer.Equals (method, methodInfo)))
       {
         var message = string.Format ("Method '{0}' with equal signature already exists.", name);
         throw new ArgumentException (message, "name");
