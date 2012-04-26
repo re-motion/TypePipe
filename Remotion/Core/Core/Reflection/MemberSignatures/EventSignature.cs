@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -24,7 +23,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents an event signature and allows signatures to be compared to each other.
   /// </summary>
-  public class EventSignature
+  public class EventSignature : IEquatable<EventSignature>
   {
     public static EventSignature Create (EventInfo eventInfo)
     {
@@ -47,7 +46,27 @@ namespace Remotion.Reflection.MemberSignatures
 
     public override string ToString ()
     {
-      return new EventSignatureStringBuilder().BuildSignatureString (this);
+      return _eventHandlerType.ToString();
+    }
+
+    public virtual bool Equals (EventSignature other)
+    {
+      return !ReferenceEquals (other, null) 
+          && EventHandlerType == other.EventHandlerType;
+    }
+
+    public sealed override bool Equals (object obj)
+    {
+      if (obj == null || obj.GetType() != GetType())
+        return false;
+
+      var other = (EventSignature) obj;
+      return Equals(other);
+    }
+
+    public override int GetHashCode ()
+    {
+      return EventHandlerType.GetHashCode();
     }
   }
 }

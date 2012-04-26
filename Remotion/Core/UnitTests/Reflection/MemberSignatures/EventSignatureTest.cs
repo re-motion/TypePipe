@@ -30,5 +30,47 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
 
       Assert.That (signature.ToString(), Is.EqualTo ("System.EventHandler"));
     }
+
+    [Test]
+    public void Equals_True ()
+    {
+      var signature1 = new EventSignature (typeof (Action));
+      var signature2 = new EventSignature (typeof (Action));
+
+      Assert.That (signature1.Equals (signature2), Is.True);
+    }
+
+    [Test]
+    public void Equals_False ()
+    {
+      var signature = new EventSignature (typeof (Action));
+      Assert.That (signature.Equals (null), Is.False);
+
+      var signatureWithDifferentEventHandlerType = new EventSignature (typeof (EventHandler));
+      Assert.That (signature.Equals (signatureWithDifferentEventHandlerType), Is.False);
+    }
+
+    [Test]
+    public void Equals_Object ()
+    {
+      var signature = new EventSignature (typeof (Action));
+
+      object otherSignatureAsObject = new EventSignature (typeof (Action));
+      Assert.That (signature.Equals (otherSignatureAsObject), Is.True);
+
+      Assert.That (signature.Equals ((object) null), Is.False);
+
+      object completelyUnrelatedObject = new object ();
+      Assert.That (signature.Equals (completelyUnrelatedObject), Is.False);
+    }
+
+    [Test]
+    public void GetHashCode_ForEqualObjects ()
+    {
+      var signature1 = new EventSignature (typeof (Action));
+      var signature2 = new EventSignature (typeof (Action));
+
+      Assert.That (signature1.GetHashCode(), Is.EqualTo (signature2.GetHashCode()));
+    }
   }
 }

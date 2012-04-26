@@ -24,11 +24,64 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
   public class PropertySignatureTest
   {
     [Test]
-    public new void ToString ()
+    public void ToString_WithIndexParameters ()
     {
-      var signature = new PropertySignature (typeof (string), new[] { typeof (double) });
+      var signature = new PropertySignature (typeof (string), new[] { typeof (double), typeof (int) });
 
-      Assert.That (signature.ToString(), Is.EqualTo ("System.String(System.Double)"));
+      Assert.That (signature.ToString(), Is.EqualTo ("System.String(System.Double,System.Int32)"));
+    }
+
+    [Test]
+    public void ToString_WithoutIndexParameters ()
+    {
+      var signature = new PropertySignature (typeof (string), Type.EmptyTypes);
+
+      Assert.That (signature.ToString (), Is.EqualTo ("System.String()"));
+    }
+
+    [Test]
+    public void Equals_True ()
+    {
+      var signature1 = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+      var signature2 = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+
+      Assert.That (signature1.Equals (signature2), Is.True);
+    }
+
+    [Test]
+    public void Equals_False ()
+    {
+      var signature = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+      Assert.That (signature.Equals (null), Is.False);
+
+      var signatureWithDifferentPropertyType = new PropertySignature (typeof (string), new[] { typeof (double), typeof (string) });
+      Assert.That (signature.Equals (signatureWithDifferentPropertyType), Is.False);
+
+      var signatureWithDifferentIndexParameters = new PropertySignature (typeof (int), new[] { typeof (string), typeof (double) });
+      Assert.That (signature.Equals (signatureWithDifferentIndexParameters), Is.False);
+    }
+
+    [Test]
+    public void Equals_Object ()
+    {
+      var signature = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+
+      object otherSignatureAsObject = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+      Assert.That (signature.Equals (otherSignatureAsObject), Is.True);
+
+      Assert.That (signature.Equals ((object) null), Is.False);
+
+      object completelyUnrelatedObject = new object ();
+      Assert.That (signature.Equals (completelyUnrelatedObject), Is.False);
+    }
+
+    [Test]
+    public void GetHashCode_ForEqualObjects ()
+    {
+      var signature1 = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+      var signature2 = new PropertySignature (typeof (int), new[] { typeof (double), typeof (string) });
+
+      Assert.That (signature1.GetHashCode (), Is.EqualTo (signature2.GetHashCode ()));
     }
   }
 }

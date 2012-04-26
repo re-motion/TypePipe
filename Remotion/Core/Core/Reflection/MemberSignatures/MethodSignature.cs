@@ -32,6 +32,9 @@ namespace Remotion.Reflection.MemberSignatures
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
 
+      if (methodBase.IsGenericMethod && !methodBase.IsGenericMethodDefinition)
+        throw new ArgumentException ("Closed generic methods are not supported.", "methodBase");
+
       var returnType = GetReturnType (methodBase);
       var parameterTypes = methodBase.GetParameters ().Select (p => p.ParameterType);
       var genericParameterCount = methodBase.IsGenericMethod ? methodBase.GetGenericArguments ().Length : 0;

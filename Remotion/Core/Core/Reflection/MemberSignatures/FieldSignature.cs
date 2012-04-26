@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -24,7 +23,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents a field signature and allows signatures to be compared to each other.
   /// </summary>
-  public class FieldSignature
+  public class FieldSignature : IEquatable<FieldSignature>
   {
     public static FieldSignature Create (FieldInfo fieldInfo)
     {
@@ -46,7 +45,27 @@ namespace Remotion.Reflection.MemberSignatures
 
     public override string ToString ()
     {
-      return new FieldSignatureStringBuilder ().BuildSignatureString (this);
+      return FieldType.ToString();
+    }
+
+    public virtual bool Equals (FieldSignature other)
+    {
+      return !ReferenceEquals (other, null)
+          && FieldType == other.FieldType;
+    }
+
+    public sealed override bool Equals (object obj)
+    {
+      if (obj == null || obj.GetType () != GetType ())
+        return false;
+
+      var other = (FieldSignature) obj;
+      return Equals (other);
+    }
+
+    public override int GetHashCode ()
+    {
+      return FieldType.GetHashCode ();
     }
   }
 }

@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
+using Remotion.Text;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -27,7 +27,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents a property signature and allows signatures to be compared to each other.
   /// </summary>
-  public class PropertySignature
+  public class PropertySignature : IEquatable<PropertySignature>
   {
     public static PropertySignature Create (PropertyInfo propertyInfo)
     {
@@ -56,14 +56,35 @@ namespace Remotion.Reflection.MemberSignatures
       get { return _propertyType; }
     }
 
-    public IEnumerable<Type> IndexParameterTypes
+    public ReadOnlyCollection<Type> IndexParameterTypes
     {
       get { return _indexParameterTypes; }
     }
 
     public override string ToString ()
     {
-      return new PropertySignatureStringBuilder ().BuildSignatureString (this);
+      return string.Format ("{0}({1})", PropertyType, SeparatedStringBuilder.Build (",", IndexParameterTypes));
+    }
+
+    public virtual bool Equals (PropertySignature other)
+    {
+      return !ReferenceEquals (other, null)
+          && PropertyType == other.PropertyType
+          && IndexParameterTypes.SequenceEqual (other.IndexParameterTypes);
+    }
+
+    public sealed override bool Equals (object obj)
+    {
+      if (obj == null || obj.GetType () != GetType ())
+        return false;
+
+      var other = (PropertySignature) obj;
+      return Equals (other);
+    }
+
+    public override int GetHashCode ()
+    {
+      return PropertyType.GetHashCode() ^ EqualityUtility.GetRotatedHashCode (IndexParameterTypes);
     }
   }
 }

@@ -30,5 +30,47 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
 
       Assert.That (signature.ToString (), Is.EqualTo ("System.Int32"));
     }
+
+    [Test]
+    public void Equals_True ()
+    {
+      var signature1 = new FieldSignature (typeof (int));
+      var signature2 = new FieldSignature (typeof (int));
+
+      Assert.That (signature1.Equals (signature2), Is.True);
+    }
+
+    [Test]
+    public void Equals_False ()
+    {
+      var signature = new FieldSignature (typeof (int));
+      Assert.That (signature.Equals (null), Is.False);
+
+      var signatureWithDifferentFieldType = new FieldSignature (typeof (string));
+      Assert.That (signature.Equals (signatureWithDifferentFieldType), Is.False);
+    }
+
+    [Test]
+    public void Equals_Object ()
+    {
+      var signature = new FieldSignature (typeof (int));
+
+      object otherSignatureAsObject = new FieldSignature (typeof (int));
+      Assert.That (signature.Equals (otherSignatureAsObject), Is.True);
+
+      Assert.That (signature.Equals ((object) null), Is.False);
+
+      object completelyUnrelatedObject = new object ();
+      Assert.That (signature.Equals (completelyUnrelatedObject), Is.False);
+    }
+
+    [Test]
+    public void GetHashCode_ForEqualObjects ()
+    {
+      var signature1 = new FieldSignature (typeof (int));
+      var signature2 = new FieldSignature (typeof (int));
+
+      Assert.That (signature1.GetHashCode (), Is.EqualTo (signature2.GetHashCode ()));
+    }
   }
 }
