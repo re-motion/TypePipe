@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System;
 using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
@@ -45,15 +44,16 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("eventInfo", eventInfo);
 
-      return BuildSignatureString(eventInfo.EventHandlerType);
+      var eventSignature = EventSignature.Create (eventInfo);
+      return BuildSignatureString (eventSignature);
     }
 
-    public string BuildSignatureString (Type eventHandlerType)
+    public string BuildSignatureString (EventSignature eventSignature)
     {
-      ArgumentUtility.CheckNotNull ("eventHandlerType", eventHandlerType);
+      ArgumentUtility.CheckNotNull ("eventSignature", eventSignature);
 
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, eventHandlerType);
+      _helper.AppendTypeString (sb, eventSignature.EventHandlerType);
       return sb.ToString ();
     }
 

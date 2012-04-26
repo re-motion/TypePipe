@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
@@ -99,10 +100,11 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
     public void BuildSignatureString_ExplicitSignature_ZeroGenericParameterCount ()
     {
       var returnType = typeof (string);
-      var parameterTypes = new[] { typeof(int), typeof(DateTime) };
+      var parameterTypes = new[] { typeof (int), typeof (DateTime) };
       var genericParameterCount = 0;
+      var methodSignature = new MethodSignature (returnType, parameterTypes, genericParameterCount);
 
-      var signature = _builder.BuildSignatureString (returnType, parameterTypes, genericParameterCount);
+      var signature = _builder.BuildSignatureString (methodSignature);
 
       Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.DateTime)"));
     }
@@ -113,8 +115,9 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
       var returnType = typeof (string);
       var parameterTypes = new[] { typeof (int), typeof (DateTime) };
       var genericParameterCount = 7;
+      var methodSignature = new MethodSignature (returnType, parameterTypes, genericParameterCount);
 
-      var signature = _builder.BuildSignatureString (returnType, parameterTypes, genericParameterCount);
+      var signature = _builder.BuildSignatureString (methodSignature);
 
       Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.DateTime)`7"));
     }

@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using NUnit.Framework;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
@@ -44,7 +45,9 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
     public void BuildSignatureString_ExplicitSignature ()
     {
       var fieldType = typeof (string);
-      var signature = _builder.BuildSignatureString (fieldType);
+      var fieldSignature = new FieldSignature(fieldType);
+
+      var signature = _builder.BuildSignatureString (fieldSignature);
 
       Assert.That (signature, Is.EqualTo ("System.String"));
     }

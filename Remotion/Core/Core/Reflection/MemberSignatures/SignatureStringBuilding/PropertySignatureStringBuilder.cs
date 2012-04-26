@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
@@ -47,21 +44,18 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
 
-      var propertyType = propertyInfo.PropertyType;
-      var indexParameterTypes = propertyInfo.GetIndexParameters ().Select (p => p.ParameterType);
-
-      return BuildSignatureString(propertyType, indexParameterTypes);
+      var propertySignature = PropertySignature.Create(propertyInfo);
+      return BuildSignatureString (propertySignature);
     }
 
-    public string BuildSignatureString (Type propertyType, IEnumerable<Type> indexParameterTypes)
+    public string BuildSignatureString (PropertySignature propertySignature)
     {
-      ArgumentUtility.CheckNotNull ("propertyType", propertyType);
-      ArgumentUtility.CheckNotNull ("indexParameterTypes", indexParameterTypes);
+      ArgumentUtility.CheckNotNull ("propertySignature", propertySignature);
 
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, propertyType);
+      _helper.AppendTypeString (sb, propertySignature.PropertyType);
       sb.Append ("(");
-      _helper.AppendSeparatedTypeStrings (sb, indexParameterTypes);
+      _helper.AppendSeparatedTypeStrings (sb, propertySignature.IndexParameterTypes);
       sb.Append (")");
 
       return sb.ToString ();

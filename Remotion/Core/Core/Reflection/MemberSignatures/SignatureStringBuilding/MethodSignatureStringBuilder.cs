@@ -15,7 +15,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
@@ -53,28 +52,24 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
       if (methodBase.IsGenericMethod && !methodBase.IsGenericMethodDefinition)
         throw new ArgumentException ("Closed generic methods are not supported.", "methodBase");
 
-      var returnType = GetReturnType (methodBase);
-      var parameterTypes = methodBase.GetParameters().Select (p => p.ParameterType);
-      var genericParameterCount = methodBase.IsGenericMethod ? methodBase.GetGenericArguments().Length : 0;
-
-      return BuildSignatureString (returnType, parameterTypes, genericParameterCount);
+      var methodSignature = MethodSignature.Create (methodBase);
+      return BuildSignatureString (methodSignature);
     }
 
-    public string BuildSignatureString (Type returnType, IEnumerable<Type> parameterTypes, int genericParameterCount)
+    public string BuildSignatureString (MethodSignature methodSignature)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("methodSignature", methodSignature);
 
       var sb = new StringBuilder ();
 
-      _helper.AppendTypeString (sb, returnType);
+      _helper.AppendTypeString (sb, methodSignature.ReturnType);
 
       sb.Append ("(");
-      _helper.AppendSeparatedTypeStrings (sb, parameterTypes);
+      _helper.AppendSeparatedTypeStrings (sb, methodSignature.ParameterTypes);
       sb.Append (")");
 
-      if (genericParameterCount > 0)
-        sb.Append ("`").Append (genericParameterCount);
+      if (methodSignature.GenericParameterCount > 0)
+        sb.Append ("`").Append (methodSignature.GenericParameterCount);
 
       return sb.ToString ();
     }
@@ -82,18 +77,6 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
     string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
     {
       return BuildSignatureString ((MethodBase) memberInfo);
-    }
-
-    private Type GetReturnType (MethodBase methodBase)
-    {
-      var methodInfo = methodBase as MethodInfo;
-      if (methodInfo == null)
-      {
-        Assertion.IsTrue (methodBase is ConstructorInfo);
-        return typeof (void);
-      }
-
-      return methodInfo.ReturnType;
     }
   }
 }

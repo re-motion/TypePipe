@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System;
 using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
@@ -45,15 +44,16 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
-      return BuildSignatureString(fieldInfo.FieldType);
+      var fieldSignature = FieldSignature.Create(fieldInfo);
+      return BuildSignatureString(fieldSignature);
     }
 
-    public string BuildSignatureString (Type fieldType)
+    public string BuildSignatureString (FieldSignature fieldSignature)
     {
-      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
+      ArgumentUtility.CheckNotNull ("fieldSignature", fieldSignature);
 
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, fieldType);
+      _helper.AppendTypeString (sb, fieldSignature.FieldType);
       return sb.ToString();
     }
 

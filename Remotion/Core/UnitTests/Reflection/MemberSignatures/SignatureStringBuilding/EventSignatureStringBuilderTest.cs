@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
@@ -45,7 +46,9 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
     public void BuildSignatureString_ExplicitSignature ()
     {
       var eventHandlerType = typeof (EventHandler);
-      var signature = _builder.BuildSignatureString (eventHandlerType);
+      var eventSignature = new EventSignature (eventHandlerType);
+
+      var signature = _builder.BuildSignatureString (eventSignature);
 
       Assert.That (signature, Is.EqualTo ("System.EventHandler"));
     }

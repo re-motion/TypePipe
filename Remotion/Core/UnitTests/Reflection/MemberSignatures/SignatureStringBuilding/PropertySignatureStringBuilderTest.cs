@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
@@ -55,8 +56,9 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
     {
       var propertyType = typeof (int);
       var indexParameterTypes = Type.EmptyTypes;
+      var propertySignature = new PropertySignature(propertyType, indexParameterTypes);
 
-      var signature = _builder.BuildSignatureString (propertyType, indexParameterTypes);
+      var signature = _builder.BuildSignatureString (propertySignature);
 
       Assert.That (signature, Is.EqualTo ("System.Int32()"));
     }
@@ -66,8 +68,9 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
     {
       var propertyType = typeof (string);
       var indexParameterTypes = new[] { typeof (int), typeof (double) };
+      var propertySignature = new PropertySignature(propertyType, indexParameterTypes);
 
-      var signature = _builder.BuildSignatureString (propertyType, indexParameterTypes);
+      var signature = _builder.BuildSignatureString (propertySignature);
 
       Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.Double)"));
     }
