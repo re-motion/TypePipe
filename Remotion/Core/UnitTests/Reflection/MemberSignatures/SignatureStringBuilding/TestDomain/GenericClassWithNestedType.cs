@@ -14,12 +14,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System.Reflection;
-
-namespace Remotion.Reflection.SignatureStringBuilding
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain
 {
-  public interface IMemberSignatureStringBuilder
+// ReSharper disable UnusedTypeParameter
+  public class GenericClassWithNestedType<TType1, TType2>
   {
-    string BuildSignatureString (MemberInfo memberInfo);
+    public class Nested
+    {
+    }
+
+    public class NestedGeneric<TNested1>
+    {
+    }
   }
+  // ReSharper restore UnusedTypeParameter
 }

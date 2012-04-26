@@ -21,7 +21,7 @@ using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
 
-namespace Remotion.Reflection.SignatureStringBuilding
+namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
 {
   /// <summary>
   /// Builds a string representing the signature of a given <see cref="PropertyInfo"/> object. This is similar to the string returned by 

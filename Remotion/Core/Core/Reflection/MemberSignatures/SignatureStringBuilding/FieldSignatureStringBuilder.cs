@@ -19,12 +19,12 @@ using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
 
-namespace Remotion.Reflection.SignatureStringBuilding
+namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
 {
   /// <summary>
-  /// Builds a string representing the signature of a given <see cref="EventInfo"/> object. This is similar to the string returned by 
-  /// <see cref="object.ToString"/> as it contains a textual representation of the event's type.
-  /// It's different from <see cref="object.ToString"/>, though, because it does not contain the event's name.
+  /// Builds a string representing the signature of a given <see cref="FieldInfo"/> object. This is similar to the string returned by 
+  /// <see cref="object.ToString"/> as it contains a textual representation of the fields's type.
+  /// It's different from <see cref="object.ToString"/>, though, because it does not contain the fields's name.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -33,33 +33,33 @@ namespace Remotion.Reflection.SignatureStringBuilding
   /// <para>
   /// For simplicity, this class assumes that type or namespace names cannot contain the character "[". 
   /// It also assumes that the full name of a type (namespace, enclosing type (if any), 
-  /// and simple type name) is enough to identify a type - assembly information is not encoded. The 1:1 mapping of signature strings to event 
-  /// signatures is only guaranteed for events that adhere to these assumptions.
+  /// and simple type name) is enough to identify a type - assembly information is not encoded. The 1:1 mapping of signature strings to field 
+  /// signatures is only guaranteed for fiels that adhere to these assumptions.
   /// </para>
   /// </remarks>
-  public class EventSignatureStringBuilder : IMemberSignatureStringBuilder
+  public class FieldSignatureStringBuilder : IMemberSignatureStringBuilder
   {
     private readonly MemberSignatureStringBuilderHelper _helper = new MemberSignatureStringBuilderHelper ();
 
-    public string BuildSignatureString (EventInfo eventInfo)
+    public string BuildSignatureString (FieldInfo fieldInfo)
     {
-      ArgumentUtility.CheckNotNull ("eventInfo", eventInfo);
+      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
-      return BuildSignatureString(eventInfo.EventHandlerType);
+      return BuildSignatureString(fieldInfo.FieldType);
     }
 
-    public string BuildSignatureString (Type eventHandlerType)
+    public string BuildSignatureString (Type fieldType)
     {
-      ArgumentUtility.CheckNotNull ("eventHandlerType", eventHandlerType);
+      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
 
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, eventHandlerType);
-      return sb.ToString ();
+      _helper.AppendTypeString (sb, fieldType);
+      return sb.ToString();
     }
 
     string IMemberSignatureStringBuilder.BuildSignatureString (MemberInfo memberInfo)
     {
-      return BuildSignatureString ((EventInfo) memberInfo);
+      return BuildSignatureString ((FieldInfo) memberInfo);
     }
   }
 }

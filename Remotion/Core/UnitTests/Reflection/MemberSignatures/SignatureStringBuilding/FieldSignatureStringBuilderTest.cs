@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System;
 using NUnit.Framework;
-using Remotion.Reflection.SignatureStringBuilding;
-using Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
+using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
 {
   [TestFixture]
   public class FieldSignatureStringBuilderTest

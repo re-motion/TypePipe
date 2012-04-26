@@ -17,10 +17,10 @@
 using System;
 using System.Text;
 using NUnit.Framework;
-using Remotion.Reflection.SignatureStringBuilding;
-using Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
+using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
 {
   [TestFixture]
   public class MemberSignatureStringBuilderHelperTest
@@ -58,7 +58,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       var parameter = typeof (GenericClass<,>).GetGenericArguments ()[0];
       _helper.AppendTypeString (_sb, parameter);
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("[0/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClass`2]"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("[0/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClass`2]"));
     }
 
     [Test]
@@ -66,7 +66,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     {
       _helper.AppendTypeString (_sb, typeof (GenericClass<int, string>));
 
-      Assert.That (_sb.ToString(), Is.EqualTo ("Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClass`2[System.Int32,System.String]"));
+      Assert.That (_sb.ToString(), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClass`2[System.Int32,System.String]"));
     }
 
     [Test]
@@ -74,7 +74,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     {
       _helper.AppendTypeString (_sb, typeof (GenericClass<,>));
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClass`2"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClass`2"));
     }
 
     [Test]
@@ -82,7 +82,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     {
       _helper.AppendTypeString (_sb, typeof (GenericClassWithNestedType<,>.Nested));
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+Nested"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+Nested"));
     }
 
     [Test]
@@ -91,15 +91,15 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       _helper.AppendTypeString (_sb, typeof (GenericClassWithNestedType<int,string>.Nested));
 
       Assert.That (_sb.ToString (), Is.EqualTo (
-          "Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+Nested[System.Int32,System.String]"));
+          "Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+Nested[System.Int32,System.String]"));
     }
 
     [Test]
     public void AppendTypeString_NestedGenericType ()
     {
       _helper.AppendTypeString (_sb, typeof (GenericClassWithNestedType<,>.NestedGeneric<>));
-      
-      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+NestedGeneric`1"));
+
+      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+NestedGeneric`1"));
     }
 
     [Test]
@@ -108,7 +108,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       _helper.AppendTypeString (_sb, typeof (GenericClassWithNestedType<int,string>.NestedGeneric<double>));
 
       Assert.That (_sb.ToString (), Is.EqualTo (
-          "Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+NestedGeneric`1[System.Int32,System.String,System.Double]"));
+          "Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.GenericClassWithNestedType`2+NestedGeneric`1[System.Int32,System.String,System.Double]"));
     }
 
     [Test]

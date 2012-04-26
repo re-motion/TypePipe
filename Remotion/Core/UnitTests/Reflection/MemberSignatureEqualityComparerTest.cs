@@ -18,7 +18,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Reflection;
-using Remotion.Reflection.SignatureStringBuilding;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.UnitTests.Reflection.TestDomain;
 
 namespace Remotion.UnitTests.Reflection

@@ -14,10 +14,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain
+using System;
+
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain
 {
-  public class ClassForFieldSignatureStringBuilding
+  public class ClassForPropertySignatureStringBuilding
   {
-    public string PublicField;
+    public int PropertyWithoutParameters { get; set; }
+
+    public string this[int p1, double p2]
+    {
+      get { throw new NotImplementedException(); }
+      set { throw new NotImplementedException(); }
+    }
   }
 }

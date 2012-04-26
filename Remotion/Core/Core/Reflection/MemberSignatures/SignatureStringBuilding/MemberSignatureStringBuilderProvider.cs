@@ -17,7 +17,7 @@
 using System;
 using System.Reflection;
 
-namespace Remotion.Reflection.SignatureStringBuilding
+namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
 {
   /// <summary>
   /// Returns the right implementation of <see cref="IMemberSignatureStringBuilder"/> for a given <see cref="MemberTypes"/> value.

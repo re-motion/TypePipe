@@ -16,10 +16,10 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.Reflection.SignatureStringBuilding;
-using Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
+using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
 {
   [TestFixture]
   public class PropertySignatureStringBuilderTest

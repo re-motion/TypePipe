@@ -17,9 +17,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Reflection.SignatureStringBuilding;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
 {
   [TestFixture]
   public class MemberSignatureStringBuilderProviderTest

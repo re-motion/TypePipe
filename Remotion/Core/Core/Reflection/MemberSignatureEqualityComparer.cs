@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.Reflection.SignatureStringBuilding;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection

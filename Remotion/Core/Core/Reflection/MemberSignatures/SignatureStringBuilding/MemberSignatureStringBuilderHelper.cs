@@ -20,7 +20,7 @@ using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
 
-namespace Remotion.Reflection.SignatureStringBuilding
+namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
 {
   /// <summary>
   /// Provides a common utility class for classes building strings representing the signature of a given <see cref="MemberInfo"/> object.

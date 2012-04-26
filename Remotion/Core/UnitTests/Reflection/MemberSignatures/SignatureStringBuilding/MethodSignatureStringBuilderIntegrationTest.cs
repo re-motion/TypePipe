@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
-using System;
 using NUnit.Framework;
-using Remotion.Reflection.SignatureStringBuilding;
-using Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain;
+using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
+using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding
 {
   [TestFixture]
   public class MethodSignatureStringBuilderIntegrationTest
@@ -42,7 +41,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
           signature,
           Is.EqualTo (
               "System.Void"
-              + "(Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2[System.Int32,System.String])"));
+              + "(Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2[System.Int32,System.String])"));
     }
 
     [Test]
@@ -54,9 +53,9 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       Assert.That (
           signature,
           Is.EqualTo (
-              "System.Void(Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+Nested"
-              + "[[0/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
-              + "[1/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2]])"));
+              "System.Void(Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+Nested"
+              + "[[0/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              + "[1/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2]])"));
     }
 
     [Test]
@@ -68,9 +67,9 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       Assert.That (
           signature,
           Is.EqualTo (
-              "System.Void(Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1"
-              + "[[0/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
-              + "[1/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              "System.Void(Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1"
+              + "[[0/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              + "[1/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
               + "System.Int32])"));
     }
 
@@ -84,14 +83,14 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
           signature,
           Is.EqualTo (
               "System.Void("
-              + "Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1"
-              + "[[0/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
-              + "[1/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              + "Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1"
+              + "[[0/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              + "[1/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
               + "[0]],"
-              + "Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1"
-              + "[[0/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
-              + "[1/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
-              + "[0/Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2]])`1"));
+              + "Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1"
+              + "[[0/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              + "[1/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2],"
+              + "[0/Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2]])`1"));
     }
 
     [Test]
@@ -104,9 +103,9 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
           signature,
           Is.EqualTo (
               "System.Void("
-              + "Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1[System.Int32,System.String,[0]],"
+              + "Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1[System.Int32,System.String,[0]],"
               +
-              "Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1[System.Int32,System.String,System.Int32]"
+              "Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain.ClassForMethodSignatureStringBuilding`2+NestedGeneric`1[System.Int32,System.String,System.Int32]"
               + ")`1"));
     }
   }

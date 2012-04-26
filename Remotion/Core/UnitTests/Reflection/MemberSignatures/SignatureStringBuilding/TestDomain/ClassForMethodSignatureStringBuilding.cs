@@ -16,7 +16,7 @@
 // 
 using System;
 
-namespace Remotion.UnitTests.Reflection.SignatureStringBuilding.TestDomain
+namespace Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain
 {
   public class ClassForMethodSignatureStringBuilding<TType1, TType2>
   {
