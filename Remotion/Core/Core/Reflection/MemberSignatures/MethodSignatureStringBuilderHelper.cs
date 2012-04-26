@@ -20,7 +20,7 @@ using System.Reflection;
 using System.Text;
 using Remotion.Utilities;
 
-namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
+namespace Remotion.Reflection.MemberSignatures
 {
   /// <summary>
   /// Provides a common utility class for classes building strings representing the signature of a given <see cref="MemberInfo"/> object.
@@ -32,7 +32,7 @@ namespace Remotion.Reflection.MemberSignatures.SignatureStringBuilding
   /// of signature strings to member signatures is only guaranteed for members that adhere to these assumptions.
   /// </para>
   /// </remarks>
-  public class MemberSignatureStringBuilderHelper
+  public class MethodSignatureStringBuilderHelper
   {
     public void AppendTypeString (StringBuilder sb, Type type)
     {

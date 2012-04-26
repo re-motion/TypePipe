@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection.MemberSignatures
@@ -27,9 +26,22 @@ namespace Remotion.Reflection.MemberSignatures
   /// <summary>
   /// Represents a method signature and allows signatures to be compared to each other.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This class does not support closed generic methods, only generic method definitions are supported.
+  /// </para>
+  /// <para>
+  /// The signature currently does not include custom modifiers.
+  /// </para>
+  /// <para>
+  /// For simplicity, this class assumes that type or namespace names cannot contain the character "[". It also assumes that the full name of a type 
+  /// (namespace, enclosing type (if any), and simple  type name) is enough to identify a type - assembly information is not used when comparing 
+  /// signatures.
+  /// </para>
+  /// </remarks>
   public class MethodSignature : IMemberSignature, IEquatable<MethodSignature>
   {
-    private static readonly MemberSignatureStringBuilderHelper s_helper = new MemberSignatureStringBuilderHelper();
+    private static readonly MethodSignatureStringBuilderHelper s_helper = new MethodSignatureStringBuilderHelper();
 
     public static MethodSignature Create (MethodBase methodBase)
     {

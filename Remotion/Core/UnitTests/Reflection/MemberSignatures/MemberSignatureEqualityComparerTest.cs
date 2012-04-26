@@ -17,11 +17,10 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Reflection;
-using Remotion.Reflection.MemberSignatures.SignatureStringBuilding;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.UnitTests.Reflection.TestDomain;
 
-namespace Remotion.UnitTests.Reflection
+namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
   [TestFixture]
   public class MemberSignatureEqualityComparerTest
@@ -168,9 +167,6 @@ namespace Remotion.UnitTests.Reflection
     [Test]
     public void Equals_NonEqualMemberTypes ()
     {
-      Assert.That (new PropertySignatureStringBuilder ().BuildSignatureString (_p1), 
-          Is.EqualTo (new MethodSignatureStringBuilder ().BuildSignatureString (_m1)));
-      
       Assert.That (_comparer.Equals (_p1, _m1), Is.False);
     }
 
