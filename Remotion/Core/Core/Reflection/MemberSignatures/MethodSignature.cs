@@ -100,5 +100,25 @@ namespace Remotion.Reflection.MemberSignatures
 
       return sb.ToString ();
     }
+
+    public virtual bool Equals (MethodSignature other)
+    {
+      return !ReferenceEquals (other, null) 
+          && ToString() == other.ToString();
+    }
+
+    public sealed override bool Equals (object obj)
+    {
+      if (obj == null || obj.GetType () != GetType ())
+        return false;
+
+      var other = (MethodSignature) obj;
+      return Equals (other);
+    }
+
+    public override int GetHashCode ()
+    {
+      return ToString().GetHashCode();
+    }
   }
 }

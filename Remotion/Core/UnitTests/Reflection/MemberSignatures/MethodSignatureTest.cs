@@ -15,31 +15,47 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Reflection.MemberSignatures;
-using Remotion.UnitTests.Reflection.MemberSignatures.SignatureStringBuilding.TestDomain;
+using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
   [TestFixture]
   public class MethodSignatureTest
   {
+    private MethodInfo _genericMethod1;
+    private MethodInfo _genericMethod2;
+    private MethodInfo _genericMethod3;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _genericMethod1 = MemberInfoFromExpressionUtility.GetMethod ((ClassWithGenericMethods c) => c.M1<Dev.T, Dev.T> (null)).GetGenericMethodDefinition ();
+      _genericMethod2 = MemberInfoFromExpressionUtility.GetMethod ((ClassWithGenericMethods c) => c.M2<Dev.T, Dev.T> (null)).GetGenericMethodDefinition ();
+      _genericMethod3 = MemberInfoFromExpressionUtility.GetMethod ((ClassWithGenericMethods c) => c.M3<Dev.T, Dev.T> (null)).GetGenericMethodDefinition ();
+    }
+
     [Test]
     public void Create_OpenGenericMethod ()
     {
-      var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithGenericParameters");
-      var signature = MethodSignature.Create (method);
+      var signature = MethodSignature.Create (_genericMethod1);
 
-      Assert.That (signature.ReturnType, Is.SameAs (typeof (void)));
+      Assert.That (signature.ReturnType, Is.SameAs (_genericMethod1.ReturnType));
       Assert.That (signature.GenericParameterCount, Is.EqualTo (2));
-      Assert.That (signature.ParameterTypes, Is.EqualTo (new[] { typeof (string), typeof (DateTime) }));
+
+      var parameter = _genericMethod1.GetParameters ().Single();
+      Assert.That (signature.ParameterTypes, Is.EqualTo (new[] { parameter.ParameterType }));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Closed generic methods are not supported.\r\nParameter name: methodBase")]
     public void Create_ClosedGenericMethod ()
     {
-      var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithGenericParameters").MakeGenericMethod (typeof (int), typeof (int));
+      var method = _genericMethod1.MakeGenericMethod (typeof (int), typeof (int));
       MethodSignature.Create (method);
     }
 
@@ -54,14 +70,87 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void ToString_GenericMethod ()
     {
-      var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithUsedGenericParameters");
-      var signature = MethodSignature.Create (method);
+      var signature1 = MethodSignature.Create (_genericMethod1);
+      Assert.That (signature1.ToString (), Is.EqualTo ("[0]([1])`2"));
 
-      Assert.That (signature.ToString (), Is.EqualTo ("[0]([1])`2"));
+      var signature2 = MethodSignature.Create (_genericMethod2);
+      Assert.That (signature2.ToString (), Is.EqualTo ("[0]([1])`2"));
+
+      var signature3 = MethodSignature.Create (_genericMethod3);
+      Assert.That (signature3.ToString (), Is.EqualTo ("[1]([0])`2"));
     }
 
-    // TODO 4816: Equals/GetHashCode: tests needed for these scenarios: M1.Equals (M2), !M1.Equals (M3), M1.GetHashCode().Equals (M2.GetHashCode())
-    public class ClassWithTwoEquals
+    [Test]
+    public void Equals_True ()
+    {
+      var signature1 = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+      var signature2 = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+
+      Assert.That (signature1.Equals (signature2), Is.True);
+    }
+
+    [Test]
+    public void Equals_False ()
+    {
+      var signature = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+      Assert.That (signature.Equals (null), Is.False);
+
+      var signatureWithDifferentMethodType = new MethodSignature (typeof (string), new[] { typeof (double), typeof (string) }, 12);
+      Assert.That (signature.Equals (signatureWithDifferentMethodType), Is.False);
+
+      var signatureWithDifferentIndexParameters = new MethodSignature (typeof (int), new[] { typeof (string), typeof (double) }, 12);
+      Assert.That (signature.Equals (signatureWithDifferentIndexParameters), Is.False);
+
+      var signatureWithDifferentGenericParameterCount = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 7);
+      Assert.That (signature.Equals (signatureWithDifferentGenericParameterCount), Is.False);
+    }
+
+    [Test]
+    public void Equals_WithUsedGenericParameters ()
+    {
+      var signature1 = MethodSignature.Create (_genericMethod1);
+      var signature2 = MethodSignature.Create (_genericMethod2);
+      var signature3 = MethodSignature.Create (_genericMethod3);
+
+      Assert.That (signature1.Equals (signature2), Is.True);
+      Assert.That (signature1.Equals (signature3), Is.False);
+    }
+
+    [Test]
+    public void Equals_Object ()
+    {
+      var signature = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+
+      object otherSignatureAsObject = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+      Assert.That (signature.Equals (otherSignatureAsObject), Is.True);
+
+      Assert.That (signature.Equals ((object) null), Is.False);
+
+      object completelyUnrelatedObject = new object ();
+      Assert.That (signature.Equals (completelyUnrelatedObject), Is.False);
+    }
+
+    [Test]
+    public void GetHashCode_ForEqualObjects ()
+    {
+      var signature1 = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+      var signature2 = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
+
+      Assert.That (signature1.GetHashCode (), Is.EqualTo (signature2.GetHashCode ()));
+    }
+
+    [Test]
+    public void GetHashCode_ForEqualObjects_WithUsedGenericParameters ()
+    {
+      var signature1 = MethodSignature.Create (_genericMethod1);
+      var signature2 = MethodSignature.Create (_genericMethod2);
+
+      Assert.That (signature1.GetHashCode(), Is.EqualTo (signature2.GetHashCode()));
+    }
+
+// ReSharper disable ClassNeverInstantiated.Global
+    public class ClassWithGenericMethods
+// ReSharper restore ClassNeverInstantiated.Global
     {
       public T1 M1<T1, T2> (T2 t)
       {
