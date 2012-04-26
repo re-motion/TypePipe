@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -46,10 +47,21 @@ namespace Remotion.Reflection.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
 
+      var propertyType = propertyInfo.PropertyType;
+      var indexParameterTypes = propertyInfo.GetIndexParameters ().Select (p => p.ParameterType);
+
+      return BuildSignatureString(propertyType, indexParameterTypes);
+    }
+
+    public string BuildSignatureString (Type propertyType, IEnumerable<Type> indexParameterTypes)
+    {
+      ArgumentUtility.CheckNotNull ("propertyType", propertyType);
+      ArgumentUtility.CheckNotNull ("indexParameterTypes", indexParameterTypes);
+
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, propertyInfo.PropertyType);
+      _helper.AppendTypeString (sb, propertyType);
       sb.Append ("(");
-      _helper.AppendSeparatedTypeStrings (sb, propertyInfo.GetIndexParameters ().Select (p => p.ParameterType));
+      _helper.AppendSeparatedTypeStrings (sb, indexParameterTypes);
       sb.Append (")");
 
       return sb.ToString ();

@@ -45,8 +45,15 @@ namespace Remotion.Reflection.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
+      return BuildSignatureString(fieldInfo.FieldType);
+    }
+
+    public string BuildSignatureString (Type fieldType)
+    {
+      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
+
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, fieldInfo.FieldType);
+      _helper.AppendTypeString (sb, fieldType);
       return sb.ToString();
     }
 

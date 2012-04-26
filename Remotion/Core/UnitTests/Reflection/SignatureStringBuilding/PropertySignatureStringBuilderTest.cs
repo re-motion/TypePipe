@@ -33,7 +33,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString_NoParameters ()
+    public void BuildSignatureString_PropertyInfo_NoParameters ()
     {
       var property = typeof (ClassForPropertySignatureStringBuilding).GetProperty ("PropertyWithoutParameters");
       var signature = _builder.BuildSignatureString (property);
@@ -42,10 +42,32 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString_WithParameters ()
+    public void BuildSignatureString_PropertyInfo_WithParameters ()
     {
       var property = typeof (ClassForPropertySignatureStringBuilding).GetProperty ("Item");
       var signature = _builder.BuildSignatureString (property);
+
+      Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.Double)"));
+    }
+
+    [Test]
+    public void BuildSignatureString_ExplicitSignature_NoParameters ()
+    {
+      var propertyType = typeof (int);
+      var indexParameterTypes = Type.EmptyTypes;
+
+      var signature = _builder.BuildSignatureString (propertyType, indexParameterTypes);
+
+      Assert.That (signature, Is.EqualTo ("System.Int32()"));
+    }
+
+    [Test]
+    public void BuildSignatureString_ExplicitSignature_WithParameters ()
+    {
+      var propertyType = typeof (string);
+      var indexParameterTypes = new[] { typeof (int), typeof (double) };
+
+      var signature = _builder.BuildSignatureString (propertyType, indexParameterTypes);
 
       Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.Double)"));
     }

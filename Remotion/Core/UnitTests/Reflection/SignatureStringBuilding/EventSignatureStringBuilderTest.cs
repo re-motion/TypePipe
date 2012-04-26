@@ -33,10 +33,19 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString ()
+    public void BuildSignatureString_EventInfo ()
     {
       var eventInfo = typeof (ClassForEventSignatureStringBuilding).GetEvent ("Event");
       var signature = _builder.BuildSignatureString (eventInfo);
+
+      Assert.That (signature, Is.EqualTo ("System.EventHandler"));
+    }
+
+    [Test]
+    public void BuildSignatureString_ExplicitSignature ()
+    {
+      var eventHandlerType = typeof (EventHandler);
+      var signature = _builder.BuildSignatureString (eventHandlerType);
 
       Assert.That (signature, Is.EqualTo ("System.EventHandler"));
     }

@@ -45,8 +45,15 @@ namespace Remotion.Reflection.SignatureStringBuilding
     {
       ArgumentUtility.CheckNotNull ("eventInfo", eventInfo);
 
+      return BuildSignatureString(eventInfo.EventHandlerType);
+    }
+
+    public string BuildSignatureString (Type eventHandlerType)
+    {
+      ArgumentUtility.CheckNotNull ("eventHandlerType", eventHandlerType);
+
       var sb = new StringBuilder();
-      _helper.AppendTypeString (sb, eventInfo.EventHandlerType);
+      _helper.AppendTypeString (sb, eventHandlerType);
       return sb.ToString ();
     }
 

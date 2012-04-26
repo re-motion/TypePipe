@@ -33,10 +33,19 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString ()
+    public void BuildSignatureString_FiedInfo ()
     {
       var fieldInfo = typeof (ClassForFieldSignatureStringBuilding).GetField ("PublicField");
       var signature = _builder.BuildSignatureString (fieldInfo);
+
+      Assert.That (signature, Is.EqualTo ("System.String"));
+    }
+
+    [Test]
+    public void BuildSignatureString_ExplicitSignature ()
+    {
+      var fieldType = typeof (string);
+      var signature = _builder.BuildSignatureString (fieldType);
 
       Assert.That (signature, Is.EqualTo ("System.String"));
     }

@@ -34,7 +34,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString_NoParameters ()
+    public void BuildSignatureString_MethodBase_NoParameters ()
     {
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithoutParameters");
       var signature = _builder.BuildSignatureString (method);
@@ -43,7 +43,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString_WithParameters ()
+    public void BuildSignatureString_MethodBase_MethodBase_WithParameters ()
     {
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithParameters");
       var signature = _builder.BuildSignatureString (method);
@@ -53,14 +53,14 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Closed generic methods are not supported.\r\nParameter name: methodBase")]
-    public void BuildSignatureString_ClosedGenericMethod ()
+    public void BuildSignatureString_MethodBase_ClosedGenericMethod ()
     {
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithGenericParameters").MakeGenericMethod (typeof (int), typeof (int));
       _builder.BuildSignatureString (method);
     }
 
     [Test]
-    public void BuildSignatureString_WithGenericParameters ()
+    public void BuildSignatureString_MethodBase_WithGenericParameters ()
     {
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetMethod ("MethodWithGenericParameters");
       var signature = _builder.BuildSignatureString (method);
@@ -69,7 +69,7 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
     }
 
     [Test]
-    public void BuildSignatureString_Constructor ()
+    public void BuildSignatureString_MethodBase_Constructor ()
     {
       var method = typeof (ClassForMethodSignatureStringBuilding<,>).GetConstructors().Single();
       var signature = _builder.BuildSignatureString (method);
@@ -93,6 +93,30 @@ namespace Remotion.UnitTests.Reflection.SignatureStringBuilding
       var signature = ((IMemberSignatureStringBuilder) _builder).BuildSignatureString (method);
 
       Assert.That (signature, Is.EqualTo ("System.Void(System.String,System.DateTime)"));
+    }
+
+    [Test]
+    public void BuildSignatureString_ExplicitSignature_ZeroGenericParameterCount ()
+    {
+      var returnType = typeof (string);
+      var parameterTypes = new[] { typeof(int), typeof(DateTime) };
+      var genericParameterCount = 0;
+
+      var signature = _builder.BuildSignatureString (returnType, parameterTypes, genericParameterCount);
+
+      Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.DateTime)"));
+    }
+
+    [Test]
+    public void BuildSignatureString_ExplicitSignature_NonZeroGenericParameterCount ()
+    {
+      var returnType = typeof (string);
+      var parameterTypes = new[] { typeof (int), typeof (DateTime) };
+      var genericParameterCount = 7;
+
+      var signature = _builder.BuildSignatureString (returnType, parameterTypes, genericParameterCount);
+
+      Assert.That (signature, Is.EqualTo ("System.String(System.Int32,System.DateTime)`7"));
     }
   }
 }
