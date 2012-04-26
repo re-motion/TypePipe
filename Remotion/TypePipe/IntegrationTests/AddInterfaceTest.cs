@@ -58,7 +58,7 @@ namespace TypePipe.IntegrationTests
             //mutableType.AddExplicitOverride (interfaceMethod, mutableMethodInfo);
             //Assert.That (mutableType.AddedExplicitOverrides[interfaceMethod], Is.SameAs (mutableMethodInfo));
             //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
-            CheckMemberEquality (mutableMethodInfo, mutableMethodInfo.GetBaseDefinition ());
+            Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (mutableMethodInfo));
           });
 
       var instance = (OriginalType) Activator.CreateInstance (type);
@@ -68,7 +68,7 @@ namespace TypePipe.IntegrationTests
 
       // Reflection doesn't handle explicit overrides in GetBaseDefinition.
       // If this changes, MutableMethodInfo.GetBaseDefinition() must be changed as well.
-      CheckMemberEquality (method, method.GetBaseDefinition ());
+      Assert.That (method.GetBaseDefinition (), Is.EqualTo (method));
 
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("explicitly implemented"));

@@ -103,19 +103,6 @@ namespace TypePipe.IntegrationTests
       return method;
     }
 
-    protected void CheckMemberEquality<T> (T expectedMember, T actualMember) 
-        where T: MemberInfo
-    {
-      Assert.That (
-          MemberInfoEqualityComparer<T>.Instance.Equals (actualMember, expectedMember),
-          Is.True,
-          "Expected '{0}.{1}', but was '{2}.{3}'",
-          expectedMember.DeclaringType.Name,
-          expectedMember.Name,
-          actualMember.DeclaringType.Name,
-          actualMember.Name);
-    }
-
     private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();

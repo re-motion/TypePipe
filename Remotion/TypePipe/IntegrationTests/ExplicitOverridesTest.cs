@@ -48,7 +48,7 @@ namespace TypePipe.IntegrationTests
             //mutableType.AddExplicitOverride (overriddenMethod, mutableMethodInfo);
             //Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (mutableMethodInfo));
             //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
-            CheckMemberEquality (mutableMethodInfo, mutableMethodInfo.GetBaseDefinition ());
+            Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (mutableMethodInfo));
 
             //mutableMethodInfo.SetBody (ctx =>
             //{
@@ -63,7 +63,7 @@ namespace TypePipe.IntegrationTests
 
       // Reflection doesn't handle explicit overrides in GetBaseDefinition.
       // If this changes, MutableMethodInfo.GetBaseDefinition() must be changed as well.
-      CheckMemberEquality (method, method.GetBaseDefinition ());
+      Assert.That (method.GetBaseDefinition (), Is.EqualTo (method));
 
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("A explicitly overridden"));
@@ -175,7 +175,7 @@ namespace TypePipe.IntegrationTests
                 ctx =>
                 {
                   //Assert.That (ctx.HasBaseMethod, Is.True);
-                  //CheckMemberEquality (overriddenShadowingMethod, ctx.BaseMethod);
+                  //Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenShadowingMethod));
                   //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" implicitly overridden"));
                   return Expression.Default (typeof (string));
                 });
