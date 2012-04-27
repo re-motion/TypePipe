@@ -424,6 +424,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
+      // TODO 4812: Using empty types for null types is not correct: If typesOrNull is null, we should actually check if any of the modifiers
+      // matches _without regarding the parameters_. I'm not sure if its possible to have parameter modifiers, but no types (I think not), so we
+      // should probably just ensure that candidates has exactly one member if typesOrNull is null.
       var types = typesOrNull /* TODO 4812: ?? EmptyTypes*/;
 
       return binder.SelectMethod (bindingAttr, candidates, types, modifiersOrNull);
