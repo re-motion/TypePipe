@@ -424,7 +424,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
-      var types = typesOrNull ?? EmptyTypes;
+      var types = typesOrNull /* TODO 4812: ?? EmptyTypes*/;
 
       return binder.SelectMethod (bindingAttr, candidates, types, modifiersOrNull);
     }

@@ -603,6 +603,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 4812")]
     public void AddMethod_AllowsShadowing ()
     {
       _bindingFlagsEvaluatorMock
@@ -807,7 +808,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMethodImpl ()
+    public void GetMethodImpl_WithNameSignatureMatch ()
     {
       var addedMethod1 = AddMethod (_mutableType, "AddedMethod");
       var addedMethod2 = AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration(typeof(int), "i"));
@@ -815,12 +816,42 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
-      Assert.That (_mutableType.GetMethods ().Select (m => m.Name == "AddedMethod").Count(), Is.GreaterThan (1));
+      Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count(), Is.GreaterThan (1));
 
       var result1 = _mutableType.GetMethod ("AddedMethod", Type.EmptyTypes);
       var result2 = _mutableType.GetMethod ("AddedMethod", new[] { typeof (int) });
       Assert.That (result1, Is.SameAs (addedMethod1));
       Assert.That (result2, Is.SameAs (addedMethod2));
+    }
+
+    [Test]
+    [Ignore ("TODO 4812")]
+    public void GetMethodImpl_WithNameMatchOnly ()
+    {
+      var addedMethod = AddMethod (_mutableType, "AddedMethod");
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+      Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (1));
+
+      var result = _mutableType.GetMethod ("AddedMethod");
+      Assert.That (result, Is.SameAs (addedMethod));
+    }
+
+    [Test]
+    [Ignore ("TODO 4812")]
+    public void GetMethodImpl_WithNameMatchOnly_Ambiguous ()
+    {
+      AddMethod (_mutableType, "AddedMethod");
+      AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration (typeof (int), "i"));
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+      Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (2));
+
+      Assert.That (() => _mutableType.GetMethod ("AddedMethod"), Throws.TypeOf<AmbiguousMatchException>());
     }
 
     [Test]
