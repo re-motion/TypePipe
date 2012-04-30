@@ -183,7 +183,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return MemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
     }
 
+// ReSharper disable ClassNeverInstantiated.Global
     public class DomainType
+// ReSharper restore ClassNeverInstantiated.Global
     {
       public readonly int Field1 = Dev<int>.Null;
       public readonly int Field2 = Dev<int>.Null;
