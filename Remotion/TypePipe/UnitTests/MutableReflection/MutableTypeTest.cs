@@ -787,23 +787,176 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorImpl ()
     {
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var existingConstructor = _mutableType.ExistingMutableConstructors.Single();
+
+      var addedConstructor = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
+
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      var types = new[] { ReflectionObjectMother.GetSomeType() };
+      var modifiers = new[] { new ParameterModifier (1) };
+
+      _bindingFlagsEvaluatorMock
+          .Expect (mock => mock.HasRightAttributes (existingConstructor.Attributes, bindingFlags))
+          .Return (true);
+      _bindingFlagsEvaluatorMock
+          .Expect (mock => mock.HasRightAttributes (addedConstructor.Attributes, bindingFlags))
+          .Return (true);
+
+      var fakeResult = ReflectionObjectMother.GetSomeConstructor();
+      var binderMock = MockRepository.GenerateStrictMock<Binder>();
+      binderMock
+          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { existingConstructor, addedConstructor }, types, modifiers))
+          .Return (fakeResult);
+
+      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      binderMock.VerifyAllExpectations();
+
+      Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void GetConstructorImpl_EmptyCandidates ()
+    {
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var existingConstructor = _mutableType.ExistingMutableConstructors.Single ();
+
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      var types = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiers = new[] { new ParameterModifier (1) };
+
+      _bindingFlagsEvaluatorMock
+          .Expect (mock => mock.HasRightAttributes (existingConstructor.Attributes, bindingFlags))
+          .Return (false);
+
+      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+
+      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      binderMock.AssertWasNotCalled (
+          mock => mock.SelectMethod (
+              Arg<BindingFlags>.Is.Anything, Arg<MethodBase[]>.Is.Anything, Arg<Type[]>.Is.Anything, Arg<ParameterModifier[]>.Is.Anything));
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetConstructorImpl_SingleCandidate ()
+    {
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var existingConstructor = _mutableType.ExistingMutableConstructors.Single ();
+
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      var types = new[] { ReflectionObjectMother.GetSomeType () };
+      ParameterModifier[] modifiers = null;
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+
+      var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
+      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      binderMock
+          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { existingConstructor }, types, modifiers))
+          .Return (fakeResult);
+
+      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      binderMock.VerifyAllExpectations();
+
+      Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void GetConstructorImpl_NullTypes_SingleCandidate ()
+    {
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      var existingConstructor = _mutableType.ExistingMutableConstructors.Single ();
+
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      Type[] types = null;
+      ParameterModifier[] modifiers = null;
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+
+      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+
+      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+
+      binderMock.AssertWasNotCalled (
+          mock => mock.SelectMethod (
+              Arg<BindingFlags>.Is.Anything, Arg<MethodBase[]>.Is.Anything, Arg<Type[]>.Is.Anything, Arg<ParameterModifier[]>.Is.Anything));
+
+      Assert.That (result, Is.SameAs (existingConstructor));
+    }
+
+    [Test]
+    [ExpectedException (typeof (AmbiguousMatchException))]
+    public void GetConstructorImpl_NullTypes_MultipleCandidates ()
+    {
+      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
+      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
+
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      Type[] types = null;
+      ParameterModifier[] modifiers = null;
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+
+      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+
+      CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+    }
+
+    [Test]
+    public void GetConstructorImpl_WithDefaultBinder ()
+    {
       var arguments = new ArgumentTestHelper (typeof (int));
-      var addedConstructor = _mutableType.AddConstructor(0, arguments.ParameterDeclarations, ctx => Expression.Empty());
+      var addedConstructor = AddConstructor (_mutableType, arguments.ParameterDeclarations);
       
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
       Assert.That (_mutableType.GetConstructors (), Has.Length.GreaterThan (1));
 
-      var result = CallGetConstructorImpl (_mutableType, arguments.Types);
+      var result = CallGetConstructorImpl (
+          _mutableType, 
+          BindingFlags.Public | BindingFlags.Instance, 
+          null, 
+          CallingConventions.HasThis, 
+          arguments.Types, 
+          null);
       Assert.That (result, Is.SameAs (addedConstructor));
     }
 
     [Test]
-    public void GetConstructorImpl_NoMatch ()
+    public void GetConstructor_AllOverloads ()
     {
       var arguments = new ArgumentTestHelper (typeof (int));
-      Assert.That (CallGetConstructorImpl (_mutableType, arguments.Types), Is.Null);
+      var addedConstructor = AddConstructor (_mutableType, arguments.ParameterDeclarations);
+
+      _bindingFlagsEvaluatorMock
+          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (true);
+
+      Assert.That (_mutableType.GetConstructor (arguments.Types), Is.SameAs (addedConstructor));
+
+      var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+      var binder = (Binder) null;
+      var parameterModifiers = ((ParameterModifier[]) null);
+      Assert.That(_mutableType.GetConstructor (bindingFlags, binder, arguments.Types, parameterModifiers), Is.SameAs(addedConstructor));
+
+      var callingConvention = CallingConventions.HasThis;
+      Assert.That (
+          _mutableType.GetConstructor (bindingFlags, binder, callingConvention, arguments.Types, parameterModifiers), Is.SameAs (addedConstructor));
     }
 
     [Test]
@@ -847,9 +1000,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (true);
       Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (2));
 
-      Assert.That (
-          () => CallGetMethodImpl (_mutableType, "AddedMethod", null),
-          Throws.TypeOf<AmbiguousMatchException>().With.Message.EqualTo ("Ambiguous method name 'AddedMethod'."));
+      Assert.That (() => CallGetMethodImpl (_mutableType, "AddedMethod", null), Throws.TypeOf<AmbiguousMatchException>());
     }
 
     [Test]
@@ -940,13 +1091,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetMethodImpl", arguments);
     }
 
-    private ConstructorInfo CallGetConstructorImpl (MutableType mutableType, Type[] typesOrNull)
+    private ConstructorInfo CallGetConstructorImpl (
+        MutableType mutableType,
+        BindingFlags bindingAttr,
+        Binder binder,
+        CallingConventions callingConvention,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
     {
-      var bindingAttr = BindingFlags.Public | BindingFlags.Instance;
-      var binder = (Binder) null;
-      var callingConvention = CallingConventions.HasThis;
-      var modifiersOrNull = (ParameterModifier[]) null;
-
       var arguments = new object[] { bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
       return (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetConstructorImpl", arguments);
     }

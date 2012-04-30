@@ -414,18 +414,23 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     private MethodBase SafeSelectMethod (
-        Binder binderOrNull, BindingFlags bindingAttr, MethodBase[] candidates, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+        Binder binderOrNull,
+        BindingFlags bindingAttr,
+        MethodBase[] candidates,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
     {
       if (candidates.Length == 0)
         return null;
 
-      if (candidates.Length == 1)
-        return candidates[0];
-
-      Assertion.IsTrue (typesOrNull != null || modifiersOrNull == null, "Cannot check modifiers if types are null.");
-
       if (typesOrNull == null)
-        throw new AmbiguousMatchException (string.Format ("Ambiguous method name '{0}'.", candidates[0].Name));
+      {
+        Assertion.IsTrue (typesOrNull != null || modifiersOrNull == null, "Cannot check modifiers if types are null.");
+        if (candidates.Length > 1)
+          throw new AmbiguousMatchException ();
+
+        return candidates.Single();
+      }
 
       var binder = binderOrNull ?? DefaultBinder;
       Assertion.IsNotNull (binder);
