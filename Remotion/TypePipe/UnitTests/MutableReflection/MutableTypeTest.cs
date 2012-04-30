@@ -603,7 +603,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4812")]
     public void AddMethod_AllowsShadowing ()
     {
       _bindingFlagsEvaluatorMock
