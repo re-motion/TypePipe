@@ -795,15 +795,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (true);
       Assert.That (_mutableType.GetConstructors (), Has.Length.GreaterThan (1));
 
-      var resultCtor = _mutableType.GetConstructor (arguments.Types);
-      Assert.That (resultCtor, Is.SameAs (addedConstructor));
+      var result = CallGetConstructorImpl (_mutableType, arguments.Types);
+      Assert.That (result, Is.SameAs (addedConstructor));
     }
 
     [Test]
     public void GetConstructorImpl_NoMatch ()
     {
       var arguments = new ArgumentTestHelper (typeof (int));
-      Assert.That (_mutableType.GetConstructor (arguments.Types), Is.Null);
+      Assert.That (CallGetConstructorImpl (_mutableType, arguments.Types), Is.Null);
     }
 
     [Test]
@@ -811,14 +811,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var addedMethod1 = AddMethod (_mutableType, "AddedMethod");
       var addedMethod2 = AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration(typeof(int), "i"));
-
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
       Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count(), Is.GreaterThan (1));
 
-      var result1 = _mutableType.GetMethod ("AddedMethod", Type.EmptyTypes);
-      var result2 = _mutableType.GetMethod ("AddedMethod", new[] { typeof (int) });
+      var result1 = CallGetMethodImpl (_mutableType, "AddedMethod", Type.EmptyTypes);
+      var result2 = CallGetMethodImpl (_mutableType, "AddedMethod", new[] { typeof (int) });
+
       Assert.That (result1, Is.SameAs (addedMethod1));
       Assert.That (result2, Is.SameAs (addedMethod2));
     }
@@ -827,13 +827,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetMethodImpl_WithNameMatchOnly ()
     {
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
-
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
       Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (1));
 
-      var result = _mutableType.GetMethod ("AddedMethod");
+      var result = CallGetMethodImpl(_mutableType, "AddedMethod", null);
+
       Assert.That (result, Is.SameAs (addedMethod));
     }
 
@@ -842,21 +842,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       AddMethod (_mutableType, "AddedMethod");
       AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration (typeof (int), "i"));
-
       _bindingFlagsEvaluatorMock
           .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
           .Return (true);
       Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (2));
 
       Assert.That (
-          () => _mutableType.GetMethod ("AddedMethod"),
+          () => CallGetMethodImpl (_mutableType, "AddedMethod", null),
           Throws.TypeOf<AmbiguousMatchException>().With.Message.EqualTo ("Ambiguous method name 'AddedMethod'."));
     }
 
     [Test]
     public void GetMethodImpl_NoMatch ()
     {
-      Assert.That (_mutableType.GetMethod ("DoesNotExist"), Is.Null);
+      Assert.That (CallGetMethodImpl (_mutableType, "DoesNotExist", null), Is.Null);
     }
 
     [Test]
@@ -928,6 +927,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
+    }
+
+    private MethodInfo CallGetMethodImpl (MutableType mutableType, string name, Type[] typesOrNull)
+    {
+      var bindingAttr = BindingFlags.Public | BindingFlags.Instance;
+      var binder = (Binder) null;
+      var callingConvention = CallingConventions.HasThis;
+      var modifiersOrNull = (ParameterModifier[]) null;
+
+      var arguments = new object[] { name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
+      return (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetMethodImpl", arguments);
+    }
+
+    private ConstructorInfo CallGetConstructorImpl (MutableType mutableType, Type[] typesOrNull)
+    {
+      var bindingAttr = BindingFlags.Public | BindingFlags.Instance;
+      var binder = (Binder) null;
+      var callingConvention = CallingConventions.HasThis;
+      var modifiersOrNull = (ParameterModifier[]) null;
+
+      var arguments = new object[] { bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
+      return (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetConstructorImpl", arguments);
     }
 
     private void SetupUnmodifiedMembersExpectations (IMutableTypeMemberHandler handlerMock)
