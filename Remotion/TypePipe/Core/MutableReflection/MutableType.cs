@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : Type
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
-    private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
+    private readonly MemberSelector _memberSelector;
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
 
       _underlyingTypeDescriptor = underlyingTypeDescriptor;
-      _bindingFlagsEvaluator = bindingFlagsEvaluator;
+      _memberSelector = new MemberSelector (bindingFlagsEvaluator);
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
@@ -237,7 +237,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _fields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr)).ToArray();
+      return _memberSelector.SelectFields (_fields, bindingAttr).ToArray();
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -271,7 +271,7 @@ namespace Remotion.TypePipe.MutableReflection
     
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return _constructors.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr)).ToArray();
+      return _memberSelector.SelectMethods (_constructors, bindingAttr).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructorInfo)
@@ -317,7 +317,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      return _methods.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr)).ToArray();
+      return _memberSelector.SelectMethods (_methods, bindingAttr).ToArray();
     }
 
     public MutableMethodInfo GetMutableMethod (MethodInfo methodInfo)
@@ -397,8 +397,10 @@ namespace Remotion.TypePipe.MutableReflection
     protected override ConstructorInfo GetConstructorImpl (
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
+      // TODO 4812: It should be possible to use _constructors as candidates, as SelectSingleMethod applies the bindingAttrs anyway.
       var candidates = GetConstructors (bindingAttr);
-      return (ConstructorInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      var binder = binderOrNull ?? DefaultBinder;
+      return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     protected override MethodInfo GetMethodImpl (
@@ -409,33 +411,10 @@ namespace Remotion.TypePipe.MutableReflection
         Type[] typesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
+      // TODO 4812: It should be possible to use _methods as candidates, as SelectSingleMethod applies the bindingAttrs anyway.
       var candidates = GetMethods (bindingAttr).Where (m => m.Name == name).ToArray();
-      return (MethodInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, typesOrNull, modifiersOrNull);
-    }
-
-    private MethodBase SafeSelectMethod (
-        Binder binderOrNull,
-        BindingFlags bindingAttr,
-        MethodBase[] candidates,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
-    {
-      if (candidates.Length == 0)
-        return null;
-
-      if (typesOrNull == null)
-      {
-        Assertion.IsTrue (typesOrNull != null || modifiersOrNull == null, "Cannot check modifiers if types are null.");
-        if (candidates.Length > 1)
-          throw new AmbiguousMatchException ();
-
-        return candidates.Single();
-      }
-
       var binder = binderOrNull ?? DefaultBinder;
-      Assertion.IsNotNull (binder);
-
-      return binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)

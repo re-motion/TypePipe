@@ -84,6 +84,7 @@
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BooleanObjectMother.cs" />
+    <Compile Include="MutableReflection\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MethodAttributeUtilityTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
