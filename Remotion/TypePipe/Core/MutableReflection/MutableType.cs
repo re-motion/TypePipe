@@ -398,9 +398,6 @@ namespace Remotion.TypePipe.MutableReflection
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
       var candidates = GetConstructors (bindingAttr);
-      if (candidates.Length == 0)
-        return null;
-
       return (ConstructorInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
@@ -413,15 +410,14 @@ namespace Remotion.TypePipe.MutableReflection
         ParameterModifier[] modifiersOrNull)
     {
       var candidates = GetMethods (bindingAttr).Where (m => m.Name == name).ToArray();
-      if (candidates.Length == 0)
-        return null;
-
       return (MethodInfo) SafeSelectMethod (binderOrNull, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     private MethodBase SafeSelectMethod (
         Binder binderOrNull, BindingFlags bindingAttr, MethodBase[] candidates, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
+      if (candidates.Length == 0)
+        return null;
 
       if (candidates.Length == 1)
         return candidates[0];
