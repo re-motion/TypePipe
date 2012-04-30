@@ -65,19 +65,20 @@ namespace Remotion.TypePipe.MutableReflection
       if (typesOrNull == null && modifiersOrNull != null)
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
 
-      var candidatesCollection = candidates.ToArray();
-      if (candidatesCollection.Length == 0)
+      var candidatesArray = candidates.ToArray();
+      if (candidatesArray.Length == 0)
         return null;
 
       if (typesOrNull == null)
       {
-        if (candidatesCollection.Length > 1)
+        if (candidatesArray.Length > 1)
           throw new AmbiguousMatchException();
 
+        // TODO 4812: Should use SelectMethods to evaluate binding attributes on single candidate.
         return candidates.Single();
       }
 
-      return (T) binder.SelectMethod (bindingAttr, candidatesCollection, typesOrNull, modifiersOrNull);
+      return (T) binder.SelectMethod (bindingAttr, candidatesArray, typesOrNull, modifiersOrNull);
     }
   }
 }

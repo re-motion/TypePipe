@@ -412,7 +412,7 @@ namespace Remotion.TypePipe.MutableReflection
         ParameterModifier[] modifiersOrNull)
     {
       // TODO 4812: It should be possible to use _methods as candidates, as SelectSingleMethod applies the bindingAttrs anyway.
-      var candidates = GetMethods (bindingAttr).Where (m => m.Name == name).ToArray();
+      var candidates = GetMethods (bindingAttr).Where (m => m.Name == name);
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
