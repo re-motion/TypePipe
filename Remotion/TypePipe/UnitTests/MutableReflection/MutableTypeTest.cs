@@ -825,7 +825,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4812")]
     public void GetMethodImpl_WithNameMatchOnly ()
     {
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
@@ -840,7 +839,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 4812")]
     public void GetMethodImpl_WithNameMatchOnly_Ambiguous ()
     {
       AddMethod (_mutableType, "AddedMethod");
@@ -851,7 +849,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (true);
       Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (2));
 
-      Assert.That (() => _mutableType.GetMethod ("AddedMethod"), Throws.TypeOf<AmbiguousMatchException>());
+      Assert.That (
+          () => _mutableType.GetMethod ("AddedMethod"),
+          Throws.TypeOf<AmbiguousMatchException>().With.Message.EqualTo ("Ambiguous method name 'AddedMethod'."));
     }
 
     [Test]

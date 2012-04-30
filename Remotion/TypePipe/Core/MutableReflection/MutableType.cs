@@ -422,17 +422,19 @@ namespace Remotion.TypePipe.MutableReflection
     private MethodBase SafeSelectMethod (
         Binder binderOrNull, BindingFlags bindingAttr, MethodBase[] candidates, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
-      var binder = binderOrNull ?? DefaultBinder;
-      Assertion.IsNotNull (binder);
+
+      if (candidates.Length == 1)
+        return candidates[0];
 
       Assertion.IsTrue (typesOrNull != null || modifiersOrNull == null, "Cannot check modifiers if types are null.");
 
-      // TODO 4812: Using empty types for null types is not correct: If typesOrNull is null, we should actually check if any of the candidates
-      // matches _without regarding the parameters_. We should probably just ensure that candidates has exactly one member if typesOrNull is null,
-      // otherwise throw an AmbiguousMatchException.
-      var types = typesOrNull /* TODO 4812: ?? EmptyTypes*/;
+      if (typesOrNull == null)
+        throw new AmbiguousMatchException (string.Format ("Ambiguous method name '{0}'.", candidates[0].Name));
 
-      return binder.SelectMethod (bindingAttr, candidates, types, modifiersOrNull);
+      var binder = binderOrNull ?? DefaultBinder;
+      Assertion.IsNotNull (binder);
+
+      return binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
