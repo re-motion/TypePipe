@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : Type
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
-    private readonly MemberSelector _memberSelector;
+    private readonly IMemberSelector _memberSelector;
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
@@ -49,13 +49,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
-      IBindingFlagsEvaluator bindingFlagsEvaluator)
+      IMemberSelector memberSelector)
     {
       ArgumentUtility.CheckNotNull ("underlyingTypeDescriptor", underlyingTypeDescriptor);
-      ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _underlyingTypeDescriptor = underlyingTypeDescriptor;
-      _memberSelector = new MemberSelector (bindingFlagsEvaluator);
+      _memberSelector = memberSelector;
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
@@ -225,14 +225,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      var fields = GetFields (bindingAttr).Where (field => field.Name == name).ToArray ();
-
-      if (fields.Length == 0)
-        return null;
-      if (fields.Length > 1)
-        throw new AmbiguousMatchException (string.Format ("Ambiguous field name '{0}'.", name));
-
-      return fields[0];
+      var fields = _fields.Where (field => field.Name == name);
+      return _memberSelector.SelectSingleField (fields, bindingAttr);
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
@@ -397,8 +391,7 @@ namespace Remotion.TypePipe.MutableReflection
     protected override ConstructorInfo GetConstructorImpl (
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
-      // TODO 4812: It should be possible to use _constructors as candidates, as SelectSingleMethod applies the bindingAttrs anyway.
-      var candidates = GetConstructors (bindingAttr);
+      var candidates = _constructors;
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
@@ -411,8 +404,7 @@ namespace Remotion.TypePipe.MutableReflection
         Type[] typesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
-      // TODO 4812: It should be possible to use _methods as candidates, as SelectSingleMethod applies the bindingAttrs anyway.
-      var candidates = GetMethods (bindingAttr).Where (m => m.Name == name);
+      var candidates = _methods.Where (m => m.Name == name);
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }

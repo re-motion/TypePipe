@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -32,17 +33,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableTypeTest
   {
     private UnderlyingTypeDescriptor _descriptor;
-    private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
+    private IMemberSelector _memberSelectorMock;
 
     private MutableType _mutableType;
-    
+
     [SetUp]
     public void SetUp ()
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create(originalType: typeof (DomainType));
-      _bindingFlagsEvaluatorMock = MockRepository.GenerateMock<IBindingFlagsEvaluator>();
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _mutableType = new MutableType (_descriptor, _bindingFlagsEvaluatorMock);
+      _mutableType = new MutableType (_descriptor, _memberSelectorMock);
     }
 
     [Test]
@@ -66,8 +67,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization_Fields ()
     {
       var fields = _descriptor.Fields;
-      Assert.That (fields, Has.Count.EqualTo (1));
-      var expectedField = fields.Single();
+      Assert.That (fields, Is.Not.Empty); // base field, declared field
+      var expectedField = fields.Single (m => m.Name == "ProtectedField");
 
       Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
       var mutableField = _mutableType.ExistingMutableFields.Single ();
@@ -107,15 +108,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AllMutableFields ()
     {
-      Assert.That (_descriptor.Fields, Has.Count.EqualTo (1));
-      var existingField = _descriptor.Fields.Single();
+      Assert.That (GetAllFields (_mutableType).ExistingBaseMembers, Is.Not.Empty);
+      Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
+      var existingField = _mutableType.ExistingMutableFields.Single ();
       var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_addedField");
 
       var allFields = _mutableType.AllMutableFields.ToArray();
 
       Assert.That (allFields, Has.Length.EqualTo (2));
-      Assert.That (allFields[0].DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (allFields[0].UnderlyingSystemFieldInfo, Is.SameAs (existingField));
+      Assert.That (allFields[0], Is.SameAs (existingField));
       Assert.That (allFields[1], Is.SameAs (addedField));
     }
 
@@ -361,14 +362,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Field with equal name and signature already exists.\r\nParameter name: name")]
     public void AddField_ThrowsIfAlreadyExist ()
     {
-      var field = _descriptor.Fields.Single();
+      var field = _mutableType.ExistingMutableFields.Single ();
       _mutableType.AddField (field.FieldType, field.Name, FieldAttributes.Private);
     }
 
     [Test]
     public void AddField_ReliesOnFieldSignature ()
     {
-      var field = _descriptor.Fields.Single();
+      var field = _mutableType.ExistingMutableFields.Single();
       Assert.That (field.FieldType, Is.Not.SameAs (typeof (string)));
 
       _mutableType.AddField (typeof (string), field.Name, FieldAttributes.Private);
@@ -379,62 +380,76 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFields ()
     {
-      Assert.That (_mutableType.AllMutableFields, Is.Not.Empty);
-      _bindingFlagsEvaluatorMock
-        .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-        .Return (true);
+      _mutableType.AddField (typeof (int), "added");
+      var allFields = GetAllFields (_mutableType);
+      Assert.That (allFields.AddedMembers, Is.Not.Empty);
+      Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
+      Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
+      
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeField() };
+      _memberSelectorMock
+          .Expect (mock => mock.SelectFields (allFields, bindingAttr))
+          .Return (fakeResult);
 
-      var fields = _mutableType.GetFields (0);
+      var result = _mutableType.GetFields (bindingAttr);
 
-      Assert.That (fields, Is.EqualTo(_mutableType.AllMutableFields));
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult));
     }
 
     [Test]
-    public void GetFields_FilterAddedWithUtility ()
+    public void GetField_Added ()
     {
-      Assert.That (_descriptor.Fields.Count, Is.EqualTo (1));
-      var fieldInfo = _descriptor.Fields.Single();
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fieldInfo.Attributes, bindingFlags)).Return (false);
+      var addedField = _mutableType.AddField (typeof (int), "added");
 
-      var fields = _mutableType.GetFields (bindingFlags);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = ReflectionObjectMother.GetSomeField ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleField (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { addedField }), Arg.Is (bindingAttr)))
+          .Return (fakeResult);
 
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      Assert.That (fields, Is.Empty);
+      var resultField = _mutableType.GetField (addedField.Name, bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
     [Test]
-    public void GetField ()
+    public void GetField_ExistingDeclared ()
     {
-      var addedField = _mutableType.AddField (ReflectionObjectMother.GetSomeType(), "_blah");
-      Assert.That (_mutableType.AllMutableFields.Count(), Is.GreaterThan (1));
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      var allFields = GetAllFields (_mutableType);
+      Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
+      var existingDeclaredField = allFields.ExistingDeclaredMembers.Single ();
 
-      var resultField = _mutableType.GetField ("_blah", BindingFlags.NonPublic | BindingFlags.Instance);
+      var bindingAttr = BindingFlags.NonPublic;
 
-      Assert.That (resultField, Is.SameAs (addedField));
+      var fakeResult = ReflectionObjectMother.GetSomeField ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleField (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { existingDeclaredField }), Arg.Is (bindingAttr)))
+          .Return (fakeResult);
+
+      var resultField = _mutableType.GetField (existingDeclaredField.Name, bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
     [Test]
-    public void GetField_NoMatch ()
+    public void GetField_ExistingBase ()
     {
-      Assert.That (_mutableType.GetField ("field"), Is.Null);
-    }
+      var allFields = GetAllFields (_mutableType);
+      Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
+      var existingBaseField = allFields.ExistingBaseMembers.Single ();
 
-    [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'ProtectedField'.")]
-    public void GetField_Ambigious ()
-    {
-      var fieldName = "ProtectedField";
-      _mutableType.AddField (typeof (string), fieldName, 0);
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<FieldAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      Assert.That (_mutableType.GetFields().Where (f => f.Name == fieldName).ToArray(), Has.Length.GreaterThan (1));
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = ReflectionObjectMother.GetSomeField ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleField (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { existingBaseField }), Arg.Is (bindingAttr)))
+          .Return (fakeResult);
 
-      _mutableType.GetField (fieldName, 0);
+      var resultField = _mutableType.GetField (existingBaseField.Name, bindingAttr);
+      Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
     [Test]
@@ -493,28 +508,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructors ()
     {
-      Assert.That (_mutableType.AllMutableConstructors, Is.Not.Empty);
-      _bindingFlagsEvaluatorMock
-          .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
+      var allConstructors = GetAllConstructors (_mutableType);
+      Assert.That (allConstructors.AddedMembers, Is.Not.Empty);
+      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
 
-      var constructors = _mutableType.GetConstructors (0);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor () };
+      _memberSelectorMock
+          .Expect (mock => mock.SelectMethods (allConstructors, bindingAttr))
+          .Return (fakeResult);
 
-      Assert.That (constructors, Is.EqualTo(_mutableType.AllMutableConstructors));
-    }
+      var result = _mutableType.GetConstructors (bindingAttr);
 
-    [Test]
-    public void GetConstructors_FilterWithUtility ()
-    {
-      Assert.That (_mutableType.AllMutableConstructors.Count(), Is.EqualTo(1));
-      var ctor = _mutableType.AllMutableConstructors.Single();
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (ctor.Attributes, bindingFlags)).Return (false);
-
-      var constructors = _mutableType.GetConstructors (bindingFlags);
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      Assert.That (constructors, Is.Empty);
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (fakeResult));
     }
 
     [Test]
@@ -605,48 +613,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddMethod_AllowsShadowing ()
     {
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      var baseMethod = _mutableType.GetMethod ("ToString");
+      var baseMethod = GetBaseMethod (_mutableType, "ToString");
       Assert.That (baseMethod, Is.Not.Null);
       Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
 
-      _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string"));
+      var newMethod = _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string"));
 
-      var newMethod = _mutableType.GetMethod ("ToString");
       Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (_mutableType.AddedMethods, Has.Member (newMethod));
     }
 
     [Test]
     public void GetMethods ()
     {
-      AddMethod (_mutableType, "Method");
-      var baseMethods = _descriptor.Methods.Where (m => m.DeclaringType != typeof (DomainType));
-      Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
-      Assert.That (_mutableType.AddedMethods, Is.Not.Empty);
+      AddMethod (_mutableType, "Added");
+      var allMethods = GetAllMethods (_mutableType);
+      Assert.That (allMethods.AddedMembers, Is.Not.Empty);
+      Assert.That (allMethods.ExistingDeclaredMembers, Is.Not.Empty);
+      Assert.That (allMethods.ExistingBaseMembers, Is.Not.Empty);
 
-      _bindingFlagsEvaluatorMock
-          .Stub (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod () };
+      _memberSelectorMock
+          .Expect (mock => mock.SelectMethods (allMethods, bindingAttr))
+          .Return (fakeResult);
 
-      var methods = _mutableType.GetMethods (0);
+      var result = _mutableType.GetMethods (bindingAttr);
 
-      Assert.That (methods, Is.EqualTo (_mutableType.AllMutableMethods.Cast<MethodInfo>().Concat(baseMethods)));
-    }
-
-    [Test]
-    public void GetMethods_FilterWithUtility ()
-    {
-      Assert.That (_mutableType.AllMutableMethods, Is.Not.Empty);
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is(bindingFlags))).Return (false);
-
-      var methods = _mutableType.GetMethods (bindingFlags);
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      Assert.That (methods, Is.Empty);
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (fakeResult));
     }
 
     [Test]
@@ -787,226 +783,177 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorImpl ()
     {
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      var existingConstructor = _mutableType.ExistingMutableConstructors.Single();
-
       var addedConstructor = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
+      var allConstructors = GetAllConstructors (_mutableType);
+      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
+      var existingDeclaredConstructor = allConstructors.ExistingDeclaredMembers.Single ();
 
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      var types = new[] { ReflectionObjectMother.GetSomeType() };
-      var modifiers = new[] { new ParameterModifier (1) };
-
-      _bindingFlagsEvaluatorMock
-          .Expect (mock => mock.HasRightAttributes (existingConstructor.Attributes, bindingFlags))
-          .Return (true);
-      _bindingFlagsEvaluatorMock
-          .Expect (mock => mock.HasRightAttributes (addedConstructor.Attributes, bindingFlags))
-          .Return (true);
-
-      var fakeResult = ReflectionObjectMother.GetSomeConstructor();
-      var binderMock = MockRepository.GenerateStrictMock<Binder>();
-      binderMock
-          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { existingConstructor, addedConstructor }, types, modifiers))
-          .Return (fakeResult);
-
-      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
-      binderMock.VerifyAllExpectations();
-
-      Assert.That (result, Is.SameAs (fakeResult));
-    }
-
-    [Test]
-    public void GetConstructorImpl_EmptyCandidates ()
-    {
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      var existingConstructor = _mutableType.ExistingMutableConstructors.Single ();
-
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      var types = new[] { ReflectionObjectMother.GetSomeType () };
-      var modifiers = new[] { new ParameterModifier (1) };
-
-      _bindingFlagsEvaluatorMock
-          .Expect (mock => mock.HasRightAttributes (existingConstructor.Attributes, bindingFlags))
-          .Return (false);
-
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
-
-      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      binderMock.AssertWasNotCalled (
-          mock => mock.SelectMethod (
-              Arg<BindingFlags>.Is.Anything, Arg<MethodBase[]>.Is.Anything, Arg<Type[]>.Is.Anything, Arg<ParameterModifier[]>.Is.Anything));
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetConstructorImpl_SingleCandidate ()
-    {
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      var existingConstructor = _mutableType.ExistingMutableConstructors.Single ();
-
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      var types = new[] { ReflectionObjectMother.GetSomeType () };
-      ParameterModifier[] modifiers = null;
-
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      var binder = MockRepository.GenerateStub<Binder> ();
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
 
       var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
-      binderMock
-          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { existingConstructor }, types, modifiers))
+      _memberSelectorMock
+          .Expect (
+              mock => mock.SelectSingleMethod (
+                  Arg.Is (binder),
+                  Arg.Is (bindingAttr), 
+                  Arg<IEnumerable<ConstructorInfo>>.List.Equal (new ConstructorInfo[] { existingDeclaredConstructor, addedConstructor }),
+                  Arg.Is (typesOrNull),
+                  Arg.Is (modifiersOrNull)))
           .Return (fakeResult);
 
-      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+      var resultConstructor = CallGetConstructorImpl (_mutableType, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
 
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      binderMock.VerifyAllExpectations();
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultConstructor, Is.SameAs (fakeResult));
+    }
+    
+    [Test]
+    public void GetConstructorImpl_NullBinder ()
+    {
+      var addedConstructor = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create ());
+      var allConstructors = GetAllConstructors (_mutableType);
+      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
+      var existingDeclaredConstructor = allConstructors.ExistingDeclaredMembers.Single ();
 
-      Assert.That (result, Is.SameAs (fakeResult));
+      Binder binder = null;
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
+
+      var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
+      _memberSelectorMock
+          .Expect (
+              mock => mock.SelectSingleMethod (
+                  Arg.Is (Type.DefaultBinder),
+                  Arg.Is (bindingAttr),
+                  Arg<IEnumerable<ConstructorInfo>>.List.Equal (new ConstructorInfo[] { existingDeclaredConstructor, addedConstructor }),
+                  Arg.Is (typesOrNull),
+                  Arg.Is (modifiersOrNull)))
+          .Return (fakeResult);
+
+      var resultConstructor = CallGetConstructorImpl (_mutableType, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultConstructor, Is.SameAs (fakeResult));
     }
 
     [Test]
-    public void GetConstructorImpl_NullTypes_SingleCandidate ()
+    public void GetMethodImpl_Added ()
     {
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      var existingConstructor = _mutableType.ExistingMutableConstructors.Single ();
+      var addedMethod = AddMethod (_mutableType, "Added");
 
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      Type[] types = null;
-      ParameterModifier[] modifiers = null;
+      var binder = MockRepository.GenerateStub<Binder> ();
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
 
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      var fakeResult = ReflectionObjectMother.GetSomeMethod ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (
+              Arg.Is (binder),
+              Arg.Is (bindingAttr), 
+              Arg<IEnumerable<MethodInfo>>.List.Equal (new MethodInfo[] { addedMethod }),
+              Arg.Is (typesOrNull), 
+              Arg.Is (modifiersOrNull)))
+          .Return (fakeResult);
 
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var resultMethod = CallGetMethodImpl (_mutableType, addedMethod.Name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
 
-      var result = CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
-
-      binderMock.AssertWasNotCalled (
-          mock => mock.SelectMethod (
-              Arg<BindingFlags>.Is.Anything, Arg<MethodBase[]>.Is.Anything, Arg<Type[]>.Is.Anything, Arg<ParameterModifier[]>.Is.Anything));
-
-      Assert.That (result, Is.SameAs (existingConstructor));
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultMethod, Is.SameAs (fakeResult));
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException))]
-    public void GetConstructorImpl_NullTypes_MultipleCandidates ()
+    public void GetMethodImpl_ExistingDeclared ()
     {
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
+      var allMethods = GetAllMethods (_mutableType);
+      Assert.That (allMethods.ExistingDeclaredMembers, Is.Not.Empty);
+      var existingDeclaredMethod = allMethods.ExistingDeclaredMembers.Single ();
 
-      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-      Type[] types = null;
-      ParameterModifier[] modifiers = null;
+      var binder = MockRepository.GenerateStub<Binder> ();
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
 
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      var fakeResult = ReflectionObjectMother.GetSomeMethod ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (
+              Arg.Is (binder),
+              Arg.Is (bindingAttr),
+              Arg<IEnumerable<MethodInfo>>.List.Equal (new MethodInfo[] { existingDeclaredMethod }),
+              Arg.Is (typesOrNull),
+              Arg.Is (modifiersOrNull)))
+          .Return (fakeResult);
 
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var resultMethod = CallGetMethodImpl (_mutableType, existingDeclaredMethod.Name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
 
-      CallGetConstructorImpl (_mutableType, bindingFlags, binderMock, CallingConventions.HasThis, types, modifiers);
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultMethod, Is.SameAs (fakeResult));
     }
 
     [Test]
-    public void GetConstructorImpl_WithDefaultBinder ()
+    public void GetMethodImpl_ExistingBase ()
     {
-      var arguments = new ArgumentTestHelper (typeof (int));
-      var addedConstructor = AddConstructor (_mutableType, arguments.ParameterDeclarations);
-      
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      Assert.That (_mutableType.GetConstructors (), Has.Length.GreaterThan (1));
+      var allMethods = GetAllMethods (_mutableType);
+      Assert.That (allMethods.ExistingBaseMembers, Is.Not.Empty);
+      var existingBaseMethod = allMethods.ExistingBaseMembers.First ();
 
-      var result = CallGetConstructorImpl (
-          _mutableType, 
-          BindingFlags.Public | BindingFlags.Instance, 
-          null, 
-          CallingConventions.HasThis, 
-          arguments.Types, 
-          null);
-      Assert.That (result, Is.SameAs (addedConstructor));
+      var binder = MockRepository.GenerateStub<Binder> ();
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
+
+      var fakeResult = ReflectionObjectMother.GetSomeMethod ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (
+              Arg.Is (binder),
+              Arg.Is (bindingAttr),
+              Arg<IEnumerable<MethodInfo>>.List.Equal (new[] { existingBaseMethod }),
+              Arg.Is (typesOrNull),
+              Arg.Is (modifiersOrNull)))
+          .Return (fakeResult);
+
+      var resultMethod = CallGetMethodImpl (_mutableType, existingBaseMethod.Name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultMethod, Is.SameAs (fakeResult));
     }
 
     [Test]
-    public void GetConstructor_AllOverloads ()
+    public void GetMethodImpl_NullBinder ()
     {
-      var arguments = new ArgumentTestHelper (typeof (int));
-      var addedConstructor = AddConstructor (_mutableType, arguments.ParameterDeclarations);
+      var allMethods = GetAllMethods (_mutableType);
+      Assert.That (allMethods.ExistingBaseMembers, Is.Not.Empty);
+      var existingBaseMethod = allMethods.ExistingBaseMembers.First ();
 
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
+      Binder binder = null;
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
 
-      Assert.That (_mutableType.GetConstructor (arguments.Types), Is.SameAs (addedConstructor));
+      var fakeResult = ReflectionObjectMother.GetSomeMethod ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (
+              Arg.Is (Type.DefaultBinder),
+              Arg.Is (bindingAttr),
+              Arg<IEnumerable<MethodInfo>>.List.Equal (new[] { existingBaseMethod }),
+              Arg.Is (typesOrNull),
+              Arg.Is (modifiersOrNull)))
+          .Return (fakeResult);
 
-      var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      var binder = (Binder) null;
-      var parameterModifiers = ((ParameterModifier[]) null);
-      Assert.That(_mutableType.GetConstructor (bindingFlags, binder, arguments.Types, parameterModifiers), Is.SameAs(addedConstructor));
+      var resultMethod = CallGetMethodImpl (_mutableType, existingBaseMethod.Name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
 
-      var callingConvention = CallingConventions.HasThis;
-      Assert.That (
-          _mutableType.GetConstructor (bindingFlags, binder, callingConvention, arguments.Types, parameterModifiers), Is.SameAs (addedConstructor));
-    }
-
-    [Test]
-    public void GetMethodImpl_WithNameSignatureMatch ()
-    {
-      var addedMethod1 = AddMethod (_mutableType, "AddedMethod");
-      var addedMethod2 = AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration(typeof(int), "i"));
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count(), Is.GreaterThan (1));
-
-      var result1 = CallGetMethodImpl (_mutableType, "AddedMethod", Type.EmptyTypes);
-      var result2 = CallGetMethodImpl (_mutableType, "AddedMethod", new[] { typeof (int) });
-
-      Assert.That (result1, Is.SameAs (addedMethod1));
-      Assert.That (result2, Is.SameAs (addedMethod2));
-    }
-
-    [Test]
-    public void GetMethodImpl_WithNameMatchOnly ()
-    {
-      var addedMethod = AddMethod (_mutableType, "AddedMethod");
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (1));
-
-      var result = CallGetMethodImpl(_mutableType, "AddedMethod", null);
-
-      Assert.That (result, Is.SameAs (addedMethod));
-    }
-
-    [Test]
-    public void GetMethodImpl_WithNameMatchOnly_Ambiguous ()
-    {
-      AddMethod (_mutableType, "AddedMethod");
-      AddMethod (_mutableType, "AddedMethod", new ParameterDeclaration (typeof (int), "i"));
-      _bindingFlagsEvaluatorMock
-          .Stub (stub => stub.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (true);
-      Assert.That (_mutableType.GetMethods ().Where (m => m.Name == "AddedMethod").Count (), Is.EqualTo (2));
-
-      Assert.That (() => CallGetMethodImpl (_mutableType, "AddedMethod", null), Throws.TypeOf<AmbiguousMatchException>());
-    }
-
-    [Test]
-    public void GetMethodImpl_NoMatch ()
-    {
-      Assert.That (CallGetMethodImpl (_mutableType, "DoesNotExist", null), Is.Null);
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultMethod, Is.SameAs (fakeResult));
     }
 
     [Test]
@@ -1030,10 +977,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.GetEvents ();
       _mutableType.GetMember ("name", BindingFlags.Default);
       _mutableType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
-      _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
       _mutableType.IsSubclassOf (null);
       _mutableType.IsInstanceOfType (null);
       _mutableType.IsAssignableFrom (null);
+
+      _memberSelectorMock
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (new MethodInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (new ConstructorInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (new FieldInfo[0]);
+      _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
     }
 
     [Test]
@@ -1080,13 +1037,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
     }
 
-    private MethodInfo CallGetMethodImpl (MutableType mutableType, string name, Type[] typesOrNull)
+    private MethodInfo CallGetMethodImpl (
+        MutableType mutableType,
+        string name,
+        BindingFlags bindingAttr,
+        Binder binder,
+        CallingConventions callingConvention,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
     {
-      var bindingAttr = BindingFlags.Public | BindingFlags.Instance;
-      var binder = (Binder) null;
-      var callingConvention = CallingConventions.HasThis;
-      var modifiersOrNull = (ParameterModifier[]) null;
-
       var arguments = new object[] { name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
       return (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetMethodImpl", arguments);
     }
@@ -1119,7 +1078,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod)).Repeat.Any ();
     }
 
-    public class DomainType : IDomainInterface
+    private MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> GetAllFields (MutableType mutableType)
+    {
+      return (MutableTypeMemberCollection<FieldInfo, MutableFieldInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_fields");
+    }
+
+    private MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> GetAllMethods (MutableType mutableType)
+    {
+      return (MutableTypeMemberCollection<MethodInfo, MutableMethodInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
+    }
+
+    private MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> GetAllConstructors (MutableType mutableType)
+    {
+      return (MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_constructors");
+    }
+
+    private MethodInfo GetBaseMethod (MutableType mutableType, string name)
+    {
+      return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
+    }
+
+    public class DomainTypeBase
+    {
+      public int BaseField;
+
+      public void ExistingBaseMethod ()
+      {
+      }
+    }
+
+    public class DomainType : DomainTypeBase, IDomainInterface
     {
 // ReSharper disable UnaccessedField.Global
       protected int ProtectedField;

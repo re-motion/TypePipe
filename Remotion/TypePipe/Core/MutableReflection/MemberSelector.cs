@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -26,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Selects members based on <see cref="BindingFlags"/> and other criteria. This is used to implement member access operations in 
   /// <see cref="MutableType"/>.
   /// </summary>
-  public class MemberSelector
+  public class MemberSelector : IMemberSelector
   {
     private readonly IBindingFlagsEvaluator _bindingFlagsEvaluator;
 
@@ -65,20 +66,35 @@ namespace Remotion.TypePipe.MutableReflection
       if (typesOrNull == null && modifiersOrNull != null)
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
 
-      var candidatesArray = candidates.ToArray();
-      if (candidatesArray.Length == 0)
-        return null;
-
       if (typesOrNull == null)
       {
+        var candidatesArray = SelectMethods (candidates, bindingAttr).ToArray ();
+        
+        if (candidatesArray.Length == 0)
+          return null;
+
         if (candidatesArray.Length > 1)
           throw new AmbiguousMatchException();
 
-        // TODO 4812: Should use SelectMethods to evaluate binding attributes on single candidate.
-        return candidates.Single();
+        return candidatesArray.Single();
       }
 
-      return (T) binder.SelectMethod (bindingAttr, candidatesArray, typesOrNull, modifiersOrNull);
+      return (T) binder.SelectMethod (bindingAttr, candidates.ToArray(), typesOrNull, modifiersOrNull);
+    }
+
+    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNull ("candidates", candidates);
+
+      var fieldCollection = SelectFields (candidates, bindingAttr).ConvertToCollection();
+
+      if (fieldCollection.Count == 0)
+        return null;
+      
+      if (fieldCollection.Count > 1)
+        throw new AmbiguousMatchException();
+
+      return fieldCollection.Single ();
     }
   }
 }

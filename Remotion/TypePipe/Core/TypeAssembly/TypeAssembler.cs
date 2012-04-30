@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.TypeAssembly
 
     private MutableType CreateMutableType (Type requestedType)
     {
-      return new MutableType (UnderlyingTypeDescriptor.Create (requestedType), new BindingFlagsEvaluator());
+      return new MutableType (UnderlyingTypeDescriptor.Create (requestedType), new MemberSelector (new BindingFlagsEvaluator()));
     }
   }
 }
