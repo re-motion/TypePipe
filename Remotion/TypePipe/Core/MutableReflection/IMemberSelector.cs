@@ -25,17 +25,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMemberSelector
   {
-    IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr);
     IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr) where T : MethodBase;
+    IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr);
 
     T SelectSingleMethod<T> (
-        Binder binder,
-        BindingFlags bindingAttr,
-        IEnumerable<T> candidates,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
-        where T : MethodBase;
+        IEnumerable<T> methods, Binder binder, BindingFlags bindingAttr, string name, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+        where T: MethodBase;
 
-    FieldInfo SelectSingleField (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr);
+    FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name);
   }
 }

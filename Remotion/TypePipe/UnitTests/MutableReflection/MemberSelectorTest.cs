@@ -40,22 +40,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void SelectFields ()
-    {
-      var candidates = new[] { GetField (dt => dt.Field1), GetField (dt => dt.Field2), GetField (dt => dt.Field3) };
-      var bindingFlags = BindingFlags.NonPublic;
-
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (true);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
-
-      var result = _selector.SelectFields (candidates, bindingFlags).ToArray ();
-
-      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      Assert.That (result, Is.EqualTo (new[] { candidates[0], candidates[2] }));
-    }
-
-    [Test]
     public void SelectMethods ()
     {
       var candidates = new[] { GetMethod (dt => dt.Method1 ()), GetMethod (dt => dt.Method2 ()), GetMethod (dt => dt.Method3 ()) };
@@ -72,20 +56,42 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void SelectFields ()
+    {
+      var candidates = new[] { GetField (dt => dt.Field1), GetField (dt => dt.Field2), GetField (dt => dt.Field3) };
+      var bindingFlags = BindingFlags.NonPublic;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
+
+      var result = _selector.SelectFields (candidates, bindingFlags).ToArray ();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (new[] { candidates[0], candidates[2] }));
+    }
+
+    [Test]
     public void SelectSingleMethod ()
     {
       var binderMock = MockRepository.GenerateStrictMock<Binder> ();
       var bindingFlags = BindingFlags.NonPublic;
-      var candidates = new[] { GetMethod (dt => dt.Method1 ()), GetMethod (dt => dt.Method2 ()), GetMethod (dt => dt.Method3 ()) };
+      var methods =
+          new[]
+          {
+              CreateMethodStub ("Method1", MethodAttributes.Assembly),
+              CreateMethodStub ("This method is filtered because of its name", MethodAttributes.Family),
+              CreateMethodStub ("Method1", MethodAttributes.Public)
+          };
       var typesOrNull = new[] { typeof (int), typeof (string) };
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
       var fakeResult = ReflectionObjectMother.GetSomeMethod ();
       binderMock
-          .Expect (mock => mock.SelectMethod (bindingFlags, candidates, typesOrNull, modifiersOrNull))
+          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { methods[0], methods[2] }, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var result = _selector.SelectSingleMethod (binderMock, bindingFlags, candidates, typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
 
       binderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -96,34 +102,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var binderMock = MockRepository.GenerateStrictMock<Binder> ();
       var bindingFlags = BindingFlags.NonPublic;
-      var candidates = new[] { GetMethod (dt => dt.Method1 ()), GetMethod (dt => dt.Method2 ()), GetMethod (dt => dt.Method3 ()) };
+      var methods =
+          new[]
+          {
+              CreateMethodStub ("Method1", MethodAttributes.Assembly),
+              CreateMethodStub ("This method is filtered because of its name", MethodAttributes.Family),
+              CreateMethodStub ("Method1", MethodAttributes.Public)
+          };
       Type[] typesOrNull = null;
       ParameterModifier[] modifiersOrNull = null;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (false);
 
-      var result = _selector.SelectSingleMethod (binderMock, bindingFlags, candidates, typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
 
       Assert.That (result, Is.Null);
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException))]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous method name 'Method1'.")]
     public void SelectSingleMethod_TypesNull_Ambiguous ()
     {
       var binderMock = MockRepository.GenerateStrictMock<Binder> ();
       var bindingFlags = BindingFlags.NonPublic;
-      var candidates = new[] { GetMethod (dt => dt.Method1 ()), GetMethod (dt => dt.Method2 ()), GetMethod (dt => dt.Method3 ()) };
+      var methods =
+          new[]
+          {
+              CreateMethodStub ("Method1", MethodAttributes.Assembly),
+              CreateMethodStub ("Method1", MethodAttributes.Public)
+          };
       Type[] typesOrNull = null;
       ParameterModifier[] modifiersOrNull = null;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (true);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[1].Attributes, bindingFlags)).Return (true);
 
-      _selector.SelectSingleMethod (binderMock, bindingFlags, candidates, typesOrNull, modifiersOrNull);
+      _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
     }
 
     [Test]
@@ -131,20 +146,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var binderMock = MockRepository.GenerateStrictMock<Binder> ();
       var bindingFlags = BindingFlags.NonPublic;
-      var candidates = new[] { GetMethod (dt => dt.Method1 ()), GetMethod (dt => dt.Method2 ()), GetMethod (dt => dt.Method3 ()) };
+      var methods =
+          new[]
+          {
+              CreateMethodStub ("Method1", MethodAttributes.Assembly),
+              CreateMethodStub ("This method is filtered because of its name", MethodAttributes.Family),
+              CreateMethodStub ("Method1", MethodAttributes.Public)
+          };
       Type[] typesOrNull = null;
       ParameterModifier[] modifiersOrNull = null;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (true);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (true);
 
-      var result = _selector.SelectSingleMethod (binderMock, bindingFlags, candidates, typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
 
       binderMock.AssertWasNotCalled (
           mock => mock.SelectMethod (
               Arg<BindingFlags>.Is.Anything, Arg<MethodBase[]>.Is.Anything, Arg<Type[]>.Is.Anything, Arg<ParameterModifier[]>.Is.Anything));
-      Assert.That (result, Is.SameAs (candidates[1]));
+      Assert.That (result, Is.SameAs (methods[2]));
     }
 
     [Test]
@@ -154,56 +174,76 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var binderMock = MockRepository.GenerateStrictMock<Binder> ();
       var bindingFlags = BindingFlags.NonPublic;
-      var candidates = new[] { GetMethod (dt => dt.Method1 ()) };
+      var methods = new[] { CreateMethodStub() };
       Type[] typesOrNull = null;
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
-      _selector.SelectSingleMethod (binderMock, bindingFlags, candidates, typesOrNull, modifiersOrNull);
+      _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Whatever", typesOrNull, modifiersOrNull);
     }
 
     [Test]
     public void SelectSingleField ()
     {
-      var candidates = new[] { GetField (dt => dt.Field1), GetField (dt => dt.Field2), GetField (dt => dt.Field3) };
+      var fields =
+          new[]
+          {
+              CreateFieldStub ("field1", FieldAttributes.Assembly), 
+              CreateFieldStub ("this field is removed because of its name", FieldAttributes.Family),
+              CreateFieldStub ("field1", FieldAttributes.Public)
+          };
+      
       var bindingFlags = BindingFlags.NonPublic;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (true);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[2].Attributes, bindingFlags)).Return (true);
 
-      var result = _selector.SelectSingleField (candidates, bindingFlags);
+      var result = _selector.SelectSingleField (fields, bindingFlags, "field1");
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
-      Assert.That (result, Is.SameAs (candidates[1]));
+      Assert.That (result, Is.SameAs (fields[2]));
     }
 
     [Test]
     public void SelectSingleField_EmptyCandidates ()
     {
-      var candidates = new[] { GetField (dt => dt.Field1), GetField (dt => dt.Field2), GetField (dt => dt.Field3) };
+      var fields = new[] { CreateFieldStub ("field1", FieldAttributes.Assembly), CreateFieldStub ("field1", FieldAttributes.Public) };
       var bindingFlags = BindingFlags.NonPublic;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[1].Attributes, bindingFlags)).Return (false);
 
-      var result = _selector.SelectSingleField (candidates, bindingFlags);
+      var result = _selector.SelectSingleField (fields, bindingFlags, "field1");
 
       Assert.That (result, Is.Null);
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException))]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'field1'.")]
     public void SelectSingleField_Ambiguous ()
     {
-      var candidates = new[] { GetField (dt => dt.Field1), GetField (dt => dt.Field2), GetField (dt => dt.Field3) };
+      var fields = new[] { CreateFieldStub ("field1", FieldAttributes.Assembly), CreateFieldStub ("field1", FieldAttributes.Public) };
       var bindingFlags = BindingFlags.NonPublic;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (false);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (true);
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[1].Attributes, bindingFlags)).Return (true);
 
-      _selector.SelectSingleField (candidates, bindingFlags);
+      _selector.SelectSingleField (fields, bindingFlags, "field1");
+    }
+
+    private FieldInfo CreateFieldStub (string name, FieldAttributes fieldAttributes)
+    {
+      var fieldStub = MockRepository.GenerateStub<FieldInfo>();
+      fieldStub.Stub (stub => stub.Name).Return (name);
+      fieldStub.Stub (stub => stub.Attributes).Return (fieldAttributes);
+      return fieldStub;
+    }
+
+    private MethodInfo CreateMethodStub (string name = "Unspecified", MethodAttributes methodAttributes = MethodAttributes.PrivateScope)
+    {
+      var methodStub = MockRepository.GenerateStub<MethodInfo> ();
+      methodStub.Stub (stub => stub.Name).Return (name);
+      methodStub.Stub (stub => stub.Attributes).Return (methodAttributes);
+      return methodStub;
     }
 
     private FieldInfo GetField<TR> (Expression<Func<DomainType, TR>> memberAccessExpression)

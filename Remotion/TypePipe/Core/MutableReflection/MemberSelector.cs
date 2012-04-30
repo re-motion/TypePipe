@@ -38,13 +38,6 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
-    {
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
-
-      return candidates.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
-    }
-
     public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr) where T : MethodBase
     {
       ArgumentUtility.CheckNotNull ("candidates", candidates);
@@ -52,19 +45,24 @@ namespace Remotion.TypePipe.MutableReflection
       return candidates.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr));
     }
 
+    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNull ("candidates", candidates);
+
+      return candidates.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
+    }
+
     public T SelectSingleMethod<T> (
-        Binder binder,
-        BindingFlags bindingAttr,
-        IEnumerable<T> candidates,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
-      where T : MethodBase
+        IEnumerable<T> methods, Binder binder, BindingFlags bindingAttr, string name, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+        where T: MethodBase
     {
       ArgumentUtility.CheckNotNull ("binder", binder);
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
+      ArgumentUtility.CheckNotNull ("methods", methods);
 
       if (typesOrNull == null && modifiersOrNull != null)
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
+
+      var candidates = methods.Where (mi => mi.Name == name);
 
       if (typesOrNull == null)
       {
@@ -74,7 +72,10 @@ namespace Remotion.TypePipe.MutableReflection
           return null;
 
         if (candidatesArray.Length > 1)
-          throw new AmbiguousMatchException();
+        {
+          var message = string.Format ("Ambiguous method name '{0}'.", name);
+          throw new AmbiguousMatchException (message);
+        }
 
         return candidatesArray.Single();
       }
@@ -82,17 +83,21 @@ namespace Remotion.TypePipe.MutableReflection
       return (T) binder.SelectMethod (bindingAttr, candidates.ToArray(), typesOrNull, modifiersOrNull);
     }
 
-    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
+    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
     {
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
+      ArgumentUtility.CheckNotNull ("fields", fields);
 
+      var candidates = fields.Where (fi => fi.Name == name);
       var fieldCollection = SelectFields (candidates, bindingAttr).ConvertToCollection();
 
       if (fieldCollection.Count == 0)
         return null;
       
       if (fieldCollection.Count > 1)
-        throw new AmbiguousMatchException();
+      {
+        var message = string.Format ("Ambiguous field name '{0}'.", name);
+        throw new AmbiguousMatchException(message);
+      }
 
       return fieldCollection.Single ();
     }

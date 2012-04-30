@@ -225,8 +225,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      var fields = _fields.Where (field => field.Name == name);
-      return _memberSelector.SelectSingleField (fields, bindingAttr);
+      return _memberSelector.SelectSingleField (_fields, bindingAttr, name);
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
@@ -393,7 +392,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var candidates = _constructors;
       var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (candidates, binder, bindingAttr, ".ctor", typesOrNull, modifiersOrNull);
     }
 
     protected override MethodInfo GetMethodImpl (
@@ -404,9 +403,8 @@ namespace Remotion.TypePipe.MutableReflection
         Type[] typesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
-      var candidates = _methods.Where (m => m.Name == name);
       var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (binder, bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, typesOrNull, modifiersOrNull);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
