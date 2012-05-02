@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: ReflectionObjectMother.GetSomeMethod());
       _mutableMethod = Create(_descriptor);
     }
 
@@ -141,7 +141,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ReturnType ()
     {
+      Assert.That (_descriptor.ReturnType, Is.Not.Null);
+
       Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnType));
+    }
+
+    [Test]
+    public void BaseMethod ()
+    {
+      Assert.That (_descriptor.BaseMethod, Is.Not.Null);
+
+      Assert.That(_mutableMethod.BaseMethod, Is.SameAs(_descriptor.BaseMethod));
     }
 
     [Test]

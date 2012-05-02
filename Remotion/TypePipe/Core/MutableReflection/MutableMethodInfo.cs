@@ -100,6 +100,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.ReturnType; }
     }
 
+    public MethodInfo BaseMethod
+    {
+      get { return _underlyingMethodInfoDescriptor.BaseMethod; }
+    }
+
     public override bool IsGenericMethod
     {
       get { return _underlyingMethodInfoDescriptor.IsGenericMethod; }
