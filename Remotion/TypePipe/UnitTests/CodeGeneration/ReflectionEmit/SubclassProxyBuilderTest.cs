@@ -502,7 +502,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = isNew
                        ? MutableMethodInfoObjectMother.CreateForNew (attributes: MethodAttributes.Virtual)
                        : MutableMethodInfoObjectMother.CreateForExisting (
-                           originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
+                           originalMethodInfo: MemberInfoFromExpressionUtility.GetBaseDefinition ((object obj) => obj.ToString()));
       if (isModified)
         MutableMethodInfoTestHelper.ModifyMethod (method);
 
