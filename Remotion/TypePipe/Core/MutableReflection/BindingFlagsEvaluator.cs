@@ -28,26 +28,34 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool HasRightAttributes (FieldAttributes fieldAttributes, BindingFlags bindingFlags)
     {
+      // It's safe to cast from FieldAttributes to MethodAttributes because the relevant flag values are the same. This is checked by a unit test.
       return HasRightAttributes ((MethodAttributes) fieldAttributes, bindingFlags);
     }
 
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
       var isPublic = ((methodAttributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public);
-      var shoudBePublic = (bindingFlags & BindingFlags.Public) == BindingFlags.Public;
-
-      return isPublic == shoudBePublic;
+      if (isPublic)
+        return IsFlagDefined (bindingFlags, BindingFlags.Public);
+      else
+        return IsFlagDefined (bindingFlags, BindingFlags.NonPublic);
     }
 
     public bool HasRightInstanceOrStaticFlag (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
-      if ((bindingFlags & (BindingFlags.Instance | BindingFlags.Static)) == 0)
+      if (!IsFlagDefined (bindingFlags, BindingFlags.Static) && !IsFlagDefined (bindingFlags, BindingFlags.Instance))
         return false;
 
       var isStatic = (methodAttributes & MethodAttributes.Static) == MethodAttributes.Static;
-      var shouldBeStatic = (bindingFlags & BindingFlags.Static) == BindingFlags.Static;
+      if (isStatic)
+        return IsFlagDefined (bindingFlags, BindingFlags.Static);
+      else
+        return IsFlagDefined (bindingFlags, BindingFlags.Instance);
+    }
 
-      return isStatic == shouldBeStatic;
+    private bool IsFlagDefined (BindingFlags bindingFlags, BindingFlags checkedFlag)
+    {
+      return (bindingFlags & checkedFlag) == checkedFlag;
     }
   }
 }

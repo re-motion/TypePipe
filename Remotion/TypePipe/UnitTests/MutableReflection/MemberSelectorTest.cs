@@ -86,15 +86,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var typesOrNull = new[] { typeof (int), typeof (string) };
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (true);
+
       var fakeResult = ReflectionObjectMother.GetSomeMethod ();
       binderMock
-          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { methods[0], methods[2] }, typesOrNull, modifiersOrNull))
+          .Expect (mock => mock.SelectMethod (bindingFlags, new[] { methods[2] }, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
       var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
 
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       binderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void SelectSingleMethod_ZeroCandidates ()
+    {
+      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var bindingFlags = BindingFlags.NonPublic;
+      var methods =
+          new[]
+          {
+              CreateMethodStub ("Method1", MethodAttributes.Assembly),
+              CreateMethodStub ("This method is filtered because of its name", MethodAttributes.Family),
+              CreateMethodStub ("Method1", MethodAttributes.Public)
+          };
+      var typesOrNull = new[] { typeof (int), typeof (string) };
+      var modifiersOrNull = new[] { new ParameterModifier (2) };
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (false);
+
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.Null);
     }
 
     [Test]

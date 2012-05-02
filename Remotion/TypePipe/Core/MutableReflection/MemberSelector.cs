@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("candidates", candidates);
 
-      return candidates.Where (ctor => _bindingFlagsEvaluator.HasRightAttributes (ctor.Attributes, bindingAttr));
+      return candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
     }
 
     public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
@@ -62,25 +62,22 @@ namespace Remotion.TypePipe.MutableReflection
       if (typesOrNull == null && modifiersOrNull != null)
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
 
-      var candidates = methods.Where (mi => mi.Name == name);
+      var candidates = SelectMethods (methods.Where (mi => mi.Name == name), bindingAttr).ToArray ();
+      if (candidates.Length == 0)
+        return null;
 
       if (typesOrNull == null)
       {
-        var candidatesArray = SelectMethods (candidates, bindingAttr).ToArray ();
-        
-        if (candidatesArray.Length == 0)
-          return null;
-
-        if (candidatesArray.Length > 1)
+        if (candidates.Length > 1)
         {
           var message = string.Format ("Ambiguous method name '{0}'.", name);
           throw new AmbiguousMatchException (message);
         }
 
-        return candidatesArray.Single();
+        return candidates.Single();
       }
 
-      return (T) binder.SelectMethod (bindingAttr, candidates.ToArray(), typesOrNull, modifiersOrNull);
+      return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)

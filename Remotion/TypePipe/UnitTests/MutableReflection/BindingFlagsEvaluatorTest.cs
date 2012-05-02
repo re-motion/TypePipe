@@ -91,13 +91,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void HasRightVisibility_Both ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic;
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.Public, bindingFlags), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.FamORAssem, bindingFlags), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.Family, bindingFlags), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.Assembly, bindingFlags), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.FamANDAssem, bindingFlags), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.Private, bindingFlags), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (MethodAttributes.PrivateScope, bindingFlags), Is.True);
+    }
+
+    [Test]
     public void HasRightInstanceOrStaticFlag ()
     {
       MethodAttributes methodAttributesInstance = 0;
       Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (methodAttributesInstance, BindingFlags.Instance), Is.True);
       Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (methodAttributesInstance, BindingFlags.Static), Is.False);
-      Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (MethodAttributes.Static, BindingFlags.Instance), Is.False);
-      Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (MethodAttributes.Static, BindingFlags.Static), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (methodAttributesInstance, BindingFlags.Instance | BindingFlags.Static), Is.True);
+
+      MethodAttributes methodAttributesStatic = MethodAttributes.Static;
+      Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (methodAttributesStatic, BindingFlags.Instance), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (methodAttributesStatic, BindingFlags.Static), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightInstanceOrStaticFlag (methodAttributesStatic, BindingFlags.Instance | BindingFlags.Static), Is.True);
     }
 
     [Test]
