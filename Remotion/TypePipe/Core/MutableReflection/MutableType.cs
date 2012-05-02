@@ -307,7 +307,8 @@ namespace Remotion.TypePipe.MutableReflection
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameterDeclarationCollection, false, false, false, body);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          name, attributes, returnType, parameterDeclarationCollection, null, false, false, false, body);
       var methodInfo = new MutableMethodInfo (this, descriptor);
 
       _methods.Add (methodInfo);

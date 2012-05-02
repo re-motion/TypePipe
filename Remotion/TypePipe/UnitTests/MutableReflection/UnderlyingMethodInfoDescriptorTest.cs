@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
@@ -35,25 +36,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var name = "Method";
       var attributes = MethodAttributes.Abstract;
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var returnType = ReflectionObjectMother.GetSomeType();
-      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var baseMethod = ReflectionObjectMother.GetSomeMethod();
       var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
       var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean();
       var containsGenericParameters = BooleanObjectMother.GetRandomBoolean();
+      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
+
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDeclarations.AsOneTime(), isGenericMethod, isGenericMethodDefinition, containsGenericParameters, body);
+          name,
+          attributes,
+          returnType,
+          parameterDeclarations.AsOneTime(),
+          baseMethod,
+          isGenericMethod,
+          isGenericMethodDefinition,
+          containsGenericParameters,
+          body);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (returnType));
       Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
+      Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethod));
       Assert.That (descriptor.IsGenericMethod, Is.EqualTo (isGenericMethod));
       Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
       Assert.That (descriptor.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
       Assert.That (descriptor.Body, Is.SameAs (body));
+    }
+
+    [Test]
+    public void Create_ForNew_NullBaseMethod ()
+    {
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      MethodInfo baseMethod = null;
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          "Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, baseMethod, false, false, false, body);
+
+      Assert.That (descriptor.BaseMethod, Is.Null);
     }
 
     [Test]
@@ -63,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       UnderlyingMethodInfoDescriptor.Create (
-          "Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, false, false, false, body: body);
+          "Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, null, false, false, false, body);
     }
     
     [Test]
@@ -89,9 +112,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
+      Assert.That (descriptor.BaseMethod, Is.Null);
 
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
-
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (originalMethod.ReturnType));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
@@ -109,19 +132,46 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
 
-    private class DomainType
+    [Test]
+    public void Create_ForExisting_OverridingMethod ()
     {
-      // ReSharper disable UnusedParameter.Local
+      var originalMethod = typeof (DomainType).GetMethod ("OverridingMethod");
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+
+      var baseMethod = typeof(B).GetMethod("OverridingMethod");
+      Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethod));
+      Assert.That (descriptor.BaseMethod, Is.Not.EqualTo (originalMethod.GetBaseDefinition()));
+    }
+
+    public class A
+    {
+      public virtual void OverridingMethod () { }
+    }
+
+    private class B : A
+    {
+      public override void OverridingMethod () { }
+    }
+
+    private class C : B
+    {
+    }
+
+    private class DomainType : C
+    {
       public int Method (string s, out int i, [In] double d, [In, Out] object o)
-      // ReSharper restore UnusedParameter.Local
       {
-        throw new NotImplementedException ();
+        Dev.Null = s;
+        i = 0;
+        Dev.Null = d;
+        Dev.Null = o;
+        return 0;
       }
 
-      protected internal string ProtectedInternalMethod ()
-      {
-        throw new NotImplementedException();
-      }
+      protected internal string ProtectedInternalMethod () { return null; }
+
+      public override void OverridingMethod () { }
     }
   }
 }

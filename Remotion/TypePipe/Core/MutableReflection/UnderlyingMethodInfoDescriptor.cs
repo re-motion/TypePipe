@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -37,6 +38,7 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
+        MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
         bool containsGenericParameters,
@@ -57,6 +59,7 @@ namespace Remotion.TypePipe.MutableReflection
           attributes,
           returnType,
           parameterDeclarationReadOnlyCollection,
+          baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,
           containsGenericParameters,
@@ -71,6 +74,7 @@ namespace Remotion.TypePipe.MutableReflection
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = GetMethodAttributesWithAdjustedVisibiity (originalMethod);
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
+      var baseMethod = GetBaseMethod(originalMethod);
       var body = CreateOriginalBodyExpression (originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
@@ -79,13 +83,27 @@ namespace Remotion.TypePipe.MutableReflection
           attributes,
           originalMethod.ReturnType,
           parameterDeclarations,
+          baseMethod,
           originalMethod.IsGenericMethod,
           originalMethod.IsGenericMethodDefinition,
           originalMethod.ContainsGenericParameters,
           body);
     }
 
+    private static MethodInfo GetBaseMethod (MethodInfo method)
+    {
+      var rootDefinition = method.GetBaseDefinition();
+      if (method.Equals(rootDefinition))
+        return null;
+
+      var baseTypeSequence = method.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
+      return allBaseMethods.First (m => m.GetBaseDefinition().Equals(rootDefinition));
+    }
+
     private readonly Type _returnType;
+    private readonly MethodInfo _baseMethod;
     private readonly bool _isGenericMethod;
     private readonly bool _isGenericMethodDefinition;
     private readonly bool _containsGenericParameters;
@@ -96,6 +114,7 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
+        MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
         bool containsGenericParameters,
@@ -106,6 +125,7 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));
 
       _returnType = returnType;
+      _baseMethod = baseMethod;
       _isGenericMethod = isGenericMethod;
       _isGenericMethodDefinition = isGenericMethodDefinition;
       _containsGenericParameters = containsGenericParameters;
@@ -114,6 +134,11 @@ namespace Remotion.TypePipe.MutableReflection
     public Type ReturnType
     {
       get { return _returnType; }
+    }
+
+    public MethodInfo BaseMethod
+    {
+      get { return _baseMethod; }
     }
 
     public bool IsGenericMethod
