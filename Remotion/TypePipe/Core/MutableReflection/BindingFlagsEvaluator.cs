@@ -19,6 +19,10 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  /// <summary>
+  /// Evaluates <see cref="MethodAttributes"/> and <see cref="FieldAttributes"/> against the specified <see cref="BindingFlags"/>.
+  /// This is used by <see cref="MemberSelector"/> to filter members.
+  /// </summary>
   public class BindingFlagsEvaluator : IBindingFlagsEvaluator
   {
     public bool HasRightAttributes (MethodAttributes methodAttributes, BindingFlags bindingFlags)

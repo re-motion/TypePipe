@@ -18,6 +18,9 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  /// <summary>
+  /// Defines an interface for evaluating <see cref="BindingFlags"/>.
+  /// </summary>
   public interface IBindingFlagsEvaluator
   {
     bool HasRightAttributes (MethodAttributes methodAttributes, BindingFlags bindingFlags);
