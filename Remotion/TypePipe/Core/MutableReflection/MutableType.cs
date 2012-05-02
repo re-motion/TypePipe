@@ -194,14 +194,10 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-      var interfaces = GetInterfaces().Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
-
-      if (interfaces.Length == 0)
-        return null;
-      if (interfaces.Length > 1)
-        throw new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name));
-
-      return interfaces[0];
+      return GetInterfaces()
+          .SingleOrDefault (
+              iface => iface.Name.Equals (name, comparisonMode),
+              () => new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name)));
     }
 
     public MutableFieldInfo AddField (Type type, string name, FieldAttributes attributes = FieldAttributes.Private)

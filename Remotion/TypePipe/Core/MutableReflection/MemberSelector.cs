@@ -85,18 +85,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("fields", fields);
 
       var candidates = fields.Where (fi => fi.Name == name);
-      var fieldCollection = SelectFields (candidates, bindingAttr).ConvertToCollection();
 
-      if (fieldCollection.Count == 0)
-        return null;
-      
-      if (fieldCollection.Count > 1)
-      {
-        var message = string.Format ("Ambiguous field name '{0}'.", name);
-        throw new AmbiguousMatchException(message);
-      }
-
-      return fieldCollection.Single ();
+      var message = string.Format ("Ambiguous field name '{0}'.", name);
+      return SelectFields (candidates, bindingAttr).SingleOrDefault (() => new AmbiguousMatchException (message));
     }
   }
 }
