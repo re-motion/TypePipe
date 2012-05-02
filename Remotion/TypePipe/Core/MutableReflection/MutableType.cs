@@ -221,6 +221,11 @@ namespace Remotion.TypePipe.MutableReflection
       return fieldInfo;
     }
 
+        public override FieldInfo[] GetFields (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectFields (_fields, bindingAttr).ToArray();
+    }
+
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -228,9 +233,11 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectSingleField (_fields, bindingAttr, name);
     }
 
-    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
+    public MutableFieldInfo GetMutableField (FieldInfo fieldInfo)
     {
-      return _memberSelector.SelectFields (_fields, bindingAttr).ToArray();
+      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
+
+      return _fields.GetMutableMember (fieldInfo);
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -271,7 +278,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
 
-      return _constructors.GetMutableMember(constructorInfo);
+      return _constructors.GetMutableMember (constructorInfo);
     }
 
     public MutableMethodInfo AddMethod (

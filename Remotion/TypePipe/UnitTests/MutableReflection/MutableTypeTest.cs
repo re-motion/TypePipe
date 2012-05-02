@@ -417,6 +417,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetMutableField ()
+    {
+      var existingField = _descriptor.Fields.Single (m => m.Name == "ProtectedField");
+      Assert.That (existingField, Is.Not.AssignableTo<MutableFieldInfo>());
+
+      var result = _mutableType.GetMutableField (existingField);
+
+      Assert.That (result.UnderlyingSystemFieldInfo, Is.SameAs (existingField));
+      Assert.That (_mutableType.ExistingMutableFields, Has.Member (result));
+    }
+
+    [Test]
     public void AddConstructor ()
     {
       var attributes = MethodAttributes.Public;
