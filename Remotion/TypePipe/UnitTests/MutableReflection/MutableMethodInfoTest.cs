@@ -189,7 +189,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var nonVirtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
 
-      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
       var existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
 
       Assert.That (newNonVirtualMethod.CanSetBody, Is.True);
