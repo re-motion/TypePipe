@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -67,15 +68,16 @@ namespace Remotion.TypePipe.MutableReflection
           body);
     }
 
-    public static UnderlyingMethodInfoDescriptor Create (MethodInfo originalMethod)
+    public static UnderlyingMethodInfoDescriptor Create (MethodInfo originalMethod, IRelatedMethodFinder relatedMethodFinder)
     {
       ArgumentUtility.CheckNotNull ("originalMethod", originalMethod);
+      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = GetMethodAttributesWithAdjustedVisibiity (originalMethod);
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
-      var baseMethod = GetBaseMethod(originalMethod);
+      var baseMethod = GetBaseMethod(originalMethod, relatedMethodFinder);
       var body = CreateOriginalBodyExpression (originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
@@ -91,7 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
           body);
     }
 
-    private static MethodInfo GetBaseMethod (MethodInfo method)
+    private static MethodInfo GetBaseMethod (MethodInfo method, IRelatedMethodFinder relatedMethodFinder)
     {
       var rootDefinition = method.GetBaseDefinition();
       if (method.Equals(rootDefinition))
@@ -100,6 +102,7 @@ namespace Remotion.TypePipe.MutableReflection
       var baseTypeSequence = method.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
+      //return relatedMethodFinder.FindFirstOverriddenMethod (method.Name, MethodSignature.Create(method), allBaseMethods);
       return allBaseMethods.First (m => m.GetBaseDefinition().Equals(rootDefinition));
     }
 

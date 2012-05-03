@@ -31,6 +31,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class UnderlyingMethodInfoDescriptorTest
   {
+    private RelatedMethodFinder _relatedMethodFinder;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _relatedMethodFinder = new RelatedMethodFinder();
+    }
+
     [Test]
     public void Create_ForNew ()
     {
@@ -95,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       int v;
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.SameAs (originalMethod));
       Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
@@ -126,18 +134,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
       Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
 
     [Test]
+    // TODO 4838
+    // Relaced _relatedMethodFinder with Mock, return fake result and delete this test (and test domain)
     public void Create_ForExisting_OverridingMethod ()
     {
       var originalMethod = typeof (DomainType).GetMethod ("OverridingMethod");
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
 
       var baseMethod = typeof(B).GetMethod("OverridingMethod");
       Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethod));

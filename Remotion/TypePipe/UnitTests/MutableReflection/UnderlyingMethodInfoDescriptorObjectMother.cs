@@ -56,10 +56,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static UnderlyingMethodInfoDescriptor CreateForExisting (
-        MethodInfo originalMethodInfo = null)
+        MethodInfo originalMethodInfo = null,
+        RelatedMethodFinder relatedMethodFinder = null)
     {
-      var methodInfo = originalMethodInfo ?? MemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod());
-      return UnderlyingMethodInfoDescriptor.Create (methodInfo);
+      return UnderlyingMethodInfoDescriptor.Create (
+          originalMethodInfo ?? MemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod()),
+          relatedMethodFinder ?? new RelatedMethodFinder());
     }
   }
 }

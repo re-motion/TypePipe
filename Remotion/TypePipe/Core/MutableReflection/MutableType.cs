@@ -440,7 +440,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
     }
 
