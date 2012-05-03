@@ -588,7 +588,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddMethod_AllowsShadowing ()
+    public void AddMethod_Shadowing ()
     {
       var baseMethod = GetBaseMethod (_mutableType, "ToString");
       Assert.That (baseMethod, Is.Not.Null);
@@ -600,6 +600,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (_mutableType.AddedMethods, Has.Member (newMethod));
+    }
+
+    [Test]
+    [Ignore("TODO 4812")]
+    public void AddMethod_ImplicitOverride ()
+    {
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot override final method 'FinalBaseMethod'.")]
+    [Ignore("TODO 4812")]
+    public void AddMethod_ThrowsIfOverridingFinalMethod ()
+    {
+      //var method = _mutableType.ExistingMutableMethods.Single(m => m.n)
     }
 
     [Test]
@@ -1007,13 +1021,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
     }
 
-    public class DomainTypeBase
+    public class DomainTypeBaseBase
+    {
+      public virtual void FinalBaseMethod () {}
+    }
+
+    public class DomainTypeBase : DomainTypeBaseBase
     {
       public int BaseField;
 
-      public void ExistingBaseMethod ()
-      {
-      }
+      public void ExistingBaseMethod () { }
+
+      public virtual void VirtualBaseMethod () { }
+      public override sealed void FinalBaseMethod () {}
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface
