@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
@@ -27,46 +28,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private RelatedMethodFinder _finder;
 
+    private MethodInfo _candidate1;
+    private MethodInfo _candidate2;
+    private MethodInfo _candidate3;
+
     [SetUp]
     public void SetUp ()
     {
       _finder = new RelatedMethodFinder();
+
+      _candidate1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method (7, "7"));
+      _candidate2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
+      _candidate3 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((OtherDomainType obj) => obj.Method (7, "7"));
     }
 
     [Test]
     public void FindFirstOverriddenMethod_SingleMatchingCandidate ()
     {
-      var candidate1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method (7, "7"));
-      var candidate2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
-      var candidate3 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((OtherDomainType obj) => obj.Method (7, "7"));
       var signature = new MethodSignature (typeof (void), new[] { typeof (int), typeof(string)}, 0);
 
-      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { candidate1, candidate2, candidate3 });
+      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { _candidate1, _candidate2, _candidate3 });
 
-      Assert.That (result, Is.SameAs (candidate3));
+      Assert.That (result, Is.SameAs (_candidate3));
     }
 
     [Test]
     public void FindFirstOverriddenMethod_MultipleMatchingCandidates ()
     {
-      var candidate1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method (7, "7"));
-      var candidate2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
-      var candidate3 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
       var signature = new MethodSignature (typeof (void), new[] { typeof (string), typeof(int) }, 0);
 
-      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { candidate1, candidate2, candidate3 });
+      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { _candidate1, _candidate2, _candidate3 });
 
-      Assert.That (result, Is.SameAs (candidate2));
+      Assert.That (result, Is.SameAs (_candidate2));
     }
 
     [Test]
     public void FindFirstOverriddenMethod_NoMatchingName ()
     {
-      var candidate = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method (7, "7"));
       var signature = new MethodSignature (typeof (int), new[] { typeof (int), typeof (string) }, 0);
-      Assert.That (signature, Is.EqualTo (MethodSignature.Create (candidate)));
+      Assert.That (signature, Is.EqualTo (MethodSignature.Create (_candidate1)));
 
-      var result = _finder.FindFirstOverriddenMethod ("DoesNotExist", signature, new[] { candidate });
+      var result = _finder.FindFirstOverriddenMethod ("DoesNotExist", signature, new[] { _candidate1 });
 
       Assert.That (result, Is.Null);
     }
@@ -74,12 +76,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void FindFirstOverriddenMethod_NoMatchingSignature ()
     {
-      var candidate1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method (7, "7"));
-      var candidate2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
-      var candidate3 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
       var signature = new MethodSignature (typeof (int), new[] { typeof (string), typeof (int) }, 0);
 
-      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { candidate1, candidate2, candidate3 });
+      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { _candidate1, _candidate2, _candidate3 });
 
       Assert.That (result, Is.Null);
     }
