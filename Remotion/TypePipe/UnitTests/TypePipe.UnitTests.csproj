@@ -91,6 +91,7 @@
     <Compile Include="MutableReflection\MutableTypeIntegrationTest.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberCollectionTest.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\MemberFilterTest.cs" />
+    <Compile Include="MutableReflection\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptorTest.cs" />

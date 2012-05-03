@@ -108,6 +108,7 @@
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
     <Compile Include="MutableReflection\IMemberSelector.cs" />
+    <Compile Include="MutableReflection\IRelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\MemberSelector.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextUtility.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="MutableReflection\MethodAttributeUtility.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberCollection.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
+    <Compile Include="MutableReflection\RelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
