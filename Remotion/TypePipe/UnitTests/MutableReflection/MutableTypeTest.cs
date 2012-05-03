@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private UnderlyingTypeDescriptor _descriptor;
     private IMemberSelector _memberSelectorMock;
+    private IRelatedMethodFinder _relatedMethodFinderMock;
 
     private MutableType _mutableType;
 
@@ -42,8 +43,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
 
-      _mutableType = new MutableType (_descriptor, _memberSelectorMock);
+      _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock);
     }
 
     [Test]

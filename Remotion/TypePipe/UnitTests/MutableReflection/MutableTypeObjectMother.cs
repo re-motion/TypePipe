@@ -23,11 +23,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static MutableType Create (
         UnderlyingTypeDescriptor underlyingTypeDescriptor = null,
-        IMemberSelector memberSelector = null)
+        IMemberSelector memberSelector = null,
+        IRelatedMethodFinder relatedMethodFinder = null)
     {
       return new MutableType (
           underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create(),
-          memberSelector ?? new MemberSelector  (new BindingFlagsEvaluator()));
+          memberSelector ?? new MemberSelector  (new BindingFlagsEvaluator()),
+          relatedMethodFinder ?? new RelatedMethodFinder());
     }
 
     public static MutableType CreateForExistingType (Type originalType = null)

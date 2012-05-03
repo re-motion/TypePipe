@@ -40,6 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
     private readonly IMemberSelector _memberSelector;
+    private readonly IRelatedMethodFinder _relatedMethodFinder;
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
@@ -49,13 +50,16 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
-      IMemberSelector memberSelector)
+      IMemberSelector memberSelector,
+      IRelatedMethodFinder relatedMethodFinder)
     {
       ArgumentUtility.CheckNotNull ("underlyingTypeDescriptor", underlyingTypeDescriptor);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
       _underlyingTypeDescriptor = underlyingTypeDescriptor;
       _memberSelector = memberSelector;
+      _relatedMethodFinder = relatedMethodFinder;
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (

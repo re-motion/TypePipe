@@ -35,7 +35,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (ClassWithMembers));
       var mutableTypePartialMock = MockRepository.GeneratePartialMock<MutableType> (
           descriptor,
-          new MemberSelector (new BindingFlagsEvaluator ()));
+          new MemberSelector (new BindingFlagsEvaluator ()),
+          new RelatedMethodFinder());
 
       var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder>();
       handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
