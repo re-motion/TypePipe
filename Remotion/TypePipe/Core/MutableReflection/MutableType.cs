@@ -302,13 +302,23 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (message, "name");
       }
 
+      var baseTypeSequence = BaseType.CreateSequence (t => t.BaseType);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
+      var baseMethod = _relatedMethodFinder.FindFirstOverriddenMethod (name, signature, allBaseMethods);
+      if (baseMethod != null && baseMethod.IsFinal)
+      {
+        var message = string.Format ("Cannot override final method '{0}'.", name);
+        throw new NotSupportedException (message);
+      }
+
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDeclarationCollection, null, false, false, false, body);
+          name, attributes, returnType, parameterDeclarationCollection, baseMethod, false, false, false, body);
       var methodInfo = new MutableMethodInfo (this, descriptor);
 
       _methods.Add (methodInfo);

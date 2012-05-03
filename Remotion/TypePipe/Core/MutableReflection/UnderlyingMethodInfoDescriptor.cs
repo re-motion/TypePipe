@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      // Base method may be null
       ArgumentUtility.CheckNotNull ("body", body);
 
       if (!returnType.IsAssignableFrom (body.Type))

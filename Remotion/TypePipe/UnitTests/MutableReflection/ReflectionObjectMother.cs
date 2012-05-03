@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly MemberInfo[] s_members = EnsureNoNulls (new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") });
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
+    private static readonly MethodInfo[] s_virtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof(object).GetMethod("GetHashCode") });
+    private static readonly MethodInfo[] s_nonVirtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
     private static readonly MethodInfo[] s_nonGenericMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
     private static readonly MethodInfo[] s_genericMethods = EnsureNoNulls (new[] { typeof (Enumerable).GetMethod ("Empty"), typeof (ReflectionObjectMother).GetMethod ("GetRandomElement", BindingFlags.NonPublic | BindingFlags.Static) });
     private static readonly MethodInfo[] s_modifiableMethodInfos = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("Equals", new[] { typeof (object ) }) });
@@ -89,18 +91,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetRandomElement (s_nonGenericMethods.Concat(s_genericMethods).ToArray());
     }
 
+    public static MethodInfo GetSomeVirtualMethod ()
+    {
+      var method = GetRandomElement (s_virtualMethods);
+      Assertion.IsTrue (method.IsVirtual);
+      return method;
+    }
+
+    public static MethodInfo GetSomeNonVirtualMethod ()
+    {
+      var method = GetRandomElement (s_nonVirtualMethods);
+      Assertion.IsFalse (method.IsVirtual);
+      return method;
+    }
+
     public static MethodInfo GetSomeNonGenericMethod ()
     {
-      var nonGenericMethod = GetRandomElement (s_nonGenericMethods);
-      Assertion.IsFalse (nonGenericMethod.IsGenericMethod);
-      return nonGenericMethod;
+      var method = GetRandomElement (s_nonGenericMethods);
+      Assertion.IsFalse (method.IsGenericMethod);
+      return method;
     }
 
     public static MethodInfo GetSomeGenericMethod ()
     {
-      var genericMethod = GetRandomElement (s_genericMethods);
-      Assertion.IsTrue (genericMethod.IsGenericMethod);
-      return genericMethod;
+      var method = GetRandomElement (s_genericMethods);
+      Assertion.IsTrue (method.IsGenericMethod);
+      return method;
     }
 
     public static MethodInfo GetSomeModifiableMethod ()

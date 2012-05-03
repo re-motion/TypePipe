@@ -22,9 +22,11 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -43,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
       _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock);
     }
@@ -540,7 +542,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.ReturnType, Is.EqualTo (returnType));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
-      // TODO 4812 check baseMethod
+      Assert.That (method.BaseMethod, Is.Null);
       Assert.That (method.IsGenericMethod, Is.False);
       Assert.That (method.IsGenericMethodDefinition, Is.False);
       Assert.That (method.ContainsGenericParameters, Is.False);
@@ -601,21 +603,57 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (newMethod.BaseMethod, Is.Null);
+      // TODO 4812
+      //Assert.That (newMethod.GetBaseDefinition(), Is.SameAs (newMethod));
       Assert.That (_mutableType.AddedMethods, Has.Member (newMethod));
     }
 
     [Test]
-    [Ignore("TODO 4812")]
     public void AddMethod_ImplicitOverride ()
     {
+      var rootDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBaseBase obj) => obj.VirtualBaseMethod());
+      var overriddenMethod = typeof (DomainTypeBase).GetMethod ("VirtualBaseMethod");
+
+      var methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      _relatedMethodFinderMock
+          .Expect (
+              mock =>
+              mock.FindFirstOverriddenMethod (Arg.Is ("VirtualBaseMethod"), Arg.Is (methodSignature), Arg<IEnumerable<MethodInfo>>.Is.Anything))
+          .Return (overriddenMethod);
+
+      var addedMethod = _mutableType.AddMethod (
+          "VirtualBaseMethod",
+          MethodAttributes.Public | MethodAttributes.Virtual,
+          typeof (void),
+          ParameterDeclaration.EmptyParameters,
+          ctx => Expression.Empty ());
+
+      _relatedMethodFinderMock.VerifyAllExpectations();
+      Assert.That (addedMethod.BaseMethod, Is.EqualTo (overriddenMethod));
+      // TODO 4812
+      //Assert.That (addedMethod.GetBaseDefinition(), Is.EqualTo (rootDefinition));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot override final method 'FinalBaseMethod'.")]
-    [Ignore("TODO 4812")]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'FinalBaseMethod'.")]
     public void AddMethod_ThrowsIfOverridingFinalMethod ()
     {
-      //var method = _mutableType.ExistingMutableMethods.Single(m => m.n)
+      var method = typeof (DomainTypeBase).GetMethod ("FinalBaseMethod");
+      Assert.That (method.IsFinal, Is.True);
+      var methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      _relatedMethodFinderMock
+          .Expect (
+              mock =>
+              mock.FindFirstOverriddenMethod (Arg.Is ("FinalBaseMethod"), Arg.Is (methodSignature), Arg<IEnumerable<MethodInfo>>.Is.Anything))
+          .Return (method);
+
+      _mutableType.AddMethod (
+          "FinalBaseMethod",
+          MethodAttributes.Public | MethodAttributes.Virtual,
+          typeof (void),
+          ParameterDeclaration.EmptyParameters,
+          ctx => Expression.Empty());
     }
 
     [Test]
@@ -1025,6 +1063,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class DomainTypeBaseBase
     {
+      public virtual void VirtualBaseMethod () { }
       public virtual void FinalBaseMethod () {}
     }
 
@@ -1034,7 +1073,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public void ExistingBaseMethod () { }
 
-      public virtual void VirtualBaseMethod () { }
+      public override void VirtualBaseMethod () { }
       public override sealed void FinalBaseMethod () {}
     }
 
