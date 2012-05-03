@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: ReflectionObjectMother.GetSomeMethod());
+      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
       _mutableMethod = Create(_descriptor);
     }
 
@@ -149,9 +149,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void BaseMethod ()
     {
-      Assert.That (_descriptor.BaseMethod, Is.Not.Null);
+      var baseMethod = ReflectionObjectMother.GetSomeMethod();
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
 
-      Assert.That(_mutableMethod.BaseMethod, Is.SameAs(_descriptor.BaseMethod));
+      Assert.That (mutableMethod.BaseMethod, Is.SameAs (baseMethod));
+    }
+
+    [Test]
+    public void GetBaseDifinition ()
+    {
+      var baseMethod = typeof (B).GetMethod ("OverridingMethod");
+      var rootDefinition = baseMethod.GetBaseDefinition ();
+      Assert.That (rootDefinition, Is.Not.EqualTo (baseMethod));
+
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
+
+      Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (rootDefinition));
+    }
+
+    [Test]
+    public void GetBaseDefinition_NoBaseMethod ()
+    {
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: null));
+
+      Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (mutableMethod));
     }
 
     [Test]
@@ -364,6 +385,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public virtual void VirtualMethod () { }
       public void NonVirtualMethod () { }
+    }
+
+    public class A
+    {
+      public virtual void OverridingMethod () { }
+    }
+
+    public class B : A
+    {
+      public override void OverridingMethod () { }
     }
   }
 }

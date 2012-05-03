@@ -604,8 +604,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (newMethod.BaseMethod, Is.Null);
-      // TODO 4812
-      //Assert.That (newMethod.GetBaseDefinition(), Is.SameAs (newMethod));
+      Assert.That (newMethod.GetBaseDefinition (), Is.SameAs (newMethod));
       Assert.That (_mutableType.AddedMethods, Has.Member (newMethod));
     }
 
@@ -631,8 +630,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (addedMethod.BaseMethod, Is.EqualTo (overriddenMethod));
-      // TODO 4812
-      //Assert.That (addedMethod.GetBaseDefinition(), Is.EqualTo (rootDefinition));
+      Assert.That (addedMethod.GetBaseDefinition(), Is.EqualTo (rootDefinition));
     }
 
     [Test]

@@ -105,6 +105,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.BaseMethod; }
     }
 
+    public override MethodInfo GetBaseDefinition ()
+    {
+      return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
+    }
+
     public override bool IsGenericMethod
     {
       get { return _underlyingMethodInfoDescriptor.IsGenericMethod; }
@@ -184,11 +189,6 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override MethodInfo GetBaseDefinition ()
     {
       throw new NotImplementedException();
     }
