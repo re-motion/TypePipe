@@ -639,14 +639,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'FinalBaseMethod'.")]
     public void AddMethod_ThrowsIfOverridingFinalMethod ()
     {
-      var method = typeof (DomainTypeBase).GetMethod ("FinalBaseMethod");
-      Assert.That (method.IsFinal, Is.True);
       var methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      var fakeBaseMethod = ReflectionObjectMother.GetSomeFinalMethod();
       _relatedMethodFinderMock
           .Expect (
               mock =>
               mock.FindFirstOverriddenMethod (Arg.Is ("FinalBaseMethod"), Arg.Is (methodSignature), Arg<IEnumerable<MethodInfo>>.Is.Anything))
-          .Return (method);
+          .Return (fakeBaseMethod);
 
       _mutableType.AddMethod (
           "FinalBaseMethod",
@@ -1064,7 +1063,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class DomainTypeBaseBase
     {
       public virtual void VirtualBaseMethod () { }
-      public virtual void FinalBaseMethod () {}
     }
 
     public class DomainTypeBase : DomainTypeBaseBase
@@ -1074,7 +1072,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void ExistingBaseMethod () { }
 
       public override void VirtualBaseMethod () { }
-      public override sealed void FinalBaseMethod () {}
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface

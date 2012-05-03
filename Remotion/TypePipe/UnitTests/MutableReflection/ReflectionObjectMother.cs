@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
     private static readonly MethodInfo[] s_virtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof(object).GetMethod("GetHashCode") });
     private static readonly MethodInfo[] s_nonVirtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
+    private static readonly MethodInfo[] s_finalMethods = EnsureNoNulls (new[] { typeof(DomainType).GetMethod("FinalMethod") });
     private static readonly MethodInfo[] s_nonGenericMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
     private static readonly MethodInfo[] s_genericMethods = EnsureNoNulls (new[] { typeof (Enumerable).GetMethod ("Empty"), typeof (ReflectionObjectMother).GetMethod ("GetRandomElement", BindingFlags.NonPublic | BindingFlags.Static) });
     private static readonly MethodInfo[] s_modifiableMethodInfos = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("Equals", new[] { typeof (object ) }) });
@@ -88,7 +89,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static MethodInfo GetSomeMethod ()
     {
-      return GetRandomElement (s_nonGenericMethods.Concat(s_genericMethods).ToArray());
+      return GetRandomElement (
+          s_nonGenericMethods
+              .Concat(s_genericMethods)
+              .Concat(s_virtualMethods)
+              .Concat(s_nonVirtualMethods)
+              .Concat(s_finalMethods)
+              .ToArray());
     }
 
     public static MethodInfo GetSomeVirtualMethod ()
@@ -102,6 +109,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = GetRandomElement (s_nonVirtualMethods);
       Assertion.IsFalse (method.IsVirtual);
+      return method;
+    }
+
+    public static MethodInfo GetSomeFinalMethod ()
+    {
+      var method = GetRandomElement (s_finalMethods);
+      Assertion.IsTrue (method.IsFinal);
       return method;
     }
 
@@ -152,6 +166,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       foreach (var item in items)
         Assertion.IsNotNull (item);
       return items;
+    }
+
+    private class DomainTypeBase
+    {
+      public virtual void FinalMethod () { }
+    }
+
+    private class DomainType : DomainTypeBase
+    {
+      public sealed override void FinalMethod () { }
     }
   }
 }

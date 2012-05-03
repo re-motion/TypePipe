@@ -306,6 +306,7 @@ namespace Remotion.TypePipe.MutableReflection
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
       var baseMethod = _relatedMethodFinder.FindFirstOverriddenMethod (name, signature, allBaseMethods);
+
       if (baseMethod != null && baseMethod.IsFinal)
       {
         var message = string.Format ("Cannot override final method '{0}'.", name);
