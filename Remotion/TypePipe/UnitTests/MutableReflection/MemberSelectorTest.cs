@@ -30,12 +30,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MemberSelectorTest
   {
     private IBindingFlagsEvaluator _bindingFlagsEvaluatorMock;
+    private MutableType _declaredType;
+    
     private MemberSelector _selector;
 
     [SetUp]
     public void SetUp ()
     {
+      _declaredType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
       _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator> ();
+
       _selector = new MemberSelector (_bindingFlagsEvaluatorMock);
     }
 
@@ -49,10 +53,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
 
-      var result = _selector.SelectMethods (candidates, bindingFlags).ToArray ();
+      var result = _selector.SelectMethods (candidates, bindingFlags, _declaredType).ToArray ();
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       Assert.That (result, Is.EqualTo (new[] { candidates[0], candidates[2] }));
+    }
+
+    [Test]
+    public void SelectMethods_DeclaredOnly ()
+    {
+      var candidates = new[] { GetBaseMethod (dtb => dtb.MethodInvolvedInShadowing()), GetMethod (dt => dt.MethodInvolvedInShadowing()) };
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (true);
+
+      var result = _selector.SelectMethods (candidates, bindingFlags, _declaredType).ToArray();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (new[] { candidates[1] }));
     }
 
     [Test]
@@ -94,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Expect (mock => mock.SelectMethod (bindingFlags, new[] { methods[2] }, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _declaredType, typesOrNull, modifiersOrNull);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       binderMock.VerifyAllExpectations ();
@@ -119,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (false);
 
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _declaredType, typesOrNull, modifiersOrNull);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       Assert.That (result, Is.Null);
@@ -143,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (false);
 
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _declaredType, typesOrNull, modifiersOrNull);
 
       Assert.That (result, Is.Null);
     }
@@ -166,7 +185,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (true);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[1].Attributes, bindingFlags)).Return (true);
 
-      _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
+      _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _declaredType, typesOrNull, modifiersOrNull);
     }
 
     [Test]
@@ -187,7 +206,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[2].Attributes, bindingFlags)).Return (true);
 
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _declaredType, typesOrNull, modifiersOrNull);
 
       binderMock.AssertWasNotCalled (
           mock => mock.SelectMethod (
@@ -206,7 +225,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Type[] typesOrNull = null;
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
-      _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Whatever", typesOrNull, modifiersOrNull);
+      _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Whatever", _declaredType, typesOrNull, modifiersOrNull);
     }
 
     [Test]
@@ -284,9 +303,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return MemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
     }
 
-    // ReSharper disable ClassNeverInstantiated.Global
-    public class DomainType
-    // ReSharper restore ClassNeverInstantiated.Global
+    private MethodBase GetBaseMethod (Expression<Action<DomainTypeBase>> memberAccessExpression)
+    {
+      return MemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
+    }
+
+    private class DomainTypeBase
+    {
+      public void MethodInvolvedInShadowing () { }
+    }
+
+    private class DomainType : DomainTypeBase
     {
       public readonly int Field1 = Dev<int>.Null;
       public readonly int Field2 = Dev<int>.Null;
@@ -295,6 +322,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void Method1 () { }
       public void Method2 () { }
       public void Method3 () { }
+
+      public new void MethodInvolvedInShadowing () { }
     }
   }
 }

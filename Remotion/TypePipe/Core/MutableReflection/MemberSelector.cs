@@ -38,11 +38,17 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr) where T : MethodBase
+    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, MutableType declaringType)
+        where T : MethodBase
     {
       ArgumentUtility.CheckNotNull ("candidates", candidates);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      return candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
+      var methods = candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
+      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
+        methods = methods.Where (method => declaringType.IsEquivalentTo(method.DeclaringType));
+
+      return methods;
     }
 
     public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
@@ -53,16 +59,24 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public T SelectSingleMethod<T> (
-        IEnumerable<T> methods, Binder binder, BindingFlags bindingAttr, string name, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+        IEnumerable<T> methods,
+        Binder binder,
+        BindingFlags bindingAttr,
+        string name,
+        MutableType declaringType,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
         where T: MethodBase
     {
       ArgumentUtility.CheckNotNull ("binder", binder);
       ArgumentUtility.CheckNotNull ("methods", methods);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
       if (typesOrNull == null && modifiersOrNull != null)
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
 
-      var candidates = SelectMethods (methods.Where (mi => mi.Name == name), bindingAttr).ToArray ();
+      var methodsFilteredByName = methods.Where (mi => mi.Name == name);
+      var candidates = SelectMethods (methodsFilteredByName, bindingAttr, declaringType).ToArray ();
       if (candidates.Length == 0)
         return null;
 

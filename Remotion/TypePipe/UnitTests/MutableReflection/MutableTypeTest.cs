@@ -496,7 +496,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor() };
       _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (allConstructors, bindingAttr))
+          .Expect (mock => mock.SelectMethods (allConstructors, bindingAttr, _mutableType))
           .Return (fakeResult);
 
       var result = _mutableType.GetConstructors (bindingAttr);
@@ -667,7 +667,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod() };
       _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (allMethods, bindingAttr))
+          .Expect (mock => mock.SelectMethods (allMethods, bindingAttr, _mutableType))
           .Return (fakeResult);
 
       var result = _mutableType.GetMethods (bindingAttr);
@@ -826,7 +826,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var modifiersOrNull = new[] { new ParameterModifier (1) };
       var fakeResult = ReflectionObjectMother.GetSomeConstructor();
       _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (allConstructors, binder, bindingAttr, ".ctor", typesOrNull, modifiersOrNull))
+          .Expect (mock => mock.SelectSingleMethod (allConstructors, binder, bindingAttr, ".ctor", _mutableType, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
       var resultConstructor = CallGetConstructorImpl (_mutableType, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
@@ -846,6 +846,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                   Arg.Is (Type.DefaultBinder),
                   Arg<BindingFlags>.Is.Anything,
                   Arg<string>.Is.Anything,
+                  Arg<MutableType>.Is.Anything,
                   Arg<Type[]>.Is.Anything,
                   Arg<ParameterModifier[]>.Is.Anything))
           .Return (fakeResult);
@@ -881,7 +882,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var fakeResult = ReflectionObjectMother.GetSomeMethod();
       _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (allMethods, binder, bindingAttr, name, typesOrNull, modifiersOrNull))
+          .Expect (mock => mock.SelectSingleMethod (allMethods, binder, bindingAttr, name, _mutableType, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
       var resultMethod = CallGetMethodImpl (_mutableType, name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
@@ -901,6 +902,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                   Arg.Is (Type.DefaultBinder),
                   Arg<BindingFlags>.Is.Anything,
                   Arg<string>.Is.Anything,
+                  Arg<MutableType>.Is.Anything,
                   Arg<Type[]>.Is.Anything,
                   Arg<ParameterModifier[]>.Is.Anything))
           .Return (fakeResult);
@@ -944,10 +946,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.IsAssignableFrom (null);
 
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
           .Return (new MethodInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
           .Return (new ConstructorInfo[0]);
       _memberSelectorMock
           .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))

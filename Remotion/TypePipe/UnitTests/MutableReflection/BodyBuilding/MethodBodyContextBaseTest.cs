@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
@@ -34,6 +35,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private ReadOnlyCollection<ParameterExpression> _emptyParameters;
     private MutableType _mutableType;
     private IRelatedMethodFinder _relatedMetodFinder;
+    private TestableMethodBodyContextBase _staticContext;
+    private TestableMethodBodyContextBase _instanceContext;
 
     [SetUp]
     public void SetUp ()
@@ -41,6 +44,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _emptyParameters = new List<ParameterExpression> ().AsReadOnly ();
       _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
       _relatedMetodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder> ();
+
+      _staticContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true, _relatedMetodFinder);
+      _instanceContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false, _relatedMetodFinder);
     }
 
     [Test]
@@ -61,55 +67,71 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void This ()
     {
-      var context = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false, _relatedMetodFinder);
-
-      Assert.That (context.This, Is.TypeOf<ThisExpression>());
-      Assert.That (context.This.Type, Is.SameAs (_mutableType));
+      Assert.That (_instanceContext.This, Is.TypeOf<ThisExpression>());
+      Assert.That (_instanceContext.This.Type, Is.SameAs (_mutableType));
     }
 
     [Test]
     public void This_ThrowsForStaticMethods ()
     {
-      var context = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true, _relatedMetodFinder);
-
-      Assert.That (() => context.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
+      Assert.That (() => _staticContext.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
     }
 
-    //[Test]
-    //public void GetBaseCall ()
-    //{
-    //  var context = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false, _relatedMetodFinder);
-
-    //  var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.ShadowedVirtualMethod(1));
-    //  var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof(int)) };
-    //  var result = context.GetBaseCall (method, arguments);
-
-    //  Assert.That (result.Method, Is.SameAs (method));
-    //  Assert.That (result.Arguments, Is.EqualTo (arguments));
-    //  Assert.That (result.Object, Is.TypeOf<ThisExpression>());
-    //  var thisExpression = (ThisExpression) result.Object;
-    //  Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
-    //}
-
-    //[Test]
-    //[ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    //public void GetBaseCall_ForStaticMethods ()
-    //{
-    //  var context = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true, _relatedMetodFinder);
-
-    //  var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.ShadowedVirtualMethod (1));
-    //  var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
-    //  context.GetBaseCall (method, arguments);
-    //}
-
-    private class DomainTypeBase
+    [Test]
+    [Ignore("TODO 4818")]
+    public void GetBaseCall_Name ()
     {
-      public virtual void ShadowedVirtualMethod (int i) { }
+      var method = _mutableType.GetMethod ("Method");
+      var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
+
+      var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
+      _relatedMetodFinder.Expect (mock => mock.GetBaseMethod (method)).Return (fakeBaseMethod);
+
+      var result = _instanceContext.GetBaseCall ("Method", arguments);
+
+      Assert.That (result.Method, Is.SameAs (fakeBaseMethod));
+      Assert.That (result.Arguments, Is.EqualTo (arguments));
+      Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
+      var thisExpression = (ThisExpression) result.Object;
+      Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
     }
 
-    private class DomainType : DomainTypeBase
+    [Test]
+    [Ignore ("TODO 4818")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
+    public void GetBaseCall_Name_ForStaticMethods ()
     {
-      public new virtual void ShadowedVirtualMethod (int i) { }
+      _staticContext.GetBaseCall ("Method", new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) });
+    }
+
+    [Test]
+    public void GetBaseCall_MethodInfo ()
+    {
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
+      var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
+
+      var result = _instanceContext.GetBaseCall (method, arguments);
+
+      Assert.That (result.Method, Is.SameAs (method));
+      Assert.That (result.Arguments, Is.EqualTo (arguments));
+      Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
+      var thisExpression = (ThisExpression) result.Object;
+      Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
+    public void GetBaseCall_MethodInfo_ForStaticMethods ()
+    {
+      var method = ReflectionObjectMother.GetSomeMethod();
+      _staticContext.GetBaseCall (method);
+    }
+
+    private class DomainType
+    {
+      public void Method (int i) { }
+
+      public void FakeBaseMethod (int i) { }
     }
 
   }

@@ -271,7 +271,7 @@ namespace Remotion.TypePipe.MutableReflection
     
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return _memberSelector.SelectMethods (_constructors, bindingAttr).ToArray();
+      return _memberSelector.SelectMethods (_constructors, bindingAttr, this).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructorInfo)
@@ -325,7 +325,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      return _memberSelector.SelectMethods (_methods, bindingAttr).ToArray();
+      return _memberSelector.SelectMethods (_methods, bindingAttr, this).ToArray();
     }
 
     public MutableMethodInfo GetMutableMethod (MethodInfo methodInfo)
@@ -407,7 +407,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var candidates = _constructors;
       var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (candidates, binder, bindingAttr, ".ctor", typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (candidates, binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
     }
 
     protected override MethodInfo GetMethodImpl (
@@ -419,7 +419,7 @@ namespace Remotion.TypePipe.MutableReflection
         ParameterModifier[] modifiersOrNull)
     {
       var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
