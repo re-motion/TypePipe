@@ -37,8 +37,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
         bool isStatic,
-        IRelatedMethodFinder relatedMethodFinder)
-        : base(declaringType, parameterExpressions, isStatic, relatedMethodFinder)
+        IMemberSelector memberSelector)
+        : base (declaringType, parameterExpressions, isStatic, memberSelector)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
       _previousBody = previousBody;

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private bool _isStatic;
 
     private MethodBodyModificationContext _context;
-    private IRelatedMethodFinder _relatedMetodFinder;
+    private IMemberSelector _memberSelector;
 
     [SetUp]
     public void SetUp ()
@@ -45,9 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _isStatic = BooleanObjectMother.GetRandomBoolean();
-      _relatedMetodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new MethodBodyModificationContext (_declaringType, _parameters, _previousBody, _isStatic, _relatedMetodFinder);
+      _context = new MethodBodyModificationContext (_declaringType, _parameters, _previousBody, _isStatic, _memberSelector);
     }
 
     [Test]

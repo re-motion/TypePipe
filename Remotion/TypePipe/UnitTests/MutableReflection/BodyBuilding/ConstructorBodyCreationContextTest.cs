@@ -21,17 +21,26 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   [TestFixture]
   public class ConstructorBodyCreationContextTest
   {
+    private IMemberSelector _memberSelectorMock;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+    }
+
     [Test]
     public void Initialization ()
     {
       var mutableType = MutableTypeObjectMother.Create();
-      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> (), new RelatedMethodFinder());
+      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> (), _memberSelectorMock);
 
       Assert.That (context.IsStatic, Is.False);
     }
@@ -40,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetConstructorCall ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
-      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> (), new RelatedMethodFinder());
+      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> (), _memberSelectorMock);
 
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
       var result = context.GetConstructorCall (argumentExpressions);

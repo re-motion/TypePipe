@@ -33,19 +33,19 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly MutableType _declaringType;
     private readonly ReadOnlyCollection<ParameterExpression> _parameters;
     private readonly bool _isStatic;
-    private readonly IRelatedMethodFinder _relatedMethodFinder;
+    private readonly IMemberSelector _memberSelector;
 
     protected MethodBodyContextBase (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IRelatedMethodFinder relatedMethodFinder)
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
-      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _declaringType = declaringType;
       _parameters = parameterExpressions.ToList().AsReadOnly();
       _isStatic = isStatic;
-      _relatedMethodFinder = relatedMethodFinder;
+      _memberSelector = memberSelector;
     }
 
     public MutableType DeclaringType

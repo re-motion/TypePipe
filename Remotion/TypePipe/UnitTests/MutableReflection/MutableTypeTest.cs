@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      // Strict mock would be better but many tests would need and explict expectation then.
+      // Strict mock would be better ...
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
       _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock);
@@ -622,7 +622,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       fakeOverridenMethod.Stub (stub => stub.GetBaseDefinition ()).Return (fakeRootDefinition);
 
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetBaseMethod (name, new MethodSignature(returnType, Type.EmptyTypes, 0), _mutableType.BaseType))
+          .Expect (mock => mock.GetBaseMethod (name, new MethodSignature (returnType, Type.EmptyTypes, 0), _mutableType.BaseType))
           .Return (fakeOverridenMethod);
 
       var addedMethod = _mutableType.AddMethod (
@@ -632,7 +632,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           ParameterDeclaration.EmptyParameters,
           ctx => Expression.Default(returnType));
 
-      _relatedMethodFinderMock.VerifyAllExpectations();
+      _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (addedMethod.BaseMethod, Is.EqualTo (fakeOverridenMethod));
       Assert.That (addedMethod.GetBaseDefinition (), Is.EqualTo (fakeRootDefinition));
     }

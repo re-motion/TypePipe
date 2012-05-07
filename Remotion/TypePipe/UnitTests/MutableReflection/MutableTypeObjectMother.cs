@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return new MutableType (
           underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create(),
-          memberSelector ?? new MemberSelector  (new BindingFlagsEvaluator()),
+          memberSelector ?? new MemberSelector (new BindingFlagsEvaluator()),
           relatedMethodFinder ?? new RelatedMethodFinder());
     }
 

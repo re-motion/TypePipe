@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   {
     private ReadOnlyCollection<ParameterExpression> _emptyParameters;
     private MutableType _mutableType;
-    private IRelatedMethodFinder _relatedMetodFinder;
+    private IMemberSelector _memberSelector;
     private TestableMethodBodyContextBase _staticContext;
     private TestableMethodBodyContextBase _instanceContext;
 
@@ -43,10 +43,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       _emptyParameters = new List<ParameterExpression> ().AsReadOnly ();
       _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
-      _relatedMetodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder> ();
+      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _staticContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true, _relatedMetodFinder);
-      _instanceContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false, _relatedMetodFinder);
+      _staticContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true, _memberSelector);
+      _instanceContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false, _memberSelector);
     }
 
     [Test]
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
 
       var isStatic = BooleanObjectMother.GetRandomBoolean();
-      var context = new TestableMethodBodyContextBase (_mutableType, parameters.AsOneTime(), isStatic, _relatedMetodFinder);
+      var context = new TestableMethodBodyContextBase (_mutableType, parameters.AsOneTime(), isStatic, _memberSelector);
 
       Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
 
       var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
-      _relatedMetodFinder.Expect (mock => mock.GetBaseMethod (method)).Return (fakeBaseMethod);
+      //_memberSelector.Expect (mock => mock.GetBaseMethod (method)).Return (fakeBaseMethod); // TODO 0
 
       var result = _instanceContext.GetBaseCall ("Method", arguments);
 

@@ -27,16 +27,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class BodyProviderUtilityTest
   {
-    private IRelatedMethodFinder _relatedMethodFinder;
+    private IMemberSelector _memberSelector;
 
     private MethodBodyContextBase _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _relatedMethodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false, _relatedMethodFinder);
+      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false, _memberSelector);
     }
 
     [Test]

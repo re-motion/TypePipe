@@ -30,8 +30,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         MutableType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
-        IRelatedMethodFinder relatedMethodFinder)
-      : base (declaringType, parameterExpressions, previousBody, false, relatedMethodFinder)
+        IMemberSelector memberSelector)
+      : base (declaringType, parameterExpressions, previousBody, false, memberSelector)
     {
     }
 
