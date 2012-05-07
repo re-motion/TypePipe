@@ -296,7 +296,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
 
       var signature = new MethodSignature (returnType, parameterDeclarationCollection.Select (pd => pd.Type), 0);
-      if (AllMutableMethods.Where (m => m.Name == name).Any (method => signature.Equals (MethodSignature.Create (method))))
+      if (AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
       {
         var message = string.Format ("Method '{0}' with equal signature already exists.", name);
         throw new ArgumentException (message, "name");
