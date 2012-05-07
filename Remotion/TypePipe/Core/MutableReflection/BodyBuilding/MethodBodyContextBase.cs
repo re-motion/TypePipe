@@ -79,18 +79,28 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic();
 
-      // TODO visibility and instance/static
-      // TODO add test for filtering bindingflags
-      var baseTypeMethods = _declaringType.BaseType.GetMethods();
-      var argumentTypes = arguments.Select (a => a.Type).ToArray();
+      // TODO visibility 4818
+
+      var baseType = _declaringType.BaseType;
+      if (baseType == null)
+      {
+        var message = string.Format ("Type '{0}' has no base type.", _declaringType);
+        throw new InvalidOperationException (message);
+      }
+
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var baseTypeMethods = baseType.GetMethods(bindingFlags);
+      var argumentTypes = arguments.Select (a => a.Type).ToArray();
+      var baseMethod = _memberSelector.SelectSingleMethod (
+          baseTypeMethods, Type.DefaultBinder, bindingFlags, methodName, _declaringType, argumentTypes, null);
 
-      IMemberSelector selector = null;
-      var baseMethod = selector.SelectSingleMethod (baseTypeMethods, Type.DefaultBinder, bindingFlags, methodName, _declaringType, argumentTypes, null);
-
-      //if (baseMethod == null)
-      //  return null;
+      if (baseMethod == null)
+      {
+        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", methodName, baseType);
+        throw new ArgumentException (message, "methodName");
+      }
 
       return GetBaseCall (baseMethod, arguments);
     }
@@ -99,13 +109,22 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNull ("method", method);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      // throw exception if mehod is static
-
-      if (IsStatic)
-        throw new InvalidOperationException ("Cannot perform base call from static method.");
+      EnsureNotStatic();
+      CheckNotStatic (method);
 
       return Expression.Call (This, new BaseCallMethodInfoAdapter(method), arguments);
+    }
+
+    private void EnsureNotStatic ()
+    {
+      if (IsStatic)
+        throw new InvalidOperationException ("Cannot perform base call from static method.");
+    }
+
+    private void CheckNotStatic (MethodInfo method)
+    {
+      if (method.IsStatic)
+        throw new ArgumentException ("Cannot perform base call for static method.");
     }
   }
 }

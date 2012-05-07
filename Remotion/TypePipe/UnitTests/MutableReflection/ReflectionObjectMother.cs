@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly MemberInfo[] s_members = EnsureNoNulls (new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") });
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
+    private static readonly MethodInfo[] s_instanceMethod = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("GetHashCode") });
+    private static readonly MethodInfo[] s_staticMethod = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (double).GetMethod ("IsNaN") });
     private static readonly MethodInfo[] s_virtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof(object).GetMethod("GetHashCode") });
     private static readonly MethodInfo[] s_nonVirtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
     private static readonly MethodInfo[] s_finalMethods = EnsureNoNulls (new[] { typeof(DomainType).GetMethod("FinalMethod") });
@@ -91,11 +93,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return GetRandomElement (
           s_nonGenericMethods
+              .Concat(s_instanceMethod)
+              .Concat(s_staticMethod)
               .Concat(s_genericMethods)
               .Concat(s_virtualMethods)
               .Concat(s_nonVirtualMethods)
               .Concat(s_finalMethods)
               .ToArray());
+    }
+
+    public static MethodInfo GetSomeInstanceMethod ()
+    {
+      var method = GetRandomElement (s_instanceMethod);
+      Assertion.IsFalse (method.IsStatic);
+      return method;
+    }
+
+    public static MethodInfo GetSomeStaticMethod ()
+    {
+      var method = GetRandomElement (s_staticMethod);
+      Assertion.IsTrue (method.IsStatic);
+      return method;
     }
 
     public static MethodInfo GetSomeVirtualMethod ()

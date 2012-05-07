@@ -55,12 +55,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       get { return _parameterDeclarations; }
     }
 
-    public IEnumerable<ConstantExpression> ConstantExpressions
+    public ConstantExpression[] ConstantExpressions
     {
       get { return _constantExpressions; }
     }
 
-    public IEnumerable<Expression> Expressions
+    public Expression[] Expressions
     {
       get { return _constantExpressions; }
     }

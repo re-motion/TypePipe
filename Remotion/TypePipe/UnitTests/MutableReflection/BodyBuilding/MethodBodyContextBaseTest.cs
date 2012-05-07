@@ -73,22 +73,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void This_ThrowsForStaticMethods ()
+    public void This_StaticContext ()
     {
       Assert.That (() => _staticContext.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
     }
 
     [Test]
-    [Ignore("TODO 4818")]
     public void GetBaseCall_Name ()
     {
-      var method = _mutableType.GetMethod ("Method");
-      var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
-
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var baseMethods = typeof (object).GetMethods (bindingFlags);
+      var arguments = new ArgumentTestHelper (7);
       var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
-      //_memberSelector.Expect (mock => mock.GetBaseMethod (method)).Return (fakeBaseMethod); // TODO 0
+      _memberSelector
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _mutableType, arguments.Types, null))
+          .Return (fakeBaseMethod);
 
-      var result = _instanceContext.GetBaseCall ("Method", arguments);
+      var result = _instanceContext.GetBaseCall ("Method", arguments.Expressions);
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
@@ -96,17 +97,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (result.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
       var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) result.Method;
-      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (fakeBaseMethod));
 
-      Assert.That (result.Arguments, Is.EqualTo (arguments));
+      Assert.That (result.Arguments, Is.EqualTo (arguments.Expressions));
     }
 
     [Test]
-    [Ignore ("TODO 4818")]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    public void GetBaseCall_Name_ForStaticMethods ()
+    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'System.Object' has no base type.")]
+    public void GetBaseCall_Name_NoBaseType ()
     {
-      _staticContext.GetBaseCall ("Method", new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) });
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
+      var context = new TestableMethodBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
+
+      context.GetBaseCall ("DoesNotExist");
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Instance method 'Foo' could not be found on base type 'System.Object'.\r\nParameter name: methodName")]    
+    public void GetBaseCall_Name_NoMatchingMethod ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var baseMethods = typeof(object).GetMethods (bindingFlags);
+      var arguments = new ArgumentTestHelper (7);
+      _memberSelector
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _mutableType, arguments.Types, null))
+          .Return (null);
+
+      _instanceContext.GetBaseCall ("Foo", arguments.Expressions);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
+    public void GetBaseCall_Name_StaticContext ()
+    {
+      _staticContext.GetBaseCall ("NotImportant");
     }
 
     [Test]
@@ -130,18 +155,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    public void GetBaseCall_MethodInfo_ForStaticMethods ()
+    public void GetBaseCall_MethodInfo_StaticContext ()
     {
-      var method = ReflectionObjectMother.GetSomeMethod();
+      var method = ReflectionObjectMother.GetSomeInstanceMethod();
       _staticContext.GetBaseCall (method);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.")]
+    public void GetBaseCall_MethodInfo_StaticMethodInfo ()
+    {
+      var method = ReflectionObjectMother.GetSomeStaticMethod();
+      _instanceContext.GetBaseCall (method);
     }
 
     private class DomainType
     {
       public void Method (int i) { }
-
       public void FakeBaseMethod (int i) { }
     }
-
   }
 }
