@@ -302,11 +302,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (message, "name");
       }
 
-      var baseTypeSequence = BaseType.CreateSequence (t => t.BaseType);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
-      var baseMethod = _relatedMethodFinder.FindFirstOverriddenMethod (name, signature, allBaseMethods);
-
+      var baseMethod = _relatedMethodFinder.GetBaseMethod (name, signature, BaseType);
       if (baseMethod != null && baseMethod.IsFinal)
       {
         var message = string.Format ("Cannot override final method '{0}'.", name);

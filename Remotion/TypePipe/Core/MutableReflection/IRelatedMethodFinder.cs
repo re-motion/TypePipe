@@ -14,7 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Collections.Generic;
+using System;
 using System.Reflection;
 using Remotion.Reflection.MemberSignatures;
 
@@ -25,6 +25,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IRelatedMethodFinder
   {
-    MethodInfo FindFirstOverriddenMethod (string name, MethodSignature signature, IEnumerable<MethodInfo> candidates);
+    MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch);
   }
 }

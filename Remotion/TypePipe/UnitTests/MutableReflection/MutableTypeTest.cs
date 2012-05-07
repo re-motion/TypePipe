@@ -26,7 +26,6 @@ using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -45,6 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      // Strict mock would be better but many tests would need and explict expectation then.
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
       _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock);
@@ -611,26 +611,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddMethod_ImplicitOverride ()
     {
-      var rootDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBaseBase obj) => obj.VirtualBaseMethod());
-      var overriddenMethod = typeof (DomainTypeBase).GetMethod ("VirtualBaseMethod");
+      var fakeRootDefinition = ReflectionObjectMother.GetSomeMethod();
+      var fakeOverridenMethod = MockRepository.GenerateStub<MethodInfo>();
 
-      var methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      var name = "SomeMethodName";
+      var returnType = ReflectionObjectMother.GetSomeType();
+      fakeOverridenMethod.Stub (stub => stub.Name).Return (name);
+      fakeOverridenMethod.Stub (stub => stub.ReturnType).Return (returnType);
+      fakeOverridenMethod.Stub (stub => stub.GetParameters()).Return (new ParameterInfo[0]);
+      fakeOverridenMethod.Stub (stub => stub.GetBaseDefinition ()).Return (fakeRootDefinition);
+
       _relatedMethodFinderMock
-          .Expect (
-              mock =>
-              mock.FindFirstOverriddenMethod (Arg.Is ("VirtualBaseMethod"), Arg.Is (methodSignature), Arg<IEnumerable<MethodInfo>>.Is.Anything))
-          .Return (overriddenMethod);
+          .Expect (mock => mock.GetBaseMethod (name, new MethodSignature(returnType, Type.EmptyTypes, 0), _mutableType.BaseType))
+          .Return (fakeOverridenMethod);
 
       var addedMethod = _mutableType.AddMethod (
-          "VirtualBaseMethod",
+          name,
           MethodAttributes.Public | MethodAttributes.Virtual,
-          typeof (void),
+          returnType,
           ParameterDeclaration.EmptyParameters,
-          ctx => Expression.Empty ());
+          ctx => Expression.Default(returnType));
 
       _relatedMethodFinderMock.VerifyAllExpectations();
-      Assert.That (addedMethod.BaseMethod, Is.EqualTo (overriddenMethod));
-      Assert.That (addedMethod.GetBaseDefinition(), Is.EqualTo (rootDefinition));
+      Assert.That (addedMethod.BaseMethod, Is.EqualTo (fakeOverridenMethod));
+      Assert.That (addedMethod.GetBaseDefinition (), Is.EqualTo (fakeRootDefinition));
     }
 
     [Test]
@@ -640,9 +644,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
       var fakeBaseMethod = ReflectionObjectMother.GetSomeFinalMethod();
       _relatedMethodFinderMock
-          .Expect (
-              mock =>
-              mock.FindFirstOverriddenMethod (Arg.Is ("FinalBaseMethod"), Arg.Is (methodSignature), Arg<IEnumerable<MethodInfo>>.Is.Anything))
+          .Expect (mock => mock.GetBaseMethod ("FinalBaseMethod", methodSignature, _mutableType.BaseType))
           .Return (fakeBaseMethod);
 
       _mutableType.AddMethod (
@@ -1058,18 +1060,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
     }
 
-    public class DomainTypeBaseBase
-    {
-      public virtual void VirtualBaseMethod () { }
-    }
-
-    public class DomainTypeBase : DomainTypeBaseBase
+    public class DomainTypeBase
     {
       public int BaseField;
 
       public void ExistingBaseMethod () { }
-
-      public override void VirtualBaseMethod () { }
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface

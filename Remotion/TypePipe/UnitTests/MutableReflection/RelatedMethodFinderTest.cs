@@ -28,83 +28,123 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private RelatedMethodFinder _finder;
 
-    private MethodInfo _candidate1;
-    private MethodInfo _candidate2;
-    private MethodInfo _candidate3;
+    private MethodSignature _methodSignature;
+    private Type _typeToStartSearch;
 
     [SetUp]
     public void SetUp ()
     {
       _finder = new RelatedMethodFinder();
 
-      _candidate1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method (7, "7"));
-      _candidate2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.Method ("7", 7));
-      _candidate3 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((OtherDomainType obj) => obj.Method (7, "7"));
+      _methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      _typeToStartSearch = typeof (DomainType);
     }
 
     [Test]
-    public void FindFirstOverriddenMethod_SingleMatchingCandidate ()
+    public void GetBaseMethod_DerivedTypeMethod ()
     {
-      var signature = new MethodSignature (typeof (void), new[] { typeof (int), typeof(string)}, 0);
+      var result = _finder.GetBaseMethod ("DerivedTypeMethod", _methodSignature, _typeToStartSearch);
 
-      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { _candidate1, _candidate2, _candidate3 });
-
-      Assert.That (result, Is.SameAs (_candidate3));
+      var expected = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.DerivedTypeMethod());
+      Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
-    public void FindFirstOverriddenMethod_MultipleMatchingCandidates ()
+    public void GetBaseMethod_DerivedTypeMethod_NonMatchingName ()
     {
-      var signature = new MethodSignature (typeof (void), new[] { typeof (string), typeof(int) }, 0);
-
-      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { _candidate1, _candidate2, _candidate3 });
-
-      Assert.That (result, Is.SameAs (_candidate2));
-    }
-
-    [Test]
-    public void FindFirstOverriddenMethod_NoMatchingName ()
-    {
-      var signature = new MethodSignature (typeof (int), new[] { typeof (int), typeof (string) }, 0);
-      Assert.That (signature, Is.EqualTo (MethodSignature.Create (_candidate1)));
-
-      var result = _finder.FindFirstOverriddenMethod ("DoesNotExist", signature, new[] { _candidate1 });
+      var result = _finder.GetBaseMethod ("DoesNotExist", _methodSignature, _typeToStartSearch);
 
       Assert.That (result, Is.Null);
     }
 
     [Test]
-    public void FindFirstOverriddenMethod_NoMatchingSignature ()
+    public void GetBaseMethod_DerivedTypeMethod_NonMatchingSignature ()
     {
-      var signature = new MethodSignature (typeof (int), new[] { typeof (string), typeof (int) }, 0);
-
-      var result = _finder.FindFirstOverriddenMethod ("Method", signature, new[] { _candidate1, _candidate2, _candidate3 });
+      var signature = new MethodSignature (typeof (int), Type.EmptyTypes, 0);
+      Assert.That (signature, Is.Not.EqualTo (_methodSignature));
+      var result = _finder.GetBaseMethod ("DerivedTypeMethod", signature, _typeToStartSearch);
 
       Assert.That (result, Is.Null);
     }
 
     [Test]
-    public void FindFirstOverriddenMethod_NonVirtualMethodsAreIgnored ()
+    public void GetBaseMethod_ProtectedDerivedTypeMethod ()
     {
-      var candidate = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
-      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
-      Assert.That (signature, Is.EqualTo (MethodSignature.Create (candidate)));
+      var result = _finder.GetBaseMethod ("ProtectedDerivedTypeMethod", _methodSignature, _typeToStartSearch);
 
-      var result = _finder.FindFirstOverriddenMethod ("NonVirtualMethod", signature, new[] { candidate });
+      var expected = typeof (DomainType).GetMethod ("ProtectedDerivedTypeMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+      Assert.That (expected, Is.Not.Null);
+      Assert.That (expected.IsPublic, Is.False);
+
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetBaseMethod_BaseTypeMethod ()
+    {
+      var result = _finder.GetBaseMethod ("BaseTypeMethod", _methodSignature, _typeToStartSearch);
+
+      var expected = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetBaseMethod_NonVirtualMethod ()
+    {
+      var result = _finder.GetBaseMethod ("NonVirtualMethod", _methodSignature, _typeToStartSearch);
 
       Assert.That (result, Is.Null);
     }
 
-    private class DomainType
+    [Test]
+    public void GetBaseMethod_OverridingMethod ()
     {
-      public virtual int Method (int i, string s) { return 0; }
-      public virtual void Method (string s, int i) { }
+      var result = _finder.GetBaseMethod ("OverridingMethod", _methodSignature, _typeToStartSearch);
+
+      var expected = typeof (DomainType).GetMethod ("OverridingMethod");
+      Assert.That (expected, Is.Not.Null);
+
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetBaseMethod_NewMethod ()
+    {
+      var result = _finder.GetBaseMethod ("NewMethod", _methodSignature, _typeToStartSearch);
+
+      var expected = typeof (DomainType).GetMethod ("NewMethod");
+      Assert.That (expected, Is.Not.Null);
+
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetBaseMethod_NewMethodShadowingVirtualMethod ()
+    {
+      var result = _finder.GetBaseMethod ("NewMethodShadowingVirtualMethod", _methodSignature, _typeToStartSearch);
+
+      var expected = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.NewMethodShadowingVirtualMethod());
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+// ReSharper disable UnusedMember.Local
+    private class DomainTypeBase
+    {
+      public virtual void BaseTypeMethod () { }
+      public virtual void OverridingMethod () { }
+      public virtual void NewMethod () { }
+      public virtual void NewMethodShadowingVirtualMethod () { }      
+    }
+
+    private class DomainType : DomainTypeBase
+    {
+      public virtual void DerivedTypeMethod () { }
+      protected virtual void ProtectedDerivedTypeMethod () { }
       public void NonVirtualMethod () { }
+      public override void OverridingMethod () { }
+      public new virtual void NewMethod () { }
+      public new void NewMethodShadowingVirtualMethod () { }
     }
-
-    private class OtherDomainType
-    {
-      public virtual void Method (int i, string s) { }
-    }
+// ReSharper restore UnusedMember.Local
   }
 }

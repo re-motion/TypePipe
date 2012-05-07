@@ -21,22 +21,24 @@ using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class UnderlyingMethodInfoDescriptorTest
   {
-    private RelatedMethodFinder _relatedMethodFinder;
+    private IRelatedMethodFinder _relatedMethodFinderMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _relatedMethodFinder = new RelatedMethodFinder();
+      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
     }
 
     [Test]
@@ -103,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       int v;
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.SameAs (originalMethod));
       Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
@@ -134,41 +136,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
       Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
 
     [Test]
-    // TODO 4838
-    // Relaced _relatedMethodFinder with Mock, return fake result and delete this test (and test domain)
     public void Create_ForExisting_OverridingMethod ()
     {
-      var originalMethod = typeof (DomainType).GetMethod ("OverridingMethod");
+      var method = typeof (DomainType).GetMethod ("ToString");
+      var baseMethodStub = MockRepository.GenerateStub<MethodInfo>();
+      var fakeRootDefinition = ReflectionObjectMother.GetSomeMethod();
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType))
+          .Return(baseMethodStub);
+      baseMethodStub.Stub (stub => stub.GetBaseDefinition()).Return (fakeRootDefinition);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (method, _relatedMethodFinderMock);
 
-      var baseMethod = typeof(B).GetMethod("OverridingMethod");
-      Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethod));
-      Assert.That (descriptor.BaseMethod, Is.Not.EqualTo (originalMethod.GetBaseDefinition()));
+      _relatedMethodFinderMock.VerifyAllExpectations();
+      Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethodStub));
+      Assert.That (descriptor.BaseMethod, Is.Not.EqualTo (fakeRootDefinition));
     }
 
-    public class A
-    {
-      public virtual void OverridingMethod () { }
-    }
-
-    private class B : A
-    {
-      public override void OverridingMethod () { }
-    }
-
-    private class C : B
-    {
-    }
-
-    private class DomainType : C
+    private class DomainType
     {
       public int Method (string s, out int i, [In] double d, [In, Out] object o)
       {
@@ -181,7 +173,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       protected internal string ProtectedInternalMethod () { return null; }
 
-      public override void OverridingMethod () { }
+      // Some method that has a different root definition
+      public override string ToString () { return null; }
     }
   }
 }

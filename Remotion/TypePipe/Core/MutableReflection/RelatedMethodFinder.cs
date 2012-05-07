@@ -1,9 +1,10 @@
 // Copyright (C) 2005 - 2009 rubicon informationstechnologie gmbh
 // All rights reserved.
 //
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Reflection.MemberSignatures;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -14,11 +15,16 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class RelatedMethodFinder : IRelatedMethodFinder
   {
-    public MethodInfo FindFirstOverriddenMethod (string name, MethodSignature signature, IEnumerable<MethodInfo> candidates)
+    public MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch)
     {
-      return candidates
-        .Where (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature))
-        .FirstOrDefault();
+      var baseTypeSequence = typeToStartSearch.CreateSequence (t => t.BaseType);
+
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
+
+      return allBaseMethods
+          .Where (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature))
+          .FirstOrDefault();
     }
   }
 }

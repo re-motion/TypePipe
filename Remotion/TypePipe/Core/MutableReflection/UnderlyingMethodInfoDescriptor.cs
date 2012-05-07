@@ -95,15 +95,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     private static MethodInfo GetBaseMethod (MethodInfo method, IRelatedMethodFinder relatedMethodFinder)
     {
-      var rootDefinition = method.GetBaseDefinition();
-      if (method.Equals(rootDefinition))
+      var rootDefinition = method.GetBaseDefinition ();
+      if (method.Equals (rootDefinition))
         return null;
 
-      var baseTypeSequence = method.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
-      //return relatedMethodFinder.FindFirstOverriddenMethod (method.Name, MethodSignature.Create(method), allBaseMethods);
-      return allBaseMethods.First (m => m.GetBaseDefinition().Equals(rootDefinition));
+      return relatedMethodFinder.GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType);
     }
 
     private readonly Type _returnType;
