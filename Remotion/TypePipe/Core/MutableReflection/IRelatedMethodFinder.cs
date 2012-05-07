@@ -26,5 +26,6 @@ namespace Remotion.TypePipe.MutableReflection
   public interface IRelatedMethodFinder
   {
     MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch);
+    MethodInfo GetBaseMethod (MethodInfo method);
   }
 }

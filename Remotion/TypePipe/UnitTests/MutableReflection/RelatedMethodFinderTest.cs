@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_DerivedTypeMethod ()
+    public void GetBaseMethod_MethodInfo__DerivedTypeMethod ()
     {
       var result = _finder.GetBaseMethod ("DerivedTypeMethod", _methodSignature, _typeToStartSearch);
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_DerivedTypeMethod_NonMatchingName ()
+    public void GetBaseMethod_MethodInfo__DerivedTypeMethod_NonMatchingName ()
     {
       var result = _finder.GetBaseMethod ("DoesNotExist", _methodSignature, _typeToStartSearch);
 
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_DerivedTypeMethod_NonMatchingSignature ()
+    public void GetBaseMethod_MethodInfo__DerivedTypeMethod_NonMatchingSignature ()
     {
       var signature = new MethodSignature (typeof (int), Type.EmptyTypes, 0);
       Assert.That (signature, Is.Not.EqualTo (_methodSignature));
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_ProtectedDerivedTypeMethod ()
+    public void GetBaseMethod_MethodInfo__ProtectedDerivedTypeMethod ()
     {
       var result = _finder.GetBaseMethod ("ProtectedDerivedTypeMethod", _methodSignature, _typeToStartSearch);
 
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_BaseTypeMethod ()
+    public void GetBaseMethod_MethodInfo__BaseTypeMethod ()
     {
       var result = _finder.GetBaseMethod ("BaseTypeMethod", _methodSignature, _typeToStartSearch);
 
@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_NonVirtualMethod ()
+    public void GetBaseMethod_MethodInfo__NonVirtualMethod ()
     {
       var result = _finder.GetBaseMethod ("NonVirtualMethod", _methodSignature, _typeToStartSearch);
 
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_OverridingMethod ()
+    public void GetBaseMethod_MethodInfo__OverridingMethod ()
     {
       var result = _finder.GetBaseMethod ("OverridingMethod", _methodSignature, _typeToStartSearch);
 
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_NewMethod ()
+    public void GetBaseMethod_MethodInfo__NewMethod ()
     {
       var result = _finder.GetBaseMethod ("NewMethod", _methodSignature, _typeToStartSearch);
 
@@ -119,12 +119,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_NewMethodShadowingVirtualMethod ()
+    public void GetBaseMethod_MethodInfo__NewMethodShadowingVirtualMethod ()
     {
       var result = _finder.GetBaseMethod ("NewMethodShadowingVirtualMethod", _methodSignature, _typeToStartSearch);
 
       var expected = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.NewMethodShadowingVirtualMethod());
       Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetBaseMethod_MethodInfo_ModifiedDerivedTypeMethod ()
+    {
+      var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((ModifiedDomainType obj) => obj.ModifiedDerivedTypeMethod ());
+
+      var result = _finder.GetBaseMethod (method);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetBaseMethod_MethodInfo_OverridingMethod ()
+    {
+      var method = typeof (ModifiedDomainType).GetMethod ("OverridingMethod");
+
+      var result = _finder.GetBaseMethod (method);
+
+      var expected = typeof (DomainType).GetMethod ("OverridingMethod");
+      Assert.That (result, Is.EqualTo(expected));
     }
 
 // ReSharper disable UnusedMember.Local
@@ -144,6 +165,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override void OverridingMethod () { }
       public new virtual void NewMethod () { }
       public new void NewMethodShadowingVirtualMethod () { }
+    }
+
+    private class ModifiedDomainType : DomainType
+    {
+      public virtual void ModifiedDerivedTypeMethod () { }
+      public override void OverridingMethod () { }
     }
 // ReSharper restore UnusedMember.Local
   }

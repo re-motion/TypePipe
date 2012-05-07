@@ -23,8 +23,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   public class TestableMethodBodyContextBase : MethodBodyContextBase
   {
-    public TestableMethodBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic)
-        : base(declaringType, parameterExpressions, isStatic)
+    public TestableMethodBodyContextBase (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IRelatedMethodFinder relatedMethodFinder)
+        : base(declaringType, parameterExpressions, isStatic, relatedMethodFinder)
     {
     }
   }

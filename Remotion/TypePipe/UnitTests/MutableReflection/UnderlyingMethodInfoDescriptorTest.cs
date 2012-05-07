@@ -104,6 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       int v;
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
+      _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (originalMethod)).Return (null);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
 
@@ -135,6 +136,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
       Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
+      _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (originalMethod)).Return (null);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
 
@@ -145,12 +147,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting_OverridingMethod ()
     {
-      var method = typeof (DomainType).GetMethod ("ToString");
+      var method = ReflectionObjectMother.GetSomeMethod();
       var baseMethodStub = MockRepository.GenerateStub<MethodInfo>();
       var fakeRootDefinition = ReflectionObjectMother.GetSomeMethod();
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType))
-          .Return(baseMethodStub);
+      _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (method)).Return(baseMethodStub);
       baseMethodStub.Stub (stub => stub.GetBaseDefinition()).Return (fakeRootDefinition);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (method, _relatedMethodFinderMock);

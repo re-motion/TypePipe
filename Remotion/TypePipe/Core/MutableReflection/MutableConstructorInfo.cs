@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
 
-      var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body);
+      var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body, new RelatedMethodFinder());
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 

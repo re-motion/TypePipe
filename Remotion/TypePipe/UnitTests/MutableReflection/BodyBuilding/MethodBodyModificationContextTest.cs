@@ -23,6 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 using System.Collections.Generic;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private bool _isStatic;
 
     private MethodBodyModificationContext _context;
+    private IRelatedMethodFinder _relatedMetodFinder;
 
     [SetUp]
     public void SetUp ()
@@ -43,8 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _isStatic = BooleanObjectMother.GetRandomBoolean();
+      _relatedMetodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
 
-      _context = new MethodBodyModificationContext (_declaringType, _parameters, _previousBody, _isStatic);
+      _context = new MethodBodyModificationContext (_declaringType, _parameters, _previousBody, _isStatic, _relatedMetodFinder);
     }
 
     [Test]

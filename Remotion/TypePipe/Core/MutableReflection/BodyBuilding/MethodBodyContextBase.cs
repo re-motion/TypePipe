@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
@@ -32,15 +33,19 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly MutableType _declaringType;
     private readonly ReadOnlyCollection<ParameterExpression> _parameters;
     private readonly bool _isStatic;
+    private readonly IRelatedMethodFinder _relatedMethodFinder;
 
-    protected MethodBodyContextBase (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic)
+    protected MethodBodyContextBase (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IRelatedMethodFinder relatedMethodFinder)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
+      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
       _declaringType = declaringType;
       _parameters = parameterExpressions.ToList().AsReadOnly();
       _isStatic = isStatic;
+      _relatedMethodFinder = relatedMethodFinder;
     }
 
     public MutableType DeclaringType
@@ -68,5 +73,25 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       get { return _isStatic; }
     }
+
+    //public MethodCallExpression GetBaseCall (string methodName, params Expression[] arguments)
+    //{
+    //  ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+    //  ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+    //  //var method = _relatedMethodFinder.GetBaseMethod (methodName, )
+    //  return null;
+    //}
+
+    //public MethodCallExpression GetBaseCall (MethodInfo method, params Expression[] arguments)
+    //{
+    //  ArgumentUtility.CheckNotNull ("method", method);
+    //  ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+    //  if (IsStatic)
+    //    throw new InvalidOperationException ("Cannot perform base call from static method.");
+
+    //  return Expression.Call (This, method, arguments);
+    //}
   }
 }

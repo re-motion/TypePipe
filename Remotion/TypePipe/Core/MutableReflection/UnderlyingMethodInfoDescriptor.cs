@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.MutableReflection
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = GetMethodAttributesWithAdjustedVisibiity (originalMethod);
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
-      var baseMethod = GetBaseMethod(originalMethod, relatedMethodFinder);
+      var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
       var body = CreateOriginalBodyExpression (originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
@@ -91,15 +91,6 @@ namespace Remotion.TypePipe.MutableReflection
           originalMethod.IsGenericMethodDefinition,
           originalMethod.ContainsGenericParameters,
           body);
-    }
-
-    private static MethodInfo GetBaseMethod (MethodInfo method, IRelatedMethodFinder relatedMethodFinder)
-    {
-      var rootDefinition = method.GetBaseDefinition ();
-      if (method.Equals (rootDefinition))
-        return null;
-
-      return relatedMethodFinder.GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType);
     }
 
     private readonly Type _returnType;

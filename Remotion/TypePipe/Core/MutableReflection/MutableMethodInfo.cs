@@ -152,7 +152,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
 
-      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic);
+      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic, new RelatedMethodFinder());
       _body = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
     }
 

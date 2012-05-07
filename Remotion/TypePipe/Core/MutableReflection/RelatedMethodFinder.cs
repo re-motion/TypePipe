@@ -26,5 +26,14 @@ namespace Remotion.TypePipe.MutableReflection
           .Where (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature))
           .FirstOrDefault();
     }
+
+    public MethodInfo GetBaseMethod (MethodInfo method)
+    {
+      var rootDefinition = method.GetBaseDefinition ();
+      if (method.Equals (rootDefinition))
+        return null;
+
+      return GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType);
+    }
   }
 }

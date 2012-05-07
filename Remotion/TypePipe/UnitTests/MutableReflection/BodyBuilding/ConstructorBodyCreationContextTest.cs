@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void Initialization ()
     {
       var mutableType = MutableTypeObjectMother.Create();
-      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> ());
+      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> (), new RelatedMethodFinder());
 
       Assert.That (context.IsStatic, Is.False);
     }
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetConstructorCall ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
-      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> ());
+      var context = new ConstructorBodyCreationContext (mutableType, Enumerable.Empty<ParameterExpression> (), new RelatedMethodFinder());
 
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
       var result = context.GetConstructorCall (argumentExpressions);

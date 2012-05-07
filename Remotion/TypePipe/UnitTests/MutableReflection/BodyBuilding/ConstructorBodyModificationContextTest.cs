@@ -23,6 +23,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -33,6 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
     private ConstructorBodyModificationContext _context;
+    private IRelatedMethodFinder _relatedMethodFinder;
 
     [SetUp]
     public void SetUp ()
@@ -40,7 +42,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _declaringType = MutableTypeObjectMother.Create();
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
-      _context = new ConstructorBodyModificationContext (_declaringType, _parameters, _previousBody);
+      _relatedMethodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+
+      _context = new ConstructorBodyModificationContext (_declaringType, _parameters, _previousBody, _relatedMethodFinder);
     }
 
     [Test]
@@ -56,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetConstructorCall ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
-      var context = new ConstructorBodyModificationContext(mutableType, Enumerable.Empty<ParameterExpression>(), _previousBody);
+      var context = new ConstructorBodyModificationContext(mutableType, Enumerable.Empty<ParameterExpression>(), _previousBody, _relatedMethodFinder);
 
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
       var result = context.GetConstructorCall (argumentExpressions);

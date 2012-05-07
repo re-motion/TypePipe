@@ -26,8 +26,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public class ConstructorBodyCreationContext : MethodBodyCreationContext
   {
-    public ConstructorBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions)
-        : base(declaringType, parameterExpressions, false)
+    public ConstructorBodyCreationContext (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IRelatedMethodFinder relatedMethodFinder)
+        : base(declaringType, parameterExpressions, false, relatedMethodFinder)
     {
     }
 

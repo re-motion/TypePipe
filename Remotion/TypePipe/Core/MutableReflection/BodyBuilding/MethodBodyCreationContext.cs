@@ -25,8 +25,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// See also <see cref="MutableType.AddMethod"/>.
   public class MethodBodyCreationContext : MethodBodyContextBase
   {
-    public MethodBodyCreationContext (MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic)
-        : base(declaringType, parameterExpressions, isStatic)
+    public MethodBodyCreationContext (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IRelatedMethodFinder relatedMethodFinder)
+        : base(declaringType, parameterExpressions, isStatic, relatedMethodFinder)
     {
     }
   }

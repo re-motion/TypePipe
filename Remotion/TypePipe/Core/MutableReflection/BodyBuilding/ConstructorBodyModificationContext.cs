@@ -27,8 +27,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   public class ConstructorBodyModificationContext : MethodBodyModificationContext
   {
     public ConstructorBodyModificationContext (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, Expression previousBody)
-        : base (declaringType, parameterExpressions, previousBody, false)
+        MutableType declaringType,
+        IEnumerable<ParameterExpression> parameterExpressions,
+        Expression previousBody,
+        IRelatedMethodFinder relatedMethodFinder)
+      : base (declaringType, parameterExpressions, previousBody, false, relatedMethodFinder)
     {
     }
 

@@ -17,20 +17,26 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   [TestFixture]
   public class BodyProviderUtilityTest
   {
+    private IRelatedMethodFinder _relatedMethodFinder;
+
     private MethodBodyContextBase _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false);
+      _relatedMethodFinder = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+
+      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false, _relatedMethodFinder);
     }
 
     [Test]
