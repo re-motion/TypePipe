@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -89,11 +90,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var result = _instanceContext.GetBaseCall ("Method", arguments);
 
-      Assert.That (result.Method, Is.SameAs (fakeBaseMethod));
-      Assert.That (result.Arguments, Is.EqualTo (arguments));
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
+
+      Assert.That (result.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
+      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) result.Method;
+      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+
+      Assert.That (result.Arguments, Is.EqualTo (arguments));
     }
 
     [Test]
@@ -112,11 +117,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var result = _instanceContext.GetBaseCall (method, arguments);
 
-      Assert.That (result.Method, Is.SameAs (method));
-      Assert.That (result.Arguments, Is.EqualTo (arguments));
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
+
+      Assert.That (result.Method, Is.TypeOf<BaseCallMethodInfoAdapter>());
+      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) result.Method;
+      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+
+      Assert.That (result.Arguments, Is.EqualTo (arguments));
     }
 
     [Test]

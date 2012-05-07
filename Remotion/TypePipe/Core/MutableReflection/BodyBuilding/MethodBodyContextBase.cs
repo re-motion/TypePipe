@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
@@ -104,7 +105,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (IsStatic)
         throw new InvalidOperationException ("Cannot perform base call from static method.");
 
-      return Expression.Call (This, method, arguments);
+      return Expression.Call (This, new BaseCallMethodInfoAdapter(method), arguments);
     }
   }
 }
