@@ -89,8 +89,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic ();
 
-      // TODO visibility 4818
-
       var baseType = _declaringType.BaseType;
       if (baseType == null)
       {
@@ -110,25 +108,34 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new ArgumentException (message, "methodName");
       }
 
+      CheckVisibility (baseMethod, "methodName");
+
       return GetBaseCall (baseMethod, arguments);
     }
 
-    public MethodCallExpression GetBaseCall (MethodInfo method, params Expression[] arguments)
+    public MethodCallExpression GetBaseCall (MethodInfo baseMethod, params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseCall (method, (IEnumerable<Expression>) arguments);
+      return GetBaseCall (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public MethodCallExpression GetBaseCall (MethodInfo method, IEnumerable<Expression> arguments)
+    public MethodCallExpression GetBaseCall (MethodInfo baseMethod, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic ();
-      CheckNotStatic (method);
+      CheckNotStatic (baseMethod);
+      CheckVisibility(baseMethod, "baseMethod");
 
-      return Expression.Call (This, new BaseCallMethodInfoAdapter (method), arguments);
+      return Expression.Call (This, new BaseCallMethodInfoAdapter (baseMethod), arguments);
+    }
+
+    private void CheckVisibility (MethodInfo baseMethod, string parameterName)
+    {
+      if (!baseMethod.IsPublic && !baseMethod.IsFamilyOrAssembly && !baseMethod.IsFamily)
+        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", parameterName);
     }
 
     private void EnsureNotStatic ()

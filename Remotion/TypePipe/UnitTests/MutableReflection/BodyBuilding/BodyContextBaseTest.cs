@@ -136,6 +136,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: methodName")]
+    public void GetBaseCall_Name_Params_DisallowedVisibility ()
+    {
+      var internalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
+      _memberSelector
+          .Expect (mock => mock.SelectSingleMethod<MethodInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
+          .Return (internalMethod);
+
+      _instanceContext.GetBaseCall ("InternalMethod");
+    }
+
+    [Test]
     public void GetBaseCall_MethodInfo_Params ()
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
@@ -147,9 +160,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var thisExpression = (ThisExpression) result.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
 
-      Assert.That (result.Method, Is.TypeOf<BaseCallMethodInfoAdapter>());
-      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) result.Method;
-      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+      CheckBaseCallMethodInfo (method, result);
 
       Assert.That (result.Arguments, Is.EqualTo (arguments));
     }
@@ -170,10 +181,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _instanceContext.GetBaseCall (method);
     }
 
+    [Test]
+    public void GetBaseCall_MethodInfo_Params_AllowedVisibility ()
+    {
+      var protectedMethod = typeof (DomainType).GetMethod ("ProtectedMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+      var protectedInternalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod ());
+
+      var result1 = _instanceContext.GetBaseCall (protectedMethod);
+      var result2 = _instanceContext.GetBaseCall (protectedInternalMethod);
+
+      CheckBaseCallMethodInfo(protectedMethod, result1);
+      CheckBaseCallMethodInfo(protectedInternalMethod, result2);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: baseMethod")]
+    public void GetBaseCall_MethodInfo_Params_DisallowedVisibility ()
+    {
+      var internalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
+      _instanceContext.GetBaseCall (internalMethod);
+    }
+
+    private void CheckBaseCallMethodInfo (MethodInfo method, MethodCallExpression baseCallExpression)
+    {
+      Assert.That (baseCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
+      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) baseCallExpression.Method;
+      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+    }
+
     private class DomainType
     {
       public void Method (int i) { }
       public void FakeBaseMethod (int i) { }
+
+      protected void ProtectedMethod () { }
+      protected internal void ProtectedInternalMethod () { }
+      internal void InternalMethod () { }
     }
   }
 }
