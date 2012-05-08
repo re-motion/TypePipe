@@ -34,5 +34,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var expectedAttributes = MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.Virtual;
       Assert.That (adjustedAttributes, Is.EqualTo (expectedAttributes));
     }
+
+    [Test]
+    public void IsSet ()
+    {
+      var attributes = (MethodAttributes) 3;
+
+      // Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 0), Is.False); // wrong usage
+      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 1), Is.True);
+      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 2), Is.True);
+      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 3), Is.True);
+      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 4), Is.False);
+    }
   }
 }

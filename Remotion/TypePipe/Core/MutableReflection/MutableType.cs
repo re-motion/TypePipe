@@ -303,15 +303,9 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (message, "name");
       }
 
-      var baseMethod = _relatedMethodFinder.GetBaseMethod (name, signature, BaseType);
-      if (baseMethod != null && baseMethod.IsFinal)
-      {
-        var message = string.Format ("Cannot override final method '{0}'.", name);
-        throw new NotSupportedException (message);
-      }
-
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
+      var baseMethod = GetBaseMethod (attributes, name, signature);
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
@@ -322,6 +316,22 @@ namespace Remotion.TypePipe.MutableReflection
       _methods.Add (methodInfo);
 
       return methodInfo;
+    }
+
+    private MethodInfo GetBaseMethod (MethodAttributes attributes, string name, MethodSignature signature)
+    {
+      var isVirtual = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Virtual);
+      var isNewSlot = MethodAttributeUtility.IsSet (attributes, MethodAttributes.NewSlot);
+      if (!isVirtual || isNewSlot)
+        return null;
+
+      var baseMethod = _relatedMethodFinder.GetBaseMethod (name, signature, BaseType);
+      if (baseMethod != null && baseMethod.IsFinal)
+      {
+        var message = string.Format ("Cannot override final method '{0}'.", name);
+        throw new NotSupportedException (message);
+      }
+      return baseMethod;
     }
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)

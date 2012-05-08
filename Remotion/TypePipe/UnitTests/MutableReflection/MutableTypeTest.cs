@@ -44,8 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      // Strict mock would be better ...
-      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
+      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
 
       _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock);
     }
@@ -592,23 +591,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddMethod_Shadowing ()
+    public void AddMethod_Shadowing_NonVirtual ()
     {
       var baseMethod = GetBaseMethod (_mutableType, "ToString");
       Assert.That (baseMethod, Is.Not.Null);
       Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
 
-      var newMethod = _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, context =>
+      var nonVirtualAttributes = (MethodAttributes) 0;
+      var newMethod = _mutableType.AddMethod ("ToString", nonVirtualAttributes, typeof (string), ParameterDeclaration.EmptyParameters, context =>
       {
         Assert.That (context.HasBaseMethod, Is.False);
         return Expression.Constant ("string");
       });
 
       Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
-      Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (newMethod.BaseMethod, Is.Null);
       Assert.That (newMethod.GetBaseDefinition (), Is.SameAs (newMethod));
-      Assert.That (_mutableType.AddedMethods, Has.Member (newMethod));
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { newMethod }));
+    }
+
+    [Test]
+    public void AddMethod_Shadowing_VirtualAndNewSlot ()
+    {
+      var baseMethod = GetBaseMethod (_mutableType, "ToString");
+      Assert.That (baseMethod, Is.Not.Null);
+      Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
+
+      var nonVirtualAttributes = MethodAttributes.Virtual | MethodAttributes.NewSlot;
+      var newMethod = _mutableType.AddMethod ("ToString", nonVirtualAttributes, typeof (string), ParameterDeclaration.EmptyParameters, context =>
+      {
+        Assert.That (context.HasBaseMethod, Is.False);
+        return Expression.Constant ("string");
+      });
+
+      Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
+      Assert.That (newMethod.BaseMethod, Is.Null);
+      Assert.That (newMethod.GetBaseDefinition (), Is.SameAs (newMethod));
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { newMethod }));
     }
 
     [Test]
