@@ -82,10 +82,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void GetBaseCall_Name_Params ()
     {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var baseMethods = typeof (object).GetMethods (bindingFlags);
+      var baseMethods = typeof (object).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
       var arguments = new ArgumentTestHelper (7);
       var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       _memberSelector
           .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _mutableType, arguments.Types, null))
           .Return (fakeBaseMethod);
@@ -118,9 +118,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         "Instance method 'Foo' could not be found on base type 'System.Object'.\r\nParameter name: methodName")]    
     public void GetBaseCall_Name_Params_NoMatchingMethod ()
     {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var baseMethods = typeof(object).GetMethods (bindingFlags);
+      var baseMethods = typeof (object).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
       var arguments = new ArgumentTestHelper (7);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       _memberSelector
           .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _mutableType, arguments.Types, null))
           .Return (null);

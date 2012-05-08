@@ -98,8 +98,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new InvalidOperationException (message);
       }
 
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var baseTypeMethods = baseType.GetMethods (bindingFlags);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var baseTypeMethods = baseType.GetMethods (bindingFlags | BindingFlags.DeclaredOnly);
       var argumentTypes = arguments.Select (a => a.Type).ToArray ();
       var baseMethod = _memberSelector.SelectSingleMethod (
           baseTypeMethods, Type.DefaultBinder, bindingFlags, methodName, _declaringType, argumentTypes, null);
