@@ -79,7 +79,15 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
-      EnsureNotStatic();
+
+      return GetBaseCall (methodName, (IEnumerable<Expression>) arguments);
+    }
+
+    public MethodCallExpression GetBaseCall (string methodName, IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic ();
 
       // TODO visibility 4818
 
@@ -91,8 +99,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       }
 
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var baseTypeMethods = baseType.GetMethods(bindingFlags);
-      var argumentTypes = arguments.Select (a => a.Type).ToArray();
+      var baseTypeMethods = baseType.GetMethods (bindingFlags);
+      var argumentTypes = arguments.Select (a => a.Type).ToArray ();
       var baseMethod = _memberSelector.SelectSingleMethod (
           baseTypeMethods, Type.DefaultBinder, bindingFlags, methodName, _declaringType, argumentTypes, null);
 
@@ -109,10 +117,18 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNull ("method", method);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
-      EnsureNotStatic();
+
+      return GetBaseCall (method, (IEnumerable<Expression>) arguments);
+    }
+
+    public MethodCallExpression GetBaseCall (MethodInfo method, IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic ();
       CheckNotStatic (method);
 
-      return Expression.Call (This, new BaseCallMethodInfoAdapter(method), arguments);
+      return Expression.Call (This, new BaseCallMethodInfoAdapter (method), arguments);
     }
 
     private void EnsureNotStatic ()

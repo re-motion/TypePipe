@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetBaseCall_Name ()
+    public void GetBaseCall_Name_Params ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       var baseMethods = typeof (object).GetMethods (bindingFlags);
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'System.Object' has no base type.")]
-    public void GetBaseCall_Name_NoBaseType ()
+    public void GetBaseCall_Name_Params_NoBaseType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
       var context = new TestableMethodBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Instance method 'Foo' could not be found on base type 'System.Object'.\r\nParameter name: methodName")]    
-    public void GetBaseCall_Name_NoMatchingMethod ()
+    public void GetBaseCall_Name_Params_NoMatchingMethod ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       var baseMethods = typeof(object).GetMethods (bindingFlags);
@@ -129,13 +129,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    public void GetBaseCall_Name_StaticContext ()
+    public void GetBaseCall_Name_Params_StaticContext ()
     {
       _staticContext.GetBaseCall ("NotImportant");
     }
 
     [Test]
-    public void GetBaseCall_MethodInfo ()
+    public void GetBaseCall_MethodInfo_Params ()
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
       var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
@@ -155,7 +155,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    public void GetBaseCall_MethodInfo_StaticContext ()
+    public void GetBaseCall_MethodInfo_Params_StaticContext ()
     {
       var method = ReflectionObjectMother.GetSomeInstanceMethod();
       _staticContext.GetBaseCall (method);
@@ -163,7 +163,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.")]
-    public void GetBaseCall_MethodInfo_StaticMethodInfo ()
+    public void GetBaseCall_MethodInfo_Params_StaticMethodInfo ()
     {
       var method = ReflectionObjectMother.GetSomeStaticMethod();
       _instanceContext.GetBaseCall (method);
