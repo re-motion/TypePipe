@@ -312,7 +312,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
-      var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, _memberSelector);
+      var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (

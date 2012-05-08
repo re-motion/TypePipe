@@ -235,7 +235,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       MethodAttributes nonVirtualAttribtes = 0;
       var returnType = typeof (object);
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ("Method", nonVirtualAttribtes, returnType, parameterDeclarations);
+      var baseMetod = ReflectionObjectMother.GetSomeMethod();
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
+          "Method", nonVirtualAttribtes, returnType, parameterDeclarations, baseMetod);
       var mutableMethod = Create (descriptor);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
@@ -244,6 +246,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Assert.That (context.Parameters, Is.EqualTo (mutableMethod.ParameterExpressions));
         Assert.That (context.DeclaringType, Is.SameAs (mutableMethod.DeclaringType));
         Assert.That (context.IsStatic, Is.False);
+        Assert.That (mutableMethod.BaseMethod, Is.Not.Null);
+        Assert.That (context.BaseMethod, Is.SameAs (mutableMethod.BaseMethod));
 
         var previousBody = context.GetPreviousBody();
         Assert.That (previousBody, Is.SameAs (mutableMethod.Body));

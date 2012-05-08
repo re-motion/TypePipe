@@ -14,7 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
@@ -24,10 +26,34 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class MethodBodyContextBase : BodyContextBase
   {
+    private readonly MethodInfo _baseMethod;
+
     protected MethodBodyContextBase (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
+        MutableType declaringType,
+        IEnumerable<ParameterExpression> parameterExpressions,
+        bool isStatic,
+        MethodInfo baseMethod,
+        IMemberSelector memberSelector)
         : base (declaringType, parameterExpressions, isStatic, memberSelector)
     {
+      // Base method may be null
+      _baseMethod = baseMethod;
+    }
+
+    public bool HasBaseMethod
+    {
+      get { return _baseMethod != null; }
+    }
+
+    public MethodInfo BaseMethod
+    {
+      get
+      {
+        if (!HasBaseMethod)
+          throw new InvalidOperationException ("This method does not override an base method.");
+
+        return _baseMethod;
+      }
     }
   }
 }

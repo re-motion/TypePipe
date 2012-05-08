@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -32,6 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private MutableType _declaringType;
     private ParameterExpression[] _parameters;
     private Expression _previousBody;
+    private MethodInfo _baseMethod;
     private bool _isStatic;
 
     private MethodBodyModificationContext _context;
@@ -44,9 +46,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _isStatic = BooleanObjectMother.GetRandomBoolean();
+      _baseMethod = ReflectionObjectMother.GetSomeMethod();
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new MethodBodyModificationContext (_declaringType, _parameters.AsOneTime(), _previousBody, _isStatic, _memberSelector);
+      _context = new MethodBodyModificationContext (_declaringType, _parameters.AsOneTime(), _previousBody, _isStatic, _baseMethod, _memberSelector);
     }
 
     [Test]
@@ -56,6 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (_context.Parameters, Is.EqualTo (_parameters));
       Assert.That (_context.GetPreviousBody (), Is.SameAs (_previousBody));
       Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
+      Assert.That (_context.BaseMethod, Is.SameAs(_baseMethod));
     }
 
     [Test]

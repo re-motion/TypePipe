@@ -527,9 +527,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
       {
+        Assert.That (context.This.Type, Is.SameAs (_mutableType));
         Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
         Assert.That (context.IsStatic, Is.False);
-        Assert.That (context.This.Type, Is.SameAs (_mutableType));
+        Assert.That (context.HasBaseMethod, Is.False);
 
         return fakeBody;
       };
@@ -569,13 +570,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (returnType);
-      Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
+
+      _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, context =>
       {
         Assert.That (context.IsStatic, Is.True);
         return fakeBody;
-      };
-
-      _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
+      });
     }
 
     [Test]
@@ -598,8 +598,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (baseMethod, Is.Not.Null);
       Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
 
-      var newMethod = _mutableType.AddMethod (
-          "ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant ("string"));
+      var newMethod = _mutableType.AddMethod ("ToString", 0, typeof (string), ParameterDeclaration.EmptyParameters, context =>
+      {
+        Assert.That (context.HasBaseMethod, Is.False);
+        return Expression.Constant ("string");
+      });
 
       Assert.That (newMethod, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (newMethod.DeclaringType, Is.SameAs (_mutableType));
@@ -625,12 +628,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Expect (mock => mock.GetBaseMethod (name, new MethodSignature (returnType, Type.EmptyTypes, 0), _mutableType.BaseType))
           .Return (fakeOverridenMethod);
 
+      Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
+      {
+        Assert.That (context.HasBaseMethod, Is.True);
+        Assert.That (context.BaseMethod, Is.SameAs (fakeOverridenMethod));
+
+        return Expression.Default (returnType);
+      };
       var addedMethod = _mutableType.AddMethod (
           name,
           MethodAttributes.Public | MethodAttributes.Virtual,
           returnType,
           ParameterDeclaration.EmptyParameters,
-          ctx => Expression.Default(returnType));
+          bodyProvider);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (addedMethod.BaseMethod, Is.EqualTo (fakeOverridenMethod));

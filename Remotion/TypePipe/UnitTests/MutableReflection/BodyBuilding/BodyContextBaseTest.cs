@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
-      Assert.That (context.IsStatic, Is.EqualTo(isStatic));
+      Assert.That (context.IsStatic, Is.EqualTo (isStatic));
     }
 
     [Test]

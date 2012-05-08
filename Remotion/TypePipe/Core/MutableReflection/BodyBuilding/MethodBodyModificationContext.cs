@@ -14,7 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
@@ -33,8 +35,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
         bool isStatic,
+        MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, memberSelector)
+        : base (declaringType, parameterExpressions, isStatic, baseMethod, memberSelector)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
       _previousBody = previousBody;

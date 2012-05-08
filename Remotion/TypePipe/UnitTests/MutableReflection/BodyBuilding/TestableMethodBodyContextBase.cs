@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -17,16 +17,14 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
-namespace Remotion.TypePipe.MutableReflection.BodyBuilding
+namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
-  /// <summary>
-  /// Provides access to expressions needed for building the bodies of added methods. 
-  /// See also <see cref="MutableType.AddMethod"/>.
-  /// </summary>
-  public class MethodBodyCreationContext : MethodBodyContextBase
+  public class TestableMethodBodyContextBase : MethodBodyContextBase
   {
-    public MethodBodyCreationContext (
+    public TestableMethodBodyContextBase (
         MutableType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
         bool isStatic,

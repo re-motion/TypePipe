@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic, memberSelector);
+      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic, BaseMethod, memberSelector);
       _body = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
     }
 

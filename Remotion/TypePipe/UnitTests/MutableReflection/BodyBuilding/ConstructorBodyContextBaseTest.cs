@@ -30,9 +30,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class ConstructorBodyContextBaseTest
   {
-    private IMemberSelector _memberSelectorMock;
-    private ParameterExpression[] _parameters;
     private MutableType _mutableType;
+    private ParameterExpression[] _parameters;
+    private IMemberSelector _memberSelectorMock;
+
     private ConstructorBodyContextBase _context;
 
     [SetUp]
