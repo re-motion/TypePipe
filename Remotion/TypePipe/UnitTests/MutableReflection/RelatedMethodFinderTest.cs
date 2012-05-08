@@ -127,27 +127,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.EqualTo (expected));
     }
 
-    [Test]
-    public void GetBaseMethod_MethodInfo_ModifiedDerivedTypeMethod ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((ModifiedDomainType obj) => obj.ModifiedDerivedTypeMethod ());
-
-      var result = _finder.GetBaseMethod (method);
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetBaseMethod_MethodInfo_OverridingMethod ()
-    {
-      var method = typeof (ModifiedDomainType).GetMethod ("OverridingMethod");
-
-      var result = _finder.GetBaseMethod (method);
-
-      var expected = typeof (DomainType).GetMethod ("OverridingMethod");
-      Assert.That (result, Is.EqualTo(expected));
-    }
-
 // ReSharper disable UnusedMember.Local
     private class DomainTypeBase
     {
@@ -165,12 +144,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override void OverridingMethod () { }
       public new virtual void NewMethod () { }
       public new void NewMethodShadowingVirtualMethod () { }
-    }
-
-    private class ModifiedDomainType : DomainType
-    {
-      public virtual void ModifiedDerivedTypeMethod () { }
-      public override void OverridingMethod () { }
     }
 // ReSharper restore UnusedMember.Local
   }

@@ -14,17 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines an interface for classes providing methods for investigating method overrides.
+  /// This class contains extensions methods for <see cref="IRelatedMethodFinder"/> objects.
   /// </summary>
-  public interface IRelatedMethodFinder
+  public static class RelatedMethodFinderExtensions
   {
-    MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch);
+    public static MethodInfo GetBaseMethod (this IRelatedMethodFinder relatedMethodFinder, MethodInfo method)
+    {
+      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      var rootDefinition = method.GetBaseDefinition ();
+      if (method.Equals (rootDefinition))
+        return null;
+
+      return relatedMethodFinder.GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType);
+    }
   }
 }

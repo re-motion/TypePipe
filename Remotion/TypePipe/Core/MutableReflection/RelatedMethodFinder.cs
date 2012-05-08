@@ -42,17 +42,5 @@ namespace Remotion.TypePipe.MutableReflection
 
       return allBaseMethods.FirstOrDefault (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature));
     }
-
-    // TODO 4818 extract into extension method
-    public MethodInfo GetBaseMethod (MethodInfo method)
-    {
-      ArgumentUtility.CheckNotNull ("method", method);
-
-      var rootDefinition = method.GetBaseDefinition ();
-      if (method.Equals (rootDefinition))
-        return null;
-
-      return GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType);
-    }
   }
 }
