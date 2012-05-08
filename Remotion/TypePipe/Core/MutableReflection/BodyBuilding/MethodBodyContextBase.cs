@@ -19,6 +19,9 @@ using Microsoft.Scripting.Ast;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
+  /// <summary>
+  /// Base class for method body context classes.
+  /// </summary>
   public abstract class MethodBodyContextBase : BodyContextBase
   {
     protected MethodBodyContextBase (

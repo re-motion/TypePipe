@@ -27,7 +27,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Base class for context classes used to build new method bodies. (So-called body builders.)
+  /// Common base class for method and constructor body context classes.
   /// </summary>
   public abstract class BodyContextBase
   {

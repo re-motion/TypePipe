@@ -16,7 +16,6 @@
 // 
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
