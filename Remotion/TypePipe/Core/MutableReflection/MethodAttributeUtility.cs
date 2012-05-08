@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -26,6 +27,13 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
     {
       return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
+    }
+
+    public static bool IsSet (MethodAttributes attributes, MethodAttributes flag)
+    {
+      Assertion.IsTrue (flag != 0);
+
+      return (attributes & flag) == flag;
     }
   }
 }
