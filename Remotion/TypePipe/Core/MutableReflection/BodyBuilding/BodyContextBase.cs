@@ -132,12 +132,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return Expression.Call (This, new BaseCallMethodInfoAdapter (baseMethod), arguments);
     }
 
-    private void CheckVisibility (MethodInfo baseMethod, string parameterName)
-    {
-      if (!baseMethod.IsPublic && !baseMethod.IsFamilyOrAssembly && !baseMethod.IsFamily)
-        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", parameterName);
-    }
-
     private void EnsureNotStatic ()
     {
       if (IsStatic)
@@ -148,6 +142,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       if (method.IsStatic)
         throw new ArgumentException ("Cannot perform base call for static method.");
+    }
+
+    private void CheckVisibility (MethodInfo baseMethod, string parameterName)
+    {
+      if (!baseMethod.IsPublic && !baseMethod.IsFamilyOrAssembly && !baseMethod.IsFamily)
+        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", parameterName);
     }
   }
 }

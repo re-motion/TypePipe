@@ -330,6 +330,37 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods.GetMutableMember (methodInfo);
     }
 
+    public void AddExplicitOverride (MethodInfo overriddenMethod, MethodInfo overridingMethod)
+    {
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      ArgumentUtility.CheckNotNull ("overridingMethod", overridingMethod);
+      CheckVirtual (overriddenMethod, "overriddenMethod");
+      CheckVirtual (overridingMethod, "overridingMethod");
+      CheckSignature (overriddenMethod, overridingMethod);
+
+
+
+    }
+
+    private void CheckSignature (MethodInfo overriddenMethod, MethodInfo overridingMethod)
+    {
+      var overriddenSignature = MethodSignature.Create (overriddenMethod);
+      var overridingSignature = MethodSignature.Create (overridingMethod);
+
+      if (!overriddenSignature.Equals (overridingSignature))
+      {
+        var message = string.Format (
+            "Overriding method signature ({0}) is not compatible to overidden method signature ({1}).", overridingSignature, overriddenSignature);
+        throw new ArgumentException (message, "overridingMethod");
+      }
+    }
+
+    private void CheckVirtual (MethodInfo method, string parameterName)
+    {
+      if (!method.IsVirtual)
+        throw new ArgumentException ("Method must be virtual.", parameterName);
+    }
+
     public virtual void Accept (IMutableTypeMemberHandler memberHandler)
     {
       ArgumentUtility.CheckNotNull ("memberHandler", memberHandler);

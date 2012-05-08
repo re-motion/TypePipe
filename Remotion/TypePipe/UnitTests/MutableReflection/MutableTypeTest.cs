@@ -20,12 +20,14 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -715,6 +717,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
       Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
+    }
+
+    [Test]
+    public void AddExplicitOverride_NonVirtualMethods ()
+    {
+      var nonVirtualMethod = ReflectionObjectMother.GetSomeNonVirtualMethod ();
+      var virtualMethod = ReflectionObjectMother.GetSomeVirtualMethod ();
+
+      Assert.That (
+          () => _mutableType.AddExplicitOverride (nonVirtualMethod, virtualMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Method must be virtual.\r\nParameter name: overriddenMethod"));
+      Assert.That (
+          () => _mutableType.AddExplicitOverride (virtualMethod, nonVirtualMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Method must be virtual.\r\nParameter name: overridingMethod"));
+    }
+
+    [Test]
+    [ExpectedException(typeof(ArgumentException), ExpectedMessage =
+        "Overriding method signature (System.String()) is not compatible to overidden method signature (System.Boolean(System.Object)).\r\n"
+        + "Parameter name: overridingMethod")]
+    public void AddExplicitOverride_InCompatibleSignatures ()
+    {
+      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.Equals(null));
+      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
+
+      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
     }
 
     [Test]
