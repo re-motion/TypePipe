@@ -24,6 +24,7 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -31,13 +32,13 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   [TestFixture]
-  public class MethodBodyContextBaseTest
+  public class BodyContextBaseTest
   {
     private ReadOnlyCollection<ParameterExpression> _emptyParameters;
     private MutableType _mutableType;
     private IMemberSelector _memberSelector;
-    private TestableMethodBodyContextBase _staticContext;
-    private TestableMethodBodyContextBase _instanceContext;
+    private BodyContextBase _staticContext;
+    private BodyContextBase _instanceContext;
 
     [SetUp]
     public void SetUp ()
@@ -46,8 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _staticContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, true, _memberSelector);
-      _instanceContext = new TestableMethodBodyContextBase (_mutableType, _emptyParameters, false, _memberSelector);
+      _staticContext = new TestableBodyContextBase (_mutableType, _emptyParameters, true, _memberSelector);
+      _instanceContext = new TestableBodyContextBase (_mutableType, _emptyParameters, false, _memberSelector);
     }
 
     [Test]
@@ -58,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
 
       var isStatic = BooleanObjectMother.GetRandomBoolean();
-      var context = new TestableMethodBodyContextBase (_mutableType, parameters.AsOneTime(), isStatic, _memberSelector);
+      var context = new TestableBodyContextBase (_mutableType, parameters.AsOneTime(), isStatic, _memberSelector);
 
       Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
@@ -107,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetBaseCall_Name_Params_NoBaseType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
-      var context = new TestableMethodBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
+      var context = new TestableBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
 
       context.GetBaseCall ("DoesNotExist");
     }

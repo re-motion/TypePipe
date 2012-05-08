@@ -24,29 +24,39 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// Provides access to parameters and custom expression for building the bodies of modified constructors. 
   /// See also <see cref="MutableConstructorInfo.SetBody"/>.
   /// </summary>
-  public class ConstructorBodyModificationContext : MethodBodyModificationContext
+  public class ConstructorBodyModificationContext : ConstructorBodyContextBase
   {
+    private readonly Expression _previousBody;
+
     public ConstructorBodyModificationContext (
         MutableType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
         IMemberSelector memberSelector)
-      : base (declaringType, parameterExpressions, previousBody, false, memberSelector)
+      : base (declaringType, parameterExpressions, memberSelector)
     {
+      ArgumentUtility.CheckNotNull ("previousBody", previousBody);
+
+      _previousBody = previousBody;
     }
 
-    public Expression GetConstructorCall (params Expression[] arguments)
+    public Expression GetPreviousBody ()
+    {
+      return _previousBody;
+    }
+
+    public Expression GetPreviousBody (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetConstructorCall (((IEnumerable<Expression>) arguments));
+      return GetPreviousBody ((IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
+    public Expression GetPreviousBody (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return ConstructorBodyContextUtility.GetConstructorCallExpression (This, arguments);
+      return BodyModificationContextUtility.PreparePreviousBody (Parameters, _previousBody, arguments);
     }
   }
 }

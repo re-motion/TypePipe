@@ -18,26 +18,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Scripting.Ast;
+using Remotion.FunctionalProgramming;
 using Remotion.Text;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
-  /// <summary>
-  /// Provides functionality used by <see cref="ConstructorBodyCreationContext"/> and <see cref="ConstructorBodyModificationContext"/>.
-  /// </summary>
-  public static class ConstructorBodyContextUtility
+  public abstract class ConstructorBodyContextBase : BodyContextBase
   {
-    public static Expression GetConstructorCallExpression (Expression thisExpression, IEnumerable<Expression> arguments)
+    protected ConstructorBodyContextBase (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
+        : base (declaringType, parameterExpressions, false, memberSelector)
     {
-      ArgumentUtility.CheckNotNull ("thisExpression", thisExpression);
+    }
+
+    public Expression GetConstructorCall (params Expression[] arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      return GetConstructorCall (((IEnumerable<Expression>) arguments));
+    }
+
+    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
+    {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       var argumentCollection = arguments.ConvertToCollection();
 
-      var declaringType = thisExpression.Type;
+      var declaringType = This.Type;
       var argumentTypes = argumentCollection.Select (e => e.Type).ToArray ();
       var constructor = declaringType.GetConstructor (argumentTypes);
       if (constructor == null)
@@ -49,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
       var adapter = new ConstructorAsMethodInfoAdapter (constructor);
 
-      return Expression.Call (thisExpression, adapter, argumentCollection);
+      return Expression.Call (This, adapter, argumentCollection);
     }
   }
 }

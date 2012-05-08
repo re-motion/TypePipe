@@ -29,14 +29,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   {
     private IMemberSelector _memberSelector;
 
-    private MethodBodyContextBase _context;
+    private BodyContextBase _context;
 
     [SetUp]
     public void SetUp ()
     {
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new TestableMethodBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false, _memberSelector);
+      _context = new TestableBodyContextBase (MutableTypeObjectMother.Create (), new ParameterExpression[0], false, _memberSelector);
     }
 
     [Test]
@@ -67,12 +67,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
     public void GetTypedBody_ThrowsForNullBody ()
     {
-      Func<MethodBodyContextBase, Expression> bodyProvider = c => null;
+      Func<BodyContextBase, Expression> bodyProvider = c => null;
 
       BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
     }
 
-    private Func<MethodBodyContextBase, Expression> CreateBodyProvider (Expression body)
+    private Func<BodyContextBase, Expression> CreateBodyProvider (Expression body)
     {
       return c =>
       {

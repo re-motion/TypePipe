@@ -14,21 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
-using Remotion.Utilities;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
-namespace Remotion.TypePipe.MutableReflection.BodyBuilding
+namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
-  /// <summary>
-  /// Provides access to expressions needed for building the bodies of added constructors. 
-  /// See also <see cref="MutableType.AddConstructor"/>.
-  /// </summary>
-  public class ConstructorBodyCreationContext : ConstructorBodyContextBase
+  public class TestableConstructorBodyContextBase : ConstructorBodyContextBase
   {
-    public ConstructorBodyCreationContext (
+    public TestableConstructorBodyContextBase (
         MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-      : base (declaringType, parameterExpressions, memberSelector)
+        : base (declaringType, parameterExpressions, memberSelector)
     {
     }
   }

@@ -76,13 +76,14 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\BodyModificationContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
-    <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyCreationContextTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ExpressionTypeUtilityTest.cs" />
-    <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
-    <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextUtilityTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\BodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BooleanObjectMother.cs" />
     <Compile Include="MutableReflection\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
@@ -104,7 +105,7 @@
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeReflectionObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTestHelper.cs" />
-    <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableBodyContextBase.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorObjectMother.cs" />

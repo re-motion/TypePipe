@@ -19,10 +19,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
@@ -57,29 +58,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetConstructorCall ()
+    public void GetPreviousBody_NoParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
-      var context = new ConstructorBodyModificationContext(mutableType, Enumerable.Empty<ParameterExpression>(), _previousBody, _memberSelector);
+      var invokedBody = _context.GetPreviousBody ();
 
-      var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
-      var result = context.GetConstructorCall (argumentExpressions);
-
-      Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
-      var methodCallExpression = (MethodCallExpression) result;
-
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression> ());
-      Assert.That (methodCallExpression.Object.Type, Is.SameAs (mutableType));
-
-      Assert.That (methodCallExpression.Arguments, Is.EqualTo (argumentExpressions));
+      Assert.That (invokedBody, Is.SameAs (_previousBody));
     }
 
-    private class ClassWithConstructor
+    [Test]
+    public void GetPreviousBody_Params ()
     {
-      public ClassWithConstructor (object o)
-      {
-        Dev.Null = o;
-      }
+      var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
+      var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
+
+      var invokedBody = _context.GetPreviousBody (arg1, arg2);
+
+      var expectedBody = Expression.Block (arg1, arg2);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
+    }
+
+    [Test]
+    public void GetPreviousBody_Enumerable ()
+    {
+      var invokedBody = _context.GetPreviousBody (_parameters.Cast<Expression> ().AsOneTime ());
+
+      var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
   }
 }

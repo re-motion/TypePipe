@@ -21,9 +21,9 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
-  public class TestableMethodBodyContextBase : MethodBodyContextBase
+  public class TestableBodyContextBase : BodyContextBase
   {
-    public TestableMethodBodyContextBase (
+    public TestableBodyContextBase (
         MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
         : base(declaringType, parameterExpressions, isStatic, memberSelector)
     {
