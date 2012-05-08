@@ -24,7 +24,6 @@ using System.Linq;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore("TODO 4818")]
   public class ImplicitOverridesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -41,12 +40,11 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.True);
-                  //Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
+                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden"));
                 });
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
+            Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
           });
 
@@ -74,12 +72,12 @@ namespace TypePipe.IntegrationTests
                 new[] { new ParameterDeclaration (typeof (string), "p1") },
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.True);
-                  //Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod, ctx.Parameters), Expression.Constant (" overridden"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
+                  return ExpressionHelper.StringConcat (
+                      ctx.GetBaseCall (ctx.BaseMethod, ctx.Parameters.Cast<Expression>()), Expression.Constant (" overridden"));
                 });
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
+            Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
           });
 
@@ -90,10 +88,11 @@ namespace TypePipe.IntegrationTests
 
       var result = method.Invoke (instance, new object[] { "xxx" });
       Assert.That (result, Is.EqualTo ("A xxx overridden"));
-      Assert.That (instance.OverridableMethod (), Is.EqualTo ("A xxx overridden"));
+      Assert.That (instance.OverridableMethodWithParameters ("xxx"), Is.EqualTo ("A xxx overridden"));
     }
 
     [Test]
+    [Ignore("TODO 4813")]
     public void ModifyExistingOverride ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");
@@ -101,16 +100,15 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethodInfo = mutableType.ExistingMutableMethods.Single (m => m.Name == "MethodOverriddenByB");
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
+            Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
             mutableMethodInfo.SetBody(ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.True);
-                  //Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  //return ExpressionHelper.StringConcat (
-                  //    ExpressionHelper.StringConcat (Expression.Constant ("Base: "), ctx.GetBaseCall (ctx.BaseMethod)),
-                  //    ExpressionHelper.StringConcat (Expression.Constant (", previous body: "), ctx.GetPreviousBody()));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
+                  return ExpressionHelper.StringConcat (
+                      ExpressionHelper.StringConcat (Expression.Constant ("Base: "), ctx.GetBaseCall (ctx.BaseMethod)),
+                      ExpressionHelper.StringConcat (Expression.Constant (", previous body: "), ctx.GetPreviousBody ()));
                 });
             
           });
@@ -126,6 +124,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 4813")]
     public void OverrideOverride ()
     {
       var overriddenMethodInA = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");
@@ -141,12 +140,11 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.True);
-                  //Assert.That (_memberInfoEqualityComparer.Equals (ctx.BaseMethod, overriddenMethodInB), Is.True);
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden")));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.BaseMethod, Is.EqualTo(overriddenMethodInB));
+                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden"));
                 });
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethodInB));
+            Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethodInB));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethodInA));
           });
 

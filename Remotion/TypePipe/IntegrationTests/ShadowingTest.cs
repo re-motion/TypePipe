@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore("TODO 4818")]
   public class ShadowingTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
