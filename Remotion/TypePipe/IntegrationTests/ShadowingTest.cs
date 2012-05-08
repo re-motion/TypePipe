@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -39,14 +40,15 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.False);
-                  //Assert.That (
-                  //    () => ctx.BaseMethod,
-                  //    Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall(), Expression.Constant (" shadowed"));
-                  return Expression.Default(typeof(string));
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  Assert.That (
+                      () => ctx.BaseMethod,
+                      Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
+
+                  return ExpressionHelper.StringConcat (
+                      ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
+            Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
           });
 
@@ -73,11 +75,12 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.False);
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall(), Expression.Constant (" shadowed"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+
+                  return ExpressionHelper.StringConcat (
+                      ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
+            Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.SameAs (mutableMethodInfo));
           });
 
