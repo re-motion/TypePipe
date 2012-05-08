@@ -342,25 +342,6 @@ namespace Remotion.TypePipe.MutableReflection
 
     }
 
-    private void CheckSignature (MethodInfo overriddenMethod, MethodInfo overridingMethod)
-    {
-      var overriddenSignature = MethodSignature.Create (overriddenMethod);
-      var overridingSignature = MethodSignature.Create (overridingMethod);
-
-      if (!overriddenSignature.Equals (overridingSignature))
-      {
-        var message = string.Format (
-            "Overriding method signature ({0}) is not compatible to overidden method signature ({1}).", overridingSignature, overriddenSignature);
-        throw new ArgumentException (message, "overridingMethod");
-      }
-    }
-
-    private void CheckVirtual (MethodInfo method, string parameterName)
-    {
-      if (!method.IsVirtual)
-        throw new ArgumentException ("Method must be virtual.", parameterName);
-    }
-
     public virtual void Accept (IMutableTypeMemberHandler memberHandler)
     {
       ArgumentUtility.CheckNotNull ("memberHandler", memberHandler);
@@ -462,6 +443,25 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
       return baseMethod;
+    }
+
+    private void CheckSignature (MethodInfo overriddenMethod, MethodInfo overridingMethod)
+    {
+      var overriddenSignature = MethodSignature.Create (overriddenMethod);
+      var overridingSignature = MethodSignature.Create (overridingMethod);
+
+      if (!overriddenSignature.Equals (overridingSignature))
+      {
+        var message = string.Format (
+            "Overriding method signature ({0}) is not compatible to overidden method signature ({1}).", overridingSignature, overriddenSignature);
+        throw new ArgumentException (message, "overridingMethod");
+      }
+    }
+
+    private void CheckVirtual (MethodInfo method, string parameterName)
+    {
+      if (!method.IsVirtual)
+        throw new ArgumentException ("Method must be virtual.", parameterName);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)

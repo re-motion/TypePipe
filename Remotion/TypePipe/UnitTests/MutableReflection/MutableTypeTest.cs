@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Reflection.MemberSignatures;
@@ -737,12 +736,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException(typeof(ArgumentException), ExpectedMessage =
         "Overriding method signature (System.String()) is not compatible to overidden method signature (System.Boolean(System.Object)).\r\n"
         + "Parameter name: overridingMethod")]
-    public void AddExplicitOverride_InCompatibleSignatures ()
+    public void AddExplicitOverride_IncompatibleSignature ()
     {
       var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.Equals(null));
       var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
 
       _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
+    }
+
+    [Test]
+    public void AddExplicitOverride_InvalidHierarchy ()
+    {
+      // TODO 4813
     }
 
     [Test]
