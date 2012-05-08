@@ -318,22 +318,6 @@ namespace Remotion.TypePipe.MutableReflection
       return methodInfo;
     }
 
-    private MethodInfo GetBaseMethod (MethodAttributes attributes, string name, MethodSignature signature)
-    {
-      var isVirtual = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Virtual);
-      var isNewSlot = MethodAttributeUtility.IsSet (attributes, MethodAttributes.NewSlot);
-      if (!isVirtual || isNewSlot)
-        return null;
-
-      var baseMethod = _relatedMethodFinder.GetBaseMethod (name, signature, BaseType);
-      if (baseMethod != null && baseMethod.IsFinal)
-      {
-        var message = string.Format ("Cannot override final method '{0}'.", name);
-        throw new NotSupportedException (message);
-      }
-      return baseMethod;
-    }
-
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
       return _memberSelector.SelectMethods (_methods, bindingAttr, this).ToArray();
@@ -431,6 +415,22 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
+    }
+
+    private MethodInfo GetBaseMethod (MethodAttributes attributes, string name, MethodSignature signature)
+    {
+      var isVirtual = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Virtual);
+      var isNewSlot = MethodAttributeUtility.IsSet (attributes, MethodAttributes.NewSlot);
+      if (!isVirtual || isNewSlot)
+        return null;
+
+      var baseMethod = _relatedMethodFinder.GetBaseMethod (name, signature, BaseType);
+      if (baseMethod != null && baseMethod.IsFinal)
+      {
+        var message = string.Format ("Cannot override final method '{0}'.", name);
+        throw new NotSupportedException (message);
+      }
+      return baseMethod;
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
