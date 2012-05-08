@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get
       {
         if (!HasBaseMethod)
-          throw new InvalidOperationException ("This method does not override an base method.");
+          throw new NotSupportedException ("This method does not override another method.");
 
         return _baseMethod;
       }

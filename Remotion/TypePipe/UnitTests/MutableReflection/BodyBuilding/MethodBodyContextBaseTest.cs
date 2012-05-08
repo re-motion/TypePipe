@@ -63,7 +63,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (_context.BaseMethod, Is.SameAs(_baseMethod));
 
       var context = new TestableMethodBodyContextBase (_declaringType, _parameters.AsOneTime (), _isStatic, null, _memberSelectorMock);
-      Assert.That (() => context.BaseMethod, Throws.InvalidOperationException.With.Message.EqualTo ("This method does not override an base method."));
+      Assert.That (
+          () => context.BaseMethod, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
     }
   }
 }
