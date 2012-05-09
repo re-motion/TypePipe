@@ -35,6 +35,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="Type"/> that can be changed. Changes are recorded and, depending on the concrete <see cref="MutableType"/>, applied
   /// to an existing type or to a newly created type.
   /// </summary>
+  /// <remarks>
+  ///   <para>
+  ///     When an instance of a <see cref="MutableType"/> is to be compared for equality with another <see cref="Type"/> instance, the
+  ///     <see cref="IsEquivalentTo"/> method should be used rather than comparing via <see cref="object.Equals(object)"/>.
+  ///   </para>
+  /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableType : Type
   {
@@ -487,7 +493,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO Make public sometime 
     private bool IsAssignableTo (Type other)
     {
-      return Equals (other) || other.IsAssignableFrom (BaseType);
+      return IsEquivalentTo (other) || other.IsAssignableFrom (BaseType);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
