@@ -82,10 +82,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void GetBaseCall_Name_Params ()
     {
-      var baseMethods = typeof (object).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
       var arguments = new ArgumentTestHelper (7);
       var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       _memberSelector
           .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _mutableType, arguments.Types, null))
           .Return (fakeBaseMethod);
@@ -115,12 +115,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Instance method 'Foo' could not be found on base type 'System.Object'.\r\nParameter name: methodName")]    
+        "Instance method 'Foo' could not be found on base type "
+        + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+DomainTypeBase'.\r\nParameter name: methodName")]    
     public void GetBaseCall_Name_Params_NoMatchingMethod ()
     {
-      var baseMethods = typeof (object).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-      var arguments = new ArgumentTestHelper (7);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
+      var arguments = new ArgumentTestHelper (7);
       _memberSelector
           .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _mutableType, arguments.Types, null))
           .Return (null);
@@ -210,14 +211,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
     }
 
-    private class DomainType
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedParameter.Local
+
+    private class DomainTypeBase { }
+
+    private class DomainType : DomainTypeBase
     {
       public void Method (int i) { }
+
       public void FakeBaseMethod (int i) { }
+
 
       protected void ProtectedMethod () { }
       protected internal void ProtectedInternalMethod () { }
       internal void InternalMethod () { }
     }
+// ReSharper restore UnusedParameter.Local
+// ReSharper restore UnusedMember.Local
   }
 }

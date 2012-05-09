@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       }
 
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseTypeMethods = baseType.GetMethods (bindingFlags | BindingFlags.DeclaredOnly);
+      var baseTypeMethods = baseType.GetMethods (bindingFlags);
       var argumentTypes = arguments.Select (a => a.Type).ToArray ();
       var baseMethod = _memberSelector.SelectSingleMethod (
           baseTypeMethods, Type.DefaultBinder, bindingFlags, methodName, _declaringType, argumentTypes, null);
