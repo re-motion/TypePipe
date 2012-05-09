@@ -15,11 +15,14 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -30,32 +33,40 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications ()
     {
-      var handlerFactoryMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilderFactory> ();
+      var mockRepository = new MockRepository();
+      var handlerFactoryMock = mockRepository.StrictMock<ISubclassProxyBuilderFactory>();
 
       var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (ClassWithMembers));
-      var mutableTypePartialMock = MockRepository.GeneratePartialMock<MutableType> (
+      var mutableTypePartialMock = mockRepository.PartialMock<MutableType> (
           descriptor,
-          new MemberSelector (new BindingFlagsEvaluator ()),
+          new MemberSelector (new BindingFlagsEvaluator()),
           new RelatedMethodFinder());
 
-      var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder>();
-      handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
+      var builderMock = mockRepository.StrictMock<ISubclassProxyBuilder>();
+      var fakeType = ReflectionObjectMother.GetSomeType ();
 
-      bool buildCalled = false;
-// ReSharper disable AccessToModifiedClosure
-      mutableTypePartialMock.Expect (mock => mock.Accept (builderMock)).WhenCalled (mi => Assert.That (buildCalled, Is.False));
-// ReSharper restore AccessToModifiedClosure
+      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((ClassWithMembers obj) => obj.Method1 ());
+      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((ClassWithMembers obj) => obj.Method2 ());
 
-      var fakeType = ReflectionObjectMother.GetSomeType();
-      builderMock.Expect (mock => mock.Build()).Return (fakeType).WhenCalled (mi => buildCalled = true);
+      using (mockRepository.Ordered ())
+      {
+        handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
+        mutableTypePartialMock.Expect (mock => mock.Accept (builderMock));
+        builderMock.Expect (
+            mock => mock.HandleExplicitOverrides (
+                Arg<IEnumerable<KeyValuePair<MethodInfo, MethodInfo>>>.List.Equal (
+                    new[] { new KeyValuePair<MethodInfo, MethodInfo> (overriddenMethod, overridingMethod) })));
+        builderMock.Expect (mock => mock.Build()).Return (fakeType);
+      }
+
+      mockRepository.ReplayAll();
+      
+      mutableTypePartialMock.AddExplicitOverride(overriddenMethod, overridingMethod);
 
       var typeModifier = new TypeModifier (handlerFactoryMock);
-
       var result = typeModifier.ApplyModifications (mutableTypePartialMock);
 
-      handlerFactoryMock.VerifyAllExpectations();
-      builderMock.VerifyAllExpectations();
-      mutableTypePartialMock.VerifyAllExpectations();
+      mockRepository.VerifyAll ();
 
       Assert.That (result, Is.SameAs (fakeType));
     }

@@ -200,6 +200,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _emittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
     }
 
+    public void HandleExplicitOverrides (IEnumerable<KeyValuePair<MethodInfo, MethodInfo>> overriddenAndOverridingMethods)
+    {
+      ArgumentUtility.CheckNotNull ("overriddenAndOverridingMethods", overriddenAndOverridingMethods);
+
+      foreach (var overrideDeclaration in overriddenAndOverridingMethods)
+      {
+        var overriddenMethod = _emittableOperandProvider.GetEmittableMethod (overrideDeclaration.Key);
+        var overidingMethod = _emittableOperandProvider.GetEmittableMethod (overrideDeclaration.Value);
+
+        _typeBuilder.DefineMethodOverride (overidingMethod, overriddenMethod);
+      }
+    }
+
     public Type Build ()
     {
       if (_hasBeenBuilt)

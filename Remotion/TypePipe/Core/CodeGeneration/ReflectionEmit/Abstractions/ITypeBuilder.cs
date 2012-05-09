@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
     IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
     IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes);
+    void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration);
 
     Type CreateType ();
-    void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration);
   }
 }

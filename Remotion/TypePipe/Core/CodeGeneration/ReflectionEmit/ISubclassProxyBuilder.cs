@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -24,6 +26,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyBuilder : IMutableTypeMemberHandler
   {
+    void HandleExplicitOverrides (IEnumerable<KeyValuePair<MethodInfo, MethodInfo>> overriddenAndOverridingMethods);
+
     Type Build ();
   }
 }

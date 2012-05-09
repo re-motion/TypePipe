@@ -31,6 +31,7 @@ using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
 using System.Collections.Generic;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -387,6 +388,30 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleExplicitOverrides ()
+    {
+      var overrides =
+          new[]
+          {
+              new KeyValuePair<MethodInfo, MethodInfo> (CreateMethodStub(), CreateMethodStub()),
+              new KeyValuePair<MethodInfo, MethodInfo> (CreateMethodStub(), CreateMethodStub())
+          };
+      var fakes = Enumerable.Range (1, 4).Select (i => CreateMethodStub()).ToArray();
+
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[0].Key)).Return (fakes[0]);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[0].Value)).Return (fakes[1]);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[1].Key)).Return (fakes[2]);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[1].Value)).Return (fakes[3]);
+
+      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakes[1], fakes[0]));
+      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakes[3], fakes[2]));
+
+      _builder.HandleExplicitOverrides (overrides.AsOneTime());
+
+      _typeBuilderMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void Build ()
     {
       bool buildActionCalled = false;
@@ -627,6 +652,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       action ();
 
       methodBuilderMock.VerifyAllExpectations ();
+    }
+
+    private MethodInfo CreateMethodStub ()
+    {
+      return MockRepository.GenerateStub<MethodInfo> ();
     }
 
     public class CustomAttribute : Attribute

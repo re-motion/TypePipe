@@ -44,6 +44,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var builder = _builderFactory.CreateBuilder (mutableType);
 
       mutableType.Accept (builder);
+      
+      // Put all modifications regarding the MutableType itself here. Member modifications are handled via the Accept call above.
+
+      builder.HandleExplicitOverrides (mutableType.AddedExplicitOverrides);
 
       return builder.Build();
     }
