@@ -61,6 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
       Assert.That (_mutableType.AddedMethods, Is.Empty);
+      Assert.That (_mutableType.AddedExplicitOverrides, Is.Empty);
     }
 
     [Test]
@@ -679,6 +680,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (addedMethod.BaseMethod, Is.EqualTo (fakeOverridenMethod));
       Assert.That (addedMethod.GetBaseDefinition (), Is.EqualTo (fakeRootDefinition));
+      Assert.That (_mutableType.AddedExplicitOverrides, Is.Empty);
     }
 
     [Test]

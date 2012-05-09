@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _methods;
 
     private readonly List<Type> _addedInterfaces = new List<Type>();
+    private readonly Dictionary<MethodInfo, MethodInfo> _addedExplicitOverrides = new Dictionary<MethodInfo, MethodInfo>();
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -85,6 +86,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
       get { return _methods.AddedMembers; }
+    }
+
+    public ReadOnlyDictionary<MethodInfo, MethodInfo> AddedExplicitOverrides
+    {
+      get { return _addedExplicitOverrides.AsReadOnly(); }
     }
 
     public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
