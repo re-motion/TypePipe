@@ -76,8 +76,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _expressionPreparer; }
     }
 
-    // TODO 4813: Remove
-    [CLSCompliant (false)]
     public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }

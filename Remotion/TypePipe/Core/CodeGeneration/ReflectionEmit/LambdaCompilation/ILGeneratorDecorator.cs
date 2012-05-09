@@ -47,8 +47,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerILGenerator; }
     }
 
-    // TODO 4813: Remove
-    [CLSCompliant (false)]
     public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }
