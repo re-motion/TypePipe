@@ -18,7 +18,6 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -57,32 +56,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping_Twice ()
     {
-      CheckAddMappingTwiceThrows<Type, IEmittableOperand> (
-          _provider.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
-      CheckAddMappingTwiceThrows<FieldInfo, IEmittableOperand> (
-          _provider.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
-      CheckAddMappingTwiceThrows<ConstructorInfo, IEmittableOperand> (
-          _provider.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
-      CheckAddMappingTwiceThrows<MethodInfo, IEmittableMethodOperand> (
-          _provider.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
     }
     
     [Test]
     public void GetEmittableOperand_NoMapping ()
     {
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableType, _someType, typeof (EmittableType));
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableField, _someFieldInfo, typeof (EmittableField));
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableConstructor, _someConstructorInfo, typeof (EmittableConstructor));
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableMethod, _someMethodInfo, typeof (EmittableMethod));
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableType, _someType);
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableField, _someFieldInfo);
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableConstructor, _someConstructorInfo);
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableMethod, _someMethodInfo);
     }
 
-    private void CheckAddMapping<TMappedObject, TEmittableOperand> (
-        Action<TMappedObject, TEmittableOperand> addMappingMethod,
-        Func<TMappedObject, TEmittableOperand> getEmittableOperandMethod,
-        TMappedObject mappedObject)
-        where TEmittableOperand : class, IEmittableOperand
+    private void CheckAddMapping<T> (Action<T, T> addMappingMethod, Func<T, T> getEmittableOperandMethod, T mappedObject)
+        where T : MemberInfo
     {
-      var fakeOperand = MockRepository.GenerateStub<TEmittableOperand>();
+      var fakeOperand = MockRepository.GenerateStub<T>();
      
       addMappingMethod (mappedObject, fakeOperand);
 
@@ -90,24 +82,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.SameAs (fakeOperand));
     }
 
-    private void CheckAddMappingTwiceThrows<TMappedObject, TBuilder> (
-        Action<TMappedObject, TBuilder> addMappingMethod, TMappedObject mappedObject, string expectedMessage)
-        where TBuilder: class
+    private void CheckAddMappingTwiceThrows<T> (Action<T, T> addMappingMethod, T mappedObject, string expectedMessage)
+        where T: class
     {
-      addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>());
+      addMappingMethod (mappedObject, MockRepository.GenerateStub<T> ());
 
       Assert.That (
-          () => addMappingMethod (mappedObject, MockRepository.GenerateStub<TBuilder>()),
+          () => addMappingMethod (mappedObject, MockRepository.GenerateStub<T> ()),
           Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
     }
 
-    private void CheckGetEmitableOperandWithNoMapping<TMappedObject, TEmittableOperand> (
-        Func<TMappedObject, TEmittableOperand> getEmittableOperandMethod, TMappedObject mappedObject, Type mappedObjectWrapper)
+    private void CheckGetEmitableOperandWithNoMapping<T> (Func<T, T> getEmittableOperandMethod, T mappedObject)
     {
       var result = getEmittableOperandMethod (mappedObject);
 
       Assert.That (result, Is.Not.Null);
-      Assert.That (result, Is.TypeOf (mappedObjectWrapper));
+      Assert.That (result, Is.SameAs (mappedObject));
     }
   }
 }

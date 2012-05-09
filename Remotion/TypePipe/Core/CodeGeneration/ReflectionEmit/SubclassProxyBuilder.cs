@@ -174,7 +174,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (field, "field", isNew: false, isModified: false);
 
-      _emittableOperandProvider.AddMapping (field, new EmittableField (field.UnderlyingSystemFieldInfo));
+      _emittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
     }
 
     public void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
@@ -195,7 +195,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: false, isModified: false);
 
-      _emittableOperandProvider.AddMapping (method, new EmittableMethod (method.UnderlyingSystemMethodInfo));
+      _emittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
     }
 
     public Type Build ()

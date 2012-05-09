@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("con", con);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableConstructor (con);
-      emittableOperand.Emit (_innerILGenerator, opcode);
+      _innerILGenerator.Emit (opcode, emittableOperand);
     }
 
     public void Emit (OpCode opcode, Type cls)
@@ -134,7 +134,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("cls", cls);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableType (cls);
-      emittableOperand.Emit (_innerILGenerator, opcode);
+      _innerILGenerator.Emit (opcode, emittableOperand);
     }
 
     public void Emit (OpCode opcode, float arg)
@@ -157,7 +157,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("field", field);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableField (field);
-      emittableOperand.Emit (_innerILGenerator, opcode);
+      _innerILGenerator.Emit (opcode, emittableOperand);
     }
 
     public void Emit (OpCode opcode, MethodInfo meth)
@@ -178,8 +178,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
 
-      var emittableMethodOperand = _emittableOperandProvider.GetEmittableMethod (meth);
-      emittableMethodOperand.Emit (_innerILGenerator, opcode);
+      var emittableOperand = _emittableOperandProvider.GetEmittableMethod (meth);
+      _innerILGenerator.Emit (opcode, emittableOperand);
     }
 
     public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
@@ -204,8 +204,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
 
-      var emittableMethodOperand = _emittableOperandProvider.GetEmittableMethod (methodInfo);
-      emittableMethodOperand.EmitCall (_innerILGenerator, opcode, optionalParameterTypes);
+      var emittableOperand = _emittableOperandProvider.GetEmittableMethod (methodInfo);
+      _innerILGenerator.EmitCall (opcode, emittableOperand, optionalParameterTypes);
     }
 
    public void Emit (OpCode opcode, Label[] labels)

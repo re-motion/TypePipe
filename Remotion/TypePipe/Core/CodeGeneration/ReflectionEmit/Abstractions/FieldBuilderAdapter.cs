@@ -39,14 +39,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _fieldBuilder; }
     }
 
-    // TODO 4813
-    [CLSCompliant (false)]
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("field", field);
 
-      emittableOperandProvider.AddMapping (field, new EmittableField (_fieldBuilder));
+      emittableOperandProvider.AddMapping (field, _fieldBuilder);
     }
 
     public void SetCustomAttribute (CustomAttributeBuilder customBuilder)

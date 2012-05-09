@@ -303,9 +303,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleUnmodifiedField ()
     {
       var field = MutableFieldInfoObjectMother.CreateForExisting();
-
-      _emittableOperandProviderMock
-          .Expect (mock => mock.AddMapping (Arg.Is (field), Arg<EmittableField>.Matches (f => f.FieldInfo.Equals (field.UnderlyingSystemFieldInfo))));
+      _emittableOperandProviderMock.Expect (mock => mock.AddMapping (field, field.UnderlyingSystemFieldInfo));
 
       _builder.HandleUnmodifiedField (field);
 
@@ -372,8 +370,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var method = MutableMethodInfoObjectMother.CreateForExisting ();
 
-      _emittableOperandProviderMock.Expect (
-          mock => mock.AddMapping (Arg.Is (method), Arg<EmittableMethod>.Matches (m => m.MethodInfo.Equals (method.UnderlyingSystemMethodInfo))));
+      _emittableOperandProviderMock.Expect (mock => mock.AddMapping (method, method.UnderlyingSystemMethodInfo));
 
       _builder.HandleUnmodifiedMethod (method);
 

@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -36,101 +35,100 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
-    private readonly Dictionary<Type, IEmittableOperand> _mappedTypes = new Dictionary<Type, IEmittableOperand> ();
-    private readonly Dictionary<FieldInfo, IEmittableOperand> _mappedFieldInfos = new Dictionary<FieldInfo, IEmittableOperand> ();
-    private readonly Dictionary<ConstructorInfo, IEmittableOperand> _mappedConstructorInfos = new Dictionary<ConstructorInfo, IEmittableOperand> ();
-    private readonly Dictionary<MethodInfo, IEmittableMethodOperand> _mappedMethodInfos = new Dictionary<MethodInfo, IEmittableMethodOperand> ();
+    private readonly Dictionary<Type, Type> _mappedTypes = new Dictionary<Type, Type> ();
+    private readonly Dictionary<FieldInfo, FieldInfo> _mappedFieldInfos = new Dictionary<FieldInfo, FieldInfo> ();
+    private readonly Dictionary<ConstructorInfo, ConstructorInfo> _mappedConstructorInfos = new Dictionary<ConstructorInfo, ConstructorInfo> ();
+    private readonly Dictionary<MethodInfo, MethodInfo> _mappedMethodInfos = new Dictionary<MethodInfo, MethodInfo> ();
 
     [CLSCompliant (false)]
-    public void AddMapping (Type mappedType, IEmittableOperand typeOperand)
+    public void AddMapping (Type mappedType, Type emittableType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
-      ArgumentUtility.CheckNotNull ("typeOperand", typeOperand);
+      ArgumentUtility.CheckNotNull ("emittableType", emittableType);
 
-      AddMapping (_mappedTypes, mappedType, typeOperand);
+      AddMapping (_mappedTypes, mappedType, emittableType);
     }
 
     [CLSCompliant (false)]
-    public void AddMapping (FieldInfo mappedFieldInfo, IEmittableOperand fieldOperand)
+    public void AddMapping (FieldInfo mappedField, FieldInfo emittableField)
     {
-      ArgumentUtility.CheckNotNull ("mappedFieldInfo", mappedFieldInfo);
-      ArgumentUtility.CheckNotNull ("fieldOperand", fieldOperand);
+      ArgumentUtility.CheckNotNull ("mappedField", mappedField);
+      ArgumentUtility.CheckNotNull ("emittableField", emittableField);
 
-      AddMapping (_mappedFieldInfos, mappedFieldInfo, fieldOperand);
+      AddMapping (_mappedFieldInfos, mappedField, emittableField);
     }
 
     [CLSCompliant (false)]
-    public void AddMapping (ConstructorInfo mappedConstructorInfo, IEmittableOperand constructorOperand)
+    public void AddMapping (ConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor)
     {
-      ArgumentUtility.CheckNotNull ("mappedConstructorInfo", mappedConstructorInfo);
-      ArgumentUtility.CheckNotNull ("constructorOperand", constructorOperand);
+      ArgumentUtility.CheckNotNull ("mappedConstructor", mappedConstructor);
+      ArgumentUtility.CheckNotNull ("emittableConstructor", emittableConstructor);
 
-      AddMapping (_mappedConstructorInfos, mappedConstructorInfo, constructorOperand);
+      AddMapping (_mappedConstructorInfos, mappedConstructor, emittableConstructor);
     }
 
     [CLSCompliant (false)]
-    public void AddMapping (MethodInfo mappedMethodInfo, IEmittableMethodOperand methodOperand)
+    public void AddMapping (MethodInfo mappedMethod, MethodInfo emittableMethod)
     {
-      ArgumentUtility.CheckNotNull ("mappedMethodInfo", mappedMethodInfo);
-      ArgumentUtility.CheckNotNull ("methodOperand", methodOperand);
+      ArgumentUtility.CheckNotNull ("mappedMethod", mappedMethod);
+      ArgumentUtility.CheckNotNull ("emittableMethod", emittableMethod);
 
-      AddMapping (_mappedMethodInfos, mappedMethodInfo, methodOperand);
+      AddMapping (_mappedMethodInfos, mappedMethod, emittableMethod);
     }
 
     [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableType (Type type)
+    public Type GetEmittableType (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand (_mappedTypes, type, typeof (MutableType), t => new EmittableType (type));
+      return GetEmittableOperand (_mappedTypes, type, typeof (MutableType));
     }
 
     [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableField (FieldInfo fieldInfo)
+    public FieldInfo GetEmittableField (FieldInfo fieldInfo)
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
-      return GetEmittableOperand (_mappedFieldInfos, fieldInfo, typeof (FieldInfo), fi => new EmittableField (fieldInfo));
+      return GetEmittableOperand (_mappedFieldInfos, fieldInfo, typeof (FieldInfo));
     }
 
     [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableConstructor (ConstructorInfo constructorInfo)
+    public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
 
-      return GetEmittableOperand (_mappedConstructorInfos, constructorInfo, typeof (ConstructorInfo), ci => new EmittableConstructor (constructorInfo));
+      return GetEmittableOperand (_mappedConstructorInfos, constructorInfo, typeof (ConstructorInfo));
     }
 
     [CLSCompliant (false)]
-    public IEmittableMethodOperand GetEmittableMethod (MethodInfo methodInfo)
+    public MethodInfo GetEmittableMethod (MethodInfo methodInfo)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
 
-      return GetEmittableOperand (_mappedMethodInfos, methodInfo, typeof (MutableMethodInfo), mi => new EmittableMethod (methodInfo));
+      return GetEmittableOperand (_mappedMethodInfos, methodInfo, typeof (MutableMethodInfo));
     }
 
-    private void AddMapping<TKey, TValue> (Dictionary<TKey, TValue> mapping, TKey mappedItem, TValue builder)
+    private void AddMapping<T> (Dictionary<T, T> mapping, T key, T value)
     {
-      string itemNameType = typeof (TKey).Name;
-      if (mapping.ContainsKey (mappedItem))
+      string itemNameType = typeof (T).Name;
+      if (mapping.ContainsKey (key))
       {
         var message = string.Format ("{0} is already mapped.", itemNameType);
         throw new ArgumentException (message, "mapped" + itemNameType);
       }
 
-      mapping.Add (mappedItem, builder);
+      mapping.Add (key, value);
     }
 
-    private TValue GetEmittableOperand<TKey, TValue> (
-        Dictionary<TKey, TValue> mapping, TKey mappedItem, Type mutableMemberType, Func<TKey, TValue> wrapperCreator)
-        where TValue: class
+    private T GetEmittableOperand<T> (Dictionary<T, T> mapping, T mappedItem, Type mutableMemberType)
+        where T: class
     {
       var operand = mapping.GetValueOrDefault (mappedItem);
       if (operand != null)
         return operand;
 
       Assertion.IsTrue (mappedItem.GetType() != mutableMemberType, "Wrapped object must not be of type {0}.", mutableMemberType);
-      return wrapperCreator (mappedItem);
+      return mappedItem;
     }
   }
 }

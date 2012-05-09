@@ -44,14 +44,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _methodBuilder; }
     }
 
-    // TODO 4813
-    [CLSCompliant (false)]
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("method", method);
 
-      emittableOperandProvider.AddMapping (method, new EmittableMethod (_methodBuilder));
+      emittableOperandProvider.AddMapping (method, _methodBuilder);
     }
 
     public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)

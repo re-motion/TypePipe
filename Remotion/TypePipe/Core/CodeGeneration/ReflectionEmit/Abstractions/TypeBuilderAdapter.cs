@@ -41,14 +41,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _typeBuilder; }
     }
 
-    // TODO 4813
-    [CLSCompliant (false)]
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, Type type)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      emittableOperandProvider.AddMapping (type, new EmittableType (_typeBuilder));
+      emittableOperandProvider.AddMapping (type, _typeBuilder);
     }
 
     public void AddInterfaceImplementation (Type interfaceType)

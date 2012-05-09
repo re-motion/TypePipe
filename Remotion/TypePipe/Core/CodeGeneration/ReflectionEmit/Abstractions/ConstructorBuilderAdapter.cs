@@ -44,14 +44,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _constructorBuilder; }
     }
 
-    // TODO 4813
-    [CLSCompliant (false)]
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      emittableOperandProvider.AddMapping (constructor, new EmittableConstructor (_constructorBuilder));
+      emittableOperandProvider.AddMapping (constructor, _constructorBuilder);
     }
 
     public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)

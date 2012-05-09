@@ -24,17 +24,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Defines an API for classes registering emittable operands for Reflection objects. This is used to allow mutable Reflection objects to be
   /// used within expression trees - when generating code, the mutable objects are replaced with emittable counterparts using this interface.
   /// </summary>
-  // TODO 4813: Remove attribute here and at all usage sites
-  [CLSCompliant (false)]
   public interface IEmittableOperandProvider
   {
-    void AddMapping (Type mappedType, IEmittableOperand typeOperand);
-    void AddMapping (FieldInfo mappedFieldInfo, IEmittableOperand fieldOperand);
-    void AddMapping (ConstructorInfo mappedConstructorInfo, IEmittableOperand constructorOperand);
-    void AddMapping (MethodInfo mappedMethodInfo, IEmittableMethodOperand methodOperand);
-    IEmittableOperand GetEmittableType (Type type);
-    IEmittableOperand GetEmittableField (FieldInfo fieldInfo);
-    IEmittableOperand GetEmittableConstructor (ConstructorInfo constructorInfo);
-    IEmittableMethodOperand GetEmittableMethod (MethodInfo methodInfo);
+    void AddMapping (Type mappedType, Type emittableType);
+    void AddMapping (FieldInfo mappedField, FieldInfo emittableField);
+    void AddMapping (ConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor);
+    void AddMapping (MethodInfo mappedMethod, MethodInfo emittableMethod);
+    Type GetEmittableType (Type type);
+    FieldInfo GetEmittableField (FieldInfo fieldInfo);
+    ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo);
+    MethodInfo GetEmittableMethod (MethodInfo methodInfo);
   }
 }
