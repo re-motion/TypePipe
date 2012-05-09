@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -49,6 +48,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public IEmittableOperand GetEmittableOperand ()
     {
       return new EmittableField (_fieldBuilder);
+    }
+
+    public void Register (EmittableOperandProvider emittableOperandProvider)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+
+      emittableOperandProvider.AddMapping (_fieldBuilder, new EmittableField(_fieldBuilder));
     }
   }
 }

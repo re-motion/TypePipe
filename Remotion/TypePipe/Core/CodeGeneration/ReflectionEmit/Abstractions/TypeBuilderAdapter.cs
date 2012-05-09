@@ -94,5 +94,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       return new EmittableType (_typeBuilder);
     }
+
+    public void Register (EmittableOperandProvider emittableOperandProvider)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+
+      emittableOperandProvider.AddMapping (_typeBuilder, new EmittableType (_typeBuilder));
+    }
   }
 }

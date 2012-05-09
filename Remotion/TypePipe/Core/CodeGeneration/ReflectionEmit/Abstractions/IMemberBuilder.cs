@@ -25,5 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public interface IMemberBuilder
   {
     IEmittableOperand GetEmittableOperand ();
+    void Register (EmittableOperandProvider emittableOperandProvider);
   }
 }
