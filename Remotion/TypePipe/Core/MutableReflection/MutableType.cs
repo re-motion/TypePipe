@@ -473,7 +473,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO Make public sometime 
     private bool IsAssignableTo (Type other)
     {
-      return other.Equals (this) || other.IsAssignableFrom (BaseType); //// IsEquivalentTo (other) || 
+      return Equals (other) || other.IsAssignableFrom (BaseType);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
