@@ -83,13 +83,5 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       ilGenerator.EmitCall (opCode, _methodBuilder, optionalParameterTypes);
     }
-
-    public void DefineOverride (MethodInfo methodInfoDeclaration)
-    {
-      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
-
-      var typeBuilder = (TypeBuilder) _methodBuilder.DeclaringType;
-      typeBuilder.DefineMethodOverride (_methodBuilder, methodInfoDeclaration);
-    }
   }
 }

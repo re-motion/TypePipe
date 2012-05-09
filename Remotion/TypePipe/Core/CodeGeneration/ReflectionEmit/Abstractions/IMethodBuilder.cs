@@ -27,7 +27,5 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public interface IMethodBuilder : IMethodBaseBuilder
   {
     void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MethodInfo method);
-
-    void DefineOverride (MethodInfo methodInfoDeclaration);
   }
 }

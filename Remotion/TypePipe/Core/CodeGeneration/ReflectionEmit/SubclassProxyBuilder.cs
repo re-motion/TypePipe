@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
-      AddMethod (method, method.Name, method.Attributes, overriddenMethod: null);
+      AddMethod (method, method.Name, method.Attributes);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo constructor)
@@ -160,10 +160,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: false, isModified: true);
 
+      // Modified methods are added as explicit method overrides for the underlying method
       var explicitMethodOverrideName = method.DeclaringType.FullName + "." + method.Name;
       var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (method.Attributes, MethodAttributes.Private);
-      var overriddenMethodInfo = method.UnderlyingSystemMethodInfo;
-      AddMethod (method, explicitMethodOverrideName, explicitMethodOverrideAttributes, overriddenMethodInfo);
+      
+      AddMethod (method, explicitMethodOverrideName, explicitMethodOverrideAttributes);
+      
+      var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
+      _typeBuilder.DefineMethodOverride (emittableMethod, method.UnderlyingSystemMethodInfo);
     }
 
     public void HandleUnmodifiedField (MutableFieldInfo field)
@@ -252,14 +256,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       RegisterBodyBuildAction (ctorBuilder, constructor.ParameterExpressions, body);
     }
 
-    private void AddMethod (MutableMethodInfo method, string name, MethodAttributes attributes, MethodInfo overriddenMethod)
+    private void AddMethod (MutableMethodInfo method, string name, MethodAttributes attributes)
     {
       var parameterTypes = GetParameterTypes (method);
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (_emittableOperandProvider, method);
-
-      if (overriddenMethod != null)
-        methodBuilder.DefineOverride (overriddenMethod);
 
       DefineParameters (methodBuilder, method.GetParameters ());
 

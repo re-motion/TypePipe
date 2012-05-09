@@ -553,7 +553,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, definedMethod));
 
       if (expectOverride)
-        methodBuilderMock.Expect (mock => mock.DefineOverride (overriddenMethod));
+      {
+        var fakeEmittableMethod = ReflectionObjectMother.GetSomeMethod();
+        _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (definedMethod)).Return (fakeEmittableMethod);
+        _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeEmittableMethod, overriddenMethod));
+      }
 
       _expressionPreparerMock.Expect (mock => mock.PrepareMethodBody (definedMethod)).Return (_fakeBody);
 
@@ -594,6 +598,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (method)).Return (_fakeBody);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (Arg<MethodInfo>.Is.Anything));
+      _typeBuilderMock.Stub (stub => stub.DefineMethodOverride (Arg<MethodInfo>.Is.Anything, Arg<MethodInfo>.Is.Anything));
 
       Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
 

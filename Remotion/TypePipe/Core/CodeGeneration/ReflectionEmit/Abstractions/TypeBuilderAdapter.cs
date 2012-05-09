@@ -84,6 +84,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new MethodBuilderAdapter (methodBuilder);
     }
 
+    public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("methodInfoBody", methodInfoBody);
+      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
+
+      _typeBuilder.DefineMethodOverride (methodInfoBody, methodInfoDeclaration);
+    }
+
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
