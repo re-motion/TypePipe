@@ -92,7 +92,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore("TODO 4813")]
     public void ModifyExistingOverride ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");
@@ -114,9 +113,10 @@ namespace TypePipe.IntegrationTests
           });
 
       var instance = (B) Activator.CreateInstance (type);
-      var method = GetDeclaredMethod (type, "MethodOverriddenByB");
+      var method = GetModifiedMethod (type, "MethodOverriddenByB");
 
-      Assert.That (method.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
+      Assert.That (method.IsPrivate, Is.True);
+      Assert.That (method.Name, Is.EqualTo ("TypePipe.IntegrationTests.ImplicitOverridesTest+B.MethodOverriddenByB"));
 
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("Base: A, previous body: B"));
@@ -124,7 +124,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4813")]
     public void OverrideOverride ()
     {
       var overriddenMethodInA = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");
@@ -134,7 +133,7 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethodInfo = mutableType.AddMethod (
-                "OverridableMethod",
+                "MethodOverriddenByB",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,

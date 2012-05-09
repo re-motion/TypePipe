@@ -103,6 +103,15 @@ namespace TypePipe.IntegrationTests
       return method;
     }
 
+    protected MethodInfo GetModifiedMethod (Type type, string name)
+    {
+      var method = type
+          .GetMethods (BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic)
+          .SingleOrDefault (m => m.Name.EndsWith (name));
+      Assert.That (method, Is.Not.Null);
+      return method;
+    }
+
     private ITypeAssemblyParticipant CreateTypeAssemblyParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<ITypeAssemblyParticipant>();
