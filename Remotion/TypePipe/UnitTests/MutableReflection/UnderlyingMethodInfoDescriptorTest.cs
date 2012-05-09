@@ -21,7 +21,6 @@ using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -104,7 +103,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       int v;
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
+
+      var fakeBaseMethod = ReflectionObjectMother.GetSomeMethod();
+      _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (originalMethod)).Return (fakeBaseMethod);
+      
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
+
+      _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.SameAs (originalMethod));
       Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
       Assert.That (descriptor.Attributes, Is.EqualTo (originalMethod.Attributes));
@@ -120,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
-      Assert.That (descriptor.BaseMethod, Is.Null);
+      Assert.That (descriptor.BaseMethod, Is.SameAs (fakeBaseMethod));
 
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
@@ -134,31 +139,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
       Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
 
+      _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
+
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
-
-    [Test]
-    public void Create_ForExisting_OverridingMethod ()
-    {
-      var method = typeof (DomainType).GetMethod ("ToString");
-      var baseMethodStub = MockRepository.GenerateStub<MethodInfo>();
-      var fakeRootDefinition = ReflectionObjectMother.GetSomeMethod();
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetBaseMethod (method.Name, MethodSignature.Create (method), method.DeclaringType.BaseType))
-          .Return (baseMethodStub);
-      baseMethodStub.Stub (stub => stub.GetBaseDefinition()).Return (fakeRootDefinition);
-
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (method, _relatedMethodFinderMock);
-
-      _relatedMethodFinderMock.VerifyAllExpectations();
-      Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethodStub));
-      Assert.That (descriptor.BaseMethod, Is.Not.EqualTo (fakeRootDefinition));
-    }
-
+    
+// ReSharper disable ClassNeverInstantiated.Local
     private class DomainType
+// ReSharper restore ClassNeverInstantiated.Local
     {
       public int Method (string s, out int i, [In] double d, [In, Out] object o)
       {

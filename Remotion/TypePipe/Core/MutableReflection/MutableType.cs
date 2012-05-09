@@ -304,8 +304,8 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
-      var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
       var baseMethod = GetBaseMethod (attributes, name, signature);
+      var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
@@ -340,6 +340,7 @@ namespace Remotion.TypePipe.MutableReflection
       CheckHierarchy (overriddenMethod, "Cannot add override for unrelated method.", "overriddenMethod");
       CheckHierarchy (overridingMethod, "Cannot add override by unrelated method.", "overridingMethod");
 
+      // TODO 4813
     }
 
     public virtual void Accept (IMutableTypeMemberHandler memberHandler)
@@ -436,7 +437,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!isVirtual || isNewSlot)
         return null;
 
-      var baseMethod = _relatedMethodFinder.GetBaseMethod (name, signature, BaseType);
+      var baseMethod = _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, BaseType);
       if (baseMethod != null && baseMethod.IsFinal)
       {
         var message = string.Format ("Cannot override final method '{0}'.", name);

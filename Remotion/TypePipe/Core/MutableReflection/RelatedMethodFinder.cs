@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
@@ -29,18 +30,36 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class RelatedMethodFinder : IRelatedMethodFinder
   {
-    public MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch)
+    /// <inheritdoc />
+    public MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("signature", signature);
       ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
 
+      var allBaseMethods = GetOrderedBaseMethods (typeToStartSearch);
+      return allBaseMethods.FirstOrDefault (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature));
+    }
+
+    /// <inheritdoc />
+    public MethodInfo GetBaseMethod (MethodInfo method)
+    {
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      var rootDefinition = method.GetBaseDefinition ();
+      if (method.Equals (rootDefinition))
+        return null;
+
+      var allBaseMethods = GetOrderedBaseMethods (method.DeclaringType.BaseType);
+      return allBaseMethods.First (m => m.GetBaseDefinition ().Equals (rootDefinition));
+    }
+
+    private IEnumerable<MethodInfo> GetOrderedBaseMethods (Type typeToStartSearch)
+    {
       var baseTypeSequence = typeToStartSearch.CreateSequence (t => t.BaseType);
 
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var allBaseMethods = baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
-
-      return allBaseMethods.FirstOrDefault (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature));
+      return baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
     }
   }
 }

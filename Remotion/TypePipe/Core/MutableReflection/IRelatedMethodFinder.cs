@@ -25,6 +25,31 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IRelatedMethodFinder
   {
-    MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch);
+    /// <summary>
+    /// Gets the most derived virtual method with the given <paramref name="name"/> and <paramref name="signature"/>, starting from the
+    /// given <paramref name="typeToStartSearch"/> (then searching up the type hierarchy). This is the method that would be implicitly overridden
+    /// by a <see cref="MethodAttributes.ReuseSlot"/> method with equivalent <paramref name="name"/> and <paramref name="signature"/> in a type 
+    /// derived from <paramref name="typeToStartSearch"/>.
+    /// </summary>
+    /// <param name="name">The method name.</param>
+    /// <param name="signature">The method signature.</param>
+    /// <param name="typeToStartSearch">The type to start the search from.</param>
+    /// <returns>The most derived virtual method matching the given parameters.</returns>
+    /// <remarks>
+    /// The returned <see cref="MethodInfo"/> has its <see cref="MemberInfo.ReflectedType"/> set to its <see cref="MemberInfo.DeclaringType"/>.
+    /// </remarks>
+    MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch);
+
+    /// <summary>
+    /// Gets the method directly overridden by the given <paramref name="method"/>. If the method does not override another method (because it is not
+    /// <see cref="MethodAttributes.Virtual"/>, <see cref="MethodAttributes.NewSlot"/>, or simply because there is no overridable method in the
+    /// base type chain), it returns <see langword="null"/>.
+    /// </summary>
+    /// <param name="method">The method to get the base method for.</param>
+    /// <returns>The directly overridden method, or <see langword="null" /> if no such method exists.</returns>
+    /// <remarks>
+    /// The returned <see cref="MethodInfo"/> has its <see cref="MemberInfo.ReflectedType"/> set to its <see cref="MemberInfo.DeclaringType"/>.
+    /// </remarks>
+    MethodInfo GetBaseMethod (MethodInfo method);
   }
 }

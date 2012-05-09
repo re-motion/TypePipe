@@ -130,7 +130,6 @@
     <Compile Include="MutableReflection\MutableTypeMemberCollection.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\RelatedMethodFinder.cs" />
-    <Compile Include="MutableReflection\RelatedMethodFinderExtensions.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />

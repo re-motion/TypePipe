@@ -45,7 +45,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+      
+      // Use a dynamic mock because constructor passes on _relatedMethodFinderMock to UnderlyingTypeDescriptor, which calls methods on the mock.
+      // If this cahnges and the UnderlyingTypeDescriptor logic becomes a problem, consider injecting an ExistingMutableMemberInfoFactory instead and 
+      // stubbing that.
+      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
       _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock);
     }
@@ -107,6 +111,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
+
+      // Test that the _relatedMethodFinderMock was passed to the underlying descriptor.
+      _relatedMethodFinderMock.AssertWasCalled (mock => mock.GetBaseMethod (expectedMethod));
     }
 
     [Test]
@@ -644,7 +651,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       fakeOverridenMethod.Stub (stub => stub.GetBaseDefinition ()).Return (fakeRootDefinition);
 
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetBaseMethod (name, new MethodSignature (returnType, Type.EmptyTypes, 0), _mutableType.BaseType))
+          .Expect (mock => mock.GetMostDerivedVirtualMethod (name, new MethodSignature (returnType, Type.EmptyTypes, 0), _mutableType.BaseType))
           .Return (fakeOverridenMethod);
 
       Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
@@ -673,7 +680,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var methodSignature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
       var fakeBaseMethod = ReflectionObjectMother.GetSomeFinalMethod();
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetBaseMethod ("FinalBaseMethod", methodSignature, _mutableType.BaseType))
+          .Expect (mock => mock.GetMostDerivedVirtualMethod ("FinalBaseMethod", methodSignature, _mutableType.BaseType))
           .Return (fakeBaseMethod);
 
       _mutableType.AddMethod (
@@ -1147,7 +1154,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public void ExistingBaseMethod () { }
 
+// ReSharper disable VirtualMemberNeverOverriden.Global
       public virtual void VirtualBaseMethod () { }
+// ReSharper restore VirtualMemberNeverOverriden.Global
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface
@@ -1176,7 +1185,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
     }
 
+// ReSharper disable ClassNeverInstantiated.Local
     private class UnrelatedType
+// ReSharper restore ClassNeverInstantiated.Local
     {
       public virtual void VirtualMethod () { }
     }
