@@ -744,19 +744,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddExplicitOverride_InvalidHierarchy ()
+    public void AddExplicitOverride_ChecksHierarchy ()
     {
-      var methodInHierarchy = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      var baseMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.VirtualBaseMethod());
+      var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.UnderlyingSystemMethodInfo.Equals (method));
       var unrelatedMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((UnrelatedType obj) => obj.VirtualMethod());
+      var validMethod = method;
 
-      _relatedMethodFinderMock.Expect (mock => mock.IsSameHierarchy (_mutableType, typeof (DomainType))).Return (true).Repeat.Twice();
-      _relatedMethodFinderMock.Expect (mock => mock.IsSameHierarchy (_mutableType, typeof (UnrelatedType))).Return (false).Repeat.Twice();
+      Assert.That (() => _mutableType.AddExplicitOverride (baseMethod, validMethod), Throws.Nothing);
+      Assert.That (() => _mutableType.AddExplicitOverride (mutableMethod, validMethod), Throws.Nothing);
+      Assert.That (() => _mutableType.AddExplicitOverride (method, validMethod), Throws.Nothing);
+      Assert.That (() => _mutableType.AddExplicitOverride (validMethod, baseMethod), Throws.Nothing);
+      Assert.That (() => _mutableType.AddExplicitOverride (validMethod, mutableMethod), Throws.Nothing);
+      Assert.That (() => _mutableType.AddExplicitOverride (validMethod, method), Throws.Nothing);
 
       Assert.That (
-          () => _mutableType.AddExplicitOverride (unrelatedMethod, methodInHierarchy),
+          () => _mutableType.AddExplicitOverride (unrelatedMethod, validMethod),
           Throws.ArgumentException.With.Message.EqualTo ("Cannot add override for unrelated method.\r\nParameter name: overriddenMethod"));
       Assert.That (
-          () => _mutableType.AddExplicitOverride (methodInHierarchy, unrelatedMethod),
+          () => _mutableType.AddExplicitOverride (validMethod, unrelatedMethod),
           Throws.ArgumentException.With.Message.EqualTo ("Cannot add override by unrelated method.\r\nParameter name: overridingMethod"));
     }
 
@@ -1139,6 +1146,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public int BaseField;
 
       public void ExistingBaseMethod () { }
+
+      public virtual void VirtualBaseMethod () { }
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface

@@ -466,8 +466,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     private void CheckHierarchy (MethodInfo method, string message, string parameterName)
     {
-      if (!_relatedMethodFinder.IsSameHierarchy (this, method.DeclaringType))
+      if (!IsAssignableTo (method.DeclaringType))
         throw new ArgumentException (message, parameterName);
+    }
+
+    // TODO Make public sometime 
+    private bool IsAssignableTo (Type other)
+    {
+      return other.Equals (this) || other.IsAssignableFrom (BaseType); //// IsEquivalentTo (other) || 
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)

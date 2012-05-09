@@ -26,7 +26,5 @@ namespace Remotion.TypePipe.MutableReflection
   public interface IRelatedMethodFinder
   {
     MethodInfo GetBaseMethod (string name, MethodSignature signature, Type typeToStartSearch);
-
-    bool IsSameHierarchy (MutableType mutableType, Type otherType);
   }
 }

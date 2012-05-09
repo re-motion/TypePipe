@@ -42,10 +42,5 @@ namespace Remotion.TypePipe.MutableReflection
 
       return allBaseMethods.FirstOrDefault (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature));
     }
-
-    public bool IsSameHierarchy (MutableType mutableType, Type otherType)
-    {
-      throw new NotImplementedException();
-    }
   }
 }
