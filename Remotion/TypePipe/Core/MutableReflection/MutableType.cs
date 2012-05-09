@@ -351,7 +351,7 @@ namespace Remotion.TypePipe.MutableReflection
       CheckHierarchy (overriddenMethod, "Cannot add override for unrelated method.", "overriddenMethod");
       CheckHierarchy (overridingMethod, "Cannot add override by unrelated method.", "overridingMethod");
 
-      // TODO 4813
+      _addedExplicitOverrides.Add (overriddenMethod, overridingMethod);
     }
 
     public virtual void Accept (IMutableTypeMemberHandler memberHandler)

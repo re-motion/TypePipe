@@ -735,6 +735,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddExplicitOverride ()
+    {
+      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
+      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+
+      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
+
+      Assert.That (_mutableType.AddedExplicitOverrides, Has.Count.EqualTo (1));
+      Assert.That (_mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
+    }
+
+    [Test]
     public void AddExplicitOverride_NonVirtualMethods ()
     {
       var nonVirtualMethod = ReflectionObjectMother.GetSomeNonVirtualMethod ();
@@ -772,8 +784,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => _mutableType.AddExplicitOverride (baseMethod, validMethod), Throws.Nothing);
       Assert.That (() => _mutableType.AddExplicitOverride (mutableMethod, validMethod), Throws.Nothing);
       Assert.That (() => _mutableType.AddExplicitOverride (method, validMethod), Throws.Nothing);
+      ClearAddedExplicitOverrides (_mutableType);
       Assert.That (() => _mutableType.AddExplicitOverride (validMethod, baseMethod), Throws.Nothing);
+      ClearAddedExplicitOverrides (_mutableType);
       Assert.That (() => _mutableType.AddExplicitOverride (validMethod, mutableMethod), Throws.Nothing);
+      ClearAddedExplicitOverrides (_mutableType);
       Assert.That (() => _mutableType.AddExplicitOverride (validMethod, method), Throws.Nothing);
 
       Assert.That (
@@ -1158,6 +1173,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
     }
 
+    private void ClearAddedExplicitOverrides (MutableType mutableType)
+    {
+      var explicitOverrides = (Dictionary<MethodInfo, MethodInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_addedExplicitOverrides");
+      explicitOverrides.Clear ();
+    }
+
     public class DomainTypeBase
     {
       public int BaseField;
@@ -1165,7 +1186,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void ExistingBaseMethod () { }
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
-      public virtual void VirtualBaseMethod () { }
+      public virtual string VirtualBaseMethod () { return ""; }
 // ReSharper restore VirtualMemberNeverOverriden.Global
     }
 
@@ -1180,7 +1201,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         ProtectedField = Dev<int>.Null;
       }
 
-      public virtual void VirtualMethod () { }
+      public virtual string VirtualMethod () { return ""; }
     }
 
     public interface IDomainInterface
@@ -1199,7 +1220,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private class UnrelatedType
 // ReSharper restore ClassNeverInstantiated.Local
     {
-      public virtual void VirtualMethod () { }
+      public virtual string VirtualMethod () { return ""; }
     }
   }
 }
