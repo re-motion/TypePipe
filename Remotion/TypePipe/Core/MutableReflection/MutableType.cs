@@ -304,8 +304,8 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+      var isStatic = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Static);
       var baseMethod = GetBaseMethod (attributes, name, signature);
-      var isStatic = (attributes & MethodAttributes.Static) == MethodAttributes.Static;
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
