@@ -293,6 +293,11 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
+      var isVirtual = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Virtual);
+      var isNewSlot = MethodAttributeUtility.IsSet (attributes, MethodAttributes.NewSlot);
+      if (!isVirtual && isNewSlot)
+        throw new ArgumentException ("Virtual and NewSlot are not a valid combination for method attributes.", "attributes");
+
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
 
       var signature = new MethodSignature (returnType, parameterDeclarationCollection.Select (pd => pd.Type), 0);
@@ -305,7 +310,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var isStatic = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Static);
-      var baseMethod = GetBaseMethod (attributes, name, signature);
+      var baseMethod = isVirtual && !isNewSlot ? GetBaseMethod (name, signature) : null;
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
@@ -430,19 +435,15 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
     }
 
-    private MethodInfo GetBaseMethod (MethodAttributes attributes, string name, MethodSignature signature)
+    private MethodInfo GetBaseMethod (string name, MethodSignature signature)
     {
-      var isVirtual = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Virtual);
-      var isNewSlot = MethodAttributeUtility.IsSet (attributes, MethodAttributes.NewSlot);
-      if (!isVirtual || isNewSlot)
-        return null;
-
       var baseMethod = _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, BaseType);
       if (baseMethod != null && baseMethod.IsFinal)
       {
         var message = string.Format ("Cannot override final method '{0}'.", name);
         throw new NotSupportedException (message);
       }
+
       return baseMethod;
     }
 
