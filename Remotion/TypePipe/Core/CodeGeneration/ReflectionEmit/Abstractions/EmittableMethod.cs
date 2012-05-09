@@ -36,6 +36,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _methodInfo = methodInfo;
     }
 
+    public MethodInfo MethodInfo
+    {
+      get { return _methodInfo; }
+    }
+
     [CLSCompliant (false)]
     public void Emit (IILGenerator ilGenerator, OpCode opCode)
     {

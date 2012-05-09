@@ -24,8 +24,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Defines an interface for <see cref="TypeBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface ITypeBuilder : IMemberBuilder
+  public interface ITypeBuilder
   {
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, Type type);
+
     void AddInterfaceImplementation (Type interfaceType);
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
     IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);

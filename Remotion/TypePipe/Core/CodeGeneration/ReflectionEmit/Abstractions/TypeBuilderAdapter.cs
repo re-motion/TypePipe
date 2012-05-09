@@ -41,6 +41,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _typeBuilder; }
     }
 
+    // TODO 4813
+    [CLSCompliant (false)]
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, Type type)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      emittableOperandProvider.AddMapping (type, new EmittableType (_typeBuilder));
+    }
+
     public void AddInterfaceImplementation (Type interfaceType)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
@@ -87,19 +97,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
 
       ilGenerator.Emit (opCode, _typeBuilder);
-    }
-
-    [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableOperand ()
-    {
-      return new EmittableType (_typeBuilder);
-    }
-
-    public void Register (EmittableOperandProvider emittableOperandProvider)
-    {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-
-      emittableOperandProvider.AddMapping (_typeBuilder, new EmittableType (_typeBuilder));
     }
   }
 }

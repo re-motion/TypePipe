@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Utilities;
 
@@ -38,23 +39,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _fieldBuilder; }
     }
 
+    // TODO 4813
+    [CLSCompliant (false)]
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, FieldInfo field)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      emittableOperandProvider.AddMapping (field, new EmittableField (_fieldBuilder));
+    }
+
     public void SetCustomAttribute (CustomAttributeBuilder customBuilder)
     {
       ArgumentUtility.CheckNotNull ("customBuilder", customBuilder);
       _fieldBuilder.SetCustomAttribute (customBuilder);
-    }
-
-    [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableOperand ()
-    {
-      return new EmittableField (_fieldBuilder);
-    }
-
-    public void Register (EmittableOperandProvider emittableOperandProvider)
-    {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-
-      emittableOperandProvider.AddMapping (_fieldBuilder, new EmittableField(_fieldBuilder));
     }
   }
 }

@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
@@ -26,14 +27,14 @@ using Remotion.Collections;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Maps reflection objects to their associated builder objects, which can be used for code generation by <see cref="ILGeneratorDecorator"/>.
+  /// Maps reflection objects to associated emittable operands, which can be used for code generation by <see cref="ILGeneratorDecorator"/>.
   /// </summary>
   /// <remarks>
   /// This class is mainly used to map instances of <see cref="MutableType"/>, <see cref="MutableConstructorInfo"/>, etc. to the respective
-  /// <see cref="ITypeBuilder"/>, <see cref="IConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
+  /// <see cref="TypeBuilder"/>, <see cref="ConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
   /// references to the mutable Reflection objects when it emits code.
   /// </remarks>
-  public class EmittableOperandProvider
+  public class EmittableOperandProvider : IEmittableOperandProvider
   {
     private readonly Dictionary<Type, IEmittableOperand> _mappedTypes = new Dictionary<Type, IEmittableOperand> ();
     private readonly Dictionary<FieldInfo, IEmittableOperand> _mappedFieldInfos = new Dictionary<FieldInfo, IEmittableOperand> ();

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -25,5 +26,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   [CLSCompliant (false)]
   public interface IConstructorBuilder : IMethodBaseBuilder
   {
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ConstructorInfo constructor);
   }
 }

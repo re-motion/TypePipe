@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class EmittableOperandProviderTest
   {
-    private EmittableOperandProvider _map;
+    private EmittableOperandProvider _provider;
 
     private Type _someType;
     private FieldInfo _someFieldInfo;
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _map = new EmittableOperandProvider();
+      _provider = new EmittableOperandProvider();
 
       _someType = ReflectionObjectMother.GetSomeType();
       _someFieldInfo = ReflectionObjectMother.GetSomeField ();
@@ -48,32 +48,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping ()
     {
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableType, _someType);
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableField, _someFieldInfo);
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableConstructor, _someConstructorInfo);
-      CheckAddMapping (_map.AddMapping, _map.GetEmittableMethod, _someMethodInfo);
+      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableType, _someType);
+      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableField, _someFieldInfo);
+      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableConstructor, _someConstructorInfo);
+      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableMethod, _someMethodInfo);
     }
 
     [Test]
     public void AddMapping_Twice ()
     {
       CheckAddMappingTwiceThrows<Type, IEmittableOperand> (
-          _map.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
+          _provider.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
       CheckAddMappingTwiceThrows<FieldInfo, IEmittableOperand> (
-          _map.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
+          _provider.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
       CheckAddMappingTwiceThrows<ConstructorInfo, IEmittableOperand> (
-          _map.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
+          _provider.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
       CheckAddMappingTwiceThrows<MethodInfo, IEmittableMethodOperand> (
-          _map.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
+          _provider.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
     }
     
     [Test]
     public void GetEmittableOperand_NoMapping ()
     {
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableType, _someType, typeof (EmittableType));
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableField, _someFieldInfo, typeof (EmittableField));
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableConstructor, _someConstructorInfo, typeof (EmittableConstructor));
-      CheckGetEmitableOperandWithNoMapping (_map.GetEmittableMethod, _someMethodInfo, typeof (EmittableMethod));
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableType, _someType, typeof (EmittableType));
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableField, _someFieldInfo, typeof (EmittableField));
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableConstructor, _someConstructorInfo, typeof (EmittableConstructor));
+      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableMethod, _someMethodInfo, typeof (EmittableMethod));
     }
 
     private void CheckAddMapping<TMappedObject, TEmittableOperand> (

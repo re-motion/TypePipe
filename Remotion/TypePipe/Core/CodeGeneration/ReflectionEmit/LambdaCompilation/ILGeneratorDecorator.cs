@@ -29,10 +29,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratorDecorator : IILGenerator
   {
     private readonly IILGenerator _innerILGenerator;
-    private readonly EmittableOperandProvider _emittableOperandProvider;
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
-    public ILGeneratorDecorator (IILGenerator innerIlGenerator, EmittableOperandProvider emittableOperandProvider)
+    public ILGeneratorDecorator (IILGenerator innerIlGenerator, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
@@ -47,7 +47,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerILGenerator; }
     }
 
-    public EmittableOperandProvider EmittableOperandProvider
+    // TODO 4813: Remove
+    [CLSCompliant (false)]
+    public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }
     }

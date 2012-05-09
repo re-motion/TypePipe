@@ -44,6 +44,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _methodBuilder; }
     }
 
+    // TODO 4813
+    [CLSCompliant (false)]
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MethodInfo method)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      emittableOperandProvider.AddMapping (method, new EmittableMethod (_methodBuilder));
+    }
+
     public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
       _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
@@ -82,24 +92,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       var typeBuilder = (TypeBuilder) _methodBuilder.DeclaringType;
       typeBuilder.DefineMethodOverride (_methodBuilder, methodInfoDeclaration);
-    }
-
-    [CLSCompliant (false)]
-    public IEmittableMethodOperand GetEmittableOperand ()
-    {
-      return new EmittableMethod (_methodBuilder);
-    }
-
-    IEmittableOperand IMemberBuilder.GetEmittableOperand ()
-    {
-      return GetEmittableOperand();
-    }
-
-    public void Register (EmittableOperandProvider emittableOperandProvider)
-    {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-
-      emittableOperandProvider.AddMapping (_methodBuilder, new EmittableMethod (_methodBuilder));
     }
   }
 }

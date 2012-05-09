@@ -36,6 +36,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _fieldInfo = fieldInfo;
     }
 
+    public FieldInfo FieldInfo
+    {
+      get { return _fieldInfo; }
+    }
+
     [CLSCompliant (false)]
     public void Emit (IILGenerator ilGenerator, OpCode opCode)
     {

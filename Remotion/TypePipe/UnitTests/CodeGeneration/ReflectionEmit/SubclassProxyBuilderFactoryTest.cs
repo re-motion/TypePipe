@@ -64,20 +64,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (mutableType)).Return ("foofoo");
 
-      var typeBuildermock = MockRepository.GenerateMock<ITypeBuilder> ();
+      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _moduleBuilderMock.Expect (mock => mock.DefineType ("foofoo", attributes, originalType, new[] { iface })).Return (typeBuildermock);
-      var emittableOperandStub = MockRepository.GenerateStub<IEmittableOperand>();
-      typeBuildermock.Expect (mock => mock.GetEmittableOperand()).Return (emittableOperandStub);
+      _moduleBuilderMock.Expect (mock => mock.DefineType ("foofoo", attributes, originalType, new[] { iface })).Return (typeBuilderMock);
+      
+      EmittableOperandProvider emittableOperandProvider = null;
+      typeBuilderMock
+          .Expect (mock => mock.RegisterWith (Arg<EmittableOperandProvider>.Is.TypeOf, Arg.Is (mutableType)))
+          .WhenCalled (mi => emittableOperandProvider = ((EmittableOperandProvider) mi.Arguments[0]));
 
       var result = _builderFactory.CreateBuilder (mutableType);
+
+      typeBuilderMock.VerifyAllExpectations();
 
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
       var builder = (SubclassProxyBuilder) result;
 
-      Assert.That (builder.TypeBuilder, Is.SameAs (typeBuildermock));
+      Assert.That (builder.TypeBuilder, Is.SameAs (typeBuilderMock));
       Assert.That (builder.ExpressionPreparer, Is.SameAs (_expressionPreparer));
-      Assert.That (builder.EmittableOperandProvider.GetEmittableType (mutableType), Is.SameAs (emittableOperandStub));
+      Assert.That (builder.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
 
       Assert.That (builder.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) builder.ILGeneratorFactory;

@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly ITypeBuilder _typeBuilder;
     private readonly IExpressionPreparer _expressionPreparer;
-    private readonly EmittableOperandProvider _emittableOperandProvider;
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public SubclassProxyBuilder (
         ITypeBuilder typeBuilder,
         IExpressionPreparer expressionPreparer,
-        EmittableOperandProvider emittableOperandProvider,
+        IEmittableOperandProvider emittableOperandProvider,
         IILGeneratorFactory ilGeneratorFactory,
         DebugInfoGenerator debugInfoGeneratorOrNull)
     {
@@ -76,7 +76,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _expressionPreparer; }
     }
 
-    public EmittableOperandProvider EmittableOperandProvider
+    // TODO 4813: Remove
+    [CLSCompliant (false)]
+    public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }
     }
@@ -107,7 +109,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       CheckMemberState (field, "field", isNew: true, isModified: null);
 
       var fieldBuilder = _typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
-      _emittableOperandProvider.AddMapping (field, fieldBuilder.GetEmittableOperand());
+      fieldBuilder.RegisterWith (_emittableOperandProvider, field);
 
       foreach (var declaration in field.AddedCustomAttributeDeclarations)
       {
@@ -244,7 +246,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var parameterTypes = GetParameterTypes (constructor);
       var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
-      _emittableOperandProvider.AddMapping (constructor, ctorBuilder.GetEmittableOperand ());
+      ctorBuilder.RegisterWith (_emittableOperandProvider, constructor);
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());
 
@@ -256,7 +258,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var parameterTypes = GetParameterTypes (method);
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
-      _emittableOperandProvider.AddMapping (method, methodBuilder.GetEmittableOperand());
+      methodBuilder.RegisterWith (_emittableOperandProvider, method);
 
       if (overriddenMethod != null)
         methodBuilder.DefineOverride (overriddenMethod);

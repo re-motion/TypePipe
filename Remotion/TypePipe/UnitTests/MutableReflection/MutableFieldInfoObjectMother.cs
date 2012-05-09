@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private class UnspecifiedType
     {
-      internal static readonly UnspecifiedType UnsepcifiedField = Dev<UnspecifiedType>.Null;
+      internal static readonly UnspecifiedType UnspecifiedField = Dev<UnspecifiedType>.Null;
     }
 
     public static MutableFieldInfo Create (
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo originalField = null)
     {
-      var fieldInfo = originalField ?? MemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnsepcifiedField);
+      var fieldInfo = originalField ?? MemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnspecifiedField);
 
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),

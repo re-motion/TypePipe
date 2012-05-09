@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _typeBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
     private DebugInfoGenerator _debugInfoGeneratorStub;
-    private EmittableOperandProvider _emittableOperandProvider;
+    private IEmittableOperandProvider _emittableOperandProviderMock;
 
     private SubclassProxyBuilder _builder;
 
@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
-      _emittableOperandProvider = new EmittableOperandProvider();
+      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
       _builder = new SubclassProxyBuilder (
-          _typeBuilderMock, _expressionPreparerMock, _emittableOperandProvider, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
+          _typeBuilderMock, _expressionPreparerMock, _emittableOperandProviderMock, _ilGeneratorFactoryStub, _debugInfoGeneratorStub);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Initialization_NullDebugInfoGenerator ()
     {
       var handler = new SubclassProxyBuilder (
-          _typeBuilderMock, _expressionPreparerMock, _emittableOperandProvider, _ilGeneratorFactoryStub, null);
+          _typeBuilderMock, _expressionPreparerMock, _emittableOperandProviderMock, _ilGeneratorFactoryStub, null);
       Assert.That (handler.DebugInfoGenerator, Is.Null);
     }
 
@@ -90,14 +90,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Expect(mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
           .Return (fieldBuilderMock);
-      var emittableOperand = MockRepository.GenerateStub<IEmittableOperand>();
-      fieldBuilderMock.Expect (mock => mock.GetEmittableOperand ()).Return (emittableOperand);
+      fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedField));
 
       _builder.HandleAddedField (addedField);
 
       _typeBuilderMock.VerifyAllExpectations();
       fieldBuilderMock.VerifyAllExpectations();
-      Assert.That (_emittableOperandProvider.GetEmittableField (addedField), Is.SameAs (emittableOperand));
     }
 
     [Test]
@@ -119,8 +117,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Stub (stub => stub.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
           .Return (fieldBuilderMock);
-      var emittableOperand = MockRepository.GenerateStub<IEmittableOperand>();
-      fieldBuilderMock.Expect (mock => mock.GetEmittableOperand()).Return (emittableOperand);
+      fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedField));
       fieldBuilderMock
           .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeBuilder>.Is.Anything))
           .WhenCalled (mi => CheckCustomAttributeBuilder (
@@ -307,13 +304,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var field = MutableFieldInfoObjectMother.CreateForExisting();
 
+      _emittableOperandProviderMock
+          .Expect (mock => mock.AddMapping (Arg.Is (field), Arg<EmittableField>.Matches (f => f.FieldInfo.Equals (field.UnderlyingSystemFieldInfo))));
+
       _builder.HandleUnmodifiedField (field);
 
-      var result = _emittableOperandProvider.GetEmittableField (field);
-      Assert.That (result, Is.TypeOf<EmittableField>());
-
-      var innerField = PrivateInvoke.GetNonPublicField (result, "_fieldInfo");
-      Assert.That (innerField, Is.SameAs (field.UnderlyingSystemFieldInfo));
+      _emittableOperandProviderMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -376,13 +372,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var method = MutableMethodInfoObjectMother.CreateForExisting ();
 
+      _emittableOperandProviderMock.Expect (
+          mock => mock.AddMapping (Arg.Is (method), Arg<EmittableMethod>.Matches (m => m.MethodInfo.Equals (method.UnderlyingSystemMethodInfo))));
+
       _builder.HandleUnmodifiedMethod (method);
 
-      var result = _emittableOperandProvider.GetEmittableMethod (method);
-      Assert.That (result, Is.TypeOf<EmittableMethod> ());
-
-      var innerMethod = PrivateInvoke.GetNonPublicField (result, "_methodInfo");
-      Assert.That (innerMethod, Is.SameAs (method.UnderlyingSystemMethodInfo));
+      _emittableOperandProviderMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -529,13 +524,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Expect (mock => mock.DefineConstructor (expectedAttributes, CallingConventions.HasThis, expectedParameterTypes))
           .Return (constructorBuilderMock);
-      var emittableOperandStub = MockRepository.GenerateStub<IEmittableOperand> ();
-      constructorBuilderMock.Expect (mock => mock.GetEmittableOperand ()).Return (emittableOperandStub);
-
+      constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, definedConstructor));
       _expressionPreparerMock
           .Expect (mock => mock.PrepareConstructorBody (definedConstructor))
-          .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableConstructor (definedConstructor), Is.SameAs (emittableOperandStub)));
+          .Return (_fakeBody);
 
       parameterDefinitionExpectationAction (constructorBuilderMock);
 
@@ -561,16 +553,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
           .Return (methodBuilderMock);
-      var emittableMethodOperand = MockRepository.GenerateStrictMock<IEmittableMethodOperand>();
-      methodBuilderMock.Expect (mock => mock.GetEmittableOperand()).Return (emittableMethodOperand);
+      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, definedMethod));
 
       if (expectOverride)
         methodBuilderMock.Expect (mock => mock.DefineOverride (overriddenMethod));
 
-      _expressionPreparerMock
-          .Expect (mock => mock.PrepareMethodBody (definedMethod))
-          .Return (_fakeBody)
-          .WhenCalled (mi => Assert.That (_emittableOperandProvider.GetEmittableMethod (definedMethod), Is.SameAs (emittableMethodOperand)));
+      _expressionPreparerMock.Expect (mock => mock.PrepareMethodBody (definedMethod)).Return (_fakeBody);
 
       parameterDefinitionExpectationAction (methodBuilderMock);
 
@@ -588,9 +576,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Stub (mock => mock.DefineConstructor (Arg<MethodAttributes>.Is.Anything, Arg<CallingConventions>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (constructorBuilderMock);
-      var emittableOperand = MockRepository.GenerateStub<IEmittableOperand> ();
-      constructorBuilderMock.Expect (mock => mock.GetEmittableOperand ()).Return (emittableOperand);
-
+      constructorBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, constructor));
+      
       _expressionPreparerMock.Stub (mock => mock.PrepareConstructorBody (constructor)).Return (_fakeBody);
 
       Assert.That (GetBuildActions (_builder), Has.Count.EqualTo (0));
@@ -607,8 +594,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Stub (mock => mock.DefineMethod (Arg<string>.Is.Anything, Arg<MethodAttributes>.Is.Anything, Arg<Type>.Is.Anything, Arg<Type[]>.Is.Anything))
           .Return (methodBuilderMock);
-      var emittableMethodOperand = MockRepository.GenerateStub<IEmittableMethodOperand> ();
-      methodBuilderMock.Expect (mock => mock.GetEmittableOperand ()).Return (emittableMethodOperand);
+      methodBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       _expressionPreparerMock.Stub (mock => mock.PrepareMethodBody (method)).Return (_fakeBody);
 

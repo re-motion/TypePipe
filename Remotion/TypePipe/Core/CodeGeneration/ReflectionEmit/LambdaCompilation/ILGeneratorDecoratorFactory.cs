@@ -26,10 +26,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratorDecoratorFactory : IILGeneratorFactory
   {
     private readonly IILGeneratorFactory _innerFactory;
-    private readonly EmittableOperandProvider _emittableOperandProvider;
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
-    public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory, EmittableOperandProvider emittableOperandProvider)
+    public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("innerFactory", innerFactory);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
@@ -44,7 +44,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _innerFactory; }
     }
 
-    public EmittableOperandProvider EmittableOperandProvider
+    // TODO 4813: Remove
+    [CLSCompliant (false)]
+    public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }
     }

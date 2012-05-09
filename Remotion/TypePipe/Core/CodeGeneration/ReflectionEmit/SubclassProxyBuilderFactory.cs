@@ -78,12 +78,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           mutableType.UnderlyingSystemType,
           mutableType.AddedInterfaces.ToArray());
 
-      var reflectionToBuilderMap = new EmittableOperandProvider ();
-      reflectionToBuilderMap.AddMapping (mutableType, typeBuilder.GetEmittableOperand());
+      var emittableOperandProvider = new EmittableOperandProvider ();
+      typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
 
-      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), reflectionToBuilderMap);
+      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), emittableOperandProvider);
 
-      return new SubclassProxyBuilder (typeBuilder, _expressionPreparer, reflectionToBuilderMap, ilGeneratorFactory, _debugInfoGenerator);
+      return new SubclassProxyBuilder (typeBuilder, _expressionPreparer, emittableOperandProvider, ilGeneratorFactory, _debugInfoGenerator);
     }
   }
 }

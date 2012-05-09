@@ -44,6 +44,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _constructorBuilder; }
     }
 
+    // TODO 4813
+    [CLSCompliant (false)]
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ConstructorInfo constructor)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      emittableOperandProvider.AddMapping (constructor, new EmittableConstructor (_constructorBuilder));
+    }
+
     public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
       _constructorBuilder.DefineParameter (iSequence, attributes, strParamName);
@@ -60,19 +70,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
-    }
-
-    [CLSCompliant (false)]
-    public IEmittableOperand GetEmittableOperand ()
-    {
-      return new EmittableConstructor (_constructorBuilder);
-    }
-
-    public void Register (EmittableOperandProvider emittableOperandProvider)
-    {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-
-      emittableOperandProvider.AddMapping (_constructorBuilder, new EmittableConstructor (_constructorBuilder));
     }
   }
 }
