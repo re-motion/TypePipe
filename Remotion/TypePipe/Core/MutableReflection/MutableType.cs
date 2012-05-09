@@ -351,6 +351,12 @@ namespace Remotion.TypePipe.MutableReflection
       CheckHierarchy (overriddenMethod, "Cannot add override for unrelated method.", "overriddenMethod");
       CheckHierarchy (overridingMethod, "Cannot add override by unrelated method.", "overridingMethod");
 
+      if (_addedExplicitOverrides.ContainsKey (overriddenMethod))
+      {
+        var message = string.Format ("Method '{0}.{1}' is already overridden.", overridingMethod.DeclaringType.Name, overriddenMethod.Name);
+        throw new ArgumentException (message, "overriddenMethod");
+      }
+
       _addedExplicitOverrides.Add (overriddenMethod, overridingMethod);
     }
 

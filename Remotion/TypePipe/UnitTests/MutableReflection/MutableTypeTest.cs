@@ -800,6 +800,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddExplicitOverride_MethodAlreadyOverridden ()
+    {
+      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
+      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+
+      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
+      Assert.That (
+          () => _mutableType.AddExplicitOverride (overriddenMethod, overriddenMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Method 'Object.ToString' is already overridden.\r\nParameter name: overriddenMethod"));
+    }
+
+    [Test]
     public void Accept_WithAddedAndUnmodifiedExistingMembers ()
     {
       Assert.That (_mutableType.GetInterfaces(), Has.Length.EqualTo (1));
