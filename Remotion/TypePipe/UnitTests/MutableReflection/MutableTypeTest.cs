@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var methods = _descriptor.Methods;
       Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
-      var expectedMethod = methods.Single (m => m.Name == "PublicMethod");
+      var expectedMethod = methods.Single (m => m.Name == "VirtualMethod");
 
       Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo (1));
       var mutableMethod = _mutableType.ExistingMutableMethods.Single();
@@ -580,15 +580,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method 'PublicMethod' with equal signature already exists.\r\nParameter name: name")]
+        "Method 'VirtualMethod' with equal signature already exists.\r\nParameter name: name")]
     public void AddMethod_ThrowsIfAlreadyExists ()
     {
-      var method = _mutableType.ExistingMutableMethods.Single (m => m.Name == "PublicMethod");
+      var method = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
       Assert.That (method, Is.Not.Null);
-      Assert.That (method.ReturnType, Is.SameAs (typeof (void)));
       Assert.That (method.GetParameters(), Is.Empty);
 
-      _mutableType.AddMethod ("PublicMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+      _mutableType.AddMethod (method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
     }
 
     [Test]
@@ -709,7 +708,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableMethod ()
     {
-      var existingMethod = _descriptor.Methods.Single (m => m.Name == "PublicMethod");
+      var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
       Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo>());
 
       var result = _mutableType.GetMutableMethod (existingMethod);
@@ -747,7 +746,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddExplicitOverride_InvalidHierarchy ()
     {
-      // TODO 4813
+      var methodInHierarchy = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      var unrelatedMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((UnrelatedType obj) => obj.VirtualMethod());
+
+      _relatedMethodFinderMock.Expect (mock => mock.IsSameHierarchy (_mutableType, typeof (DomainType))).Return (true).Repeat.Twice();
+      _relatedMethodFinderMock.Expect (mock => mock.IsSameHierarchy (_mutableType, typeof (UnrelatedType))).Return (false).Repeat.Twice();
+
+      Assert.That (
+          () => _mutableType.AddExplicitOverride (unrelatedMethod, methodInHierarchy),
+          Throws.ArgumentException.With.Message.EqualTo ("Cannot add override for unrelated method.\r\nParameter name: overriddenMethod"));
+      Assert.That (
+          () => _mutableType.AddExplicitOverride (methodInHierarchy, unrelatedMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Cannot add override by unrelated method.\r\nParameter name: overridingMethod"));
     }
 
     [Test]
@@ -1142,9 +1152,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         ProtectedField = Dev<int>.Null;
       }
 
-      public virtual void PublicMethod ()
-      {
-      }
+      public virtual void VirtualMethod () { }
     }
 
     public interface IDomainInterface
@@ -1157,6 +1165,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private interface Imyinterface
     {
+    }
+
+    private class UnrelatedType
+    {
+      public virtual void VirtualMethod () { }
     }
   }
 }

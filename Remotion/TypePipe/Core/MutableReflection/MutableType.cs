@@ -337,8 +337,8 @@ namespace Remotion.TypePipe.MutableReflection
       CheckVirtual (overriddenMethod, "overriddenMethod");
       CheckVirtual (overridingMethod, "overridingMethod");
       CheckSignature (overriddenMethod, overridingMethod);
-
-
+      CheckHierarchy (overriddenMethod, "Cannot add override for unrelated method.", "overriddenMethod");
+      CheckHierarchy (overridingMethod, "Cannot add override by unrelated method.", "overridingMethod");
 
     }
 
@@ -445,6 +445,12 @@ namespace Remotion.TypePipe.MutableReflection
       return baseMethod;
     }
 
+    private void CheckVirtual (MethodInfo method, string parameterName)
+    {
+      if (!method.IsVirtual)
+        throw new ArgumentException ("Method must be virtual.", parameterName);
+    }
+
     private void CheckSignature (MethodInfo overriddenMethod, MethodInfo overridingMethod)
     {
       var overriddenSignature = MethodSignature.Create (overriddenMethod);
@@ -458,10 +464,10 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
-    private void CheckVirtual (MethodInfo method, string parameterName)
+    private void CheckHierarchy (MethodInfo method, string message, string parameterName)
     {
-      if (!method.IsVirtual)
-        throw new ArgumentException ("Method must be virtual.", parameterName);
+      if (!_relatedMethodFinder.IsSameHierarchy (this, method.DeclaringType))
+        throw new ArgumentException (message, parameterName);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
