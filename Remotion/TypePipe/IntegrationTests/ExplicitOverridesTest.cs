@@ -41,21 +41,21 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.False);
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden"));
                 });
-            //mutableType.AddExplicitOverride (overriddenMethod, mutableMethodInfo);
-            //Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (mutableMethodInfo));
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
-            Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (mutableMethodInfo));
+            mutableType.AddExplicitOverride (overriddenMethod, mutableMethodInfo);
+            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (mutableMethodInfo));
+            Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
+            Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.EqualTo (mutableMethodInfo));
 
-            //mutableMethodInfo.SetBody (ctx =>
-            //{
-            //  Assert.That (ctx.HasBaseMethod, Is.False);
-            //  Assert.That (() => ctx.BaseMethod, Throws.TypeOf<NotSupportedException>());
-            //  return ctx.GetPreviousBody(); 
-            //});
+            mutableMethodInfo.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  Assert.That (() => ctx.BaseMethod, Throws.TypeOf<NotSupportedException>());
+                  return ctx.GetPreviousBody();
+                });
           });
 
       A instance = (B) Activator.CreateInstance (type);
@@ -63,11 +63,11 @@ namespace TypePipe.IntegrationTests
 
       // Reflection doesn't handle explicit overrides in GetBaseDefinition.
       // If this changes, MutableMethodInfo.GetBaseDefinition() must be changed as well.
-      Assert.That (method.GetBaseDefinition (), Is.EqualTo (method));
+      Assert.That (method.GetBaseDefinition(), Is.EqualTo (method));
 
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("A explicitly overridden"));
-      Assert.That (instance.OverridableMethod (), Is.EqualTo ("A explicitly overridden"));
+      Assert.That (instance.OverridableMethod(), Is.EqualTo ("A explicitly overridden"));
     }
 
     [Test]
@@ -85,14 +85,13 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.False);
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden"));
                 });
-            //mutableType.AddExplicitOverride (overriddenMethod, mutableMethodInfo);
-            //mutableType.AddExplicitOverride (otherOverriddenMetod, mutableMethodInfo);
-            //Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (mutableMethodInfo));
-            //Assert.That (mutableType.AddedExplicitOverrides[otherOverriddenMetod], Is.SameAs (mutableMethodInfo));
+            mutableType.AddExplicitOverride (overriddenMethod, mutableMethodInfo);
+            mutableType.AddExplicitOverride (otherOverriddenMetod, mutableMethodInfo);
+            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (mutableMethodInfo));
+            Assert.That (mutableType.AddedExplicitOverrides[otherOverriddenMetod], Is.SameAs (mutableMethodInfo));
           });
 
       A instance = (B) Activator.CreateInstance (type);
@@ -112,8 +111,8 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var overridingMethod = mutableType.ExistingMutableMethods.Single(m => m.Name == "UnrelatedMethod");
-            //mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-            //Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
+            mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
+            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
           });
 
       A instance = (B) Activator.CreateInstance (type);
@@ -130,8 +129,8 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<C> (
           mutableType =>
           {
-            //mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-            //Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
+            mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
+            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
           });
 
       A instance = (C) Activator.CreateInstance (type);
@@ -149,8 +148,8 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<C> (
           mutableType =>
           {
-            //mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-            //Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
+            mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
+            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
           });
 
       B instance = (C) Activator.CreateInstance (type);
@@ -167,17 +166,16 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<B> (
           mutableType =>
           {
-            var overrideForShadowingMethod = mutableType.AddMethod (
+            mutableType.AddMethod (
                 "MethodShadowedByB",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.True);
-                  //Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenShadowingMethod));
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" implicitly overridden"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenShadowingMethod));
+                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" implicitly overridden"));
                 });
             var overrideForShadowedMethod = mutableType.AddMethod (
                 "DifferentName",
@@ -186,11 +184,10 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.False);
-                  //return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenShadowedMethod), Expression.Constant (" explicitly overridden"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenShadowedMethod), Expression.Constant (" explicitly overridden"));
                 });
-            //mutableType.AddExplicitOverride (overriddenShadowedMethod, overrideForShadowedMethod);
+            mutableType.AddExplicitOverride (overriddenShadowedMethod, overrideForShadowedMethod);
           });
 
       var instance = (C) Activator.CreateInstance (type);
