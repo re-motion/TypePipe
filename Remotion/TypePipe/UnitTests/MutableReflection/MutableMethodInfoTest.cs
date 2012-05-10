@@ -125,12 +125,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsModified_True ()
+    public void IsModified_True_Body ()
     {
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnType);
       _mutableMethod.SetBody (ctx => fakeBody);
 
       Assert.That (_mutableMethod.IsModified, Is.True);
+    }
+
+    [Test]
+    public void IsModified_True_ExplicitBaseDefinition ()
+    {
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+
+      Assert.That (_existingVirtualMethod.IsModified, Is.True);
     }
 
     [Test]
@@ -525,7 +534,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public virtual void VirtualMethod () { }
       public virtual void VirtualMethod2 () { }
-      public virtual void VirtualMethodWithDifferentSignature (int i) { }
+      public virtual void VirtualMethodWithDifferentSignature (int i) { Dev.Null = i; }
       public void NonVirtualMethod () { }
 
       public override void OverridingMethod () { }

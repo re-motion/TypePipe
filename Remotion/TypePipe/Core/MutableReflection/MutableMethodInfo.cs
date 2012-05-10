@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _body != _underlyingMethodInfoDescriptor.Body; }
+      get { return _body != _underlyingMethodInfoDescriptor.Body || _addedExplicitBaseDefinitions.Count > 0; }
     }
 
     public override string Name
