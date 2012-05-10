@@ -35,6 +35,9 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class TypeAssemblerIntegrationTestBase
   {
+    private const BindingFlags c_allDeclared =
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+
     private AssemblyBuilder _assemblyBuilder;
     private bool _shouldDeleteGeneratedFiles;
     private string _generatedFileName;
@@ -98,16 +101,14 @@ namespace TypePipe.IntegrationTests
 
     protected MethodInfo GetDeclaredMethod (Type type, string name)
     {
-      var method = type.GetMethod (name, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+      var method = type.GetMethod (name, c_allDeclared);
       Assert.That (method, Is.Not.Null);
       return method;
     }
 
     protected MethodInfo GetModifiedMethod (Type type, string name)
     {
-      var method = type
-          .GetMethods (BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic)
-          .SingleOrDefault (m => m.Name.EndsWith (name));
+      var method = type.GetMethods (c_allDeclared).SingleOrDefault (m => m.Name.EndsWith (name));
       Assert.That (method, Is.Not.Null);
       return method;
     }

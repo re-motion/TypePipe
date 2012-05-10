@@ -196,6 +196,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (((A) instance).MethodShadowedByB (), Is.EqualTo ("A explicitly overriden"));
     }
 
+// ReSharper disable VirtualMemberNeverOverriden.Global
     public class A
     {
       public virtual string OverridableMethod ()
@@ -230,6 +231,6 @@ namespace TypePipe.IntegrationTests
     public class C : B
     {
     }
-
+// ReSharper restore VirtualMemberNeverOverriden.Global
   }
 }
