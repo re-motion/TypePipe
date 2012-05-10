@@ -1,0 +1,47 @@
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
+// 
+using System;
+using System.Collections.Generic;
+
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+{
+  /// <summary>
+  /// Manages a list of actions that are to be executed at a later point of time.
+  /// </summary>
+  public class DeferredActionManager
+  {
+    private readonly List<Action> _deferredActions = new List<Action>();
+
+    public IEnumerable<Action> Actions
+    {
+      get { return _deferredActions; }
+    }
+
+    public void AddAction (Action action)
+    {
+      _deferredActions.Add (action);
+    }
+
+    public void ExecuteAllActions ()
+    {
+      foreach (var deferredAction in _deferredActions)
+      {
+        deferredAction();
+      }
+    }
+  }
+}

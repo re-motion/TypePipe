@@ -79,15 +79,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var builder = (SubclassProxyBuilder) result;
 
       Assert.That (builder.TypeBuilder, Is.SameAs (typeBuilderMock));
-      Assert.That (builder.ExpressionPreparer, Is.SameAs (_expressionPreparer));
-      Assert.That (builder.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
-
-      Assert.That (builder.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
-      var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) builder.ILGeneratorFactory;
-      Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
-      Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (builder.EmittableOperandProvider));
-
       Assert.That (builder.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+      Assert.That (builder.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+      Assert.That (builder.MemberEmitter, Is.TypeOf<MemberEmitter>());
+      var memberEmitter = ((MemberEmitter) builder.MemberEmitter);
+
+      Assert.That (memberEmitter.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer>());
+      Assert.That (memberEmitter.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
+      var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) memberEmitter.ILGeneratorFactory;
+
+      Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
+      Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
     }
   }
 }

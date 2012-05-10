@@ -15,14 +15,9 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
@@ -36,33 +31,29 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
     private readonly ITypeBuilder _typeBuilder;
-    private readonly IExpressionPreparer _expressionPreparer;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
-    private readonly IILGeneratorFactory _ilGeneratorFactory;
     private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
+    private readonly IMemberEmitter _memberEmitter;
 
-    private readonly List<Action> _buildActions = new List<Action>();
+    private readonly DeferredActionManager _postDeclarationsActions = new DeferredActionManager();
 
     private bool _hasBeenBuilt = false;
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
         ITypeBuilder typeBuilder,
-        IExpressionPreparer expressionPreparer,
+        DebugInfoGenerator debugInfoGeneratorOrNull, 
         IEmittableOperandProvider emittableOperandProvider,
-        IILGeneratorFactory ilGeneratorFactory,
-        DebugInfoGenerator debugInfoGeneratorOrNull)
+        IMemberEmitter memberEmitter)
     {
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-      ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
       _typeBuilder = typeBuilder;
-      _expressionPreparer = expressionPreparer;
-      _emittableOperandProvider = emittableOperandProvider;
-      _ilGeneratorFactory = ilGeneratorFactory;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
+      _emittableOperandProvider = emittableOperandProvider;
+      _memberEmitter = memberEmitter;
     }
 
     [CLSCompliant (false)]
@@ -71,9 +62,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _typeBuilder; }
     }
 
-    public IExpressionPreparer ExpressionPreparer
+    public DebugInfoGenerator DebugInfoGenerator
     {
-      get { return _expressionPreparer; }
+      get { return _debugInfoGenerator; }
     }
 
     public IEmittableOperandProvider EmittableOperandProvider
@@ -82,14 +73,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public IILGeneratorFactory ILGeneratorFactory
+    public IMemberEmitter MemberEmitter
     {
-      get { return _ilGeneratorFactory; }
-    }
-
-    public DebugInfoGenerator DebugInfoGenerator
-    {
-      get { return _debugInfoGenerator; }
+      get { return _memberEmitter; }
     }
 
     public void HandleAddedInterface (Type addedInterface)
@@ -106,25 +92,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (field, "field", isNew: true, isModified: null);
 
-      var fieldBuilder = _typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
-      fieldBuilder.RegisterWith (_emittableOperandProvider, field);
-
-      foreach (var declaration in field.AddedCustomAttributeDeclarations)
-      {
-        var propertyArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property);
-        var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field);
-
-        var customAttributeBuilder = new CustomAttributeBuilder (
-            declaration.AttributeConstructorInfo, 
-            declaration.ConstructorArguments,
-            propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray(),
-            propertyArguments.Select (namedArg => namedArg.Value).ToArray(),
-            fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray(),
-            fieldArguments.Select (namedArg => namedArg.Value).ToArray()
-            );
-
-        fieldBuilder.SetCustomAttribute (customAttributeBuilder);
-      }
+      _memberEmitter.AddField (_typeBuilder, _emittableOperandProvider, field);
     }
 
     public void HandleAddedConstructor (MutableConstructorInfo constructor)
@@ -133,7 +101,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
-      AddConstructor (constructor);
+      _memberEmitter.AddConstructor (_typeBuilder, _debugInfoGenerator, _emittableOperandProvider,_postDeclarationsActions, constructor);
     }
 
     public void HandleAddedMethod (MutableMethodInfo method)
@@ -142,7 +110,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
-      AddMethod (method, method.Name, method.Attributes);
+      _memberEmitter.AddMethod (
+          _typeBuilder, _debugInfoGenerator, _emittableOperandProvider, _postDeclarationsActions, method, method.Name, method.Attributes);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo constructor)
@@ -151,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
-      AddConstructor (constructor);
+      _memberEmitter.AddConstructor (_typeBuilder, _debugInfoGenerator, _emittableOperandProvider, _postDeclarationsActions, constructor);
     }
 
     public void HandleModifiedMethod (MutableMethodInfo method)
@@ -163,8 +132,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Modified methods are added as explicit method overrides for the underlying method
       var explicitMethodOverrideName = method.DeclaringType.FullName + "." + method.Name;
       var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (method.Attributes, MethodAttributes.Private);
-      
-      AddMethod (method, explicitMethodOverrideName, explicitMethodOverrideAttributes);
+
+      _memberEmitter.AddMethod (
+          _typeBuilder,
+          _debugInfoGenerator,
+          _emittableOperandProvider,
+          _postDeclarationsActions,
+          method,
+          explicitMethodOverrideName,
+          explicitMethodOverrideAttributes);
       
       var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
       _typeBuilder.DefineMethodOverride (emittableMethod, method.UnderlyingSystemMethodInfo);
@@ -187,7 +163,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-        AddConstructor (constructor);
+        _memberEmitter.AddConstructor (_typeBuilder, _debugInfoGenerator, _emittableOperandProvider, _postDeclarationsActions, constructor);
     }
 
     public void HandleUnmodifiedMethod (MutableMethodInfo method)
@@ -206,9 +182,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       
       _hasBeenBuilt = true;
 
-      foreach (var action in _buildActions)
-        action();
-
+      _postDeclarationsActions.ExecuteAllActions();
       return _typeBuilder.CreateType();
     }
 
@@ -227,63 +201,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var message = string.Format ("The supplied {0} must be a {1}{2} {0}.", memberType, modifiedOrUnmodifiedOrEmpty, newOrExisting);
         throw new ArgumentException (message, memberType);
       }
-    }
-    
-    private Type[] GetParameterTypes (MethodBase methodBase)
-    {
-      return methodBase.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
-    }
-
-    private void DefineParameters (IMethodBaseBuilder methodBuilder, ParameterInfo[] parameterInfos)
-    {
-      foreach (var parameterInfo in parameterInfos)
-        methodBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
-    }
-
-    private void AddConstructor (MutableConstructorInfo constructor)
-    {
-      var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
-      ctorBuilder.RegisterWith (_emittableOperandProvider, constructor);
-
-      DefineParameters (ctorBuilder, constructor.GetParameters ());
-
-      var body = _expressionPreparer.PrepareConstructorBody (constructor);
-      RegisterBodyBuildAction (ctorBuilder, constructor.ParameterExpressions, body);
-    }
-
-    private void AddMethod (MutableMethodInfo method, string name, MethodAttributes attributes)
-    {
-      var parameterTypes = GetParameterTypes (method);
-      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
-      methodBuilder.RegisterWith (_emittableOperandProvider, method);
-
-      DefineParameters (methodBuilder, method.GetParameters ());
-
-      var body = _expressionPreparer.PrepareMethodBody (method);
-      RegisterBodyBuildAction (methodBuilder, method.ParameterExpressions, body);
-      RegisterExplicitOverrideBuildAction (method);
-    }
-
-    private void RegisterBodyBuildAction (IMethodBaseBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
-    {
-      var bodyLambda = Expression.Lambda (body, parameterExpressions);
-
-      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
-      _buildActions.Add (() => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
-    }
-
-    private void RegisterExplicitOverrideBuildAction (MutableMethodInfo overridingMethod)
-    {
-      _buildActions.Add (() =>
-      {
-        var emittableOverridingMethod = _emittableOperandProvider.GetEmittableMethod (overridingMethod);
-        foreach (var overriddenMethod in overridingMethod.AddedExplicitBaseDefinitions)
-        {
-          var emittableOverriddenMethod = _emittableOperandProvider.GetEmittableMethod (overriddenMethod);
-          _typeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
-        }
-      });
     }
   }
 }
