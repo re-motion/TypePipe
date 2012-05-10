@@ -185,7 +185,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
 
-      // TODO 4695 
       if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
         AddConstructor (constructor);
@@ -243,9 +242,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void AddConstructor (MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt ();
-
       var parameterTypes = GetParameterTypes (constructor);
       var ctorBuilder = _typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
       ctorBuilder.RegisterWith (_emittableOperandProvider, constructor);
@@ -266,6 +262,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var body = _expressionPreparer.PrepareMethodBody (method);
       RegisterBodyBuildAction (methodBuilder, method.ParameterExpressions, body);
+      RegisterExplicitOverrideBuildAction (method);
     }
 
     private void RegisterBodyBuildAction (IMethodBaseBuilder methodBuilder, IEnumerable<ParameterExpression> parameterExpressions, Expression body)
@@ -274,6 +271,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
       _buildActions.Add (() => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, _debugInfoGenerator));
+    }
+
+    private void RegisterExplicitOverrideBuildAction (MutableMethodInfo overridingMethod)
+    {
+      _buildActions.Add (() =>
+      {
+        var emittableOverridingMethod = _emittableOperandProvider.GetEmittableMethod (overridingMethod);
+        foreach (var overriddenMethod in overridingMethod.AddedExplicitBaseDefinitions)
+        {
+          var emittableOverriddenMethod = _emittableOperandProvider.GetEmittableMethod (overriddenMethod);
+          _typeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
+        }
+      });
     }
   }
 }
