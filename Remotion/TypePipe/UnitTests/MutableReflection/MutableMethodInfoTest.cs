@@ -34,14 +34,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private UnderlyingMethodInfoDescriptor _descriptor;
     private MutableMethodInfo _mutableMethod;
+    private MutableMethodInfo _newNonVirtualMethod;
+    private MutableMethodInfo _newFinalMethod;
+    private MutableMethodInfo _newVirtualMethod;
+
+    private MutableMethodInfo _existingNonVirtualMethod;
+    private MutableMethodInfo _existingFinalMethod;
+    private MutableMethodInfo _existingVirtualMethod;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
+      _declaringType = MutableTypeObjectMother.Create(UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainType)));
 
       _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
       _mutableMethod = Create(_descriptor);
+
+      _newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
+      _newFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual | MethodAttributes.Final));
+      _newVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
+
+      var nonVirtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
+      _existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
+
+      var finalUnderlyingMethod = typeof (DomainType).GetMethod ("FinalMethod");
+      _existingFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
+
+      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+      _existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
     }
 
     [Test]
@@ -156,9 +176,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseDifinition ()
+    public void GetBaseDefinition ()
     {
-      var baseMethod = typeof (B).GetMethod ("OverridingMethod");
+      var baseMethod = typeof (DomainType).GetMethod ("OverridingMethod");
       var rootDefinition = baseMethod.GetBaseDefinition ();
       Assert.That (rootDefinition, Is.Not.EqualTo (baseMethod));
 
@@ -212,29 +232,77 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CanAddExplicitBaseDefinition ()
+    {
+      Assert.That (_newNonVirtualMethod.CanAddExplicitBaseDefinition, Is.False);
+      Assert.That (_newFinalMethod.CanAddExplicitBaseDefinition, Is.True);
+      Assert.That (_newVirtualMethod.CanAddExplicitBaseDefinition, Is.True);
+
+      Assert.That (_existingNonVirtualMethod.CanAddExplicitBaseDefinition, Is.False);
+      Assert.That (_existingFinalMethod.CanAddExplicitBaseDefinition, Is.False);
+
+      Assert.That (_existingVirtualMethod.CanAddExplicitBaseDefinition, Is.True);
+    }
+
+    [Test]
     public void CanSetBody ()
     {
-      var newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
-      var newFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
-        attributes: MethodAttributes.Virtual | MethodAttributes.Final));
-      var newVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
+      Assert.That (_newNonVirtualMethod.CanSetBody, Is.True);
+      Assert.That (_newFinalMethod.CanSetBody, Is.True);
+      Assert.That (_newVirtualMethod.CanSetBody, Is.True);
 
-      var nonVirtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
-      var existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
-      var finalUnderlyingMethod = typeof (B).GetMethod ("FinalMethod");
-      var existingFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
+      Assert.That (_existingNonVirtualMethod.CanSetBody, Is.False);
+      Assert.That (_existingFinalMethod.CanSetBody, Is.False);
 
-      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
-      var existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
+      Assert.That (_existingVirtualMethod.CanSetBody, Is.True);
+    }
 
-      Assert.That (newNonVirtualMethod.CanSetBody, Is.True);
-      Assert.That (newFinalMethod.CanSetBody, Is.True);
-      Assert.That (newVirtualMethod.CanSetBody, Is.True);
+    [Test]
+    public void AddExplicitBaseDefinition ()
+    {
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
 
-      Assert.That (existingNonVirtualMethod.CanSetBody, Is.False);
-      Assert.That (existingFinalMethod.CanSetBody, Is.False);
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
 
-      Assert.That (existingVirtualMethod.CanSetBody, Is.True);
+      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { overriddenMethodDefinition }));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "Cannot add an explicit base definition to the non-virtual or existing final method 'NonVirtualMethod'.")]
+    public void AddExplicitBaseDefinition_CannotAddExplicitBaseDefinition ()
+    {
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+
+      _existingNonVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
+        "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)\r\n"
+        + "Parameter name: overriddenMethodBaseDefinition")]
+    public void AddExplicitBaseDefinition_NoRootMethod ()
+    {
+      var nonBaseDefinitionMethod = typeof (DomainType).GetMethod ("OverridingMethod");
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (nonBaseDefinitionMethod);
+    }
+
+    [Test]
+    public void AddExplicitBaseDefinition_TwiceWithSameMethod ()
+    {
+      var overriddenMethodDefinition1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+      var overriddenMethodDefinition2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod2 ());
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition1);
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition2);
+      Assert.That (
+          () => _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition2),
+          Throws.InvalidOperationException.With.Message.EqualTo ("The given method has already been added to the list of explicit base definitions."));
+
+      Assert.That (
+          _existingVirtualMethod.AddedExplicitBaseDefinitions,
+          Is.EquivalentTo (new[] { overriddenMethodDefinition1, overriddenMethodDefinition2 }));
     }
 
     [Test]
@@ -272,7 +340,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The body of the existing non-virtual or final method 'NonVirtualMethod' cannot be replaced.")]
-    public void SetBody_NonVirtualMethod ()
+    public void SetBody_CannotSetBody ()
     {
       var nonVirtualMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
@@ -287,23 +355,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       mutableMethod.SetBody (bodyProvider);
     }
 
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The body of the existing non-virtual or final method 'FinalMethod' cannot be replaced.")]
-    public void SetBody_FinalMethod ()
-    {
-      var finalMethod = typeof (B).GetMethod ("FinalMethod");
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalMethod);
-      var mutableMethod = Create (descriptor);
-
-      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
-      {
-        Assert.Fail ("Should not be called.");
-        throw new NotImplementedException ();
-      };
-
-      mutableMethod.SetBody (bodyProvider);
-    }
 
     [Test]
     public void ToString_WithParameters ()
@@ -377,21 +428,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void VirtualMethodsImplementedByMethodInfo ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForExisting (
-          originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod()));
-
       // None of these members should throw an exception 
-      Dev.Null = method.MemberType;
+      Dev.Null = _mutableMethod.MemberType;
     }
 
     [Test]
     public void UnsupportedMembers ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForExisting (
-          originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ()));
-
-      CheckThrowsNotSupported (() => Dev.Null = method.MetadataToken, "Property", "MetadataToken");
-      CheckThrowsNotSupported (() => Dev.Null = method.Module, "Property", "Module");
+      CheckThrowsNotSupported (() => Dev.Null = _mutableMethod.MetadataToken, "Property", "MetadataToken");
+      CheckThrowsNotSupported (() => Dev.Null = _mutableMethod.Module, "Property", "Module");
     }
 
     private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
@@ -411,20 +456,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableMethodInfo (_declaringType, descriptor);
     }
 
-    public class DomainType
-    {
-      public virtual void VirtualMethod () { }
-      public void NonVirtualMethod () { }
-    }
-
-    public class A
+    public class DomainTypeBase
     {
       public virtual void OverridingMethod () { }
       public virtual void FinalMethod () { }
     }
 
-    public class B : A
+    public class DomainType : DomainTypeBase
     {
+      public virtual void VirtualMethod () { }
+      public virtual void VirtualMethod2 () { }
+      public void NonVirtualMethod () { }
+
       public override void OverridingMethod () { }
       public sealed override void FinalMethod () { }
     }

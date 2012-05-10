@@ -38,6 +38,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly UnderlyingMethodInfoDescriptor _underlyingMethodInfoDescriptor;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
+    private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
+
     private Expression _body;
 
     public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor)
@@ -111,7 +113,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </summary>
     public ReadOnlyCollectionDecorator<MethodInfo> AddedExplicitBaseDefinitions 
     { 
-      get { throw new NotImplementedException ("TODO 4813"); } 
+      get { return _addedExplicitBaseDefinitions.AsReadOnly(); } 
     }
 
     public override bool IsGenericMethod
@@ -139,6 +141,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body; }
     }
 
+    public bool CanAddExplicitBaseDefinition
+    {
+      // TODO 4695; Note that IsVirtual must always be checked here - this is not caused by the Reflection.Emit code generator, but by the CLI rules.
+      get { return IsVirtual && (IsNew || !IsFinal); }
+    }
+
     public bool CanSetBody
     {
       // TODO 4695
@@ -162,23 +170,25 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
 
-      // TODO 4813
-      //if (overriddenMethodBaseDefinition.GetBaseDefinition() != overriddenMethodBaseDefinition)
-      //  throw new ArgumentException ("Bla");
+      if (!CanAddExplicitBaseDefinition)
+      {
+        var message = string.Format ("Cannot add an explicit base definition to the non-virtual or existing final method '{0}'.", Name);
+        throw new NotSupportedException (message);
+      }
 
-      // TODO 4813
-      //if (!CanAddExplicitBaseDefinition)
-      //{
-      //  // TODO 4695
-      //  var message = string.Format ("Cannot add an explicit base definition to the existing non-virtual or final method '{0}'.", Name);
-      //  throw new NotSupportedException (message);
-      //}
+      if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)
+      {
+        throw new ArgumentException (
+            "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",
+            "overriddenMethodBaseDefinition");
+      }
 
-      // TODO 4813
-      // if (_addedExplicitBaseDefinitions.Contains (overriddenMethodBaseDefinition))
-      //   throw new InvalidOperationException ("The given method has already been added to the list of explicit base definitions.");
+      if (_addedExplicitBaseDefinitions.Contains (overriddenMethodBaseDefinition))
+        throw new InvalidOperationException ("The given method has already been added to the list of explicit base definitions.");
 
-      throw new NotImplementedException ("TODO 4813");
+      // TODO 4813: Hierarchy check, virtual check on overriddeMethodBaseDefinition, signature check
+
+      _addedExplicitBaseDefinitions.Add (overriddenMethodBaseDefinition);
     }
 
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
