@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 4813")]
   public class ExplicitOverridesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]

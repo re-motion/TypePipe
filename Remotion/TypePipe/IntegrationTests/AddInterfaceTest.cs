@@ -36,7 +36,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore("TODO 4813")]
     public void AddMethodAsExplicitInterfaceImplementation ()
     {
       var interfaceMethod = GetDeclaredMethod (typeof (IInterfaceWithMethod), "Method");
@@ -51,13 +50,12 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
-                  //Assert.That (ctx.HasBaseMethod, Is.False);
-                  //return ExpressionHelper.StringConcat (Expression.Constant ("explicitly implemented"));
-                  return Expression.Default (typeof (string));
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return Expression.Constant ("explicitly implemented");
                 });
-            //mutableType.AddExplicitOverride (interfaceMethod, mutableMethodInfo);
-            //Assert.That (mutableType.AddedExplicitOverrides[interfaceMethod], Is.SameAs (mutableMethodInfo));
-            //Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
+            mutableMethodInfo.AddExplicitBaseDefinition (interfaceMethod);
+            Assert.That (mutableMethodInfo.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
+            Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (mutableMethodInfo));
           });
 
