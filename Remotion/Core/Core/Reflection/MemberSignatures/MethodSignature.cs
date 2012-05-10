@@ -56,6 +56,14 @@ namespace Remotion.Reflection.MemberSignatures
       return new MethodSignature (returnType, parameterTypes, genericParameterCount);
     }
 
+    public static bool AreEqual (MethodBase method1, MethodBase method2)
+    {
+      ArgumentUtility.CheckNotNull ("method1", method1);
+      ArgumentUtility.CheckNotNull ("method2", method2);
+
+      return Create (method1).Equals (Create (method2));
+    }
+
     private static Type GetReturnType (MethodBase methodBase)
     {
       var methodInfo = methodBase as MethodInfo;

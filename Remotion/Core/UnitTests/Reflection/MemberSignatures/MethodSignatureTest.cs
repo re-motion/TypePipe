@@ -92,6 +92,13 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     }
 
     [Test]
+    public void AreEqual ()
+    {
+      Assert.That (MethodSignature.AreEqual (_genericMethod1, _genericMethod2), Is.True);
+      Assert.That (MethodSignature.AreEqual (_genericMethod1, _genericMethod3), Is.False);
+    }
+
+    [Test]
     public void Equals_True ()
     {
       var signature1 = new MethodSignature (typeof (int), new[] { typeof (double), typeof (string) }, 12);
