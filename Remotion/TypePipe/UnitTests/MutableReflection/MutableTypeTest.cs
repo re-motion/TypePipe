@@ -925,7 +925,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Accept_ModificationHandler_WitModifiedMethod ()
+    public void Accept_ModificationHandler_WithModifiedMethod ()
     {
       Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
       var modifiedExistingMethodInfo = _mutableType.ExistingMutableMethods.Single();
