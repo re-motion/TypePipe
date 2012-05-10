@@ -46,6 +46,7 @@ namespace TypePipe.IntegrationTests
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
+            Assert.That (mutableMethodInfo.AddedExplicitBaseDefinitions, Is.Empty);
           });
 
       var instance = (B) Activator.CreateInstance (type);

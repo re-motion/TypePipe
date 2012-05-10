@@ -268,24 +268,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddExplicitBaseDefinition_BaseMethod ()
-    {
-      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.OverridingMethod ());
-
-      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
-
-      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { overriddenMethodDefinition }));
-    }
-
-    [Test]
-    public void AddExplicitBaseDefinition_AddedInterfaceMethod ()
+    public void AddExplicitBaseDefinition_AllowsMethodsFromHierarchy ()
     {
       _declaringType.AddInterface (typeof (IAddedInterface));
-      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((IAddedInterface obj) => obj.VirtualMethod ());
+      var methodFromHierarchy = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((IAddedInterface obj) => obj.VirtualMethod ());
 
-      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+      _existingVirtualMethod.AddExplicitBaseDefinition (methodFromHierarchy);
 
-      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { overriddenMethodDefinition }));
+      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { methodFromHierarchy }));
     }
 
     [Test]

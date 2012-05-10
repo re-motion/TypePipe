@@ -53,7 +53,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _methods;
 
     private readonly List<Type> _addedInterfaces = new List<Type>();
-    private readonly Dictionary<MethodInfo, MethodInfo> _addedExplicitOverrides = new Dictionary<MethodInfo, MethodInfo>();
 
     public MutableType (
       UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -92,11 +91,6 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
       get { return _methods.AddedMembers; }
-    }
-
-    public ReadOnlyDictionary<MethodInfo, MethodInfo> AddedExplicitOverrides
-    {
-      get { return _addedExplicitOverrides.AsReadOnly(); }
     }
 
     public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
@@ -182,6 +176,15 @@ namespace Remotion.TypePipe.MutableReflection
     public bool IsEquivalentTo (Type type)
     {
       return type == this || type == UnderlyingSystemType;
+    }
+
+    public bool IsAssignableTo (Type other)
+    {
+      ArgumentUtility.CheckNotNull ("other", other);
+
+      return IsEquivalentTo (other)
+             || other.IsAssignableFrom (BaseType)
+             || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
     public void AddInterface (Type interfaceType)
@@ -347,25 +350,6 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods.GetMutableMember (methodInfo);
     }
 
-    public void AddExplicitOverride (MethodInfo overriddenMethod, MethodInfo overridingMethod)
-    {
-      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
-      ArgumentUtility.CheckNotNull ("overridingMethod", overridingMethod);
-      CheckVirtual (overriddenMethod, "overriddenMethod");
-      CheckVirtual (overridingMethod, "overridingMethod");
-      CheckSignature (overriddenMethod, overridingMethod);
-      CheckHierarchy (overriddenMethod, "Cannot add override for unrelated method.", "overriddenMethod");
-      CheckHierarchy (overridingMethod, "Cannot add override by unrelated method.", "overridingMethod");
-
-      if (_addedExplicitOverrides.ContainsKey (overriddenMethod))
-      {
-        var message = string.Format ("Method '{0}.{1}' is already overridden.", overridingMethod.DeclaringType.Name, overriddenMethod.Name);
-        throw new ArgumentException (message, "overriddenMethod");
-      }
-
-      _addedExplicitOverrides.Add (overriddenMethod, overridingMethod);
-    }
-
     public virtual void Accept (IMutableTypeUnmodifiedMutableMemberHandler handler)
     {
       ArgumentUtility.CheckNotNull ("handler", handler);
@@ -396,9 +380,6 @@ namespace Remotion.TypePipe.MutableReflection
         handler.HandleModifiedConstructor (ctor);
       foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
         handler.HandleModifiedMethod (method);
-
-      foreach (var explicitOverride in AddedExplicitOverrides)
-        handler.HandleAddedExplicitOverride (explicitOverride.Key, explicitOverride.Value);
     }
 
     public override Type GetElementType ()
@@ -471,37 +452,6 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       return baseMethod;
-    }
-
-    private void CheckVirtual (MethodInfo method, string parameterName)
-    {
-      if (!method.IsVirtual)
-        throw new ArgumentException ("Method must be virtual.", parameterName);
-    }
-
-    private void CheckSignature (MethodInfo overriddenMethod, MethodInfo overridingMethod)
-    {
-      var overriddenSignature = MethodSignature.Create (overriddenMethod);
-      var overridingSignature = MethodSignature.Create (overridingMethod);
-
-      if (!overriddenSignature.Equals (overridingSignature))
-      {
-        var message = string.Format (
-            "Overriding method signature ({0}) is not compatible to overidden method signature ({1}).", overridingSignature, overriddenSignature);
-        throw new ArgumentException (message, "overridingMethod");
-      }
-    }
-
-    private void CheckHierarchy (MethodInfo method, string message, string parameterName)
-    {
-      if (!IsAssignableTo (method.DeclaringType))
-        throw new ArgumentException (message, parameterName);
-    }
-
-    // TODO Make public sometime 
-    private bool IsAssignableTo (Type other)
-    {
-      return IsEquivalentTo (other) || other.IsAssignableFrom (BaseType);
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)

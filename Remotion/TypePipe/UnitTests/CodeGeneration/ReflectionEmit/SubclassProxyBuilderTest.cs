@@ -387,24 +387,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleAddedExplicitOverride ()
-    {
-      var overriddenMethod = MockRepository.GenerateStub<MethodInfo> ();
-      var overridingMethod = MockRepository.GenerateStub<MethodInfo> ();
-      var fakeEmittableOverridingMethod = MockRepository.GenerateStub<MethodInfo> ();
-      var fakeEmittableOverriddenMethod = MockRepository.GenerateStub<MethodInfo> ();
-
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overriddenMethod)).Return (fakeEmittableOverriddenMethod);
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overridingMethod)).Return (fakeEmittableOverridingMethod);
-
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeEmittableOverridingMethod, fakeEmittableOverriddenMethod));
-
-      _builder.HandleAddedExplicitOverride (overriddenMethod, overridingMethod);
-
-      _typeBuilderMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void Build ()
     {
       bool buildActionCalled = false;
@@ -450,9 +432,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedField (MutableFieldInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
-
-      var someMethod = ReflectionObjectMother.GetSomeMethod();
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedExplicitOverride (someMethod, someMethod));
     }
 
     private void CheckThrowsForOperationAfterBuild (Action action)

@@ -200,18 +200,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _emittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
     }
 
-    public void HandleAddedExplicitOverride (MethodInfo overriddenMethod, MethodInfo overridingMethod)
-    {
-      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
-      ArgumentUtility.CheckNotNull ("overridingMethod", overridingMethod);
-      EnsureNotBuilt();
-
-      var emittableOverriddenMethod = _emittableOperandProvider.GetEmittableMethod (overriddenMethod);
-      var emittableOveridingMethod = _emittableOperandProvider.GetEmittableMethod (overridingMethod);
-
-      _typeBuilder.DefineMethodOverride (emittableOveridingMethod, emittableOverriddenMethod);
-    }
-
     public Type Build ()
     {
       if (_hasBeenBuilt)

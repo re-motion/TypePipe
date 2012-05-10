@@ -183,7 +183,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!MethodSignature.Create (this).Equals (MethodSignature.Create (overriddenMethodBaseDefinition)))
         throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
 
-      if (!IsAssignableTo (overriddenMethodBaseDefinition.DeclaringType))
+      if (!_declaringType.IsAssignableTo (overriddenMethodBaseDefinition.DeclaringType))
         throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
 
       if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)
@@ -228,14 +228,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
-    }
-
-    // TODO Move to MutableType
-    private bool IsAssignableTo (Type other)
-    {
-      return _declaringType.IsEquivalentTo (other)
-          || other.IsAssignableFrom (_declaringType.BaseType)
-          || _declaringType.GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
     #region Not YET Implemented from MethodInfo interface

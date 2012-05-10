@@ -26,7 +26,6 @@ using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -61,7 +60,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
       Assert.That (_mutableType.AddedMethods, Is.Empty);
-      Assert.That (_mutableType.AddedExplicitOverrides, Is.Empty);
     }
 
     [Test]
@@ -258,6 +256,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableType = MutableTypeObjectMother.Create();
 
       Assert.That (_mutableType.IsEquivalentTo (mutableType), Is.False);
+    }
+
+    [Test]
+    public void IsAssignableTo ()
+    {
+      Assert.That (_mutableType.IsAssignableTo (_mutableType), Is.True);
+
+      var underlyingSystemType = _mutableType.UnderlyingSystemType;
+      Assert.That (underlyingSystemType, Is.Not.SameAs (_mutableType));
+      Assert.That (_mutableType.IsAssignableTo (underlyingSystemType), Is.True);
+
+      Assert.That (_mutableType.BaseType, Is.SameAs (typeof (DomainTypeBase)));
+      Assert.That (_mutableType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
+
+      Assert.IsNotNull (_mutableType.BaseType); // For ReSharper...
+      Assert.That (_mutableType.BaseType.BaseType, Is.SameAs (typeof (object)));
+      Assert.That (_mutableType.IsAssignableTo (typeof (object)), Is.True);
+
+      Assert.That (underlyingSystemType.GetInterfaces(), Has.Member (typeof (IDomainInterface)));
+      Assert.That (_mutableType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
+
+      Assert.That (_mutableType.GetInterfaces(), Has.No.Member (typeof (IMyInterface)));
+      Assert.That (_mutableType.IsAssignableTo (typeof (IMyInterface)), Is.False);
+      _mutableType.AddInterface (typeof (IMyInterface));
+      Assert.That (_mutableType.IsAssignableTo (typeof (IMyInterface)), Is.True);
+
+      Assert.That (_mutableType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
     }
 
     [Test]
@@ -680,7 +705,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (addedMethod.BaseMethod, Is.EqualTo (fakeOverridenMethod));
       Assert.That (addedMethod.GetBaseDefinition (), Is.EqualTo (fakeRootDefinition));
-      Assert.That (_mutableType.AddedExplicitOverrides, Is.Empty);
     }
 
     [Test]
@@ -732,83 +756,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
       Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
-    }
-
-    [Test]
-    public void AddExplicitOverride ()
-    {
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
-      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
-
-      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-
-      Assert.That (_mutableType.AddedExplicitOverrides, Has.Count.EqualTo (1));
-      Assert.That (_mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
-    }
-
-    [Test]
-    public void AddExplicitOverride_NonVirtualMethods ()
-    {
-      var nonVirtualMethod = ReflectionObjectMother.GetSomeNonVirtualMethod ();
-      var virtualMethod = ReflectionObjectMother.GetSomeVirtualMethod ();
-
-      Assert.That (
-          () => _mutableType.AddExplicitOverride (nonVirtualMethod, virtualMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Method must be virtual.\r\nParameter name: overriddenMethod"));
-      Assert.That (
-          () => _mutableType.AddExplicitOverride (virtualMethod, nonVirtualMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Method must be virtual.\r\nParameter name: overridingMethod"));
-    }
-
-    [Test]
-    [ExpectedException(typeof(ArgumentException), ExpectedMessage =
-        "Overriding method signature (System.String()) is not compatible to overidden method signature (System.Boolean(System.Object)).\r\n"
-        + "Parameter name: overridingMethod")]
-    public void AddExplicitOverride_IncompatibleSignature ()
-    {
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.Equals(null));
-      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
-
-      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-    }
-
-    [Test]
-    public void AddExplicitOverride_ChecksHierarchy ()
-    {
-      var baseMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.VirtualBaseMethod());
-      var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
-      var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.UnderlyingSystemMethodInfo.Equals (method));
-      var unrelatedMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((UnrelatedType obj) => obj.VirtualMethod());
-      var validMethod = method;
-
-      Assert.That (() => _mutableType.AddExplicitOverride (baseMethod, validMethod), Throws.Nothing);
-      Assert.That (() => _mutableType.AddExplicitOverride (mutableMethod, validMethod), Throws.Nothing);
-      Assert.That (() => _mutableType.AddExplicitOverride (method, validMethod), Throws.Nothing);
-      ClearAddedExplicitOverrides (_mutableType);
-      Assert.That (() => _mutableType.AddExplicitOverride (validMethod, baseMethod), Throws.Nothing);
-      ClearAddedExplicitOverrides (_mutableType);
-      Assert.That (() => _mutableType.AddExplicitOverride (validMethod, mutableMethod), Throws.Nothing);
-      ClearAddedExplicitOverrides (_mutableType);
-      Assert.That (() => _mutableType.AddExplicitOverride (validMethod, method), Throws.Nothing);
-
-      Assert.That (
-          () => _mutableType.AddExplicitOverride (unrelatedMethod, validMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Cannot add override for unrelated method.\r\nParameter name: overriddenMethod"));
-      Assert.That (
-          () => _mutableType.AddExplicitOverride (validMethod, unrelatedMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Cannot add override by unrelated method.\r\nParameter name: overridingMethod"));
-    }
-
-    [Test]
-    public void AddExplicitOverride_MethodAlreadyOverridden ()
-    {
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.ToString ());
-      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
-
-      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-      Assert.That (
-          () => _mutableType.AddExplicitOverride (overriddenMethod, overriddenMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Method 'Object.ToString' is already overridden.\r\nParameter name: overriddenMethod"));
     }
 
     [Test]
@@ -883,10 +830,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single();
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
 
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.VirtualBaseMethod());
-      var overridingMethod = unmodfiedMethod;
-      _mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
 
       handlerMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
@@ -894,8 +837,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       handlerMock.Expect (mock => mock.HandleAddedField (addedFieldInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (addedConstructorInfo));
       handlerMock.Expect (mock => mock.HandleAddedMethod (addedMethod));
-
-      handlerMock.Expect (mock => mock.HandleAddedExplicitOverride (overriddenMethod, overridingMethod));
 
       _mutableType.Accept (handlerMock);
 
@@ -1226,12 +1167,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
     }
 
-    private void ClearAddedExplicitOverrides (MutableType mutableType)
-    {
-      var explicitOverrides = (Dictionary<MethodInfo, MethodInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_addedExplicitOverrides");
-      explicitOverrides.Clear ();
-    }
-
     public class DomainTypeBase
     {
       public int BaseField;
@@ -1265,13 +1200,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
     }
 
+    // This exists for GetInterface method with ignore case parameter.
     private interface Imyinterface
     {
     }
 
-// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Local
     private class UnrelatedType
-// ReSharper restore ClassNeverInstantiated.Local
+// ReSharper restore ClassWithVirtualMembersNeverInherited.Local
     {
       public virtual string VirtualMethod () { return ""; }
     }

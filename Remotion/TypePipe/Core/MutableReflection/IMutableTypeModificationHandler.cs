@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -32,7 +31,5 @@ namespace Remotion.TypePipe.MutableReflection
 
     void HandleModifiedConstructor (MutableConstructorInfo constructor);
     void HandleModifiedMethod (MutableMethodInfo method);
-
-    void HandleAddedExplicitOverride (MethodInfo overriddenMethod, MethodInfo overridingMethod);
   }
 }
