@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
@@ -176,6 +177,15 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
 
+      if (!overriddenMethodBaseDefinition.IsVirtual || overriddenMethodBaseDefinition.IsFinal)
+        throw new ArgumentException ("Method must be virtual and non-final.", "overriddenMethodBaseDefinition");
+
+      if (!MethodSignature.Create (this).Equals (MethodSignature.Create (overriddenMethodBaseDefinition)))
+        throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
+
+      if (!IsAssignableTo (overriddenMethodBaseDefinition.DeclaringType))
+        throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
+
       if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)
       {
         throw new ArgumentException (
@@ -185,8 +195,6 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (_addedExplicitBaseDefinitions.Contains (overriddenMethodBaseDefinition))
         throw new InvalidOperationException ("The given method has already been added to the list of explicit base definitions.");
-
-      // TODO 4813: Hierarchy check, virtual check on overriddeMethodBaseDefinition, signature check
 
       _addedExplicitBaseDefinitions.Add (overriddenMethodBaseDefinition);
     }
@@ -220,6 +228,14 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
+    }
+
+    // TODO Move to MutableType
+    private bool IsAssignableTo (Type other)
+    {
+      return _declaringType.IsEquivalentTo (other)
+          || other.IsAssignableFrom (_declaringType.BaseType)
+          || _declaringType.GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
     #region Not YET Implemented from MethodInfo interface

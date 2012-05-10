@@ -268,6 +268,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddExplicitBaseDefinition_BaseMethod ()
+    {
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainTypeBase obj) => obj.OverridingMethod ());
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+
+      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { overriddenMethodDefinition }));
+    }
+
+    [Test]
+    public void AddExplicitBaseDefinition_AddedInterfaceMethod ()
+    {
+      _declaringType.AddInterface (typeof (IAddedInterface));
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((IAddedInterface obj) => obj.VirtualMethod ());
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+
+      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { overriddenMethodDefinition }));
+    }
+
+    [Test]
+    public void AddExplicitBaseDefinition_ExistingInterfaceMethod ()
+    {
+      Assert.That (_declaringType.GetInterfaces(), Has.Member (typeof (IExistingInterface)));
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((IExistingInterface obj) => obj.InterfaceMethod ());
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+
+      Assert.That (_existingVirtualMethod.AddedExplicitBaseDefinitions, Is.EquivalentTo (new[] { overriddenMethodDefinition }));
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "Cannot add an explicit base definition to the non-virtual or existing final method 'NonVirtualMethod'.")]
     public void AddExplicitBaseDefinition_CannotAddExplicitBaseDefinition ()
@@ -275,6 +307,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
 
       _existingNonVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+    }
+
+
+    [Test]
+    public void AddExplicitBaseDefinition_FinalAndVirtualMethods ()
+    {
+      var nonVirtualMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.NonVirtualMethod ());
+      var finalMethodDefinition = typeof (DomainType).GetMethod ("FinalMethod");
+
+      var message = "Method must be virtual and non-final.\r\nParameter name: overriddenMethodBaseDefinition";
+      Assert.That (
+          () => _existingVirtualMethod.AddExplicitBaseDefinition (nonVirtualMethodDefinition),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _existingVirtualMethod.AddExplicitBaseDefinition (finalMethodDefinition),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method signatures must be equal.\r\nParameter name: overriddenMethodBaseDefinition")]
+    public void AddExplicitBaseDefinition_IncompatibleSignatures ()
+    {
+      var differentSignatureMethodDefinition =
+          MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethodWithDifferentSignature (7));
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (differentSignatureMethodDefinition);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The overridden method must be from the same type hierarchy.\r\nParameter name: overriddenMethodBaseDefinition")]
+    public void AddExplicitBaseDefinition_UnrelatedMethod ()
+    {
+      var unrelatedMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((UnrelatedType obj) => obj.VirtualMethod ());
+
+      _existingVirtualMethod.AddExplicitBaseDefinition (unrelatedMethodDefinition);
     }
 
     [Test]
@@ -462,14 +531,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public virtual void FinalMethod () { }
     }
 
-    public class DomainType : DomainTypeBase
+    public class DomainType : DomainTypeBase, IExistingInterface
     {
       public virtual void VirtualMethod () { }
       public virtual void VirtualMethod2 () { }
+      public virtual void VirtualMethodWithDifferentSignature (int i) { }
       public void NonVirtualMethod () { }
 
       public override void OverridingMethod () { }
       public sealed override void FinalMethod () { }
+      public void InterfaceMethod () { }
+    }
+
+    public class UnrelatedType
+    {
+      public virtual void VirtualMethod () { }
+    }
+
+    public interface IAddedInterface
+    {
+      void VirtualMethod ();
+    }
+
+    public interface IExistingInterface
+    {
+      void InterfaceMethod ();
     }
   }
 }
