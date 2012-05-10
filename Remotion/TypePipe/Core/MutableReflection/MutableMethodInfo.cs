@@ -180,7 +180,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!overriddenMethodBaseDefinition.IsVirtual || overriddenMethodBaseDefinition.IsFinal)
         throw new ArgumentException ("Method must be virtual and non-final.", "overriddenMethodBaseDefinition");
 
-      if (!MethodSignature.Create (this).Equals (MethodSignature.Create (overriddenMethodBaseDefinition)))
+      if (!MethodSignature.AreEqual (this, overriddenMethodBaseDefinition))
         throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
 
       if (!_declaringType.IsAssignableTo (overriddenMethodBaseDefinition.DeclaringType))
