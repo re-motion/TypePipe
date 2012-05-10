@@ -22,6 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
@@ -105,9 +106,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingMethodInfoDescriptor.BaseMethod; }
     }
 
-    public override MethodInfo GetBaseDefinition ()
-    {
-      return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
+    /// <summary>
+    /// Returns all root <see cref="MethodInfo"/> instances that were added via <see cref="AddExplicitBaseDefinition"/>.
+    /// </summary>
+    public ReadOnlyCollectionDecorator<MethodInfo> AddedExplicitBaseDefinitions 
+    { 
+      get { throw new NotImplementedException ("TODO 4813"); } 
     }
 
     public override bool IsGenericMethod
@@ -138,7 +142,43 @@ namespace Remotion.TypePipe.MutableReflection
     public bool CanSetBody
     {
       // TODO 4695
-      get { return IsNew || IsVirtual; }
+      get { return IsNew || (IsVirtual && !IsFinal); }
+    }
+
+    public override MethodInfo GetBaseDefinition ()
+    {
+      return BaseMethod != null ? BaseMethod.GetBaseDefinition () : this;
+    }
+
+    /// <summary>
+    /// Adds an explicit base definition, i.e., a root <see cref="MethodInfo"/> explicitly overridden by this <see cref="MethodInfo"/>.
+    /// </summary>
+    /// <param name="overriddenMethodBaseDefinition">The overridden method base definition.</param>
+    /// <remarks>
+    /// This method does not affect <see cref="GetBaseDefinition"/> or <see cref="BaseMethod"/>, both of which only return implicitly overridden 
+    /// methods. Methods can override both a single method implicitly and multiple methods explicitly.
+    /// </remarks>
+    public void AddExplicitBaseDefinition (MethodInfo overriddenMethodBaseDefinition)
+    {
+      ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
+
+      // TODO 4813
+      //if (overriddenMethodBaseDefinition.GetBaseDefinition() != overriddenMethodBaseDefinition)
+      //  throw new ArgumentException ("Bla");
+
+      // TODO 4813
+      //if (!CanAddExplicitBaseDefinition)
+      //{
+      //  // TODO 4695
+      //  var message = string.Format ("Cannot add an explicit base definition to the existing non-virtual or final method '{0}'.", Name);
+      //  throw new NotSupportedException (message);
+      //}
+
+      // TODO 4813
+      // if (_addedExplicitBaseDefinitions.Contains (overriddenMethodBaseDefinition))
+      //   throw new InvalidOperationException ("The given method has already been added to the list of explicit base definitions.");
+
+      throw new NotImplementedException ("TODO 4813");
     }
 
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
@@ -148,7 +188,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!CanSetBody)
       {
         // TODO 4695
-        var message = string.Format ("The body of the existing non-virtual method '{0}' cannot be replaced.", Name);
+        var message = string.Format ("The body of the existing non-virtual or final method '{0}' cannot be replaced.", Name);
         throw new NotSupportedException (message);
       }
 

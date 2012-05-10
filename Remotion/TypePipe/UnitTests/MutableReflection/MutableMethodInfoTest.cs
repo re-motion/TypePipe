@@ -215,17 +215,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CanSetBody ()
     {
       var newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
+      var newFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
+        attributes: MethodAttributes.Virtual | MethodAttributes.Final));
       var newVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
 
       var nonVirtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
+      var finalUnderlyingMethod = typeof (B).GetMethod ("FinalMethod");
+      var existingFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
 
       var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
       var existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
 
       Assert.That (newNonVirtualMethod.CanSetBody, Is.True);
+      Assert.That (newFinalMethod.CanSetBody, Is.True);
       Assert.That (newVirtualMethod.CanSetBody, Is.True);
+
       Assert.That (existingNonVirtualMethod.CanSetBody, Is.False);
+      Assert.That (existingFinalMethod.CanSetBody, Is.False);
+
       Assert.That (existingVirtualMethod.CanSetBody, Is.True);
     }
 
@@ -263,11 +271,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The body of the existing non-virtual method 'NonVirtualMethod' cannot be replaced.")]
-    public void SetBody_NonSettableMethod ()
+        "The body of the existing non-virtual or final method 'NonVirtualMethod' cannot be replaced.")]
+    public void SetBody_NonVirtualMethod ()
     {
       var nonVirtualMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
+      var mutableMethod = Create (descriptor);
+
+      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
+      {
+        Assert.Fail ("Should not be called.");
+        throw new NotImplementedException ();
+      };
+
+      mutableMethod.SetBody (bodyProvider);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The body of the existing non-virtual or final method 'FinalMethod' cannot be replaced.")]
+    public void SetBody_FinalMethod ()
+    {
+      var finalMethod = typeof (B).GetMethod ("FinalMethod");
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalMethod);
       var mutableMethod = Create (descriptor);
 
       Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
@@ -394,11 +420,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class A
     {
       public virtual void OverridingMethod () { }
+      public virtual void FinalMethod () { }
     }
 
     public class B : A
     {
       public override void OverridingMethod () { }
+      public sealed override void FinalMethod () { }
     }
   }
 }

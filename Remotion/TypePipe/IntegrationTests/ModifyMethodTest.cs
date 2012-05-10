@@ -156,7 +156,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void ModifyingNonVirtualAndStaticMethods_Throws ()
+    public void ModifyingNonVirtualAndStaticAndFinalMethods_Throws ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -165,7 +165,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (
                 () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "The body of the existing non-virtual method 'PublicMethod' cannot be replaced."));
+                    "The body of the existing non-virtual or final method 'PublicMethod' cannot be replaced."));
 
             var staticMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("PublicStaticMethod"));
             Assert.That (
@@ -176,7 +176,13 @@ namespace TypePipe.IntegrationTests
                       return Expression.Constant (8);
                     }),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "The body of the existing non-virtual method 'PublicStaticMethod' cannot be replaced."));
+                    "The body of the existing non-virtual or final method 'PublicStaticMethod' cannot be replaced."));
+
+            var finalMethod = mutableType.GetMutableMethod (typeof (DomainType).GetMethod ("FinalMethod"));
+            Assert.That (
+                () => finalMethod.SetBody (ctx => Expression.Constant (7)),
+                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (
+                    "The body of the existing non-virtual or final method 'FinalMethod' cannot be replaced."));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -232,7 +238,12 @@ namespace TypePipe.IntegrationTests
       Assert.That (result, Is.EqualTo ("hello 7"));
     }
 
-    public class DomainType
+    public class DomainTypeBase
+    {
+      public virtual int FinalMethod () { return -14; }
+    }
+
+    public class DomainType : DomainTypeBase
     {
       public virtual string PublicVirtualMethod(int i)
       {
@@ -251,6 +262,7 @@ namespace TypePipe.IntegrationTests
 
       public int PublicMethod () { return 12; }
       public static int PublicStaticMethod () { return 13; }
+      public sealed override int FinalMethod () { return 14; }
 
       public virtual void MethodWithOutAndRefParameters (ref int i, out string s)
       {
