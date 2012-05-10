@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 4813")]
   public class ExplicitOverridesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -104,6 +103,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 4813")]
     public void TurnExistingMethodIntoOverrideForBaseMethod ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
@@ -121,6 +121,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 4813")]
     public void TurnBaseMethodIntoOverrideForBaseBaseMethod ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
@@ -139,6 +140,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore("TODO 4813")]
     public void TurnBaseBaseMethodIntoOverrideForBaseMethod ()
     {
       // Weird, but should be allowed according to CLI specification
@@ -163,7 +165,7 @@ namespace TypePipe.IntegrationTests
       var overriddenShadowedMethod = GetDeclaredMethod (typeof (A), "MethodShadowedByB");
       var overriddenShadowingMethod = GetDeclaredMethod (typeof (B), "MethodShadowedByB");
 
-      var type = AssembleType<B> (
+      var type = AssembleType<C> (
           mutableType =>
           {
             mutableType.AddMethod (
@@ -192,8 +194,8 @@ namespace TypePipe.IntegrationTests
 
       var instance = (C) Activator.CreateInstance (type);
 
-      Assert.That (instance.MethodShadowedByB (), Is.EqualTo ("B implicitly overriden"));
-      Assert.That (((A) instance).MethodShadowedByB (), Is.EqualTo ("A explicitly overriden"));
+      Assert.That (instance.MethodShadowedByB (), Is.EqualTo ("B implicitly overridden"));
+      Assert.That (((A) instance).MethodShadowedByB (), Is.EqualTo ("A explicitly overridden"));
     }
 
 // ReSharper disable VirtualMemberNeverOverriden.Global
@@ -224,7 +226,7 @@ namespace TypePipe.IntegrationTests
 
       public new virtual string MethodShadowedByB ()
       {
-        return "A";
+        return "B";
       }
     }
 
