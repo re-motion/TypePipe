@@ -78,9 +78,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
       var builder = (SubclassProxyBuilder) result;
 
-      Assert.That (builder.TypeBuilder, Is.SameAs (typeBuilderMock));
-      Assert.That (builder.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
-      Assert.That (builder.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+      var context = builder.MemberEmitterContext;
+      Assert.That (context.TypeBuilder, Is.SameAs (typeBuilderMock));
+      Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+      Assert.That (context.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+
       Assert.That (builder.MemberEmitter, Is.TypeOf<MemberEmitter>());
       var memberEmitter = ((MemberEmitter) builder.MemberEmitter);
 

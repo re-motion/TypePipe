@@ -80,6 +80,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\OriginalBodyReplacingExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>

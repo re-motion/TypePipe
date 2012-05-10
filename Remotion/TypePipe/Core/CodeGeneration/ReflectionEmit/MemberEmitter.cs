@@ -57,15 +57,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _ilGeneratorFactory; }
     }
 
-    [CLSCompliant (false)]
-    public void AddField (ITypeBuilder typeBuilder, IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
+    public void AddField (MemberEmitterContext context, MutableFieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("field", field);
 
-      var fieldBuilder = typeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
-      fieldBuilder.RegisterWith (emittableOperandProvider, field);
+      var fieldBuilder = context.TypeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
+      fieldBuilder.RegisterWith (context.EmittableOperandProvider, field);
 
       foreach (var declaration in field.AddedCustomAttributeDeclarations)
       {
@@ -85,58 +83,40 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    [CLSCompliant (false)]
-    public void AddConstructor (
-        ITypeBuilder typeBuilder,
-        DebugInfoGenerator debugInfoGeneratorOrNull,
-        IEmittableOperandProvider emittableOperandProvider,
-        DeferredActionManager postDeclarationsActionManager,
-        MutableConstructorInfo constructor)
+    public void AddConstructor (MemberEmitterContext context, MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      ArgumentUtility.CheckNotNull ("postDeclarationsActionManager", postDeclarationsActionManager);
 
       var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = typeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
-      ctorBuilder.RegisterWith (emittableOperandProvider, constructor);
+      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
+      ctorBuilder.RegisterWith (context.EmittableOperandProvider, constructor);
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());
 
       var body = _expressionPreparer.PrepareConstructorBody (constructor);
-      var bodyBuildAction = CreateBodyBuildAction (ctorBuilder, debugInfoGeneratorOrNull, constructor.ParameterExpressions, body);
-      postDeclarationsActionManager.AddAction (bodyBuildAction);
+      var bodyBuildAction = CreateBodyBuildAction (ctorBuilder, context.DebugInfoGenerator, constructor.ParameterExpressions, body);
+      context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
     }
 
-    [CLSCompliant (false)]
-    public void AddMethod (
-        ITypeBuilder typeBuilder,
-        DebugInfoGenerator debugInfoGeneratorOrNull,
-        IEmittableOperandProvider emittableOperandProvider,
-        DeferredActionManager postDeclarationsActionManager,
-        MutableMethodInfo method,
-        string name,
-        MethodAttributes attributes)
+    public void AddMethod (MemberEmitterContext context, MutableMethodInfo method, string name, MethodAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("postDeclarationsActionManager", postDeclarationsActionManager);
 
       var parameterTypes = GetParameterTypes (method);
-      var methodBuilder = typeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
-      methodBuilder.RegisterWith (emittableOperandProvider, method);
+      var methodBuilder = context.TypeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
+      methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
       DefineParameters (methodBuilder, method.GetParameters ());
 
       var body = _expressionPreparer.PrepareMethodBody (method);
-      var bodyBuildAction = CreateBodyBuildAction (methodBuilder, debugInfoGeneratorOrNull, method.ParameterExpressions, body);
-      postDeclarationsActionManager.AddAction (bodyBuildAction);
+      var bodyBuildAction = CreateBodyBuildAction (methodBuilder, context.DebugInfoGenerator, method.ParameterExpressions, body);
+      context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
 
-      var explicitOverrideAction = CreateExplicitOverrideBuildAction (typeBuilder, emittableOperandProvider, method);
-      postDeclarationsActionManager.AddAction (explicitOverrideAction);
+      var explicitOverrideAction = CreateExplicitOverrideBuildAction (context.TypeBuilder, context.EmittableOperandProvider, method);
+      context.PostDeclarationsActionManager.AddAction (explicitOverrideAction);
     }
 
     private Type[] GetParameterTypes (MethodBase methodBase)

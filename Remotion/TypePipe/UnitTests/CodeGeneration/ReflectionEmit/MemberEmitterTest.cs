@@ -46,6 +46,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private MemberEmitter _emitter;
 
+    private MemberEmitterContext _context;
     private Expression _fakeBody;
 
     [SetUp]
@@ -60,6 +61,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
 
+      _context = new MemberEmitterContext (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _postDeclarationsManager);
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
     }
 
@@ -81,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (fieldBuilderMock);
       fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedField));
 
-      _emitter.AddField (_typeBuilderMock, _emittableOperandProviderMock, addedField);
+      _emitter.AddField (_context, addedField);
 
       _typeBuilderMock.VerifyAllExpectations ();
       fieldBuilderMock.VerifyAllExpectations ();
@@ -118,7 +120,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new[] { field },
               new[] { "test" }));
 
-      _emitter.AddField (_typeBuilderMock, _emittableOperandProviderMock, addedField);
+      _emitter.AddField (_context, addedField);
 
       fieldBuilderMock.VerifyAllExpectations ();
     }
@@ -146,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_postDeclarationsManager.Actions, Is.Empty);
 
-      _emitter.AddConstructor (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _postDeclarationsManager, ctor);
+      _emitter.AddConstructor (_context, ctor);
 
       _typeBuilderMock.VerifyAllExpectations ();
       _expressionPreparerMock.VerifyAllExpectations ();
@@ -191,14 +193,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_postDeclarationsManager.Actions, Is.Empty);
 
-      _emitter.AddMethod (
-          _typeBuilderMock,
-          _debugInfoGeneratorStub,
-          _emittableOperandProviderMock,
-          _postDeclarationsManager,
-          addedMethod,
-          "ExplicitlySpecifiedName",
-          expectedAttributes);
+      _emitter.AddMethod (_context, addedMethod, "ExplicitlySpecifiedName", expectedAttributes);
 
       _typeBuilderMock.VerifyAllExpectations ();
       _expressionPreparerMock.VerifyAllExpectations ();

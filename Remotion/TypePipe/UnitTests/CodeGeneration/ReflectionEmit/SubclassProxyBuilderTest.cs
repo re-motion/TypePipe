@@ -19,11 +19,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -40,6 +38,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private SubclassProxyBuilder _builder;
 
+    private MemberEmitterContext _context;
+
     [SetUp]
     public void SetUp ()
     {
@@ -50,14 +50,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _builder = new SubclassProxyBuilder (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _memberEmitterMock);
 
-      ExpressionTreeObjectMother.GetSomeExpression();
+      _context = _builder.MemberEmitterContext;
+    }
+
+    [Test]
+    public void Initialization ()
+    {
+      Assert.That (_builder.MemberEmitter, Is.SameAs (_memberEmitterMock));
+
+      Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
+      Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+      Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
       var handler = new SubclassProxyBuilder (_typeBuilderMock, null, _emittableOperandProviderMock, _memberEmitterMock);
-      Assert.That (handler.DebugInfoGenerator, Is.Null);
+      Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
     }
 
     [Test]
@@ -75,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedField ()
     {
       var addedField = MutableFieldInfoObjectMother.Create();
-      _memberEmitterMock.Expect (mock => mock.AddField (_typeBuilderMock, _emittableOperandProviderMock, addedField));
+      _memberEmitterMock.Expect (mock => mock.AddField (_context, addedField));
       
       _builder.HandleAddedField (addedField);
 
@@ -95,10 +106,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedConstructor ()
     {
       var addedCtor = MutableConstructorInfoObjectMother.CreateForNew ();
-
-      var actionManager = GetBuildActionManager (_builder);
-      _memberEmitterMock.Expect (
-          mock => mock.AddConstructor (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, actionManager, addedCtor));
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, addedCtor));
 
       _builder.HandleAddedConstructor (addedCtor);
 
@@ -117,16 +125,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedMethod ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew ();
-
-      _memberEmitterMock.Expect (
-          mock => mock.AddMethod (
-              _typeBuilderMock,
-              _debugInfoGeneratorStub,
-              _emittableOperandProviderMock,
-              GetBuildActionManager (_builder),
-              addedMethod,
-              addedMethod.Name,
-              addedMethod.Attributes));
+      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMethod, addedMethod.Name, addedMethod.Attributes));
 
       _builder.HandleAddedMethod (addedMethod);
 
@@ -146,9 +145,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
       var modifiedCtor = MutableConstructorInfoObjectMother.CreateForExistingAndModify (originalCtor);
-
-      _memberEmitterMock.Expect (
-          mock => mock.AddConstructor (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, GetBuildActionManager (_builder), modifiedCtor));
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, modifiedCtor));
 
       _builder.HandleModifiedConstructor (modifiedCtor);
 
@@ -172,15 +169,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType.Method";
       var expectedAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
-      _memberEmitterMock.Expect (
-          mock => mock.AddMethod (
-              _typeBuilderMock,
-              _debugInfoGeneratorStub,
-              _emittableOperandProviderMock,
-              GetBuildActionManager (_builder),
-              modifiedMethod,
-              expectedName,
-              expectedAttributes));
+      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedName, expectedAttributes));
 
       var fakeEmittableMethod = ReflectionObjectMother.GetSomeMethod();
       _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (modifiedMethod)).Return (fakeEmittableMethod);
@@ -228,10 +217,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
       var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (originalCtor);
-
-      var actionManager = GetBuildActionManager (_builder);
-      _memberEmitterMock.Expect (
-          mock => mock.AddConstructor (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, actionManager, unmodifiedCtor));
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, unmodifiedCtor));
 
       _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
 
@@ -247,13 +233,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
 
       _memberEmitterMock.AssertWasNotCalled (
-          mock =>
-          mock.AddConstructor (
-              Arg<ITypeBuilder>.Is.Anything,
-              Arg<DebugInfoGenerator>.Is.Anything,
-              Arg<IEmittableOperandProvider>.Is.Anything,
-              Arg<DeferredActionManager>.Is.Anything,
-              Arg<MutableConstructorInfo>.Is.Anything));
+        mock => mock.AddConstructor (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableConstructorInfo>.Is.Anything));
     }
 
     [Test]
@@ -290,7 +270,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Build ()
     {
       bool buildActionCalled = false;
-      AddBuildAction (_builder, () => buildActionCalled = true);
+      _context.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
 
       var fakeType = ReflectionObjectMother.GetSomeType();
       _typeBuilderMock
@@ -337,17 +317,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void CheckThrowsForOperationAfterBuild (Action action)
     {
       Assert.That (() => action(), Throws.InvalidOperationException.With.Message.EqualTo ("Subclass proxy has already been built."));
-    }
-
-    private void AddBuildAction (SubclassProxyBuilder handler, Action action)
-    {
-      var buildActions = GetBuildActionManager (handler);
-      buildActions.AddAction (action);
-    }
-
-    private DeferredActionManager GetBuildActionManager (SubclassProxyBuilder handler)
-    {
-      return (DeferredActionManager) PrivateInvoke.GetNonPublicField (handler, "_postDeclarationsActions");
     }
 
     private void CheckThrowsForInvalidArguments (Action<MutableFieldInfo> testedAction, string exceptionMessage, bool isNew, bool isModified)

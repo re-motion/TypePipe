@@ -16,8 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -25,25 +23,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Defines an interface for classes emitting members for mutable reflection objects. Used by <see cref="SubclassProxyBuilder"/>.
   /// </summary>
-  [CLSCompliant (false)]
   public interface IMemberEmitter
   {
-    void AddField (ITypeBuilder typeBuilder, IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field);
-
-    void AddConstructor (
-        ITypeBuilder typeBuilder,
-        DebugInfoGenerator debugInfoGeneratorOrNull,
-        IEmittableOperandProvider emittableOperandProvider,
-        DeferredActionManager postDeclarationsActionManager,
-        MutableConstructorInfo constructor);
-
-    void AddMethod (
-        ITypeBuilder typeBuilder,
-        DebugInfoGenerator debugInfoGeneratorOrNull,
-        IEmittableOperandProvider emittableOperandProvider,
-        DeferredActionManager postDeclarationsActionManager,
-        MutableMethodInfo method,
-        string name,
-        MethodAttributes attributes);
+    void AddField (MemberEmitterContext context, MutableFieldInfo field);
+    void AddConstructor (MemberEmitterContext context, MutableConstructorInfo constructor);
+    void AddMethod (MemberEmitterContext context, MutableMethodInfo method, string name, MethodAttributes attributes);
   }
 }

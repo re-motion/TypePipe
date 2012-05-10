@@ -30,19 +30,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
-    private readonly ITypeBuilder _typeBuilder;
-    private readonly DebugInfoGenerator _debugInfoGenerator;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMemberEmitter _memberEmitter;
 
     private readonly DeferredActionManager _postDeclarationsActions = new DeferredActionManager();
+    private readonly MemberEmitterContext _context;
 
     private bool _hasBeenBuilt = false;
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
         ITypeBuilder typeBuilder,
-        DebugInfoGenerator debugInfoGeneratorOrNull, 
+        DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter)
     {
@@ -50,26 +48,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
-      _typeBuilder = typeBuilder;
-      _debugInfoGenerator = debugInfoGeneratorOrNull;
-      _emittableOperandProvider = emittableOperandProvider;
       _memberEmitter = memberEmitter;
-    }
-
-    [CLSCompliant (false)]
-    public ITypeBuilder TypeBuilder
-    {
-      get { return _typeBuilder; }
-    }
-
-    public DebugInfoGenerator DebugInfoGenerator
-    {
-      get { return _debugInfoGenerator; }
-    }
-
-    public IEmittableOperandProvider EmittableOperandProvider
-    {
-      get { return _emittableOperandProvider; }
+      _context = new MemberEmitterContext (typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, _postDeclarationsActions);
     }
 
     [CLSCompliant (false)]
@@ -78,12 +58,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _memberEmitter; }
     }
 
+    public MemberEmitterContext MemberEmitterContext
+    {
+      get { return _context; }
+    }
+
     public void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
       EnsureNotBuilt ();
 
-      _typeBuilder.AddInterfaceImplementation (addedInterface);
+      _context.TypeBuilder.AddInterfaceImplementation (addedInterface);
     }
 
     public void HandleAddedField (MutableFieldInfo field)
@@ -92,7 +77,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (field, "field", isNew: true, isModified: null);
 
-      _memberEmitter.AddField (_typeBuilder, _emittableOperandProvider, field);
+      _memberEmitter.AddField (_context, field);
     }
 
     public void HandleAddedConstructor (MutableConstructorInfo constructor)
@@ -101,7 +86,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
-      _memberEmitter.AddConstructor (_typeBuilder, _debugInfoGenerator, _emittableOperandProvider,_postDeclarationsActions, constructor);
+      _memberEmitter.AddConstructor (_context, constructor);
     }
 
     public void HandleAddedMethod (MutableMethodInfo method)
@@ -110,8 +95,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
-      _memberEmitter.AddMethod (
-          _typeBuilder, _debugInfoGenerator, _emittableOperandProvider, _postDeclarationsActions, method, method.Name, method.Attributes);
+      _memberEmitter.AddMethod (_context, method, method.Name, method.Attributes);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo constructor)
@@ -120,7 +104,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
-      _memberEmitter.AddConstructor (_typeBuilder, _debugInfoGenerator, _emittableOperandProvider, _postDeclarationsActions, constructor);
+      _memberEmitter.AddConstructor (_context, constructor);
     }
 
     public void HandleModifiedMethod (MutableMethodInfo method)
@@ -132,18 +116,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Modified methods are added as explicit method overrides for the underlying method
       var explicitMethodOverrideName = method.DeclaringType.FullName + "." + method.Name;
       var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (method.Attributes, MethodAttributes.Private);
+      _memberEmitter.AddMethod (_context, method, explicitMethodOverrideName, explicitMethodOverrideAttributes);
 
-      _memberEmitter.AddMethod (
-          _typeBuilder,
-          _debugInfoGenerator,
-          _emittableOperandProvider,
-          _postDeclarationsActions,
-          method,
-          explicitMethodOverrideName,
-          explicitMethodOverrideAttributes);
-      
-      var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
-      _typeBuilder.DefineMethodOverride (emittableMethod, method.UnderlyingSystemMethodInfo);
+      var emittableMethod = _context.EmittableOperandProvider.GetEmittableMethod (method);
+      _context.TypeBuilder.DefineMethodOverride (emittableMethod, method.UnderlyingSystemMethodInfo);
     }
 
     public void HandleUnmodifiedField (MutableFieldInfo field)
@@ -152,7 +128,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (field, "field", isNew: false, isModified: false);
 
-      _emittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
+      _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
     }
 
     public void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
@@ -163,7 +139,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-        _memberEmitter.AddConstructor (_typeBuilder, _debugInfoGenerator, _emittableOperandProvider, _postDeclarationsActions, constructor);
+        _memberEmitter.AddConstructor (_context, constructor);
     }
 
     public void HandleUnmodifiedMethod (MutableMethodInfo method)
@@ -172,7 +148,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: false, isModified: false);
 
-      _emittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
+      _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
     }
 
     public Type Build ()
@@ -183,7 +159,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _hasBeenBuilt = true;
 
       _postDeclarationsActions.ExecuteAllActions();
-      return _typeBuilder.CreateType();
+
+      return _context.TypeBuilder.CreateType ();
     }
 
     private void EnsureNotBuilt ()
