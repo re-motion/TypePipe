@@ -92,12 +92,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
-    public void HandleAddedInterface (Type interfaceType)
+    public void HandleAddedInterfaces (IEnumerable<Type> addedInterfaces)
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull ("addedInterfaces", addedInterfaces);
       EnsureNotBuilt ();
-      
-      _typeBuilder.AddInterfaceImplementation (interfaceType);
+
+      foreach (var interfaceType in addedInterfaces)
+      {
+        _typeBuilder.AddInterfaceImplementation (interfaceType);
+      }
     }
 
     public void HandleAddedField (MutableFieldInfo field)
@@ -203,6 +206,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void HandleExplicitOverrides (IEnumerable<KeyValuePair<MethodInfo, MethodInfo>> overriddenAndOverridingMethods)
     {
       ArgumentUtility.CheckNotNull ("overriddenAndOverridingMethods", overriddenAndOverridingMethods);
+      EnsureNotBuilt();
 
       foreach (var overrideDeclaration in overriddenAndOverridingMethods)
       {

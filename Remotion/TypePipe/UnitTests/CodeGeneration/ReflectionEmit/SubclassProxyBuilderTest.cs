@@ -72,12 +72,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleAddedInterface ()
+    public void HandleAddedInterfaces ()
     {
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
+      var addedInterfaces = new[] { ReflectionObjectMother.GetSomeInterfaceType(), ReflectionObjectMother.GetSomeInterfaceType() };
+      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterfaces[0]));
+      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterfaces[1]));
 
-      _builder.HandleAddedInterface (addedInterface);
+      _builder.HandleAddedInterfaces (addedInterfaces);
 
       _typeBuilderMock.VerifyAllExpectations();
     }
@@ -445,7 +446,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.Stub (mock => mock.CreateType ());
       _builder.Build ();
 
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterfaces (Type.EmptyTypes));
+
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.CreateForNew()));
@@ -456,6 +458,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedField (MutableFieldInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
+
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleExplicitOverrides (new KeyValuePair<MethodInfo, MethodInfo>[0]));
     }
 
     private void CheckThrowsForOperationAfterBuild (Action action)

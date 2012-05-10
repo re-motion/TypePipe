@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyBuilder : IMutableTypeMemberHandler
   {
+    void HandleAddedInterfaces (IEnumerable<Type> addedInterfaces);
     void HandleExplicitOverrides (IEnumerable<KeyValuePair<MethodInfo, MethodInfo>> overriddenAndOverridingMethods);
 
     Type Build ();
