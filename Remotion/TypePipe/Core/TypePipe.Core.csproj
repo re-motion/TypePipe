@@ -105,6 +105,7 @@
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\IMemberSelector.cs" />
+    <Compile Include="MutableReflection\IMutableTypeUnmodifiedMemberHandler.cs" />
     <Compile Include="MutableReflection\IRelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\MemberSelector.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
@@ -115,7 +116,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMutableMethodBase.cs" />
-    <Compile Include="MutableReflection\IMutableTypeMemberHandler.cs" />
+    <Compile Include="MutableReflection\IMutableTypeModificationHandler.cs" />
     <Compile Include="MutableReflection\IMutableMember.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />

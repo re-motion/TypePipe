@@ -14,24 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines an interface for classes that handle unmodified, added and modfied members of a <see cref="MutableType"/>.
+  /// Defines an interface for classes that handle unmodfied mutable members of a <see cref="MutableType"/>.
   /// </summary>
-  public interface IMutableTypeMemberHandler
+  public interface IMutableTypeUnmodifiedMutableMemberHandler
   {
     void HandleUnmodifiedField (MutableFieldInfo field);
     void HandleUnmodifiedConstructor (MutableConstructorInfo constructor);
     void HandleUnmodifiedMethod (MutableMethodInfo method);
-
-    void HandleAddedField (MutableFieldInfo field);
-    void HandleAddedConstructor (MutableConstructorInfo constructor);
-    void HandleAddedMethod (MutableMethodInfo method);
-
-    void HandleModifiedConstructor (MutableConstructorInfo constructor);
-    void HandleModifiedMethod (MutableMethodInfo method);
   }
 }

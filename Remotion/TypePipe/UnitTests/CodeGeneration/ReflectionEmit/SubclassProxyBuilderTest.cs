@@ -31,7 +31,6 @@ using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
 using System.Collections.Generic;
-using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -72,13 +71,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleAddedInterfaces ()
+    public void HandleAddedInterface ()
     {
-      var addedInterfaces = new[] { ReflectionObjectMother.GetSomeInterfaceType(), ReflectionObjectMother.GetSomeInterfaceType() };
-      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterfaces[0]));
-      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterfaces[1]));
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
-      _builder.HandleAddedInterfaces (addedInterfaces);
+      _builder.HandleAddedInterface (addedInterface);
 
       _typeBuilderMock.VerifyAllExpectations();
     }
@@ -389,25 +387,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleExplicitOverrides ()
+    public void HandleAddedExplicitOverride ()
     {
-      var overrides =
-          new[]
-          {
-              new KeyValuePair<MethodInfo, MethodInfo> (CreateMethodStub(), CreateMethodStub()),
-              new KeyValuePair<MethodInfo, MethodInfo> (CreateMethodStub(), CreateMethodStub())
-          };
-      var fakes = Enumerable.Range (1, 4).Select (i => CreateMethodStub()).ToArray();
+      var overriddenMethod = MockRepository.GenerateStub<MethodInfo> ();
+      var overridingMethod = MockRepository.GenerateStub<MethodInfo> ();
+      var fakeEmittableOverridingMethod = MockRepository.GenerateStub<MethodInfo> ();
+      var fakeEmittableOverriddenMethod = MockRepository.GenerateStub<MethodInfo> ();
 
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[0].Key)).Return (fakes[0]);
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[0].Value)).Return (fakes[1]);
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[1].Key)).Return (fakes[2]);
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overrides[1].Value)).Return (fakes[3]);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overriddenMethod)).Return (fakeEmittableOverriddenMethod);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableMethod (overridingMethod)).Return (fakeEmittableOverridingMethod);
 
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakes[1], fakes[0]));
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakes[3], fakes[2]));
+      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeEmittableOverridingMethod, fakeEmittableOverriddenMethod));
 
-      _builder.HandleExplicitOverrides (overrides.AsOneTime());
+      _builder.HandleAddedExplicitOverride (overriddenMethod, overridingMethod);
 
       _typeBuilderMock.VerifyAllExpectations();
     }
@@ -446,7 +438,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.Stub (mock => mock.CreateType ());
       _builder.Build ();
 
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterfaces (Type.EmptyTypes));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
@@ -459,7 +451,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
 
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleExplicitOverrides (new KeyValuePair<MethodInfo, MethodInfo>[0]));
+      var someMethod = ReflectionObjectMother.GetSomeMethod();
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedExplicitOverride (someMethod, someMethod));
     }
 
     private void CheckThrowsForOperationAfterBuild (Action action)
@@ -656,11 +649,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       action ();
 
       methodBuilderMock.VerifyAllExpectations ();
-    }
-
-    private MethodInfo CreateMethodStub ()
-    {
-      return MockRepository.GenerateStub<MethodInfo> ();
     }
 
     public class CustomAttribute : Attribute

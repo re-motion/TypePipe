@@ -59,14 +59,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var originalType = ReflectionObjectMother.GetSomeSubclassableType();
       var mutableType = MutableTypeObjectMother.CreateForExistingType(originalType: originalType);
-      var iface = ReflectionObjectMother.GetSomeInterfaceType();
-      mutableType.AddInterface (iface);
 
       _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (mutableType)).Return ("foofoo");
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _moduleBuilderMock.Expect (mock => mock.DefineType ("foofoo", attributes, originalType, new[] { iface })).Return (typeBuilderMock);
+      _moduleBuilderMock.Expect (mock => mock.DefineType ("foofoo", attributes, originalType)).Return (typeBuilderMock);
       
       EmittableOperandProvider emittableOperandProvider = null;
       typeBuilderMock

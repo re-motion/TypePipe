@@ -92,15 +92,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
-    public void HandleAddedInterfaces (IEnumerable<Type> addedInterfaces)
+    public void HandleAddedInterface (Type addedInterface)
     {
-      ArgumentUtility.CheckNotNull ("addedInterfaces", addedInterfaces);
+      ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
       EnsureNotBuilt ();
 
-      foreach (var interfaceType in addedInterfaces)
-      {
-        _typeBuilder.AddInterfaceImplementation (interfaceType);
-      }
+      _typeBuilder.AddInterfaceImplementation (addedInterface);
     }
 
     public void HandleAddedField (MutableFieldInfo field)
@@ -203,18 +200,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _emittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
     }
 
-    public void HandleExplicitOverrides (IEnumerable<KeyValuePair<MethodInfo, MethodInfo>> overriddenAndOverridingMethods)
+    public void HandleAddedExplicitOverride (MethodInfo overriddenMethod, MethodInfo overridingMethod)
     {
-      ArgumentUtility.CheckNotNull ("overriddenAndOverridingMethods", overriddenAndOverridingMethods);
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      ArgumentUtility.CheckNotNull ("overridingMethod", overridingMethod);
       EnsureNotBuilt();
 
-      foreach (var overrideDeclaration in overriddenAndOverridingMethods)
-      {
-        var overriddenMethod = _emittableOperandProvider.GetEmittableMethod (overrideDeclaration.Key);
-        var overidingMethod = _emittableOperandProvider.GetEmittableMethod (overrideDeclaration.Value);
+      var emittableOverriddenMethod = _emittableOperandProvider.GetEmittableMethod (overriddenMethod);
+      var emittableOveridingMethod = _emittableOperandProvider.GetEmittableMethod (overridingMethod);
 
-        _typeBuilder.DefineMethodOverride (overidingMethod, overriddenMethod);
-      }
+      _typeBuilder.DefineMethodOverride (emittableOveridingMethod, emittableOverriddenMethod);
     }
 
     public Type Build ()

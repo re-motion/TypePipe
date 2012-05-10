@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,15 +15,24 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.MutableReflection;
+using System.Reflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines an interface for classes building a subclass proxy.
+  /// Defines an interface for classes that handle added and modfied elements of a <see cref="MutableType"/>.
   /// </summary>
-  public interface ISubclassProxyBuilder : IMutableTypeModificationHandler, IMutableTypeUnmodifiedMutableMemberHandler
+  public interface IMutableTypeModificationHandler
   {
-    Type Build ();
+    void HandleAddedInterface (Type addedInterface);
+
+    void HandleAddedField (MutableFieldInfo field);
+    void HandleAddedConstructor (MutableConstructorInfo constructor);
+    void HandleAddedMethod (MutableMethodInfo method);
+
+    void HandleModifiedConstructor (MutableConstructorInfo constructor);
+    void HandleModifiedMethod (MutableMethodInfo method);
+
+    void HandleAddedExplicitOverride (MethodInfo overriddenMethod, MethodInfo overridingMethod);
   }
 }

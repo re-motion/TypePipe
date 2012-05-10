@@ -366,31 +366,39 @@ namespace Remotion.TypePipe.MutableReflection
       _addedExplicitOverrides.Add (overriddenMethod, overridingMethod);
     }
 
-    public virtual void Accept (IMutableTypeMemberHandler memberHandler)
+    public virtual void Accept (IMutableTypeUnmodifiedMutableMemberHandler handler)
     {
-      ArgumentUtility.CheckNotNull ("memberHandler", memberHandler);
+      ArgumentUtility.CheckNotNull ("handler", handler);
 
-      // Unmodified
       foreach (var field in ExistingMutableFields.Where (f => !f.IsModified))
-        memberHandler.HandleUnmodifiedField (field);
+        handler.HandleUnmodifiedField (field);
       foreach (var ctor in ExistingMutableConstructors.Where (c => !c.IsModified))
-        memberHandler.HandleUnmodifiedConstructor (ctor);
+        handler.HandleUnmodifiedConstructor (ctor);
       foreach (var method in ExistingMutableMethods.Where (m => !m.IsModified))
-        memberHandler.HandleUnmodifiedMethod (method);
+        handler.HandleUnmodifiedMethod (method);
+    }
 
-      // Added
+    public virtual void Accept (IMutableTypeModificationHandler handler)
+    {
+      ArgumentUtility.CheckNotNull ("handler", handler);
+
+      foreach (var ifc in AddedInterfaces)
+        handler.HandleAddedInterface (ifc);
+
       foreach (var field in _fields.AddedMembers)
-        memberHandler.HandleAddedField (field);
+        handler.HandleAddedField (field);
       foreach (var ctor in _constructors.AddedMembers)
-        memberHandler.HandleAddedConstructor (ctor);
+        handler.HandleAddedConstructor (ctor);
       foreach (var method in _methods.AddedMembers)
-        memberHandler.HandleAddedMethod (method);
+        handler.HandleAddedMethod (method);
 
-      // Modfied
       foreach (var ctor in ExistingMutableConstructors.Where (c => c.IsModified))
-        memberHandler.HandleModifiedConstructor (ctor);
+        handler.HandleModifiedConstructor (ctor);
       foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
-        memberHandler.HandleModifiedMethod (method);
+        handler.HandleModifiedMethod (method);
+
+      foreach (var explicitOverride in AddedExplicitOverrides)
+        handler.HandleAddedExplicitOverride (explicitOverride.Key, explicitOverride.Value);
     }
 
     public override Type GetElementType ()

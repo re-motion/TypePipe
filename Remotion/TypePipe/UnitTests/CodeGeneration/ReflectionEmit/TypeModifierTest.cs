@@ -15,14 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -36,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mockRepository = new MockRepository();
       var handlerFactoryMock = mockRepository.StrictMock<ISubclassProxyBuilderFactory>();
 
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType: typeof (ClassWithMembers));
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create ();
       var mutableTypePartialMock = mockRepository.PartialMock<MutableType> (
           descriptor,
           new MemberSelector (new BindingFlagsEvaluator()),
@@ -45,24 +41,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var builderMock = mockRepository.StrictMock<ISubclassProxyBuilder>();
       var fakeType = ReflectionObjectMother.GetSomeType ();
 
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((ClassWithMembers obj) => obj.Method1 ());
-      var overridingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((ClassWithMembers obj) => obj.Method2 ());
-
       using (mockRepository.Ordered ())
       {
         handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
-        mutableTypePartialMock.Expect (mock => mock.Accept (builderMock));
-        builderMock.Expect (
-            mock => mock.HandleExplicitOverrides (
-                Arg<IEnumerable<KeyValuePair<MethodInfo, MethodInfo>>>.List.Equal (
-                    new[] { new KeyValuePair<MethodInfo, MethodInfo> (overriddenMethod, overridingMethod) })));
+        mutableTypePartialMock.Expect (mock => mock.Accept ((IMutableTypeUnmodifiedMutableMemberHandler) builderMock));
+        mutableTypePartialMock.Expect (mock => mock.Accept ((IMutableTypeModificationHandler) builderMock));
         builderMock.Expect (mock => mock.Build()).Return (fakeType);
       }
 
       mockRepository.ReplayAll();
       
-      mutableTypePartialMock.AddExplicitOverride(overriddenMethod, overridingMethod);
-
       var typeModifier = new TypeModifier (handlerFactoryMock);
       var result = typeModifier.ApplyModifications (mutableTypePartialMock);
 
@@ -70,20 +58,5 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (result, Is.SameAs (fakeType));
     }
-  }
-
-  public class ClassWithMembers
-  {
-    public int Field1;
-    public int Field2;
-
-    public ClassWithMembers () { }
-    public ClassWithMembers (int i)
-    {
-      Dev.Null = i;
-    }
-
-    public virtual void Method1 () { }
-    public virtual void Method2 () { }
   }
 }

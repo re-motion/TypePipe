@@ -75,8 +75,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var typeBuilder = _moduleBuilder.DefineType (
           subclassProxyName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          mutableType.UnderlyingSystemType,
-          mutableType.AddedInterfaces.ToArray());
+          mutableType.UnderlyingSystemType);
 
       var emittableOperandProvider = new EmittableOperandProvider ();
       typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
