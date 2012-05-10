@@ -122,41 +122,20 @@ namespace TypePipe.IntegrationTests
 
     [Test]
     [Ignore ("TODO 4813")]
-    public void TurnBaseMethodIntoOverrideForBaseBaseMethod ()
+    public void OverridingWithMethodsFromBaseTypes_IsNotSupported ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
       var overridingMethod = GetDeclaredMethod (typeof (B), "UnrelatedMethod");
 
-      var type = AssembleType<C> (
+      AssembleType<C> (
           mutableType =>
           {
-            mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
+            Assert.That (
+                () => mutableType.AddExplicitOverride (overriddenMethod, overridingMethod),
+                Throws.ArgumentException.With.Message.EqualTo (
+                    "The overriding method must be declared on this type.\r\nParameter name: overridingMethod"));
+            Assert.That (mutableType.AddedExplicitOverrides, Is.Empty);
           });
-
-      A instance = (C) Activator.CreateInstance (type);
-
-      Assert.That (instance.OverridableMethod (), Is.EqualTo ("B unrelated"));
-    }
-
-    [Test]
-    [Ignore("TODO 4813")]
-    public void TurnBaseBaseMethodIntoOverrideForBaseMethod ()
-    {
-      // Weird, but should be allowed according to CLI specification
-      var overriddenMethod = GetDeclaredMethod (typeof (B), "UnrelatedMethod");
-      var overridingMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
-
-      var type = AssembleType<C> (
-          mutableType =>
-          {
-            mutableType.AddExplicitOverride (overriddenMethod, overridingMethod);
-            Assert.That (mutableType.AddedExplicitOverrides[overriddenMethod], Is.SameAs (overridingMethod));
-          });
-
-      B instance = (C) Activator.CreateInstance (type);
-
-      Assert.That (instance.UnrelatedMethod(), Is.EqualTo ("A"));
     }
 
     [Test]
