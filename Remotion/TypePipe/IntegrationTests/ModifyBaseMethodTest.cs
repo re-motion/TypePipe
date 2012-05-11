@@ -29,7 +29,7 @@ namespace TypePipe.IntegrationTests
 {
   [TestFixture]
   [Ignore ("TODO 4814")]
-  public class GetMutableMethodTest : TypeAssemblerIntegrationTestBase
+  public class ModifyBaseMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void BaseMethodWithoutOverride ()

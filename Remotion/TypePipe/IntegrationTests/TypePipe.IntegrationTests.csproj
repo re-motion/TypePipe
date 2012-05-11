@@ -56,7 +56,7 @@
     <Compile Include="AddInterfaceTest.cs" />
     <Compile Include="AddMethodTest.cs" />
     <Compile Include="ExplicitOverridesTest.cs" />
-    <Compile Include="GetMutableMethodTest.cs" />
+    <Compile Include="ModifyBaseMethodTest.cs" />
     <Compile Include="ShadowingTest.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="ImplicitOverridesTest.cs" />
