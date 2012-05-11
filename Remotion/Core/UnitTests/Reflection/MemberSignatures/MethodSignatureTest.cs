@@ -42,7 +42,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void Create_NonGenericMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((object obj) => obj.Equals(null));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.Equals(null));
       var signature = MethodSignature.Create (method);
 
       Assert.That (signature.ReturnType, Is.SameAs (typeof (bool)));

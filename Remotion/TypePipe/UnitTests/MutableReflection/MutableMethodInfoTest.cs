@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var finalUnderlyingMethod = typeof (DomainType).GetMethod ("FinalMethod");
       _existingFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
 
-      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+      var virtualUnderlyingMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
       _existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
     }
 
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsModified_True_ExplicitBaseDefinition ()
     {
-      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod());
       _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
 
       Assert.That (_existingVirtualMethod.IsModified, Is.True);
@@ -269,7 +269,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddExplicitBaseDefinition ()
     {
-      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod());
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod());
 
       _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
 
@@ -280,7 +280,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddExplicitBaseDefinition_AllowsMethodsFromHierarchy ()
     {
       _declaringType.AddInterface (typeof (IAddedInterface));
-      var methodFromHierarchy = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((IAddedInterface obj) => obj.VirtualMethod ());
+      var methodFromHierarchy = MemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.VirtualMethod ());
 
       _existingVirtualMethod.AddExplicitBaseDefinition (methodFromHierarchy);
 
@@ -291,7 +291,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddExplicitBaseDefinition_ExistingInterfaceMethod ()
     {
       Assert.That (_declaringType.GetInterfaces(), Has.Member (typeof (IExistingInterface)));
-      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((IExistingInterface obj) => obj.InterfaceMethod ());
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.InterfaceMethod ());
 
       _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
 
@@ -303,16 +303,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Cannot add an explicit base definition to the non-virtual or existing final method 'NonVirtualMethod'.")]
     public void AddExplicitBaseDefinition_CannotAddExplicitBaseDefinition ()
     {
-      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
+      var overriddenMethodDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
 
       _existingNonVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
     }
 
-
     [Test]
     public void AddExplicitBaseDefinition_FinalAndVirtualMethods ()
     {
-      var nonVirtualMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.NonVirtualMethod ());
+      var nonVirtualMethodDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var finalMethodDefinition = typeof (DomainType).GetMethod ("FinalMethod");
 
       var message = "Method must be virtual and non-final.\r\nParameter name: overriddenMethodBaseDefinition";
@@ -330,7 +329,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddExplicitBaseDefinition_IncompatibleSignatures ()
     {
       var differentSignatureMethodDefinition =
-          MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethodWithDifferentSignature (7));
+          MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodWithDifferentSignature (7));
 
       _existingVirtualMethod.AddExplicitBaseDefinition (differentSignatureMethodDefinition);
     }
@@ -340,7 +339,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "The overridden method must be from the same type hierarchy.\r\nParameter name: overriddenMethodBaseDefinition")]
     public void AddExplicitBaseDefinition_UnrelatedMethod ()
     {
-      var unrelatedMethodDefinition = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((UnrelatedType obj) => obj.VirtualMethod ());
+      var unrelatedMethodDefinition = MemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.VirtualMethod ());
 
       _existingVirtualMethod.AddExplicitBaseDefinition (unrelatedMethodDefinition);
     }
@@ -359,8 +358,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddExplicitBaseDefinition_TwiceWithSameMethod ()
     {
-      var overriddenMethodDefinition1 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod ());
-      var overriddenMethodDefinition2 = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType obj) => obj.VirtualMethod2 ());
+      var overriddenMethodDefinition1 = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
+      var overriddenMethodDefinition2 = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod2 ());
 
       _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition1);
       _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition2);

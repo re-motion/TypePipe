@@ -172,7 +172,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                                      ParameterDeclarationObjectMother.Create (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
                                  });
 
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethodBaseDefinition ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
+      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
       addedMethod.AddExplicitBaseDefinition (overriddenMethod);
 
       var expectedName = "ExplicitlySpecifiedName";
