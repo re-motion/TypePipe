@@ -106,9 +106,14 @@ namespace TypePipe.IntegrationTests
       return method;
     }
 
-    protected MethodInfo GetModifiedMethod (Type type, string name)
+    protected MethodInfo GetDeclaredModifiedMethod (Type type, string modifiedMethodName)
     {
-      var method = type.GetMethods (c_allDeclared).SingleOrDefault (m => m.Name.EndsWith (name));
+      return GetDeclaredExplicitOverrideMethod (type, modifiedMethodName);
+    }
+
+    protected MethodInfo GetDeclaredExplicitOverrideMethod (Type type, string nameSuffix)
+    {
+      var method = type.GetMethods (c_allDeclared).SingleOrDefault (m => m.Name.EndsWith ("." + nameSuffix));
       Assert.That (method, Is.Not.Null);
       return method;
     }
