@@ -343,7 +343,16 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectMethods (_methods, bindingAttr, this).ToArray();
     }
 
-    public MutableMethodInfo GetMutableMethod (MethodInfo methodInfo)
+    /// <summary>
+    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="methodInfo"/>. If the method
+    /// is declared on the modified type, it returns the corresponding <see cref="MutableMethodInfo"/> from the <see cref="ExistingMutableMethods"/>
+    /// collection. If it is declared on a base type, this method returns an override for it, creating one if necessary.
+    /// </summary>
+    /// <param name="methodInfo">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
+    /// <returns>
+    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="methodInfo"/> or an override of the method.
+    /// </returns>
+    public MutableMethodInfo GetOrAddMutableMethod (MethodInfo methodInfo)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
 

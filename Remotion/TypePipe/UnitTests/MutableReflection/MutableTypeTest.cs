@@ -747,12 +747,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMutableMethod ()
+    public void GetOrAddMutableMethod ()
     {
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
       Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo>());
 
-      var result = _mutableType.GetMutableMethod (existingMethod);
+      var result = _mutableType.GetOrAddMutableMethod (existingMethod);
 
       Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
       Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));

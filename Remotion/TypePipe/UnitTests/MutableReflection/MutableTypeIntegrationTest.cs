@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _publicField = _mutableType.GetMutableField (MemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
       _publicConstructorWithOverloadEmpty =_mutableType.GetMutableConstructor (MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
       _publicConstructorWithOverloadInt = _mutableType.GetMutableConstructor (MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0)));
-      _publicMethod = _mutableType.GetMutableMethod (MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0)));
-      _publicMethodWithOverloadEmpty = _mutableType.GetMutableMethod (MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload ()));
-      _publicMethodWithOverloadInt = _mutableType.GetMutableMethod (MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1)));
+      _publicMethod = _mutableType.GetOrAddMutableMethod (MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0)));
+      _publicMethodWithOverloadEmpty = _mutableType.GetOrAddMutableMethod (MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload ()));
+      _publicMethodWithOverloadInt = _mutableType.GetOrAddMutableMethod (MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1)));
     }
 
     [Test]
