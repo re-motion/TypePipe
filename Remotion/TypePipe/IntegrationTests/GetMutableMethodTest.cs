@@ -62,37 +62,6 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void NonVirtualBaseMethod ()
-    {
-      AssembleType<DomainType> (
-          mutableType =>
-          {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.NonVirtualBaseMethod ());
-            Assert.That (baseMethod.IsVirtual, Is.False);
-
-            Assert.That (
-                mutableType.GetMutableMethod (baseMethod),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Non-virtual methods cannot be modified."));
-          });
-    }
-
-    [Test]
-    public void FinalVirtualBaseMethod ()
-    {
-      AssembleType<DomainType> (
-          mutableType =>
-          {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.FinalVirtualBaseMethod ());
-            Assert.That (baseMethod.IsVirtual, Is.True);
-            Assert.That (baseMethod.IsFinal, Is.True);
-
-            Assert.That (
-                mutableType.GetMutableMethod (baseMethod),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Final methods cannot be modified."));
-          });
-    }
-
-    [Test]
     public void BaseMethodWithExistingOverride ()
     {
       AssembleType<DomainType> (
@@ -296,6 +265,54 @@ namespace TypePipe.IntegrationTests
       Assert.That (shadowingMethod.Invoke (instance, null), Is.EqualTo ("ShadowingMethod"));
     }
 
+    [Test]
+    public void NonVirtualBaseMethod_NotSupported ()
+    {
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.NonVirtualBaseMethod ());
+            Assert.That (baseMethod.IsVirtual, Is.False);
+
+            Assert.That (
+                mutableType.GetMutableMethod (baseMethod),
+                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("Non-virtual methods cannot be modified."));
+          });
+    }
+
+    [Test]
+    public void FinalVirtualBaseMethod_NotSupported ()
+    {
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.FinalVirtualBaseMethod ());
+            Assert.That (baseMethod.IsVirtual, Is.True);
+            Assert.That (baseMethod.IsFinal, Is.True);
+
+            Assert.That (
+                mutableType.GetMutableMethod (baseMethod),
+                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("Final methods cannot be modified."));
+          });
+    }
+
+    [Test]
+    public void InterfaceMethod_NotSupported ()
+    {
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<IInterface> (x => x.InterfaceMethod());
+            Assert.That (baseMethod.IsVirtual, Is.True);
+            Assert.That (baseMethod.IsFinal, Is.True);
+
+            Assert.That (
+                mutableType.GetMutableMethod (baseMethod),
+                Throws.ArgumentException.With.Message.EqualTo (
+                    "Method must be declared within this type's base class hierarchy.\r\nParameter name: methodInfo"));
+          });
+    }
+
     private void CheckBodyOfAddedOverride (MethodInfo baseMethod, MutableMethodInfo mutableMethod)
     {
       Assert.That (mutableMethod.Body, Is.TypeOf<MethodCallExpression> ());
@@ -346,11 +363,18 @@ namespace TypePipe.IntegrationTests
       public override string BaseBaseMethodOverriddenInBase () { return "Base (overriding)"; }
     }
 
-    private class DomainType : DomainTypeBase
+    private class DomainType : DomainTypeBase, IInterface
     {
       public override string ExistingOverride () { return "DomainType"; }
 
       public new virtual string BaseMethodShadowedByModified () { return "DomainType (shadowing)"; }
+
+      public void InterfaceMethod () { }
+    }
+
+    private interface IInterface
+    {
+      void InterfaceMethod ();
     }
   }
 }

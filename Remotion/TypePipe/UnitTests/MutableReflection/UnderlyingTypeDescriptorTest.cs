@@ -65,10 +65,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ThrowsIfOriginalTypeCannotBeSubclassed ()
     {
-      var msg = "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, a generic "
-                + "parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType";
+      var msg = "Original type must not be sealed, abstract, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+                + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType";
       // sealed
       Assert.That (() => Create (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // abstract
+      Assert.That (() => Create (typeof (AbstractDomainType)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // interface
       Assert.That (() => Create (typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // value type
@@ -147,5 +149,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 // ReSharper restore UnusedMember.Local
       internal TypeWithoutAccessibleConstructor () { }
     }
+
+    public abstract class AbstractDomainType { }
   }
 }

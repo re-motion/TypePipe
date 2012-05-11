@@ -42,9 +42,9 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Original type must not be another mutable type.", "originalType");
 
       // TODO 4695
-      if (CanNotBeSubclassed (originalType))
+      if (CanNotBeSubclassed (originalType) || originalType.IsAbstract)
         throw new ArgumentException (
-          "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+          "Original type must not be sealed, abstract, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
           + "a generic parameter, contain generic parameters and must have an accessible constructor.", "originalType");
 
       return new UnderlyingTypeDescriptor (
