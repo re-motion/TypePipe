@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
@@ -37,8 +36,19 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("signature", signature);
       ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
 
-      var allBaseMethods = GetOrderedBaseMethods (typeToStartSearch);
-      return allBaseMethods.FirstOrDefault (m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature));
+      Func<MethodInfo, bool> predicate = m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature);
+      return FirstOrDefaultFromOrderedBaseMethods (typeToStartSearch, predicate);
+    }
+
+    /// <inheritdoc />
+    public MethodInfo GetMostDerivedOverride (MethodInfo baseDefinition, Type typeToStartSearch)
+    {
+      ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
+      ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
+      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition());
+
+      Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition) && !m.Equals (baseDefinition);
+      return FirstOrDefaultFromOrderedBaseMethods (typeToStartSearch, predicate);
     }
 
     /// <inheritdoc />
@@ -46,20 +56,20 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      var rootDefinition = method.GetBaseDefinition ();
-      if (method.Equals (rootDefinition))
+      var baseDefinition = method.GetBaseDefinition ();
+      if (method.Equals (baseDefinition))
         return null;
 
-      var allBaseMethods = GetOrderedBaseMethods (method.DeclaringType.BaseType);
-      return allBaseMethods.First (m => m.GetBaseDefinition ().Equals (rootDefinition));
+      Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition);
+      return FirstOrDefaultFromOrderedBaseMethods (method.DeclaringType.BaseType, predicate);
     }
 
-    private IEnumerable<MethodInfo> GetOrderedBaseMethods (Type typeToStartSearch)
+    private MethodInfo FirstOrDefaultFromOrderedBaseMethods (Type typeToStartSearch, Func<MethodInfo, bool> predicate)
     {
       var baseTypeSequence = typeToStartSearch.CreateSequence (t => t.BaseType);
-
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      return baseTypeSequence.SelectMany (t => t.GetMethods (bindingFlags));
+
+      return baseTypeSequence.SelectMany (type => type.GetMethods (bindingFlags)).FirstOrDefault (predicate);
     }
   }
 }

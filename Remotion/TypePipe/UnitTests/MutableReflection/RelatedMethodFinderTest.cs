@@ -60,9 +60,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMostDerivedVirtualMethod_DerivedTypeMethod_NonMatchingSignature ()
     {
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod ());
       var signature = new MethodSignature (typeof (int), Type.EmptyTypes, 0);
-      Assert.That (signature, Is.Not.EqualTo (_methodSignature));
-      var result = _finder.GetMostDerivedVirtualMethod ("DerivedTypeMethod", signature, _typeToStartSearch);
+      Assert.That (signature, Is.Not.EqualTo (MethodSignature.Create (method)));
+
+      var result = _finder.GetMostDerivedVirtualMethod (method.Name, signature, _typeToStartSearch);
 
       Assert.That (result, Is.Null);
     }
@@ -91,7 +93,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMostDerivedVirtualMethod_NonVirtualMethod ()
     {
-      var result = _finder.GetMostDerivedVirtualMethod ("NonVirtualMethod", _methodSignature, _typeToStartSearch);
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
+      var result = _finder.GetMostDerivedVirtualMethod (method.Name, _methodSignature, _typeToStartSearch);
 
       Assert.That (result, Is.Null);
     }
@@ -101,25 +104,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _finder.GetMostDerivedVirtualMethod ("OverridingMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = typeof (DomainType).GetMethod ("OverridingMethod");
-      Assert.That (expected, Is.Not.Null);
-
+      var expected = MemberInfoFromExpressionUtility.GetMethod((DomainType obj) => obj.OverridingMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
-    public void GetMostDerivedVirtualMethod_NewMethod ()
+    public void GetMostDerivedVirtualMethod_VirtualMethodShadowingBaseMethod ()
     {
-      var result = _finder.GetMostDerivedVirtualMethod ("NewMethod", _methodSignature, _typeToStartSearch);
+      var result = _finder.GetMostDerivedVirtualMethod ("VirtualMethodShadowingBaseMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = typeof (DomainType).GetMethod ("NewMethod");
-      Assert.That (expected, Is.Not.Null);
-
+      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
-    public void GetMostDerivedVirtualMethod_NewMethodShadowingVirtualMethod ()
+    public void GetMostDerivedVirtualMethod_NonVirtualMethodShadowingVirtualMethod ()
     {
       var result = _finder.GetMostDerivedVirtualMethod ("NonVirtualMethodShadowingVirtualMethod", _methodSignature, _typeToStartSearch);
 
@@ -128,7 +127,60 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_VirtualMethodWithoutBase ()
+    public void GetMostDerivedOverride_BaseTypeMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+
+      var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetMostDerivedOverride_VirtualMethodShadowingBaseMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
+
+      var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetMostDerivedOverride_OverridingMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
+
+      var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
+
+      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingMethod());
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetMostDerivedOverride_OverridingOverriddenMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingOverriddenMethod ());
+
+      var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
+
+      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingOverriddenMethod ());
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetMostDerivedOverride_ShadowingOverridenMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.ShadowingOverridenMethod ());
+
+      var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
+
+      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ShadowingOverridenMethod ());
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
+    [Test]
+    public void GetBaseMethod_DerivedTypeMethod ()
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod ());
       Assert.That (method.IsVirtual, Is.True);
@@ -141,24 +193,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_NewVirtualMethodShadowingVirtualMethod ()
+    public void GetBaseMethod_VirtualMethodShadowingBaseMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NewMethod());
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod ());
       Assert.That (method.IsVirtual, Is.True);
       Assert.That (MethodAttributeUtility.IsSet (method.Attributes, MethodAttributes.NewSlot) , Is.True);
-      Assert.That (typeof (DomainTypeBase).GetMethod ("NewMethod"), Is.Not.Null);
-
-      var result = _finder.GetBaseMethod (method);
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetBaseMethod_NonVirtualMethodShadowingVirtual ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethodShadowingVirtualMethod ());
-      Assert.That (method.IsVirtual, Is.False);
-      Assert.That (MethodAttributeUtility.IsSet (method.Attributes, MethodAttributes.NewSlot), Is.False);
+      Assert.That (typeof (DomainTypeBase).GetMethod ("VirtualMethodShadowingBaseMethod"), Is.Not.Null);
 
       var result = _finder.GetBaseMethod (method);
 
@@ -168,7 +208,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseMethod_OverridingMethod ()
     {
-      var method = typeof (DomainType).GetMethod ("OverridingMethod");
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingMethod());
 
       var result = _finder.GetBaseMethod (method);
 
@@ -177,26 +217,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseMethod_OverrideOfOverride ()
+    public void GetBaseMethod_OverridingOverriddenMethod ()
     {
-      var method = typeof (DomainType).GetMethod ("ToString");
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingOverriddenMethod());
 
       var result = _finder.GetBaseMethod (method);
 
-      var expectedMethod = typeof (DomainTypeBase).GetMethod ("ToString");
+      var expectedMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingOverriddenMethod ());
       Assert.That (result, Is.EqualTo (expectedMethod));
     }
 
     // ReSharper disable UnusedMember.Local
     // ReSharper disable VirtualMemberNeverOverriden.Global
-    private class DomainTypeBase
+    private class DomainTypeBaseBase
+    {
+      public virtual void OverridingOverriddenMethod() { }
+      public virtual void ShadowingOverridenMethod () { }
+    }
+
+    private class DomainTypeBase : DomainTypeBaseBase
     {
       public virtual void BaseTypeMethod () { }
+
       public virtual void OverridingMethod () { }
-      public virtual void NewMethod () { }
+      public override void OverridingOverriddenMethod () { }
+      public override void ShadowingOverridenMethod () { }
+
+      public virtual void VirtualMethodShadowingBaseMethod () { }
       public virtual void NonVirtualMethodShadowingVirtualMethod () { }
-      
-      public override string ToString () { return ""; }
     }
 
     // ReSharper disable ClassWithVirtualMembersNeverInherited.Local
@@ -205,12 +253,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public virtual void DerivedTypeMethod () { }
       protected virtual void ProtectedDerivedTypeMethod () { }
-      public void NonVirtualMethod () { }
-      public override void OverridingMethod () { }
-      public new virtual void NewMethod () { }
-      public new void NonVirtualMethodShadowingVirtualMethod () { }
 
-      public override string ToString () { return ""; }
+      public void NonVirtualMethod () { }
+
+      public override void OverridingMethod () { }
+      public override void OverridingOverriddenMethod () { }
+      public new virtual void ShadowingOverridenMethod () { }
+
+      public new virtual void VirtualMethodShadowingBaseMethod () { }
+      public new void NonVirtualMethodShadowingVirtualMethod () { }
     }
     // ReSharper restore VirtualMemberNeverOverriden.Global
     // ReSharper restore UnusedMember.Local

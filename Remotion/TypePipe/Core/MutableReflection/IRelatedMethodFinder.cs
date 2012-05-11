@@ -34,11 +34,23 @@ namespace Remotion.TypePipe.MutableReflection
     /// <param name="name">The method name.</param>
     /// <param name="signature">The method signature.</param>
     /// <param name="typeToStartSearch">The type to start the search from.</param>
-    /// <returns>The most derived virtual method matching the given parameters.</returns>
+    /// <returns>The most derived virtual method matching the given parameters, or <see langword="null"/> if no such method exists.</returns>
     /// <remarks>
     /// The returned <see cref="MethodInfo"/> has its <see cref="MemberInfo.ReflectedType"/> set to its <see cref="MemberInfo.DeclaringType"/>.
     /// </remarks>
     MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch);
+
+    /// <summary>
+    /// Gets the most derived method that implicitly overrides the given <paramref name="baseDefinition"/> starting from the given
+    /// <paramref name="typeToStartSearch"/> (then searching up the type hierarchy).
+    /// </summary>
+    /// <param name="baseDefinition">The base definition to search overrides for.</param>
+    /// <param name="typeToStartSearch">The type to start the search from.</param>
+    /// <returns>The most derived override of <paramref name="baseDefinition"/>, or <see langword="null"/> if no such method exists.</returns>
+    /// <remarks>
+    /// The returned <see cref="MethodInfo"/> has its <see cref="MemberInfo.ReflectedType"/> set to its <see cref="MemberInfo.DeclaringType"/>.
+    /// </remarks>
+    MethodInfo GetMostDerivedOverride (MethodInfo baseDefinition, Type typeToStartSearch);
 
     /// <summary>
     /// Gets the method directly overridden by the given <paramref name="method"/>. If the method does not override another method (because it is not
