@@ -326,20 +326,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (((BaseCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.EqualTo (baseMethod));
     }
 
-    private MutableMethodInfo AddEquivalentMethod (
-        MutableType mutableType,
-        MethodInfo template,
-        MethodAttributes methodAttributes,
-        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
-    {
-      return mutableType.AddMethod (
-          template.Name,
-          methodAttributes,
-          template.ReturnType,
-          ParameterDeclaration.CreateForEquivalentSignature (template),
-          bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
-    }
-
     private class DomainTypeBaseBase
     {
       public virtual void FinalVirtualBaseMethod () { }

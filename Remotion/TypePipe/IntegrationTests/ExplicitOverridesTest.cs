@@ -20,6 +20,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
@@ -55,6 +56,10 @@ namespace TypePipe.IntegrationTests
                   Assert.That (() => ctx.BaseMethod, Throws.TypeOf<NotSupportedException>());
                   return ctx.GetPreviousBody();
                 });
+
+            var allMethods = mutableType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.That (allMethods, Has.Member (typeof (B).GetMethod ("OverridableMethod")));
+            Assert.That (allMethods, Has.Member (mutableMethodInfo));
           });
 
       A instance = (B) Activator.CreateInstance (type);

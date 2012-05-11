@@ -90,10 +90,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerator<TMemberInfo> GetEnumerator ()
     {
-      var addedMembers = new HashSet<Tuple<string, IMemberSignature>> (AddedMembers.Select (CreateNameAndSignatureTuple));
-      var existingBaseMembersWithoutShadowedMembers = _existingBaseMembers.Where (m => !addedMembers.Contains (CreateNameAndSignatureTuple (m)));
-
-      return AllMutableMembers.Cast<TMemberInfo>().Concat (existingBaseMembersWithoutShadowedMembers).GetEnumerator();
+      return AllMutableMembers.Cast<TMemberInfo>().Concat (FilterBaseMembers(_existingBaseMembers)).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator ()
@@ -127,6 +124,11 @@ namespace Remotion.TypePipe.MutableReflection
       _addedMembers.Add (mutableMember);
     }
 
+    protected virtual IEnumerable<TMemberInfo> FilterBaseMembers (IEnumerable<TMemberInfo> baseMembers)
+    {
+      return baseMembers;
+    }
+
     private void CheckDeclaringType (string parameterName, MemberInfo member)
     {
       if (!_declaringType.IsEquivalentTo (member.DeclaringType))
@@ -139,11 +141,6 @@ namespace Remotion.TypePipe.MutableReflection
     private string GetMemberTypeName ()
     {
       return typeof (TMemberInfo).Name;
-    }
-
-    private Tuple<string, IMemberSignature> CreateNameAndSignatureTuple (TMemberInfo m)
-    {
-      return Tuple.Create (m.Name, MemberSignatureProvider.GetMemberSignature (m));
     }
   }
 }

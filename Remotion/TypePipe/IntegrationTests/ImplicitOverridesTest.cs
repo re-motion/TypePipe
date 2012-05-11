@@ -47,6 +47,10 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.AddedExplicitBaseDefinitions, Is.Empty);
+
+            var methods = mutableType.GetMethods();
+            Assert.That (methods.Where (mi => mi.Name == "OverridableMethod"), Is.EqualTo (new[] { mutableMethodInfo }));
+            Assert.That (methods, Has.No.Member (typeof (B).GetMethod ("OverridableMethod")));
           });
 
       var instance = (B) Activator.CreateInstance (type);
@@ -80,6 +84,10 @@ namespace TypePipe.IntegrationTests
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
+
+            var methods = mutableType.GetMethods();
+            Assert.That (methods.Where (mi => mi.Name == "OverridableMethodWithParameters"), Is.EqualTo (new[] { mutableMethodInfo }));
+            Assert.That (methods, Has.No.Member (typeof (B).GetMethod ("OverridableMethodWithParameters")));
           });
 
       var instance = (B) Activator.CreateInstance (type);
@@ -110,7 +118,6 @@ namespace TypePipe.IntegrationTests
                       ExpressionHelper.StringConcat (Expression.Constant ("Base: "), ctx.GetBaseCall (ctx.BaseMethod)),
                       ExpressionHelper.StringConcat (Expression.Constant (", previous body: "), ctx.GetPreviousBody ()));
                 });
-            
           });
 
       var instance = (B) Activator.CreateInstance (type);

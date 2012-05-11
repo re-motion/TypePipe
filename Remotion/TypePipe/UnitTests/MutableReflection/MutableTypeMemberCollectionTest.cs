@@ -94,50 +94,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetEnumerator_FiltersBaseMembersWithSameNameAndSignature ()
-    {
-      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
-      var existingBaseMember = _collection.ExistingBaseMembers.First();
-
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (existingBaseMember);
-      var addedMember = CreateMutableMember (existingBaseMember.Name, existingBaseMember.ReturnType, parameterDeclarations);
-      _collection.Add (addedMember);
-
-      IEnumerable<MethodInfo> enumerable = _collection;
-      Assert.That (enumerable, Has.Member (addedMember));
-      Assert.That (enumerable, Has.No.Member (existingBaseMember));
-    }
-
-    [Test]
-    public void GetEnumerator_DoesNotFilterMembersWithSameName()
-    {
-      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
-      var existingBaseMember = _collection.ExistingBaseMembers.First();
-
-      var addedMember = CreateMutableMember (name: existingBaseMember.Name);
-      _collection.Add (addedMember);
-
-      IEnumerable<MethodInfo> enumerable = _collection;
-      Assert.That (enumerable, Has.Member (addedMember));
-      Assert.That (enumerable, Has.Member (existingBaseMember));
-    }
-
-    [Test]
-    public void GetEnumerator_DoesNotFilterMembersWithSameSignature ()
-    {
-      Assert.That (_collection.ExistingBaseMembers, Is.Not.Empty);
-      var existingBaseMember = _collection.ExistingBaseMembers.First ();
-
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (existingBaseMember);
-      var addedMember = CreateMutableMember (returnType: existingBaseMember.ReturnType, parameterDeclarations: parameterDeclarations);
-      _collection.Add (addedMember);
-
-      IEnumerable<MethodInfo> enumerable = _collection;
-      Assert.That (enumerable, Has.Member (addedMember));
-      Assert.That (enumerable, Has.Member (existingBaseMember));
-    }
-
-    [Test]
     public void GetMutableMember_MutableMethodInfo ()
     {
       var mutableMember = CreateMutableMember();

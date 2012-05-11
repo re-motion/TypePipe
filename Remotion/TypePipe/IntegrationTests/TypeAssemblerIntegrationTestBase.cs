@@ -21,12 +21,14 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -159,6 +161,20 @@ namespace TypePipe.IntegrationTests
       var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
       var method = stackFrame.GetMethod ();
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
+    }
+
+    protected MutableMethodInfo AddEquivalentMethod (
+        MutableType mutableType,
+        MethodInfo template,
+        MethodAttributes methodAttributes,
+        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
+    {
+      return mutableType.AddMethod (
+          template.Name,
+          methodAttributes,
+          template.ReturnType,
+          ParameterDeclaration.CreateForEquivalentSignature (template),
+          bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
     }
   }
 }

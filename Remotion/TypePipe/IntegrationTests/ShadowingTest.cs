@@ -19,7 +19,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
@@ -32,11 +31,11 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<ModifiedType> (
           mutableType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
-                "OverridableMethod",
+            var shadowedMethod = typeof (ModifiedType).GetMethod ("OverridableMethod");
+            var mutableMethodInfo = AddEquivalentMethod (
+                mutableType, 
+                shadowedMethod,
                 MethodAttributes.Public,
-                typeof (string),
-                ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
@@ -49,6 +48,10 @@ namespace TypePipe.IntegrationTests
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
+
+            Assert.That (
+                mutableType.GetMethods ().Where (mi => mi.Name == "OverridableMethod"),
+                Is.EquivalentTo (new[] { mutableMethodInfo, typeof (ModifiedType).GetMethod ("OverridableMethod") }));
           });
 
       var instance = (ModifiedType) Activator.CreateInstance (type);
@@ -67,11 +70,11 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<ModifiedType> (
           mutableType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
-                "OverridableMethod",
+            var shadowedMethod = typeof (ModifiedType).GetMethod ("OverridableMethod");
+            var mutableMethodInfo = AddEquivalentMethod (
+                mutableType,
+                shadowedMethod,
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
-                typeof (string),
-                ParameterDeclaration.EmptyParameters,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
@@ -80,13 +83,17 @@ namespace TypePipe.IntegrationTests
                       ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
-            Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.SameAs (mutableMethodInfo));
+            Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
+
+            Assert.That (
+                mutableType.GetMethods().Where (mi => mi.Name == "OverridableMethod"),
+                Is.EquivalentTo (new[] { mutableMethodInfo, typeof (ModifiedType).GetMethod ("OverridableMethod") }));
           });
 
       var instance = (ModifiedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethod");
 
-      Assert.That (method.GetBaseDefinition (), Is.SameAs (method));
+      Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
 
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("DomainType shadowed"));

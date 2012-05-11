@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
-      _methods = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
+      _methods = new MutableTypeMethodCollection (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces

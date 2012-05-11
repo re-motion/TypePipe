@@ -747,6 +747,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetMethods_FiltersOverriddenMethods ()
+    {
+      var baseMethod = typeof (object).GetMethod ("ToString");
+      _relatedMethodFinderMock
+          .Stub (stub => stub.GetMostDerivedVirtualMethod (Arg.Is ("ToString"), Arg<MethodSignature>.Is.Anything, Arg<Type>.Is.Anything))
+          .Return (baseMethod);
+      var addedOverride = _mutableType.AddMethod (
+          baseMethod.Name,
+          MethodAttributes.Virtual,
+          baseMethod.ReturnType,
+          ParameterDeclaration.CreateForEquivalentSignature (baseMethod),
+          ctx => ExpressionTreeObjectMother.GetSomeExpression (baseMethod.ReturnType));
+      Assert.That (addedOverride.BaseMethod, Is.SameAs (baseMethod));
+      
+      var bindingAttr = BindingFlags.NonPublic;
+      _memberSelectorMock
+          .Expect (mock => mock.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Return (new MethodInfo[0])
+          .WhenCalled (mi =>
+          {
+            Assert.That (mi.Arguments[0], Has.Member (addedOverride));
+            Assert.That (mi.Arguments[0], Has.No.Member (typeof (DomainType).GetMethod ("ToString")));
+          });
+
+      _mutableType.GetMethods (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     public void GetOrAddMutableMethod ()
     {
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");

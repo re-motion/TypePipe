@@ -58,6 +58,25 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    public void ShadowingField ()
+    {
+      var nonPublicInstanceFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+      var existingField = typeof (OriginalType).GetField ("OriginalField", nonPublicInstanceFlags);
+      Assert.IsNotNull (existingField);
+
+      var type = AssembleType<DerivedType> (mutableType => 
+      { 
+        var addedField = mutableType.AddField (existingField.FieldType, existingField.Name, FieldAttributes.Family);
+
+        Assert.That (
+            mutableType.GetFields (nonPublicInstanceFlags),
+            Is.EquivalentTo (new[] { addedField, typeof (DerivedType).GetField ("OriginalField", nonPublicInstanceFlags) }));
+      });
+
+      Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "OriginalField" }));
+    }
+
+    [Test]
     public void WithCustomAttribute ()
     {
       var type = AssembleType<OriginalType> (
@@ -128,6 +147,10 @@ namespace TypePipe.IntegrationTests
     {
       // protected so that Reflection on the subclass proxy will return the field
       protected object OriginalField;
+    }
+
+    public class DerivedType : OriginalType
+    {
     }
 
     public class AddedAttribute : Attribute
