@@ -67,9 +67,9 @@ namespace Remotion.TypePipe.MutableReflection
       _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField, true);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-          this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
+        this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor, true);
       _methods = new MutableTypeMethodCollection (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 

@@ -17,9 +17,11 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -33,16 +35,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DerivedType));
+      _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
       Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
 
-      _collection = new MutableTypeMethodCollection (_declaringType, typeof (DerivedType).GetMethods (), mutableMemberProvider);
+      _collection = new MutableTypeMethodCollection (_declaringType, typeof (DomainType).GetMethods (), mutableMemberProvider);
     }
 
     [Test]
     public void GetEnumerator_FiltersOverriddenBaseMembers ()
     {
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.OverriddenMethod());
+      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.BaseMethod());
       Assert.That (_collection.ToArray (), Has.Member (overriddenMethod));
       
       var overridingMethod = MutableMethodInfoObjectMother.CreateForNew (_declaringType, baseMethod: overriddenMethod);
@@ -54,12 +56,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (enumeratedMethods, Has.No.Member (overriddenMethod));
     }
 
-    public class DomainType
+    [Test]
+    public void GetMutableMember_StandardMemberInfo_BaseDeclaringType ()
     {
-      public virtual void OverriddenMethod () { }
+      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
+
+      var result = _collection.GetMutableMember (baseMethod);
+
+      Assert.That (result, Is.Null);
     }
 
-    public class DerivedType : DomainType
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method is declared by a type outside of this type's hierarchy: 'System.String'.\r\nParameter name: member")]
+    public void GetMutableMember_UnrelatedDeclaringType ()
+    {
+      var memberStub = MockRepository.GenerateStub<MethodInfo>();
+      memberStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
+
+      Dev.Null = _collection.GetMutableMember (memberStub);
+    }
+
+    public class DomainTypeBase
+    {
+      public virtual void BaseMethod () { }
+    }
+
+    public class DomainType : DomainTypeBase
     { 
     }
   }

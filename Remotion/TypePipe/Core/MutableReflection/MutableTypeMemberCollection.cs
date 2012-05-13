@@ -21,7 +21,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Collections;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -42,17 +41,20 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingDeclaredMembers;
     private readonly ReadOnlyCollection<TMemberInfo> _existingBaseMembers;
     private readonly List<TMutableMemberInfo> _addedMembers = new List<TMutableMemberInfo>();
+    private readonly bool _throwIfNoMutableMemberFound;
 
     public MutableTypeMemberCollection (
         MutableType declaringType,
         IEnumerable<TMemberInfo> existingMembers,
-        Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)
+        Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider,
+        bool throwIfNoMutableMemberFound)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("existingMembers", existingMembers);
       ArgumentUtility.CheckNotNull ("mutableMemberProvider", mutableMemberProvider);
 
       _declaringType = declaringType;
+      _throwIfNoMutableMemberFound = throwIfNoMutableMemberFound;
 
       var declaredMembers = new Dictionary<TMemberInfo, TMutableMemberInfo>();
       var baseMembers = new List<TMemberInfo>();
@@ -101,15 +103,15 @@ namespace Remotion.TypePipe.MutableReflection
     public TMutableMemberInfo GetMutableMember (TMemberInfo member)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      CheckDeclaringType ("member", member);
+      CheckDeclaringType (_declaringType, member, "member");
 
       if (member is TMutableMemberInfo)
         return (TMutableMemberInfo) member;
 
       var mutableMember = _existingDeclaredMembers.GetValueOrDefault (member);
-      if (mutableMember == null)
+      if (mutableMember == null && _throwIfNoMutableMemberFound)
       {
-        var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName());
+        var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName().ToLower());
         throw new NotSupportedException (message);
       }
 
@@ -119,7 +121,7 @@ namespace Remotion.TypePipe.MutableReflection
     public void Add (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
-      CheckDeclaringType ("mutableMember", mutableMember);
+      CheckDeclaringTypeEquivalence ("mutableMember", mutableMember, _declaringType);
 
       _addedMembers.Add (mutableMember);
     }
@@ -129,18 +131,23 @@ namespace Remotion.TypePipe.MutableReflection
       return baseMembers;
     }
 
-    private void CheckDeclaringType (string parameterName, MemberInfo member)
+    protected virtual void CheckDeclaringType (MutableType declaringType, TMemberInfo member, string parameterName)
     {
-      if (!_declaringType.IsEquivalentTo (member.DeclaringType))
+      CheckDeclaringTypeEquivalence (parameterName, member, declaringType);
+    }
+
+    private void CheckDeclaringTypeEquivalence (string parameterName, TMemberInfo member, MutableType declaringType)
+    {
+      if (!declaringType.IsEquivalentTo (member.DeclaringType))
       {
-        var message = string.Format ("{0} is declared by a different type: '{1}'.", GetMemberTypeName(), member.DeclaringType);
+        var message = string.Format ("{0} is declared by a different type: '{1}'.", GetMemberTypeName (), member.DeclaringType);
         throw new ArgumentException (message, parameterName);
       }
     }
 
     private string GetMemberTypeName ()
     {
-      return typeof (TMemberInfo).Name;
+      return typeof (TMemberInfo).Name.Replace ("Info", "");
     }
   }
 }

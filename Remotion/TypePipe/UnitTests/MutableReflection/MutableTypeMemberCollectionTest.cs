@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MethodInfo[] _declaredMembers;
     private MethodInfo[] _baseMembers;
     private MethodInfo[] _allExistingMembers;
+    private Func<MethodInfo, MutableMethodInfo> _mutableMemberProvider;
 
     private MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _collection;
 
@@ -49,9 +50,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _declaredMembers = allDeclaredMembers.Except (new[] { _excludedDeclaredMember }).ToArray();
       _baseMembers = typeof (DomainType).GetMethods (c_all).Except (allDeclaredMembers).ToArray();
       _allExistingMembers = _declaredMembers.Concat (_baseMembers).ToArray();
-      Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
+      _mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
 
-      _collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers.AsOneTime(), mutableMemberProvider);
+      _collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (
+          _declaringType, _allExistingMembers.AsOneTime(), _mutableMemberProvider, true);
     }
 
     [Test]
@@ -94,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMutableMember_MutableMethodInfo ()
+    public void GetMutableMember_MutableMemeberInfo ()
     {
       var mutableMember = CreateMutableMember();
       _collection.Add (mutableMember);
@@ -117,16 +119,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given MethodInfo cannot be modified.")]
-    public void GetMutableMember_StandardMemberInfo_NoMatch ()
+    public void GetMutableMember_StandardMemberInfo_NoMatch_ReturnsNull ()
     {
-      Assert.That (_excludedDeclaredMember, Is.Not.AssignableTo<MutableMethodInfo> ());
+      var collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers, _mutableMemberProvider, false);
+      Assert.That (collection.GetMutableMember (_excludedDeclaredMember), Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given method cannot be modified.")]
+    public void GetMutableMember_StandardMemberInfo_NoMatch_Throws ()
+    {
       Dev.Null = _collection.GetMutableMember(_excludedDeclaredMember);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "MethodInfo is declared by a different type: 'System.String'.\r\nParameter name: member")]
+        "Method is declared by a different type: 'System.String'.\r\nParameter name: member")]
     public void GetMutableMember_NonEquivalentDeclaringType ()
     {
       var memberStub = MockRepository.GenerateStub<MethodInfo> ();
@@ -147,7 +155,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "MethodInfo is declared by a different type: 'Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeMemberCollectionTest'.\r\n"
+        "Method is declared by a different type: 'Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeMemberCollectionTest'.\r\n"
         + "Parameter name: mutableMember")]
     public void Add_NonEquivalentDeclaringType ()
     {

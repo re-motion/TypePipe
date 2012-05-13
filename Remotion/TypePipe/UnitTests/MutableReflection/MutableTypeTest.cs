@@ -777,7 +777,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddMutableMethod ()
+    public void GetOrAddMutableMethod_ExistingMethod ()
     {
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
       Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo>());
@@ -786,6 +786,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
       Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
+    }
+
+    [Test]
+    public void GetOrAddMutableMethod_ExistingOverride ()
+    {
+      var baseMethod = _descriptor.Methods.Single (m => m.Name == "VirtualBaseMethod");
+
+      var fakeExistingOverride = MutableMethodInfoObjectMother.Create();
+      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseMethod, _mutableType.AllMutableMethods)).Return (fakeExistingOverride);
+
+      var result = _mutableType.GetOrAddMutableMethod (baseMethod);
+
+      Assert.That (result, Is.SameAs (fakeExistingOverride));
     }
 
     [Test]

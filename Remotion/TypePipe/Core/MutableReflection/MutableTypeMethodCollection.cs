@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public MutableTypeMethodCollection (
         MutableType declaringType, IEnumerable<MethodInfo> existingMembers, Func<MethodInfo, MutableMethodInfo> mutableMemberProvider)
-        : base (declaringType, existingMembers, mutableMemberProvider)
+        : base (declaringType, existingMembers, mutableMemberProvider, false)
     {
     }
 
@@ -36,6 +36,15 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var overridenBaseDefinitions = AddedMembers.Select (mi => mi.GetBaseDefinition());
       return baseMembers.Where (m => !overridenBaseDefinitions.Contains (m.GetBaseDefinition()));
+    }
+
+    protected override void CheckDeclaringType (MutableType declaringType, MethodInfo method, string parameterName)
+    {
+      if (!declaringType.IsAssignableTo (method.DeclaringType))
+      {
+        var message = string.Format ("Method is declared by a type outside of this type's hierarchy: '{0}'.", method.DeclaringType);
+        throw new ArgumentException (message, parameterName);
+      }
     }
   }
 }
