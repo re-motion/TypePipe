@@ -73,5 +73,15 @@ namespace Remotion.TypePipe.MutableReflection
     /// <param name="shadowingCandidates">The methods to be considered for determining the shadowing status.</param>
     /// <returns><see langword="true"/> if <paramref name="baseDefinition"/> is shadowed, <see langword="false"/> otherwise.</returns>
     bool IsShadowed(MethodInfo baseDefinition, IEnumerable<MethodInfo> shadowingCandidates);
+
+    /// <summary>
+    /// Gets the single <see cref="MutableMethodInfo"/> in <paramref name="overrideCandidates"/> overriding <paramref name="baseDefinition"/> either
+    /// implicitly or explicitly. If <paramref name="baseDefinition"/> is not overridden by any method in <paramref name="overrideCandidates"/>,
+    /// <see langword="null"/> is returned.
+    /// </summary>
+    /// <param name="baseDefinition">The base definition to search an override for.</param>
+    /// <param name="overrideCandidates">The methods included in the search for an override.</param>
+    /// <returns>The directly overridden method, or <see langword="null" /> if no such method exists.</returns>
+    MutableMethodInfo GetOverride (MethodInfo baseDefinition, IEnumerable<MutableMethodInfo> overrideCandidates);
   }
 }

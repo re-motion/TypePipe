@@ -78,7 +78,8 @@ namespace Remotion.TypePipe.MutableReflection
                && m.GetBaseDefinition() != baseDefinition);
     }
 
-    public MutableMethodInfo GetOverride(MethodInfo baseDefinition, IEnumerable<MutableMethodInfo> overrideCandidates)
+    /// <inheritdoc />
+    public MutableMethodInfo GetOverride (MethodInfo baseDefinition, IEnumerable<MutableMethodInfo> overrideCandidates)
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("overrideCandidates", overrideCandidates);
