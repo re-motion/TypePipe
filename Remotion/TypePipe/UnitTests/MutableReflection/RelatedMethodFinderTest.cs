@@ -332,9 +332,63 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.False);
     }
 
-    private IEnumerable<MethodInfo> GetDeclaredMethods (Type type)
+    [Test]
+    public void GetOverride_VirtualMethodShadowingBaseMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
+      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
+
+      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetOverride_OverridingMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
+      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
+
+      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
+
+      var expected = overrideCandidates.Single (m => m.Name == "OverridingMethod");
+      Assert.That (result, Is.SameAs (expected));
+    }
+
+    [Test]
+    public void GetOverride_OverridingShadowingMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod());
+      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
+
+      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetOverride_UnrelatedMethod_ExplicitOverride ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
+
+      Assert.That (_finder.GetOverride (baseDefinition, overrideCandidates), Is.Null);
+      var explicitOverride = overrideCandidates.Single (m => m.Name == "DerivedTypeMethod");
+      explicitOverride.AddExplicitBaseDefinition (baseDefinition);
+
+      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
+
+      Assert.That (result, Is.SameAs (explicitOverride));
+    }
+
+    private MethodInfo[] GetDeclaredMethods (Type type)
     {
       return type.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+    }
+
+    private MutableMethodInfo[]  GetDeclaredMutableMethods (Type type)
+    {
+      return GetDeclaredMethods (type).Select (m => MutableMethodInfoObjectMother.CreateForExisting (originalMethodInfo: m)).ToArray();
     }
 
     // ReSharper disable UnusedMember.Local

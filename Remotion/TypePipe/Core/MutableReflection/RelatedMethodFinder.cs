@@ -78,6 +78,17 @@ namespace Remotion.TypePipe.MutableReflection
                && m.GetBaseDefinition() != baseDefinition);
     }
 
+    public MutableMethodInfo GetOverride(MethodInfo baseDefinition, IEnumerable<MutableMethodInfo> overrideCandidates)
+    {
+      ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
+      ArgumentUtility.CheckNotNull ("overrideCandidates", overrideCandidates);
+      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition ());
+
+      return overrideCandidates.SingleOrDefault (
+          m => m.GetBaseDefinition().Equals (baseDefinition)
+               || m.AddedExplicitBaseDefinitions.Contains (baseDefinition));
+    }
+
     private MethodInfo FirstOrDefaultFromOrderedBaseMethods (Type typeToStartSearch, Func<MethodInfo, bool> predicate)
     {
       var baseTypeSequence = typeToStartSearch.CreateSequence (t => t.BaseType);
