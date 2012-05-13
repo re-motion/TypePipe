@@ -15,8 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -118,11 +121,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMostDerivedVirtualMethod_NonVirtualMethodShadowingVirtualMethod ()
+    public void GetMostDerivedVirtualMethod_NonVirtualMethodShadowingBaseMethod ()
     {
-      var result = _finder.GetMostDerivedVirtualMethod ("NonVirtualMethodShadowingVirtualMethod", _methodSignature, _typeToStartSearch);
+      var result = _finder.GetMostDerivedVirtualMethod ("NonVirtualMethodShadowingBaseMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingVirtualMethod());
+      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingBaseMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
@@ -198,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod ());
       Assert.That (method.IsVirtual, Is.True);
       Assert.That (MethodAttributeUtility.IsSet (method.Attributes, MethodAttributes.NewSlot) , Is.True);
-      Assert.That (typeof (DomainTypeBase).GetMethod ("VirtualMethodShadowingBaseMethod"), Is.Not.Null);
+      Assert.That (typeof (DomainTypeBase).GetMethod ("VirtualMethodShadowingBaseMethod", Type.EmptyTypes), Is.Not.Null);
 
       var result = _finder.GetBaseMethod (method);
 
@@ -227,12 +230,120 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.EqualTo (expectedMethod));
     }
 
+    [Test]
+    public void IsShadowed_BaseTypeMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.False);
+    }
+
+    [Test]
+    public void IsShadowed_BaseTypeMethod_NotShadowedByItself ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod ());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainTypeBase));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.False);
+    }
+
+    [Test]
+    public void IsShadowed_OverridingMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod ());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));      
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.False);
+    }
+
+    [Test]
+    public void IsShadowed_VirtualMethodShadowingBaseMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.True);
+    }
+
+    [Test]
+    public void IsShadowed_NonVirtualMethodShadowingBaseMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingBaseMethod());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.True);
+    }
+
+    [Test]
+    public void IsShadowed_ShadowingOverridenMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.ShadowingOverridenMethod ());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.True);
+    }
+
+    [Test]
+    public void IsShadowed_OverridingShadowingMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod ());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.True);
+    }
+
+    [Test]
+    public void IsShadowed_VirtualMethodShadowingBaseMethod_NonMatchingSignature ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod (7));
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.False);
+    }
+
+    [Test]
+    public void IsShadowed_UnrelatedMethod ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod());
+      var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
+
+      var unrelatedMethod = shadowingCandidates.Single (m => m.Name == "UnrelatedMethod");
+      Assert.That (MethodSignature.AreEqual(baseDefinition, unrelatedMethod), Is.True);
+
+      var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
+
+      Assert.That (result, Is.False);
+    }
+
+    private IEnumerable<MethodInfo> GetDeclaredMethods (Type type)
+    {
+      return type.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+    }
+
     // ReSharper disable UnusedMember.Local
     // ReSharper disable VirtualMemberNeverOverriden.Global
     private class DomainTypeBaseBase
     {
       public virtual void OverridingOverriddenMethod() { }
       public virtual void ShadowingOverridenMethod () { }
+      public virtual void OverridingShadowingMethod () { }
     }
 
     private class DomainTypeBase : DomainTypeBaseBase
@@ -242,9 +353,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public virtual void OverridingMethod () { }
       public override void OverridingOverriddenMethod () { }
       public override void ShadowingOverridenMethod () { }
+      public new virtual void OverridingShadowingMethod () { }
 
       public virtual void VirtualMethodShadowingBaseMethod () { }
-      public virtual void NonVirtualMethodShadowingVirtualMethod () { }
+      // This method lies, it is not shadowed (but we need a method with equal name)
+      public virtual void VirtualMethodShadowingBaseMethod (int i) { Dev.Null = i; }
+      public virtual void NonVirtualMethodShadowingBaseMethod () { }
     }
 
     // ReSharper disable ClassWithVirtualMembersNeverInherited.Local
@@ -259,10 +373,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override void OverridingMethod () { }
       public override void OverridingOverriddenMethod () { }
       public new virtual void ShadowingOverridenMethod () { }
+      public override void OverridingShadowingMethod () { }
 
       public new virtual void VirtualMethodShadowingBaseMethod () { }
-      public new void NonVirtualMethodShadowingVirtualMethod () { }
+      public new void NonVirtualMethodShadowingBaseMethod () { }
+      
+      public virtual void UnrelatedMethod () { }
     }
+
+    private class UnrelatedType
+    {
+      public virtual void UnrelatedMethod () { }
+    }
+
     // ReSharper restore VirtualMemberNeverOverriden.Global
     // ReSharper restore UnusedMember.Local
   }

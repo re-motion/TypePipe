@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Reflection.MemberSignatures;
 
@@ -22,6 +23,7 @@ namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Defines an interface for classes providing methods for investigating method overrides.
+  /// This is used by <see cref="MutableType"/>.
   /// </summary>
   public interface IRelatedMethodFinder
   {
@@ -63,5 +65,13 @@ namespace Remotion.TypePipe.MutableReflection
     /// The returned <see cref="MethodInfo"/> has its <see cref="MemberInfo.ReflectedType"/> set to its <see cref="MemberInfo.DeclaringType"/>.
     /// </remarks>
     MethodInfo GetBaseMethod (MethodInfo method);
+
+    /// <summary>
+    /// Determines if <paramref name="baseDefinition"/> is shadowed by one of the methods in <paramref name="shadowingCandidates"/>.
+    /// </summary>
+    /// <param name="baseDefinition">The base definition which might be shadowed.</param>
+    /// <param name="shadowingCandidates">The methods to be considered for determining the shadowing status.</param>
+    /// <returns><see langword="true"/> if <paramref name="baseDefinition"/> is shadowed, <see langword="false"/> otherwise.</returns>
+    bool IsShadowed(MethodInfo baseDefinition, IEnumerable<MethodInfo> shadowingCandidates);
   }
 }

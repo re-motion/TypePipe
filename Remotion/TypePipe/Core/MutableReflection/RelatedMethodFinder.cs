@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
@@ -25,7 +26,6 @@ namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Provides useful methods for investigating method overrides.
-  /// This is used by <see cref="MutableType"/>.
   /// </summary>
   public class RelatedMethodFinder : IRelatedMethodFinder
   {
@@ -62,6 +62,20 @@ namespace Remotion.TypePipe.MutableReflection
 
       Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition);
       return FirstOrDefaultFromOrderedBaseMethods (method.DeclaringType.BaseType, predicate);
+    }
+
+    /// <inheritdoc />
+    public bool IsShadowed(MethodInfo baseDefinition, IEnumerable<MethodInfo> shadowingCandidates)
+    {
+      ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
+      ArgumentUtility.CheckNotNull ("shadowingCandidates", shadowingCandidates);
+      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition ());
+
+      return shadowingCandidates.Any (
+          m => m.Name == baseDefinition.Name
+               && MethodSignature.AreEqual (m, baseDefinition)
+               && baseDefinition.DeclaringType.IsAssignableFrom (m.DeclaringType.BaseType)
+               && m.GetBaseDefinition() != baseDefinition);
     }
 
     private MethodInfo FirstOrDefaultFromOrderedBaseMethods (Type typeToStartSearch, Func<MethodInfo, bool> predicate)
