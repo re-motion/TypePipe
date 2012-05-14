@@ -25,6 +25,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MethodAttributeUtilityTest
   {
     [Test]
+    public void AdjustVisibility ()
+    {
+      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Public), Is.EqualTo (MethodAttributes.Public));
+      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.FamORAssem), Is.EqualTo (MethodAttributes.Family));
+      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Family), Is.EqualTo (MethodAttributes.Family));
+      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.FamANDAssem), Is.EqualTo (MethodAttributes.FamANDAssem));
+      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Assembly), Is.EqualTo (MethodAttributes.Assembly));
+      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Private), Is.EqualTo (MethodAttributes.Private));
+    }
+
+    [Test]
     public void ChangeVisibility ()
     {
       var originalAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual;

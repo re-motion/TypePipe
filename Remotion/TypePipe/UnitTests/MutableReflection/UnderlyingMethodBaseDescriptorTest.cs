@@ -19,7 +19,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -38,38 +37,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalBodyExpression = ((OriginalBodyExpression) result);
       Assert.That (originalBodyExpression.Type, Is.SameAs (returnType));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { parameterDeclarations[0].Expression, parameterDeclarations[1].Expression }));
-    }
-
-    [Test]
-    public void GetMethodAttributesWithAdjustedVisibiity_NonFamilyOrAssemblyMethod ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonFamilyOrAssemblyMethod ());
-
-      var attributes = TestableUnderlyingMethodBaseDescriptor<MethodBase>.GetMethodAttributesWithAdjustedVisibiity (method);
-
-      Assert.That (attributes, Is.EqualTo (method.Attributes));
-    }
-
-    [Test]
-    public void GetMethodAttributesWithAdjustedVisibiity_FamilyOrAssemblyMethod ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FamilyOrAssemblyMethod ());
-      Assert.That (method.Attributes, Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.HideBySig));
-
-      var attributes = TestableUnderlyingMethodBaseDescriptor<MethodBase>.GetMethodAttributesWithAdjustedVisibiity (method);
-
-      Assert.That (attributes, Is.EqualTo (MethodAttributes.Family | MethodAttributes.HideBySig));
-    }
-
-    private abstract class DomainType
-    {
-      public void NonFamilyOrAssemblyMethod ()
-      {
-      }
-
-      protected internal void FamilyOrAssemblyMethod ()
-      {
-      }
     }
   }
 }

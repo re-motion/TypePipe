@@ -24,6 +24,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class MethodAttributeUtility
   {
+    public static MethodAttributes AdjustVisibility(MethodAttributes originalAttributes)
+    {
+      return IsSet (originalAttributes, MethodAttributes.FamORAssem)
+                 ? ChangeVisibility (originalAttributes, MethodAttributes.Family)
+                 : originalAttributes;
+    }
+
     public static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
     {
       return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;

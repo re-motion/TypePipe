@@ -73,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
-      var attributes = GetMethodAttributesWithAdjustedVisibiity (originalMethod);
+      var attributes = MethodAttributeUtility.AdjustVisibility (originalMethod.Attributes);
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
       var body = CreateOriginalBodyExpression (originalMethod.ReturnType, parameterDeclarations);

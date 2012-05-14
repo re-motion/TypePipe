@@ -30,11 +30,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return UnderlyingMethodBaseDescriptor<TMethodBase>.CreateOriginalBodyExpression (returnType, parameterDeclarations);
     }
 
-    public static new MethodAttributes GetMethodAttributesWithAdjustedVisibiity (TMethodBase originalMethodBase)
-    {
-      return UnderlyingMethodBaseDescriptor<TMethodBase>.GetMethodAttributesWithAdjustedVisibiity (originalMethodBase);
-    }
-
     public TestableUnderlyingMethodBaseDescriptor (
         TMethodBase underlyingSystemMethodBase,
         string name,

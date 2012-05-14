@@ -44,15 +44,6 @@ namespace Remotion.TypePipe.MutableReflection
       return new OriginalBodyExpression (returnType, parameterExpressions.Cast<Expression> ());
     }
 
-    protected static MethodAttributes GetMethodAttributesWithAdjustedVisibiity (TMethodBase originalMethodBase)
-    {
-      ArgumentUtility.CheckNotNull ("originalMethodBase", originalMethodBase);
-
-      return originalMethodBase.IsFamilyOrAssembly
-                 ? MethodAttributeUtility.ChangeVisibility (originalMethodBase.Attributes, MethodAttributes.Family)
-                 : originalMethodBase.Attributes;
-    }
-
     private readonly TMethodBase _underlyingSystemMethodBase;
     private readonly string _name;
     private readonly MethodAttributes _attributes;

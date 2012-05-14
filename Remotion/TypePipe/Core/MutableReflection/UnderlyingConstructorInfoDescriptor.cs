@@ -45,17 +45,17 @@ namespace Remotion.TypePipe.MutableReflection
       return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarationReadOnlyCollection, body);
     }
 
-    public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructorInfo)
+    public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructor)
     {
-      ArgumentUtility.CheckNotNull ("originalConstructorInfo", originalConstructorInfo);
+      ArgumentUtility.CheckNotNull ("originalConstructor", originalConstructor);
 
       // TODO 4695
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
-      var attributes = GetMethodAttributesWithAdjustedVisibiity (originalConstructorInfo);
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature(originalConstructorInfo).ToList().AsReadOnly();
+      var attributes = MethodAttributeUtility.AdjustVisibility (originalConstructor.Attributes);
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature(originalConstructor).ToList().AsReadOnly();
       var body = CreateOriginalBodyExpression (typeof (void), parameterDeclarations);
 
-      return new UnderlyingConstructorInfoDescriptor (originalConstructorInfo, attributes, parameterDeclarations, body);
+      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDeclarations, body);
     }
 
     private UnderlyingConstructorInfoDescriptor (
