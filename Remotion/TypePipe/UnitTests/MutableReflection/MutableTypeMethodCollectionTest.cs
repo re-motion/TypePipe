@@ -15,11 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
-using System.Linq;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -59,22 +59,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableMember_StandardMemberInfo_BaseDeclaringType ()
     {
-      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
 
-      var result = _collection.GetMutableMember (baseMethod);
+      var result = _collection.GetMutableMember (method);
 
       Assert.That (result, Is.Null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's hierarchy: 'System.String'.\r\nParameter name: member")]
+        "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: member")]
+    public void GetMutableMember_Interface ()
+    {
+      var method = MemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
+      _collection.GetMutableMember (method);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: member")]
     public void GetMutableMember_UnrelatedDeclaringType ()
     {
-      var memberStub = MockRepository.GenerateStub<MethodInfo>();
-      memberStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
-
-      Dev.Null = _collection.GetMutableMember (memberStub);
+      var method = MemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim());
+      _collection.GetMutableMember (method);
     }
 
     public class DomainTypeBase
@@ -82,8 +89,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public virtual void BaseMethod () { }
     }
 
-    public class DomainType : DomainTypeBase
-    { 
+    public interface IDomainInterface
+    {
+      void InterfaceMethod ();
+    }
+
+    public class DomainType : DomainTypeBase, IDomainInterface
+    {
+      public void InterfaceMethod () { }
     }
   }
 }

@@ -352,7 +352,7 @@ namespace Remotion.TypePipe.MutableReflection
         return mutableMethod;
 
       if (!method.IsVirtual)
-        throw new ArgumentException("Methods declared in the base type hierarchy must be virtual in order to be modifiable.", "method");
+        throw new NotSupportedException ("A method declared in a base type must be virtual in order to be modified.");
 
       var baseDefinition = method.GetBaseDefinition();
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, AllMutableMethods);

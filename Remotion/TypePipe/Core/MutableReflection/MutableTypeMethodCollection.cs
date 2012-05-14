@@ -40,9 +40,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override void CheckDeclaringType (MutableType declaringType, MethodInfo method, string parameterName)
     {
-      if (!declaringType.IsAssignableTo (method.DeclaringType))
+      if (!declaringType.IsEquivalentTo (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
       {
-        var message = string.Format ("Method is declared by a type outside of this type's hierarchy: '{0}'.", method.DeclaringType);
+        var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
         throw new ArgumentException (message, parameterName);
       }
     }

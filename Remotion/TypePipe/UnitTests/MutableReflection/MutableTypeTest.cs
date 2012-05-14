@@ -861,8 +861,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Methods declared in the base type hierarchy must be virtual in order to be modifiable.\r\nParameter name: method")]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "A method declared in a base type must be virtual in order to be modified.")]
     public void GetOrAddMutableMethod_NonVirtualMethod ()
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod());
