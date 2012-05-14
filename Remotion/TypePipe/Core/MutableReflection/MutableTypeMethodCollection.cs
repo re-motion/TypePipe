@@ -38,12 +38,12 @@ namespace Remotion.TypePipe.MutableReflection
       return baseMembers.Where (m => !overridenBaseDefinitions.Contains (m.GetBaseDefinition()));
     }
 
-    protected override void CheckDeclaringType (MutableType declaringType, MethodInfo method, string parameterName)
+    protected override void CheckDeclaringType (MutableType declaringType, MethodInfo method)
     {
       if (!declaringType.IsEquivalentTo (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
       {
         var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
-        throw new ArgumentException (message, parameterName);
+        throw new ArgumentException (message, "method");
       }
     }
   }

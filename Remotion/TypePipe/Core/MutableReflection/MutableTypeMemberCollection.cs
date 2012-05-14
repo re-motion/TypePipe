@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
     public TMutableMemberInfo GetMutableMember (TMemberInfo member)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      CheckDeclaringType (_declaringType, member, "member");
+      CheckDeclaringType (_declaringType, member);
 
       if (member is TMutableMemberInfo)
         return (TMutableMemberInfo) member;
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.MutableReflection
     public void Add (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
-      CheckDeclaringTypeEquivalence ("mutableMember", mutableMember, _declaringType);
+      CheckDeclaringTypeEquivalence (_declaringType, mutableMember);
 
       _addedMembers.Add (mutableMember);
     }
@@ -131,16 +131,17 @@ namespace Remotion.TypePipe.MutableReflection
       return baseMembers;
     }
 
-    protected virtual void CheckDeclaringType (MutableType declaringType, TMemberInfo member, string parameterName)
+    protected virtual void CheckDeclaringType (MutableType declaringType, TMemberInfo member)
     {
-      CheckDeclaringTypeEquivalence (parameterName, member, declaringType);
+      CheckDeclaringTypeEquivalence (declaringType, member);
     }
 
-    private void CheckDeclaringTypeEquivalence (string parameterName, TMemberInfo member, MutableType declaringType)
+    private void CheckDeclaringTypeEquivalence (MutableType declaringType, TMemberInfo member)
     {
       if (!declaringType.IsEquivalentTo (member.DeclaringType))
       {
         var message = string.Format ("{0} is declared by a different type: '{1}'.", GetMemberTypeName (), member.DeclaringType);
+        var parameterName = GetMemberTypeName().ToLower();
         throw new ArgumentException (message, parameterName);
       }
     }

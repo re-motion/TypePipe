@@ -18,10 +18,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -68,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: member")]
+        "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: method")]
     public void GetMutableMember_Interface ()
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
@@ -77,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: member")]
+        "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
     public void GetMutableMember_UnrelatedDeclaringType ()
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim());
