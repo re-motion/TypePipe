@@ -789,6 +789,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore("TODO 4839")]
     public void GetOrAddMutableMethod_ExistingOverride ()
     {
       var baseMethod = _descriptor.Methods.Single (m => m.Name == "VirtualBaseMethod");
