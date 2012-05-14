@@ -167,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
 
-      var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType.Method";
+      var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType_Method";
       var expectedAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
       _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedName, expectedAttributes));
 

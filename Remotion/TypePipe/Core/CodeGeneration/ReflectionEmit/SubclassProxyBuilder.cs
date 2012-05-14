@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       CheckMemberState (method, "method", isNew: false, isModified: true);
 
       // Modified methods are added as explicit method overrides for the underlying method
-      var explicitMethodOverrideName = method.DeclaringType.FullName + "." + method.Name;
+      var explicitMethodOverrideName = MethodNameUtility.GetExplicitOverrideMethodName (method);
       var explicitMethodOverrideAttributes = MethodAttributeUtility.ChangeVisibility (method.Attributes, MethodAttributes.Private);
       _memberEmitter.AddMethod (_context, method, explicitMethodOverrideName, explicitMethodOverrideAttributes);
 

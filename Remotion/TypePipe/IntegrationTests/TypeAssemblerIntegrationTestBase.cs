@@ -115,7 +115,7 @@ namespace TypePipe.IntegrationTests
 
     protected MethodInfo GetDeclaredExplicitOverrideMethod (Type type, string nameSuffix)
     {
-      var method = type.GetMethods (c_allDeclared).SingleOrDefault (m => m.Name.EndsWith ("." + nameSuffix));
+      var method = type.GetMethods (c_allDeclared).SingleOrDefault (m => m.Name.EndsWith ("_" + nameSuffix));
       Assert.That (method, Is.Not.Null);
       return method;
     }

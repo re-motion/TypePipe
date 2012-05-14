@@ -126,6 +126,7 @@
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />
     <Compile Include="MutableReflection\MethodAttributeUtility.cs" />
+    <Compile Include="MutableReflection\MethodNameUtility.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberCollection.cs" />
     <Compile Include="MutableReflection\MutableTypeMethodCollection.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
