@@ -23,9 +23,11 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -271,7 +273,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
 
       Assert.IsNotNull (_mutableType.BaseType); // For ReSharper...
-      Assert.That (_mutableType.BaseType.BaseType, Is.SameAs (typeof (object)));
+      Assert.That (_mutableType.BaseType.BaseType, Is.SameAs (typeof (C)));
+      Assert.That (_mutableType.IsAssignableTo (typeof (C)), Is.True);
       Assert.That (_mutableType.IsAssignableTo (typeof (object)), Is.True);
 
       Assert.That (underlyingSystemType.GetInterfaces(), Has.Member (typeof (IDomainInterface)));
@@ -777,7 +780,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddMutableMethod_ExistingMethod ()
+    public void GetOrAddMutableMethod_ExistingMethod_UsesMemberCollection ()
     {
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
       Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo>());
@@ -789,17 +792,108 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore("TODO 4839")]
     public void GetOrAddMutableMethod_ExistingOverride ()
     {
-      var baseMethod = _descriptor.Methods.Single (m => m.Name == "VirtualBaseMethod");
+      var baseMethodStub = MockRepository.GenerateStub<MethodInfo>();
+      var fakeBaseDefinition = ReflectionObjectMother.GetSomeMethod ();
+      baseMethodStub.Stub (stub => baseMethodStub.DeclaringType).Return (typeof (DomainTypeBase));
+      baseMethodStub.Stub (stub => baseMethodStub.GetBaseDefinition()).Return (fakeBaseDefinition);
 
       var fakeExistingOverride = MutableMethodInfoObjectMother.Create();
-      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseMethod, _mutableType.AllMutableMethods)).Return (fakeExistingOverride);
+      _relatedMethodFinderMock
+          .Expect (
+              mock => mock.GetOverride (Arg.Is (fakeBaseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
+          .Return (fakeExistingOverride);
 
-      var result = _mutableType.GetOrAddMutableMethod (baseMethod);
+      var result = _mutableType.GetOrAddMutableMethod (baseMethodStub);
 
+      _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
+    }
+
+    [Test]
+    public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.ProtectedOrInternalOverrideInBase (7));
+      var input = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalOverrideInBase (7));
+      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.ProtectedOrInternalOverrideInBase (7));
+
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
+          .Return (null);
+      _relatedMethodFinderMock
+          .Expect (mock => mock.IsShadowed (baseDefinition, GetAllMethods (_mutableType)))
+          .Return (false);
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeof (DomainTypeBase)))
+          .Return (baseMethod);
+      var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FakeBaseMethod (7));
+      _relatedMethodFinderMock
+          .Expect (
+              mock => mock.GetMostDerivedVirtualMethod (baseMethod.Name, MethodSignature.Create (baseMethod), _mutableType.BaseType))
+          .Return (fakeBaseMethod);
+
+      var result = _mutableType.GetOrAddMutableMethod (input);
+
+      _relatedMethodFinderMock.VerifyAllExpectations ();
+
+      Assert.That (result.AddedExplicitBaseDefinitions, Is.Empty);
+      Assert.That (result.BaseMethod, Is.SameAs (fakeBaseMethod));
+      Assert.That (result.Name, Is.EqualTo ("ProtectedOrInternalOverrideInBase"));
+      Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+      Assert.That (result.ReturnType, Is.SameAs (input.ReturnType));
+      var parameter = result.GetParameters().Single();
+      Assert.That (parameter.ParameterType, Is.SameAs (typeof (int)));
+      Assert.That (parameter.Name, Is.EqualTo ("parameterName"));
+
+      Assert.That (result.Body, Is.InstanceOf<MethodCallExpression>());
+      var methodCallExpression = (MethodCallExpression) result.Body;
+      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter>());
+      var baceCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (baseMethod));
+    }
+
+    [Test]
+    public void GetOrAddMutableMethod_ShadowedBaseMethod_ExplicitOverride ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.ProtectedOrInternalOverrideInBase (7));
+      var input = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalOverrideInBase (7));
+      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.ProtectedOrInternalOverrideInBase (7));
+
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
+          .Return (null);
+      _relatedMethodFinderMock
+          .Expect (mock => mock.IsShadowed (baseDefinition, GetAllMethods (_mutableType)))
+          .Return (true);
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeof (DomainTypeBase)))
+          .Return (baseMethod);
+      // Needed for AddMethod
+      var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FakeBaseMethod (7));
+      _relatedMethodFinderMock
+          .Expect (
+              mock => mock.GetMostDerivedVirtualMethod ("Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeTest+C_ProtectedOrInternalOverrideInBase", MethodSignature.Create (baseMethod), _mutableType.BaseType))
+          .Return (null);
+
+      var result = _mutableType.GetOrAddMutableMethod (input);
+
+      _relatedMethodFinderMock.VerifyAllExpectations ();
+
+      Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { baseDefinition }));
+      Assert.That (result.BaseMethod, Is.Null);
+      Assert.That (result.Name, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeTest+C_ProtectedOrInternalOverrideInBase"));
+      Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+      Assert.That (result.ReturnType, Is.SameAs (input.ReturnType));
+      var parameter = result.GetParameters ().Single ();
+      Assert.That (parameter.ParameterType, Is.SameAs (typeof (int)));
+      Assert.That (parameter.Name, Is.EqualTo ("parameterName"));
+
+      Assert.That (result.Body, Is.InstanceOf<MethodCallExpression> ());
+      var methodCallExpression = (MethodCallExpression) result.Body;
+      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
+      var baceCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (baseMethod));
     }
 
     [Test]
@@ -1211,15 +1305,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
     }
 
-    public class DomainTypeBase
+    public class A
+    {
+      // base definition
+      protected internal virtual void ProtectedOrInternalOverrideInBase (int parameterName) { }
+    }
+
+    public class B : A
+    {
+      // GetOrAddMutableMethod input
+      protected internal override void ProtectedOrInternalOverrideInBase (int parameterName) { }
+      public void FakeBaseMethod (int i) { }
+    }
+
+    public class C : B
+    {
+      // most derived override
+      protected internal override void ProtectedOrInternalOverrideInBase (int parameterName) { } 
+    }
+
+    public class DomainTypeBase : C
     {
       public int BaseField;
 
       public void ExistingBaseMethod () { }
-
-// ReSharper disable VirtualMemberNeverOverriden.Global
-      public virtual string VirtualBaseMethod () { return ""; }
-// ReSharper restore VirtualMemberNeverOverriden.Global
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface

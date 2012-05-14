@@ -248,11 +248,11 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectSingleField (_fields, bindingAttr, name);
     }
 
-    public MutableFieldInfo GetMutableField (FieldInfo fieldInfo)
+    public MutableFieldInfo GetMutableField (FieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
+      ArgumentUtility.CheckNotNull ("field", field);
 
-      return _fields.GetMutableMember (fieldInfo);
+      return _fields.GetMutableMember (field);
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -289,11 +289,11 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectMethods (_constructors, bindingAttr, this).ToArray();
     }
 
-    public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructorInfo)
+    public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return _constructors.GetMutableMember (constructorInfo);
+      return _constructors.GetMutableMember (constructor);
     }
 
     public MutableMethodInfo AddMethod (
@@ -344,19 +344,46 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="methodInfo"/>. If the method
+    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>. If the method
     /// is declared on the modified type, it returns the corresponding <see cref="MutableMethodInfo"/> from the <see cref="ExistingMutableMethods"/>
     /// collection. If it is declared on a base type, this method returns an override for it, creating one if necessary.
     /// </summary>
-    /// <param name="methodInfo">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
+    /// <param name="method">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
     /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="methodInfo"/> or an override of the method.
+    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="method"/> or an override of the method.
     /// </returns>
-    public MutableMethodInfo GetOrAddMutableMethod (MethodInfo methodInfo)
+    public MutableMethodInfo GetOrAddMutableMethod (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
+      ArgumentUtility.CheckNotNull ("method", method);
 
-      return _methods.GetMutableMember (methodInfo);
+      var mutableMethod = _methods.GetMutableMember (method);
+      if (mutableMethod != null)
+        return mutableMethod;
+
+      var baseDefinition = method.GetBaseDefinition();
+      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, AllMutableMethods);
+      if (existingMutableOverride != null)
+        return existingMutableOverride;
+
+      var isShadowed = _relatedMethodFinder.IsShadowed (baseDefinition, _methods);
+
+      // TODO 4839: Extract 'PrivateAddMethod' which skips unnecessary checks and call to 
+      //            _relatedMethodFinder.GetMostDerivedVirtualMethod (which is equal to "mostDerivedOverride") ?
+
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
+      var name = isShadowed ? ExplicitMethodOverrideUtility.GetMethodName (baseMethod) : baseMethod.Name;
+      var attributes = isShadowed
+                           ? ExplicitMethodOverrideUtility.GetMethodAttributes (baseMethod)
+                           : MethodAttributeUtility.AdjustVisibility (baseMethod.Attributes);
+      var returnType = baseMethod.ReturnType;
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod);
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>());
+
+      var addedOverride = AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
+      if (isShadowed)
+        addedOverride.AddExplicitBaseDefinition (baseDefinition);
+
+      return addedOverride;
     }
 
     public virtual void Accept (IMutableTypeUnmodifiedMutableMemberHandler handler)
