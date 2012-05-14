@@ -573,7 +573,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var method = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
-      // Correct method info instance
+      // Correct inputMethod info instance
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
       Assert.That (method.Name, Is.EqualTo (name));
@@ -677,7 +677,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddMethod_ImplicitOverride ()
     {
-      var fakeOverridenMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
+      var fakeOverridenMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       _relatedMethodFinderMock
           .Expect (mock => mock.GetMostDerivedVirtualMethod ("Method", new MethodSignature (typeof(int), Type.EmptyTypes, 0), _mutableType.BaseType))
           .Return (fakeOverridenMethod);
@@ -803,18 +803,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride ()
     {
-      CallAndCheckGetOrAddMutableMethod (false, new MethodInfo[0], "ProtectedOrInternalOverrideHierarchy", MethodAttributes.Family);
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
+      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+
+      CallAndCheckGetOrAddMutableMethod (
+          baseDefinition, method, baseMethod, false, new MethodInfo[0], "OverrideHierarchy", MethodAttributes.Public, MethodAttributes.ReuseSlot);
+    }
+
+    [Test]
+    public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride_AdjustsAttributes ()
+    {
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
+      var method = baseDefinition;
+      var baseMethod = baseDefinition;
+      Assert.That (baseMethod.IsFamilyOrAssembly, Is.True);
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
+
+      CallAndCheckGetOrAddMutableMethod (
+          baseDefinition,
+          method,
+          baseMethod,
+          false,
+          new MethodInfo[0],
+          "ProtectedOrInternalVirtualNewSlotMethodInB",
+          MethodAttributes.Family,
+          MethodAttributes.ReuseSlot);
     }
 
     [Test]
     public void GetOrAddMutableMethod_ShadowedBaseMethod_ExplicitOverride ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
+      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
+
       CallAndCheckGetOrAddMutableMethod (
+          baseDefinition,
+          method,
+          baseMethod,
           true,
           new[] { baseDefinition },
-          "Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeTest+C_ProtectedOrInternalOverrideHierarchy",
-          MethodAttributes.Private);
+          "Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeTest+C_OverrideHierarchy",
+          MethodAttributes.Private,
+          MethodAttributes.NewSlot);
     }
 
     [Test]
@@ -830,8 +863,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
     public void GetOrAddMutableMethod_FinalBaseMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
-      var method = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
+      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean();
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed);
@@ -1191,24 +1224,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     private void CallAndCheckGetOrAddMutableMethod (
+        MethodInfo baseDefinition,
+        MethodInfo inputMethod,
+        MethodInfo baseMethod,
         bool isBaseDefinitionShadowed,
         IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions,
         string expectedOverrideMethodName,
-        MethodAttributes expectedOverrideVisibility)
+        MethodAttributes expectedOverrideVisibility,
+        MethodAttributes expectedVtableLayout)
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
-      var method = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
-      var baseMethod = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.ProtectedOrInternalOverrideHierarchy (7));
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed);
 
-      var result = _mutableType.GetOrAddMutableMethod (method);
+      var result = _mutableType.GetOrAddMutableMethod (inputMethod);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
 
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
       Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
       Assert.That (result.Name, Is.EqualTo (expectedOverrideMethodName));
-      Assert.That (result.Attributes, Is.EqualTo (expectedOverrideVisibility | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+      var expectedAttributes = expectedOverrideVisibility | expectedVtableLayout | MethodAttributes.Virtual | MethodAttributes.HideBySig;
+      Assert.That (result.Attributes, Is.EqualTo (expectedAttributes));
       Assert.That (result.ReturnType, Is.SameAs (typeof (void)));
       var parameter = result.GetParameters().Single();
       Assert.That (parameter.ParameterType, Is.SameAs (typeof (int)));
@@ -1295,7 +1330,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class A
     {
       // base definition
-      protected internal virtual void ProtectedOrInternalOverrideHierarchy (int parameterName) { }
+      public virtual  void OverrideHierarchy (int aaa) { }
 
       public virtual void FinalBaseMethodInB (int i) { }
     }
@@ -1303,15 +1338,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class B : A
     {
       // GetOrAddMutableMethod input
-      protected internal override void ProtectedOrInternalOverrideHierarchy (int parameterName) { }
+      public override void OverrideHierarchy (int bbb) { }
 
+      protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int parameterName) { }
       public override sealed void FinalBaseMethodInB (int i) { }
     }
 
     public class C : B
     {
-      // most derived override
-      protected internal override void ProtectedOrInternalOverrideHierarchy (int parameterName) { }
+      // base inputMethod
+      public override void OverrideHierarchy (int parameterName) { }
     }
 
     public class DomainTypeBase : C
@@ -1343,7 +1379,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
     }
 
-    // This exists for GetInterface method with ignore case parameter.
+    // This exists for GetInterface inputMethod with ignore case parameter.
     private interface Imyinterface
     {
     }

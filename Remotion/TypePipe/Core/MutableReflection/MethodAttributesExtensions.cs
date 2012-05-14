@@ -20,23 +20,23 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Provides utility functions for manipulating method attributes.
+  /// Provides extensions methods for working with <see cref="MethodAttributes"/>.
   /// </summary>
-  public static class MethodAttributeUtility
+  public static class MethodAttributesExtensions
   {
-    public static MethodAttributes AdjustVisibility(MethodAttributes originalAttributes)
+    public static MethodAttributes AdjustVisibilityForAssemblyBoundaries (this MethodAttributes originalAttributes)
     {
       return IsSet (originalAttributes, MethodAttributes.FamORAssem)
                  ? ChangeVisibility (originalAttributes, MethodAttributes.Family)
                  : originalAttributes;
     }
 
-    public static MethodAttributes ChangeVisibility (MethodAttributes originalAttributes, MethodAttributes newVisibility)
+    public static MethodAttributes ChangeVisibility (this MethodAttributes originalAttributes, MethodAttributes newVisibility)
     {
       return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
     }
 
-    public static bool IsSet (MethodAttributes attributes, MethodAttributes flag)
+    public static bool IsSet (this MethodAttributes attributes, MethodAttributes flag)
     {
       Assertion.IsTrue (flag != 0);
 

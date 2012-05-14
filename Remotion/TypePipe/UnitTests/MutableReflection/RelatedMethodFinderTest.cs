@@ -200,7 +200,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod ());
       Assert.That (method.IsVirtual, Is.True);
-      Assert.That (MethodAttributeUtility.IsSet (method.Attributes, MethodAttributes.NewSlot) , Is.True);
+      Assert.That (MethodAttributesExtensions.IsSet (method.Attributes, MethodAttributes.NewSlot) , Is.True);
       Assert.That (typeof (DomainTypeBase).GetMethod ("VirtualMethodShadowingBaseMethod", Type.EmptyTypes), Is.Not.Null);
 
       var result = _finder.GetBaseMethod (method);

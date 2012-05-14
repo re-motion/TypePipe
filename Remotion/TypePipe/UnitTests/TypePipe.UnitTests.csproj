@@ -90,9 +90,9 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\BooleanObjectMother.cs" />
     <Compile Include="MutableReflection\MemberSelectorTest.cs" />
-    <Compile Include="MutableReflection\ExplicitMethodOverrideUtilityTest.cs" />
+    <Compile Include="MutableReflection\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
-    <Compile Include="MutableReflection\MethodAttributeUtilityTest.cs" />
+    <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MutableTypeIntegrationTest.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberCollectionTest.cs" />

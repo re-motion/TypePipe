@@ -22,17 +22,17 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class MethodAttributeUtilityTest
+  public class MethodAttributesExtensionsTest
   {
     [Test]
-    public void AdjustVisibility ()
+    public void AdjustVisibilityForAssemblyBoundaries ()
     {
-      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Public), Is.EqualTo (MethodAttributes.Public));
-      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.FamORAssem), Is.EqualTo (MethodAttributes.Family));
-      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Family), Is.EqualTo (MethodAttributes.Family));
-      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.FamANDAssem), Is.EqualTo (MethodAttributes.FamANDAssem));
-      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Assembly), Is.EqualTo (MethodAttributes.Assembly));
-      Assert.That (MethodAttributeUtility.AdjustVisibility (MethodAttributes.Private), Is.EqualTo (MethodAttributes.Private));
+      Assert.That (MethodAttributes.Public.AdjustVisibilityForAssemblyBoundaries(), Is.EqualTo (MethodAttributes.Public));
+      Assert.That (MethodAttributes.FamORAssem.AdjustVisibilityForAssemblyBoundaries(), Is.EqualTo (MethodAttributes.Family));
+      Assert.That (MethodAttributes.Family.AdjustVisibilityForAssemblyBoundaries(), Is.EqualTo (MethodAttributes.Family));
+      Assert.That (MethodAttributes.FamANDAssem.AdjustVisibilityForAssemblyBoundaries(), Is.EqualTo (MethodAttributes.FamANDAssem));
+      Assert.That (MethodAttributes.Assembly.AdjustVisibilityForAssemblyBoundaries(), Is.EqualTo (MethodAttributes.Assembly));
+      Assert.That (MethodAttributes.Private.AdjustVisibilityForAssemblyBoundaries(), Is.EqualTo (MethodAttributes.Private));
     }
 
     [Test]
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var originalAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
-      var adjustedAttributes = MethodAttributeUtility.ChangeVisibility (originalAttributes, MethodAttributes.Private);
+      var adjustedAttributes = originalAttributes.ChangeVisibility (MethodAttributes.Private);
 
       var expectedAttributes = MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.Virtual;
       Assert.That (adjustedAttributes, Is.EqualTo (expectedAttributes));
@@ -52,10 +52,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (MethodAttributes) 3;
 
       // Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 0), Is.False); // wrong usage
-      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 1), Is.True);
-      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 2), Is.True);
-      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 3), Is.True);
-      Assert.That (MethodAttributeUtility.IsSet (attributes, (MethodAttributes) 4), Is.False);
+      Assert.That (attributes.IsSet ((MethodAttributes) 1), Is.True);
+      Assert.That (attributes.IsSet ((MethodAttributes) 2), Is.True);
+      Assert.That (attributes.IsSet ((MethodAttributes) 3), Is.True);
+      Assert.That (attributes.IsSet ((MethodAttributes) 4), Is.False);
     }
   }
 }

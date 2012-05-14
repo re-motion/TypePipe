@@ -20,22 +20,34 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Provides utility functions for working with explicit method overrides.
+  /// Provides utility functions for working with method overrides.
   /// </summary>
-  public static class ExplicitMethodOverrideUtility
+  public static class MethodOverrideUtility
   {
-    public static string GetMethodName (MethodInfo overriddenMethod)
+    public static string GetNameForExplicitOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
 
       return overriddenMethod.DeclaringType.FullName + "_" + overriddenMethod.Name;
     }
-
-    public static MethodAttributes GetMethodAttributes (MethodInfo overriddenMethod)
+    
+    public static MethodAttributes GetAttributesForExplicitOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
 
-      return MethodAttributeUtility.ChangeVisibility (overriddenMethod.Attributes, MethodAttributes.Private);
+      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
+    }
+
+    public static MethodAttributes GetAttributesForImplicitOverride (MethodInfo overriddenMethod)
+    {
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+
+      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
+    }
+
+    private static MethodAttributes ChangeVtableLayout (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
+    {
+      return (originalAttributes & ~MethodAttributes.VtableLayoutMask) | vtableLayout;
     }
   }
 }

@@ -308,8 +308,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var isVirtual = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Virtual);
-      var isNewSlot = MethodAttributeUtility.IsSet (attributes, MethodAttributes.NewSlot);
+      var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
+      var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("Virtual and NewSlot are not a valid combination for method attributes.", "attributes");
 
@@ -359,10 +359,10 @@ namespace Remotion.TypePipe.MutableReflection
 
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, _methods);
       var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
-      var name = needsExplicitOverride ? ExplicitMethodOverrideUtility.GetMethodName (baseMethod) : baseMethod.Name;
+      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (baseMethod) : baseMethod.Name;
       var attributes = needsExplicitOverride
-                           ? ExplicitMethodOverrideUtility.GetMethodAttributes (baseMethod)
-                           : MethodAttributeUtility.AdjustVisibility (baseMethod.Attributes);
+                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
+                           : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       var returnType = baseMethod.ReturnType;
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>());
@@ -482,7 +482,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
 
-      var isStatic = MethodAttributeUtility.IsSet (attributes, MethodAttributes.Static);
+      var isStatic = attributes.IsSet (MethodAttributes.Static);
       var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
