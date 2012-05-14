@@ -22,13 +22,11 @@ using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 4814")]
   public class ModifyBaseMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -52,7 +50,7 @@ namespace TypePipe.IntegrationTests
           });
 
       var implicitOverride = type.GetMethod (baseMethod.Name);
-      Assert.That (implicitOverride.DeclaringType, Is.TypeOf (type));
+      Assert.That (implicitOverride.DeclaringType, Is.SameAs (type));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var result = implicitOverride.Invoke (instance, null);
@@ -84,7 +82,8 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
-            var implicitOverride = AddEquivalentMethod(mutableType, baseMethod, baseMethod.Attributes);
+            var attributes = baseMethod.Attributes & ~MethodAttributes.NewSlot;
+            var implicitOverride = AddEquivalentMethod (mutableType, baseMethod, attributes);
             Assert.That (implicitOverride.BaseMethod, Is.EqualTo (baseMethod));
 
             var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
@@ -133,7 +132,7 @@ namespace TypePipe.IntegrationTests
           });
 
       var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseMethod.Name);
-      Assert.That (explicitOverride.DeclaringType, Is.TypeOf (type));
+      Assert.That (explicitOverride.DeclaringType, Is.SameAs (type));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var result = explicitOverride.Invoke (instance, null);
@@ -162,7 +161,7 @@ namespace TypePipe.IntegrationTests
           });
 
       var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseBaseMethod.Name);
-      Assert.That (explicitOverride.DeclaringType, Is.TypeOf (type));
+      Assert.That (explicitOverride.DeclaringType, Is.SameAs (type));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var result = explicitOverride.Invoke (instance, null);
@@ -175,8 +174,8 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ModifyingShadowingAndShadowed_CausesImplicitAndExplicitOverride ()
     {
-      var shadowedMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethodShadowedByModified ());
-      var shadowingMethod = MemberInfoFromExpressionUtility.GetMethod<DomainType> (x => x.BaseMethodShadowedByModified ());
+      var shadowedMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodShadowedByBase());
+      var shadowingMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseBaseMethodShadowedByBase());
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -205,13 +204,13 @@ namespace TypePipe.IntegrationTests
       var instance = (DomainType) Activator.CreateInstance (type);
       
       var explicitOverrideResult = explicitOverride.Invoke (instance, null);
-      Assert.That (explicitOverrideResult, Is.EqualTo ("Base (shadowed) made mutable explicitly"));
+      Assert.That (explicitOverrideResult, Is.EqualTo ("BaseBase (shadowed) made mutable explicitly"));
 
       var implicitOverrideResult = implicitOverride.Invoke (instance, null);
-      Assert.That (implicitOverrideResult, Is.EqualTo ("DomainType (shadowing) made mutable implicitly"));
+      Assert.That (implicitOverrideResult, Is.EqualTo ("Base (shadowing) made mutable implicitly"));
 
-      Assert.That (((DomainTypeBase) instance).BaseMethodShadowedByModified (), Is.EqualTo ("Base (shadowed) made mutable explicitly"));
-      Assert.That (instance.BaseMethodShadowedByModified (), Is.EqualTo ("DomainType (shadowing) made mutable implicitly"));
+      Assert.That (((DomainTypeBaseBase) instance).BaseBaseMethodShadowedByBase(), Is.EqualTo ("BaseBase (shadowed) made mutable explicitly"));
+      Assert.That (instance.BaseBaseMethodShadowedByBase(), Is.EqualTo ("Base (shadowing) made mutable implicitly"));
     }
 
     [Test]
@@ -262,7 +261,7 @@ namespace TypePipe.IntegrationTests
       var instance = (DomainType) Activator.CreateInstance (type);
 
       Assert.That (baseMethod.Invoke (instance, null), Is.EqualTo ("Base made mutable"));
-      Assert.That (shadowingMethod.Invoke (instance, null), Is.EqualTo ("ShadowingMethod"));
+      Assert.That (shadowingMethod.Invoke (instance, null), Is.EqualTo ("Shadowing method"));
     }
 
     [Test]
@@ -275,8 +274,9 @@ namespace TypePipe.IntegrationTests
             Assert.That (baseMethod.IsVirtual, Is.False);
 
             Assert.That (
-                mutableType.GetOrAddMutableMethod (baseMethod),
-                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("Non-virtual methods cannot be modified."));
+                () => mutableType.GetOrAddMutableMethod (baseMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
+                    "A method declared in a base type must be virtual in order to be modified."));
           });
     }
 
@@ -291,8 +291,8 @@ namespace TypePipe.IntegrationTests
             Assert.That (baseMethod.IsFinal, Is.True);
 
             Assert.That (
-                mutableType.GetOrAddMutableMethod (baseMethod),
-                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("Final methods cannot be modified."));
+                () => mutableType.GetOrAddMutableMethod (baseMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Cannot override final method 'DomainTypeBase.FinalVirtualBaseMethod'."));
           });
     }
 
@@ -304,29 +304,28 @@ namespace TypePipe.IntegrationTests
           {
             var baseMethod = MemberInfoFromExpressionUtility.GetMethod<IInterface> (x => x.InterfaceMethod());
             Assert.That (baseMethod.IsVirtual, Is.True);
-            Assert.That (baseMethod.IsFinal, Is.True);
 
             Assert.That (
-                mutableType.GetOrAddMutableMethod (baseMethod),
+                () => mutableType.GetOrAddMutableMethod (baseMethod),
                 Throws.ArgumentException.With.Message.EqualTo (
-                    "Method must be declared within this type's base class hierarchy.\r\nParameter name: methodInfo"));
+                    "Method is declared by a type outside of this type's class hierarchy: 'IInterface'.\r\nParameter name: method"));
           });
     }
 
     private void CheckBodyOfAddedOverride (MethodInfo baseMethod, MutableMethodInfo mutableMethod)
     {
-      Assert.That (mutableMethod.Body, Is.TypeOf<MethodCallExpression> ());
+      Assert.That (mutableMethod.Body, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) mutableMethod.Body;
 
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression> ());
-      var thisExpression = methodCallExpression.Object;
-      Assert.That (thisExpression.Type, Is.EqualTo (typeof (DomainType)));
+      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>());
+      var thisExpression = ((ThisExpression) methodCallExpression.Object);
+      Assert.That (thisExpression.Type, Is.SameAs (mutableMethod.DeclaringType));
 
       Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
       Assert.That (((BaseCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.EqualTo (baseMethod));
     }
 
-    private class DomainTypeBaseBase
+    public class DomainTypeBaseBase
     {
       public virtual void FinalVirtualBaseMethod () { }
 
@@ -335,7 +334,7 @@ namespace TypePipe.IntegrationTests
       public virtual string BaseBaseMethodOverriddenInBase () { return "BasesBase (overidden)"; }
     }
 
-    private class DomainTypeBase : DomainTypeBaseBase
+    public class DomainTypeBase : DomainTypeBaseBase
     {
       public virtual string BaseMethod () { return "Base"; }
       public virtual string ExistingOverride () { return "Base"; }
@@ -349,7 +348,7 @@ namespace TypePipe.IntegrationTests
       public override string BaseBaseMethodOverriddenInBase () { return "Base (overriding)"; }
     }
 
-    private class DomainType : DomainTypeBase, IInterface
+    public class DomainType : DomainTypeBase, IInterface
     {
       public override string ExistingOverride () { return "DomainType"; }
 
@@ -358,7 +357,7 @@ namespace TypePipe.IntegrationTests
       public void InterfaceMethod () { }
     }
 
-    private interface IInterface
+    public interface IInterface
     {
       void InterfaceMethod ();
     }

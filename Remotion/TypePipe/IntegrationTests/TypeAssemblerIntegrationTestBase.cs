@@ -166,12 +166,12 @@ namespace TypePipe.IntegrationTests
     protected MutableMethodInfo AddEquivalentMethod (
         MutableType mutableType,
         MethodInfo template,
-        MethodAttributes methodAttributes,
+        MethodAttributes adjustedAttributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
       return mutableType.AddMethod (
           template.Name,
-          methodAttributes,
+          adjustedAttributes,
           template.ReturnType,
           ParameterDeclaration.CreateForEquivalentSignature (template),
           bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
