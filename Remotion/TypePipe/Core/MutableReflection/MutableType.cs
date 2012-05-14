@@ -324,6 +324,8 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, BaseType) : null;
+      CheckNotFinalForOverride (baseMethod);
+
       return PrivateAddMethod (name, attributes, returnType, parameterDeclarationCollection, baseMethod, bodyProvider);
     }
 
@@ -358,14 +360,17 @@ namespace Remotion.TypePipe.MutableReflection
         return existingMutableOverride;
 
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, _methods);
-      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
-      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (baseMethod) : baseMethod.Name;
+      var mostDerivedOverride = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
+      CheckNotFinalForOverride (mostDerivedOverride);
+
+      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (mostDerivedOverride) : mostDerivedOverride.Name;
       var attributes = needsExplicitOverride
-                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
-                           : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      var returnType = baseMethod.ReturnType;
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>());
+                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (mostDerivedOverride)
+                           : MethodOverrideUtility.GetAttributesForImplicitOverride (mostDerivedOverride);
+      var returnType = mostDerivedOverride.ReturnType;
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (mostDerivedOverride).ConvertToCollection();
+      var baseMethod = needsExplicitOverride ? null : mostDerivedOverride;
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (mostDerivedOverride, ctx.Parameters.Cast<Expression>());
 
       var addedOverride = PrivateAddMethod (name, attributes, returnType, parameterDeclarations, baseMethod, bodyProvider);
       if (needsExplicitOverride)
@@ -466,6 +471,15 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
     }
 
+    private static void CheckNotFinalForOverride (MethodInfo overridenMethod)
+    {
+      if (overridenMethod != null && overridenMethod.IsFinal)
+      {
+        var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
+        throw new NotSupportedException (message);
+      }
+    }
+
     private MutableMethodInfo PrivateAddMethod (
         string name,
         MethodAttributes attributes,
@@ -474,13 +488,7 @@ namespace Remotion.TypePipe.MutableReflection
         MethodInfo baseMethod,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      Assertion.IsTrue (baseMethod == null || baseMethod.IsVirtual);
-
-      if (baseMethod != null && baseMethod.IsFinal)
-      {
-        var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
-        throw new NotSupportedException (message);
-      }
+      Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && !baseMethod.IsFinal));
 
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
