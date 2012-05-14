@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
-      Assert.That (result, Is.Null);
+      Assert.That (result, Is.SameAs (baseDefinition));
     }
 
     [Test]
@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
-      Assert.That (result, Is.Null);
+      Assert.That (result, Is.SameAs (baseDefinition));
     }
 
     [Test]
