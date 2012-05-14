@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
       Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition());
 
-      Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition) && !m.Equals (baseDefinition);
+      Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition);
       return FirstOrDefaultFromOrderedBaseMethods (typeToStartSearch, predicate);
     }
 
@@ -60,8 +60,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (method.Equals (baseDefinition))
         return null;
 
-      Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition);
-      return FirstOrDefaultFromOrderedBaseMethods (method.DeclaringType.BaseType, predicate);
+      return GetMostDerivedOverride (baseDefinition, method.DeclaringType.BaseType);
     }
 
     /// <inheritdoc />

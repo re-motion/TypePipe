@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </summary>
     /// <param name="baseDefinition">The base definition to search overrides for.</param>
     /// <param name="typeToStartSearch">The type to start the search from.</param>
-    /// <returns>The most derived override of <paramref name="baseDefinition"/>, or <see langword="null"/> if no such method exists.</returns>
+    /// <returns>The most derived override of <paramref name="baseDefinition"/>, or <paramref name="baseDefinition"/> if there is no override.</returns>
     /// <remarks>
     /// The returned <see cref="MethodInfo"/> has its <see cref="MemberInfo.ReflectedType"/> set to its <see cref="MemberInfo.DeclaringType"/>.
     /// </remarks>
