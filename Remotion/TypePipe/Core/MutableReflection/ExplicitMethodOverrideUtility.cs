@@ -20,15 +20,22 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Provides utility functions for working with method names.
+  /// Provides utility functions for working with explicit method overrides.
   /// </summary>
-  public static class MethodNameUtility
+  public static class ExplicitMethodOverrideUtility
   {
-    public static string GetExplicitOverrideMethodName (MethodInfo overriddenMethod)
+    public static string GetMethodName (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
 
       return overriddenMethod.DeclaringType.FullName + "_" + overriddenMethod.Name;
+    }
+
+    public static MethodAttributes GetMethodAttributes (MethodInfo overriddenMethod)
+    {
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+
+      return MethodAttributeUtility.ChangeVisibility (overriddenMethod.Attributes, MethodAttributes.Private);
     }
   }
 }
