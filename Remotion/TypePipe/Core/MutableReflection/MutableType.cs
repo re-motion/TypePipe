@@ -326,7 +326,18 @@ namespace Remotion.TypePipe.MutableReflection
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, BaseType) : null;
       CheckNotFinalForOverride (baseMethod);
 
-      return PrivateAddMethod (name, attributes, returnType, parameterDeclarationCollection, baseMethod, bodyProvider);
+      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+      var isStatic = attributes.IsSet (MethodAttributes.Static);
+      var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
+      var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          name, attributes, returnType, parameterDeclarationCollection, baseMethod, false, false, false, body);
+      var methodInfo = new MutableMethodInfo (this, descriptor);
+
+      _methods.Add (methodInfo);
+
+      return methodInfo;
     }
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
@@ -369,10 +380,9 @@ namespace Remotion.TypePipe.MutableReflection
                            : MethodOverrideUtility.GetAttributesForImplicitOverride (mostDerivedOverride);
       var returnType = mostDerivedOverride.ReturnType;
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (mostDerivedOverride).ConvertToCollection();
-      var baseMethod = needsExplicitOverride ? null : mostDerivedOverride;
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (mostDerivedOverride, ctx.Parameters.Cast<Expression>());
 
-      var addedOverride = PrivateAddMethod (name, attributes, returnType, parameterDeclarations, baseMethod, bodyProvider);
+      var addedOverride = AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
         addedOverride.AddExplicitBaseDefinition (baseDefinition);
 
@@ -478,30 +488,6 @@ namespace Remotion.TypePipe.MutableReflection
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }
-    }
-
-    private MutableMethodInfo PrivateAddMethod (
-        string name,
-        MethodAttributes attributes,
-        Type returnType,
-        ICollection<ParameterDeclaration> parameterDeclarations,
-        MethodInfo baseMethod,
-        Func<MethodBodyCreationContext, Expression> bodyProvider)
-    {
-      Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && !baseMethod.IsFinal));
-
-      var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
-      var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
-      var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
-
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDeclarations, baseMethod, false, false, false, body);
-      var methodInfo = new MutableMethodInfo (this, descriptor);
-
-      _methods.Add (methodInfo);
-
-      return methodInfo;
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
