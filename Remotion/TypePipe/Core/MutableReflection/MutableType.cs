@@ -252,11 +252,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      var mutableField = _fields.GetMutableMember (field);
-      if (mutableField == null)
-        throw new NotSupportedException ("The given field cannot be modified.");
-
-      return mutableField;
+      return GetMutableMemberThrowIfNull (_fields, field, "field");
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -297,11 +293,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      var mutableConstructor = _constructors.GetMutableMember (constructor);
-      if (mutableConstructor == null)
-        throw new NotSupportedException ("The given constructor cannot be modified.");
-
-      return mutableConstructor;
+      return GetMutableMemberThrowIfNull(_constructors, constructor, "constructor");
     }
 
     public MutableMethodInfo AddMethod (
@@ -496,6 +488,21 @@ namespace Remotion.TypePipe.MutableReflection
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }
+    }
+
+    private TMutableMember GetMutableMemberThrowIfNull<TMember, TMutableMember> (
+        MutableTypeMemberCollection<TMember, TMutableMember> collection, TMember member, string memberType)
+        where TMember: MemberInfo
+        where TMutableMember: TMember
+    {
+      var mutableMember = collection.GetMutableMember (member);
+      if (mutableMember == null)
+      {
+        var message = string.Format ("The given {0} cannot be modified.", memberType);
+        throw new NotSupportedException (message);
+      }
+
+      return mutableMember;
     }
 
     private MutableFieldInfo CreateExistingField (FieldInfo originalField)
