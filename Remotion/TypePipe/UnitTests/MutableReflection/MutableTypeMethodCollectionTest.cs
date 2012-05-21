@@ -64,37 +64,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.Null);
     }
 
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: method")]
-    public void GetMutableMember_Interface ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
-      _collection.GetMutableMember (method);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
-    public void GetMutableMember_UnrelatedDeclaringType ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim());
-      _collection.GetMutableMember (method);
-    }
-
     public class DomainTypeBase
     {
       public virtual void BaseMethod () { }
     }
 
-    public interface IDomainInterface
-    {
-      void InterfaceMethod ();
-    }
-
-    public class DomainType : DomainTypeBase, IDomainInterface
-    {
-      public void InterfaceMethod () { }
-    }
+    public class DomainType : DomainTypeBase { }
   }
 }

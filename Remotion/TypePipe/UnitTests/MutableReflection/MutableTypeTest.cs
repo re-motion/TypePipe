@@ -107,8 +107,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
       var expectedMethod = methods.Single (m => m.Name == "VirtualMethod");
 
-      Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo (1));
-      var mutableMethod = _mutableType.ExistingMutableMethods.Single();
+      Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo (2));
+      var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
 
       Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
@@ -156,10 +156,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var allMethods = _mutableType.AllMutableMethods.ToArray();
 
-      Assert.That (allMethods, Has.Length.EqualTo (2));
+      Assert.That (allMethods, Has.Length.EqualTo (3));
       Assert.That (allMethods[0].DeclaringType, Is.SameAs (_mutableType));
       Assert.That (allMethods[0].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[0]));
-      Assert.That (allMethods[1], Is.SameAs (addedMethod));
+      Assert.That (allMethods[1].DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (allMethods[1].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[1]));
+      Assert.That (allMethods[2], Is.SameAs (addedMethod));
     }
 
     [Test]
@@ -469,16 +471,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof(NotSupportedException), ExpectedMessage = "The given field cannot be modified.")]
-    public void GetMutableField_InvalidField ()
-    {
-      var fieldStub = MockRepository.GenerateStub<FieldInfo>();
-      fieldStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
-
-      _mutableType.GetMutableField (fieldStub);
-    }
-
-    [Test]
     public void AddConstructor ()
     {
       var attributes = MethodAttributes.Public;
@@ -561,16 +553,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Member (result));
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given constructor cannot be modified.")]
-    public void GetMutableConstructor_InvalidConstructor ()
-    {
-      var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
-      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
-
-      _mutableType.GetMutableConstructor (ctorStub);
     }
 
     [Test]
@@ -881,6 +863,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: method")]
+    public void GetOrAddMutableMethod_InterfaceDeclaringType ()
+    {
+      Assert.That (_descriptor.Interfaces, Has.Member (typeof (IDomainInterface)));
+      var method = MemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
+      _mutableType.GetOrAddMutableMethod (method);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
+    public void GetOrAddMutableMethod_UnrelatedDeclaringType ()
+    {
+      var method = MemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
+      _mutableType.GetOrAddMutableMethod (method);
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "A method declared in a base type must be virtual in order to be modified.")]
     public void GetOrAddMutableMethod_NonVirtualMethod ()
@@ -912,14 +913,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
       var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single ();
 
-      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
-      var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single ();
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (2));
+      var unmodfiedMethod1 = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
+      var unmodfiedMethod2 = _mutableType.ExistingMutableMethods.Single (m => m.Name == "InterfaceMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeUnmodifiedMutableMemberHandler> ();
 
       handlerMock.Expect (mock => mock.HandleUnmodifiedField (unmodfiedField));
       handlerMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodfiedConstructor));
-      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod));
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod1));
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodfiedMethod2));
 
       _mutableType.Accept (handlerMock);
 
@@ -929,7 +932,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_UnmodifiedMutableMemberHandler_WithAddedAndModifiedExistingMembers ()
     {
-      // Fields cannot currently be mutated
+      // Currently, fields cannot be modified.
       Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
       var unmodifiedField = _mutableType.ExistingMutableFields.Single();
       _mutableType.AddField (ReflectionObjectMother.GetSomeType (), "name", FieldAttributes.Private);
@@ -938,21 +941,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       MutableConstructorInfoTestHelper.ModifyConstructor (_mutableType.ExistingMutableConstructors.Single ());
       AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create ());
 
-      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
-      MutableMethodInfoTestHelper.ModifyMethod (_mutableType.ExistingMutableMethods.Single ());
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (2));
+      MutableMethodInfoTestHelper.ModifyMethod (_mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod"));
       AddMethod (_mutableType, "AddedMethod");
+      // Currently, non-virual methods cannot be modified.
+      var unmodifiedMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "InterfaceMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeUnmodifiedMutableMemberHandler> ();
 
-      // Fields cannot currently be mutated
+      // Currently, fields and non-virtual methods cannot be modified.
       handlerMock.Expect (mock => mock.HandleUnmodifiedField (unmodifiedField));
+      handlerMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodifiedMethod));
 
       _mutableType.Accept (handlerMock);
 
       // Fields cannot currently be mutated
       //handlerMock.AssertWasNotCalled (mock => mock.HandleUnmodifiedField (Arg<MutableFieldInfo>.Is.Anything));
       handlerMock.AssertWasNotCalled (mock => mock.HandleUnmodifiedConstructor (Arg<MutableConstructorInfo>.Is.Anything));
-      handlerMock.AssertWasNotCalled (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.Anything));
+      handlerMock.AssertWasNotCalled (mock => mock.HandleUnmodifiedMethod (Arg<MutableMethodInfo>.Is.NotEqual(unmodifiedMethod)));
     }
 
     [Test]
@@ -971,8 +977,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var unmodfiedConstructor = _mutableType.ExistingMutableConstructors.Single();
       var addedConstructorInfo = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
 
-      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
-      var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single();
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (2));
+      var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single(m => m.Name == "VirtualMethod");
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
@@ -1013,8 +1019,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_ModificationHandler_WithModifiedMethod ()
     {
-      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (1));
-      var modifiedExistingMethodInfo = _mutableType.ExistingMutableMethods.Single();
+      Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (2));
+      var modifiedExistingMethodInfo = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
       MutableMethodInfoTestHelper.ModifyMethod (modifiedExistingMethodInfo);
 
       var modifiedAddedMethodInfo = AddMethod (_mutableType, "ModifiedAddedMethod");
@@ -1184,6 +1190,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultMethod, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void GetMutableMember_InvalidDeclaringType ()
+    {
+      var field = MemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
+      var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new string(new char[0]));
+
+      Assert.That (
+          () => _mutableType.GetMutableField (field),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "The given field is declared by a different type: 'System.Type'.\r\nParameter name: field"));
+      Assert.That (
+          () => _mutableType.GetMutableConstructor (ctor),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "The given constructor is declared by a different type: 'System.String'.\r\nParameter name: constructor"));
+    }
+
+    [Test]
+    public void GetMutableMember_NoMapping ()
+    {
+      var fieldStub = MockRepository.GenerateStub<FieldInfo> ();
+      fieldStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
+      var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
+      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
+
+      Assert.That (
+          () => _mutableType.GetMutableField (fieldStub),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("The given field cannot be modified."));
+      Assert.That (
+          () => _mutableType.GetMutableConstructor (ctorStub),
+          Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
     }
 
     [Test]
@@ -1409,10 +1447,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
 
       public virtual string VirtualMethod () { return ""; }
+
+      public void InterfaceMethod () { }
     }
 
     public interface IDomainInterface
     {
+      void InterfaceMethod ();
     }
 
     private interface IMyInterface

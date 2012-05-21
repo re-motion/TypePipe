@@ -252,7 +252,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return GetMutableMemberThrowIfNull (_fields, field, "field");
+      return GetMutableMemberOrThrow (_fields, field, "field");
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -293,7 +293,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return GetMutableMemberThrowIfNull(_constructors, constructor, "constructor");
+      return GetMutableMemberOrThrow(_constructors, constructor, "constructor");
     }
 
     public MutableMethodInfo AddMethod (
@@ -361,6 +361,12 @@ namespace Remotion.TypePipe.MutableReflection
       var mutableMethod = _methods.GetMutableMember (method);
       if (mutableMethod != null)
         return mutableMethod;
+
+      if (!IsEquivalentTo (method.DeclaringType) && !IsSubclassOf (method.DeclaringType))
+      {
+        var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
+        throw new ArgumentException (message, "method");
+      }
 
       if (!method.IsVirtual)
         throw new NotSupportedException ("A method declared in a base type must be virtual in order to be modified.");
@@ -490,11 +496,17 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
-    private TMutableMember GetMutableMemberThrowIfNull<TMember, TMutableMember> (
+    private TMutableMember GetMutableMemberOrThrow<TMember, TMutableMember> (
         MutableTypeMemberCollection<TMember, TMutableMember> collection, TMember member, string memberType)
         where TMember: MemberInfo
         where TMutableMember: TMember
     {
+      if (!IsEquivalentTo (member.DeclaringType))
+      {
+        var message = string.Format ("The given {0} is declared by a different type: '{1}'.", memberType, member.DeclaringType);
+        throw new ArgumentException (message, memberType);
+      }
+
       var mutableMember = collection.GetMutableMember (member);
       if (mutableMember == null)
       {

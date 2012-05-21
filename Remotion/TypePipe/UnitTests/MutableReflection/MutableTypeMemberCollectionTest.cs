@@ -128,17 +128,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a different type: 'System.String'.\r\nParameter name: method")]
-    public void GetMutableMember_NonEquivalentDeclaringType ()
-    {
-      var memberStub = MockRepository.GenerateStub<MethodInfo> ();
-      memberStub.Stub (stub => stub.DeclaringType).Return (typeof (string));
-
-      Dev.Null = _collection.GetMutableMember(memberStub);
-    }
-
-    [Test]
     public void Add ()
     {
       var mutableMember = CreateMutableMember ();
@@ -146,19 +135,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _collection.Add (mutableMember);
 
       Assert.That (_collection.AddedMembers, Is.EqualTo (new[] { mutableMember }));
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a different type: 'Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeMemberCollectionTest'.\r\n"
-        + "Parameter name: method")]
-    public void Add_NonEquivalentDeclaringType ()
-    {
-      var declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (MutableTypeMemberCollectionTest));
-      Assert.That (_declaringType.IsEquivalentTo (declaringType), Is.False);
-      var mutableMember = MutableMethodInfoObjectMother.CreateForExisting (declaringType);
-
-      _collection.Add (mutableMember);
     }
 
     private MutableMethodInfo CreateMutableMember (

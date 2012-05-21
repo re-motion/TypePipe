@@ -34,8 +34,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
   public class MutableTypeMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMemberInfo>
-    where TMemberInfo : MemberInfo
-    where TMutableMemberInfo : TMemberInfo
+      where TMemberInfo: MemberInfo
+      where TMutableMemberInfo: TMemberInfo
   {
     private readonly MutableType _declaringType;
     private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingDeclaredMembers;
@@ -89,18 +89,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerator<TMemberInfo> GetEnumerator ()
     {
-      return AllMutableMembers.Cast<TMemberInfo>().Concat (FilterBaseMembers(_existingBaseMembers)).GetEnumerator();
+      return AllMutableMembers.Cast<TMemberInfo>().Concat (FilterBaseMembers (_existingBaseMembers)).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator ()
     {
-      return GetEnumerator ();
+      return GetEnumerator();
     }
 
     public TMutableMemberInfo GetMutableMember (TMemberInfo member)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      CheckDeclaringType (_declaringType, member);
 
       if (member is TMutableMemberInfo)
         return (TMutableMemberInfo) member;
@@ -111,7 +110,7 @@ namespace Remotion.TypePipe.MutableReflection
     public void Add (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
-      CheckDeclaringTypeEquivalence (_declaringType, mutableMember);
+      Assertion.IsTrue (_declaringType.IsEquivalentTo (mutableMember.DeclaringType));
 
       _addedMembers.Add (mutableMember);
     }
@@ -119,26 +118,6 @@ namespace Remotion.TypePipe.MutableReflection
     protected virtual IEnumerable<TMemberInfo> FilterBaseMembers (IEnumerable<TMemberInfo> baseMembers)
     {
       return baseMembers;
-    }
-
-    protected virtual void CheckDeclaringType (MutableType declaringType, TMemberInfo member)
-    {
-      CheckDeclaringTypeEquivalence (declaringType, member);
-    }
-
-    private void CheckDeclaringTypeEquivalence (MutableType declaringType, TMemberInfo member)
-    {
-      if (!declaringType.IsEquivalentTo (member.DeclaringType))
-      {
-        var message = string.Format ("{0} is declared by a different type: '{1}'.", GetMemberTypeName (), member.DeclaringType);
-        var parameterName = GetMemberTypeName().ToLower();
-        throw new ArgumentException (message, parameterName);
-      }
-    }
-
-    private string GetMemberTypeName ()
-    {
-      return typeof (TMemberInfo).Name.Replace ("Info", "");
     }
   }
 }
