@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public MutableTypeMethodCollection (
         MutableType declaringType, IEnumerable<MethodInfo> existingMembers, Func<MethodInfo, MutableMethodInfo> mutableMemberProvider)
-        : base (declaringType, existingMembers, mutableMemberProvider, false)
+        : base (declaringType, existingMembers, mutableMemberProvider)
     {
     }
 

@@ -41,20 +41,17 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingDeclaredMembers;
     private readonly ReadOnlyCollection<TMemberInfo> _existingBaseMembers;
     private readonly List<TMutableMemberInfo> _addedMembers = new List<TMutableMemberInfo>();
-    private readonly bool _throwIfNoMutableMemberFound;
 
     public MutableTypeMemberCollection (
         MutableType declaringType,
         IEnumerable<TMemberInfo> existingMembers,
-        Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider,
-        bool throwIfNoMutableMemberFound)
+        Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("existingMembers", existingMembers);
       ArgumentUtility.CheckNotNull ("mutableMemberProvider", mutableMemberProvider);
 
       _declaringType = declaringType;
-      _throwIfNoMutableMemberFound = throwIfNoMutableMemberFound;
 
       var declaredMembers = new Dictionary<TMemberInfo, TMutableMemberInfo>();
       var baseMembers = new List<TMemberInfo>();
@@ -108,14 +105,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (member is TMutableMemberInfo)
         return (TMutableMemberInfo) member;
 
-      var mutableMember = _existingDeclaredMembers.GetValueOrDefault (member);
-      if (mutableMember == null && _throwIfNoMutableMemberFound)
-      {
-        var message = string.Format ("The given {0} cannot be modified.", GetMemberTypeName().ToLower());
-        throw new NotSupportedException (message);
-      }
-
-      return mutableMember;
+      return _existingDeclaredMembers.GetValueOrDefault (member);
     }
 
     public void Add (TMutableMemberInfo mutableMember)

@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
 
       _collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (
-          _declaringType, _allExistingMembers.AsOneTime(), _mutableMemberProvider, true);
+          _declaringType, _allExistingMembers.AsOneTime(), _mutableMemberProvider);
     }
 
     [Test]
@@ -114,22 +114,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _collection.GetMutableMember(standardMember);
 
-      var expectedMutableMember = _collection.ExistingDeclaredMembers.Single (mutableMember => mutableMember.UnderlyingSystemMethodInfo == standardMember);
+      var expectedMutableMember = _collection.ExistingDeclaredMembers.Single (m => m.UnderlyingSystemMethodInfo == standardMember);
       Assert.That (result, Is.SameAs (expectedMutableMember));
     }
 
     [Test]
-    public void GetMutableMember_StandardMemberInfo_NoMatch_ReturnsNull ()
+    public void GetMutableMember_StandardMemberInfo_NoMatch ()
     {
-      var collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers, _mutableMemberProvider, false);
-      Assert.That (collection.GetMutableMember (_excludedDeclaredMember), Is.Null);
-    }
+      var collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (_declaringType, _allExistingMembers, _mutableMemberProvider);
+      var result = collection.GetMutableMember (_excludedDeclaredMember);
 
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given method cannot be modified.")]
-    public void GetMutableMember_StandardMemberInfo_NoMatch_Throws ()
-    {
-      Dev.Null = _collection.GetMutableMember(_excludedDeclaredMember);
+      Assert.That (result, Is.Null);
     }
 
     [Test]

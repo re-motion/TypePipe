@@ -469,6 +469,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof(NotSupportedException), ExpectedMessage = "The given field cannot be modified.")]
+    public void GetMutableField_InvalidField ()
+    {
+      var fieldStub = MockRepository.GenerateStub<FieldInfo>();
+      fieldStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
+
+      _mutableType.GetMutableField (fieldStub);
+    }
+
+    [Test]
     public void AddConstructor ()
     {
       var attributes = MethodAttributes.Public;
@@ -551,6 +561,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Member (result));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "The given constructor cannot be modified.")]
+    public void GetMutableConstructor_InvalidConstructor ()
+    {
+      var ctorStub = MockRepository.GenerateStub<ConstructorInfo>();
+      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
+
+      _mutableType.GetMutableConstructor (ctorStub);
     }
 
     [Test]

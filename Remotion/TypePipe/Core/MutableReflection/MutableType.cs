@@ -67,9 +67,9 @@ namespace Remotion.TypePipe.MutableReflection
       _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField, true);
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-        this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor, true);
+        this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableTypeMethodCollection (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
@@ -252,7 +252,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return _fields.GetMutableMember (field);
+      var mutableField = _fields.GetMutableMember (field);
+      if (mutableField == null)
+        throw new NotSupportedException ("The given field cannot be modified.");
+
+      return mutableField;
     }
 
     public MutableConstructorInfo AddConstructor (
@@ -293,7 +297,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return _constructors.GetMutableMember (constructor);
+      var mutableConstructor = _constructors.GetMutableMember (constructor);
+      if (mutableConstructor == null)
+        throw new NotSupportedException ("The given constructor cannot be modified.");
+
+      return mutableConstructor;
     }
 
     public MutableMethodInfo AddMethod (
