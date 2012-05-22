@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;REMOTION_TYPEPIPE;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;CLR2;NET_3_5</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
