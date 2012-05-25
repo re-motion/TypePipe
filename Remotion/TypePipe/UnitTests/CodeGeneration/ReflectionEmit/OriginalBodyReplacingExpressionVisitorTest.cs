@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -35,9 +36,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private MutableType _declaringType;
     private IMutableMethodBase _mutableMethodStub;
-    private MethodInfo _underlyingMethod;
-    private MethodInfo _methodRepresentingOriginalBody;
-    private Func<MethodBase, MethodInfo> _methodRepresentingOriginalBodyProvider;
 
     private OriginalBodyReplacingExpressionVisitor _visitorPartialMock;
 
@@ -45,50 +43,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
-      _underlyingMethod = ReflectionObjectMother.GetSomeMethod ();
-      _methodRepresentingOriginalBody = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
       _mutableMethodStub = MockRepository.GenerateStub<IMutableMethodBase>();
       _mutableMethodStub.Stub (stub => stub.DeclaringType).Return (_declaringType);
 
-      Func<MethodBase, MethodInfo> indirectProvider = underlyingMethod => _methodRepresentingOriginalBodyProvider (underlyingMethod);
-
-      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (_mutableMethodStub, indirectProvider);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (_mutableMethodStub);
     }
 
     [Test]
-    public void VisitOriginalBody ()
+    public void VisitOriginalBody_Method ()
     {
+      var methodBase = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
-      var expression = new OriginalBodyExpression (_underlyingMethod, typeof (void), arguments);
-      var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
+      var expression = new OriginalBodyExpression (methodBase, typeof (double), arguments);
+      Action<MethodInfo> checkMethodInCallExpressionAction =
+          methodInfo => Assert.That (methodInfo, Is.TypeOf<BaseCallMethodInfoAdapter>().And.Property ("AdaptedMethodInfo").SameAs (methodBase));
 
-      _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
-      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
+      CheckVisitOriginalBody (expression, _declaringType, arguments, checkMethodInCallExpressionAction);
+    }
 
-      _methodRepresentingOriginalBodyProvider = underlyingMethod =>
-      {
-        Assert.That (underlyingMethod, Is.SameAs (_underlyingMethod));
-        return _methodRepresentingOriginalBody;
-      };
+    [Test]
+    public void VisitOriginalBody_Constructor ()
+    {
+      var methodBase = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainClass());
+      var arguments = new Expression[0];
+      var expression = new OriginalBodyExpression (methodBase, typeof (void), arguments);
+      Action<MethodInfo> checkMethodInCallExpressionAction =
+          methodInfo => Assert.That (methodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>().And.Property ("ConstructorInfo").SameAs (methodBase));
 
-      _visitorPartialMock
-          .Expect (mock => mock.Visit (Arg<Expression>.Matches (e => e is MethodCallExpression)))
-          .Return (fakeResult)
-          .WhenCalled (mi =>
-          {
-            var methodCallExpression = (MethodCallExpression) mi.Arguments[0];
-            Assert.That (methodCallExpression.Object, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression> ());
-            var typeAsUnderlyingSystemTypeExpression = ((TypeAsUnderlyingSystemTypeExpression) methodCallExpression.Object);
-            Assert.That (
-                typeAsUnderlyingSystemTypeExpression.InnerExpression, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (_declaringType));
-            Assert.That (methodCallExpression.Method, Is.SameAs (_methodRepresentingOriginalBody));
-            Assert.That (methodCallExpression.Arguments, Is.EqualTo (arguments));
-          });
-
-      var result = TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (_visitorPartialMock, expression);
-
-      _visitorPartialMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeResult));
+      CheckVisitOriginalBody (expression,_declaringType,arguments, checkMethodInCallExpressionAction);
     }
 
     [Test]
@@ -109,11 +91,47 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrow (_mutableMethodStub);
     }
 
+    private void CheckVisitOriginalBody (
+        OriginalBodyExpression expression,
+        MutableType expectedDeclaringType,
+        Expression[] expectedMethodCallArguments,
+        Action<MethodInfo> checkMethodInCallExpressionAction)
+    {
+      _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
+      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
+
+      var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
+      _visitorPartialMock
+          .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
+          .Return (fakeResult)
+          .WhenCalled (
+              mi =>
+              {
+                Assert.That (mi.Arguments[0], Is.InstanceOf<MethodCallExpression>());
+                var methodCallExpression = (MethodCallExpression) mi.Arguments[0];
+                Assert.That (methodCallExpression.Object, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression>());
+
+                var typeAsUnderlyingSystemTypeExpression = ((TypeAsUnderlyingSystemTypeExpression) methodCallExpression.Object);
+                Assert.That (
+                    typeAsUnderlyingSystemTypeExpression.InnerExpression,
+                    Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (expectedDeclaringType));
+
+                checkMethodInCallExpressionAction (methodCallExpression.Method);
+
+                Assert.That (methodCallExpression.Arguments, Is.EqualTo (expectedMethodCallArguments));
+              });
+
+      var result = TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (_visitorPartialMock, expression);
+
+      _visitorPartialMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
+    }
+
     private void CheckThrow (IMutableMethodBase mutableMethodStub)
     {
-      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodStub, underlyingMethod => null);
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodStub);
 
-      var expression = new OriginalBodyExpression (_underlyingMethod, typeof (void), Enumerable.Empty<Expression>());
+      var expression = new OriginalBodyExpression (MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string")), typeof (void), Enumerable.Empty<Expression>());
 
       var expectedMessage = string.Format (
           "The body of an added or static member ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.",
@@ -126,10 +144,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public class DomainClass
     {
-      public void Method (int p1, string p2)
+      public double Method (int p1, string p2)
       {
         Dev.Null = p1;
         Dev.Null = p2;
+        return 7.7;
       }
     }
   }

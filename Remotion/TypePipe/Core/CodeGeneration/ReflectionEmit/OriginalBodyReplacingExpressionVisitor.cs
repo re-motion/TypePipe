@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -31,16 +32,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
   {
     private readonly IMutableMethodBase _mutableMethodBase;
-    private readonly Func<MethodBase, MethodInfo> _methodRepresentingOriginalBodyProvider;
 
-    public OriginalBodyReplacingExpressionVisitor (
-        IMutableMethodBase mutableMethodBase, Func<MethodBase, MethodInfo> methodRepresentingOriginalBodyProvider)
+    public OriginalBodyReplacingExpressionVisitor (IMutableMethodBase mutableMethodBase)
     {
       ArgumentUtility.CheckNotNull ("mutableMethodBase", mutableMethodBase);
-      ArgumentUtility.CheckNotNull ("methodRepresentingOriginalBodyProvider", methodRepresentingOriginalBodyProvider);
 
       _mutableMethodBase = mutableMethodBase;
-      _methodRepresentingOriginalBodyProvider = methodRepresentingOriginalBodyProvider;
     }
 
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
@@ -61,11 +58,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
       var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
-      var methodRepresentingOriginalBody = _methodRepresentingOriginalBodyProvider (expression.MethodBase);
+      var methodRepresentingOriginalBody = AdaptOriginalMethodBase (expression.MethodBase);
 
       var baseCall = Expression.Call (convertedThisExpression, methodRepresentingOriginalBody, expression.Arguments);
 
       return Visit (baseCall);
+    }
+
+    private MethodInfo AdaptOriginalMethodBase (MethodBase methodBase)
+    {
+      Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
+
+      var method = methodBase as MethodInfo;
+      if (method != null)
+        return new BaseCallMethodInfoAdapter (method);
+      else
+        return new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
     }
   }
 }

@@ -15,12 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -36,18 +34,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
 
-      Func<MethodBase, MethodInfo> ctorAdapterProvider = ctor => new ConstructorAsMethodInfoAdapter ((ConstructorInfo) ctor);
-      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableConstructorInfo, ctorAdapterProvider);
-      return visitor.Visit (mutableConstructorInfo.Body);
+      return PrepareBody (mutableConstructorInfo);
     }
 
     public Expression PrepareMethodBody (MutableMethodInfo mutableMethodInfo)
     {
       ArgumentUtility.CheckNotNull ("mutableMethodInfo", mutableMethodInfo);
 
-      Func<MethodBase, MethodInfo> baseCallAdapterProvider = method => new BaseCallMethodInfoAdapter ((MethodInfo) method);
-      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodInfo, baseCallAdapterProvider);
-      return visitor.Visit (mutableMethodInfo.Body);
+      return PrepareBody (mutableMethodInfo);
+    }
+
+    private Expression PrepareBody (IMutableMethodBase mutableMethodBase)
+    {
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodBase);
+      return visitor.Visit (mutableMethodBase.Body);
     }
   }
 }
