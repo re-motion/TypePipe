@@ -19,9 +19,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -35,7 +35,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private MutableType _declaringType;
     private IMutableMethodBase _mutableMethodStub;
+    private MethodInfo _underlyingMethod;
     private MethodInfo _methodRepresentingOriginalBody;
+    private Func<MethodBase, MethodInfo> _methodRepresentingOriginalBodyProvider;
 
     private OriginalBodyReplacingExpressionVisitor _visitorPartialMock;
 
@@ -43,24 +45,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
+      _underlyingMethod = ReflectionObjectMother.GetSomeMethod ();
       _mutableMethodStub = MockRepository.GenerateStub<IMutableMethodBase>();
       _mutableMethodStub.Stub (stub => stub.DeclaringType).Return (_declaringType);
+      
       _methodRepresentingOriginalBody = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
+      Func<MethodBase, MethodInfo> indirectProvider = underlyingMethod => _methodRepresentingOriginalBodyProvider (underlyingMethod);
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (
-          _mutableMethodStub, 
-          _methodRepresentingOriginalBody);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (_mutableMethodStub, indirectProvider);
     }
 
     [Test]
     public void VisitOriginalBody ()
     {
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
-      var expression = new OriginalBodyExpression (typeof (void), arguments);
+      var expression = new OriginalBodyExpression (_underlyingMethod, typeof (void), arguments);
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
 
       _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
       _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
+
+      _methodRepresentingOriginalBodyProvider = underlyingMethod =>
+      {
+        Assert.That (underlyingMethod, Is.SameAs (_underlyingMethod));
+        return _methodRepresentingOriginalBody;
+      };
 
       _visitorPartialMock
           .Expect (mock => mock.Visit (Arg<Expression>.Matches (e => e is MethodCallExpression)))
@@ -71,11 +80,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             Assert.That (methodCallExpression.Object, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression> ());
             var typeAsUnderlyingSystemTypeExpression = ((TypeAsUnderlyingSystemTypeExpression) methodCallExpression.Object);
             Assert.That (
-                typeAsUnderlyingSystemTypeExpression.InnerExpression,
-                Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (_declaringType));
-            Assert.That (
-                methodCallExpression.Method, 
-                Is.SameAs (_methodRepresentingOriginalBody));
+                typeAsUnderlyingSystemTypeExpression.InnerExpression, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (_declaringType));
+            Assert.That (methodCallExpression.Method, Is.SameAs (_methodRepresentingOriginalBody));
             Assert.That (methodCallExpression.Arguments, Is.EqualTo (arguments));
           });
 
@@ -91,16 +97,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mutableMethodStub.Stub (stub => stub.IsNew).Return (true);
       _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
 
-      var visitorPartialMock = new OriginalBodyReplacingExpressionVisitor (_mutableMethodStub, _methodRepresentingOriginalBody);
-
-      var expression = new OriginalBodyExpression (typeof (void), Enumerable.Empty<Expression>());
-
-      var expectedMessage = string.Format (
-          "The body of an added or static member ('{0}', declared for mutable type 'DomainClass') must not contain an OriginalBodyExpression.", 
-          _mutableMethodStub);
-      Assert.That (
-          () => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitorPartialMock, expression),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (expectedMessage));
+      CheckThrow (_mutableMethodStub);
     }
 
     [Test]
@@ -109,25 +106,30 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
       _mutableMethodStub.Stub (stub => stub.IsStatic).Return (true);
 
-      var visitorPartialMock = new OriginalBodyReplacingExpressionVisitor (_mutableMethodStub, _methodRepresentingOriginalBody);
+      CheckThrow (_mutableMethodStub);
+    }
 
-      var expression = new OriginalBodyExpression (typeof (void), Enumerable.Empty<Expression> ());
+    private void CheckThrow (IMutableMethodBase mutableMethodStub)
+    {
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodStub, underlyingMethod => null);
+
+      var expression = new OriginalBodyExpression (_underlyingMethod, typeof (void), Enumerable.Empty<Expression>());
 
       var expectedMessage = string.Format (
-          "The body of an added or static member ('{0}', declared for mutable type 'DomainClass') must not contain an OriginalBodyExpression.",
-          _mutableMethodStub);
+          "The body of an added or static member ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.",
+          mutableMethodStub,
+          mutableMethodStub.DeclaringType.Name);
       Assert.That (
-          () => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitorPartialMock, expression),
-          Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (expectedMessage));
+          () => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (visitor, expression),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (expectedMessage));
     }
 
     public class DomainClass
     {
-// ReSharper disable UnusedParameter.Local
       public void Method (int p1, string p2)
-// ReSharper restore UnusedParameter.Local
       {
-        throw new NotImplementedException();
+        Dev.Null = p1;
+        Dev.Null = p2;
       }
     }
   }

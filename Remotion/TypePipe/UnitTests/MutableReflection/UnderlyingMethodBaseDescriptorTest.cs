@@ -28,14 +28,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateOriginalBodyExpression ()
     {
+      var methodBase = ReflectionObjectMother.GetSomeMethod();
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
 
-      var result = TestableUnderlyingMethodBaseDescriptor<MethodBase>.CreateOriginalBodyExpression (returnType, parameterDeclarations.AsOneTime());
+      var result = TestableUnderlyingMethodBaseDescriptor<MethodBase>.CreateOriginalBodyExpression (
+          methodBase, returnType, parameterDeclarations.AsOneTime());
 
       Assert.That (result, Is.TypeOf<OriginalBodyExpression>());
       var originalBodyExpression = ((OriginalBodyExpression) result);
       Assert.That (originalBodyExpression.Type, Is.SameAs (returnType));
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (methodBase));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { parameterDeclarations[0].Expression, parameterDeclarations[1].Expression }));
     }
   }

@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.MutableReflection
       var attributes = originalMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
-      var body = CreateOriginalBodyExpression (originalMethod.ReturnType, parameterDeclarations);
+      var body = CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
           originalMethod,

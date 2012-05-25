@@ -35,13 +35,14 @@ namespace Remotion.TypePipe.MutableReflection
   public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> 
       where TMethodBase : MethodBase
   {
-    protected static Expression CreateOriginalBodyExpression (Type returnType, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    protected static Expression CreateOriginalBodyExpression (MethodBase methodBase, Type returnType, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
-      return new OriginalBodyExpression (returnType, parameterExpressions.Cast<Expression> ());
+      return new OriginalBodyExpression (methodBase, returnType, parameterExpressions.Cast<Expression> ());
     }
 
     private readonly TMethodBase _underlyingSystemMethodBase;

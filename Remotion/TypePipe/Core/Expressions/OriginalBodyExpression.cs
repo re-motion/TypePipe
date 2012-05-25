@@ -18,25 +18,33 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
 {
-
   /// <summary>
   /// Represents the original body of a modified method or constructor.
   /// </summary>
   public class OriginalBodyExpression : TypePipeExpressionBase
   {
+    private readonly MethodBase _methodBase;
     private readonly ReadOnlyCollection<Expression> _arguments;
 
-    public OriginalBodyExpression (Type returnType, IEnumerable<Expression> arguments)
-        : base(ArgumentUtility.CheckNotNull("returnType", returnType))
+    public OriginalBodyExpression (MethodBase methodBase, Type returnType, IEnumerable<Expression> arguments)
+        : base (returnType)
     {
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
+      _methodBase = methodBase;
       _arguments = arguments.ToList ().AsReadOnly ();
+    }
+
+    public MethodBase MethodBase
+    {
+      get { return _methodBase; }
     }
 
     public ReadOnlyCollection<Expression> Arguments
@@ -57,7 +65,7 @@ namespace Remotion.TypePipe.Expressions
 
       var newArguments = visitor.Visit (_arguments);
       if (newArguments != _arguments)
-        return new OriginalBodyExpression (Type, newArguments);
+        return new OriginalBodyExpression (_methodBase, Type, newArguments);
       else
         return this;
     }

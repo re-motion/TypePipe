@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -35,8 +36,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
 
-      var methodRepresentingOriginalBody = new ConstructorAsMethodInfoAdapter (mutableConstructorInfo.UnderlyingSystemConstructorInfo);
-      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableConstructorInfo, methodRepresentingOriginalBody);
+      Func<MethodBase, MethodInfo> ctorAdapterProvider = ctor => new ConstructorAsMethodInfoAdapter ((ConstructorInfo) ctor);
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableConstructorInfo, ctorAdapterProvider);
       return visitor.Visit (mutableConstructorInfo.Body);
     }
 
@@ -44,8 +45,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mutableMethodInfo", mutableMethodInfo);
 
-      var methodRepresentingOriginalBody = new BaseCallMethodInfoAdapter (mutableMethodInfo.UnderlyingSystemMethodInfo);
-      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodInfo, methodRepresentingOriginalBody);
+      Func<MethodBase, MethodInfo> baseCallAdapterProvider = method => new BaseCallMethodInfoAdapter ((MethodInfo) method);
+      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodInfo, baseCallAdapterProvider);
       return visitor.Visit (mutableMethodInfo.Body);
     }
   }

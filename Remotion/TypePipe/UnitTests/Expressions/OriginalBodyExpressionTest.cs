@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -28,6 +29,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
   [TestFixture]
   public class OriginalBodyExpressionTest
   {
+    private MethodBase _methodBase;
     private Type _returnType;
     private IEnumerable<Expression> _argumentExpressions;
     private OriginalBodyExpression _expression;
@@ -35,16 +37,18 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [SetUp]
     public void SetUp ()
     {
-      _returnType = ReflectionObjectMother.GetSomeType ();
+      _methodBase = ReflectionObjectMother.GetSomeMethod();
+      _returnType = ReflectionObjectMother.GetSomeType();
       _argumentExpressions = new ArgumentTestHelper (7, "string").Expressions;
 
-      _expression = new OriginalBodyExpression (_returnType, _argumentExpressions.AsOneTime()); 
+      _expression = new OriginalBodyExpression (_methodBase, _returnType, _argumentExpressions.AsOneTime()); 
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_expression.Type, Is.SameAs (_returnType));
+      Assert.That (_expression.MethodBase, Is.SameAs (_methodBase));
       Assert.That (_expression.Arguments, Is.EqualTo (_argumentExpressions));
     }
 

@@ -79,7 +79,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "OriginalBodyExpression must be replaced before code generation.")]
     public void VisitOriginalBodyExpression ()
     {
-      var expression = new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
+      var expression = new OriginalBodyExpression (
+          ReflectionObjectMother.GetSomeMethod(), ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
 
       _visitor.VisitOriginalBody (expression);
     }

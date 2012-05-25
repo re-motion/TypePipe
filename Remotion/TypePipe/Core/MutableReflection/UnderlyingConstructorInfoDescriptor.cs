@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = originalConstructor.Attributes.AdjustVisibilityForAssemblyBoundaries();
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature(originalConstructor).ToList().AsReadOnly();
-      var body = CreateOriginalBodyExpression (typeof (void), parameterDeclarations);
+      var body = CreateOriginalBodyExpression (originalConstructor, typeof (void), parameterDeclarations);
 
       return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDeclarations, body);
     }

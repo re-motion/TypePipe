@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -24,20 +25,22 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> with a base call to the underlying constructor.
+  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> with <see cref="MethodCallExpression"/>s that can be processed by the
+  /// <see cref="LambdaCompiler"/>.
   /// </summary>
   public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
   {
     private readonly IMutableMethodBase _mutableMethodBase;
-    private readonly MethodInfo _methodRepresentingOriginalBody;
+    private readonly Func<MethodBase, MethodInfo> _methodRepresentingOriginalBodyProvider;
 
-    public OriginalBodyReplacingExpressionVisitor (IMutableMethodBase mutableMethodBase, MethodInfo methodRepresentingOriginalBody)
+    public OriginalBodyReplacingExpressionVisitor (
+        IMutableMethodBase mutableMethodBase, Func<MethodBase, MethodInfo> methodRepresentingOriginalBodyProvider)
     {
       ArgumentUtility.CheckNotNull ("mutableMethodBase", mutableMethodBase);
-      ArgumentUtility.CheckNotNull ("methodRepresentingOriginalBody", methodRepresentingOriginalBody);
+      ArgumentUtility.CheckNotNull ("methodRepresentingOriginalBodyProvider", methodRepresentingOriginalBodyProvider);
 
       _mutableMethodBase = mutableMethodBase;
-      _methodRepresentingOriginalBody = methodRepresentingOriginalBody;
+      _methodRepresentingOriginalBodyProvider = methodRepresentingOriginalBodyProvider;
     }
 
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
@@ -58,8 +61,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
       var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
+      var methodRepresentingOriginalBody = _methodRepresentingOriginalBodyProvider (expression.MethodBase);
 
-      var baseCall = Expression.Call (convertedThisExpression, _methodRepresentingOriginalBody, expression.Arguments);
+      var baseCall = Expression.Call (convertedThisExpression, methodRepresentingOriginalBody, expression.Arguments);
+
       return Visit (baseCall);
     }
   }

@@ -46,7 +46,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public static OriginalBodyExpression GetSomeOriginalBodyExpression ()
     {
-      return new OriginalBodyExpression (ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
+      var method = ReflectionObjectMother.GetSomeMethod();
+      return new OriginalBodyExpression (method, method.ReturnType, Enumerable.Empty<Expression>());
     }
   }
 }
