@@ -76,11 +76,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
 
       expressionVisitorMock.VerifyAllExpectations ();
+
       Assert.That (result, Is.Not.SameAs (_expression));
       Assert.That (result.Type, Is.SameAs (_expression.Type));
-      Assert.That (
-          result, 
-          Is.TypeOf<OriginalBodyExpression> ().With.Property ("Arguments").EqualTo (new[] { newInnerExpression, _expression.Arguments[1] }));
+      Assert.That (result, Is.TypeOf<OriginalBodyExpression> ());
+
+      var originalBodyExpression = (OriginalBodyExpression) result;
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (_methodBase));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { newInnerExpression, _expression.Arguments[1] }));
     }
   }
 }

@@ -82,6 +82,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalCtor));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
     }
 

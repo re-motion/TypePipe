@@ -126,10 +126,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
       Assert.That (descriptor.BaseMethod, Is.SameAs (fakeBaseMethod));
-
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
+
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (originalMethod.ReturnType));
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalMethod));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
     }
 

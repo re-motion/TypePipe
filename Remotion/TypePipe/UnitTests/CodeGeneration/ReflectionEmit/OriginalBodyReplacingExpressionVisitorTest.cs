@@ -46,10 +46,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainClass));
       _underlyingMethod = ReflectionObjectMother.GetSomeMethod ();
+      _methodRepresentingOriginalBody = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
       _mutableMethodStub = MockRepository.GenerateStub<IMutableMethodBase>();
       _mutableMethodStub.Stub (stub => stub.DeclaringType).Return (_declaringType);
-      
-      _methodRepresentingOriginalBody = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
+
       Func<MethodBase, MethodInfo> indirectProvider = underlyingMethod => _methodRepresentingOriginalBodyProvider (underlyingMethod);
 
       _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor> (_mutableMethodStub, indirectProvider);
