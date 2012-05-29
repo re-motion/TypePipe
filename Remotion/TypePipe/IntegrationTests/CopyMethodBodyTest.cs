@@ -16,10 +16,12 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
@@ -103,6 +105,22 @@ namespace TypePipe.IntegrationTests
       var instance = (DomainType) Activator.CreateInstance (type);
 
       Assert.That (instance.Method (7), Is.EqualTo (49));
+    }
+
+    [Test]
+    public void FromInstanceMethod_ToConstructor ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            mutableType.AddConstructor (
+                MethodAttributes.Public, ParameterDeclaration.EmptyParameters, ctx => ctx.CopyMethodBody (methodToCopy, Expression.Constant (7)));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+
+      Assert.That (instance.AddWasCalled, Is.True);
     }
 
     public class DomainTypeBase
