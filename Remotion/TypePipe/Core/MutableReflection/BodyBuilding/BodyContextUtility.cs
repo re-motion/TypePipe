@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     /// <param name="body">The original body.</param>
     /// <param name="arguments">The arguments replacing the parameters.</param>
     /// <returns></returns>
-    public static Expression PrepareNewBody (IEnumerable<ParameterExpression> parameters, Expression body, IEnumerable<Expression> arguments)
+    public static Expression PrepareBody (IEnumerable<ParameterExpression> parameters, Expression body, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("body", body);

@@ -145,7 +145,16 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return BodyContextUtility.PrepareNewBody (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
+      if (!_declaringType.IsAssignableTo (otherMethod.DeclaringType))
+      {
+        var message = string.Format ("The specified method is declared by an unrelated type '{0}'.", otherMethod.DeclaringType);
+        throw new ArgumentException (message, "otherMethod");
+      }
+
+      if (IsStatic && !otherMethod.IsStatic)
+        throw new ArgumentException ("The body of an instance method cannot be copied into a static method.", "otherMethod");
+
+      return BodyContextUtility.PrepareBody (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
     }
 
     private void EnsureNotStatic ()
