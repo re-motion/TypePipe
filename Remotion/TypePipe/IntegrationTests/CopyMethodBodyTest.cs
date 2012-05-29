@@ -65,10 +65,28 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (instance.Method (7), Is.EqualTo (14));
       Assert.That (instance.AddWasCalled, Is.False);
-      instance.Add (1, 2);
-      Assert.That (instance.AddWasCalled, Is.True);
     }
 
+    [Test]
+    public void FromInstanceMetod_ModifyingOriginalBodyDoesNotAffectCopiedBody ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            methodToCopy.SetBody (ctx => Expression.Add (ctx.Parameters[0], ctx.Parameters[1]));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+
+      instance.Add (1, 2);
+      Assert.That (instance.AddWasCalled, Is.False);
+      Assert.That (instance.Method (7), Is.EqualTo (14));
+      Assert.That (instance.AddWasCalled, Is.True);
+    }
+    
     [Test]
     public void FromInstanceMethod_DeclaredByBaseType ()
     {
