@@ -86,7 +86,7 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="Expressions\OriginalBodyExpression.cs" />
-    <Compile Include="Expressions\ReflectionAdapters\BaseCallMethodInfoAdapter.cs" />
+    <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapter.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />
     <Compile Include="Expressions\ITypePipeExpression.cs" />

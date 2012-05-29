@@ -21,13 +21,13 @@ using Microsoft.Scripting.Ast;
 namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 {
   /// <summary>
-  /// Wraps another <see cref="MethodInfo"/> in order to represent it as a base call.
-  /// This can be used to construct a <see cref="MethodCallExpression"/> with the additional information that the method should be invoked
-  /// as a non-virtual base call.
+  /// Wraps another <see cref="MethodInfo"/> in order to represent it as non-virtual method call.
+  /// This can be used to construct a <see cref="MethodCallExpression"/> with the additional information that a virtual method should be invoked
+  /// with a non-virtual method call (e.g. for calling an overridden base method).
   /// </summary>
-  public class BaseCallMethodInfoAdapter : DelegatingMethodInfoBase<MethodInfo>
+  public class NonVirtualCallMethodInfoAdapter : DelegatingMethodInfoBase<MethodInfo>
   {
-    public BaseCallMethodInfoAdapter (MethodInfo adaptedMethod)
+    public NonVirtualCallMethodInfoAdapter (MethodInfo adaptedMethod)
         : base (adaptedMethod)
     {
     }

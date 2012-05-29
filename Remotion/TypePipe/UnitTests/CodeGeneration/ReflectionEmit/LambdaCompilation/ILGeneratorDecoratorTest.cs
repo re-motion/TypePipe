@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, fakeEmittableOperand));
       
-      var baseAdaptedMethod = new BaseCallMethodInfoAdapter (method);
+      var baseAdaptedMethod = new NonVirtualCallMethodInfoAdapter (method);
       _decorator.Emit (OpCodes.Call, baseAdaptedMethod);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
@@ -152,7 +152,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, fakeEmittableOperand));
 
-      var baseAdaptedMethod = new BaseCallMethodInfoAdapter (method);
+      var baseAdaptedMethod = new NonVirtualCallMethodInfoAdapter (method);
       _decorator.Emit (OpCodes.Callvirt, baseAdaptedMethod);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
@@ -222,7 +222,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _innerILGeneratorMock.Expect (mock => mock.EmitCall (OpCodes.Call, fakeEmittableOperand, optionalParameterTypes));
 
-      var baseAdaptedMethod = new BaseCallMethodInfoAdapter (method);
+      var baseAdaptedMethod = new NonVirtualCallMethodInfoAdapter (method);
       _decorator.EmitCall (OpCodes.Call, baseAdaptedMethod, optionalParameterTypes);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
@@ -239,7 +239,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _innerILGeneratorMock.Expect (mock => mock.EmitCall (OpCodes.Call, fakeEmittableOperand, optionalParameterTypes));
 
-      var baseAdaptedMethod = new BaseCallMethodInfoAdapter (method);
+      var baseAdaptedMethod = new NonVirtualCallMethodInfoAdapter (method);
       _decorator.EmitCall (OpCodes.Callvirt, baseAdaptedMethod, optionalParameterTypes);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
@@ -255,7 +255,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _innerILGeneratorMock.Expect (mock => mock.EmitCall (OpCodes.Call, fakeEmittableOperand, null));
 
-      var baseAdaptedMethod = new BaseCallMethodInfoAdapter (method);
+      var baseAdaptedMethod = new NonVirtualCallMethodInfoAdapter (method);
       _decorator.EmitCall (OpCodes.Callvirt, baseAdaptedMethod, null);
 
       _innerILGeneratorMock.VerifyAllExpectations ();

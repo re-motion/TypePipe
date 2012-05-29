@@ -321,8 +321,8 @@ namespace TypePipe.IntegrationTests
       var thisExpression = ((ThisExpression) methodCallExpression.Object);
       Assert.That (thisExpression.Type, Is.SameAs (mutableMethod.DeclaringType));
 
-      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
-      Assert.That (((BaseCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.EqualTo (baseMethod));
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
+      Assert.That (((NonVirtualCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.EqualTo (baseMethod));
     }
 
     public class DomainTypeBaseBase

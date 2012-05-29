@@ -47,10 +47,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
       var methodCallExpression = ((MethodCallExpression) result);
-      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter>());
-      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) methodCallExpression.Method;
-      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
-      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) baseCallMethodInfoAdapter.AdaptedMethodInfo;
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
+      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo;
       Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (ctor.UnderlyingSystemConstructorInfo));
     }
 
@@ -65,8 +65,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
       var methodCallExpression = ((MethodCallExpression) result);
-      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
-      Assert.That (((BaseCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.SameAs (method.UnderlyingSystemMethodInfo));
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
+      Assert.That (((NonVirtualCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.SameAs (method.UnderlyingSystemMethodInfo));
     }
   }
 }

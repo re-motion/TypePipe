@@ -96,9 +96,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var thisExpression = (ThisExpression) result.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
 
-      Assert.That (result.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
-      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) result.Method;
-      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (fakeBaseMethod));
+      Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
+      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (fakeBaseMethod));
 
       Assert.That (result.Arguments, Is.EqualTo (arguments.Expressions));
     }
@@ -255,9 +255,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     private void CheckBaseCallMethodInfo (MethodInfo method, MethodCallExpression baseCallExpression)
     {
-      Assert.That (baseCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
-      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) baseCallExpression.Method;
-      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+      Assert.That (baseCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
+      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) baseCallExpression.Method;
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
     }
 
     private void CopyMethodBodyAndCheckOriginalBodyExpression (BodyContextBase context, MethodInfo method)

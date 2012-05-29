@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       CheckNotStatic (baseMethod);
       CheckVisibility (baseMethod, "baseMethod");
 
-      return Expression.Call (This, new BaseCallMethodInfoAdapter (baseMethod), arguments);
+      return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
     }
 
     public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)

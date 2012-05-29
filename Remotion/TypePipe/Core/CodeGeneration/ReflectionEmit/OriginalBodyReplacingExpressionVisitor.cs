@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (method == null)
         method = new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
       
-      return new BaseCallMethodInfoAdapter (method);
+      return new NonVirtualCallMethodInfoAdapter (method);
     }
   }
 }

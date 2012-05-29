@@ -24,7 +24,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// A decorator which adapts emit calls for <see cref="ConstructorAsMethodInfoAdapter"/> and <see cref="BaseCallMethodInfoAdapter"/>.
+  /// A decorator which adapts emit calls for <see cref="ConstructorAsMethodInfoAdapter"/> and <see cref="NonVirtualCallMethodInfoAdapter"/>.
   /// </summary>
   public class ILGeneratorDecorator : IILGenerator
   {
@@ -169,7 +169,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
 
-      var baseCallMethodInfo = meth as BaseCallMethodInfoAdapter;
+      var baseCallMethodInfo = meth as NonVirtualCallMethodInfoAdapter;
       if (baseCallMethodInfo != null)
       {
         Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo);
@@ -195,7 +195,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         return;
       }
 
-      var baseCallMethodInfo = methodInfo as BaseCallMethodInfoAdapter;
+      var baseCallMethodInfo = methodInfo as NonVirtualCallMethodInfoAdapter;
       if (baseCallMethodInfo != null)
       {
         EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo, optionalParameterTypes);
