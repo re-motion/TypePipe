@@ -26,7 +26,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODOO 4875")]
   public class CopyMethodBodyTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -88,23 +87,28 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance.Method (7), Is.EqualTo (14));
       Assert.That (instance.AddWasCalled, Is.True);
     }
-    
+
     [Test]
-    public void FromInstanceMethod_DeclaredByBaseType ()
+    public void FromStaticMetod_ToNewStaticMethod ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
           {
             var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Multiply");
-            Assert.That (mutableType.IsEquivalentTo (methodToCopy.DeclaringType), Is.False);
+            Assert.That (methodToCopy.IsStatic, Is.True);
 
-            var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            mutableType.AddMethod (
+                "StaticMethod",
+                MethodAttributes.Public | MethodAttributes.Static,
+                typeof (int),
+                new[] { new ParameterDeclaration (typeof (int), "i") },
+                ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
-      var instance = (DomainType) Activator.CreateInstance (type);
+      var method = type.GetMethod ("StaticMethod");
 
-      Assert.That (instance.Method (7), Is.EqualTo (49));
+      var result = method.Invoke (null, new object[] { 7 });
+      Assert.That (result, Is.EqualTo (49));
     }
 
     [Test]
@@ -115,23 +119,19 @@ namespace TypePipe.IntegrationTests
           {
             var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
             mutableType.AddConstructor (
-                MethodAttributes.Public, ParameterDeclaration.EmptyParameters, ctx => ctx.CopyMethodBody (methodToCopy, Expression.Constant (7)));
+                MethodAttributes.Public,
+                new[] { new ParameterDeclaration (typeof (int), "i") },
+                ctx => Expression.Block (
+                    ctx.GetConstructorCall(),
+                    ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0])));
           });
 
-      var instance = (DomainType) Activator.CreateInstance (type);
+      var instance = (DomainType) Activator.CreateInstance (type, new object[] { 7 });
 
       Assert.That (instance.AddWasCalled, Is.True);
     }
 
-    public class DomainTypeBase
-    {
-      public int Multiply (int a, int b)
-      {
-        return a * b;
-      }
-    }
-
-    public class DomainType : DomainTypeBase
+    public class DomainType
     {
       public bool AddWasCalled { get; private set; }
 
@@ -145,6 +145,11 @@ namespace TypePipe.IntegrationTests
       {
         Dev.Null = i;
         return -1;
+      }
+
+      public static int Multiply (int a, int b)
+      {
+        return a * b;
       }
     }
   }
