@@ -228,17 +228,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void CopyMethodBody_Params_DeclaredByBaseType ()
-    {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod (7));
-      Assert.That (_mutableType.IsEquivalentTo (typeof (DomainTypeBase)), Is.False);
-
-      CopyMethodBodyAndCheckOriginalBodyExpression (_instanceContext, method);
-    }
-
-    [Test]
     [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The specified method is declared by an unrelated type "
+        ExpectedMessage = "The specified method is declared by a different type "
                           + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+UnrelatedType'"
                           + ".\r\nParameter name: otherMethod")]
     public void CopyMethodBody_Params_DeclaredByUnrelatedType ()
@@ -285,10 +276,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ClassNeverInstantiated.Local
-    private class DomainTypeBase
-    {
-      public void BaseMethod (int i) { }
-    }
+    private class DomainTypeBase { }
 
     private class DomainType : DomainTypeBase
     {

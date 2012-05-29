@@ -79,33 +79,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckVisitOriginalBody (expression,_declaringType,arguments, checkMethodInCallExpressionAction);
     }
 
-    [Test]
-    public void VisitOriginalBody_WithNewMember ()
-    {
-      _mutableMethodStub.Stub (stub => stub.IsNew).Return (true);
-      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
-
-      CheckThrow (_mutableMethodStub);
-    }
-
-    [Test]
-    public void VisitOriginalBody_WithStaticMember ()
-    {
-      _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
-      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (true);
-
-      CheckThrow (_mutableMethodStub);
-    }
-
     private void CheckVisitOriginalBody (
         OriginalBodyExpression expression,
         MutableType expectedDeclaringType,
         Expression[] expectedMethodCallArguments,
         Action<MethodInfo> checkMethodInCallExpressionAction)
     {
-      _mutableMethodStub.Stub (stub => stub.IsNew).Return (false);
-      _mutableMethodStub.Stub (stub => stub.IsStatic).Return (false);
-
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
       _visitorPartialMock
           .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))

@@ -44,15 +44,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      if (_mutableMethodBase.IsNew || _mutableMethodBase.IsStatic)
-      {
-        var message = string.Format (
-            "The body of an added or static member ('{0}', declared for mutable type '{1}') must not contain an OriginalBodyExpression.", 
-            _mutableMethodBase, 
-            _mutableMethodBase.DeclaringType.Name);
-        throw new NotSupportedException (message);
-      }
-
       var thisExpression = new ThisExpression (_mutableMethodBase.DeclaringType);
       // Since _mutableMethodBase.DeclaringType is a MutableType, we need to convert the ThisExpression to its underlying
       // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
