@@ -127,9 +127,25 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic ();
       CheckNotStatic (baseMethod);
-      CheckVisibility(baseMethod, "baseMethod");
+      CheckVisibility (baseMethod, "baseMethod");
 
       return Expression.Call (This, new BaseCallMethodInfoAdapter (baseMethod), arguments);
+    }
+
+    public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
+    {
+      ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      return CopyMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
+    }
+
+    public Expression CopyMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      throw new NotImplementedException ("TODO 4875");
     }
 
     private void EnsureNotStatic ()
