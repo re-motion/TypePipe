@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      var invokedBody = PreparePreviousBody (arg1, arg2);
+      var invokedBody = PrepareNewBody (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         "The argument count (0) does not match the parameter count (2).\r\nParameter name: arguments")]
     public void GetPreviousBody_WrongNumberOfArguments ()
     {
-      PreparePreviousBody ();
+      PrepareNewBody ();
     }
 
     [Test]
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      PreparePreviousBody (arg1, arg2);
+      PrepareNewBody (arg1, arg2);
     }
 
     [Test]
@@ -75,13 +75,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (typeof (int)); // convert from int to object
 
-      var invokedBody = PreparePreviousBody (arg1, arg2);
+      var invokedBody = PrepareNewBody (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, Expression.Convert (arg2, typeof (object)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
-    private Expression PreparePreviousBody (params Expression[] arguments)
+    private Expression PrepareNewBody (params Expression[] arguments)
     {
       return BodyContextUtility.PrepareNewBody (_parameters.AsOneTime(), _previousBody, arguments.AsOneTime());
     }
