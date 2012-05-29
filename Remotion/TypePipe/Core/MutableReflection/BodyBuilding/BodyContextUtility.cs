@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
@@ -28,13 +27,20 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// <summary>
   /// Holds utility functions used by <see cref="BodyContextBase"/> and its descendants.
   /// </summary>
-  public static class BodyModificationContextUtility
+  public static class BodyContextUtility
   {
-    public static Expression PreparePreviousBody (
-        IEnumerable<ParameterExpression> parameters, Expression previousBody, IEnumerable<Expression> arguments)
+    /// <summary>
+    /// Prepares a new body by replacing the <paramref name="parameters"/> contained in <paramref name="body"/> with the supplied
+    /// <paramref name="arguments"/>.
+    /// </summary>
+    /// <param name="parameters">The parameters to be replaced.</param>
+    /// <param name="body">The original body.</param>
+    /// <param name="arguments">The arguments replacing the parameters.</param>
+    /// <returns></returns>
+    public static Expression PrepareNewBody (IEnumerable<ParameterExpression> parameters, Expression body, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("previousBody", previousBody);
+      ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       var parameterCollection = parameters.ConvertToCollection();
@@ -51,8 +57,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
           .Select ((p, i) => new { Parameter = p, Index = i })
           .Zip (argumentCollection, (t, a) => new { t.Parameter, Argument = EnsureCorrectType (a, t.Parameter.Type, t.Index, "arguments") })
           .ToDictionary (t => (Expression) t.Parameter, t => t.Argument);
+
       var visitor = new ReplacingExpressionVisitor (replacements);
-      return visitor.Visit (previousBody);
+      return visitor.Visit (body);
     }
 
     private static Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)

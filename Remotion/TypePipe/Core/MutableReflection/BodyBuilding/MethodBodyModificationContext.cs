@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return BodyModificationContextUtility.PreparePreviousBody(Parameters, _previousBody, arguments);
+      return BodyContextUtility.PrepareNewBody(Parameters, _previousBody, arguments);
     }
   }
 }

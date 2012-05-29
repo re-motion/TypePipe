@@ -24,7 +24,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   [TestFixture]
-  public class BodyModificationContextUtilityTest
+  public class BodyContextUtilityTest
   {
     private ParameterExpression[] _parameters;
     private Expression _previousBody;
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     private Expression PreparePreviousBody (params Expression[] arguments)
     {
-      return BodyModificationContextUtility.PreparePreviousBody (_parameters.AsOneTime(), _previousBody, arguments.AsOneTime());
+      return BodyContextUtility.PrepareNewBody (_parameters.AsOneTime(), _previousBody, arguments.AsOneTime());
     }
   }
 }

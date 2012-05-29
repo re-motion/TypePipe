@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return BodyModificationContextUtility.PreparePreviousBody (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
+      return BodyContextUtility.PrepareNewBody (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
     }
 
     private void EnsureNotStatic ()
