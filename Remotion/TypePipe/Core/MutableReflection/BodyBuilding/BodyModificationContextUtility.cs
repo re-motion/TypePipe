@@ -26,25 +26,28 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Holds utility functions used by <see cref="MethodBodyModificationContext"/> and <see cref="ConstructorBodyModificationContext"/>.
+  /// Holds utility functions used by <see cref="BodyContextBase"/> and its descendants.
   /// </summary>
   public static class BodyModificationContextUtility
   {
     public static Expression PreparePreviousBody (
-        ReadOnlyCollection<ParameterExpression> parameters, Expression previousBody, IEnumerable<Expression> arguments)
+        IEnumerable<ParameterExpression> parameters, Expression previousBody, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
+      var parameterCollection = parameters.ConvertToCollection();
       var argumentCollection = arguments.ConvertToCollection();
-      if (argumentCollection.Count != parameters.Count)
+
+      if (parameterCollection.Count != argumentCollection.Count)
       {
-        var message = String.Format ("The argument count ({0}) does not match the parameter count ({1}).", argumentCollection.Count, parameters.Count);
+        var message = string.Format (
+            "The argument count ({0}) does not match the parameter count ({1}).", argumentCollection.Count, parameterCollection.Count);
         throw new ArgumentException (message, "arguments");
       }
 
-      var replacements = parameters
+      var replacements = parameterCollection
           .Select ((p, i) => new { Parameter = p, Index = i })
           .Zip (argumentCollection, (t, a) => new { t.Parameter, Argument = EnsureCorrectType (a, t.Parameter.Type, t.Index, "arguments") })
           .ToDictionary (t => (Expression) t.Parameter, t => t.Argument);

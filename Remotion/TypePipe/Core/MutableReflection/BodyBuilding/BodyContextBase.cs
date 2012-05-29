@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      throw new NotImplementedException ("TODO 4875");
+      return BodyModificationContextUtility.PreparePreviousBody (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
     }
 
     private void EnsureNotStatic ()

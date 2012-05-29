@@ -204,6 +204,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _instanceContext.GetBaseCall (internalMethod);
     }
 
+    [Test]
+    public void CopyMethodBody_Params ()
+    {
+      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
+      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (_mutableType, method);
+      var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+
+      var result = _instanceContext.CopyMethodBody (methodToCopy, argument);
+
+      Assert.That (result, Is.TypeOf<OriginalBodyExpression>());
+      var originalBodyExpression = (OriginalBodyExpression) result;
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (method));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { argument }));
+    }
+
+    //[Test]
+    //public void CopyMethodBody_Params_DeclaredByBaseType ()
+    //{
+
+    //}
+
+    //[Test]
+    //public void CopyMethodBody_Params_DeclaredByUnrelatedType ()
+    //{
+    //}
+
     private void CheckBaseCallMethodInfo (MethodInfo method, MethodCallExpression baseCallExpression)
     {
       Assert.That (baseCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter> ());
@@ -221,7 +247,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       public void Method (int i) { }
 
       public void FakeBaseMethod (int i) { }
-
 
       protected void ProtectedMethod () { }
       protected internal void ProtectedInternalMethod () { }

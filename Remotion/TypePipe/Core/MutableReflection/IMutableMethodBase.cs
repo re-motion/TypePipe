@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -23,8 +24,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableMethodBase : IMutableMember
   {
-    bool CanSetBody { get; }
-
+    IEnumerable<ParameterExpression> ParameterExpressions { get; }
     Expression Body { get; }
+    bool CanSetBody { get; }
   }
 }

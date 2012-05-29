@@ -15,8 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -28,13 +26,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class BodyModificationContextUtilityTest
   {
-    private ReadOnlyCollection<ParameterExpression> _parameters;
+    private ParameterExpression[] _parameters;
     private Expression _previousBody;
 
     [SetUp]
     public void SetUp ()
     {
-      _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) }.ToList().AsReadOnly();
+      _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
     }
 
@@ -85,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     private Expression PreparePreviousBody (params Expression[] arguments)
     {
-      return BodyModificationContextUtility.PreparePreviousBody (_parameters, _previousBody, arguments.AsOneTime());
+      return BodyModificationContextUtility.PreparePreviousBody (_parameters.AsOneTime(), _previousBody, arguments.AsOneTime());
     }
   }
 }
