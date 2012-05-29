@@ -70,10 +70,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
 
       var method = methodBase as MethodInfo;
-      if (method != null)
-        return new BaseCallMethodInfoAdapter (method);
-      else
-        return new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
+      if (method == null)
+        method = new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
+      
+      return new BaseCallMethodInfoAdapter (method);
     }
   }
 }

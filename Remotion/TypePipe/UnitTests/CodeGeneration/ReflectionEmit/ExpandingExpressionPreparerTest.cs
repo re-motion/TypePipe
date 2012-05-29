@@ -47,8 +47,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
       var methodCallExpression = ((MethodCallExpression) result);
-      Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
-      Assert.That (((ConstructorAsMethodInfoAdapter) methodCallExpression.Method).ConstructorInfo, Is.SameAs (ctor.UnderlyingSystemConstructorInfo));
+      Assert.That (methodCallExpression.Method, Is.TypeOf<BaseCallMethodInfoAdapter>());
+      var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) baseCallMethodInfoAdapter.AdaptedMethodInfo;
+      Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (ctor.UnderlyingSystemConstructorInfo));
     }
 
     [Test]

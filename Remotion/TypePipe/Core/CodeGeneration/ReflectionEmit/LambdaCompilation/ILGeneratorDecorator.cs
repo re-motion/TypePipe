@@ -24,7 +24,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// A decorator which adapts emit calls for <see cref="ConstructorAsMethodInfoAdapter"/>.
+  /// A decorator which adapts emit calls for <see cref="ConstructorAsMethodInfoAdapter"/> and <see cref="BaseCallMethodInfoAdapter"/>.
   /// </summary>
   public class ILGeneratorDecorator : IILGenerator
   {

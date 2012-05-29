@@ -67,8 +67,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var methodBase = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainClass());
       var arguments = new Expression[0];
       var expression = new OriginalBodyExpression (methodBase, typeof (void), arguments);
-      Action<MethodInfo> checkMethodInCallExpressionAction =
-          methodInfo => Assert.That (methodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>().And.Property ("ConstructorInfo").SameAs (methodBase));
+      Action<MethodInfo> checkMethodInCallExpressionAction = methodInfo =>
+      {
+        Assert.That (methodInfo, Is.TypeOf<BaseCallMethodInfoAdapter> ());
+        var baseCallMethodInfoAdapter = (BaseCallMethodInfoAdapter) methodInfo;
+        Assert.That (baseCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+        var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) baseCallMethodInfoAdapter.AdaptedMethodInfo;
+        Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (methodBase));
+      };
 
       CheckVisitOriginalBody (expression,_declaringType,arguments, checkMethodInCallExpressionAction);
     }
