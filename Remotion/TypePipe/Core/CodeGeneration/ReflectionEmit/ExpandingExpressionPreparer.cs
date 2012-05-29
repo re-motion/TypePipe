@@ -46,8 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private Expression PrepareBody (IMutableMethodBase mutableMethodBase)
     {
-      var visitor = new OriginalBodyReplacingExpressionVisitor (mutableMethodBase);
-      return visitor.Visit (mutableMethodBase.Body);
+      return new OriginalBodyReplacingExpressionVisitor().Visit (mutableMethodBase.Body);
     }
   }
 }

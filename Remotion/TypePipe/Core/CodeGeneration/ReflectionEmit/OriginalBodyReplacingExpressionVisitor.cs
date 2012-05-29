@@ -20,7 +20,6 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -31,29 +30,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
   {
-    private readonly IMutableMethodBase _mutableMethodBase;
-
-    public OriginalBodyReplacingExpressionVisitor (IMutableMethodBase mutableMethodBase)
-    {
-      ArgumentUtility.CheckNotNull ("mutableMethodBase", mutableMethodBase);
-
-      _mutableMethodBase = mutableMethodBase;
-    }
-
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      var thisExpression = new ThisExpression (_mutableMethodBase.DeclaringType);
+      var methodBase = expression.MethodBase;
+      var thisExpression = methodBase.IsStatic ? null : CreateThisExpression (methodBase.DeclaringType);
+      var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
+
+      var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
+
+      return Visit (baseCall);
+    }
+
+    private Expression CreateThisExpression (Type declaringType)
+    {
+      var thisExpression = new ThisExpression (declaringType);
       // Since _mutableMethodBase.DeclaringType is a MutableType, we need to convert the ThisExpression to its underlying
       // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
       // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
-      var convertedThisExpression = new TypeAsUnderlyingSystemTypeExpression (thisExpression);
-      var methodRepresentingOriginalBody = AdaptOriginalMethodBase (expression.MethodBase);
-
-      var baseCall = Expression.Call (convertedThisExpression, methodRepresentingOriginalBody, expression.Arguments);
-
-      return Visit (baseCall);
+      return new TypeAsUnderlyingSystemTypeExpression (thisExpression);
     }
 
     private MethodInfo AdaptOriginalMethodBase (MethodBase methodBase)
