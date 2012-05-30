@@ -171,9 +171,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Assert.That (context.Parameters, Is.EqualTo (_mutableCtor.ParameterExpressions));
         Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
         Assert.That (context.IsStatic, Is.False);
-
-        var previousBody = context.GetPreviousBody ();
-        Assert.That (previousBody, Is.SameAs (_mutableCtor.Body));
+        Assert.That (context.PreviousBody, Is.SameAs (_mutableCtor.Body));
 
         return fakeBody;
       };

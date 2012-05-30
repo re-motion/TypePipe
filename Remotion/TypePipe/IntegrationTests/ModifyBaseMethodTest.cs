@@ -44,7 +44,7 @@ namespace TypePipe.IntegrationTests
 
             CheckBodyOfAddedOverride (baseMethod, mutableMethod);
 
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody(), Expression.Constant (" made mutable")));
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
 
             Assert.That (mutableType.GetOrAddMutableMethod (baseMethod), Is.SameAs (mutableMethod));
           });
@@ -128,7 +128,7 @@ namespace TypePipe.IntegrationTests
 
             CheckBodyOfAddedOverride (baseMethod, mutableMethod);
 
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody (), Expression.Constant (" made mutable")));
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
           });
 
       var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseMethod.Name);
@@ -157,7 +157,7 @@ namespace TypePipe.IntegrationTests
 
             CheckBodyOfAddedOverride (baseBaseMethod, mutableMethod);
 
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody (), Expression.Constant (" made mutable")));
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
           });
 
       var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseBaseMethod.Name);
@@ -186,7 +186,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableShadowedMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { shadowedMethod }));
 
             mutableShadowedMethod.SetBody (
-                ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody(), Expression.Constant (" made mutable explicitly")));
+                ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable explicitly")));
 
             var mutableShadowingMethod = mutableType.GetOrAddMutableMethod (shadowingMethod);
 
@@ -194,7 +194,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableShadowingMethod.AddedExplicitBaseDefinitions, Is.Empty);
 
             mutableShadowingMethod.SetBody (
-                ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody(), Expression.Constant (" made mutable implicitly")));
+                ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable implicitly")));
             
           });
 
@@ -227,7 +227,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethod.BaseMethod, Is.EqualTo (overridingMethod));
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.Empty);
 
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody(), Expression.Constant (" made mutable")));
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
 
             Assert.That (mutableType.GetOrAddMutableMethod (overridingMethod), Is.SameAs (mutableMethod));
           });
@@ -254,7 +254,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethod.BaseMethod, Is.Null);
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { baseMethod }));
 
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody (), Expression.Constant (" made mutable")));
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
           });
 
       var shadowingMethod = GetDeclaredMethod (type, baseMethod.Name);

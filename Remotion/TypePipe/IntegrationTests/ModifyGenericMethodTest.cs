@@ -46,7 +46,7 @@ namespace TypePipe.IntegrationTests
                   var containsKeyMethod = ctx.Parameters[0].Type.GetMethod ("ContainsKey");
                   return Expression.Condition (
                       Expression.Call (ctx.Parameters[0], containsKeyMethod, ctx.Parameters[1]),
-                      ctx.GetPreviousBody (),
+                      ctx.PreviousBody,
                       Expression.Default (ctx.Parameters[1].Type));
                 });
           });

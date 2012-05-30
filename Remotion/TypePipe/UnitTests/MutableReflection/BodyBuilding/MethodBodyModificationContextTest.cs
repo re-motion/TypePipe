@@ -57,35 +57,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_context.Parameters, Is.EqualTo (_parameters));
-      Assert.That (_context.GetPreviousBody (), Is.SameAs (_previousBody));
+      Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
       Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
       Assert.That (_context.BaseMethod, Is.SameAs(_baseMethod));
     }
 
     [Test]
-    public void GetPreviousBody_NoParameter ()
+    public void PreviousBody ()
     {
-      var invokedBody = _context.GetPreviousBody ();
-
-      Assert.That (invokedBody, Is.SameAs (_previousBody));
+      Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
     }
 
     [Test]
-    public void GetPreviousBody_Params ()
+    public void GetPreviousBodyWitArguments_Params ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      var invokedBody = _context.GetPreviousBody (arg1, arg2);
+      var invokedBody = _context.GetPreviousBodyWitArguments (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
     [Test]
-    public void GetPreviousBody_Enumerable ()
+    public void GetPreviousBodyWitArguments_Enumerable ()
     {
-      var invokedBody = _context.GetPreviousBody (_parameters.Cast<Expression> ().AsOneTime ());
+      var invokedBody = _context.GetPreviousBodyWitArguments (_parameters.Cast<Expression> ().AsOneTime ());
 
       var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);

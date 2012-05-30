@@ -391,9 +391,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Assert.That (context.IsStatic, Is.False);
         Assert.That (mutableMethod.BaseMethod, Is.Not.Null);
         Assert.That (context.BaseMethod, Is.SameAs (mutableMethod.BaseMethod));
-
-        var previousBody = context.GetPreviousBody();
-        Assert.That (previousBody, Is.SameAs (mutableMethod.Body));
+        Assert.That (context.PreviousBody, Is.SameAs (mutableMethod.Body));
 
         return fakeBody;
       };

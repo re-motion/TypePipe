@@ -36,7 +36,7 @@ namespace TypePipe.IntegrationTests
             var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
             mutableCtor.SetBody (
                 ctx => Expression.Block (
-                    ctx.GetPreviousBody (ExpressionHelper.StringConcat (ctx.Parameters[0], Expression.Constant (" cd"))),
+                    ctx.GetPreviousBodyWithArguments (ExpressionHelper.StringConcat (ctx.Parameters[0], Expression.Constant (" cd"))),
                     // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
                     Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[0])));
           });
@@ -79,7 +79,7 @@ namespace TypePipe.IntegrationTests
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
             var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
-             mutableCtor.SetBody (ctx => ctx.GetPreviousBody (Expression.Constant ("modified existing")));
+             mutableCtor.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Constant ("modified existing")));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);

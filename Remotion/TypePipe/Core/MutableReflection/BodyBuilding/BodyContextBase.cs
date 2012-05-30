@@ -132,15 +132,15 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
     }
 
-    public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
+    public Expression GetCopiedMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return CopyMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
+      return GetCopiedMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public Expression CopyMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
+    public Expression GetCopiedMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -154,7 +154,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (IsStatic && !otherMethod.IsStatic)
         throw new ArgumentException ("The body of an instance method cannot be copied into a static method.", "otherMethod");
 
-      return BodyContextUtility.PrepareBody (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
+      return BodyContextUtility.ReplaceParameters (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
     }
 
     private void EnsureNotStatic ()

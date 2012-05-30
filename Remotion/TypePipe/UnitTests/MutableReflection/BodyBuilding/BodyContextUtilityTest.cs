@@ -37,12 +37,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void PrepareBody ()
+    public void ReplaceParameters ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      var invokedBody = CallPrepareBody (arg1, arg2);
+      var invokedBody = CallReplaceParameters (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
@@ -51,9 +51,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "The argument count (0) does not match the parameter count (2).\r\nParameter name: arguments")]
-    public void PrepareBody_WrongNumberOfArguments ()
+    public void ReplaceParameters_WrongNumberOfArguments ()
     {
-      CallPrepareBody ();
+      CallReplaceParameters ();
     }
 
     [Test]
@@ -61,29 +61,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         "The argument at index 0 has an invalid type: Type 'System.String' cannot be implicitly converted to type 'System.Int32'. "
         + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.\r\n"
         + "Parameter name: arguments")]
-    public void PrepareBody_WrongArgumentType ()
+    public void ReplaceParameters_WrongArgumentType ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      CallPrepareBody (arg1, arg2);
+      CallReplaceParameters (arg1, arg2);
     }
 
     [Test]
-    public void PrepareBody_ConvertibleArgumentType ()
+    public void ReplaceParameters_ConvertibleArgumentType ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (typeof (int)); // convert from int to object
 
-      var invokedBody = CallPrepareBody (arg1, arg2);
+      var invokedBody = CallReplaceParameters (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, Expression.Convert (arg2, typeof (object)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
-    private Expression CallPrepareBody (params Expression[] arguments)
+    private Expression CallReplaceParameters (params Expression[] arguments)
     {
-      return BodyContextUtility.PrepareBody (_parameters.AsOneTime(), _previousBody, arguments.AsOneTime());
+      return BodyContextUtility.ReplaceParameters (_parameters.AsOneTime(), _previousBody, arguments.AsOneTime());
     }
   }
 }

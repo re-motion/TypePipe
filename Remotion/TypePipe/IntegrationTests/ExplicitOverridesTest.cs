@@ -54,7 +54,7 @@ namespace TypePipe.IntegrationTests
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
                   Assert.That (() => ctx.BaseMethod, Throws.TypeOf<NotSupportedException>());
-                  return ctx.GetPreviousBody();
+                  return ctx.PreviousBody;
                 });
 
             var allMethods = mutableType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

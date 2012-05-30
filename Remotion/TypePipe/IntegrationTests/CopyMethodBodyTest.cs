@@ -38,7 +38,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (methodToCopy.Body, Is.TypeOf<OriginalBodyExpression>());
 
             var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -59,7 +59,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (methodToCopy.Body, Is.Not.TypeOf<OriginalBodyExpression>());
 
             var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -76,7 +76,7 @@ namespace TypePipe.IntegrationTests
           {
             var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
             var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
             methodToCopy.SetBody (ctx => Expression.Add (ctx.Parameters[0], ctx.Parameters[1]));
           });
 
@@ -102,7 +102,7 @@ namespace TypePipe.IntegrationTests
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
-                ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+                ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
       var method = type.GetMethod ("StaticMethod");
@@ -123,7 +123,7 @@ namespace TypePipe.IntegrationTests
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Block (
                     ctx.GetConstructorCall(),
-                    ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0])));
+                    ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type, new object[] { 7 });

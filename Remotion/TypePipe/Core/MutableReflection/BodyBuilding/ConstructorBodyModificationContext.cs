@@ -40,23 +40,23 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _previousBody = previousBody;
     }
 
-    public Expression GetPreviousBody ()
+    public Expression PreviousBody
     {
-      return _previousBody;
+      get { return _previousBody; }
     }
 
-    public Expression GetPreviousBody (params Expression[] arguments)
+    public Expression GetPreviousBodyWithArguments (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetPreviousBody ((IEnumerable<Expression>) arguments);
+      return GetPreviousBodyWithArguments ((IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetPreviousBody (IEnumerable<Expression> arguments)
+    public Expression GetPreviousBodyWithArguments (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return BodyContextUtility.PrepareBody (Parameters, _previousBody, arguments);
+      return BodyContextUtility.ReplaceParameters (Parameters, _previousBody, arguments);
     }
   }
 }

@@ -116,7 +116,7 @@ namespace TypePipe.IntegrationTests
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
                   return ExpressionHelper.StringConcat (
                       ExpressionHelper.StringConcat (Expression.Constant ("Base: "), ctx.GetBaseCall (ctx.BaseMethod)),
-                      ExpressionHelper.StringConcat (Expression.Constant (", previous body: "), ctx.GetPreviousBody ()));
+                      ExpressionHelper.StringConcat (Expression.Constant (", previous body: "), ctx.PreviousBody));
                 });
           });
 

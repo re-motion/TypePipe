@@ -51,7 +51,7 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.GetPreviousBody (), Expression.Constant (" test")));
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" test")));
           });
 
       var instance = Activator.CreateInstance (type);
