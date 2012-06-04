@@ -16,16 +16,14 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for classes preparing method bodies so that code can be generated for them.
+  /// Defines an interface for classes preparing method (and constructor) bodies so that code can be generated for them.
   /// </summary>
   public interface IExpressionPreparer
   {
-    Expression PrepareConstructorBody (MutableConstructorInfo mutableConstructorInfo);
-    Expression PrepareMethodBody (MutableMethodInfo mutableMethodInfo);
+    Expression PrepareBody (Expression body);
   }
 }

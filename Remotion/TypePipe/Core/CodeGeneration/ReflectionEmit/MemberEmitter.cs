@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());
 
-      var body = _expressionPreparer.PrepareConstructorBody (constructor);
+      var body = _expressionPreparer.PrepareBody (constructor.Body);
       var bodyBuildAction = CreateBodyBuildAction (ctorBuilder, context.DebugInfoGenerator, constructor.ParameterExpressions, body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
     }
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineParameters (methodBuilder, method.GetParameters ());
 
-      var body = _expressionPreparer.PrepareMethodBody (method);
+      var body = _expressionPreparer.PrepareBody (method.Body);
       var bodyBuildAction = CreateBodyBuildAction (methodBuilder, context.DebugInfoGenerator, method.ParameterExpressions, body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
 

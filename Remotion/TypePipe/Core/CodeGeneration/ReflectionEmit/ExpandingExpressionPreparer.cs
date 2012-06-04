@@ -19,34 +19,21 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Prepares method bodies so that code can be generated for them by expanding all <see cref="ITypePipeExpression"/> nodes not understood by
-  /// <see cref="LambdaCompiler"/> and <see cref="ILGeneratingTypePipeExpressionVisitor"/>.
+  /// Prepares method (and constructor) bodies so that code can be generated for them by expanding all <see cref="ITypePipeExpression"/> nodes not
+  /// understood by <see cref="LambdaCompiler"/> and <see cref="ILGeneratingTypePipeExpressionVisitor"/>.
   /// </summary>
   public class ExpandingExpressionPreparer : IExpressionPreparer
   {
-    public Expression PrepareConstructorBody (MutableConstructorInfo mutableConstructorInfo)
+    public Expression PrepareBody (Expression body)
     {
-      ArgumentUtility.CheckNotNull ("mutableConstructorInfo", mutableConstructorInfo);
+      ArgumentUtility.CheckNotNull ("body", body);
 
-      return PrepareBody (mutableConstructorInfo);
-    }
-
-    public Expression PrepareMethodBody (MutableMethodInfo mutableMethodInfo)
-    {
-      ArgumentUtility.CheckNotNull ("mutableMethodInfo", mutableMethodInfo);
-
-      return PrepareBody (mutableMethodInfo);
-    }
-
-    private Expression PrepareBody (IMutableMethodBase mutableMethodBase)
-    {
-      return new OriginalBodyReplacingExpressionVisitor().Visit (mutableMethodBase.Body);
+      return new OriginalBodyReplacingExpressionVisitor().Visit (body);
     }
   }
 }

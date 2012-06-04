@@ -22,6 +22,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -37,36 +38,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void PrepareConstructorBody_ExpandsOriginalBodyExpressions ()
+    public void PrepareBody_ExpandsOriginalBodyExpressionsForMethod ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
-      var ctor = mutableType.ExistingMutableConstructors.Single();
-      Assert.That (ctor.Body, Is.TypeOf<OriginalBodyExpression>());
+      var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
+      var body = Expression.Block (new OriginalBodyExpression (method, typeof (void), new Expression[0]));
 
-      var result = _preparer.PrepareConstructorBody (ctor);
+      var result = _preparer.PrepareBody (body);
 
-      Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
+      Assert.That (result, Is.AssignableTo<BlockExpression>());
+      var blockExpression = (BlockExpression) result;
+      Assert.That (blockExpression.Result, Is.AssignableTo<MethodCallExpression>());
+      var methodCallExpression = ((MethodCallExpression) blockExpression.Result);
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
+      Assert.That (((NonVirtualCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.SameAs (method));
+    }
+
+    [Test]
+    public void PrepareBody_ExpandsOriginalBodyExpressionsForConstructor ()
+    {
+      var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new object ());
+      var body = new OriginalBodyExpression (ctor, typeof (void), new Expression[0]);
+
+      var result = _preparer.PrepareBody (body);
+
+      Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = ((MethodCallExpression) result);
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
       Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
       var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo;
-      Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (ctor.UnderlyingSystemConstructorInfo));
-    }
-
-    [Test]
-    public void PrepareMethodBody_ExpandsOriginalBodyExpressions ()
-    {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
-      var method = mutableType.ExistingMutableMethods.First ();
-      Assert.That (method.Body, Is.TypeOf<OriginalBodyExpression> ());
-
-      var result = _preparer.PrepareMethodBody (method);
-
-      Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
-      var methodCallExpression = ((MethodCallExpression) result);
-      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
-      Assert.That (((NonVirtualCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.SameAs (method.UnderlyingSystemMethodInfo));
+      Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (ctor));
     }
   }
 }
