@@ -31,7 +31,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly Type[] s_unsealedTypes = EnsureNoNulls (new[] { typeof (object), typeof (List<int>) });
     private static readonly Type[] s_interfaceTypes = EnsureNoNulls (new[] { typeof (IDisposable), typeof (IServiceProvider) });
     private static readonly Type[] s_otherInterfaceTypes = EnsureNoNulls (new[] { typeof (IComparable), typeof (ICloneable) });
-    private static readonly MemberInfo[] s_members = EnsureNoNulls (new MemberInfo[] { typeof (DateTime).GetProperty ("Now"), typeof (string).GetMethod ("get_Length") });
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
     private static readonly MethodInfo[] s_instanceMethod = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("GetHashCode") });
@@ -72,7 +71,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static MemberInfo GetSomeMember ()
     {
-      return GetRandomElement (s_members);
+      return GetRandomElement (
+          AllMethods.Cast<MemberInfo>()
+              .Concat (s_fields)
+              .Concat (s_defaultCtors)
+              .ToArray());
     }
 
     public static FieldInfo GetSomeField ()
@@ -92,16 +95,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static MethodInfo GetSomeMethod ()
     {
-      return GetRandomElement (
-          s_nonGenericMethods
-              .Concat(s_instanceMethod)
-              .Concat(s_staticMethod)
-              .Concat(s_genericMethods)
-              .Concat(s_virtualMethods)
-              .Concat(s_nonVirtualMethods)
-              .Concat(s_overridingMethods)
-              .Concat(s_finalMethods)
-              .ToArray());
+      return GetRandomElement (AllMethods.ToArray());
     }
 
     public static MethodInfo GetSomeInstanceMethod ()
@@ -180,6 +174,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static object GetDefaultValue (Type type)
     {
       return type.IsValueType ? Activator.CreateInstance (type) : null;
+    }
+
+    private static IEnumerable<MethodInfo> AllMethods
+    {
+      get
+      {
+        return s_nonGenericMethods
+            .Concat (s_instanceMethod)
+            .Concat (s_staticMethod)
+            .Concat (s_genericMethods)
+            .Concat (s_virtualMethods)
+            .Concat (s_nonVirtualMethods)
+            .Concat (s_overridingMethods)
+            .Concat (s_finalMethods);
+      }
     }
 
     private static T GetRandomElement<T> (T[] array)

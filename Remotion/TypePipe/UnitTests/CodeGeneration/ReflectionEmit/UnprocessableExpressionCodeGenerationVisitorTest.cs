@@ -33,12 +33,44 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class UnprocessableExpressionCodeGenerationVisitorTest
   {
+    private IEmittableOperandProvider _emittableOperandProviderMock;
+
     private UnprocessableExpressionCodeGenerationVisitor _visitorPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _visitorPartialMock = MockRepository.GeneratePartialMock<UnprocessableExpressionCodeGenerationVisitor>();
+      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnprocessableExpressionCodeGenerationVisitor>(_emittableOperandProviderMock);
+    }
+
+    [Test]
+    public void VisitConstant_ReplacesValue ()
+    {
+      var expression = Expression.Constant ("operand", typeof(object));
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableOperand ("operand")).Return ("emittable");
+
+      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+
+      _emittableOperandProviderMock.VerifyAllExpectations();
+      Assert.That (result, Is.AssignableTo<ConstantExpression>());
+      var constantExpression = (ConstantExpression) result;
+      Assert.That (constantExpression.Value, Is.EqualTo("emittable"));
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+    }
+
+    [Test]
+    public void VisitConstant_SameValue ()
+    {
+      var value = "emittable";
+      var expression = Expression.Constant (value, typeof (object));
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableOperand (value)).Return (value);
+
+      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+
+      _emittableOperandProviderMock.VerifyAllExpectations ();
+      Assert.That (result, Is.SameAs (expression));
     }
 
     [Test]

@@ -40,7 +40,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly Dictionary<ConstructorInfo, ConstructorInfo> _mappedConstructorInfos = new Dictionary<ConstructorInfo, ConstructorInfo> ();
     private readonly Dictionary<MethodInfo, MethodInfo> _mappedMethodInfos = new Dictionary<MethodInfo, MethodInfo> ();
 
-    [CLSCompliant (false)]
     public void AddMapping (Type mappedType, Type emittableType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
@@ -49,7 +48,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedTypes, mappedType, emittableType);
     }
 
-    [CLSCompliant (false)]
     public void AddMapping (FieldInfo mappedField, FieldInfo emittableField)
     {
       ArgumentUtility.CheckNotNull ("mappedField", mappedField);
@@ -58,7 +56,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedFieldInfos, mappedField, emittableField);
     }
 
-    [CLSCompliant (false)]
     public void AddMapping (ConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor)
     {
       ArgumentUtility.CheckNotNull ("mappedConstructor", mappedConstructor);
@@ -67,7 +64,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedConstructorInfos, mappedConstructor, emittableConstructor);
     }
 
-    [CLSCompliant (false)]
     public void AddMapping (MethodInfo mappedMethod, MethodInfo emittableMethod)
     {
       ArgumentUtility.CheckNotNull ("mappedMethod", mappedMethod);
@@ -76,7 +72,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedMethodInfos, mappedMethod, emittableMethod);
     }
 
-    [CLSCompliant (false)]
     public Type GetEmittableType (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
@@ -84,7 +79,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return GetEmittableOperand (_mappedTypes, type, typeof (MutableType));
     }
 
-    [CLSCompliant (false)]
     public FieldInfo GetEmittableField (FieldInfo fieldInfo)
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
@@ -92,7 +86,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return GetEmittableOperand (_mappedFieldInfos, fieldInfo, typeof (FieldInfo));
     }
 
-    [CLSCompliant (false)]
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
@@ -100,12 +93,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return GetEmittableOperand (_mappedConstructorInfos, constructorInfo, typeof (ConstructorInfo));
     }
 
-    [CLSCompliant (false)]
     public MethodInfo GetEmittableMethod (MethodInfo methodInfo)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
 
       return GetEmittableOperand (_mappedMethodInfos, methodInfo, typeof (MutableMethodInfo));
+    }
+
+    public object GetEmittableOperand (object operand)
+    {
+      ArgumentUtility.CheckNotNull ("operand", operand);
+
+      if (operand is Type)
+        return GetEmittableType ((Type) operand);
+      if (operand is FieldInfo)
+        return GetEmittableField ((FieldInfo) operand);
+      if (operand is ConstructorInfo)
+        return GetEmittableConstructor ((ConstructorInfo) operand);
+      if (operand is MethodInfo)
+        return GetEmittableMethod ((MethodInfo) operand);
+
+      return operand;
     }
 
     private void AddMapping<T> (Dictionary<T, T> mapping, T key, T value)

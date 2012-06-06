@@ -30,6 +30,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class UnprocessableExpressionCodeGenerationVisitor : TypePipeExpressionVisitorBase
   {
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
+
+    public UnprocessableExpressionCodeGenerationVisitor (IEmittableOperandProvider emittableOperandProvider)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+
+      _emittableOperandProvider = emittableOperandProvider;
+    }
+
+    protected internal override Expression VisitConstant (ConstantExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
+      if (emittableValue != node.Value)
+        return Expression.Constant (emittableValue, node.Type);
+
+      return base.VisitConstant (node);
+    }
+
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);

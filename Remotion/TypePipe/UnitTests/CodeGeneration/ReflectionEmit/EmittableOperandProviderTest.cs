@@ -19,6 +19,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -69,6 +70,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableField, _someFieldInfo);
       CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableConstructor, _someConstructorInfo);
       CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableMethod, _someMethodInfo);
+    }
+
+    [Test]
+    public void GetEmittableOperand_Object_NoMapping ()
+    {
+      Assert.That (_provider.GetEmittableOperand (_someType), Is.SameAs (_someType));
+      Assert.That (_provider.GetEmittableOperand (_someFieldInfo), Is.SameAs (_someFieldInfo));
+      Assert.That (_provider.GetEmittableOperand (_someConstructorInfo), Is.SameAs (_someConstructorInfo));
+      Assert.That (_provider.GetEmittableOperand (_someMethodInfo), Is.SameAs (_someMethodInfo));
+    }
+
+    [Test]
+    public void GetEmittableOperand_Object ()
+    {
+      var type = typeof (EmittableOperandProviderTest);
+      var field = MemberInfoFromExpressionUtility.GetField ((EmittableOperandProviderTest obj) => obj._provider);
+      var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new EmittableOperandProviderTest ());
+      var method = MemberInfoFromExpressionUtility.GetMethod ((EmittableOperandProviderTest obj) => obj.GetEmittableOperand_Object ());
+
+      _provider.AddMapping (type, _someType);
+      _provider.AddMapping (field, _someFieldInfo);
+      _provider.AddMapping (ctor, _someConstructorInfo);
+      _provider.AddMapping (method, _someMethodInfo);
+
+      Assert.That (_provider.GetEmittableOperand (type), Is.SameAs (_someType));
+      Assert.That (_provider.GetEmittableOperand (field), Is.SameAs (_someFieldInfo));
+      Assert.That (_provider.GetEmittableOperand (ctor), Is.SameAs (_someConstructorInfo));
+      Assert.That (_provider.GetEmittableOperand (method), Is.SameAs (_someMethodInfo));
     }
 
     private void CheckAddMapping<T> (Action<T, T> addMappingMethod, Func<T, T> getEmittableOperandMethod, T mappedObject)

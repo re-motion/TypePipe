@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineConstructor (expectedAttributes, CallingConventions.HasThis, expectedParameterTypes))
           .Return (constructorBuilderMock);
       constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, ctor));
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (ctor.Body)).Return (_fakeBody);
+      _expressionPreparerMock.Expect (mock => mock.PrepareBody (ctor.Body, _emittableOperandProviderMock)).Return (_fakeBody);
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
@@ -184,7 +184,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (addedMethod.Body)).Return (_fakeBody);
+      _expressionPreparerMock.Expect (mock => mock.PrepareBody (addedMethod.Body, _emittableOperandProviderMock)).Return (_fakeBody);
 
       methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
       methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));

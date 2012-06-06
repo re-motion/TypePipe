@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -30,9 +29,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     void AddMapping (FieldInfo mappedField, FieldInfo emittableField);
     void AddMapping (ConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor);
     void AddMapping (MethodInfo mappedMethod, MethodInfo emittableMethod);
+
     Type GetEmittableType (Type type);
     FieldInfo GetEmittableField (FieldInfo fieldInfo);
     ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo);
     MethodInfo GetEmittableMethod (MethodInfo methodInfo);
+
+    object GetEmittableOperand (object operand);
   }
 }

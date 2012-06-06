@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -23,17 +23,22 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class ExpandingExpressionPreparerTest
   {
+    private IEmittableOperandProvider _emittableOperandProviderMock;
+
     private ExpandingExpressionPreparer _preparer;
 
     [SetUp]
     public void SetUp ()
     {
+      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+
       _preparer = new ExpandingExpressionPreparer();
     }
 
@@ -43,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var body = Expression.Block (new OriginalBodyExpression (method, typeof (void), new Expression[0]));
 
-      var result = _preparer.PrepareBody (body);
+      var result = _preparer.PrepareBody (body, _emittableOperandProviderMock);
 
       Assert.That (result, Is.AssignableTo<BlockExpression>());
       var blockExpression = (BlockExpression) result;
@@ -59,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new object ());
       var body = new OriginalBodyExpression (ctor, typeof (void), new Expression[0]);
 
-      var result = _preparer.PrepareBody (body);
+      var result = _preparer.PrepareBody (body, _emittableOperandProviderMock);
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = ((MethodCallExpression) result);
@@ -68,6 +73,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
       var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo;
       Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (ctor));
+    }
+
+    [Test]
+    public void PrepareBody_ReplacesOperandsInConstantExpressions ()
+    {
+      var member = ReflectionObjectMother.GetSomeMethod();
+      var body = Expression.Block (Expression.Constant (member));
+
+      // Might be the same method, but we need same type.
+      var fakeMember = ReflectionObjectMother.GetSomeMethod();
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableOperand (member)).Return (fakeMember);
+
+      var result = _preparer.PrepareBody (body, _emittableOperandProviderMock);
+
+      _emittableOperandProviderMock.VerifyAllExpectations();
+      Assert.That (result, Is.AssignableTo<BlockExpression> ());
+      var blockExpression = (BlockExpression) result;
+      Assert.That (blockExpression.Result, Is.AssignableTo<ConstantExpression>());
+      var constantExpression = ((ConstantExpression) blockExpression.Result);
+      Assert.That (constantExpression.Value, Is.SameAs (fakeMember));
     }
   }
 }
