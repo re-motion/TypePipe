@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class MutableMemberReferencesTest : TypeAssemblerIntegrationTestBase
+  public class ReferenceMutableMembersTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void MutableMembersCanBeUsedInBodies ()
