@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -94,8 +93,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineParameters (ctorBuilder, constructor.GetParameters ());
 
-      var body = _expressionPreparer.PrepareBody (constructor.Body, context.EmittableOperandProvider);
-      var bodyBuildAction = CreateBodyBuildAction (ctorBuilder, context.DebugInfoGenerator, constructor.ParameterExpressions, body);
+      var bodyBuildAction = CreateBodyBuildAction (context, ctorBuilder, constructor.ParameterExpressions, constructor.Body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
     }
 
@@ -111,8 +109,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineParameters (methodBuilder, method.GetParameters ());
 
-      var body = _expressionPreparer.PrepareBody (method.Body, context.EmittableOperandProvider);
-      var bodyBuildAction = CreateBodyBuildAction (methodBuilder, context.DebugInfoGenerator, method.ParameterExpressions, body);
+      var bodyBuildAction = CreateBodyBuildAction (context, methodBuilder, method.ParameterExpressions, method.Body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
 
       var explicitOverrideAction = CreateExplicitOverrideBuildAction (context.TypeBuilder, context.EmittableOperandProvider, method);
@@ -131,15 +128,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     private Action CreateBodyBuildAction (
+        MemberEmitterContext context,
         IMethodBaseBuilder methodBuilder,
-        DebugInfoGenerator debugInfoGenerator,
         IEnumerable<ParameterExpression> parameterExpressions,
-        Expression body)
+        Expression unpreparedBody)
     {
-      var bodyLambda = Expression.Lambda (body, parameterExpressions);
-
-      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members in a circular way).
-      return () => methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, debugInfoGenerator);
+      // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members).
+      return () =>
+      {
+        var body = _expressionPreparer.PrepareBody (unpreparedBody, context.EmittableOperandProvider);
+        var bodyLambda = Expression.Lambda (body, parameterExpressions);
+        methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, context.DebugInfoGenerator);
+      };
     }
 
     private Action CreateExplicitOverrideBuildAction (

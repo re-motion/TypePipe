@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -139,7 +138,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineConstructor (expectedAttributes, CallingConventions.HasThis, expectedParameterTypes))
           .Return (constructorBuilderMock);
       constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, ctor));
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (ctor.Body, _emittableOperandProviderMock)).Return (_fakeBody);
 
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
@@ -149,11 +147,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _emitter.AddConstructor (_context, ctor);
 
       _typeBuilderMock.VerifyAllExpectations ();
-      _expressionPreparerMock.VerifyAllExpectations ();
       constructorBuilderMock.VerifyAllExpectations ();
 
       Assert.That (_postDeclarationsManager.Actions.Count(), Is.EqualTo (1));
-      CheckBodyBuildAction (_postDeclarationsManager.Actions.Single(), constructorBuilderMock, ctor.ParameterExpressions);
+      CheckBodyBuildAction (_postDeclarationsManager.Actions.Single(), constructorBuilderMock, ctor);
     }
 
     [Test]
@@ -184,8 +181,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (addedMethod.Body, _emittableOperandProviderMock)).Return (_fakeBody);
-
       methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
       methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
 
@@ -194,13 +189,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _emitter.AddMethod (_context, addedMethod, "ExplicitlySpecifiedName", expectedAttributes);
 
       _typeBuilderMock.VerifyAllExpectations ();
-      _expressionPreparerMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
 
       var actions = _postDeclarationsManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
 
-      CheckBodyBuildAction (actions[0], methodBuilderMock, addedMethod.ParameterExpressions);
+      CheckBodyBuildAction (actions[0], methodBuilderMock, addedMethod);
       CheckExplicitOverrideAction (actions[1], addedMethod, overriddenMethod);
     }
 
@@ -226,9 +220,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (actualBlob, Is.EqualTo (expectedBlob));
     }
 
-    private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IEnumerable<ParameterExpression> parameterExpressions)
+    private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)
     {
       methodBuilderMock.BackToRecord ();
+      _expressionPreparerMock.Expect (mock => mock.PrepareBody (mutableMethodBase.Body, _emittableOperandProviderMock)).Return (_fakeBody);
       methodBuilderMock
           .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
           .WhenCalled (
@@ -236,12 +231,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               {
                 var lambdaExpression = (LambdaExpression) mi.Arguments[0];
                 Assert.That (lambdaExpression.Body, Is.SameAs (_fakeBody));
-                Assert.That (lambdaExpression.Parameters, Is.EqualTo (parameterExpressions));
+                Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableMethodBase.ParameterExpressions));
               });
       methodBuilderMock.Replay ();
 
       testedAction ();
 
+      _emittableOperandProviderMock.VerifyAllExpectations();
       methodBuilderMock.VerifyAllExpectations ();
     }
 
