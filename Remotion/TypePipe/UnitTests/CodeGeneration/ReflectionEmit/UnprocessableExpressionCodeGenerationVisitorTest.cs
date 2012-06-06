@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.AssignableTo<ConstantExpression>());
       var constantExpression = (ConstantExpression) result;
       Assert.That (constantExpression.Value, Is.EqualTo("emittable"));
-      Assert.That (constantExpression.Type, Is.SameAs (typeof (string)));
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
     }
 
     [Test]
@@ -71,6 +71,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emittableOperandProviderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), MatchType = MessageMatch.StartsWith, ExpectedMessage =
+        "It is not supported to have a ConstantExpression of type 'String' because instances of 'String' exist only at " +
+        "code generation time, not at runtime.")]
+    public void VisitConstant_NotAssignableValue ()
+    {
+      var expresison = Expression.Constant ("operand");
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableOperand ("operand")).Return (7);
+
+      ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expresison);
     }
 
     [Test]

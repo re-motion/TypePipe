@@ -48,7 +48,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
       if (emittableValue != node.Value)
-        return Expression.Constant (emittableValue);
+      {
+        if (!node.Type.IsAssignableFrom (emittableValue.GetType()))
+          throw NewNotSupportedExceptionWithDescriptiveMessage (node);
+
+        return Expression.Constant (emittableValue, node.Type);
+      }
 
       return base.VisitConstant (node);
     }
@@ -84,6 +89,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         method = new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
       
       return new NonVirtualCallMethodInfoAdapter (method);
+    }
+
+    private Exception NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)
+    {
+      var message =
+          string.Format (
+              "It is not supported to have a ConstantExpression of type '{0}' because instances of '{0}' exist only at code generation "
+              + "time, not at runtime." + Environment.NewLine
+              + "To embed a reference to a generated method or type, construct the ConstantExpression as follows: "
+              + "Expression.Constant (myMutableMethod, typeof (MethodInfo)) or "
+              + "Expression.Constant (myMutableType, typeof (Type))." + Environment.NewLine
+              + "To embed a reference to another reflection object, embed a method call to the Reflection APIs, like this: " + Environment.NewLine
+              + "Expression.Call (" + Environment.NewLine
+              + "    Expression.Constant (myMutableField.DeclaringType, typeof (Type))," + Environment.NewLine
+              + "    typeof (Type).GetMethod (\"GetField\", new[] {{ typeof (string), typeof (BindingFlags) }})," + Environment.NewLine
+              + "    Expression.Constant (myMutableField.Name)," + Environment.NewLine
+              + "    Expression.Constant (BindingFlags.NonPublic | BindingFlags.Instance)). (BindingFlags depend on the visibility of the member.)",
+              node.Type.Name);
+
+      return new NotSupportedException (message);
     }
   }
 }

@@ -78,16 +78,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void PrepareBody_ReplacesMutableMembersInConstantExpressions ()
     {
-      var mutableMember = MutableFieldInfoObjectMother.Create();
-      var body = Expression.Block (Expression.Constant (mutableMember));
+      var mutableMember = MutableMethodInfoObjectMother.Create();
+      var body = Expression.Block (Expression.Constant (mutableMember, typeof (MethodInfo)));
 
-      var fakeMember = ReflectionObjectMother.GetSomeField();
+      var fakeMember = ReflectionObjectMother.GetSomeMethod();
       _emittableOperandProviderMock.Expect (mock => mock.GetEmittableOperand (mutableMember)).Return (fakeMember);
 
       var result = _preparer.PrepareBody (body, _emittableOperandProviderMock);
 
       _emittableOperandProviderMock.VerifyAllExpectations();
-      Assert.That (result, Is.AssignableTo<BlockExpression> ());
+      Assert.That (result, Is.AssignableTo<BlockExpression>());
       var blockExpression = (BlockExpression) result;
       Assert.That (blockExpression.Result, Is.AssignableTo<ConstantExpression>());
       var constantExpression = ((ConstantExpression) blockExpression.Result);
