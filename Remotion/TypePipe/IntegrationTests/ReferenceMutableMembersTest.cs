@@ -27,7 +27,7 @@ namespace TypePipe.IntegrationTests
   public class ReferenceMutableMembersTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void MutableMembersCanBeUsedInBodies ()
+    public void UseMutableFieldAndMethodInBody ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -44,6 +44,7 @@ namespace TypePipe.IntegrationTests
                 // ctx => Expression.Assign (Expression.Field (ctx.This, newMutableField), Expression.Call (ctx.This, existingMutableMethod))
                 ctx =>
                 Expression.Call (
+                    // TODO 4907
                     // TODO: ctx.GetMutableFieldReference (newMutableField),
                     Expression.Call (
                         Expression.Constant (newMutableField.DeclaringType, typeof (Type)),
@@ -55,6 +56,7 @@ namespace TypePipe.IntegrationTests
                     Type.EmptyTypes,
                     ctx.This,
                     Expression.Call (
+                        // 4907
                         // TODO: ctx.GetMutableMethodReference (existingMutableMethod),
                         Expression.Constant (existingMutableMethod, typeof (MethodInfo)),
                         "Invoke",
