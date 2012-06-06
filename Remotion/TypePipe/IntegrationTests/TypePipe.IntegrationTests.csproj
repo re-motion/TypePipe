@@ -68,7 +68,7 @@
     <Compile Include="ModifyMethodTest.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="AddConstructorTest.cs" />
-    <Compile Include="SpecialExpressionsTest.cs" />
+    <Compile Include="MutableMemberReferencesTest.cs" />
     <Compile Include="TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

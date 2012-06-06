@@ -24,11 +24,10 @@ using Remotion.TypePipe.MutableReflection;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class SpecialExpressionsTest : TypeAssemblerIntegrationTestBase
+  public class MutableMemberReferencesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore ("TODO 4886")]
-    public void ConstantExpressionsOfMutableMembersCanBeUsedInBodies ()
+    public void MutableMembersCanBeUsedInBodies ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -41,19 +40,29 @@ namespace TypePipe.IntegrationTests
                 MethodAttributes.Public,
                 typeof (void),
                 ParameterDeclaration.EmptyParameters,
-                // Without reflection method calls
+                // Without reflection method calls it would like this.
                 // ctx => Expression.Assign (Expression.Field (ctx.This, newMutableField), Expression.Call (ctx.This, existingMutableMethod))
-                ctx => Expression.Call (
-                    Expression.Constant (newMutableField),
+                ctx =>
+                Expression.Call (
+                    // TODO: ctx.GetMutableFieldReference (newMutableField),
+                    Expression.Call (
+                        Expression.Constant (newMutableField.DeclaringType, typeof (Type)),
+                        typeof (Type).GetMethod ("GetField", new[] { typeof (string), typeof (BindingFlags) }),
+                        Expression.Constant (newMutableField.Name),
+                        Expression.Constant (BindingFlags.Instance | BindingFlags.NonPublic)),
+                    //Expression.Constant (newMutableField),
                     "SetValue",
                     Type.EmptyTypes,
                     ctx.This,
                     Expression.Call (
-                        Expression.Constant (existingMutableMethod),
+                        // TODO: ctx.GetMutableMethodReference (existingMutableMethod),
+                        Expression.Constant (existingMutableMethod, typeof (MethodInfo)),
                         "Invoke",
                         Type.EmptyTypes,
                         ctx.This,
-                        Expression.Constant (null, typeof (object[])))));
+                        Expression.Constant (null, typeof (object[])))
+                    )
+                );
           });
 
       var instance = Activator.CreateInstance (type);
@@ -67,7 +76,10 @@ namespace TypePipe.IntegrationTests
 
     public class DomainType
     {
-      public string Method () { return "existing method"; }
+      public string Method ()
+      {
+        return "existing method";
+      }
     }
   }
 }
