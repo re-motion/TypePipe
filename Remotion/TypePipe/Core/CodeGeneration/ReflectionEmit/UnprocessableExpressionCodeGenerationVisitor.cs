@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
       if (emittableValue != node.Value)
-        return Expression.Constant (emittableValue, node.Type);
+        return Expression.Constant (emittableValue);
 
       return base.VisitConstant (node);
     }

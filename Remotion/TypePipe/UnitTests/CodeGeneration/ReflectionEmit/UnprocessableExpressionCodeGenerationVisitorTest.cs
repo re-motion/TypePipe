@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.AssignableTo<ConstantExpression>());
       var constantExpression = (ConstantExpression) result;
       Assert.That (constantExpression.Value, Is.EqualTo("emittable"));
-      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (string)));
     }
 
     [Test]
