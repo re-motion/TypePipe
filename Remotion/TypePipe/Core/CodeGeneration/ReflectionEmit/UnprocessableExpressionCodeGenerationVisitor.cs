@@ -25,10 +25,10 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> with <see cref="MethodCallExpression"/>s that can be processed by the
+  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> and other expressions that can not be processedy by the 
   /// <see cref="LambdaCompiler"/>.
   /// </summary>
-  public class OriginalBodyReplacingExpressionVisitor : TypePipeExpressionVisitorBase
+  public class UnprocessableExpressionCodeGenerationVisitor : TypePipeExpressionVisitorBase
   {
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
     {

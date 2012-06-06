@@ -31,14 +31,14 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class OriginalBodyReplacingExpressionVisitorTest
+  public class UnprocessableExpressionCodeGenerationVisitorTest
   {
-    private OriginalBodyReplacingExpressionVisitor _visitorPartialMock;
+    private UnprocessableExpressionCodeGenerationVisitor _visitorPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _visitorPartialMock = MockRepository.GeneratePartialMock<OriginalBodyReplacingExpressionVisitor>();
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnprocessableExpressionCodeGenerationVisitor>();
     }
 
     [Test]

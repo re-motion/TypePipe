@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("body", body);
 
-      return new OriginalBodyReplacingExpressionVisitor().Visit (body);
+      return new UnprocessableExpressionCodeGenerationVisitor().Visit (body);
     }
   }
 }

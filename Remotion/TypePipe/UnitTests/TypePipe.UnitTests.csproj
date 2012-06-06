@@ -62,7 +62,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\OriginalBodyReplacingExpressionVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\UnprocessableExpressionCodeGenerationVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifierTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
