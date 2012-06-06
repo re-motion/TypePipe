@@ -74,6 +74,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void VisitConstant_NullValue ()
+    {
+      var expression = Expression.Constant (null);
+
+      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+
+      _emittableOperandProviderMock.AssertWasNotCalled (mock => mock.GetEmittableOperand (Arg<object>.Is.Anything));
+      Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
     public void VisitOriginalBody_Method ()
     {
       var methodBase = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));

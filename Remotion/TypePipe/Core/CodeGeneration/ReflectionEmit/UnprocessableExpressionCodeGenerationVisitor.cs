@@ -43,6 +43,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
+      if (node.Value == null)
+        return base.VisitConstant (node);
+
       var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
       if (emittableValue != node.Value)
         return Expression.Constant (emittableValue);
