@@ -35,7 +35,7 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWitArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -58,7 +58,7 @@ namespace TypePipe.IntegrationTests
                   return Expression.Block (
                       new[] { tempLocal },
                       Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
-                      ctx.GetPreviousBodyWitArguments (tempLocal, ctx.Parameters[1]),
+                      ctx.GetPreviousBodyWithArguments (tempLocal, ctx.Parameters[1]),
                       Expression.Assign (ctx.Parameters[1], ExpressionHelper.StringConcat (ctx.Parameters[1], Expression.Constant (" test"))),
                       Expression.Assign (ctx.Parameters[0], tempLocal));
                 });
@@ -146,7 +146,7 @@ namespace TypePipe.IntegrationTests
         mutableType =>
         {
           var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-          mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWitArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+          mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
         });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -199,12 +199,12 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWitArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           },
           mutableType =>
           {
             var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWitArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
+            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);

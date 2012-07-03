@@ -48,14 +48,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get { return _previousBody; }
     }
 
-    public Expression GetPreviousBodyWitArguments (params Expression[] arguments)
+    public Expression GetPreviousBodyWithArguments (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetPreviousBodyWitArguments ((IEnumerable<Expression>) arguments);
+      return GetPreviousBodyWithArguments ((IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetPreviousBodyWitArguments (IEnumerable<Expression> arguments)
+    public Expression GetPreviousBodyWithArguments (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
