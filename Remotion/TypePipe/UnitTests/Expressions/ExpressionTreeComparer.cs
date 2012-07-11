@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       }
     }
 
-    private void CheckAreEqualProperties (PropertyInfo property, Type valueType, object value1, object value2, object e1, object e2)
+    private void CheckAreEqualProperties (PropertyInfo property, Type valueType, object value1, object value2, object expected, object actual)
     {
       if (typeof (Expression).IsAssignableFrom (valueType))
       {
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           Assert.AreEqual (list1, list2, "One of the lists in " + property.Name + " is null.");
         else
         {
-          Assert.AreEqual (list1.Count, list2.Count, GetMessage (e1, e2, "Number of elements in " + property.Name));
+          Assert.AreEqual (list1.Count, list2.Count, GetMessage (expected, actual, "Number of elements in " + property.Name));
           for (int i = 0; i < list1.Count; ++i)
           {
             var elementType1 = list1[i] != null ? list1[i].GetType() : typeof (object);
@@ -96,25 +96,30 @@ namespace Remotion.TypePipe.UnitTests.Expressions
                 elementType1,
                 elementType2,
                 string.Format (
-                    "The item types of the items in the lists in {0} differ: One is '{1}', the other is '{2}'.\nTree 1: {3}\nTree 2: {4}",
+                    "The item types of the items in the lists in {0} differ: One is '{1}', the other is '{2}'.\nExpected tree: {3}\nActual tree: {4}",
                     property.Name,
                     elementType1,
                     elementType2,
                     _expectedInitial,
                     _actualInitial));
 
-            CheckAreEqualProperties (property, elementType1, list1[i], list2[i], e1, e2);
+            CheckAreEqualProperties (property, elementType1, list1[i], list2[i], expected, actual);
           }
         }
       }
       else
-        Assert.AreEqual (value1, value2, GetMessage (e1, e2, "Property " + property.Name));
+        Assert.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));
     }
 
-    private string GetMessage (object e1, object e2, string context)
+    private string GetMessage (object expected, object actual, string context)
     {
       return string.Format (
-          "Trees are not equal: {0}\nNode 1: {1}\nNode 2: {2}\nTree 1: {3}\nTree 2: {4}", context, e1, e2, _expectedInitial, _actualInitial);
+          "Trees are not equal: {0}\nExpected node: {1}\nActual node: {2}\nExpected tree: {3}\nActual tree: {4}",
+          context,
+          expected,
+          actual,
+          _expectedInitial,
+          _actualInitial);
     }
   }
 }
