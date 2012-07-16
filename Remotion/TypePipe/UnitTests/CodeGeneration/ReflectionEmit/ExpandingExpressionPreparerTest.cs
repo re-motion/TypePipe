@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -45,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void PrepareBody_ExpandsOriginalBodyExpressionsForMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var body = Expression.Block (new OriginalBodyExpression (method, typeof (void), new Expression[0]));
 
       var result = _preparer.PrepareBody (body, _emittableOperandProviderMock);
@@ -61,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void PrepareBody_ExpandsOriginalBodyExpressionsForConstructor ()
     {
-      var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new object ());
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object ());
       var body = new OriginalBodyExpression (ctor, typeof (void), new Expression[0]);
 
       var result = _preparer.PrepareBody (body, _emittableOperandProviderMock);

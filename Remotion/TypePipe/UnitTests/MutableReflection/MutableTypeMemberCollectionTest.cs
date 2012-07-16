@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -45,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.CreateForExistingType(typeof(DomainType));
-      _excludedDeclaredMember = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExcludedMember());
+      _excludedDeclaredMember = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExcludedMember());
       var allDeclaredMembers = typeof (DomainType).GetMethods (c_all | BindingFlags.DeclaredOnly);
       _declaredMembers = allDeclaredMembers.Except (new[] { _excludedDeclaredMember }).ToArray();
       _baseMembers = typeof (DomainType).GetMethods (c_all).Except (allDeclaredMembers).ToArray();

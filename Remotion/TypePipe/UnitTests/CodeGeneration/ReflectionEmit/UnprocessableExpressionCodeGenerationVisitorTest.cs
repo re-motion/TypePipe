@@ -20,6 +20,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -99,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void VisitOriginalBody_Method ()
     {
-      var methodBase = MemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
+      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
       var expression = new OriginalBodyExpression (methodBase, typeof (double), arguments);
       Action<MethodInfo> checkMethodInCallExpressionAction =
@@ -111,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void VisitOriginalBody_StaticMethod ()
     {
-      var methodBase = MemberInfoFromExpressionUtility.GetMethod (() => DomainClass.StaticMethod (7, "string"));
+      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainClass.StaticMethod (7, "string"));
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
       var expression = new OriginalBodyExpression (methodBase, typeof (double), arguments);
       Action<MethodCallExpression> checkMethodCallExpressionAction = methodCallExpression =>
@@ -126,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void VisitOriginalBody_Constructor ()
     {
-      var methodBase = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainClass());
+      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainClass());
       var arguments = new Expression[0];
       var expression = new OriginalBodyExpression (methodBase, typeof (void), arguments);
       Action<MethodInfo> checkMethodInCallExpressionAction = methodInfo =>

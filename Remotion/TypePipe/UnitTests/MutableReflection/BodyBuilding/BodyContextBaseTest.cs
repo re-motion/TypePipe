@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -85,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
       var arguments = new ArgumentTestHelper (7);
-      var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
       _memberSelector
           .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _mutableType, arguments.Types, null))
           .Return (fakeBaseMethod);
@@ -141,7 +142,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: methodName")]
     public void GetBaseCall_Name_Params_DisallowedVisibility ()
     {
-      var internalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
+      var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
       _memberSelector
           .Expect (mock => mock.SelectSingleMethod<MethodInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
           .Return (internalMethod);
@@ -152,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void GetBaseCall_MethodInfo_Params ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
       var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
 
       var result = _instanceContext.GetBaseCall (method, arguments);
@@ -186,7 +187,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetBaseCall_MethodInfo_Params_AllowedVisibility ()
     {
       var protectedMethod = typeof (DomainType).GetMethod ("ProtectedMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-      var protectedInternalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod ());
+      var protectedInternalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod ());
 
       var result1 = _instanceContext.GetBaseCall (protectedMethod);
       var result2 = _instanceContext.GetBaseCall (protectedInternalMethod);
@@ -200,21 +201,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: baseMethod")]
     public void GetBaseCall_MethodInfo_Params_DisallowedVisibility ()
     {
-      var internalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
+      var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
       _instanceContext.GetBaseCall (internalMethod);
     }
 
     [Test]
     public void GetCopiedMethodBody_Params ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
       GetCopiedMethodBodyAndCheckOriginalBodyExpression (_instanceContext, method);
     }
 
     [Test]
     public void GetCopiedMethodBody_FromStaticToInstance ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.StaticMetod (7));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.StaticMetod (7));
       GetCopiedMethodBodyAndCheckOriginalBodyExpression (_instanceContext, method);
     }
 
@@ -223,7 +224,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         ExpectedMessage = "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod")]
     public void GetCopiedMethodBody_FromInstanceToStatic ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
       GetCopiedMethodBodyAndCheckOriginalBodyExpression (_staticContext, method);
     }
 
@@ -234,7 +235,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
                           + ".\r\nParameter name: otherMethod")]
     public void GetCopiedMethodBody_Params_DeclaredByUnrelatedType ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod (7));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod (7));
       var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (originalMethodInfo: method);
 
       _instanceContext.GetCopiedMethodBody (methodToCopy);

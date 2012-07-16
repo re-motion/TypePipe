@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -32,7 +33,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void BaseMethodWithoutOverride ()
     {
-      var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod());
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod());
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -65,7 +66,7 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
             var existingOverride = mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingOverride");
             Assert.That (existingOverride.BaseMethod, Is.EqualTo (baseMethod));
 
@@ -81,7 +82,7 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
             var attributes = baseMethod.Attributes & ~MethodAttributes.NewSlot;
             var implicitOverride = AddEquivalentMethod (mutableType, baseMethod, attributes);
             Assert.That (implicitOverride.BaseMethod, Is.EqualTo (baseMethod));
@@ -98,7 +99,7 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
             var explicitOverride = mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingOverride");
             explicitOverride.AddExplicitBaseDefinition (baseMethod);
             Assert.That (explicitOverride.BaseMethod, Is.Not.EqualTo (baseMethod));
@@ -107,7 +108,7 @@ namespace TypePipe.IntegrationTests
 
             Assert.That (mutableMethod, Is.SameAs (explicitOverride));
 
-            var otherBaseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
+            var otherBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
             Assert.That (explicitOverride.BaseMethod, Is.EqualTo (otherBaseMethod));
             Assert.That (mutableType.GetOrAddMutableMethod (otherBaseMethod), Is.SameAs (explicitOverride));
           });
@@ -116,7 +117,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void BaseMethod_ShadowedByModified_CausesExplicitOverride ()
     {
-      var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethodShadowedByModified ());
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethodShadowedByModified ());
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -145,7 +146,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void BaseBaseMethod_ShadowedByBase_CausesExplicitOverride ()
     {
-      var baseBaseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodShadowedByBase ());
+      var baseBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodShadowedByBase ());
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -174,8 +175,8 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ModifyingShadowingAndShadowed_CausesImplicitAndExplicitOverride ()
     {
-      var shadowedMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodShadowedByBase());
-      var shadowingMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseBaseMethodShadowedByBase());
+      var shadowedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodShadowedByBase());
+      var shadowingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseBaseMethodShadowedByBase());
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -219,8 +220,8 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var overriddenMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodOverriddenInBase());
-            var overridingMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseBaseMethodOverriddenInBase());
+            var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodOverriddenInBase());
+            var overridingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseBaseMethodOverriddenInBase());
 
             var mutableMethod = mutableType.GetOrAddMutableMethod (overriddenMethod);
 
@@ -241,7 +242,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void BaseMethod_ShadowedByAdded_CausesExplicitOverride ()
     {
-      var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -270,7 +271,7 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.NonVirtualBaseMethod ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.NonVirtualBaseMethod ());
             Assert.That (baseMethod.IsVirtual, Is.False);
 
             Assert.That (
@@ -286,7 +287,7 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.FinalVirtualBaseMethod ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.FinalVirtualBaseMethod ());
             Assert.That (baseMethod.IsVirtual, Is.True);
             Assert.That (baseMethod.IsFinal, Is.True);
 
@@ -302,7 +303,7 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            var baseMethod = MemberInfoFromExpressionUtility.GetMethod<IInterface> (x => x.InterfaceMethod());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<IInterface> (x => x.InterfaceMethod());
             Assert.That (baseMethod.IsVirtual, Is.True);
 
             Assert.That (

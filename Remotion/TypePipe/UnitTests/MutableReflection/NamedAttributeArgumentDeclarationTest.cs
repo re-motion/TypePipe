@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -90,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Property 'PrivateProperty' has no public setter.\r\nParameter name: propertyInfo")]
     public void Initialization_Property_MustBePublic ()
     {
-      var property = MemberInfoFromExpressionUtility.GetProperty (() => PrivateProperty);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty (() => PrivateProperty);
 
       new NamedAttributeArgumentDeclaration (property, "");
     }
@@ -100,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Property 'StaticProperty' is not an instance property.\r\nParameter name: propertyInfo")]
     public void Initialization_Property_MustNotBeStatic ()
     {
-      var property = MemberInfoFromExpressionUtility.GetProperty (() => StaticProperty);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty (() => StaticProperty);
 
       new NamedAttributeArgumentDeclaration (property, "");
     }
@@ -182,7 +183,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Field '_privateFied' is not public.\r\nParameter name: fieldInfo")]
     public void Initialization_Fied_MustBePublic ()
     {
-      var privateField = MemberInfoFromExpressionUtility.GetField (() => _privateFied);
+      var privateField = NormalizingMemberInfoFromExpressionUtility.GetField (() => _privateFied);
 
       new NamedAttributeArgumentDeclaration (privateField, "");
     }
@@ -192,7 +193,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Field 'StaticField' is not an instance field.\r\nParameter name: fieldInfo")]
     public void Initialization_Field_MustNotBeStatic ()
     {
-      var staticField = MemberInfoFromExpressionUtility.GetField (() => StaticField);
+      var staticField = NormalizingMemberInfoFromExpressionUtility.GetField (() => StaticField);
 
       new NamedAttributeArgumentDeclaration (staticField, "");
     }

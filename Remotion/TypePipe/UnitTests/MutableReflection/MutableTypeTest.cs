@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -679,7 +680,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddMethod_ImplicitOverride ()
     {
-      var fakeOverridenMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
+      var fakeOverridenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       _relatedMethodFinderMock
           .Expect (mock => mock.GetMostDerivedVirtualMethod ("Method", new MethodSignature (typeof(int), Type.EmptyTypes, 0), _mutableType.BaseType))
           .Return (fakeOverridenMethod);
@@ -708,7 +709,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddMethod_ThrowsIfOverridingFinalMethod ()
     {
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
-      var fakeBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       _relatedMethodFinderMock
           .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
           .Return (fakeBaseMethod);
@@ -787,8 +788,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_ExistingOverride ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString ());
-      var inputMethdod = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ToString());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString ());
+      var inputMethdod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ToString());
       Assert.That (inputMethdod, Is.Not.EqualTo (baseDefinition));
 
       var fakeExistingOverride = MutableMethodInfoObjectMother.Create();
@@ -805,9 +806,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
-      var inputMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
-      var mostDerivedOverride = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
+      var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
+      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
@@ -824,7 +825,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride_AdjustsAttributes ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
       var inputMethod = baseDefinition;
       var mostDerivedOverride = baseDefinition;
       Assert.That (mostDerivedOverride.IsFamilyOrAssembly, Is.True);
@@ -845,9 +846,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_ShadowedBaseMethod_ExplicitOverride ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
-      var inputMethod = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
-      var mostDerivedOverride = MemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
+      var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
+      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
       Assert.That (mostDerivedOverride.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
 
       CallAndCheckGetOrAddMutableMethod (
@@ -868,7 +869,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetOrAddMutableMethod_InterfaceDeclaringType ()
     {
       Assert.That (_descriptor.Interfaces, Has.Member (typeof (IDomainInterface)));
-      var method = MemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
       _mutableType.GetOrAddMutableMethod (method);
     }
 
@@ -877,7 +878,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
     public void GetOrAddMutableMethod_UnrelatedDeclaringType ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
       _mutableType.GetOrAddMutableMethod (method);
     }
 
@@ -886,7 +887,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "A method declared in a base type must be virtual in order to be modified.")]
     public void GetOrAddMutableMethod_NonVirtualMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod());
       _mutableType.GetOrAddMutableMethod (method);
     }
 
@@ -894,9 +895,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
     public void GetOrAddMutableMethod_FinalBaseMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
       var inputMethod = baseDefinition;
-      var mostDerivedOverride = MemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
+      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean();
 
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, mostDerivedOverride, isBaseDefinitionShadowed, null);
@@ -1195,8 +1196,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableMember_InvalidDeclaringType ()
     {
-      var field = MemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
-      var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new string(new char[0]));
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new string(new char[0]));
 
       Assert.That (
           () => _mutableType.GetMutableField (field),

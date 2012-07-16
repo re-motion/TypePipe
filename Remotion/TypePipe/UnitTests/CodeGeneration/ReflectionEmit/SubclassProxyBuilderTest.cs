@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -143,7 +144,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedConstructor ()
     {
-      var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
+      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
       var modifiedCtor = MutableConstructorInfoObjectMother.CreateForExistingAndModify (originalCtor);
       _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, modifiedCtor));
 
@@ -164,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedMethod ()
     {
-      var originalMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
+      var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
 
       var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType_Method";
@@ -215,7 +216,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedConstructor ()
     {
-      var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
+      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
       var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (originalCtor);
       _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, unmodifiedCtor));
 
@@ -227,7 +228,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedConstructor_IgnoresCtorsThatAreNotVisibleFromSubclass ()
     {
-      var internalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
+      var internalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
       var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (internalCtor);
 
       _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
@@ -342,7 +343,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = isNew
                        ? MutableMethodInfoObjectMother.CreateForNew (attributes: MethodAttributes.Virtual)
                        : MutableMethodInfoObjectMother.CreateForExisting (
-                           originalMethodInfo: MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
+                           originalMethodInfo: NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
       if (isModified)
         MutableMethodInfoTestHelper.ModifyMethod (method);
 

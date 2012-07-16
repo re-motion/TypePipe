@@ -16,8 +16,8 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
-using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
@@ -27,7 +27,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void GetMemberSignature_Constructor ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
 
       var result = MemberSignatureProvider.GetMemberSignature (constructor);
 
@@ -38,7 +38,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void GetMemberSignature_Method ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
 
       var result = MemberSignatureProvider.GetMemberSignature (method);
 
@@ -49,7 +49,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void GetMemberSignature_Field ()
     {
-      var method = MemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
 
       var result = MemberSignatureProvider.GetMemberSignature (method);
 
@@ -59,7 +59,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void GetMemberSignature_Property ()
     {
-      var property = MemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
 
       var result = MemberSignatureProvider.GetMemberSignature (property);
 

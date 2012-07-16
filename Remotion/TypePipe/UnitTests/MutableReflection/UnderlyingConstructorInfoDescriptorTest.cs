@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -59,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       int v;
-      var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
+      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
 
@@ -89,7 +90,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
-      var originalCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
+      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
       Assert.That (originalCtor.IsFamilyOrAssembly, Is.True);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -48,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _finder.GetMostDerivedVirtualMethod ("DerivedTypeMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
@@ -63,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMostDerivedVirtualMethod_DerivedTypeMethod_NonMatchingSignature ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod ());
       var signature = new MethodSignature (typeof (int), Type.EmptyTypes, 0);
       Assert.That (signature, Is.Not.EqualTo (MethodSignature.Create (method)));
 
@@ -89,14 +90,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _finder.GetMostDerivedVirtualMethod ("BaseTypeMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
     public void GetMostDerivedVirtualMethod_NonVirtualMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var result = _finder.GetMostDerivedVirtualMethod (method.Name, _methodSignature, _typeToStartSearch);
 
       Assert.That (result, Is.Null);
@@ -107,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _finder.GetMostDerivedVirtualMethod ("OverridingMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod((DomainType obj) => obj.OverridingMethod());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod((DomainType obj) => obj.OverridingMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
@@ -116,7 +117,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _finder.GetMostDerivedVirtualMethod ("VirtualMethodShadowingBaseMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
@@ -125,14 +126,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _finder.GetMostDerivedVirtualMethod ("NonVirtualMethodShadowingBaseMethod", _methodSignature, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingBaseMethod());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingBaseMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
     public void GetMostDerivedOverride_BaseTypeMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
@@ -142,7 +143,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMostDerivedOverride_VirtualMethodShadowingBaseMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
@@ -152,40 +153,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMostDerivedOverride_OverridingMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingMethod());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingMethod());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
     public void GetMostDerivedOverride_OverridingOverriddenMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingOverriddenMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingOverriddenMethod ());
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingOverriddenMethod ());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingOverriddenMethod ());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
     public void GetMostDerivedOverride_ShadowingOverridenMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.ShadowingOverridenMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.ShadowingOverridenMethod ());
 
       var result = _finder.GetMostDerivedOverride (baseDefinition, _typeToStartSearch);
 
-      var expected = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ShadowingOverridenMethod ());
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ShadowingOverridenMethod ());
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
     public void GetBaseMethod_DerivedTypeMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DerivedTypeMethod ());
       Assert.That (method.IsVirtual, Is.True);
       // Note: This method is also a NewSlot method because C# won't allow us to define a virtual reuseslot method without an overridden base method.
       // Since we implement via GetBaseDefinition(), our implementation doesn't depend on that nuance anyway.
@@ -198,7 +199,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseMethod_VirtualMethodShadowingBaseMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod ());
       Assert.That (method.IsVirtual, Is.True);
       Assert.That (MethodAttributesExtensions.IsSet (method.Attributes, MethodAttributes.NewSlot) , Is.True);
       Assert.That (typeof (DomainTypeBase).GetMethod ("VirtualMethodShadowingBaseMethod", Type.EmptyTypes), Is.Not.Null);
@@ -211,29 +212,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseMethod_OverridingMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingMethod());
 
       var result = _finder.GetBaseMethod (method);
 
-      var expectedMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod ());
+      var expectedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod ());
       Assert.That (result, Is.EqualTo (expectedMethod));
     }
 
     [Test]
     public void GetBaseMethod_OverridingOverriddenMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingOverriddenMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.OverridingOverriddenMethod());
 
       var result = _finder.GetBaseMethod (method);
 
-      var expectedMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingOverriddenMethod ());
+      var expectedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingOverriddenMethod ());
       Assert.That (result, Is.EqualTo (expectedMethod));
     }
 
     [Test]
     public void IsShadowed_BaseTypeMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -244,7 +245,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_BaseTypeMethod_NotShadowedByItself ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod ());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainTypeBase));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -255,7 +256,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_OverridingMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod ());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));      
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -266,7 +267,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_VirtualMethodShadowingBaseMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -277,7 +278,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_NonVirtualMethodShadowingBaseMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingBaseMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualMethodShadowingBaseMethod());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -288,7 +289,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_ShadowingOverridenMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.ShadowingOverridenMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.ShadowingOverridenMethod ());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -299,7 +300,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_OverridingShadowingMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod ());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -310,7 +311,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_VirtualMethodShadowingBaseMethod_NonMatchingSignature ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod (7));
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod (7));
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var result = _finder.IsShadowed (baseDefinition, shadowingCandidates);
@@ -321,7 +322,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsShadowed_UnrelatedMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod());
       var shadowingCandidates = GetDeclaredMethods (typeof (DomainType));
 
       var unrelatedMethod = shadowingCandidates.Single (m => m.Name == "UnrelatedMethod");
@@ -335,7 +336,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOverride_VirtualMethodShadowingBaseMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
       var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
 
       var result = _finder.GetOverride (baseDefinition, overrideCandidates);
@@ -346,7 +347,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOverride_OverridingMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
       var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
 
       var result = _finder.GetOverride (baseDefinition, overrideCandidates);
@@ -358,7 +359,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOverride_OverridingShadowingMethod ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod());
       var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
 
       var result = _finder.GetOverride (baseDefinition, overrideCandidates);
@@ -369,7 +370,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOverride_UnrelatedMethod_ExplicitOverride ()
     {
-      var baseDefinition = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
       var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
 
       Assert.That (_finder.GetOverride (baseDefinition, overrideCandidates), Is.Null);

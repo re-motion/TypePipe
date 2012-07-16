@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
@@ -60,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         RelatedMethodFinder relatedMethodFinder = null)
     {
       return UnderlyingMethodInfoDescriptor.Create (
-          originalMethodInfo ?? MemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod()),
+          originalMethodInfo ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod()),
           relatedMethodFinder ?? new RelatedMethodFinder());
     }
   }

@@ -18,8 +18,8 @@ using System;
 using System.Text;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
-using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
@@ -47,7 +47,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void AppendTypeString_GenericMethodParameter ()
     {
-      var method = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType dt) => dt.MethodWithUsedGenericParameters<Dev.T, Dev.T>(null));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType dt) => dt.MethodWithUsedGenericParameters<Dev.T, Dev.T>(null));
       var genericParameter = method.GetGenericArguments()[0];
       _helper.AppendTypeString (_sb, genericParameter);
 

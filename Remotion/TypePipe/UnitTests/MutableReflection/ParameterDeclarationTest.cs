@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.Utilities;
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateForEquivalentSignature ()
     {
       string v;
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (42, out v));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (42, out v));
 
       var result = ParameterDeclaration.CreateForEquivalentSignature (method);
 

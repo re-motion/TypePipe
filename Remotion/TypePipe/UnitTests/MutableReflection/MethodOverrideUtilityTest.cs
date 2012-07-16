@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -28,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetNameForExplicitOverride ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
 
       var result = MethodOverrideUtility.GetNameForExplicitOverride (method);
 
@@ -38,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributesForExplicitOverride ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString ());
       Assert.That (
           method.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
 
@@ -50,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributesForImplicitOverride ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtecterOrInternalMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtecterOrInternalMethod());
       Assert.That (
           method.Attributes,
           Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));

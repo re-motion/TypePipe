@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
@@ -85,9 +86,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void GetEmittableOperand_Object ()
     {
       var type = typeof (EmittableOperandProviderTest);
-      var field = MemberInfoFromExpressionUtility.GetField ((EmittableOperandProviderTest obj) => obj._provider);
-      var ctor = MemberInfoFromExpressionUtility.GetConstructor (() => new EmittableOperandProviderTest ());
-      var method = MemberInfoFromExpressionUtility.GetMethod ((EmittableOperandProviderTest obj) => obj.GetEmittableOperand_Object ());
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((EmittableOperandProviderTest obj) => obj._provider);
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new EmittableOperandProviderTest ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((EmittableOperandProviderTest obj) => obj.GetEmittableOperand_Object ());
 
       _provider.AddMapping (type, _someType);
       _provider.AddMapping (field, _someFieldInfo);

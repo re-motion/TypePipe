@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -43,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting ()
     {
-      var originalField = MemberInfoFromExpressionUtility.GetField ((UnderlyingFieldInfoDescriptorTest obj) => obj._testField);
+      var originalField = NormalizingMemberInfoFromExpressionUtility.GetField ((UnderlyingFieldInfoDescriptorTest obj) => obj._testField);
 
       var descriptor = UnderlyingFieldInfoDescriptor.Create (originalField);
 

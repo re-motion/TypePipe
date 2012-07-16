@@ -19,8 +19,8 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
-using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
@@ -34,15 +34,15 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [SetUp]
     public void SetUp ()
     {
-      _genericMethod1 = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M1<Dev.T, Dev.T> (null));
-      _genericMethod2 = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M2<Dev.T, Dev.T> (null));
-      _genericMethod3 = MemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M3<Dev.T, Dev.T> (null));
+      _genericMethod1 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M1<Dev.T, Dev.T> (null));
+      _genericMethod2 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M2<Dev.T, Dev.T> (null));
+      _genericMethod3 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((ClassWithGenericMethods c) => c.M3<Dev.T, Dev.T> (null));
     }
 
     [Test]
     public void Create_NonGenericMethod ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.Equals(null));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.Equals(null));
       var signature = MethodSignature.Create (method);
 
       Assert.That (signature.ReturnType, Is.SameAs (typeof (bool)));

@@ -22,6 +22,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -91,9 +92,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddField_WithCustomAttribute ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (""));
-      var property = MemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
-      var field = MemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (""));
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
       var constructorArguments = new object[] { "ctorArgs" };
       var declaration = new CustomAttributeDeclaration (
           constructor,
@@ -167,7 +168,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                                      ParameterDeclarationObjectMother.Create (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
                                  });
 
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
+      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
       addedMethod.AddExplicitBaseDefinition (overriddenMethod);
 
       var expectedName = "ExplicitlySpecifiedName";

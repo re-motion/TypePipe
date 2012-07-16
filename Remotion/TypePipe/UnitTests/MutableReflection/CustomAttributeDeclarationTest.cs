@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
       var property = typeof (CustomAttribute).GetProperty ("Property");
       var field = typeof (CustomAttribute).GetField ("Field");
 
@@ -55,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WithNullArgument ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
 
       var declaration = new CustomAttributeDeclaration (constructor, new object[] { null });
 
@@ -67,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: attributeConstructorInfo")]
     public void Initialization_NonPublicConstructor ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ("internal"));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ("internal"));
 
       new CustomAttributeDeclaration (constructor, new object[] { "ctorArg" });
     }
@@ -88,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         + "visible.\r\nParameter name: attributeConstructorInfo")]
     public void Initialization_NonVisibleCustomAttributeType ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new PrivateCustomAttribute ());
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new PrivateCustomAttribute ());
 
       new CustomAttributeDeclaration (constructor, new object[0]);
     }
@@ -98,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Expected 1 constructor argument(s), but was 2.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidConstructorArgumentCount ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
 
       new CustomAttributeDeclaration (constructor, new object[] { 7, 8 });
     }
@@ -108,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Item 0 of argument constructorArguments has the type System.String instead of System.ValueType.")]
     public void Initialization_InvalidConstructorArgumentType ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
 
       new CustomAttributeDeclaration (constructor, new object[] { "string" });
     }
@@ -118,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Constructor parameter at 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidNullArgument ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (0));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (0));
 
       new CustomAttributeDeclaration (constructor, new object[] { null });
     }
@@ -130,8 +131,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
-      var property = MemberInfoFromExpressionUtility.GetProperty ((DerivedCustomAttribute attr) => attr.PropertyInDerivedType);
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedCustomAttribute attr) => attr.PropertyInDerivedType);
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, 7));
     }
@@ -139,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_MemberDeclaringTypesAreAssignable ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
       var property = typeof (CustomAttribute).GetProperty ("Property");
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
@@ -148,7 +149,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateInstance ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
       var declaration = new CustomAttributeDeclaration (constructor, new object[0]);
 
       var instance = declaration.CreateInstance();
@@ -159,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateInstance_WithCtorArgs ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (0));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (0));
       var declaration = new CustomAttributeDeclaration (constructor, new object[] { 7 });
 
       var instance = (CustomAttribute) declaration.CreateInstance ();
@@ -170,9 +171,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateInstance_WithNamedArgs ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
-      var property = MemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
-      var field = MemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
       var declaration = new CustomAttributeDeclaration (
           constructor, 
           new object[0], 

@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -54,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo originalField = null)
     {
-      var fieldInfo = originalField ?? MemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnspecifiedField);
+      var fieldInfo = originalField ?? NormalizingMemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnspecifiedField);
 
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),

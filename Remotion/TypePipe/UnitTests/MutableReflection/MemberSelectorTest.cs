@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -295,17 +296,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private FieldInfo GetField<TR> (Expression<Func<DomainType, TR>> memberAccessExpression)
     {
-      return MemberInfoFromExpressionUtility.GetField (memberAccessExpression);
+      return NormalizingMemberInfoFromExpressionUtility.GetField (memberAccessExpression);
     }
 
     private MethodBase GetMethod (Expression<Action<DomainType>> memberAccessExpression)
     {
-      return MemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
+      return NormalizingMemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
     }
 
     private MethodBase GetBaseMethod (Expression<Action<DomainTypeBase>> memberAccessExpression)
     {
-      return MemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
+      return NormalizingMemberInfoFromExpressionUtility.GetMethod (memberAccessExpression);
     }
 
     private class DomainTypeBase

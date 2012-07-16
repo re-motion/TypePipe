@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Collections.Generic;
 using Remotion.Utilities;
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetFieldSignature ()
     {
-      var field = MemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
 
       var result = SignatureDebugStringGenerator.GetFieldSignature (field);
 
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorSignature ()
     {
-      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType(7, ref Dev<string>.Dummy));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType(7, ref Dev<string>.Dummy));
 
       var result = SignatureDebugStringGenerator.GetConstructorSignature (constructor);
 
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMethodSignature ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
 
       var result = SignatureDebugStringGenerator.GetMethodSignature (method);
 

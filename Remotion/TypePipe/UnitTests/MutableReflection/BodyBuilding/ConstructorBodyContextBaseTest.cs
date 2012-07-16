@@ -18,6 +18,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -71,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.TypeOf<MutableConstructorInfo>());
       var mutableCtor = (MutableConstructorInfo) constructorAsMethodInfoAdapter.ConstructorInfo;
-      var expectedUnderlyingCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new ClassWithConstructor (null));
+      var expectedUnderlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ClassWithConstructor (null));
       Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedUnderlyingCtor));
 
       Assert.That (methodCallExpression.Arguments, Is.EqualTo (argumentExpressions));

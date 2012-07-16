@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -42,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetEnumerator_FiltersOverriddenBaseMembers ()
     {
-      var overriddenMethod = MemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.BaseMethod());
+      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.BaseMethod());
       Assert.That (_collection.ToArray (), Has.Member (overriddenMethod));
       
       var overridingMethod = MutableMethodInfoObjectMother.CreateForNew (_declaringType, baseMethod: overriddenMethod);
@@ -57,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableMember_StandardMemberInfo_BaseDeclaringType ()
     {
-      var method = MemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
 
       var result = _collection.GetMutableMember (method);
 

@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -151,9 +152,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var newAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Family));
 
       var existingInaccesibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
-          MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7))));
+          NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7))));
       var existingAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
-          MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ())));
+          NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ())));
 
       Assert.That (newInaccessibleCtor.CanSetBody, Is.True);
       Assert.That (newAccessibleCtor.CanSetBody, Is.True);
@@ -187,7 +188,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "The body of the existing inaccessible constructor 'Void .ctor(Int32)' cannot be replaced.")]
     public void SetBody_NonSettableCtor ()
     {
-      var inaccessibleCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
+      var inaccessibleCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (inaccessibleCtor);
       var mutableCtor = Create (descriptor);
 

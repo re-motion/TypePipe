@@ -16,8 +16,8 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
-using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
@@ -27,7 +27,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [Test]
     public void Create ()
     {
-      var field = MemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
       var signature = FieldSignature.Create (field);
 
       Assert.That (signature.FieldType, Is.SameAs (typeof(Type[])));
