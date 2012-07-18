@@ -37,18 +37,6 @@ namespace Remotion.TypePipe.Expressions
       return VisitExtension (expression);
     }
 
-    Expression ITypePipeExpressionVisitor.VisitTypeAsUnderlyingSystemType (TypeAsUnderlyingSystemTypeExpression expression)
-    {
-      return VisitTypeAsUnderlyingSystemType (expression);
-    }
-
-    protected virtual Expression VisitTypeAsUnderlyingSystemType (TypeAsUnderlyingSystemTypeExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      return VisitExtension (expression);
-    }
-
     Expression ITypePipeExpressionVisitor.VisitOriginalBody (OriginalBodyExpression expression)
     {
       return VisitOriginalBody (expression);

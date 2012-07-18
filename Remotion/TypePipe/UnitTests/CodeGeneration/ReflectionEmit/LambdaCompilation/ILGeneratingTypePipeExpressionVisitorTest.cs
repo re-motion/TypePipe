@@ -59,23 +59,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void VisitTypeAsUnderlyingSystemTypeExpression ()
-    {
-      var typeWithUnderlyingSystemType = MutableTypeObjectMother.CreateForExistingType();
-      var innerExpression = Expression.Constant (null, typeWithUnderlyingSystemType);
-      var expression = new TypeAsUnderlyingSystemTypeExpression (innerExpression);
-
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (innerExpression));
-
-      // No calls to _ilGeneratorMock expected.
-
-      var result = _visitor.VisitTypeAsUnderlyingSystemType (expression);
-
-      _childExpressionEmitterMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (expression));
-    }
-
-    [Test]
     [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "OriginalBodyExpression must be replaced before code generation.")]
     public void VisitOriginalBodyExpression ()
     {

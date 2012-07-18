@@ -8,7 +8,6 @@ namespace Remotion.TypePipe.Expressions
   public interface ITypePipeExpressionVisitor
   {
     Expression VisitThis (ThisExpression expression);
-    Expression VisitTypeAsUnderlyingSystemType (TypeAsUnderlyingSystemTypeExpression expression);
     Expression VisitOriginalBody (OriginalBodyExpression expression);
   }
 }

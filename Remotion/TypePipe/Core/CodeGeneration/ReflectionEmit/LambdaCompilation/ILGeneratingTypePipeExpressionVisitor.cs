@@ -25,7 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   public class ILGeneratingTypePipeExpressionVisitor : ITypePipeExpressionVisitor
   {
     private readonly IILGenerator _ilGenerator;
-    private readonly Action<Expression> _childExpressionEmitter;
 
     [CLSCompliant (false)]
     public ILGeneratingTypePipeExpressionVisitor (IILGenerator ilGenerator, Action<Expression> childExpressionEmitter)
@@ -34,7 +33,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("childExpressionEmitter", childExpressionEmitter);
 
       _ilGenerator = ilGenerator;
-      _childExpressionEmitter = childExpressionEmitter;
     }
 
     [CLSCompliant (false)]
@@ -48,14 +46,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("expression", expression);
 
       _ilGenerator.Emit (OpCodes.Ldarg_0);
-      return expression;
-    }
-
-    public Expression VisitTypeAsUnderlyingSystemType (TypeAsUnderlyingSystemTypeExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      _childExpressionEmitter (expression.InnerExpression);
       return expression;
     }
 

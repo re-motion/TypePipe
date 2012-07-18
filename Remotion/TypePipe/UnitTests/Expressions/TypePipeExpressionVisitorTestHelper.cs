@@ -28,12 +28,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitThis", expression);
     }
 
-    public static Expression CallVisitTypeAsUnderlyingSystemType (
-        TypePipeExpressionVisitorBase expressionVisitor, TypeAsUnderlyingSystemTypeExpression expression)
-    {
-      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitTypeAsUnderlyingSystemType", expression);
-    }
-
     public static Expression CallVisitOriginalBody (TypePipeExpressionVisitorBase expressionVisitor, OriginalBodyExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitOriginalBody", expression);

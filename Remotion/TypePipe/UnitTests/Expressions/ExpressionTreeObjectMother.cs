@@ -39,11 +39,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return new ThisExpression (ReflectionObjectMother.GetSomeType());
     }
 
-    public static TypeAsUnderlyingSystemTypeExpression GetSomeTypeAsUnderlyingSystemTypeExpression ()
-    {
-      return new TypeAsUnderlyingSystemTypeExpression(GetSomeExpression());
-    }
-
     public static OriginalBodyExpression GetSomeOriginalBodyExpression ()
     {
       var method = ReflectionObjectMother.GetSomeMethod();

@@ -63,21 +63,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("expression", expression);
 
       var methodBase = expression.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : CreateThisExpression (methodBase.DeclaringType);
+      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (methodBase.DeclaringType);
       var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
 
       return Visit (baseCall);
-    }
-
-    private Expression CreateThisExpression (Type declaringType)
-    {
-      var thisExpression = new ThisExpression (declaringType);
-      // Since _mutableMethodBase.DeclaringType is a MutableType, we need to convert the ThisExpression to its underlying
-      // system type. This is the only way we can be sure that all type checks within the Expression.Call factory method succeed. (We cannot rely
-      // on System.RuntimeType.IsAssignableFrom working with MutableTypes.)
-      return new TypeAsUnderlyingSystemTypeExpression (thisExpression);
     }
 
     private MethodInfo AdaptOriginalMethodBase (MethodBase methodBase)

@@ -74,7 +74,6 @@
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\ExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\OriginalBodyExpressionTest.cs" />
-    <Compile Include="Expressions\TypeAsUnderlyingSystemTypeExpressionTest.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />

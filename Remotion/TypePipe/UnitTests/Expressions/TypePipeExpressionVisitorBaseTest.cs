@@ -38,17 +38,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void VisitTypeAsUnderlyingSystemType ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeTypeAsUnderlyingSystemTypeExpression();
-
-      CheckDefaultVisitImplementation (
-          expression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitTypeAsUnderlyingSystemType (mock, expression),
-          visitor => visitor.VisitTypeAsUnderlyingSystemType (expression));
-    }
-
-    [Test]
     public void VisitOriginalBody ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeOriginalBodyExpression ();

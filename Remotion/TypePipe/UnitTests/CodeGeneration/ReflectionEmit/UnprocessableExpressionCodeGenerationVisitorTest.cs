@@ -167,10 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       CheckVisitOriginalBody (expression, expectedMethodCallArguments, methodCallExpression =>
       {
-        Assert.That (methodCallExpression.Object, Is.TypeOf<TypeAsUnderlyingSystemTypeExpression> ());
-        var typeAsUnderlyingSystemTypeExpression = ((TypeAsUnderlyingSystemTypeExpression) methodCallExpression.Object);
-        Assert.That (
-            typeAsUnderlyingSystemTypeExpression.InnerExpression, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (typeof (DomainClass)));
+        Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (typeof (DomainClass)));
 
         checkMethodInCallExpressionAction (methodCallExpression.Method);
       });
