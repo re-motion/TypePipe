@@ -324,7 +324,8 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, BaseType) : null;
-      CheckNotFinalForOverride (baseMethod);
+      if (baseMethod != null)
+        CheckNotFinalForOverride (baseMethod);
 
       var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
@@ -489,7 +490,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private static void CheckNotFinalForOverride (MethodInfo overridenMethod)
     {
-      if (overridenMethod != null && overridenMethod.IsFinal)
+      if (overridenMethod.IsFinal)
       {
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);

@@ -28,7 +28,6 @@ using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
