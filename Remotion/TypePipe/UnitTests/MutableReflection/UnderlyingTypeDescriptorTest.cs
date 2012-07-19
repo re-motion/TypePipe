@@ -46,7 +46,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Name, Is.EqualTo (originalType.Name));
       Assert.That (descriptor.Namespace, Is.EqualTo (originalType.Namespace));
       Assert.That (descriptor.FullName, Is.EqualTo (originalType.FullName));
-      Assert.That (descriptor.StringRepresentation, Is.EqualTo (originalType.ToString()));
       Assert.That (descriptor.Attributes, Is.EqualTo (typeof (ExampleType).Attributes));
       Assert.That (descriptor.Interfaces, Is.EquivalentTo (new[] { typeof (IDisposable) }));
       Assert.That (descriptor.Fields, Is.EqualTo (allFields));

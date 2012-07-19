@@ -20,13 +20,28 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Collections.Generic;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class SignatureDebugStringGeneratorTest
   {
+    [Test]
+    public void GetTypeSignature ()
+    {
+      var standardType = typeof (DomainType);
+      var genericType = typeof (DomainType.NestedGenericType<int, DomainType>);
+      var genericTypeDefinition = typeof (DomainType.NestedGenericType<,>);
+
+      var standard = SignatureDebugStringGenerator.GetTypeSignature (standardType);
+      var generic = SignatureDebugStringGenerator.GetTypeSignature (genericType);
+      var genericDefinition = SignatureDebugStringGenerator.GetTypeSignature (genericTypeDefinition);
+
+      Assert.That (standard, Is.EqualTo ("DomainType"));
+      Assert.That (generic, Is.EqualTo ("NestedGenericType`2[Int32,DomainType]"));
+      Assert.That (genericDefinition, Is.EqualTo ("NestedGenericType`2[T1,T2]"));
+    }
+
     [Test]
     public void GetFieldSignature ()
     {
@@ -59,6 +74,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     class DomainType
     {
+      internal class NestedGenericType<T1, T2> { }
+
       internal readonly IEnumerable<DomainType> Field;
 
       public DomainType (int i, ref string s)

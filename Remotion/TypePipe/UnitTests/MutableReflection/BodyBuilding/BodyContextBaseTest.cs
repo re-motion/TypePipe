@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'System.Object' has no base type.")]
+    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'Object' has no base type.")]
     public void GetBaseCall_Name_Params_NoBaseType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
@@ -230,9 +230,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The specified method is declared by a different type "
-                          + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+UnrelatedType'"
-                          + ".\r\nParameter name: otherMethod")]
+        ExpectedMessage = "The specified method is declared by a different type 'UnrelatedType'.\r\nParameter name: otherMethod")]
     public void GetCopiedMethodBody_Params_DeclaredByUnrelatedType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod (7));

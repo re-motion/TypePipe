@@ -222,7 +222,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public string ToDebugString ()
     {
-      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType.Name);
+      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
     public override ParameterInfo[] GetParameters ()

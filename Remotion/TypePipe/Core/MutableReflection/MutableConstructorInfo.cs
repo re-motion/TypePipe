@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public string ToDebugString()
     {
-      return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType.Name);
+      return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
     public override ParameterInfo[] GetParameters ()

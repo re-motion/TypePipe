@@ -165,12 +165,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string ToString ()
     {
-      return _underlyingTypeDescriptor.StringRepresentation;
+      return SignatureDebugStringGenerator.GetTypeSignature (this);
     }
 
     public string ToDebugString ()
     {
-      return string.Format ("MutableType = \"{0}\"", Name);
+      return string.Format ("MutableType = \"{0}\"", ToString());
     }
 
     public bool IsEquivalentTo (Type type)

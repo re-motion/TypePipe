@@ -53,7 +53,6 @@ namespace Remotion.TypePipe.MutableReflection
           originalType.Name,
           originalType.Namespace,
           originalType.FullName,
-          originalType.ToString (),
           originalType.Attributes,
           Array.AsReadOnly (originalType.GetInterfaces ()),
           originalType.GetFields (c_allMembers).ToList().AsReadOnly(),
@@ -82,7 +81,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
-    private readonly string _stringRepresentation;
     private readonly TypeAttributes _attributes;
 
     private readonly ReadOnlyCollection<Type> _interfaces;
@@ -96,7 +94,6 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         string @namespace,
         string fullName,
-        string stringRepresentation,
         TypeAttributes attributes,
         ReadOnlyCollection<Type> interfaces,
         ReadOnlyCollection<FieldInfo> fields,
@@ -105,7 +102,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
-      ArgumentUtility.CheckNotNullOrEmpty ("stringRepresentation", stringRepresentation);
       ArgumentUtility.CheckNotNull ("interfaces", interfaces);
       ArgumentUtility.CheckNotNull ("fields", fields);
       ArgumentUtility.CheckNotNull ("constructors", constructors);
@@ -116,7 +112,6 @@ namespace Remotion.TypePipe.MutableReflection
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
-      _stringRepresentation = stringRepresentation;
       _attributes = attributes;
       _interfaces = interfaces;
       _fields = fields;
@@ -147,11 +142,6 @@ namespace Remotion.TypePipe.MutableReflection
     public string FullName
     {
       get { return _fullName; }
-    }
-
-    public string StringRepresentation
-    {
-      get { return _stringRepresentation; }
     }
 
     public TypeAttributes Attributes

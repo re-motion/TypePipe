@@ -225,17 +225,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      Assert.That (_descriptor.StringRepresentation, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_mutableType.ToString(), Is.EqualTo (_descriptor.StringRepresentation));
+      Assert.That (_mutableType.ToString(), Is.EqualTo ("DomainType"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      Assert.That (_descriptor.StringRepresentation, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"" + _descriptor.Name + "\""));
+      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"DomainType\""));
     }
 
     [Test]

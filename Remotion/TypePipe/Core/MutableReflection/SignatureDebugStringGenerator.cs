@@ -27,6 +27,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class SignatureDebugStringGenerator
   {
+    public static string GetTypeSignature (Type type)
+    {
+      return GetShortTypeName (type);
+    }
+
     public static string GetFieldSignature (FieldInfo fieldInfo)
     {
       return GetShortTypeName (fieldInfo.FieldType) + " " + fieldInfo.Name;

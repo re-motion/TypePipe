@@ -80,8 +80,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (MemberNotFoundException), ExpectedMessage =
-        "Could not find a constructor with signature (System.Int32, System.Int32) on type " +
-        "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.ConstructorBodyContextBaseTest+ClassWithConstructor'.")]
+        "Could not find a constructor with signature (System.Int32, System.Int32) on type 'ClassWithConstructor'.")]
     public void GetConstructorCall_NoMatchingConstructor ()
     {
       var argumentExpressions = new ArgumentTestHelper (7, 8).Expressions;

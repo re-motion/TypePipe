@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public string ToDebugString ()
     {
-      return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType.Name);
+      return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
