@@ -25,14 +25,14 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> and other expressions that can not be processedy by the 
-  /// <see cref="LambdaCompiler"/>.
+  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> and other expressions that can not be emitted by 
+  /// our customized <see cref="LambdaCompiler"/>.
   /// </summary>
-  public class UnprocessableExpressionCodeGenerationVisitor : TypePipeExpressionVisitorBase
+  public class UnemittableExpressionVisitor : TypePipeExpressionVisitorBase
   {
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
-    public UnprocessableExpressionCodeGenerationVisitor (IEmittableOperandProvider emittableOperandProvider)
+    public UnemittableExpressionVisitor (IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 

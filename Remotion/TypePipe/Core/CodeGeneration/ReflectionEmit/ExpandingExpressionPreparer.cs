@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      return new UnprocessableExpressionCodeGenerationVisitor (emittableOperandProvider).Visit (body);
+      return new UnemittableExpressionVisitor (emittableOperandProvider).Visit (body);
     }
   }
 }

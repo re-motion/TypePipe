@@ -26,24 +26,23 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class UnprocessableExpressionCodeGenerationVisitorTest
+  public class UnemittableExpressionVisitorTest
   {
     private IEmittableOperandProvider _emittableOperandProviderMock;
 
-    private UnprocessableExpressionCodeGenerationVisitor _visitorPartialMock;
+    private UnemittableExpressionVisitor _visitorPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<UnprocessableExpressionCodeGenerationVisitor>(_emittableOperandProviderMock);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor>(_emittableOperandProviderMock);
     }
 
     [Test]

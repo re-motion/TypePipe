@@ -81,7 +81,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\UnprocessableExpressionCodeGenerationVisitor.cs">
+    <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
