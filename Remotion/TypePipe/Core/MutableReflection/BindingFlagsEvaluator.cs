@@ -39,22 +39,17 @@ namespace Remotion.TypePipe.MutableReflection
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
       var isPublic = ((methodAttributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public);
-      if (isPublic)
-        return IsFlagDefined (bindingFlags, BindingFlags.Public);
-      else
-        return IsFlagDefined (bindingFlags, BindingFlags.NonPublic);
+      var checkedFlag = isPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+
+      return IsFlagDefined (bindingFlags, checkedFlag);
     }
 
     public bool HasRightInstanceOrStaticFlag (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
-      if (!IsFlagDefined (bindingFlags, BindingFlags.Static) && !IsFlagDefined (bindingFlags, BindingFlags.Instance))
-        return false;
-
       var isStatic = (methodAttributes & MethodAttributes.Static) == MethodAttributes.Static;
-      if (isStatic)
-        return IsFlagDefined (bindingFlags, BindingFlags.Static);
-      else
-        return IsFlagDefined (bindingFlags, BindingFlags.Instance);
+      var checkedFlag = isStatic ? BindingFlags.Static : BindingFlags.Instance;
+
+      return IsFlagDefined (bindingFlags, checkedFlag);
     }
 
     private bool IsFlagDefined (BindingFlags bindingFlags, BindingFlags checkedFlag)
