@@ -471,9 +471,8 @@ namespace Remotion.TypePipe.MutableReflection
     protected override ConstructorInfo GetConstructorImpl (
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
-      var candidates = _constructors;
       var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (candidates, binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (_constructors, binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
     }
 
     protected override MethodInfo GetMethodImpl (
