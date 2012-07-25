@@ -182,12 +182,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
+      // Note: ToString() is implemented in CustomType base class.
       Assert.That (_mutableType.ToString(), Is.EqualTo ("DomainType"));
     }
 
     [Test]
     public void ToDebugString ()
     {
+      // Note: ToDebugString() is implemented in CustomType base class.
       Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"DomainType\""));
     }
 

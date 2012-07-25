@@ -96,6 +96,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public new void ToString ()
+    {
+      Assert.That (_customTypePartialMock.ToString (), Is.EqualTo ("type name"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      var typeName = _customTypePartialMock.GetType().Name;
+      Assert.That (_customTypePartialMock.ToDebugString (), Is.EqualTo (typeName + " = \"type name\""));
+    }
+
+    [Test]
     public void GetElementType ()
     {
       Assert.That (_customTypePartialMock.GetElementType (), Is.Null);

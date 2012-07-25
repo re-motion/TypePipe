@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -26,6 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// A custom type that re-implements parts of the reflection API.
   /// Other classes may derive from this class to inherit this implementation.
   /// </summary>
+  [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type
   {
     private readonly IMemberSelector _memberSelector;
@@ -78,6 +80,16 @@ namespace Remotion.TypePipe.MutableReflection
     public override string FullName
     {
       get { return _fullName; }
+    }
+
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetTypeSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("{0} = \"{1}\"", GetType().Name, ToString ());
     }
 
     public override Type GetElementType ()

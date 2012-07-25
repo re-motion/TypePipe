@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
@@ -39,7 +38,6 @@ namespace Remotion.TypePipe.MutableReflection
   ///     <see cref="IsEquivalentTo"/> method should be used rather than comparing via <see cref="object.Equals(object)"/>.
   ///   </para>
   /// </remarks>
-  [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableType : CustomType
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
@@ -135,16 +133,6 @@ namespace Remotion.TypePipe.MutableReflection
     public bool IsNewType
     {
       get { return false; }
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetTypeSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("MutableType = \"{0}\"", ToString());
     }
 
     public bool IsEquivalentTo (Type type)
