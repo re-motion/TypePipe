@@ -55,23 +55,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return Constructors;
     }
 
+    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    {
+      return Methods;
+    }
+
     public override bool IsEquivalentTo (Type type)
-    {
-      throw new NotImplementedException();
-    }
-
-    //protected override IEnumerable<MethodInfo> GetAllMethods ()
-    //{
-    //  return AllMethods;
-    //}
-
-    // TODO Delete this blub
-    protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
       throw new NotImplementedException();
     }

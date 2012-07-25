@@ -17,7 +17,6 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
@@ -215,14 +214,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetConstructors ()
     {
       var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor () };
-      _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType))
-          .Return (fakeResult);
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor() };
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType)).Return (fakeResult);
 
       var result = _customType.GetConstructors (bindingAttr);
 
       _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void GetMethods ()
+    {
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod() };
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Methods, bindingAttr, _customType)).Return (fakeResult);
+
+      var result = _customType.GetMethods (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -247,6 +257,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultConstructor, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void GetMethodImpl ()
+    {
+      var b = MockRepository.GenerateStub<Binder>();
+      var binder = RandomizedObjectMother.OneOf (new { Input = b, Expected = b }, new { Input = (Binder) null, Expected = Type.DefaultBinder });
+      var name = "some name";
+      var bindingAttr = BindingFlags.NonPublic;
+      var callingConvention = CallingConventions.Any;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
+
+      var fakeResult = ReflectionObjectMother.GetSomeMethod();
+      _memberSelectorMock
+          .Expect (
+              mock => mock.SelectSingleMethod (_customType.Methods, binder.Expected, bindingAttr, name, _customType, typesOrNull, modifiersOrNull))
+          .Return (fakeResult);
+
+      var arguments = new object[] { name, bindingAttr, binder.Input, callingConvention, typesOrNull, modifiersOrNull };
+      var resultMethod = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (resultMethod, Is.SameAs (fakeResult));
     }
 
     [Test]

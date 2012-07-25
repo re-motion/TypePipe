@@ -543,57 +543,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMethods ()
-    {
-      AddMethod (_mutableType, "Added");
-      var allMethods = GetAllMethods (_mutableType);
-      Assert.That (allMethods.AddedMembers, Is.Not.Empty);
-      Assert.That (allMethods.ExistingDeclaredMembers, Is.Not.Empty);
-      Assert.That (allMethods.ExistingBaseMembers, Is.Not.Empty);
-
-      var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod() };
-      _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (allMethods, bindingAttr, _mutableType))
-          .Return (fakeResult);
-
-      var result = _mutableType.GetMethods (bindingAttr);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (fakeResult));
-    }
-
-    [Test]
-    public void GetMethods_FiltersOverriddenMethods ()
-    {
-      var baseMethod = typeof (object).GetMethod ("ToString");
-      _relatedMethodFinderMock
-          .Stub (stub => stub.GetMostDerivedVirtualMethod (Arg.Is ("ToString"), Arg<MethodSignature>.Is.Anything, Arg<Type>.Is.Anything))
-          .Return (baseMethod);
-      var addedOverride = _mutableType.AddMethod (
-          baseMethod.Name,
-          MethodAttributes.Virtual,
-          baseMethod.ReturnType,
-          ParameterDeclaration.CreateForEquivalentSignature (baseMethod),
-          ctx => ExpressionTreeObjectMother.GetSomeExpression (baseMethod.ReturnType));
-      Assert.That (addedOverride.BaseMethod, Is.SameAs (baseMethod));
-      
-      var bindingAttr = BindingFlags.NonPublic;
-      _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new MethodInfo[0])
-          .WhenCalled (mi =>
-          {
-            Assert.That (mi.Arguments[0], Has.Member (addedOverride));
-            Assert.That (mi.Arguments[0], Has.No.Member (typeof (DomainType).GetMethod ("ToString")));
-          });
-
-      _mutableType.GetMethods (bindingAttr);
-
-      _memberSelectorMock.VerifyAllExpectations ();
-    }
-
-    [Test]
     public void GetOrAddMutableMethod_ExistingMethod_UsesMemberCollection ()
     {
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
@@ -897,60 +846,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMethodImpl ()
+    public void GetAllMethods ()
     {
       AddMethod (_mutableType, "Added");
-      
       var allMethods = GetAllMethods (_mutableType);
       Assert.That (allMethods.AddedMembers, Is.Not.Empty);
       Assert.That (allMethods.ExistingDeclaredMembers, Is.Not.Empty);
       Assert.That (allMethods.ExistingBaseMembers, Is.Not.Empty);
 
-      var name = "some name";
-      var bindingAttr = BindingFlags.NonPublic;
-      var binder = MockRepository.GenerateStub<Binder>();
-      var callingConvention = CallingConventions.Any;
-      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
-      var modifiersOrNull = new[] { new ParameterModifier (1) };
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllMethods");
 
-      var fakeResult = ReflectionObjectMother.GetSomeMethod();
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (allMethods, binder, bindingAttr, name, _mutableType, typesOrNull, modifiersOrNull))
-          .Return (fakeResult);
-
-      var resultMethod = CallGetMethodImpl (_mutableType, name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultMethod, Is.SameAs (fakeResult));
+      Assert.That (result, Is.EqualTo (allMethods));
     }
 
     [Test]
-    public void GetMethodImpl_NullBinder ()
+    public void GetMethods_FiltersOverriddenMethods ()
     {
-      var fakeResult = ReflectionObjectMother.GetSomeMethod();
-      _memberSelectorMock
-          .Expect (
-              mock => mock.SelectSingleMethod (
-                  Arg<IEnumerable<MethodInfo>>.Is.Anything,
-                  Arg.Is (Type.DefaultBinder),
-                  Arg<BindingFlags>.Is.Anything,
-                  Arg<string>.Is.Anything,
-                  Arg<MutableType>.Is.Anything,
-                  Arg<Type[]>.Is.Anything,
-                  Arg<ParameterModifier[]>.Is.Anything))
-          .Return (fakeResult);
+      var baseMethod = typeof (object).GetMethod ("ToString");
+      _relatedMethodFinderMock
+          .Stub (stub => stub.GetMostDerivedVirtualMethod (Arg.Is ("ToString"), Arg<MethodSignature>.Is.Anything, Arg<Type>.Is.Anything))
+          .Return (baseMethod);
+      var addedOverride = _mutableType.AddMethod (
+          baseMethod.Name,
+          MethodAttributes.Virtual,
+          baseMethod.ReturnType,
+          ParameterDeclaration.CreateForEquivalentSignature (baseMethod),
+          ctx => ExpressionTreeObjectMother.GetSomeExpression (baseMethod.ReturnType));
+      Assert.That (addedOverride.BaseMethod, Is.SameAs (baseMethod));
 
-      var name = "some name";
-      var bindingAttr = BindingFlags.NonPublic;
-      Binder binder = null;
-      var callingConvention = CallingConventions.Any;
-      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
-      var modifiersOrNull = new[] { new ParameterModifier (1) };
-
-      var resultMethod = CallGetMethodImpl (_mutableType, name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllMethods");
 
       _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultMethod, Is.SameAs (fakeResult));
+      Assert.That (result, Has.Member (addedOverride));
+      Assert.That (result, Has.No.Member (typeof (DomainType).GetMethod ("ToString")));
     }
 
     [Test]
@@ -985,6 +913,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
     }
 
+    // TODO 4971: Move to CustomTypeTest
     [Test]
     public void VirtualMethodsImplementedByType ()
     {
@@ -1088,19 +1017,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
-    }
-
-    private MethodInfo CallGetMethodImpl (
-        MutableType mutableType,
-        string name,
-        BindingFlags bindingAttr,
-        Binder binder,
-        CallingConventions callingConvention,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
-    {
-      var arguments = new object[] { name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
-      return (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetMethodImpl", arguments);
     }
 
     private MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> GetAllFields (MutableType mutableType)

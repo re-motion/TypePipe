@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.MutableReflection
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
-    //protected abstract IEnumerable<MethodInfo> GetAllMethods ();
+    protected abstract IEnumerable<MethodInfo> GetAllMethods ();
 
     public abstract bool IsEquivalentTo (Type type);
 
@@ -158,11 +158,28 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectMethods (GetAllConstructors(), bindingAttr, this).ToArray();
     }
 
+    public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray ();
+    }
+
     protected override ConstructorInfo GetConstructorImpl (
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (GetAllConstructors(), binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
+    }
+
+    protected override MethodInfo GetMethodImpl (
+        string name,
+        BindingFlags bindingAttr,
+        Binder binderOrNull,
+        CallingConventions callConvention,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
+    {
+      var binder = binderOrNull ?? DefaultBinder;
+      return _memberSelector.SelectSingleMethod (GetAllMethods(), binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
     }
 
     protected override bool HasElementTypeImpl ()

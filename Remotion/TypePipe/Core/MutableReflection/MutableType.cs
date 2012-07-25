@@ -270,11 +270,6 @@ namespace Remotion.TypePipe.MutableReflection
       return methodInfo;
     }
 
-    public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
-    {
-      return _memberSelector.SelectMethods (_methods, bindingAttr, this).ToArray();
-    }
-
     /// <summary>
     /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>. If the method
     /// is declared on the modified type, it returns the corresponding <see cref="MutableMethodInfo"/> from the <see cref="ExistingMutableMethods"/>
@@ -372,16 +367,9 @@ namespace Remotion.TypePipe.MutableReflection
       return _constructors;
     }
 
-    protected override MethodInfo GetMethodImpl (
-        string name,
-        BindingFlags bindingAttr,
-        Binder binderOrNull,
-        CallingConventions callConvention,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
+    protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (_methods, binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
+      return _methods;
     }
 
     private static void CheckNotFinalForOverride (MethodInfo overridenMethod)
