@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
@@ -228,21 +229,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetConstructorImpl ()
     {
-      // TODO null binder;
-      var binder = MockRepository.GenerateStub<Binder> ();
+      var b = MockRepository.GenerateStub<Binder>();
+      var binder = RandomizedObjectMother.OneOf (new { Input = b, Expected = b }, new { Input = (Binder) null, Expected = Type.DefaultBinder });
       var callingConvention = CallingConventions.Any;
       var bindingAttr = BindingFlags.NonPublic;
-      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
       var modifiersOrNull = new[] { new ParameterModifier (1) };
-      var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
+      var fakeResult = ReflectionObjectMother.GetSomeConstructor();
       _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (_customType.Constructors, binder, bindingAttr, ".ctor", _customType, typesOrNull, modifiersOrNull))
+          .Expect (
+              mock =>
+              mock.SelectSingleMethod (_customType.Constructors, binder.Expected, bindingAttr, ".ctor", _customType, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var arguments = new object[] { bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
+      var arguments = new object[] { bindingAttr, binder.Input, callingConvention, typesOrNull, modifiersOrNull };
       var resultConstructor = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
 
-      _memberSelectorMock.VerifyAllExpectations ();
+      _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultConstructor, Is.SameAs (fakeResult));
     }
 
