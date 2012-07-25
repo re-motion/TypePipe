@@ -18,9 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
@@ -42,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
   ///   </para>
   /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableType : Type
+  public class MutableType : CustomType
   {
     private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
     private readonly IMemberSelector _memberSelector;
@@ -591,105 +589,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       throw new NotImplementedException();
-    }
-
-    #endregion
-
-    #region Unsupported Members
-
-    public override int MetadataToken
-    {
-      get { throw new NotSupportedException ("Property MutableType.MetadataToken is not supported."); }
-    }
-
-    public override Guid GUID
-    {
-      get { throw new NotSupportedException ("Property MutableType.GUID is not supported."); }
-    }
-
-    public override string AssemblyQualifiedName
-    {
-      get { throw new NotSupportedException ("Property MutableType.AssemblyQualifiedName is not supported."); }
-    }
-
-    public override StructLayoutAttribute StructLayoutAttribute
-    {
-      get { throw new NotSupportedException ("Property MutableType.StructLayoutAttribute is not supported."); }
-    }
-
-    public override GenericParameterAttributes GenericParameterAttributes
-    {
-      get { throw new NotSupportedException ("Property MutableType.GenericParameterAttributes is not supported."); }
-    }
-
-    public override int GenericParameterPosition
-    {
-      get { throw new NotSupportedException ("Property MutableType.GenericParameterPosition is not supported."); }
-    }
-
-    public override RuntimeTypeHandle TypeHandle
-    {
-      get { throw new NotSupportedException ("Property MutableType.TypeHandle is not supported."); }
-    }
-
-    public override MemberInfo[] GetDefaultMembers ()
-    {
-      throw new NotSupportedException ("Method MutableType.GetDefaultMembers is not supported.");
-    }
-
-    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotSupportedException ("Method MutableType.GetInterfaceMap is not supported.");
-    }
-
-    public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binderOrNull, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
-    {
-      throw new NotSupportedException ("Method MutableType.InvokeMember is not supported.");
-    }
-
-    public override Type MakePointerType ()
-    {
-      throw new NotSupportedException ("Method MutableType.MakePointerType is not supported.");
-    }
-
-    public override Type MakeByRefType ()
-    {
-      throw new NotSupportedException ("Method MutableType.MakeByRefType is not supported.");
-    }
-
-    public override Type MakeArrayType ()
-    {
-      throw new NotSupportedException ("Method MutableType.MakeArrayType is not supported.");
-    }
-
-    public override Type MakeArrayType (int rank)
-    {
-      throw new NotSupportedException ("Method MutableType.MakeArrayType is not supported.");
-    }
-
-    public override int GetArrayRank ()
-    {
-      throw new NotSupportedException ("Method MutableType.GetArrayRank is not supported.");
-    }
-
-    public override Type[] GetGenericParameterConstraints ()
-    {
-      throw new NotSupportedException ("Method MutableType.GetGenericParameterConstraints is not supported.");
-    }
-
-    public override Type MakeGenericType (params Type[] typeArguments)
-    {
-      throw new NotSupportedException ("Method MutableType.MakeGenericType is not supported.");
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      throw new NotSupportedException ("Method MutableType.GetGenericArguments is not supported.");
-    }
-
-    public override Type GetGenericTypeDefinition ()
-    {
-      throw new NotSupportedException ("Method MutableType.GetGenericTypeDefinition is not supported.");
     }
 
     #endregion

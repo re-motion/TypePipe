@@ -107,6 +107,7 @@
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\CustomType.cs" />
     <Compile Include="MutableReflection\IMemberSelector.cs" />
     <Compile Include="MutableReflection\IMutableTypeUnmodifiedMemberHandler.cs" />
     <Compile Include="MutableReflection\IRelatedMethodFinder.cs" />

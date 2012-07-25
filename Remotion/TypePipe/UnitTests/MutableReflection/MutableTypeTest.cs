@@ -1258,37 +1258,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
     }
 
-    [Test]
-    public void UnsupportedMembers ()
-    {
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.MetadataToken, "Property", "MetadataToken");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.GUID, "Property", "GUID");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.StructLayoutAttribute, "Property", "StructLayoutAttribute");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.GenericParameterAttributes, "Property", "GenericParameterAttributes");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.GenericParameterPosition, "Property", "GenericParameterPosition");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableType.TypeHandle, "Property", "TypeHandle");
-
-      CheckThrowsNotSupported (() => _mutableType.GetDefaultMembers(), "Method", "GetDefaultMembers");
-      CheckThrowsNotSupported (() => _mutableType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
-      CheckThrowsNotSupported (() => _mutableType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
-      CheckThrowsNotSupported (() => _mutableType.MakePointerType(), "Method", "MakePointerType");
-      CheckThrowsNotSupported (() => _mutableType.MakeByRefType(), "Method", "MakeByRefType");
-      CheckThrowsNotSupported (() => _mutableType.MakeArrayType(), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => _mutableType.MakeArrayType (7), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => _mutableType.GetArrayRank(), "Method", "GetArrayRank");
-      CheckThrowsNotSupported (() => _mutableType.GetGenericParameterConstraints(), "Method", "GetGenericParameterConstraints");
-      CheckThrowsNotSupported (() => _mutableType.MakeGenericType(), "Method", "MakeGenericType");
-      CheckThrowsNotSupported (() => _mutableType.GetGenericArguments(), "Method", "GetGenericArguments");
-      CheckThrowsNotSupported (() => _mutableType.GetGenericTypeDefinition(), "Method", "GetGenericTypeDefinition");
-    }
-
-    private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
-    {
-      var message = string.Format ("{0} MutableType.{1} is not supported.", memberType, memberName);
-      Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
-    }
-
     private void CallAndCheckGetOrAddMutableMethod (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
