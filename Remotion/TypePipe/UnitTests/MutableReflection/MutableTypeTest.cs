@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       
       // Use a dynamic mock because constructor passes on _relatedMethodFinderMock to UnderlyingTypeDescriptor, which calls methods on the mock.
-      // If this cahnges and the UnderlyingTypeDescriptor logic becomes a problem, consider injecting an ExistingMutableMemberInfoFactory instead and 
+      // If this changes and the UnderlyingTypeDescriptor logic becomes a problem, consider injecting an ExistingMutableMemberInfoFactory instead and 
       // stubbing that.
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
@@ -177,50 +177,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewType ()
     {
       Assert.That (_mutableType.IsNewType, Is.False);
-    }
-
-    [Test]
-    public void Assembly ()
-    {
-      Assert.That (_mutableType.Assembly, Is.Null);
-    }
-
-    [Test]
-    public void Module ()
-    {
-      Assert.That (_mutableType.Module, Is.Null);
-    }
-
-    [Test]
-    public void BaseType ()
-    {
-      Assert.That (_descriptor.BaseType, Is.Not.Null);
-
-      Assert.That (_mutableType.BaseType, Is.SameAs (_descriptor.BaseType));
-    }
-
-    [Test]
-    public void Name ()
-    {
-      Assert.That (_descriptor.Name, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_mutableType.Name, Is.EqualTo (_descriptor.Name));
-    }
-
-    [Test]
-    public void Namespace ()
-    {
-      Assert.That (_descriptor.Namespace, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_mutableType.Namespace, Is.EqualTo (_descriptor.Namespace));
-    }
-
-    [Test]
-    public void FullName ()
-    {
-      Assert.That (_descriptor.FullName, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_mutableType.FullName, Is.EqualTo (_descriptor.FullName));
     }
 
     [Test]
@@ -1033,51 +989,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetElementType ()
-    {
-      Assert.That (_mutableType.GetElementType(), Is.Null);
-    }
-
-    [Test]
-    public void HasElementTypeImpl ()
-    {
-      Assert.That (_mutableType.HasElementType, Is.False);
-    }
-
-    [Test]
     public void GetAttributeFlagsImpl ()
     {
       Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
-    }
-
-    [Test]
-    public void IsByRefImpl ()
-    {
-      Assert.That (_mutableType.IsByRef, Is.False);
-    }
-
-    [Test]
-    public void IsArrayImpl ()
-    {
-      Assert.That (_mutableType.IsArray, Is.False);
-    }
-
-    [Test]
-    public void IsPointerImpl ()
-    {
-      Assert.That (_mutableType.IsPointer, Is.False);
-    }
-
-    [Test]
-    public void IsPrimitiveImpl ()
-    {
-      Assert.That (_mutableType.IsPrimitive, Is.False);
-    }
-
-    [Test]
-    public void IsCOMObjectImpl ()
-    {
-      Assert.That (_mutableType.IsCOMObject, Is.False);
     }
 
     [Test]

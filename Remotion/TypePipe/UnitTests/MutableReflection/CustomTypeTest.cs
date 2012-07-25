@@ -25,14 +25,117 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class CustomTypeTest
   {
+    private IMemberSelector _memberSelector;
+    private Type _baseType;
+    private string _name;
+    private string _namespace;
+    private string _fullName;
+
     private CustomType _customTypePartialMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _customTypePartialMock = MockRepository.GeneratePartialMock<CustomType>();
+      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _baseType = ReflectionObjectMother.GetSomeType();
+      _name = "type name";
+      _namespace = "namespace";
+      _fullName = "full type name";
+
+      _customTypePartialMock = MockRepository.GeneratePartialMock<CustomType>(_memberSelector, _baseType, _name, _namespace, _fullName);
     }
 
+    [Test]
+    public void Initialization_NullBaseType ()
+    {
+      MockRepository.GeneratePartialMock<CustomType> (_memberSelector, null, _name, _namespace, _fullName);
+    }
+
+    [Test]
+    public void Assembly ()
+    {
+      Assert.That (_customTypePartialMock.Assembly, Is.Null);
+    }
+
+    [Test]
+    public void Module ()
+    {
+      Assert.That (_customTypePartialMock.Module, Is.Null);
+    }
+
+    [Test]
+    public void BaseType ()
+    {
+      Assert.That (_baseType, Is.Not.Null);
+
+      Assert.That (_customTypePartialMock.BaseType, Is.SameAs (_baseType));
+    }
+
+    [Test]
+    public void Name ()
+    {
+      Assert.That (_name, Is.Not.Null.And.Not.Empty);
+
+      Assert.That (_customTypePartialMock.Name, Is.EqualTo (_name));
+    }
+
+    [Test]
+    public void Namespace ()
+    {
+      Assert.That (_namespace, Is.Not.Null.And.Not.Empty);
+
+      Assert.That (_customTypePartialMock.Namespace, Is.EqualTo (_namespace));
+    }
+
+    [Test]
+    public void FullName ()
+    {
+      Assert.That (_fullName, Is.Not.Null.And.Not.Empty);
+
+      Assert.That (_customTypePartialMock.FullName, Is.EqualTo (_fullName));
+    }
+
+    [Test]
+    public void GetElementType ()
+    {
+      Assert.That (_customTypePartialMock.GetElementType (), Is.Null);
+    }
+
+    [Test]
+    public void HasElementTypeImpl ()
+    {
+      Assert.That (_customTypePartialMock.HasElementType, Is.False);
+    }
+
+    [Test]
+    public void IsByRefImpl ()
+    {
+      Assert.That (_customTypePartialMock.IsByRef, Is.False);
+    }
+
+    [Test]
+    public void IsArrayImpl ()
+    {
+      Assert.That (_customTypePartialMock.IsArray, Is.False);
+    }
+
+    [Test]
+    public void IsPointerImpl ()
+    {
+      Assert.That (_customTypePartialMock.IsPointer, Is.False);
+    }
+
+    [Test]
+    public void IsPrimitiveImpl ()
+    {
+      Assert.That (_customTypePartialMock.IsPrimitive, Is.False);
+    }
+
+    [Test]
+    public void IsCOMObjectImpl ()
+    {
+      Assert.That (_customTypePartialMock.IsCOMObject, Is.False);
+    }
 
     [Test]
     public void UnsupportedMembers ()

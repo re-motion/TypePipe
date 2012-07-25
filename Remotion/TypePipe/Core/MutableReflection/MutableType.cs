@@ -53,9 +53,15 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<Type> _addedInterfaces = new List<Type>();
 
     public MutableType (
-      UnderlyingTypeDescriptor underlyingTypeDescriptor,
-      IMemberSelector memberSelector,
-      IRelatedMethodFinder relatedMethodFinder)
+        UnderlyingTypeDescriptor underlyingTypeDescriptor,
+        IMemberSelector memberSelector,
+        IRelatedMethodFinder relatedMethodFinder)
+        : base (
+            memberSelector,
+            underlyingTypeDescriptor.BaseType,
+            underlyingTypeDescriptor.Name,
+            underlyingTypeDescriptor.Namespace,
+            underlyingTypeDescriptor.FullName)
     {
       ArgumentUtility.CheckNotNull ("underlyingTypeDescriptor", underlyingTypeDescriptor);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
@@ -67,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-        this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
+          this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableTypeMethodCollection (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
@@ -129,36 +135,6 @@ namespace Remotion.TypePipe.MutableReflection
     public bool IsNewType
     {
       get { return false; }
-    }
-
-    public override Assembly Assembly
-    {
-      get { return null; }
-    }
-
-    public override Module Module
-    {
-      get { return null; }
-    }
-
-    public override Type BaseType
-    {
-      get { return _underlyingTypeDescriptor.BaseType; }
-    }
-
-    public override string Name
-    {
-      get { return _underlyingTypeDescriptor.Name; }
-    }
-
-    public override string Namespace
-    {
-      get { return _underlyingTypeDescriptor.Namespace; }
-    }
-
-    public override string FullName
-    {
-      get { return _underlyingTypeDescriptor.FullName; }
     }
 
     public override string ToString ()
@@ -426,44 +402,9 @@ namespace Remotion.TypePipe.MutableReflection
         handler.HandleModifiedMethod (method);
     }
 
-    public override Type GetElementType ()
-    {
-      return null;
-    }
-
-    protected override bool HasElementTypeImpl ()
-    {
-      return false;
-    }
-
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
       return _underlyingTypeDescriptor.Attributes;
-    }
-
-    protected override bool IsByRefImpl ()
-    {
-      return false;
-    }
-
-    protected override bool IsArrayImpl ()
-    {
-      return false;
-    }
-
-    protected override bool IsPointerImpl ()
-    {
-      return false;
-    }
-
-    protected override bool IsPrimitiveImpl ()
-    {
-      return false;
-    }
-
-    protected override bool IsCOMObjectImpl ()
-    {
-      return false;
     }
 
     protected override ConstructorInfo GetConstructorImpl (
@@ -532,65 +473,5 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
     }
-
-    #region Not YET implemented abstract members of Type class
-
-    public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override MemberInfo[] GetMember (string name, MemberTypes type, BindingFlags bindingAttr)
-    {
-      return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
-    }
-
-    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
-    {
-      return new EventInfo[0]; // Needed for GetEvents() - virtual method check
-    }
-
-    public override Type[] GetNestedTypes (BindingFlags bindingAttr)
-    {
-      return new Type[0]; // Needed for virtual method check
-    }
-
-    public override Type GetNestedType (string name, BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
-    {
-      //types = types ?? Type.EmptyTypes;
-      throw new NotImplementedException();
-    }
-
-    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
-    {
-      return new PropertyInfo[0]; // Needed for virtual method check
-    }
-    
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
   }
 }

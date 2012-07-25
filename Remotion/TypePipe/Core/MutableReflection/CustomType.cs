@@ -18,6 +18,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -27,6 +28,152 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public abstract class CustomType : Type
   {
+    private readonly IMemberSelector _memberSelector;
+    private readonly Type _baseType;
+    private readonly string _name;
+    private readonly string _namespace;
+    private readonly string _fullName;
+
+    protected CustomType (IMemberSelector memberSelector, Type baseType, string name, string @namespace, string fullName)
+    {
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      // Base type may be null (for type object)
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty ("namespace", @namespace);
+      ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+
+      _memberSelector = memberSelector;
+      _baseType = baseType;
+      _name = name;
+      _namespace = @namespace;
+      _fullName = fullName;
+    }
+
+    public override Assembly Assembly
+    {
+      get { return null; }
+    }
+
+    public override Module Module
+    {
+      get { return null; }
+    }
+
+    public override Type BaseType
+    {
+      get { return _baseType; }
+    }
+
+    public override string Name
+    {
+      get { return _name; }
+    }
+
+    public override string Namespace
+    {
+      get { return _namespace; }
+    }
+
+    public override string FullName
+    {
+      get { return _fullName; }
+    }
+
+    public override Type GetElementType ()
+    {
+      return null;
+    }
+
+    protected override bool HasElementTypeImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsByRefImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsArrayImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsPointerImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsPrimitiveImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsCOMObjectImpl ()
+    {
+      return false;
+    }
+
+    #region Not YET implemented abstract members of Type class
+
+    public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override MemberInfo[] GetMember (string name, MemberTypes type, BindingFlags bindingAttr)
+    {
+      return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
+    }
+
+    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
+    {
+      return new EventInfo[0]; // Needed for GetEvents() - virtual method check
+    }
+
+    public override Type[] GetNestedTypes (BindingFlags bindingAttr)
+    {
+      return new Type[0]; // Needed for virtual method check
+    }
+
+    public override Type GetNestedType (string name, BindingFlags bindingAttr)
+    {
+      throw new NotImplementedException ();
+    }
+
+    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
+    {
+      //types = types ?? Type.EmptyTypes;
+      throw new NotImplementedException ();
+    }
+
+    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
+    {
+      return new PropertyInfo[0]; // Needed for virtual method check
+    }
+
+    public override object[] GetCustomAttributes (bool inherit)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override bool IsDefined (Type attributeType, bool inherit)
+    {
+      throw new NotImplementedException ();
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      throw new NotImplementedException ();
+    }
+
+    #endregion
 
     #region Unsupported Members
 
