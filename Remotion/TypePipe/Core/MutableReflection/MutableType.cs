@@ -133,11 +133,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return false; }
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
-    {
-      return _existingInterfaces.Concat (_addedInterfaces);
-    }
-
     public bool IsEquivalentTo (Type type)
     {
       return type == this || type == UnderlyingSystemType;
@@ -183,18 +178,6 @@ namespace Remotion.TypePipe.MutableReflection
       _fields.Add (fieldInfo);
 
       return fieldInfo;
-    }
-
-    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
-    {
-      return _memberSelector.SelectFields (_fields, bindingAttr).ToArray();
-    }
-
-    public override FieldInfo GetField (string name, BindingFlags bindingAttr)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-
-      return _memberSelector.SelectSingleField (_fields, bindingAttr, name);
     }
 
     public MutableFieldInfo GetMutableField (FieldInfo field)
@@ -375,6 +358,16 @@ namespace Remotion.TypePipe.MutableReflection
         handler.HandleModifiedConstructor (ctor);
       foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
         handler.HandleModifiedMethod (method);
+    }
+
+    protected override IEnumerable<Type> GetAllInterfaces ()
+    {
+      return _existingInterfaces.Concat (_addedInterfaces);
+    }
+
+    protected override IEnumerable<FieldInfo> GetAllFields ()
+    {
+      return _fields;
     }
 
     protected override ConstructorInfo GetConstructorImpl (

@@ -35,14 +35,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
     }
 
-    public IEnumerable<Type> AllInterfaces { get; set; }
-    public IEnumerable<FieldInfo> AllFields { get; set; }
-    public IEnumerable<ConstructorInfo> AllConstructors { get; set; }
-    public IEnumerable<MethodInfo> AllMethods { get; set; }
+    public IEnumerable<Type> Interfaces;
+    public IEnumerable<FieldInfo> Fields;
+    public IEnumerable<ConstructorInfo> Constructors;
+    public IEnumerable<MethodInfo> Methods;
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return AllInterfaces;
+      return Interfaces;
+    }
+
+    protected override IEnumerable<FieldInfo> GetAllFields ()
+    {
+      return Fields;
     }
 
     //protected override IEnumerable<FieldInfo> GetAllFields ()
@@ -77,16 +82,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override FieldInfo GetField (string name, BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
       throw new NotImplementedException();
     }

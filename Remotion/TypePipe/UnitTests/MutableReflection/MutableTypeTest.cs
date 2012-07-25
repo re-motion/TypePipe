@@ -313,7 +313,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetFields ()
+    public void GetAllFields ()
     {
       _mutableType.AddField (typeof (int), "added");
       var allFields = GetAllFields (_mutableType);
@@ -321,34 +321,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
       Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
 
-      var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = new[] { ReflectionObjectMother.GetSomeField() };
-      _memberSelectorMock.Expect (mock => mock.SelectFields (allFields, bindingAttr)).Return (fakeResult);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllFields");
 
-      var result = _mutableType.GetFields (bindingAttr);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (fakeResult));
-    }
-
-    [Test]
-    public void GetField ()
-    {
-      _mutableType.AddField (typeof (int), "added");
-      var allFields = GetAllFields (_mutableType);
-      Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
-      Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
-      Assert.That (allFields.AddedMembers, Is.Not.Empty);
-
-      var name = "some name";
-      var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = ReflectionObjectMother.GetSomeField();
-      _memberSelectorMock.Expect (mock => mock.SelectSingleField (allFields, bindingAttr, name)).Return (fakeResult);
-
-      var resultField = _mutableType.GetField (name, bindingAttr);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultField, Is.SameAs (fakeResult));
+      Assert.That (result, Is.SameAs (allFields));
     }
 
     [Test]

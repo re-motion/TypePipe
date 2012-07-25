@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     protected abstract IEnumerable<Type> GetAllInterfaces ();
-    //protected abstract IEnumerable<FieldInfo> GetAllFields ();
+    protected abstract IEnumerable<FieldInfo> GetAllFields ();
     //protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
     //protected abstract IEnumerable<MethodInfo> GetAllMethods ();
 
@@ -122,6 +122,18 @@ namespace Remotion.TypePipe.MutableReflection
           .SingleOrDefault (
               iface => iface.Name.Equals (name, comparisonMode),
               () => new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name)));
+    }
+
+    public override FieldInfo[] GetFields (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectFields (GetAllFields(), bindingAttr).ToArray ();
+    }
+
+    public override FieldInfo GetField (string name, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name);
     }
 
     public override string ToString ()

@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class CustomTypeTest
   {
-    private IMemberSelector _memberSelector;
+    private IMemberSelector _memberSelectorMock;
 
     private Type _underlyingSystemType;
     private Type _baseType;
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
       _underlyingSystemType = ReflectionObjectMother.GetSomeType();
       _baseType = ReflectionObjectMother.GetSomeType();
@@ -49,14 +49,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customType = new CustomTypeStub (_memberSelector, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
+      _customType = new CustomTypeStub (_memberSelectorMock, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
+
+      // Initialize stub with members.
+      _customType.Interfaces = new[] { typeof (IDisposable) };
+      _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
     }
 
     [Test]
     public void Initialization_Null ()
     {
       Type baseType = null;
-      new CustomTypeStub (_memberSelector, _underlyingSystemType, baseType, _typeAttributes, _name, _namespace, _fullName);
+      new CustomTypeStub (_memberSelectorMock, _underlyingSystemType, baseType, _typeAttributes, _name, _namespace, _fullName);
     }
 
     [Test]
@@ -114,17 +118,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterfaces ()
     {
-      var interfaces = new[] { typeof (IDisposable), typeof (IComparable) };
-      _customType.AllInterfaces = interfaces;
-
-      Assert.That (_customType.GetInterfaces(), Is.EqualTo (interfaces));
+      Assert.That (_customType.GetInterfaces(), Is.EqualTo (_customType.Interfaces));
     }
 
     [Test]
     public void GetInterface_NoMatch ()
     {
-      _customType.AllInterfaces = new[] { typeof (IDisposable) };
-
       var result = _customType.GetInterface ("IComparable", false);
 
       Assert.That (result, Is.Null);
@@ -133,8 +132,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterface_CaseSensitive_NoMatch ()
     {
-      _customType.AllInterfaces = new[] { typeof (IDisposable) };
-
       var result = _customType.GetInterface ("idisposable", false);
 
       Assert.That (result, Is.Null);
@@ -143,8 +140,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterface_CaseSensitive ()
     {
-      _customType.AllInterfaces = new[] { typeof (IDisposable) };
-
       var result = _customType.GetInterface ("IDisposable", false);
 
       Assert.That (result, Is.SameAs (typeof (IDisposable)));
@@ -153,20 +148,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetInterface_IgnoreCase ()
     {
-      _customType.AllInterfaces = new[] { typeof (IDisposable) };
-
       var result = _customType.GetInterface ("idisposable", true);
 
       Assert.That (result, Is.SameAs (typeof (IDisposable)));
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'idisposable'.")]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'IDisposable'.")]
     public void GetInterface_IgnoreCase_Ambiguous ()
     {
-      _customType.AllInterfaces = new[] { typeof (IDisposable), typeof (Idisposable) };
+      _customType.Interfaces = new[] { typeof (IDisposable), typeof (Idisposable) };
 
-      _customType.GetInterface ("idisposable", true);
+      _customType.GetInterface ("IDisposable", true);
+    }
+
+    [Test]
+    public void GetFields ()
+    {
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeField () };
+      _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr)).Return (fakeResult);
+
+      var result = _customType.GetFields (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void GetField ()
+    {
+      var name = "some name";
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = ReflectionObjectMother.GetSomeField ();
+      _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name)).Return (fakeResult);
+
+      var resultField = _customType.GetField (name, bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
     [Test]
