@@ -229,10 +229,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (underlyingSystemType.GetInterfaces(), Has.Member (typeof (IDomainInterface)));
       Assert.That (_mutableType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
 
-      Assert.That (_mutableType.GetInterfaces(), Has.No.Member (typeof (IMyInterface)));
-      Assert.That (_mutableType.IsAssignableTo (typeof (IMyInterface)), Is.False);
-      _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.IsAssignableTo (typeof (IMyInterface)), Is.True);
+      Assert.That (_mutableType.GetInterfaces(), Has.No.Member (typeof (IDisposable)));
+      Assert.That (_mutableType.IsAssignableTo (typeof (IDisposable)), Is.False);
+      _mutableType.AddInterface (typeof (IDisposable));
+      Assert.That (_mutableType.IsAssignableTo (typeof (IDisposable)), Is.True);
 
       Assert.That (_mutableType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
     }
@@ -266,70 +266,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetInterfaces ()
+    public void GetAllInterfaces ()
     {
       Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
       var existingInterface = _descriptor.Interfaces.Single();
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
       _mutableType.AddInterface (addedInterface);
 
-      var interfaces = _mutableType.GetInterfaces();
+      var allInterfaces = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllInterfaces");
 
-      Assert.That (interfaces, Is.EqualTo (new[] { existingInterface, addedInterface }));
-    }
-
-    [Test]
-    public void GetInterface_NoMatch ()
-    {
-      Assert.That (_mutableType.GetInterfaces().Count(), Is.EqualTo (1));
-
-      var result = _mutableType.GetInterface ("IMyInterface", false);
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetInterface_CaseSensitive_NoMatch ()
-    {
-      _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.GetInterfaces().Count(), Is.EqualTo (2));
-
-      var result = _mutableType.GetInterface ("Imyinterface", false);
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetInterface_CaseSensitive ()
-    {
-      _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.GetInterfaces().Count(), Is.EqualTo (2));
-
-      var result = _mutableType.GetInterface ("IMyInterface", false);
-
-      Assert.That (result, Is.SameAs (typeof (IMyInterface)));
-    }
-
-    [Test]
-    public void GetInterface_IgnoreCase ()
-    {
-      _mutableType.AddInterface (typeof (IMyInterface));
-      Assert.That (_mutableType.GetInterfaces().Count(), Is.EqualTo (2));
-
-      var result = _mutableType.GetInterface ("Imyinterface", true);
-
-      Assert.That (result, Is.SameAs (typeof (IMyInterface)));
-    }
-
-    [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'Imyinterface'.")]
-    public void GetInterface_IgnoreCase_Ambiguous ()
-    {
-      _mutableType.AddInterface (typeof (IMyInterface));
-      _mutableType.AddInterface (typeof (Imyinterface));
-      Assert.That (_mutableType.GetInterfaces().Count(), Is.EqualTo (3));
-
-      _mutableType.GetInterface ("Imyinterface", true);
+      Assert.That (allInterfaces, Is.EqualTo (new[] { existingInterface, addedInterface }));
     }
 
     [Test]
@@ -1322,15 +1268,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public interface IDomainInterface
     {
       void InterfaceMethod ();
-    }
-
-    private interface IMyInterface
-    {
-    }
-
-    // This exists for GetInterface inputMethod with ignore case parameter.
-    private interface Imyinterface
-    {
     }
 
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Local

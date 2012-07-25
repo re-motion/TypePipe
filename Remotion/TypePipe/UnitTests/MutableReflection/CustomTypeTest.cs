@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private string _namespace;
     private string _fullName;
 
-    private CustomType _customTypePartialMock;
+    private CustomTypeStub _customType;
 
     [SetUp]
     public void SetUp ()
@@ -49,26 +49,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customTypePartialMock = MockRepository.GeneratePartialMock<CustomType> (
-          _memberSelector, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
+      _customType = new CustomTypeStub (_memberSelector, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
     }
 
     [Test]
-    public void Initialization_NullBaseType ()
+    public void Initialization_Null ()
     {
-      MockRepository.GeneratePartialMock<CustomType> (_memberSelector, _underlyingSystemType, null, _typeAttributes, _name, _namespace, _fullName);
+      Type baseType = null;
+      new CustomTypeStub (_memberSelector, _underlyingSystemType, baseType, _typeAttributes, _name, _namespace, _fullName);
     }
 
     [Test]
     public void Assembly ()
     {
-      Assert.That (_customTypePartialMock.Assembly, Is.Null);
+      Assert.That (_customType.Assembly, Is.Null);
     }
 
     [Test]
     public void Module ()
     {
-      Assert.That (_customTypePartialMock.Module, Is.Null);
+      Assert.That (_customType.Module, Is.Null);
     }
 
     [Test]
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_underlyingSystemType, Is.Not.Null);
 
-      Assert.That (_customTypePartialMock.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
+      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
     }
 
     [Test]
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_baseType, Is.Not.Null);
 
-      Assert.That (_customTypePartialMock.BaseType, Is.SameAs (_baseType));
+      Assert.That (_customType.BaseType, Is.SameAs (_baseType));
     }
 
     [Test]
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_name, Is.Not.Null.And.Not.Empty);
 
-      Assert.That (_customTypePartialMock.Name, Is.EqualTo (_name));
+      Assert.That (_customType.Name, Is.EqualTo (_name));
     }
 
     [Test]
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_namespace, Is.Not.Null.And.Not.Empty);
 
-      Assert.That (_customTypePartialMock.Namespace, Is.EqualTo (_namespace));
+      Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
     }
 
     [Test]
@@ -108,99 +108,162 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_fullName, Is.Not.Null.And.Not.Empty);
 
-      Assert.That (_customTypePartialMock.FullName, Is.EqualTo (_fullName));
+      Assert.That (_customType.FullName, Is.EqualTo (_fullName));
+    }
+
+    [Test]
+    public void GetInterfaces ()
+    {
+      var interfaces = new[] { typeof (IDisposable), typeof (IComparable) };
+      _customType.AllInterfaces = interfaces;
+
+      Assert.That (_customType.GetInterfaces(), Is.EqualTo (interfaces));
+    }
+
+    [Test]
+    public void GetInterface_NoMatch ()
+    {
+      _customType.AllInterfaces = new[] { typeof (IDisposable) };
+
+      var result = _customType.GetInterface ("IComparable", false);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetInterface_CaseSensitive_NoMatch ()
+    {
+      _customType.AllInterfaces = new[] { typeof (IDisposable) };
+
+      var result = _customType.GetInterface ("idisposable", false);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetInterface_CaseSensitive ()
+    {
+      _customType.AllInterfaces = new[] { typeof (IDisposable) };
+
+      var result = _customType.GetInterface ("IDisposable", false);
+
+      Assert.That (result, Is.SameAs (typeof (IDisposable)));
+    }
+
+    [Test]
+    public void GetInterface_IgnoreCase ()
+    {
+      _customType.AllInterfaces = new[] { typeof (IDisposable) };
+
+      var result = _customType.GetInterface ("idisposable", true);
+
+      Assert.That (result, Is.SameAs (typeof (IDisposable)));
+    }
+
+    [Test]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'idisposable'.")]
+    public void GetInterface_IgnoreCase_Ambiguous ()
+    {
+      _customType.AllInterfaces = new[] { typeof (IDisposable), typeof (Idisposable) };
+
+      _customType.GetInterface ("idisposable", true);
     }
 
     [Test]
     public new void ToString ()
     {
-      Assert.That (_customTypePartialMock.ToString (), Is.EqualTo ("type name"));
+      Assert.That (_customType.ToString (), Is.EqualTo ("type name"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      var typeName = _customTypePartialMock.GetType().Name;
-      Assert.That (_customTypePartialMock.ToDebugString (), Is.EqualTo (typeName + " = \"type name\""));
+      var typeName = _customType.GetType().Name;
+      Assert.That (_customType.ToDebugString (), Is.EqualTo (typeName + " = \"type name\""));
     }
 
     [Test]
     public void GetElementType ()
     {
-      Assert.That (_customTypePartialMock.GetElementType (), Is.Null);
+      Assert.That (_customType.GetElementType (), Is.Null);
     }
 
     [Test]
     public void HasElementTypeImpl ()
     {
-      Assert.That (_customTypePartialMock.HasElementType, Is.False);
+      Assert.That (_customType.HasElementType, Is.False);
     }
 
     [Test]
     public void GetAttributeFlagsImpl ()
     {
-      Assert.That (_customTypePartialMock.Attributes, Is.EqualTo (_typeAttributes));
+      Assert.That (_customType.Attributes, Is.EqualTo (_typeAttributes));
     }
 
     [Test]
     public void IsByRefImpl ()
     {
-      Assert.That (_customTypePartialMock.IsByRef, Is.False);
+      Assert.That (_customType.IsByRef, Is.False);
     }
 
     [Test]
     public void IsArrayImpl ()
     {
-      Assert.That (_customTypePartialMock.IsArray, Is.False);
+      Assert.That (_customType.IsArray, Is.False);
     }
 
     [Test]
     public void IsPointerImpl ()
     {
-      Assert.That (_customTypePartialMock.IsPointer, Is.False);
+      Assert.That (_customType.IsPointer, Is.False);
     }
 
     [Test]
     public void IsPrimitiveImpl ()
     {
-      Assert.That (_customTypePartialMock.IsPrimitive, Is.False);
+      Assert.That (_customType.IsPrimitive, Is.False);
     }
 
     [Test]
     public void IsCOMObjectImpl ()
     {
-      Assert.That (_customTypePartialMock.IsCOMObject, Is.False);
+      Assert.That (_customType.IsCOMObject, Is.False);
     }
 
     [Test]
     public void UnsupportedMembers ()
     {
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.MetadataToken, "Property", "MetadataToken");
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.GUID, "Property", "GUID");
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.StructLayoutAttribute, "Property", "StructLayoutAttribute");
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.GenericParameterAttributes, "Property", "GenericParameterAttributes");
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.GenericParameterPosition, "Property", "GenericParameterPosition");
-      CheckThrowsNotSupported (() => Dev.Null = _customTypePartialMock.TypeHandle, "Property", "TypeHandle");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.MetadataToken, "Property", "MetadataToken");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GUID, "Property", "GUID");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.StructLayoutAttribute, "Property", "StructLayoutAttribute");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GenericParameterAttributes, "Property", "GenericParameterAttributes");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GenericParameterPosition, "Property", "GenericParameterPosition");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.TypeHandle, "Property", "TypeHandle");
 
-      CheckThrowsNotSupported (() => _customTypePartialMock.GetDefaultMembers (), "Method", "GetDefaultMembers");
-      CheckThrowsNotSupported (() => _customTypePartialMock.GetInterfaceMap (null), "Method", "GetInterfaceMap");
-      CheckThrowsNotSupported (() => _customTypePartialMock.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
-      CheckThrowsNotSupported (() => _customTypePartialMock.MakePointerType (), "Method", "MakePointerType");
-      CheckThrowsNotSupported (() => _customTypePartialMock.MakeByRefType (), "Method", "MakeByRefType");
-      CheckThrowsNotSupported (() => _customTypePartialMock.MakeArrayType (), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => _customTypePartialMock.MakeArrayType (7), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => _customTypePartialMock.GetArrayRank (), "Method", "GetArrayRank");
-      CheckThrowsNotSupported (() => _customTypePartialMock.GetGenericParameterConstraints (), "Method", "GetGenericParameterConstraints");
-      CheckThrowsNotSupported (() => _customTypePartialMock.MakeGenericType (), "Method", "MakeGenericType");
-      CheckThrowsNotSupported (() => _customTypePartialMock.GetGenericArguments (), "Method", "GetGenericArguments");
-      CheckThrowsNotSupported (() => _customTypePartialMock.GetGenericTypeDefinition (), "Method", "GetGenericTypeDefinition");
+      CheckThrowsNotSupported (() => _customType.GetDefaultMembers (), "Method", "GetDefaultMembers");
+      CheckThrowsNotSupported (() => _customType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
+      CheckThrowsNotSupported (() => _customType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
+      CheckThrowsNotSupported (() => _customType.MakePointerType (), "Method", "MakePointerType");
+      CheckThrowsNotSupported (() => _customType.MakeByRefType (), "Method", "MakeByRefType");
+      CheckThrowsNotSupported (() => _customType.MakeArrayType (), "Method", "MakeArrayType");
+      CheckThrowsNotSupported (() => _customType.MakeArrayType (7), "Method", "MakeArrayType");
+      CheckThrowsNotSupported (() => _customType.GetArrayRank (), "Method", "GetArrayRank");
+      CheckThrowsNotSupported (() => _customType.GetGenericParameterConstraints (), "Method", "GetGenericParameterConstraints");
+      CheckThrowsNotSupported (() => _customType.MakeGenericType (), "Method", "MakeGenericType");
+      CheckThrowsNotSupported (() => _customType.GetGenericArguments (), "Method", "GetGenericArguments");
+      CheckThrowsNotSupported (() => _customType.GetGenericTypeDefinition (), "Method", "GetGenericTypeDefinition");
     }
 
     private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
     {
       var message = string.Format ("{0} {1} is not supported.", memberType, memberName);
       Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
+    }
+
+    // This exists for GetInterface method with ignore case parameter.
+    private interface Idisposable
+    {
     }
   }
 }

@@ -87,6 +87,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\CustomTypeStub.cs" />
     <Compile Include="MutableReflection\CustomTypeTest.cs" />
     <Compile Include="MutableReflection\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\MethodOverrideUtilityTest.cs" />

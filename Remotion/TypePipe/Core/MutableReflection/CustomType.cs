@@ -15,11 +15,14 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -65,6 +68,11 @@ namespace Remotion.TypePipe.MutableReflection
       _fullName = fullName;
     }
 
+    protected abstract IEnumerable<Type> GetAllInterfaces ();
+    //protected abstract IEnumerable<FieldInfo> GetAllFields ();
+    //protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
+    //protected abstract IEnumerable<MethodInfo> GetAllMethods ();
+
     public override Assembly Assembly
     {
       get { return null; }
@@ -98,6 +106,22 @@ namespace Remotion.TypePipe.MutableReflection
     public override string FullName
     {
       get { return _fullName; }
+    }
+
+    public override Type[] GetInterfaces ()
+    {
+      return GetAllInterfaces().ToArray();
+    }
+
+    public override Type GetInterface (string name, bool ignoreCase)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+      return GetAllInterfaces()
+          .SingleOrDefault (
+              iface => iface.Name.Equals (name, comparisonMode),
+              () => new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name)));
     }
 
     public override string ToString ()
