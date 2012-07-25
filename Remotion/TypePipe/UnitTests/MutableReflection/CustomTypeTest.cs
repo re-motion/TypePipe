@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -323,6 +324,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsCOMObjectImpl ()
     {
       Assert.That (_customType.IsCOMObject, Is.False);
+    }
+
+    [Test]
+    public void VirtualMethodsImplementedByType ()
+    {
+      // None of these members should throw an exception 
+      Dev.Null = _customType.MemberType;
+      Dev.Null = _customType.DeclaringType;
+      Dev.Null = _customType.DeclaringMethod;
+      Dev.Null = _customType.ReflectedType;
+      Dev.Null = _customType.IsGenericType;
+      Dev.Null = _customType.IsGenericTypeDefinition;
+      Dev.Null = _customType.IsGenericParameter;
+      Dev.Null = _customType.ContainsGenericParameters;
+
+      Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
+      Dev.Null = _customType.IsContextful; // IsContextfulImpl()
+      Dev.Null = _customType.IsMarshalByRef; // IsMarshalByRefImpl()
+
+      _customType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
+      _customType.GetEvents();
+      _customType.GetMember ("name", BindingFlags.Default);
+      _customType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
+      _customType.IsSubclassOf (null);
+      _customType.IsInstanceOfType (null);
+      _customType.IsAssignableFrom (null);
+
+      _memberSelectorMock
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Return (new MethodInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Return (new ConstructorInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return (new FieldInfo[0]);
+      _customType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
     }
 
     [Test]

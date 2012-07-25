@@ -913,44 +913,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
     }
 
-    // TODO 4971: Move to CustomTypeTest
-    [Test]
-    public void VirtualMethodsImplementedByType ()
-    {
-      // None of these members should throw an exception 
-      Dev.Null = _mutableType.MemberType;
-      Dev.Null = _mutableType.DeclaringType;
-      Dev.Null = _mutableType.DeclaringMethod;
-      Dev.Null = _mutableType.ReflectedType;
-      Dev.Null = _mutableType.IsGenericType;
-      Dev.Null = _mutableType.IsGenericTypeDefinition;
-      Dev.Null = _mutableType.IsGenericParameter;
-      Dev.Null = _mutableType.ContainsGenericParameters;
-
-      Dev.Null = _mutableType.IsValueType; // IsValueTypeImpl()
-      Dev.Null = _mutableType.IsContextful; // IsContextfulImpl()
-      Dev.Null = _mutableType.IsMarshalByRef; // IsMarshalByRefImpl()
-
-      _mutableType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
-      _mutableType.GetEvents();
-      _mutableType.GetMember ("name", BindingFlags.Default);
-      _mutableType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
-      _mutableType.IsSubclassOf (null);
-      _mutableType.IsInstanceOfType (null);
-      _mutableType.IsAssignableFrom (null);
-
-      _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new MethodInfo[0]);
-      _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new ConstructorInfo[0]);
-      _memberSelectorMock
-          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return (new FieldInfo[0]);
-      _mutableType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
-    }
-
     private void CallAndCheckGetOrAddMutableMethod (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
