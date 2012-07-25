@@ -98,6 +98,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methods.AddedMembers; }
     }
 
+    public ReadOnlyCollection<Type> ExistingInterfaces
+    {
+      get { return _existingInterfaces; }
+    }
+
     public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
     {
       get { return _fields.ExistingDeclaredMembers; }

@@ -70,6 +70,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_descriptor.Interfaces, Is.Not.Empty);
 
+      Assert.That (_mutableType.ExistingInterfaces, Is.EqualTo (_descriptor.Interfaces));
       Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (_descriptor.Interfaces));
     }
 
@@ -240,13 +241,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
-      var interface1 = ReflectionObjectMother.GetSomeInterfaceType();
-      var interface2 = ReflectionObjectMother.GetSomeDifferentInterfaceType();
+      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
+      var existingInterface = _descriptor.Interfaces.Single();
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
 
-      _mutableType.AddInterface (interface1);
-      _mutableType.AddInterface (interface2);
+      _mutableType.AddInterface (addedInterface);
 
-      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { interface1, interface2 }));
+      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { addedInterface }));
+      Assert.That (_mutableType.ExistingInterfaces, Is.EqualTo (new[] { existingInterface }));
+      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { existingInterface, addedInterface }));
     }
 
     [Test]
