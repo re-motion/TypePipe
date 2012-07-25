@@ -166,14 +166,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void UnderlyingSystemType ()
-    {
-      Assert.That (_descriptor.UnderlyingSystemType, Is.Not.Null);
-
-      Assert.That (_mutableType.UnderlyingSystemType, Is.SameAs (_descriptor.UnderlyingSystemType));
-    }
-
-    [Test]
     public void IsNewType ()
     {
       Assert.That (_mutableType.IsNewType, Is.False);
@@ -988,12 +980,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.Accept (handlerMock);
 
       handlerMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void GetAttributeFlagsImpl ()
-    {
-      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]

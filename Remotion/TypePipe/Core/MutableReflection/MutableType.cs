@@ -40,15 +40,15 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType
   {
-    private readonly UnderlyingTypeDescriptor _underlyingTypeDescriptor;
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
+
+    private readonly ReadOnlyCollection<Type> _existingInterfaces;
+    private readonly List<Type> _addedInterfaces = new List<Type> ();
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _methods;
-
-    private readonly List<Type> _addedInterfaces = new List<Type>();
 
     public MutableType (
         UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -56,7 +56,9 @@ namespace Remotion.TypePipe.MutableReflection
         IRelatedMethodFinder relatedMethodFinder)
         : base (
             memberSelector,
+            underlyingTypeDescriptor.UnderlyingSystemType,
             underlyingTypeDescriptor.BaseType,
+            underlyingTypeDescriptor.Attributes,
             underlyingTypeDescriptor.Name,
             underlyingTypeDescriptor.Namespace,
             underlyingTypeDescriptor.FullName)
@@ -65,14 +67,15 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
-      _underlyingTypeDescriptor = underlyingTypeDescriptor;
       _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, _underlyingTypeDescriptor.Fields, CreateExistingField);
+      _existingInterfaces = underlyingTypeDescriptor.Interfaces;
+
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-          this, _underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
-      _methods = new MutableTypeMethodCollection (this, _underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
+          this, underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
+      _methods = new MutableTypeMethodCollection (this, underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -125,11 +128,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methods.AllMutableMembers; }
     }
 
-    public override Type UnderlyingSystemType
-    {
-      get { return _underlyingTypeDescriptor.UnderlyingSystemType; }
-    }
-
     public bool IsNewType
     {
       get { return false; }
@@ -167,7 +165,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type[] GetInterfaces ()
     {
-      return _underlyingTypeDescriptor.Interfaces.Concat (_addedInterfaces).ToArray();
+      return _existingInterfaces.Concat (_addedInterfaces).ToArray();
     }
 
     public override Type GetInterface (string name, bool ignoreCase)
@@ -388,11 +386,6 @@ namespace Remotion.TypePipe.MutableReflection
         handler.HandleModifiedConstructor (ctor);
       foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
         handler.HandleModifiedMethod (method);
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
-    {
-      return _underlyingTypeDescriptor.Attributes;
     }
 
     protected override ConstructorInfo GetConstructorImpl (

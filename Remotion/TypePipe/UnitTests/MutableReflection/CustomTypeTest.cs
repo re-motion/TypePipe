@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
@@ -26,7 +27,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class CustomTypeTest
   {
     private IMemberSelector _memberSelector;
+
+    private Type _underlyingSystemType;
     private Type _baseType;
+    private TypeAttributes _typeAttributes;
     private string _name;
     private string _namespace;
     private string _fullName;
@@ -37,18 +41,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();
+
+      _underlyingSystemType = ReflectionObjectMother.GetSomeType();
       _baseType = ReflectionObjectMother.GetSomeType();
+      _typeAttributes = (TypeAttributes) 777;
       _name = "type name";
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customTypePartialMock = MockRepository.GeneratePartialMock<CustomType>(_memberSelector, _baseType, _name, _namespace, _fullName);
+      _customTypePartialMock = MockRepository.GeneratePartialMock<CustomType> (
+          _memberSelector, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
     }
 
     [Test]
     public void Initialization_NullBaseType ()
     {
-      MockRepository.GeneratePartialMock<CustomType> (_memberSelector, null, _name, _namespace, _fullName);
+      MockRepository.GeneratePartialMock<CustomType> (_memberSelector, _underlyingSystemType, null, _typeAttributes, _name, _namespace, _fullName);
     }
 
     [Test]
@@ -61,6 +69,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Module ()
     {
       Assert.That (_customTypePartialMock.Module, Is.Null);
+    }
+
+    [Test]
+    public void UnderlyingSystemType ()
+    {
+      Assert.That (_underlyingSystemType, Is.Not.Null);
+
+      Assert.That (_customTypePartialMock.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
     }
 
     [Test]
@@ -118,6 +134,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void HasElementTypeImpl ()
     {
       Assert.That (_customTypePartialMock.HasElementType, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      Assert.That (_customTypePartialMock.Attributes, Is.EqualTo (_typeAttributes));
     }
 
     [Test]

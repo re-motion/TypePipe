@@ -31,14 +31,25 @@ namespace Remotion.TypePipe.MutableReflection
   public abstract class CustomType : Type
   {
     private readonly IMemberSelector _memberSelector;
+
+    private readonly Type _underlyingSystemType;
     private readonly Type _baseType;
+    private readonly TypeAttributes _typeAttributes;
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
 
-    protected CustomType (IMemberSelector memberSelector, Type baseType, string name, string @namespace, string fullName)
+    protected CustomType (
+        IMemberSelector memberSelector,
+        Type underlyingSystemType,
+        Type baseType,
+        TypeAttributes typeAttributes,
+        string name,
+        string @namespace,
+        string fullName)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("underlyingSystemType", underlyingSystemType);
       // Base type may be null (for type object)
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNullOrEmpty ("namespace", @namespace);
@@ -46,7 +57,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _memberSelector = memberSelector;
+      _underlyingSystemType = underlyingSystemType;
       _baseType = baseType;
+      _typeAttributes = typeAttributes;
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
@@ -60,6 +73,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override Module Module
     {
       get { return null; }
+    }
+
+    public override Type UnderlyingSystemType
+    {
+      get { return _underlyingSystemType; }
     }
 
     public override Type BaseType
@@ -100,6 +118,11 @@ namespace Remotion.TypePipe.MutableReflection
     protected override bool HasElementTypeImpl ()
     {
       return false;
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return _typeAttributes;
     }
 
     protected override bool IsByRefImpl ()
