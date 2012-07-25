@@ -54,6 +54,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // Initialize stub with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
       _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
+      _customType.Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() };
+      _customType.Methods = new[] { ReflectionObjectMother.GetSomeMethod() };
     }
 
     [Test]
@@ -113,6 +115,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_fullName, Is.Not.Null.And.Not.Empty);
 
       Assert.That (_customType.FullName, Is.EqualTo (_fullName));
+    }
+
+    [Test]
+    public new void ToString ()
+    {
+      Assert.That (_customType.ToString (), Is.EqualTo ("type name"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      var typeName = _customType.GetType ().Name;
+      Assert.That (_customType.ToDebugString (), Is.EqualTo (typeName + " = \"type name\""));
+    }
+
+    [Test]
+    public void GetElementType ()
+    {
+      Assert.That (_customType.GetElementType (), Is.Null);
     }
 
     [Test]
@@ -190,22 +211,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
+    public void GetConstructors ()
     {
-      Assert.That (_customType.ToString (), Is.EqualTo ("type name"));
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor () };
+      _memberSelectorMock
+          .Expect (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType))
+          .Return (fakeResult);
+
+      var result = _customType.GetConstructors (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (fakeResult));
     }
 
     [Test]
-    public void ToDebugString ()
+    public void GetConstructorImpl ()
     {
-      var typeName = _customType.GetType().Name;
-      Assert.That (_customType.ToDebugString (), Is.EqualTo (typeName + " = \"type name\""));
-    }
+      // TODO null binder;
+      var binder = MockRepository.GenerateStub<Binder> ();
+      var callingConvention = CallingConventions.Any;
+      var bindingAttr = BindingFlags.NonPublic;
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
+      var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (_customType.Constructors, binder, bindingAttr, ".ctor", _customType, typesOrNull, modifiersOrNull))
+          .Return (fakeResult);
 
-    [Test]
-    public void GetElementType ()
-    {
-      Assert.That (_customType.GetElementType (), Is.Null);
+      var arguments = new object[] { bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
+      var resultConstructor = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
+
+      _memberSelectorMock.VerifyAllExpectations ();
+      Assert.That (resultConstructor, Is.SameAs (fakeResult));
     }
 
     [Test]

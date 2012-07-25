@@ -266,19 +266,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetAllInterfaces ()
-    {
-      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
-      var existingInterface = _descriptor.Interfaces.Single();
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      _mutableType.AddInterface (addedInterface);
-
-      var allInterfaces = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllInterfaces");
-
-      Assert.That (allInterfaces, Is.EqualTo (new[] { existingInterface, addedInterface }));
-    }
-
-    [Test]
     public void AddField ()
     {
       var newField = _mutableType.AddField (typeof (string), "_newField", FieldAttributes.Private);
@@ -310,20 +297,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddField (typeof (string), field.Name, FieldAttributes.Private);
 
       Assert.That (_mutableType.AddedFields, Has.Count.EqualTo (1));
-    }
-
-    [Test]
-    public void GetAllFields ()
-    {
-      _mutableType.AddField (typeof (int), "added");
-      var allFields = GetAllFields (_mutableType);
-      Assert.That (allFields.AddedMembers, Is.Not.Empty);
-      Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
-      Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllFields");
-
-      Assert.That (result, Is.SameAs (allFields));
     }
 
     [Test]
@@ -389,26 +362,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingMutableConstructors.Single().GetParameters(), Is.Empty);
 
       _mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, context => Expression.Empty());
-    }
-
-    [Test]
-    public void GetConstructors ()
-    {
-      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
-      var allConstructors = GetAllConstructors (_mutableType);
-      Assert.That (allConstructors.AddedMembers, Is.Not.Empty);
-      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
-
-      var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor() };
-      _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (allConstructors, bindingAttr, _mutableType))
-          .Return (fakeResult);
-
-      var result = _mutableType.GetConstructors (bindingAttr);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (fakeResult));
     }
 
     [Test]
@@ -904,55 +857,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetConstructorImpl ()
+    public void GetAllInterfaces ()
     {
-      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
-      var allConstructors = GetAllConstructors (_mutableType);
-      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
-      Assert.That (allConstructors.AddedMembers, Is.Not.Empty);
+      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
+      var existingInterface = _descriptor.Interfaces.Single ();
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType ();
+      _mutableType.AddInterface (addedInterface);
 
-      var binder = MockRepository.GenerateStub<Binder>();
-      var callingConvention = CallingConventions.Any;
-      var bindingAttr = BindingFlags.NonPublic;
-      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
-      var modifiersOrNull = new[] { new ParameterModifier (1) };
-      var fakeResult = ReflectionObjectMother.GetSomeConstructor();
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (allConstructors, binder, bindingAttr, ".ctor", _mutableType, typesOrNull, modifiersOrNull))
-          .Return (fakeResult);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllInterfaces");
 
-      var resultConstructor = CallGetConstructorImpl (_mutableType, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultConstructor, Is.SameAs (fakeResult));
+      Assert.That (result, Is.EqualTo (new[] { existingInterface, addedInterface }));
     }
 
     [Test]
-    public void GetConstructorImpl_NullBinder ()
+    public void GetAllFields ()
     {
-      var fakeResult = ReflectionObjectMother.GetSomeConstructor();
-      _memberSelectorMock
-          .Expect (
-              mock => mock.SelectSingleMethod (
-                  Arg<IEnumerable<ConstructorInfo>>.Is.Anything,
-                  Arg.Is (Type.DefaultBinder),
-                  Arg<BindingFlags>.Is.Anything,
-                  Arg<string>.Is.Anything,
-                  Arg<MutableType>.Is.Anything,
-                  Arg<Type[]>.Is.Anything,
-                  Arg<ParameterModifier[]>.Is.Anything))
-          .Return (fakeResult);
+      _mutableType.AddField (typeof (int), "added");
+      var allFields = GetAllFields (_mutableType);
+      Assert.That (allFields.AddedMembers, Is.Not.Empty);
+      Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
+      Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
 
-      Binder binder = null;
-      var callingConvention = CallingConventions.Any;
-      var bindingAttr = BindingFlags.NonPublic;
-      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType () };
-      var modifiersOrNull = new[] { new ParameterModifier (1) };
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllFields");
 
-      var resultConstructor = CallGetConstructorImpl (_mutableType, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull);
+      Assert.That (result, Is.SameAs (allFields));
+    }
 
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultConstructor, Is.SameAs (fakeResult));
+    [Test]
+    public void GetAllConstructors ()
+    {
+      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create ());
+      var allConstructors = GetAllConstructors (_mutableType);
+      Assert.That (allConstructors.AddedMembers, Is.Not.Empty);
+      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
+
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllConstructors");
+
+      Assert.That (result, Is.SameAs (allConstructors));
     }
 
     [Test]
@@ -1160,18 +1101,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var arguments = new object[] { name, bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
       return (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetMethodImpl", arguments);
-    }
-
-    private ConstructorInfo CallGetConstructorImpl (
-        MutableType mutableType,
-        BindingFlags bindingAttr,
-        Binder binder,
-        CallingConventions callingConvention,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
-    {
-      var arguments = new object[] { bindingAttr, binder, callingConvention, typesOrNull, modifiersOrNull };
-      return (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetConstructorImpl", arguments);
     }
 
     private MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> GetAllFields (MutableType mutableType)

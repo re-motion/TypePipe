@@ -38,15 +38,15 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, MutableType declaringType)
-        where T : MethodBase
+    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, CustomType declaringType)
+        where T: MethodBase
     {
       ArgumentUtility.CheckNotNull ("candidates", candidates);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
       var methods = candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
       if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
-        methods = methods.Where (method => declaringType.IsEquivalentTo(method.DeclaringType));
+        methods = methods.Where (method => declaringType.IsEquivalentTo (method.DeclaringType));
 
       return methods;
     }
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
         Binder binder,
         BindingFlags bindingAttr,
         string name,
-        MutableType declaringType,
+        CustomType declaringType,
         Type[] typesOrNull,
         ParameterModifier[] modifiersOrNull)
         where T: MethodBase

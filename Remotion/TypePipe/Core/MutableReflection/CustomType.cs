@@ -70,8 +70,10 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
-    //protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
+    protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
     //protected abstract IEnumerable<MethodInfo> GetAllMethods ();
+
+    public abstract bool IsEquivalentTo (Type type);
 
     public override Assembly Assembly
     {
@@ -108,6 +110,21 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _fullName; }
     }
 
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetTypeSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("{0} = \"{1}\"", GetType ().Name, ToString ());
+    }
+
+    public override Type GetElementType ()
+    {
+      return null;
+    }
+
     public override Type[] GetInterfaces ()
     {
       return GetAllInterfaces().ToArray();
@@ -136,19 +153,16 @@ namespace Remotion.TypePipe.MutableReflection
       return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name);
     }
 
-    public override string ToString ()
+    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
-      return SignatureDebugStringGenerator.GetTypeSignature (this);
+      return _memberSelector.SelectMethods (GetAllConstructors(), bindingAttr, this).ToArray();
     }
 
-    public string ToDebugString ()
+    protected override ConstructorInfo GetConstructorImpl (
+        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
-      return string.Format ("{0} = \"{1}\"", GetType().Name, ToString ());
-    }
-
-    public override Type GetElementType ()
-    {
-      return null;
+      var binder = binderOrNull ?? DefaultBinder;
+      return _memberSelector.SelectSingleMethod (GetAllConstructors(), binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
     }
 
     protected override bool HasElementTypeImpl ()

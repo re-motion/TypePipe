@@ -50,15 +50,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return Fields;
     }
 
-    //protected override IEnumerable<FieldInfo> GetAllFields ()
-    //{
-    //  return AllFields;
-    //}
+    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    {
+      return Constructors;
+    }
 
-    //protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
-    //{
-    //  return AllConstructors;
-    //}
+    public override bool IsEquivalentTo (Type type)
+    {
+      throw new NotImplementedException();
+    }
 
     //protected override IEnumerable<MethodInfo> GetAllMethods ()
     //{
@@ -66,16 +66,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     //}
 
     // TODO Delete this blub
-    protected override ConstructorInfo GetConstructorImpl (BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException();
-    }
-
     protected override MethodInfo GetMethodImpl (string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
     {
       throw new NotImplementedException();

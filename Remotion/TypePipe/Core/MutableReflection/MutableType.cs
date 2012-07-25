@@ -133,7 +133,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return false; }
     }
 
-    public bool IsEquivalentTo (Type type)
+    // TODO 4971: Decide if we really need this member and consider pushing it up to CustomType.
+    // TODO 4971: Udpate docs either way.
+    public override bool IsEquivalentTo (Type type)
     {
       return type == this || type == UnderlyingSystemType;
     }
@@ -214,11 +216,6 @@ namespace Remotion.TypePipe.MutableReflection
       _constructors.Add (constructorInfo);
 
       return constructorInfo;
-    }
-    
-    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
-    {
-      return _memberSelector.SelectMethods (_constructors, bindingAttr, this).ToArray();
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
@@ -370,11 +367,9 @@ namespace Remotion.TypePipe.MutableReflection
       return _fields;
     }
 
-    protected override ConstructorInfo GetConstructorImpl (
-        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (_constructors, binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
+      return _constructors;
     }
 
     protected override MethodInfo GetMethodImpl (
