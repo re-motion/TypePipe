@@ -284,16 +284,16 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      var mutableMethod = _methods.GetMutableMember (method);
-      if (mutableMethod != null)
-        return mutableMethod;
-
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!UnderlyingSystemType.Equals (method.DeclaringType) && !IsSubclassOf (method.DeclaringType))
       {
         var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
         throw new ArgumentException (message, "method");
       }
+
+      var mutableMethod = _methods.GetMutableMember (method);
+      if (mutableMethod != null)
+        return mutableMethod;
 
       if (!method.IsVirtual)
         throw new NotSupportedException ("A method declared in a base type must be virtual in order to be modified.");
