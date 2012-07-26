@@ -59,10 +59,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return Methods;
     }
-
-    public override bool IsEquivalentTo (Type type)
-    {
-      throw new NotImplementedException();
-    }
   }
 }

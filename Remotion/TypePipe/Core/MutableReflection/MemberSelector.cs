@@ -46,7 +46,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       var methods = candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
       if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
-        methods = methods.Where (method => declaringType.IsEquivalentTo (method.DeclaringType));
+        // TODO 4972: Use TypeEqualityComparer.
+        methods = methods.Where (method => declaringType.UnderlyingSystemType.Equals (method.DeclaringType));
 
       return methods;
     }

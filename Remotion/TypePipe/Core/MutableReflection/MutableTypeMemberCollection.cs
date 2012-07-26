@@ -57,7 +57,8 @@ namespace Remotion.TypePipe.MutableReflection
       var baseMembers = new List<TMemberInfo>();
       foreach (var member in existingMembers)
       {
-        if (declaringType.IsEquivalentTo (member.DeclaringType))
+        // TODO 4972: Use TypeEqualityComparer.
+        if (declaringType.UnderlyingSystemType.Equals (member.DeclaringType))
           declaredMembers.Add (member, mutableMemberProvider (member));
         else
           baseMembers.Add (member);
@@ -110,7 +111,8 @@ namespace Remotion.TypePipe.MutableReflection
     public void Add (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
-      Assertion.IsTrue (_declaringType.IsEquivalentTo (mutableMember.DeclaringType));
+      // TODO 4972: Use TypeEqualityComparer (if accessible).
+      Assertion.IsTrue (_declaringType.UnderlyingSystemType.Equals (mutableMember.DeclaringType));
 
       _addedMembers.Add (mutableMember);
     }

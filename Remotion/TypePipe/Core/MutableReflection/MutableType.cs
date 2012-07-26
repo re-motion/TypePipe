@@ -34,8 +34,9 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   /// <remarks>
   ///   <para>
-  ///     When an instance of a <see cref="MutableType"/> is to be compared for equality with another <see cref="Type"/> instance, the
-  ///     <see cref="IsEquivalentTo"/> method should be used rather than comparing via <see cref="object.Equals(object)"/>.
+  ///     TODO 4972: Update docs to use TypeEqualityComparer.
+  ///     OBSOLETE: When an instance of a <see cref="MutableType"/> is to be compared for equality with another <see cref="Type"/> instance, the
+  ///     IsEquivalentTo method should be used rather than comparing via <see cref="object.Equals(object)"/>.
   ///   </para>
   /// </remarks>
   public class MutableType : CustomType
@@ -138,18 +139,13 @@ namespace Remotion.TypePipe.MutableReflection
       get { return false; }
     }
 
-    // TODO 4971: Decide if we really need this member and consider pushing it up to CustomType.
-    // TODO 4971: Udpate docs either way.
-    public override bool IsEquivalentTo (Type type)
-    {
-      return type == this || type == UnderlyingSystemType;
-    }
-
+    // TODO 4972: Replace usages with TypeEqualityComparer.
     public bool IsAssignableTo (Type other)
     {
       ArgumentUtility.CheckNotNull ("other", other);
 
-      return IsEquivalentTo (other)
+      // TODO 4972: Use TypeEqualityComparer.
+      return UnderlyingSystemType.Equals (other)
              || other.IsAssignableFrom (BaseType)
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
@@ -292,7 +288,8 @@ namespace Remotion.TypePipe.MutableReflection
       if (mutableMethod != null)
         return mutableMethod;
 
-      if (!IsEquivalentTo (method.DeclaringType) && !IsSubclassOf (method.DeclaringType))
+      // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
+      if (!UnderlyingSystemType.Equals (method.DeclaringType) && !IsSubclassOf (method.DeclaringType))
       {
         var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
         throw new ArgumentException (message, "method");
@@ -391,7 +388,8 @@ namespace Remotion.TypePipe.MutableReflection
         where TMember: MemberInfo
         where TMutableMember: TMember
     {
-      if (!IsEquivalentTo (member.DeclaringType))
+      // TODO 4972: Use TypeEqualityComparer.
+      if (!UnderlyingSystemType.Equals (member.DeclaringType))
       {
         var message = string.Format ("The given {0} is declared by a different type: '{1}'.", memberType, member.DeclaringType);
         throw new ArgumentException (message, memberType);

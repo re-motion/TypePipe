@@ -73,8 +73,6 @@ namespace Remotion.TypePipe.MutableReflection
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
     protected abstract IEnumerable<MethodInfo> GetAllMethods ();
 
-    public abstract bool IsEquivalentTo (Type type);
-
     public override Assembly Assembly
     {
       get { return null; }

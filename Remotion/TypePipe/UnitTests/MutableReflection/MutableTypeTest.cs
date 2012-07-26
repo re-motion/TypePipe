@@ -187,30 +187,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsEquivalentTo_Type_False ()
-    {
-      var type = ReflectionObjectMother.GetSomeDifferentType();
-
-      Assert.That (_mutableType.IsEquivalentTo (type), Is.False);
-    }
-
-    [Test]
-    public void IsEquivalentTo_MutableType_True ()
-    {
-      var mutableType = _mutableType;
-
-      Assert.That (_mutableType.IsEquivalentTo (mutableType), Is.True);
-    }
-
-    [Test]
-    public void IsEquivalentTo_MutableType_False ()
-    {
-      var mutableType = MutableTypeObjectMother.Create();
-
-      Assert.That (_mutableType.IsEquivalentTo (mutableType), Is.False);
-    }
-
-    [Test]
     public void IsAssignableTo ()
     {
       Assert.That (_mutableType.IsAssignableTo (_mutableType), Is.True);

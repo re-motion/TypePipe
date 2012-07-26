@@ -145,7 +145,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      if (!_declaringType.IsEquivalentTo (otherMethod.DeclaringType))
+      // TODO 4972: Use TypeEqualityComparer.
+      if (!_declaringType.UnderlyingSystemType.Equals (otherMethod.DeclaringType))
       {
         var message = string.Format ("The specified method is declared by a different type '{0}'.", otherMethod.DeclaringType);
         throw new ArgumentException (message, "otherMethod");
