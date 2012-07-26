@@ -337,6 +337,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       // None of these members should throw an exception 
       Dev.Null = _customType.MemberType;
+      // TODO: DeclaringType should work correctly for nested types.
       Dev.Null = _customType.DeclaringType;
       Dev.Null = _customType.DeclaringMethod;
       Dev.Null = _customType.ReflectedType;
