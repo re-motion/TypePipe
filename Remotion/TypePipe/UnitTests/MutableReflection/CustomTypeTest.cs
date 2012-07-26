@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
@@ -238,10 +239,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetConstructorImpl ()
+    [TestCaseSource ("GetBinderTestCases")]
+    public void GetConstructorImpl (Binder inputBinder, Binder expectedBinder)
     {
-      var b = MockRepository.GenerateStub<Binder>();
-      var binder = RandomizedObjectMother.OneOf (new { Input = b, Expected = b }, new { Input = (Binder) null, Expected = Type.DefaultBinder });
       var callingConvention = CallingConventions.Any;
       var bindingAttr = BindingFlags.NonPublic;
       var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
@@ -250,10 +250,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock
           .Expect (
               mock =>
-              mock.SelectSingleMethod (_customType.Constructors, binder.Expected, bindingAttr, ".ctor", _customType, typesOrNull, modifiersOrNull))
+              mock.SelectSingleMethod (_customType.Constructors, expectedBinder, bindingAttr, ".ctor", _customType, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var arguments = new object[] { bindingAttr, binder.Input, callingConvention, typesOrNull, modifiersOrNull };
+      var arguments = new object[] { bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
       var resultConstructor = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
 
       _memberSelectorMock.VerifyAllExpectations();
@@ -261,10 +261,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMethodImpl ()
+    [TestCaseSource ("GetBinderTestCases")]
+    public void GetMethodImpl (Binder inputBinder, Binder expectedBinder)
     {
-      var b = MockRepository.GenerateStub<Binder>();
-      var binder = RandomizedObjectMother.OneOf (new { Input = b, Expected = b }, new { Input = (Binder) null, Expected = Type.DefaultBinder });
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var callingConvention = CallingConventions.Any;
@@ -274,14 +273,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeResult = ReflectionObjectMother.GetSomeMethod();
       _memberSelectorMock
           .Expect (
-              mock => mock.SelectSingleMethod (_customType.Methods, binder.Expected, bindingAttr, name, _customType, typesOrNull, modifiersOrNull))
+              mock => mock.SelectSingleMethod (_customType.Methods, expectedBinder, bindingAttr, name, _customType, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var arguments = new object[] { name, bindingAttr, binder.Input, callingConvention, typesOrNull, modifiersOrNull };
+      var arguments = new object[] { name, bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
       var resultMethod = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultMethod, Is.SameAs (fakeResult));
+    }
+
+    public static IEnumerable GetBinderTestCases ()
+    {
+      var binderStub = MockRepository.GenerateStub<Binder> ();
+      yield return new object[] { binderStub, binderStub };
+      yield return new object[] { null, Type.DefaultBinder };
     }
 
     [Test]
