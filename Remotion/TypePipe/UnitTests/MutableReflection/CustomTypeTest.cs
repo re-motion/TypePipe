@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private string _namespace;
     private string _fullName;
 
-    private CustomTypeStub _customType;
+    private TestableCustomType _customType;
 
     [SetUp]
     public void SetUp ()
@@ -51,9 +51,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customType = new CustomTypeStub (_memberSelectorMock, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
+      _customType = new TestableCustomType (_memberSelectorMock, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
 
-      // Initialize stub with members.
+      // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
       _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
       _customType.Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() };
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization_Null ()
     {
       Type baseType = null;
-      new CustomTypeStub (_memberSelectorMock, _underlyingSystemType, baseType, _typeAttributes, _name, _namespace, _fullName);
+      new TestableCustomType (_memberSelectorMock, _underlyingSystemType, baseType, _typeAttributes, _name, _namespace, _fullName);
     }
 
     [Test]

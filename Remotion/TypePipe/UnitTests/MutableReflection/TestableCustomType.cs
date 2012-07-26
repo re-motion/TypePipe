@@ -21,9 +21,9 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class CustomTypeStub : CustomType
+  public class TestableCustomType : CustomType
   {
-    public CustomTypeStub (
+    public TestableCustomType (
         IMemberSelector memberSelector,
         Type underlyingSystemType,
         Type baseType,
