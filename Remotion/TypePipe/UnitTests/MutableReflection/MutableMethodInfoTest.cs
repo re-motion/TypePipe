@@ -25,7 +25,6 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -504,11 +503,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       CheckThrowsNotSupported (() => Dev.Null = _mutableMethod.MetadataToken, "Property", "MetadataToken");
       CheckThrowsNotSupported (() => Dev.Null = _mutableMethod.Module, "Property", "Module");
+      CheckThrowsNotSupported (() => _mutableMethod.Invoke (null, 0, null, null, null), "Method", "Invoke");
     }
 
     private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
     {
-      var message = string.Format ("{0} MutableMethodInfo.{1} is not supported.", memberType, memberName);
+      var message = string.Format ("{0} {1} is not supported.", memberType, memberName);
       Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
     }
 

@@ -247,11 +247,6 @@ namespace Remotion.TypePipe.MutableReflection
       throw new NotImplementedException();
     }
 
-    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
-    {
-      throw new NotImplementedException();
-    }
-
     public override ICustomAttributeProvider ReturnTypeCustomAttributes
     {
       get { throw new NotImplementedException(); }
@@ -303,12 +298,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override int MetadataToken
     {
-      get { throw new NotSupportedException ("Property MutableMethodInfo.MetadataToken is not supported."); }
+      get { throw new NotSupportedException ("Property MetadataToken is not supported."); }
     }
 
     public override Module Module
     {
-      get { throw new NotSupportedException ("Property MutableMethodInfo.Module is not supported."); }
+      get { throw new NotSupportedException ("Property Module is not supported."); }
+    }
+
+    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
+    {
+      throw new NotSupportedException ("Method Invoke is not supported.");
     }
 
     #endregion

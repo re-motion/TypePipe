@@ -383,7 +383,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       CheckThrowsNotSupported (() => _customType.GetDefaultMembers (), "Method", "GetDefaultMembers");
       CheckThrowsNotSupported (() => _customType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
-      CheckThrowsNotSupported (() => _customType.InvokeMember (null, 0, null, null, null), "Method", "InvokeMember");
+      CheckThrowsNotSupported (() => _customType.InvokeMember (null, 0, null, null, null, null, null, null), "Method", "InvokeMember");
       CheckThrowsNotSupported (() => _customType.MakePointerType (), "Method", "MakePointerType");
       CheckThrowsNotSupported (() => _customType.MakeByRefType (), "Method", "MakeByRefType");
       CheckThrowsNotSupported (() => _customType.MakeArrayType (), "Method", "MakeArrayType");
