@@ -21,8 +21,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a parameter for a member that does not exist yet. This is used to represent the signature of a member that has yet to be generated
-  /// within an expression tree.
+  /// Represents parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
+  /// This allows to represent the signature of members that have yet to be generated within expression trees.
   /// </summary>
   public class MutableParameterInfo : ParameterInfo
   {
