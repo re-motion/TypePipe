@@ -26,7 +26,5 @@ namespace Remotion.TypePipe.MutableReflection
 
     bool IsNew { get; }
     bool IsModified { get; }
-
-    bool IsStatic { get; }
   }
 }
