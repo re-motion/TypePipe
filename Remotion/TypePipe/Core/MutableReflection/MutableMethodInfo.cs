@@ -173,6 +173,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (!CanAddExplicitBaseDefinition)
       {
+        // TODO 4695: Adapt message
         var message = string.Format ("Cannot add an explicit base definition to the non-virtual or existing final method '{0}'.", Name);
         throw new NotSupportedException (message);
       }
