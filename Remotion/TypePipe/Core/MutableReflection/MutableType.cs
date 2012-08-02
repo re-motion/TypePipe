@@ -241,7 +241,7 @@ namespace Remotion.TypePipe.MutableReflection
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
       if (!isVirtual && isNewSlot)
-        throw new ArgumentException ("Virtual and NewSlot are not a valid combination for method attributes.", "attributes");
+        throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
       var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
 

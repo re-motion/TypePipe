@@ -417,8 +417,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Virtual and NewSlot are not a valid combination for method attributes.\r\nParameter name: attributes")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
     public void AddMethod_NonVirtualAndNewSlot ()
     {
       _mutableType.AddMethod ("NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
