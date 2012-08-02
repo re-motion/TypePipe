@@ -59,9 +59,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMapping_Twice ()
     {
       CheckAddMappingTwiceThrows (_provider.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedFieldInfo");
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructorInfo");
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethodInfo");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedField");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructor");
+      CheckAddMappingTwiceThrows (_provider.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethod");
     }
     
     [Test]

@@ -118,11 +118,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void AddMapping<T> (Dictionary<T, T> mapping, T key, T value)
     {
-      string itemNameType = typeof (T).Name;
       if (mapping.ContainsKey (key))
       {
-        var message = string.Format ("{0} is already mapped.", itemNameType);
-        throw new ArgumentException (message, "mapped" + itemNameType);
+        var itemTypeName = typeof (T).Name;
+        var message = itemTypeName + " is already mapped.";
+        var parameterName = "mapped" + itemTypeName.Replace ("Info", "");
+
+        throw new ArgumentException (message, parameterName);
       }
 
       mapping.Add (key, value);
