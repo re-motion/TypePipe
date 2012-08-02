@@ -20,7 +20,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
@@ -72,6 +71,30 @@ namespace TypePipe.IntegrationTests
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("A explicitly overridden"));
       Assert.That (instance.OverridableMethod(), Is.EqualTo ("A explicitly overridden"));
+    }
+
+    [Test]
+    public void OverrideExplicitly_WithNewSlotMethod ()
+    {
+      var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
+      var type = AssembleType<B> (
+          mutableType =>
+          {
+            var mutableMethodInfo = mutableType.AddMethod (
+                "DifferentName",
+                MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                typeof (string),
+                ParameterDeclaration.EmptyParameters,
+                ctx => ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden")));
+
+            mutableMethodInfo.AddExplicitBaseDefinition (overriddenMethod);
+          });
+
+      A instance = (B) Activator.CreateInstance (type);
+      var method = GetDeclaredMethod (type, "DifferentName");
+      Assert.That (method.Attributes & MethodAttributes.VtableLayoutMask, Is.EqualTo (MethodAttributes.NewSlot));
+
+      Assert.That (instance.OverridableMethod (), Is.EqualTo ("A explicitly overridden"));
     }
 
     [Test]
