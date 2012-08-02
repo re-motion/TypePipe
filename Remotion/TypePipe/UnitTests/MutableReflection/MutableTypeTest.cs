@@ -429,8 +429,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Method 'VirtualMethod' with equal signature already exists.\r\nParameter name: name")]
     public void AddMethod_ThrowsIfAlreadyExists ()
     {
-      var method = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
-      Assert.That (method, Is.Not.Null);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod());
       Assert.That (method.GetParameters(), Is.Empty);
 
       _mutableType.AddMethod (method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
