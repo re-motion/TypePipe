@@ -21,26 +21,25 @@ using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Maps reflection objects to associated emittable operands, which can be used for code generation by <see cref="ILGeneratorDecorator"/>.
+  /// Maps mutable reflection objects to associated emittable operands, which can be used for code generation by <see cref="ILGeneratorDecorator"/>.
   /// </summary>
   /// <remarks>
-  /// This class is mainly used to map instances of <see cref="MutableType"/>, <see cref="MutableConstructorInfo"/>, etc. to the respective
+  /// This class is used to map instances of <see cref="MutableType"/>, <see cref="MutableConstructorInfo"/>, etc. to the respective
   /// <see cref="TypeBuilder"/>, <see cref="ConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
-  /// references to the mutable Reflection objects when it emits code.
+  /// references to the mutable reflection objects when it emits code.
   /// </remarks>
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
-    private readonly Dictionary<Type, Type> _mappedTypes = new Dictionary<Type, Type> ();
-    private readonly Dictionary<FieldInfo, FieldInfo> _mappedFieldInfos = new Dictionary<FieldInfo, FieldInfo> ();
-    private readonly Dictionary<ConstructorInfo, ConstructorInfo> _mappedConstructorInfos = new Dictionary<ConstructorInfo, ConstructorInfo> ();
-    private readonly Dictionary<MethodInfo, MethodInfo> _mappedMethodInfos = new Dictionary<MethodInfo, MethodInfo> ();
+    private readonly Dictionary<MutableType, Type> _mappedTypes = new Dictionary<MutableType, Type> ();
+    private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFieldInfos = new Dictionary<MutableFieldInfo, FieldInfo> ();
+    private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructorInfos = new Dictionary<MutableConstructorInfo, ConstructorInfo> ();
+    private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethodInfos = new Dictionary<MutableMethodInfo, MethodInfo> ();
 
-    public void AddMapping (Type mappedType, Type emittableType)
+    public void AddMapping (MutableType mappedType, Type emittableType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
       ArgumentUtility.CheckNotNull ("emittableType", emittableType);
@@ -48,7 +47,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedTypes, mappedType, emittableType);
     }
 
-    public void AddMapping (FieldInfo mappedField, FieldInfo emittableField)
+    public void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField)
     {
       ArgumentUtility.CheckNotNull ("mappedField", mappedField);
       ArgumentUtility.CheckNotNull ("emittableField", emittableField);
@@ -56,7 +55,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedFieldInfos, mappedField, emittableField);
     }
 
-    public void AddMapping (ConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor)
+    public void AddMapping (MutableConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor)
     {
       ArgumentUtility.CheckNotNull ("mappedConstructor", mappedConstructor);
       ArgumentUtility.CheckNotNull ("emittableConstructor", emittableConstructor);
@@ -64,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedConstructorInfos, mappedConstructor, emittableConstructor);
     }
 
-    public void AddMapping (MethodInfo mappedMethod, MethodInfo emittableMethod)
+    public void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod)
     {
       ArgumentUtility.CheckNotNull ("mappedMethod", mappedMethod);
       ArgumentUtility.CheckNotNull ("emittableMethod", emittableMethod);
@@ -76,51 +75,51 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand (_mappedTypes, type, typeof (MutableType));
+      return GetEmittableOperand (_mappedTypes, type);
     }
 
     public FieldInfo GetEmittableField (FieldInfo fieldInfo)
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
 
-      return GetEmittableOperand (_mappedFieldInfos, fieldInfo, typeof (FieldInfo));
+      return GetEmittableOperand (_mappedFieldInfos, fieldInfo);
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo)
     {
       ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
 
-      return GetEmittableOperand (_mappedConstructorInfos, constructorInfo, typeof (ConstructorInfo));
+      return GetEmittableOperand (_mappedConstructorInfos, constructorInfo);
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo methodInfo)
     {
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
 
-      return GetEmittableOperand (_mappedMethodInfos, methodInfo, typeof (MutableMethodInfo));
+      return GetEmittableOperand (_mappedMethodInfos, methodInfo);
     }
 
     public object GetEmittableOperand (object operand)
     {
       ArgumentUtility.CheckNotNull ("operand", operand);
 
-      if (operand is Type)
-        return GetEmittableType ((Type) operand);
-      if (operand is FieldInfo)
-        return GetEmittableField ((FieldInfo) operand);
-      if (operand is ConstructorInfo)
-        return GetEmittableConstructor ((ConstructorInfo) operand);
-      if (operand is MethodInfo)
-        return GetEmittableMethod ((MethodInfo) operand);
+      if (operand is MutableType)
+        return GetEmittableType ((MutableType) operand);
+      if (operand is MutableFieldInfo)
+        return GetEmittableField ((MutableFieldInfo) operand);
+      if (operand is MutableConstructorInfo)
+        return GetEmittableConstructor ((MutableConstructorInfo) operand);
+      if (operand is MutableMethodInfo)
+        return GetEmittableMethod ((MutableMethodInfo) operand);
 
       return operand;
     }
 
-    private void AddMapping<T> (Dictionary<T, T> mapping, T key, T value)
+    private void AddMapping<TMapped, TEmittable> (Dictionary<TMapped, TEmittable> mapping, TMapped key, TEmittable value)
     {
       if (mapping.ContainsKey (key))
       {
-        var itemTypeName = typeof (T).Name;
+        var itemTypeName = typeof (TEmittable).Name;
         var message = itemTypeName + " is already mapped.";
         var parameterName = "mapped" + itemTypeName.Replace ("Info", "");
 
@@ -130,15 +129,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (key, value);
     }
 
-    private T GetEmittableOperand<T> (Dictionary<T, T> mapping, T mappedItem, Type mutableMemberType)
-        where T: class
+    private TBase GetEmittableOperand<TMutable, TBase> (Dictionary<TMutable, TBase> mapping, TBase operandToBeEmitted)
+        where TMutable: TBase
     {
-      var operand = mapping.GetValueOrDefault (mappedItem);
-      if (operand != null)
-        return operand;
+      if (!(operandToBeEmitted is TMutable))
+        return operandToBeEmitted;
 
-      Assertion.IsTrue (mappedItem.GetType() != mutableMemberType, "Wrapped object must not be of type {0}.", mutableMemberType);
-      return mappedItem;
+      try
+      {
+        return mapping[(TMutable) operandToBeEmitted];
+      }
+      catch (KeyNotFoundException exception)
+      {
+        var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operandToBeEmitted, operandToBeEmitted.GetType().Name);
+        throw new InvalidOperationException (message, exception);
+      }
     }
   }
 }

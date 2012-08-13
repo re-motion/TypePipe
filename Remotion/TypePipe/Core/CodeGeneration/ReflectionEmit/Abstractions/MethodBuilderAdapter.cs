@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -44,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _methodBuilder; }
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MethodInfo method)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("method", method);

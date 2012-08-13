@@ -17,10 +17,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -30,104 +29,157 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private EmittableOperandProvider _provider;
 
-    private Type _someType;
-    private FieldInfo _someFieldInfo;
-    private ConstructorInfo _someConstructorInfo;
-    private MethodInfo _someMethodInfo;
+    private MutableType _mutableType;
+    private MutableFieldInfo _mutableField;
+    private MutableConstructorInfo _mutableConstructor;
+    private MutableMethodInfo _mutableMethod;
 
     [SetUp]
     public void SetUp ()
     {
       _provider = new EmittableOperandProvider();
 
-      _someType = ReflectionObjectMother.GetSomeType();
-      _someFieldInfo = ReflectionObjectMother.GetSomeField ();
-      _someConstructorInfo = ReflectionObjectMother.GetSomeDefaultConstructor();
-      _someMethodInfo = ReflectionObjectMother.GetSomeMethod ();
+      _mutableType = MutableTypeObjectMother.CreateForExistingType();
+      _mutableField = MutableFieldInfoObjectMother.CreateForExisting();
+      _mutableConstructor = MutableConstructorInfoObjectMother.CreateForExisting();
+      _mutableMethod = MutableMethodInfoObjectMother.CreateForExisting();
     }
 
     [Test]
     public void AddMapping ()
     {
-      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableType, _someType);
-      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableField, _someFieldInfo);
-      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableConstructor, _someConstructorInfo);
-      CheckAddMapping (_provider.AddMapping, _provider.GetEmittableMethod, _someMethodInfo);
+      CheckAddMapping<MutableType, Type> (_provider.AddMapping, _provider.GetEmittableType, _mutableType);
+      CheckAddMapping<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _provider.GetEmittableField, _mutableField);
+      CheckAddMapping<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _provider.GetEmittableConstructor, _mutableConstructor);
+      CheckAddMapping<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _provider.GetEmittableMethod, _mutableMethod);
     }
 
     [Test]
     public void AddMapping_Twice ()
     {
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someType, "Type is already mapped.\r\nParameter name: mappedType");
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someFieldInfo, "FieldInfo is already mapped.\r\nParameter name: mappedField");
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someConstructorInfo, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructor");
-      CheckAddMappingTwiceThrows (_provider.AddMapping, _someMethodInfo, "MethodInfo is already mapped.\r\nParameter name: mappedMethod");
+      CheckAddMappingTwiceThrows<MutableType, Type> (_provider.AddMapping, _mutableType, "Type is already mapped.\r\nParameter name: mappedType");
+      CheckAddMappingTwiceThrows<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _mutableField, "FieldInfo is already mapped.\r\nParameter name: mappedField");
+      CheckAddMappingTwiceThrows<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _mutableConstructor, "ConstructorInfo is already mapped.\r\nParameter name: mappedConstructor");
+      CheckAddMappingTwiceThrows<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _mutableMethod, "MethodInfo is already mapped.\r\nParameter name: mappedMethod");
+    }
+
+    [Test]
+    public void GetEmittableXXX_Mutable ()
+    {
+      var type = _mutableType.UnderlyingSystemType;
+      var field = _mutableField.UnderlyingSystemFieldInfo;
+      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
+      var method = _mutableMethod.UnderlyingSystemMethodInfo;
+
+      _provider.AddMapping (_mutableType, type);
+      _provider.AddMapping (_mutableField, field);
+      _provider.AddMapping (_mutableConstructor, ctor);
+      _provider.AddMapping (_mutableMethod, method);
+
+      Assert.That (_provider.GetEmittableType (_mutableType), Is.SameAs (type));
+      Assert.That (_provider.GetEmittableField (_mutableField), Is.SameAs (field));
+      Assert.That (_provider.GetEmittableConstructor (_mutableConstructor), Is.SameAs (ctor));
+      Assert.That (_provider.GetEmittableMethod (_mutableMethod), Is.SameAs (method));
+    }
+
+    [Test]
+    public void GetEmittableXXX_NonMutable_NoMapping ()
+    {
+      var type = _mutableType.UnderlyingSystemType;
+      var field = _mutableField.UnderlyingSystemFieldInfo;
+      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
+      var method = _mutableMethod.UnderlyingSystemMethodInfo;
+
+      Assert.That (_provider.GetEmittableType (type), Is.SameAs (type));
+      Assert.That (_provider.GetEmittableField (field), Is.SameAs (field));
+      Assert.That (_provider.GetEmittableConstructor (ctor), Is.SameAs (ctor));
+      Assert.That (_provider.GetEmittableMethod (method), Is.SameAs (method));
     }
     
     [Test]
-    public void GetEmittableOperand_NoMapping ()
+    public void GetEmittableXXX_NoMapping ()
     {
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableType, _someType);
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableField, _someFieldInfo);
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableConstructor, _someConstructorInfo);
-      CheckGetEmitableOperandWithNoMapping (_provider.GetEmittableMethod, _someMethodInfo);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableType, _mutableType);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableField, _mutableField);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableConstructor, _mutableConstructor);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableMethod, _mutableMethod);
     }
 
     [Test]
-    public void GetEmittableOperand_Object_NoMapping ()
+    public void GetEmittableOperand_Mutable ()
     {
-      Assert.That (_provider.GetEmittableOperand (_someType), Is.SameAs (_someType));
-      Assert.That (_provider.GetEmittableOperand (_someFieldInfo), Is.SameAs (_someFieldInfo));
-      Assert.That (_provider.GetEmittableOperand (_someConstructorInfo), Is.SameAs (_someConstructorInfo));
-      Assert.That (_provider.GetEmittableOperand (_someMethodInfo), Is.SameAs (_someMethodInfo));
+      var type = _mutableType.UnderlyingSystemType;
+      var field = _mutableField.UnderlyingSystemFieldInfo;
+      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
+      var method = _mutableMethod.UnderlyingSystemMethodInfo;
+
+      _provider.AddMapping (_mutableType, type);
+      _provider.AddMapping (_mutableField, field);
+      _provider.AddMapping (_mutableConstructor, ctor);
+      _provider.AddMapping (_mutableMethod, method);
+
+      Assert.That (_provider.GetEmittableOperand (_mutableType), Is.SameAs (type));
+      Assert.That (_provider.GetEmittableOperand (_mutableField), Is.SameAs (field));
+      Assert.That (_provider.GetEmittableOperand (_mutableConstructor), Is.SameAs (ctor));
+      Assert.That (_provider.GetEmittableOperand (_mutableMethod), Is.SameAs (method));
     }
 
     [Test]
-    public void GetEmittableOperand_Object ()
+    public void GetEmittableOperand_NonMutable_NoMapping ()
     {
-      var type = typeof (EmittableOperandProviderTest);
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((EmittableOperandProviderTest obj) => obj._provider);
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new EmittableOperandProviderTest ());
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((EmittableOperandProviderTest obj) => obj.GetEmittableOperand_Object ());
+      var type = _mutableType.UnderlyingSystemType;
+      var field = _mutableField.UnderlyingSystemFieldInfo;
+      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
+      var method = _mutableMethod.UnderlyingSystemMethodInfo;
 
-      _provider.AddMapping (type, _someType);
-      _provider.AddMapping (field, _someFieldInfo);
-      _provider.AddMapping (ctor, _someConstructorInfo);
-      _provider.AddMapping (method, _someMethodInfo);
-
-      Assert.That (_provider.GetEmittableOperand (type), Is.SameAs (_someType));
-      Assert.That (_provider.GetEmittableOperand (field), Is.SameAs (_someFieldInfo));
-      Assert.That (_provider.GetEmittableOperand (ctor), Is.SameAs (_someConstructorInfo));
-      Assert.That (_provider.GetEmittableOperand (method), Is.SameAs (_someMethodInfo));
+      Assert.That (_provider.GetEmittableOperand (type), Is.SameAs (type));
+      Assert.That (_provider.GetEmittableOperand (field), Is.SameAs (field));
+      Assert.That (_provider.GetEmittableOperand (ctor), Is.SameAs (ctor)); 
+      Assert.That (_provider.GetEmittableOperand (method), Is.SameAs (method));
     }
 
-    private void CheckAddMapping<T> (Action<T, T> addMappingMethod, Func<T, T> getEmittableOperandMethod, T mappedObject)
-        where T : MemberInfo
+    [Test]
+    public void GetEmittableOperand_Mutable_NoMapping ()
     {
-      var fakeOperand = MockRepository.GenerateStub<T>();
-     
-      addMappingMethod (mappedObject, fakeOperand);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableType);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableField);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableConstructor);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableMethod);
+    }
 
-      var result = getEmittableOperandMethod (mappedObject);
+    private void CheckAddMapping<TMutable, TBase> (
+        Action<TMutable, TBase> addMappingMethod, Func<TBase, TBase> getEmittableOperandMethod, TMutable operandToBeEmitted)
+        where TBase: MemberInfo
+        where TMutable: TBase
+    {
+      var fakeOperand = MockRepository.GenerateStub<TBase>();
+
+      addMappingMethod (operandToBeEmitted, fakeOperand);
+
+      var result = getEmittableOperandMethod (operandToBeEmitted);
       Assert.That (result, Is.SameAs (fakeOperand));
     }
 
-    private void CheckAddMappingTwiceThrows<T> (Action<T, T> addMappingMethod, T mappedObject, string expectedMessage)
-        where T: class
+    private void CheckAddMappingTwiceThrows<TMutable, TBase> (
+        Action<TMutable, TBase> addMappingMethod, TMutable operandToBeEmitted, string expectedMessage)
+        where TBase: class
+        where TMutable: TBase
     {
-      addMappingMethod (mappedObject, MockRepository.GenerateStub<T> ());
+      addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBase>());
 
       Assert.That (
-          () => addMappingMethod (mappedObject, MockRepository.GenerateStub<T> ()),
+          () => addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBase>()),
           Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
     }
 
-    private void CheckGetEmitableOperandWithNoMapping<T> (Func<T, T> getEmittableOperandMethod, T mappedObject)
+    private void CheckGetEmitableOperandWithNoMappingThrows<TMutable, TBase> (
+        Func<TMutable, TBase> getEmittableOperandMethod, TMutable operandToBeEmitted)
+        where TMutable: TBase
     {
-      var result = getEmittableOperandMethod (mappedObject);
-
-      Assert.That (result, Is.Not.Null);
-      Assert.That (result, Is.SameAs (mappedObject));
+      var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operandToBeEmitted, operandToBeEmitted.GetType().Name);
+      Assert.That (
+          () => getEmittableOperandMethod (operandToBeEmitted),
+          Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
   }
 }

@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -25,10 +26,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface IEmittableOperandProvider
   {
-    void AddMapping (Type mappedType, Type emittableType);
-    void AddMapping (FieldInfo mappedField, FieldInfo emittableField);
-    void AddMapping (ConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor);
-    void AddMapping (MethodInfo mappedMethod, MethodInfo emittableMethod);
+    void AddMapping (MutableType mappedType, Type emittableType);
+    void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField);
+    void AddMapping (MutableConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor);
+    void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod);
 
     Type GetEmittableType (Type type);
     FieldInfo GetEmittableField (FieldInfo fieldInfo);

@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -26,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   [CLSCompliant (false)]
   public interface IFieldBuilder
   {
-    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, FieldInfo field);
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field);
 
     void SetCustomAttribute (CustomAttributeBuilder customBuilder);
   }

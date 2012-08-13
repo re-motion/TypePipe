@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -41,7 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _typeBuilder; }
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, Type type)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("type", type);

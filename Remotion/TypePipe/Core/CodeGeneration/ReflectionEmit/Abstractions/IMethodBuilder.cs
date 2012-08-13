@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -26,6 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   [CLSCompliant (false)]
   public interface IMethodBuilder : IMethodBaseBuilder
   {
-    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MethodInfo method);
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method);
   }
 }

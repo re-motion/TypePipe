@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _fieldBuilder; }
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, FieldInfo field)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("field", field);
