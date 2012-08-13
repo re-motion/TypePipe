@@ -26,7 +26,6 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class ReferenceMutableMembersTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TODO 4990")]
     [Test]
     public void UseUnderlyingSystemTypeInMethodBody ()
     {
@@ -44,7 +43,7 @@ namespace TypePipe.IntegrationTests
                 return Expression.Constant (mutableType.UnderlyingSystemType);
               }));
 
-      var result = type.InvokeMember ("NewMethod", BindingFlags.Public | BindingFlags.Static, null, null, null);
+      var result = type.InvokeMember ("NewMethod", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
 
       Assert.That (result, Is.SameAs (typeof (DomainType)));
     }
