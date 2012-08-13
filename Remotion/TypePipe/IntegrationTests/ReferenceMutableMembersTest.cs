@@ -26,6 +26,29 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class ReferenceMutableMembersTest : TypeAssemblerIntegrationTestBase
   {
+    [Ignore ("TODO 4990")]
+    [Test]
+    public void UseUnderlyingSystemTypeInMethodBody ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType => mutableType.AddMethod (
+              "NewMethod",
+              MethodAttributes.Public | MethodAttributes.Static,
+              typeof (Type),
+              ParameterDeclaration.EmptyParameters,
+              ctx =>
+              {
+                Assert.That (mutableType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<MutableType>());
+                Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
+
+                return Expression.Constant (mutableType.UnderlyingSystemType);
+              }));
+
+      var result = type.InvokeMember ("NewMethod", BindingFlags.Public | BindingFlags.Static, null, null, null);
+
+      Assert.That (result, Is.SameAs (typeof (DomainType)));
+    }
+
     [Test]
     public void UseMutableFieldAndMethodInBody ()
     {
