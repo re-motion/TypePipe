@@ -49,13 +49,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
       var argumentCollection = arguments.ConvertToCollection();
 
-      var declaringType = This.Type;
       var argumentTypes = argumentCollection.Select (e => e.Type).ToArray ();
-      var constructor = declaringType.GetConstructor (argumentTypes);
+      var constructor = DeclaringType.GetConstructor (argumentTypes);
       if (constructor == null)
       {
-        var message = String.Format ("Could not find a constructor with signature ({0}) on type '{1}'.",
-                                     SeparatedStringBuilder.Build (", ", argumentTypes), declaringType);
+        var message = String.Format ("Could not find a public instance constructor with signature ({0}) on type '{1}'.",
+                                     SeparatedStringBuilder.Build (", ", argumentTypes), DeclaringType);
         throw new MemberNotFoundException (message);
       }
 

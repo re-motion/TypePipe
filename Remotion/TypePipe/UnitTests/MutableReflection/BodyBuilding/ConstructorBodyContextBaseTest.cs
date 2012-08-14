@@ -23,7 +23,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
@@ -80,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (MemberNotFoundException), ExpectedMessage =
-        "Could not find a constructor with signature (System.Int32, System.Int32) on type 'ClassWithConstructor'.")]
+        "Could not find a public instance constructor with signature (System.Int32, System.Int32) on type 'ClassWithConstructor'.")]
     public void GetConstructorCall_NoMatchingConstructor ()
     {
       var argumentExpressions = new ArgumentTestHelper (7, 8).Expressions;
