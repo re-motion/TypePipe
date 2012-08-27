@@ -27,7 +27,7 @@ namespace TypePipe.IntegrationTests
   public class ReferenceMutableMembersTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void UseUnderlyingSystemTypeInMethodBody ()
+    public void Constant_UnderlyingSystemType ()
     {
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddMethod (
@@ -49,7 +49,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void UseMutableFieldAndMethodInBody ()
+    public void Constant_MutableFieldAndMutableMethod ()
     {
       var type = AssembleType<DomainType> (
           mutableType =>
