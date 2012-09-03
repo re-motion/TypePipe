@@ -75,10 +75,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
 
-      var method = methodBase as MethodInfo;
-      if (method == null)
-        method = new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
-      
+      var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
       return new NonVirtualCallMethodInfoAdapter (method);
     }
 

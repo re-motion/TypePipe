@@ -18,13 +18,12 @@ using System;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Prepares method (and constructor) bodies so that code can be generated for them by expanding all <see cref="ITypePipeExpression"/> nodes not
+  /// Prepares method (and constructor) bodies so that code can be generated for them by expanding all nodes not
   /// understood by <see cref="LambdaCompiler"/> and <see cref="ILGeneratingTypePipeExpressionVisitor"/>.
   /// </summary>
   public class ExpandingExpressionPreparer : IExpressionPreparer
