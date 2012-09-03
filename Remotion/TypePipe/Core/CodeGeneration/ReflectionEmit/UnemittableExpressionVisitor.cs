@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
       if (emittableValue != node.Value)
       {
-        if (!node.Type.IsAssignableFrom (emittableValue.GetType()))
+        if (!node.Type.IsInstanceOfType (emittableValue))
           throw NewNotSupportedExceptionWithDescriptiveMessage (node);
 
         return Expression.Constant (emittableValue, node.Type);
