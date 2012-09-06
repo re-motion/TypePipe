@@ -21,7 +21,6 @@ using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 4988")]
   [TestFixture]
   public class ReflectionWorkaroundsTest : TypeAssemblerIntegrationTestBase
   {
@@ -43,6 +42,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (comparer.Equals (type.GetProperty ("Property"), property), Is.True);
     }
 
+    [Ignore ("TODO 4988")]
     [Test]
     public void PreventDisappearanceOfPropertyWhenExplicitlyOverriding ()
     {

@@ -113,13 +113,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: false, isModified: true);
 
-      // Modified methods are added as explicit method overrides for the underlying method
-      var explicitMethodOverrideName = MethodOverrideUtility.GetNameForExplicitOverride (method);
-      var explicitMethodOverrideAttributes = MethodOverrideUtility.GetAttributesForExplicitOverride (method);
-      _memberEmitter.AddMethod (_context, method, explicitMethodOverrideName, explicitMethodOverrideAttributes);
-
-      var emittableMethod = _context.EmittableOperandProvider.GetEmittableMethod (method);
-      _context.TypeBuilder.DefineMethodOverride (emittableMethod, method.UnderlyingSystemMethodInfo);
+      // Modified methods are added as implicit method overrides for the underlying method.
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
+      _memberEmitter.AddMethod (_context, method, method.Name, attributes);
     }
 
     public void HandleUnmodifiedField (MutableFieldInfo field)

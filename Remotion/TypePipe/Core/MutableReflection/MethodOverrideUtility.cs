@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static string GetNameForExplicitOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      Assertion.IsTrue (overriddenMethod.IsVirtual);
 
       return overriddenMethod.DeclaringType.FullName + "_" + overriddenMethod.Name;
     }
@@ -34,6 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodAttributes GetAttributesForExplicitOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      Assertion.IsTrue (overriddenMethod.IsVirtual);
 
       return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
     }
@@ -41,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodAttributes GetAttributesForImplicitOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      Assertion.IsTrue (overriddenMethod.IsVirtual);
 
       return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
     }

@@ -168,19 +168,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
 
-      var expectedName = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.SubclassProxyBuilderTest+DomainType_Method";
-      var expectedAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+      var expectedName = "Method";
+      var expectedAttributes = MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
       _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedName, expectedAttributes));
-
-      var fakeEmittableMethod = ReflectionObjectMother.GetSomeMethod();
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (modifiedMethod)).Return (fakeEmittableMethod);
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeEmittableMethod, originalMethod));
 
       _builder.HandleModifiedMethod (modifiedMethod);
 
       _memberEmitterMock.VerifyAllExpectations ();
-      _emittableOperandProviderMock.VerifyAllExpectations();
-      _typeBuilderMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -388,7 +382,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       internal DomainType() { }
 
-      public virtual string Method (int i, out double d)
+      protected internal virtual string Method (int i, out double d)
       {
         Dev.Null = i;
         d = Dev<double>.Null;
