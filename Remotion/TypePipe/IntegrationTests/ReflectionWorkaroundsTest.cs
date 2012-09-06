@@ -14,9 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
@@ -28,18 +30,13 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void PreventDisappearanceOfPropertyWhenModifying ()
     {
-      var property = typeof (DomainType).GetProperty ("Property");
-      Assert.That (property, Is.Not.Null);
+      ModifyOrOverrideProperty (typeof(DomainType), "Property");
+    }
 
-      var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod());
-            mutableGetter.SetBody (ctx => Expression.Constant (""));
-          });
-
-      var comparer = MemberInfoEqualityComparer<PropertyInfo>.Instance;
-      Assert.That (comparer.Equals (type.GetProperty ("Property"), property), Is.True);
+    [Test]
+    public void PreventDisappearanceOfPropertyWhenImplicitlyOverriding ()
+    {
+      ModifyOrOverrideProperty (typeof (DomainTypeBase), "PropertyInBaseType");
     }
 
     [Ignore ("TODO 4988")]
@@ -49,8 +46,29 @@ namespace TypePipe.IntegrationTests
       // TODO 4988
     }
 
+    private void ModifyOrOverrideProperty (Type declaringType, string propertyName)
+    {
+      var property = declaringType.GetProperty (propertyName);
+      Assert.That (property, Is.Not.Null);
+
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod ());
+            mutableGetter.SetBody (ctx => Expression.Constant (""));
+          });
+
+      var comparer = MemberInfoEqualityComparer<PropertyInfo>.Instance;
+      Assert.That (comparer.Equals (type.GetProperty (property.Name), property), Is.True);
+    }
+
     public class DomainTypeBase
     {
+      public virtual string PropertyInBaseType
+      {
+        get { return ""; }
+      }
+
       public virtual string Property
       {
         get { return ""; }
