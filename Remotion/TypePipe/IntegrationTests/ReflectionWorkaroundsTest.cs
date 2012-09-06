@@ -21,7 +21,7 @@ using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
-  //[Ignore ("TODO 4988")]
+  [Ignore ("TODO 4988")]
   [TestFixture]
   public class ReflectionWorkaroundsTest : TypeAssemblerIntegrationTestBase
   {
@@ -46,7 +46,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void PreventDisappearanceOfPropertyWhenExplicitlyOverriding ()
     {
-      // TODO
+      // TODO 4988
     }
 
     public class DomainTypeBase
