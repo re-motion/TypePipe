@@ -14,34 +14,22 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 4988")]
+  //[Ignore ("TODO 4988")]
   [TestFixture]
   public class ReflectionWorkaroundsTest : TypeAssemblerIntegrationTestBase
   {
     // https://connect.microsoft.com/VisualStudio/feedback/details/757478/overriding-a-propertys-accessor-via-a-methodimpl-can-cause-the-property-to-disappear-from-reflection
     [Test]
-    public void PreventDisappearanceOfPropertiesWhenModifying ()
+    public void PreventDisappearanceOfPropertyWhenModifying ()
     {
-      ModifyOrOverrideProperty (typeof (DomainType));
-    }
-
-    [Test]
-    public void PreventDisappearanceOfPropertiesWhenOverriding ()
-    {
-      ModifyOrOverrideProperty (typeof (DomainTypeBase));
-    }
-
-    private void ModifyOrOverrideProperty (Type declaringType)
-    {
-      var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var property = declaringType.GetProperty ("Property", bindingFlags);
+      var property = typeof (DomainType).GetProperty ("Property");
       Assert.That (property, Is.Not.Null);
 
       var type = AssembleType<DomainType> (
@@ -51,7 +39,14 @@ namespace TypePipe.IntegrationTests
             mutableGetter.SetBody (ctx => Expression.Constant (""));
           });
 
-      Assert.That (type.GetProperty ("Property", bindingFlags), Is.Not.Null);
+      var comparer = MemberInfoEqualityComparer<PropertyInfo>.Instance;
+      Assert.That (comparer.Equals (type.GetProperty ("Property"), property), Is.True);
+    }
+
+    [Test]
+    public void PreventDisappearanceOfPropertyWhenExplicitlyOverriding ()
+    {
+      // TODO
     }
 
     public class DomainTypeBase
