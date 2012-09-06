@@ -103,6 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
+      // TODO: 4695
       if (!IsNew)
         throw new NotSupportedException ("Adding attributes to existing fields is not supported.");
 
