@@ -114,11 +114,6 @@
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorObjectMother.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableConstructorInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableFieldInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableMethodInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\MutablePropertyInfoTest.cs" />
-    <Compile Include="MutableReflection\ExpressionTreeIntegration\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\MemberNotFoundExceptionTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
