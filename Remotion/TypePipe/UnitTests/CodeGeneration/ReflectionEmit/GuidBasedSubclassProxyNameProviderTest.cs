@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var result = _provider.GetSubclassProxyName (_mutableType);
 
-      Assert.That (result, Is.StringMatching (@"System\.Object_Proxy_.{32}"));
+      Assert.That (result, Is.StringMatching (@"System\..{32}\.Object_Proxy"));
     }
 
     [Test]
@@ -51,7 +51,5 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (result1, Is.Not.EqualTo (result2));
     }
-
-
   }
 }

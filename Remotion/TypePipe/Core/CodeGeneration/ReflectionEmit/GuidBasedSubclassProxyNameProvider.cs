@@ -27,7 +27,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     public string GetSubclassProxyName (MutableType mutableType)
     {
-      return string.Format ("{0}_Proxy_{1}", mutableType.UnderlyingSystemType.FullName, Guid.NewGuid ().ToString ("N"));
+      var underlyingType = mutableType.UnderlyingSystemType;
+      return string.Format ("{0}.{1}.{2}_Proxy", underlyingType.Namespace, Guid.NewGuid ().ToString ("N"), underlyingType.Name);
     }
   }
 }
