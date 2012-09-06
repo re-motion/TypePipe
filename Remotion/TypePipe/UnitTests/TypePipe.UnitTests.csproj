@@ -118,7 +118,6 @@
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoObjectMother.cs" />
-    <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorObjectMother.cs" />
@@ -126,7 +125,6 @@
     <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoTest.cs" />
-    <Compile Include="MutableReflection\MutablePropertyInfoTest.cs" />
     <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
     <Compile Include="MutableReflection\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorTest.cs" />
