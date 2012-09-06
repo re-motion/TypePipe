@@ -121,10 +121,10 @@ namespace TypePipe.IntegrationTests
           });
 
       var instance = (B) Activator.CreateInstance (type);
-      var method = GetDeclaredModifiedMethod (type, "MethodOverriddenByB");
+      var method = GetDeclaredMethod (type, "MethodOverriddenByB");
 
-      Assert.That (method.IsPrivate, Is.True);
-      Assert.That (method.Name, Is.EqualTo ("TypePipe.IntegrationTests.ImplicitOverridesTest+B_MethodOverriddenByB"));
+      Assert.That (method.IsPublic, Is.True);
+      Assert.That (method.Name, Is.EqualTo ("MethodOverriddenByB"));
 
       var result = method.Invoke (instance, null);
       Assert.That (result, Is.EqualTo ("Base: A, previous body: B"));

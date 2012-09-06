@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -30,7 +31,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void PreventDisappearanceOfPropertyWhenModifying ()
     {
-      ModifyOrOverrideProperty (typeof(DomainType), "Property");
+      ModifyOrOverrideProperty (typeof (DomainType), "Property");
     }
 
     [Test]
@@ -39,11 +40,15 @@ namespace TypePipe.IntegrationTests
       ModifyOrOverrideProperty (typeof (DomainTypeBase), "PropertyInBaseType");
     }
 
-    [Ignore ("TODO 4988")]
     [Test]
     public void PreventDisappearanceOfPropertyWhenExplicitlyOverriding ()
     {
-      // TODO 4988
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+      var comparer = MemberInfoEqualityComparer<PropertyInfo>.Instance;
+      Assert.That (comparer.Equals (typeof (DomainType).GetProperty ("Property"), property), Is.True);
+      Assert.That (typeof (DomainType).GetProperties().Single(p => p.Name == "Property"), Is.EqualTo (property));
+
+      // DomainTypeBase.Property cannot be accessed via reflection, therefore we do not need to align the visibility of explicit overrides.
     }
 
     private void ModifyOrOverrideProperty (Type declaringType, string propertyName)
@@ -54,7 +59,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod ());
+            var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod());
             mutableGetter.SetBody (ctx => Expression.Constant (""));
           });
 
