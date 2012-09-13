@@ -15,50 +15,106 @@
 // under the License.
 // 
 using System;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 5043")]
+  [Ignore ("TODO 5043")]
   [TestFixture]
-  public class TypePipeCustomAttributeDataTest
+  public class TypePipeCustomAttributeDataTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void TypePipeCustomAttributeData_StandardReflection ()
     {
       var type = typeof (DomainType);
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.field);
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
+      var returnParameter = method.ReturnParameter;
+      var parameter = method.GetParameters().Single();
 
       //CheckEquals (CustomAttributeData.GetCustomAttributes (type), TypePipeCustomAttributeData.GetCustomAttributes (type));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (ctor), TypePipeCustomAttributeData.GetCustomAttributes (ctor));
       //CheckEquals (CustomAttributeData.GetCustomAttributes (field), TypePipeCustomAttributeData.GetCustomAttributes (field));
+      //CheckEquals (CustomAttributeData.GetCustomAttributes (ctor), TypePipeCustomAttributeData.GetCustomAttributes (ctor));
       //CheckEquals (CustomAttributeData.GetCustomAttributes (method), TypePipeCustomAttributeData.GetCustomAttributes (method));
+      //CheckEquals (CustomAttributeData.GetCustomAttributes (returnParameter), TypePipeCustomAttributeData.GetCustomAttributes (returnParameter));
+      //CheckEquals (CustomAttributeData.GetCustomAttributes (parameter), TypePipeCustomAttributeData.GetCustomAttributes (parameter));
       // TODO: properties, events, nested classes
     }
 
     [Test]
     public void TypePipeCustomAttributeData_MutableReflection ()
     {
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            //var attribute1 = BuildExpectedAttributeData ("class");
+            //var attribute2 = BuildExpectedAttributeData ("class", "multiple");
+            //var attribute3Ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute ());
+            //var attribute3 = BuildExpectedAttributeData (null, "different ctor", attribute3Ctor);
+            //CheckEquals(TypePipeCustomAttributeData.GetCustomAttributes(mutableType), new[] { attribute1, attribute2, attribute3 });
 
+            //var attribute8 = BuildExpectedAttributeData ("field");
+            //var field = method.AllMutableFields.Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(field), new[] { attribute8 });
+
+            //var attribute4 = BuildExpectedAttributeData ("constructor");
+            //var constructor = mutableType.AllMutableConstructors.Single();
+            //CheckEquals(TypePipeCustomAttributeData.GetCustomAttributes(constructor), new[] { attribute4 });
+
+            //var attribute5 = BuildExpectedAttributeData ("method");
+            //var method = mutableType.AllMutableMethods.Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(method), new[] { attribute5 });
+
+            //var attribute6 = BuildExpectedAttributeData("return value");
+            //var returnParameter = method.ReturnParameter;
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(returnParameter), new[] { attribute6 });
+
+            //var attribute7 = BuildExpectedAttributeData ("Parameter");
+            //var parameter = method.GetParameter().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(parameter), new[] { attribute7 });
+            // TODO: properties, events, nested classes
+          });
     }
+
+    // TODO: swap arguments
+    //private void CheckEquals (IEnumerable<CustomAttributeData> expected, IEnumerable<TypePipeCustoAttributeData> actual)
+    //{
+    //}
+
+    //private void CheckEquals (IEnumerable<TypePipeCustoAttributeData> actual, IEnumerable<TypePipeCustoAttributeData> expected)
+    //{
+    //}
+
+    //private TypeCustomAttributeData BuildExpectedAttributeData (
+    //    string constructorArgument, string namedArgument = null, ConstructorInfo constructorInfo = null)
+    //{
+    //  constructorInfo = constructorInfo ?? NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
+    //  
+    //}
 
     [Abc ("class")]
     [Abc ("class", NamedArgument = "multiple")]
     [Abc (NamedArgument = "different ctor")]
     public class DomainType
     {
+      [Abc ("field")]
+      public string field;
+
       [Abc ("constructor")]
-      public DomainType () { }
+      public DomainType ()
+      {
+      }
 
       [Abc ("method")]
       [return: Abc ("return value")]
-      public void Method ([Abc ("Parameter")] int p) { }
+      public virtual void Method ([Abc ("Parameter")] int p)
+      {
+      }
 
-      [Abc ("field")]
-      public string field;
 
       //[Abc ("property")]
       //public string Property
