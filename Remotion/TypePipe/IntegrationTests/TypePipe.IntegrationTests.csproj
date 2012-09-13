@@ -53,6 +53,7 @@
     <Compile Include="AddInterfaceTest.cs" />
     <Compile Include="AddMethodTest.cs" />
     <Compile Include="CopyMethodBodyTest.cs" />
+    <Compile Include="TypePipeCustomAttributeDataTest.cs" />
     <Compile Include="ExplicitOverridesTest.cs" />
     <Compile Include="ModifyBaseMethodTest.cs" />
     <Compile Include="ParticipantStub.cs" />
