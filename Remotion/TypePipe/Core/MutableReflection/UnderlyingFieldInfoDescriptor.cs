@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly FieldInfo _underlyingSystemFieldInfo;
     private readonly string _name;
     private readonly FieldAttributes _attributes;
-    private readonly Type _fieldType;
+    private readonly Type _type;
 
     private UnderlyingFieldInfoDescriptor (FieldInfo underlyingSystemFieldInfo, Type fieldType, string name, FieldAttributes attributes)
     {
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (name);
 
       _underlyingSystemFieldInfo = underlyingSystemFieldInfo;
-      _fieldType = fieldType;
+      _type = fieldType;
       _name = name;
       _attributes = attributes;
     }
@@ -64,9 +64,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingSystemFieldInfo; }
     }
 
-    public Type FieldType
+    public Type Type
     {
-      get { return _fieldType; }
+      get { return _type; }
     }
     public string Name
     {

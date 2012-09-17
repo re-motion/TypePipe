@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.UnderlyingSystemFieldInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
-      Assert.That (descriptor.FieldType, Is.SameAs (fieldType));
+      Assert.That (descriptor.Type, Is.SameAs (fieldType));
     }
 
     [Test]
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.UnderlyingSystemFieldInfo, Is.SameAs (originalField));
       Assert.That (descriptor.Name, Is.EqualTo ("_testField"));
       Assert.That (descriptor.Attributes, Is.EqualTo (FieldAttributes.Private));
-      Assert.That (descriptor.FieldType, Is.SameAs (typeof(int)));
+      Assert.That (descriptor.Type, Is.SameAs (typeof(int)));
     }
 
     private int _testField = 7;

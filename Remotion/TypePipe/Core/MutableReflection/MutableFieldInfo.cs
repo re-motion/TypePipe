@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type FieldType
     {
-      get { return _underlyingFieldInfoDescriptor.FieldType; }
+      get { return _underlyingFieldInfoDescriptor.Type; }
     }
 
     public override string Name
