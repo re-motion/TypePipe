@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 
@@ -35,6 +34,9 @@ namespace TypePipe.IntegrationTests
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
       var returnParameter = method.ReturnParameter;
       var parameter = method.GetParameters().Single();
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+      var @event = typeof (DomainType).GetEvents().Single();
+      var nestedType = typeof (DomainType.NestedType);
 
       //CheckEquals (CustomAttributeData.GetCustomAttributes (type), TypePipeCustomAttributeData.GetCustomAttributes (type));
       //CheckEquals (CustomAttributeData.GetCustomAttributes (field), TypePipeCustomAttributeData.GetCustomAttributes (field));
@@ -42,7 +44,9 @@ namespace TypePipe.IntegrationTests
       //CheckEquals (CustomAttributeData.GetCustomAttributes (method), TypePipeCustomAttributeData.GetCustomAttributes (method));
       //CheckEquals (CustomAttributeData.GetCustomAttributes (returnParameter), TypePipeCustomAttributeData.GetCustomAttributes (returnParameter));
       //CheckEquals (CustomAttributeData.GetCustomAttributes (parameter), TypePipeCustomAttributeData.GetCustomAttributes (parameter));
-      // TODO: properties, events, nested classes
+      //CheckEquals (CustomAttributeData.GetCustomAttributes (property), TypePipeCustomAttributeData.GetCustomAttributes (property));
+      //CheckEquals (CustomAttributeData.GetCustomAttributes (@event), TypePipeCustomAttributeData.GetCustomAttributes (@event));
+      //CheckEquals (CustomAttributeData.GetCustomAttributes (nestedType), TypePipeCustomAttributeData.GetCustomAttributes (nestedType));
     }
 
     [Test]
@@ -73,10 +77,33 @@ namespace TypePipe.IntegrationTests
             //var returnParameter = method.ReturnParameter;
             //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(returnParameter), new[] { attribute6 });
 
-            //var attribute7 = BuildExpectedAttributeData ("Parameter");
+            //var attribute7 = BuildExpectedAttributeData ("parameter");
             //var parameter = method.GetParameter().Single();
             //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(parameter), new[] { attribute7 });
-            // TODO: properties, events, nested classes
+
+            //var attribute8 = BuildExpectedAttributeData ("property");
+            //var property = method.GetProperties().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(property), new[] { attribute8 });
+
+            //var attribute9 = BuildExpectedAttributeData ("getter");
+            //var getter = property.GetGetMethod();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(getter), new[] { attribute9 });
+            
+            //var attribute10 = BuildExpectedAttributeData ("getter return value");
+            //var getterReturnParameter = getter.ReturnParameter;
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(getterReturnParameter), new[] { attribute10 });
+
+            //var attribute11 = BuildExpectedAttributeData ("setter");
+            //var setter = property.GetGetMethod();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(setter), new[] { attribute11 });
+
+            //var attribute12 = BuildExpectedAttributeData ("event");
+            //var @event = type.GetEvents().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(@event), new[] { attribute12 });
+
+            //var attribute13 = BuildExpectedAttributeData ("nested type");
+            //var nestedType = type.GetNestedTypes().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(nestedType), new[] { attribute13 });
           });
     }
 
@@ -111,22 +138,35 @@ namespace TypePipe.IntegrationTests
 
       [Abc ("method")]
       [return: Abc ("return value")]
-      public virtual void Method ([Abc ("Parameter")] int p)
+      public virtual void Method ([Abc ("parameter")] int p)
       {
       }
 
+      [Abc ("property")]
+      public string Property
+      {
+        [Abc ("getter")]
+        [return: Abc ("getter return value")]
+        get { return field; }
 
-      //[Abc ("property")]
-      //public string Property
-      //{
-      //  [Abc ("getter")]
-      //  [return: Abc ("getter return value")]
-      //  get { return _field; }
+        [Abc ("setter")]
+        // Annotate parameter?
+        set { field = value; }
+      }
 
-      //  [Abc ("setter")]
-      //  // Annotate parameter?
-      //  set { _field = value; }
-      //}
+      [Abc ("event")]
+      public event Action<string> Action
+      {
+        [Abc ("event adder")]
+        // Annotate parameter?
+        add { throw new NotImplementedException(); }
+        [Abc ("event remover")]
+        // Annotate parameter?
+        remove { throw new NotImplementedException(); }
+      }
+
+      [Abc ("nested type")]
+      public class NestedType {}
     }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
