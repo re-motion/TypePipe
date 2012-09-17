@@ -138,6 +138,7 @@
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptor.cs" />
+    <Compile Include="MutableReflection\UnderlyingParameterInfoDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />

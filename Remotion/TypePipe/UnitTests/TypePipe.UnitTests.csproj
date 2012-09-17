@@ -113,6 +113,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableBodyContextBase.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptorTest.cs" />
+    <Compile Include="MutableReflection\UnderlyingParameterInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingTypeDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\MemberNotFoundExceptionTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
