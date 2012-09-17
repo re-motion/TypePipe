@@ -39,6 +39,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Type, Is.SameAs (type));
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
+      Assert.That (descriptor.Expression.Name, Is.EqualTo (name));
+      Assert.That (descriptor.Expression.Type, Is.SameAs (type));
     }
 
     [Test]
@@ -49,10 +51,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingParameterInfoDescriptor.Create (originalParameter);
 
+      var name = "parameterName";
+      var type = typeof (string);
       Assert.That (descriptor.UnderlyingSystemParameterInfo, Is.SameAs (originalParameter));
-      Assert.That (descriptor.Type, Is.SameAs (typeof(string).MakeByRefType()));
-      Assert.That (descriptor.Name, Is.EqualTo ("parameterName"));
+      Assert.That (descriptor.Type, Is.SameAs (type.MakeByRefType ()));
+      Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (ParameterAttributes.Out));
+      Assert.That (descriptor.Expression.Name, Is.EqualTo (name));
+      Assert.That (descriptor.Expression.Type, Is.SameAs (type));
+      Assert.That (descriptor.Expression.IsByRef, Is.True);
+    }
+
+    [Test]
+    public void Expression_ReturnsSameInstance ()
+    {
+      string s;
+      var originalParameter = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (out s)).GetParameters ().Single ();
+
+      var descriptor = UnderlyingParameterInfoDescriptor.Create (originalParameter);
+
+      var result1 = descriptor.Expression;
+      var result2 = descriptor.Expression;
+
+      Assert.That (result1, Is.SameAs (result2));
     }
 
     void Method (out string parameterName) { parameterName = ""; }

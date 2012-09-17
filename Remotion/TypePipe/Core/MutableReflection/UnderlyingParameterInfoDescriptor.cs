@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -29,11 +30,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor
   {
-    private readonly ParameterInfo _underlyingSystemParameterInfo;
-    private readonly Type _type;
-    private readonly string _name;
-    private readonly ParameterAttributes _attributes;
-
     public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
     {
       ArgumentUtility.CheckNotNull ("originalParameter", originalParameter);
@@ -50,6 +46,12 @@ namespace Remotion.TypePipe.MutableReflection
       return new UnderlyingParameterInfoDescriptor (null, parameterType, parameterName, patameterAttributes);
     }
 
+    private readonly ParameterInfo _underlyingSystemParameterInfo;
+    private readonly Type _type;
+    private readonly string _name;
+    private readonly ParameterAttributes _attributes;
+    private readonly ParameterExpression _expression;
+
     private UnderlyingParameterInfoDescriptor (ParameterInfo underlyingSystemParameterInfo, Type type, string name, ParameterAttributes attributes)
     {
       Assertion.IsNotNull (type, "type");
@@ -59,6 +61,7 @@ namespace Remotion.TypePipe.MutableReflection
       _type = type;
       _name = name;
       _attributes = attributes;
+      _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
     }
 
     public ParameterInfo UnderlyingSystemParameterInfo
@@ -79,6 +82,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ParameterAttributes Attributes
     {
       get { return _attributes; }
+    }
+
+    public ParameterExpression Expression
+    {
+      get { return _expression; }
     }
   }
 }
