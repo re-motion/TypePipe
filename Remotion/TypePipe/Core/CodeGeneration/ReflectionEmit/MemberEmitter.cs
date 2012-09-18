@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field);
 
         var customAttributeBuilder = new CustomAttributeBuilder (
-            declaration.AttributeConstructorInfo,
+            declaration.Constructor,
             declaration.ConstructorArguments.ToArray(),
             propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray (),
             propertyArguments.Select (namedArg => namedArg.Value).ToArray (),
