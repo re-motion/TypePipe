@@ -15,8 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -25,48 +23,48 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Holds all information needed to declara a custom attribute.
   /// </summary>
-  public class CustomAttributeDeclaration : ICustomAttributeData
+  public class CustomAttributeDeclaration
   {
-    private readonly ConstructorInfo _constructor;
-    private readonly ReadOnlyCollection<object> _constructorArguments;
-    private readonly ReadOnlyCollection<NamedAttributeArgumentDeclaration> _namedArguments;
+    private readonly ConstructorInfo _attributeConstructorInfo;
+    private readonly object[] _constructorArguments;
+    private readonly NamedAttributeArgumentDeclaration[] _namedArguments;
 
     public CustomAttributeDeclaration (
-        ConstructorInfo constructor,
+        ConstructorInfo attributeConstructorInfo,
         object[] constructorArguments,
         params NamedAttributeArgumentDeclaration[] namedArguments)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull ("attributeConstructorInfo", attributeConstructorInfo);
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
       ArgumentUtility.CheckNotNull ("namedArguments", namedArguments);
 
-      CheckConstructor (constructor);
-      CheckConstructorArguments(constructor, constructorArguments);
-      CheckDeclaringTypes (constructor, namedArguments);
+      CheckConstructor (attributeConstructorInfo);
+      CheckConstructorArguments(attributeConstructorInfo, constructorArguments);
+      CheckDeclaringTypes (attributeConstructorInfo, namedArguments);
 
-      _constructor = constructor;
-      _constructorArguments = constructorArguments.ToList().AsReadOnly();
-      _namedArguments = namedArguments.ToList().AsReadOnly();
+      _attributeConstructorInfo = attributeConstructorInfo;
+      _constructorArguments = constructorArguments;
+      _namedArguments = namedArguments;
     }
 
-    public ConstructorInfo Constructor
+    public ConstructorInfo AttributeConstructorInfo
     {
-      get { return _constructor; }
+      get { return _attributeConstructorInfo; }
     }
 
-    public ReadOnlyCollection<object> ConstructorArguments
+    public object[] ConstructorArguments
     {
       get { return _constructorArguments; }
     }
 
-    public ReadOnlyCollection<NamedAttributeArgumentDeclaration> NamedArguments
+    public NamedAttributeArgumentDeclaration[] NamedArguments
     {
       get { return _namedArguments; }
     }
 
     public object CreateInstance ()
     {
-      var instance = _constructor.Invoke (_constructorArguments.ToArray());
+      var instance = _attributeConstructorInfo.Invoke (_constructorArguments);
       foreach (var namedArgument in _namedArguments)
         ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
 

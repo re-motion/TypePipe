@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           new NamedAttributeArgumentDeclaration (property, 7),
           new NamedAttributeArgumentDeclaration (field, "value"));
 
-      Assert.That (declaration.Constructor, Is.SameAs (constructor));
+      Assert.That (declaration.AttributeConstructorInfo, Is.SameAs (constructor));
       Assert.That (declaration.ConstructorArguments, Is.EqualTo(new[] {7}));
       var actualNamedArguments = declaration.NamedArguments.Select (na => new { na.MemberInfo, na.Value });
       var expectedNamedArguments =
