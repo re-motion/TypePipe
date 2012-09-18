@@ -32,6 +32,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor
   {
+    public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
+
+      return new UnderlyingParameterInfoDescriptor (null, parameterDeclaration.Type, parameterDeclaration.Name, parameterDeclaration.Attributes);
+    }
+
     public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
     {
       ArgumentUtility.CheckNotNull ("originalParameter", originalParameter);
@@ -40,29 +47,18 @@ namespace Remotion.TypePipe.MutableReflection
           originalParameter, originalParameter.ParameterType, originalParameter.Name, originalParameter.Attributes);
     }
 
-    public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromMethodBase (MethodBase methodBase)
-    {
-      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
-
-      // TODO: test
-
-      return methodBase.GetParameters().Select (Create);
-    }
-
-    public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration)
-    {
-      ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
-
-      return new UnderlyingParameterInfoDescriptor (null, parameterDeclaration.Type, parameterDeclaration.Name, parameterDeclaration.Attributes);
-    }
-
     public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
-      // TODO: test
-
       return parameterDeclarations.Select (Create);
+    }
+
+    public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromMethodBase (MethodBase methodBase)
+    {
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+
+      return methodBase.GetParameters ().Select (Create);
     }
 
     private readonly ParameterInfo _underlyingSystemParameterInfo;

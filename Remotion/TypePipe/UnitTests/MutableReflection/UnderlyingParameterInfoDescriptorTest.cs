@@ -31,18 +31,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var type = ReflectionObjectMother.GetSomeType();
       var name = "parameterName";
-      var attributes = ParameterAttributes.Optional |  ParameterAttributes.In;
+      var attributes = ParameterAttributes.Optional | ParameterAttributes.In;
       var declaration = new ParameterDeclaration (type, name, attributes);
 
       var descriptor = UnderlyingParameterInfoDescriptor.Create (declaration);
 
-      Assert.That (descriptor.UnderlyingSystemParameterInfo, Is.Null);
-      Assert.That (descriptor.Type, Is.SameAs (type));
-      Assert.That (descriptor.Name, Is.EqualTo (name));
-      Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
-      Assert.That (descriptor.Expression.Name, Is.EqualTo (name));
-      Assert.That (descriptor.Expression.Type, Is.SameAs (type));
-      Assert.That (descriptor.Expression.IsByRef, Is.False);
+      CheckDescriptor (descriptor, null, type, name, attributes, type, expectedIsByRef: false);
     }
 
     [Test]
@@ -53,15 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingParameterInfoDescriptor.Create (originalParameter);
 
-      var name = "parameterName";
       var type = typeof (string);
-      Assert.That (descriptor.UnderlyingSystemParameterInfo, Is.SameAs (originalParameter));
-      Assert.That (descriptor.Type, Is.SameAs (type.MakeByRefType ()));
-      Assert.That (descriptor.Name, Is.EqualTo (name));
-      Assert.That (descriptor.Attributes, Is.EqualTo (ParameterAttributes.Out));
-      Assert.That (descriptor.Expression.Name, Is.EqualTo (name));
-      Assert.That (descriptor.Expression.Type, Is.SameAs (type));
-      Assert.That (descriptor.Expression.IsByRef, Is.True);
+      CheckDescriptor (descriptor, originalParameter, type.MakeByRefType(), "parameterName", ParameterAttributes.Out, type, expectedIsByRef: true);
     }
 
     [Test]
@@ -78,6 +65,49 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result1, Is.SameAs (result2));
     }
 
-    void Method (out string parameterName) { parameterName = ""; }
+    [Test]
+    public void CreateFromDeclarations ()
+    {
+      var declaration = ParameterDeclarationObjectMother.Create ();
+
+      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (new[] { declaration }).Single ();
+
+      var type = declaration.Type;
+      Assert.That (type.IsByRef, Is.False);
+      CheckDescriptor (descriptor, null, type, declaration.Name, declaration.Attributes, type, expectedIsByRef: false);
+    }
+
+    [Test]
+    public void CreateFromMethodBase ()
+    {
+      string s;
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (out s));
+
+      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Single();
+
+      var originalParameter = method.GetParameters().Single();
+      var type = typeof (string);
+      CheckDescriptor (descriptor, originalParameter, type.MakeByRefType(), "parameterName", ParameterAttributes.Out, type, expectedIsByRef: true);
+    }
+
+    private static void CheckDescriptor (
+        UnderlyingParameterInfoDescriptor descriptor,
+        ParameterInfo expectedParameterInfo,
+        Type expectedType,
+        string expectedName,
+        ParameterAttributes expectedAttributes,
+        Type expectedExpressionType,
+        bool expectedIsByRef)
+    {
+      Assert.That (descriptor.UnderlyingSystemParameterInfo, Is.SameAs (expectedParameterInfo));
+      Assert.That (descriptor.Type, Is.SameAs (expectedType));
+      Assert.That (descriptor.Name, Is.EqualTo (expectedName));
+      Assert.That (descriptor.Attributes, Is.EqualTo (expectedAttributes));
+      Assert.That (descriptor.Expression.Name, Is.EqualTo (expectedName));
+      Assert.That (descriptor.Expression.Type, Is.SameAs (expectedExpressionType));
+      Assert.That (descriptor.Expression.IsByRef, Is.EqualTo (expectedIsByRef));
+    }
+
+    private void Method (out string parameterName) { parameterName = ""; }
   }
 }
