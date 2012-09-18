@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -26,8 +28,8 @@ namespace Remotion.TypePipe.MutableReflection
   public class CustomAttributeDeclaration
   {
     private readonly ConstructorInfo _attributeConstructorInfo;
-    private readonly object[] _constructorArguments;
-    private readonly NamedAttributeArgumentDeclaration[] _namedArguments;
+    private readonly ReadOnlyCollection<object> _constructorArguments;
+    private readonly ReadOnlyCollection<NamedAttributeArgumentDeclaration> _namedArguments;
 
     public CustomAttributeDeclaration (
         ConstructorInfo attributeConstructorInfo,
@@ -43,8 +45,8 @@ namespace Remotion.TypePipe.MutableReflection
       CheckDeclaringTypes (attributeConstructorInfo, namedArguments);
 
       _attributeConstructorInfo = attributeConstructorInfo;
-      _constructorArguments = constructorArguments;
-      _namedArguments = namedArguments;
+      _constructorArguments = constructorArguments.ToList().AsReadOnly();
+      _namedArguments = namedArguments.ToList().AsReadOnly();
     }
 
     public ConstructorInfo AttributeConstructorInfo
@@ -52,19 +54,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributeConstructorInfo; }
     }
 
-    public object[] ConstructorArguments
+    public ReadOnlyCollection<object> ConstructorArguments
     {
       get { return _constructorArguments; }
     }
 
-    public NamedAttributeArgumentDeclaration[] NamedArguments
+    public ReadOnlyCollection<NamedAttributeArgumentDeclaration> NamedArguments
     {
       get { return _namedArguments; }
     }
 
     public object CreateInstance ()
     {
-      var instance = _attributeConstructorInfo.Invoke (_constructorArguments);
+      var instance = _attributeConstructorInfo.Invoke (_constructorArguments.ToArray());
       foreach (var namedArgument in _namedArguments)
         ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
 
