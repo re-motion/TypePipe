@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -41,8 +40,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameters);
+      var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameters);
       _mutableCtor = Create (_descriptor);
     }
 
@@ -139,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ParameterExpressions ()
     {
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDeclarations = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
       var ctorInfo = CreateWithParameters (parameterDeclarations);
 
       Assert.That (ctorInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
@@ -205,8 +204,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToString_WithParameters ()
     {
       var ctorInfo = CreateWithParameters (
-          ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
-          ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out));
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", ParameterAttributes.Out));
 
       Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
@@ -217,7 +216,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = MutableTypeObjectMother.CreateForExistingType (GetType());
       var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
           declaringType,
-          ParameterDeclarationObjectMother.Create (typeof (int), "p1"));
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1"));
 
       var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
       Assert.That (ctorInfo.ToDebugString (), Is.EqualTo (expected));
@@ -226,9 +225,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var parameter1 = ParameterDeclarationObjectMother.Create();
-      var parameter2 = ParameterDeclarationObjectMother.Create();
-      var ctorInfo = CreateWithParameters (parameter1, parameter2);
+      var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      var ctorInfo = CreateWithParameters (parameters);
 
       var result = ctorInfo.GetParameters();
 
@@ -236,8 +234,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
-              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes },
           };
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
     }
@@ -245,7 +243,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_ReturnsSameParameterInfoInstances()
     {
-      var ctorInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
+      var ctorInfo = CreateWithParameters (UnderlyingParameterInfoDescriptorObjectMother.CreateForNew());
 
       var result1 = ctorInfo.GetParameters().Single();
       var result2 = ctorInfo.GetParameters().Single();
@@ -256,7 +254,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create ());
+      var ctorInfo = CreateWithParameters (UnderlyingParameterInfoDescriptorObjectMother.CreateForNew ());
 
       var parameters = ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
@@ -271,9 +269,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableConstructorInfo (_declaringType, underlyingConstructorInfoDescriptor);
     }
 
-    private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    private MutableConstructorInfo CreateWithParameters (params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
     {
-      return Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations));
+      return Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors));
     }
 
     public class DomainType

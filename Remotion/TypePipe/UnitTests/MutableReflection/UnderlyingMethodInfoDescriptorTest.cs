@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var name = "Method";
       var attributes = MethodAttributes.Abstract;
       var returnType = ReflectionObjectMother.GetSomeType();
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeMethod();
       var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
       var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean();
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           name,
           attributes,
           returnType,
-          parameterDeclarations.AsOneTime(),
+          parameterDescriptors.AsOneTime(),
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (returnType));
-      Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
+      Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (parameterDescriptors));
       Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethod));
       Assert.That (descriptor.IsGenericMethod, Is.EqualTo (isGenericMethod));
       Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       MethodInfo baseMethod = null;
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          "Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, baseMethod, false, false, false, body);
+          "Method", MethodAttributes.Abstract, typeof (int), new UnderlyingParameterInfoDescriptor[0], baseMethod, false, false, false, body);
 
       Assert.That (descriptor.BaseMethod, Is.Null);
     }
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       UnderlyingMethodInfoDescriptor.Create (
-          "Method", MethodAttributes.Abstract, typeof (int), ParameterDeclaration.EmptyParameters, null, false, false, false, body);
+          "Method", MethodAttributes.Abstract, typeof (int), new UnderlyingParameterInfoDescriptor[0], null, false, false, false, body);
     }
     
     [Test]
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
               new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
           };
-      var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      var actualParameterDecls = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
       Assert.That (descriptor.BaseMethod, Is.SameAs (fakeBaseMethod));
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (originalMethod.ReturnType));
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalMethod));
-      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
     }
 
     [Test]

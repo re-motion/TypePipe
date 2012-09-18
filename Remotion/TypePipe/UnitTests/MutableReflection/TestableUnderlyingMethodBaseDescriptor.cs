@@ -25,18 +25,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public class TestableUnderlyingMethodBaseDescriptor<TMethodBase> : UnderlyingMethodBaseDescriptor<TMethodBase> where TMethodBase : MethodBase
   {
-    public static new Expression CreateOriginalBodyExpression (MethodBase methodBase, Type returnType, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public static new Expression CreateOriginalBodyExpression (
+        MethodBase methodBase, Type returnType, IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors)
     {
-      return UnderlyingMethodBaseDescriptor<TMethodBase>.CreateOriginalBodyExpression (methodBase, returnType, parameterDeclarations);
+      return UnderlyingMethodBaseDescriptor<TMethodBase>.CreateOriginalBodyExpression (methodBase, returnType, parameterDescriptors);
     }
 
     public TestableUnderlyingMethodBaseDescriptor (
         TMethodBase underlyingSystemMethodBase,
         string name,
         MethodAttributes attributes,
-        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
+        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         Expression body)
-        : base (underlyingSystemMethodBase, name, attributes, parameterDeclarations, body)
+        : base (underlyingSystemMethodBase, name, attributes, parameterDescriptors, body)
     {
     }
   }

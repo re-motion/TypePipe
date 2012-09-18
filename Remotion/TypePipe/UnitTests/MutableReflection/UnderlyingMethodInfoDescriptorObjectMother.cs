@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -36,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
         Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
         MethodInfo baseMethod = null,
         bool isGenericMethod = false,
         bool isGenericMethodDefinition = false,
@@ -48,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           name,
           attributes,
           actualReturnType,
-          parameterDeclarations ?? ParameterDeclaration.EmptyParameters,
+          parameterDescriptors ?? new UnderlyingParameterInfoDescriptor[0],
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
@@ -45,20 +45,20 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
       // Base method may be null
       ArgumentUtility.CheckNotNull ("body", body);
 
       if (!returnType.IsAssignableFrom (body.Type))
         throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
 
-      var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList().AsReadOnly();
+      var readonlyParameterDescriptors = parameterDescriptors.ToList().AsReadOnly();
       return new UnderlyingMethodInfoDescriptor (
           null,
           name,
           attributes,
           returnType,
-          parameterDeclarationReadOnlyCollection,
+          readonlyParameterDescriptors,
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,
@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = originalMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (originalMethod).ToList ().AsReadOnly ();
+      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod).ToList().AsReadOnly();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
       var body = CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
 
@@ -102,13 +102,13 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         Type returnType,
-        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
+        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
         bool containsGenericParameters,
         Expression body)
-        : base (underlyingSystemMethodInfo, name, attributes, parameterDeclarations, body)
+        : base (underlyingSystemMethodInfo, name, attributes, parameterDescriptors, body)
     {
       Assertion.IsNotNull (returnType);
       Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));

@@ -24,7 +24,6 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -35,15 +34,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForNew ()
     {
       var attributes = MethodAttributes.Abstract;
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarations.AsOneTime(), body);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors.AsOneTime(), body);
 
       Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
-      Assert.That (descriptor.ParameterDeclarations, Is.EqualTo (parameterDeclarations));
+      Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (parameterDescriptors));
       Assert.That (descriptor.Body, Is.SameAs (body));
     }
 
@@ -53,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var nonVoidBody = ExpressionTreeObjectMother.GetSomeExpression(typeof(object));
 
-      UnderlyingConstructorInfoDescriptor.Create (0, ParameterDeclaration.EmptyParameters, nonVoidBody);
+      UnderlyingConstructorInfoDescriptor.Create (0, new UnderlyingParameterInfoDescriptor[0], nonVoidBody);
     }
 
     [Test]
@@ -76,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
               new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
           };
-      var actualParameterDecls = descriptor.ParameterDeclarations.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      var actualParameterDecls = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
 
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
@@ -84,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalCtor));
-      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDeclarations.Select (pd => pd.Expression)));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
     }
 
     [Test]

@@ -29,11 +29,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      return CreateForNew (declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
+      return CreateForNew (declaringType, name, methodAttributes, returnType, parameterDescriptors, baseMethod, body);
     }
 
     public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
@@ -50,11 +50,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return method;
     }
 
-    public static MutableMethodInfo CreateForNew (MutableType declaringType = null,
+    public static MutableMethodInfo CreateForNew (
+        MutableType declaringType = null,
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
         MethodInfo baseMethod = null,
         Expression body = null)
     {
@@ -62,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         returnType = body.Type;
 
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
-          name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
+          name, attributes, returnType, parameterDescriptors, body: body, baseMethod: baseMethod);
       return new MutableMethodInfo (declaringType ?? MutableTypeObjectMother.Create (), descriptor);
     }
   }

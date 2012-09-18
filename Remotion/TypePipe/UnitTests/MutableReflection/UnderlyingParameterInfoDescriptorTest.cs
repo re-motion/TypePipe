@@ -32,8 +32,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var type = ReflectionObjectMother.GetSomeType();
       var name = "parameterName";
       var attributes = ParameterAttributes.Optional |  ParameterAttributes.In;
+      var declaration = new ParameterDeclaration (type, name, attributes);
 
-      var descriptor = UnderlyingParameterInfoDescriptor.Create (type, name, attributes);
+      var descriptor = UnderlyingParameterInfoDescriptor.Create (declaration);
 
       Assert.That (descriptor.UnderlyingSystemParameterInfo, Is.Null);
       Assert.That (descriptor.Type, Is.SameAs (type));
@@ -41,6 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.Expression.Name, Is.EqualTo (name));
       Assert.That (descriptor.Expression.Type, Is.SameAs (type));
+      Assert.That (descriptor.Expression.IsByRef, Is.False);
     }
 
     [Test]

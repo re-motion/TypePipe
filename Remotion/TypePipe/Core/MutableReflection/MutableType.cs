@@ -201,17 +201,17 @@ namespace Remotion.TypePipe.MutableReflection
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
-      var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection();
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
 
-      var signature = new MethodSignature (typeof (void), parameterDeclarationCollection.Select (pd => pd.Type), 0);
+      var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
       if (AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
-      
-      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+
+      var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
       var context = new ConstructorBodyCreationContext (this, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
-      
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDeclarationCollection, body);
+
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors, body);
       var constructorInfo = new MutableConstructorInfo (this, descriptor);
 
       _constructors.Add (constructorInfo);
@@ -243,9 +243,9 @@ namespace Remotion.TypePipe.MutableReflection
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var parameterDeclarationCollection = parameterDeclarations.ConvertToCollection ();
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
 
-      var signature = new MethodSignature (returnType, parameterDeclarationCollection.Select (pd => pd.Type), 0);
+      var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
       // Fix code duplication?
       if (AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
       {
@@ -257,13 +257,13 @@ namespace Remotion.TypePipe.MutableReflection
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
-      var parameterExpressions = parameterDeclarationCollection.Select (pd => pd.Expression);
+      var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDeclarationCollection, baseMethod, false, false, false, body);
+          name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
       var methodInfo = new MutableMethodInfo (this, descriptor);
 
       _methods.Add (methodInfo);

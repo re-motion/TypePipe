@@ -26,12 +26,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableParameterInfo : ParameterInfo
   {
-    public static MutableParameterInfo CreateFromDeclaration (MemberInfo member, int position, ParameterDeclaration parameterDeclaration)
+    public static MutableParameterInfo CreateFromDescriptor (MemberInfo member, int position, UnderlyingParameterInfoDescriptor parameterDescriptor)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
+      ArgumentUtility.CheckNotNull ("parameterDescriptor", parameterDescriptor);
 
-      return new MutableParameterInfo (member, position, parameterDeclaration.Type, parameterDeclaration.Name, parameterDeclaration.Attributes);
+      return new MutableParameterInfo (member, position, parameterDescriptor.Type, parameterDescriptor.Name, parameterDescriptor.Attributes);
     }
 
     private readonly MemberInfo _member;

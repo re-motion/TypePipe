@@ -25,13 +25,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableParameterInfoTest
   {
     [Test]
-    public void CreateFromDeclaration ()
+    public void CreateFromDescriptor ()
     {
       var member = ReflectionObjectMother.GetSomeMember();
       var position = 17;
       var declaration = new ParameterDeclaration (ReflectionObjectMother.GetSomeType (), "foo", ParameterAttributes.Out);
+      var descriptor = UnderlyingParameterInfoDescriptor.Create (declaration);
 
-      var result = MutableParameterInfo.CreateFromDeclaration (member, position, declaration);
+      var result = MutableParameterInfo.CreateFromDescriptor (member, position, descriptor);
 
       Assert.That (result.Member, Is.SameAs (member));
       Assert.That (result.Position, Is.EqualTo (position));

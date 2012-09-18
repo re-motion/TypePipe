@@ -35,37 +35,38 @@ namespace Remotion.TypePipe.MutableReflection
   public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> 
       where TMethodBase : MethodBase
   {
-    protected static Expression CreateOriginalBodyExpression (MethodBase methodBase, Type returnType, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    protected static Expression CreateOriginalBodyExpression (
+        MethodBase methodBase, Type returnType, IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
 
-      var parameterExpressions = parameterDeclarations.Select (pd => pd.Expression);
-      return new OriginalBodyExpression (methodBase, returnType, parameterExpressions.Cast<Expression> ());
+      var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
+      return new OriginalBodyExpression (methodBase, returnType, parameterExpressions.Cast<Expression>());
     }
 
     private readonly TMethodBase _underlyingSystemMethodBase;
     private readonly string _name;
     private readonly MethodAttributes _attributes;
-    private readonly ReadOnlyCollection<ParameterDeclaration> _parameterDeclarations;
+    private readonly ReadOnlyCollection<UnderlyingParameterInfoDescriptor> _parameterDescriptors;
     private readonly Expression _body;
 
     protected UnderlyingMethodBaseDescriptor (
         TMethodBase underlyingSystemMethodBase,
         string name,
         MethodAttributes attributes,
-        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations,
+        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         Expression body)
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
-      Assertion.IsNotNull (parameterDeclarations);
+      Assertion.IsNotNull (parameterDescriptors);
       Assertion.IsNotNull (body);
 
       _underlyingSystemMethodBase = underlyingSystemMethodBase;
       _name = name;
       _attributes = attributes;
-      _parameterDeclarations = parameterDeclarations;
+      _parameterDescriptors = parameterDescriptors;
       _body = body;
     }
 
@@ -84,9 +85,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributes; }
     }
 
-    public ReadOnlyCollection<ParameterDeclaration> ParameterDeclarations
+    public ReadOnlyCollection<UnderlyingParameterInfoDescriptor> ParameterDescriptors
     {
-      get { return _parameterDeclarations; }
+      get { return _parameterDescriptors; }
     }
 
     public Expression Body

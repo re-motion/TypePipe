@@ -129,8 +129,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
-          ParameterDeclarationObjectMother.Create (typeof (string), "p1", ParameterAttributes.In),
-          ParameterDeclarationObjectMother.Create (typeof (int).MakeByRefType (), "p2", ParameterAttributes.Out));
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string), "p1", ParameterAttributes.In),
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int).MakeByRefType (), "p2", ParameterAttributes.Out));
       var expectedAttributes = ctor.Attributes;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType () };
 
@@ -162,11 +162,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           name: "AddedMethod",
           attributes: MethodAttributes.Virtual,
           returnType: typeof (string),
-          parameterDeclarations: new[]
-                                 {
-                                     ParameterDeclarationObjectMother.Create (typeof (int), "i", ParameterAttributes.None),
-                                     ParameterDeclarationObjectMother.Create (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
-                                 });
+          parameterDescriptors:
+              new[]
+              {
+                  UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "i", ParameterAttributes.None),
+                  UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
+              });
 
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
       addedMethod.AddExplicitBaseDefinition (overriddenMethod);

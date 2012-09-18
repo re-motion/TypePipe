@@ -33,16 +33,16 @@ namespace Remotion.TypePipe.MutableReflection
   public class UnderlyingConstructorInfoDescriptor  : UnderlyingMethodBaseDescriptor<ConstructorInfo>
   {
     public static UnderlyingConstructorInfoDescriptor Create (
-        MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameterDeclarations, Expression body)
+        MethodAttributes attributes, IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors, Expression body)
     {
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
       ArgumentUtility.CheckNotNull ("body", body);
 
       if (body.Type != typeof(void))
         throw new ArgumentException ("Constructor bodies must have void return type.", "body");
 
-      var parameterDeclarationReadOnlyCollection = parameterDeclarations.ToList ().AsReadOnly ();
-      return new UnderlyingConstructorInfoDescriptor (null, attributes, parameterDeclarationReadOnlyCollection, body);
+      var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
+      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, body);
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructor)
@@ -52,18 +52,18 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO 4695
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = originalConstructor.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature(originalConstructor).ToList().AsReadOnly();
-      var body = CreateOriginalBodyExpression (originalConstructor, typeof (void), parameterDeclarations);
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalConstructor).ToList().AsReadOnly();
+      var body = CreateOriginalBodyExpression (originalConstructor, typeof (void), parameterDescriptors);
 
-      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDeclarations, body);
+      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDescriptors, body);
     }
 
     private UnderlyingConstructorInfoDescriptor (
         ConstructorInfo underlyingSystemMethodBase,
         MethodAttributes attributes,
-        ReadOnlyCollection<ParameterDeclaration> parameterDeclarations, 
+        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors, 
         Expression body)
-      : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDeclarations, body)
+      : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDescriptors, body)
     {
       Assertion.IsTrue (body.Type == typeof (void));
     }

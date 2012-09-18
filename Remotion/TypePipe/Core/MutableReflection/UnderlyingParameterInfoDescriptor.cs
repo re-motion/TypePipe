@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Dynamic.Utils;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
@@ -33,17 +35,34 @@ namespace Remotion.TypePipe.MutableReflection
     public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
     {
       ArgumentUtility.CheckNotNull ("originalParameter", originalParameter);
-      
+
       return new UnderlyingParameterInfoDescriptor (
           originalParameter, originalParameter.ParameterType, originalParameter.Name, originalParameter.Attributes);
     }
 
-    public static UnderlyingParameterInfoDescriptor Create (Type parameterType, string parameterName, ParameterAttributes patameterAttributes)
+    public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromMethodBase (MethodBase methodBase)
     {
-      ArgumentUtility.CheckNotNull ("parameterType", parameterType);
-      ArgumentUtility.CheckNotNullOrEmpty ("parameterName", parameterName);
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
 
-      return new UnderlyingParameterInfoDescriptor (null, parameterType, parameterName, patameterAttributes);
+      // TODO: test
+
+      return methodBase.GetParameters().Select (Create);
+    }
+
+    public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
+
+      return new UnderlyingParameterInfoDescriptor (null, parameterDeclaration.Type, parameterDeclaration.Name, parameterDeclaration.Attributes);
+    }
+
+    public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
+    {
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+
+      // TODO: test
+
+      return parameterDeclarations.Select (Create);
     }
 
     private readonly ParameterInfo _underlyingSystemParameterInfo;

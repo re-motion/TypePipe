@@ -141,13 +141,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableMethodInfo CreateMutableMember (
         string name = "UnspecifiedMember",
         Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null)
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null)
     {
       return MutableMethodInfoObjectMother.Create (
           declaringType: _declaringType,
           name: name,
           returnType: returnType,
-          parameterDeclarations: parameterDeclarations);
+          parameterDescriptors: parameterDescriptors);
     }
 
     public class DomainType

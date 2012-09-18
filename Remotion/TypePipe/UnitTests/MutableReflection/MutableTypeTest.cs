@@ -294,11 +294,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddConstructor ()
     {
       var attributes = MethodAttributes.Public;
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDeclarations = new[]
+                                  {
+                                      ParameterDeclarationObjectMother.Create (typeof(string), "param1"),
+                                      ParameterDeclarationObjectMother.Create (typeof(int), "param2")
+                                  };
+      ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = context =>
       {
-        Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+        Assert.That (context.Parameters.Select (p => p.Type), Is.EqualTo (new[] { typeof (string), typeof (int) }));
+        Assert.That (context.Parameters.Select (p => p.Name), Is.EqualTo (new[] { "param1", "param2" }));
         Assert.That (context.This.Type, Is.SameAs (_mutableType));
 
         return fakeBody;
@@ -361,12 +367,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var name = "Method";
       var attributes = MethodAttributes.Public;
       var returnType = typeof (object);
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDeclarations = new[]
+                                  {
+                                      ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
+                                      ParameterDeclarationObjectMother.Create (typeof (string), "franz")
+                                  };
+      ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyCreationContext, Expression> bodyProvider = context =>
       {
         Assert.That (context.This.Type, Is.SameAs (_mutableType));
-        Assert.That (context.Parameters, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+        Assert.That (context.Parameters.Select (p => p.Type), Is.EqualTo (new[] { typeof (double), typeof (string) }));
+        Assert.That (context.Parameters.Select (p => p.Name), Is.EqualTo (new[] { "hans", "franz" }));
         Assert.That (context.IsStatic, Is.False);
         Assert.That (context.HasBaseMethod, Is.False);
 

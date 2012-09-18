@@ -21,7 +21,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -66,14 +65,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaration = new ParameterDeclaration (typeof (string), "parameterName", ParameterAttributes.Out);
+      var type = ReflectionObjectMother.GetSomeType();
+      var declaration = new ParameterDeclaration (type, "parameterName", ParameterAttributes.Out);
 
-      Assert.That (declaration.Type, Is.EqualTo (typeof (string)));
+      Assert.That (declaration.Type, Is.SameAs (type));
       Assert.That (declaration.Name, Is.EqualTo ("parameterName"));
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.Out));
-      Assert.That (declaration.Expression.Name, Is.EqualTo ("parameterName"));
-      Assert.That (declaration.Expression.Type, Is.EqualTo (typeof (string)));
-      Assert.That (declaration.Expression.IsByRef, Is.False);
     }
 
     [Test]
@@ -82,16 +79,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new ParameterDeclaration (typeof (object), "foo");
 
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.In));
-    }
-
-    [Test]
-    public void Initialization_WithByRefType ()
-    {
-      var declaration = new ParameterDeclaration (typeof (string).MakeByRefType(), "p");
-
-      Assert.That (declaration.Type, Is.EqualTo (typeof (string).MakeByRefType()));
-      Assert.That (declaration.Expression.Type, Is.EqualTo (typeof (string)));
-      Assert.That (declaration.Expression.IsByRef, Is.True);
     }
 
     private abstract class DomainType

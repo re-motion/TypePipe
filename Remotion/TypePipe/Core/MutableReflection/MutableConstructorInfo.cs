@@ -50,8 +50,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
 
-      _parameters = _underlyingConstructorInfoDescriptor.ParameterDeclarations
-          .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
+      _parameters = _underlyingConstructorInfoDescriptor.ParameterDescriptors
+          .Select ((pd, i) => MutableParameterInfo.CreateFromDescriptor (this, i, pd))
           .ToList().AsReadOnly();
 
       _body = _underlyingConstructorInfoDescriptor.Body;
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ParameterExpression> ParameterExpressions
     {
-      get { return _underlyingConstructorInfoDescriptor.ParameterDeclarations.Select (pd => pd.Expression); }
+      get { return _underlyingConstructorInfoDescriptor.ParameterDescriptors.Select (pd => pd.Expression); }
     }
 
     public Expression Body

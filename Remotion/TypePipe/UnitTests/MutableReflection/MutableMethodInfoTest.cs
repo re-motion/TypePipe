@@ -235,7 +235,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ParameterExpressions ()
     {
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDeclarations = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
       var methodInfo = CreateWithParameters (parameterDeclarations);
 
       Assert.That (methodInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
@@ -378,10 +378,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       MethodAttributes nonVirtualAttribtes = 0;
       var returnType = typeof (object);
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
       var baseMetod = ReflectionObjectMother.GetSomeMethod();
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
-          "Method", nonVirtualAttribtes, returnType, parameterDeclarations, baseMetod);
+          "Method", nonVirtualAttribtes, returnType, parameterDescriptors, baseMetod);
       var mutableMethod = Create (descriptor);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
@@ -427,10 +427,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var parameters = new[]
                        {
-                           ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
-                           ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
+                           UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
+                           UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
                        };
-      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDeclarations: parameters);
+      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDescriptors: parameters);
 
       Assert.That (methodInfo.ToString(), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
@@ -442,7 +442,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType: MutableTypeObjectMother.CreateForExistingType (GetType()),
           returnType: typeof (void),
           name: "Xxx",
-          parameterDeclarations: new[] { ParameterDeclarationObjectMother.Create (typeof (int), "p1") });
+          parameterDescriptors: new[] { UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1") });
 
       var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
       Assert.That (methodInfo.ToDebugString(), Is.EqualTo (expected));
@@ -451,9 +451,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var parameter1 = ParameterDeclarationObjectMother.Create();
-      var parameter2 = ParameterDeclarationObjectMother.Create();
-      var methodInfo = CreateWithParameters (parameter1, parameter2);
+      var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      var methodInfo = CreateWithParameters (parameters);
 
       var result = methodInfo.GetParameters();
 
@@ -461,8 +460,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var expectedParameterInfos =
           new[]
           {
-              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameter1.Type, parameter1.Name, parameter1.Attributes },
-              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameter2.Type, parameter2.Name, parameter2.Attributes },
+              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
+              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes },
           };
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
     }
@@ -470,7 +469,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_ReturnsSameParameterInfoInstances ()
     {
-      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create ());
+      var methodInfo = CreateWithParameters (UnderlyingParameterInfoDescriptorObjectMother.CreateForNew());
 
       var result1 = methodInfo.GetParameters ().Single ();
       var result2 = methodInfo.GetParameters ().Single ();
@@ -481,7 +480,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (1));
+      var methodInfo = CreateWithParameters (UnderlyingParameterInfoDescriptorObjectMother.CreateForNew());
 
       var parameters = methodInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
@@ -517,9 +516,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableMethodInfo (_declaringType, descriptor);
     }
 
-    private MutableMethodInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
+    private MutableMethodInfo CreateWithParameters (params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors);
       return new MutableMethodInfo (_declaringType, descriptor);
     }
 

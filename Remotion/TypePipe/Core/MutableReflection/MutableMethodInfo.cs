@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _underlyingMethodInfoDescriptor = underlyingMethodInfoDescriptor;
 
-      _parameters = _underlyingMethodInfoDescriptor.ParameterDeclarations
-          .Select ((pd, i) => MutableParameterInfo.CreateFromDeclaration (this, i, pd))
+      _parameters = _underlyingMethodInfoDescriptor.ParameterDescriptors
+          .Select ((pd, i) => MutableParameterInfo.CreateFromDescriptor (this, i, pd))
           .ToList()
           .AsReadOnly();
 
@@ -134,7 +134,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ParameterExpression> ParameterExpressions
     {
-      get { return _underlyingMethodInfoDescriptor.ParameterDeclarations.Select (pd => pd.Expression); }
+      get { return _underlyingMethodInfoDescriptor.ParameterDescriptors.Select (pd => pd.Expression); }
     }
 
     public Expression Body
