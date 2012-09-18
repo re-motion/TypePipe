@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Domain (null, null, 7, Field = null)]
+    [Domain ((object) null, null, 7, Field = null)]
     public void ReflectionBehavior_Null ()
     {
       var method = MethodBase.GetCurrentMethod ();
