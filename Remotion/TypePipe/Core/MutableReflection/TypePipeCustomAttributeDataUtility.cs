@@ -17,41 +17,49 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  /// <summary>
+  /// Creates <see cref="TypePipeCustomAttributeData"/> from <see cref="CustomAttributeDeclaration"/> and <see cref="CustomAttributeData"/> instances.
+  /// </summary>
   public static class TypePipeCustomAttributeDataUtility
   {
     public static TypePipeCustomAttributeData Create (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      var ctorTypes = customAttributeDeclaration.Constructor.GetParameters().Select (p => p.ParameterType);
-      var ctorArguments = ctorTypes.Zip (customAttributeDeclaration.ConstructorArguments, (t, v) => new TypePipeCustomAttributeTypedArgument (t, v));
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+
+      var ctorArguments = customAttributeDeclaration.ConstructorArguments.Select (
+          v => new TypePipeCustomAttributeTypedArgument (GetArgumentType (v), v));
 
       var namedArguments = customAttributeDeclaration.NamedArguments.Select (
-          d =>
-          new TypePipeCustomAttributeNamedArgument (
-              d.MemberInfo,
-              new TypePipeCustomAttributeTypedArgument (
-                  GetMemberType (d.MemberInfo),
-                  d.Value)));
+          na => new TypePipeCustomAttributeNamedArgument (
+                    na.MemberInfo,
+                    new TypePipeCustomAttributeTypedArgument (
+                        GetArgumentType (na.Value),
+                        na.Value)));
 
       return new TypePipeCustomAttributeData (customAttributeDeclaration.Constructor, ctorArguments, namedArguments);
     }
 
     public static TypePipeCustomAttributeData Create (CustomAttributeData customAttributeData)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
+
+      return new TypePipeCustomAttributeData (
+          customAttributeData.Constructor,
+          customAttributeData.ConstructorArguments.Select (ca => new TypePipeCustomAttributeTypedArgument (ca.ArgumentType, ca.Value)),
+          customAttributeData.NamedArguments.Select (
+              na =>
+              new TypePipeCustomAttributeNamedArgument (
+                  na.MemberInfo,
+                  new TypePipeCustomAttributeTypedArgument (na.TypedValue.ArgumentType, na.TypedValue.Value))));
     }
 
-    private static Type GetMemberType (MemberInfo member)
+    private static Type GetArgumentType (object value)
     {
-      Assertion.IsTrue (member is FieldInfo || member is PropertyInfo);
-
-      return member is FieldInfo
-                 ? ((FieldInfo) member).FieldType
-                 : ((PropertyInfo) member).PropertyType;
+      return value != null ? value.GetType() : typeof (string);
     }
   }
 }

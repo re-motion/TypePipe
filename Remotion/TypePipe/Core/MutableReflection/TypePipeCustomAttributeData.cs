@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<TypePipeCustomAttributeNamedArgument> namedArguments)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      ArgumentUtility.CheckNotNullOrEmpty ("constructorArguments", constructorArguments);
-      ArgumentUtility.CheckNotNullOrEmpty ("namedArguments", namedArguments);
+      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
+      ArgumentUtility.CheckNotNull ("namedArguments", namedArguments);
 
       _constructor = constructor;
       _constructorArguments = constructorArguments.ToList().AsReadOnly();
