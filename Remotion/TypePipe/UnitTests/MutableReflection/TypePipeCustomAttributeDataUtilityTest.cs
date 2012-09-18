@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = TypePipeCustomAttributeDataUtility.Create (declaration);
 
-      Assert.That (result.Constructor, Is.SameAs (declaration.AttributeConstructorInfo));
+      Assert.That (result.Constructor, Is.SameAs (declaration.Constructor));
       Assert.That (result.ConstructorArguments[0].ArgumentType, Is.EqualTo(typeof(string)));
       Assert.That (result.ConstructorArguments[0].Value, Is.Null);
       Assert.That (result.ConstructorArguments[1].ArgumentType, Is.EqualTo (typeof (int)));
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class DomainAttribute : Attribute
     {
-      public readonly object Field;
+      public object Field;
 
       public DomainAttribute (string ctorArgument1, int ctorArgument2)
       {
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Property = ctorArgument2.ToString();
       }
 
-      public string Property { get; private set; }
+      public string Property { get; set; }
     }
   }
 }

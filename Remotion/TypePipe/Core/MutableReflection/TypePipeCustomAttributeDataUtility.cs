@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static TypePipeCustomAttributeData Create (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      var ctorTypes = customAttributeDeclaration.AttributeConstructorInfo.GetParameters().Select (p => p.ParameterType);
+      var ctorTypes = customAttributeDeclaration.Constructor.GetParameters().Select (p => p.ParameterType);
       var ctorArguments = ctorTypes.Zip (customAttributeDeclaration.ConstructorArguments, (t, v) => new TypePipeCustomAttributeTypedArgument (t, v));
 
       var namedArguments = customAttributeDeclaration.NamedArguments.Select (
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection
                   GetMemberType (d.MemberInfo),
                   d.Value)));
 
-      return new TypePipeCustomAttributeData (customAttributeDeclaration.AttributeConstructorInfo, ctorArguments, namedArguments);
+      return new TypePipeCustomAttributeData (customAttributeDeclaration.Constructor, ctorArguments, namedArguments);
     }
 
     public static TypePipeCustomAttributeData Create (CustomAttributeData customAttributeData)

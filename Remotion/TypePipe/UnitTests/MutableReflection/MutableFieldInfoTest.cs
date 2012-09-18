@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       
       var result = _fieldInfo.GetCustomAttributes (false);
       
-      Assert.That (result, Has.Length.EqualTo (1).And.Some.TypeOf (customAttribute.AttributeConstructorInfo.DeclaringType));
+      Assert.That (result, Has.Length.EqualTo (1).And.Some.TypeOf (customAttribute.Constructor.DeclaringType));
     }
 
     [Test]

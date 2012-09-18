@@ -25,31 +25,31 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class CustomAttributeDeclaration
   {
-    private readonly ConstructorInfo _attributeConstructorInfo;
+    private readonly ConstructorInfo _constructor;
     private readonly object[] _constructorArguments;
     private readonly NamedAttributeArgumentDeclaration[] _namedArguments;
 
     public CustomAttributeDeclaration (
-        ConstructorInfo attributeConstructorInfo,
+        ConstructorInfo constructor,
         object[] constructorArguments,
         params NamedAttributeArgumentDeclaration[] namedArguments)
     {
-      ArgumentUtility.CheckNotNull ("attributeConstructorInfo", attributeConstructorInfo);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
       ArgumentUtility.CheckNotNull ("namedArguments", namedArguments);
 
-      CheckConstructor (attributeConstructorInfo);
-      CheckConstructorArguments(attributeConstructorInfo, constructorArguments);
-      CheckDeclaringTypes (attributeConstructorInfo, namedArguments);
+      CheckConstructor (constructor);
+      CheckConstructorArguments(constructor, constructorArguments);
+      CheckDeclaringTypes (constructor, namedArguments);
 
-      _attributeConstructorInfo = attributeConstructorInfo;
+      _constructor = constructor;
       _constructorArguments = constructorArguments;
       _namedArguments = namedArguments;
     }
 
-    public ConstructorInfo AttributeConstructorInfo
+    public ConstructorInfo Constructor
     {
-      get { return _attributeConstructorInfo; }
+      get { return _constructor; }
     }
 
     public object[] ConstructorArguments
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5042 : remove method
     public object CreateInstance ()
     {
-      var instance = _attributeConstructorInfo.Invoke (_constructorArguments);
+      var instance = _constructor.Invoke (_constructorArguments);
       foreach (var namedArgument in _namedArguments)
         ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
 

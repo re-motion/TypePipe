@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
       return AddedCustomAttributeDeclarations
-          .Where (attr => attributeType.IsAssignableFrom (attr.AttributeConstructorInfo.DeclaringType))
+          .Where (attr => attributeType.IsAssignableFrom (attr.Constructor.DeclaringType))
           .Select (attr => attr.CreateInstance())
           .ToArray();
     }
