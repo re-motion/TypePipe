@@ -42,8 +42,9 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Constructor bodies must have void return type.", "body");
 
       var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
+      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => new ICustomAttributeData[0].ToList().AsReadOnly();
 
-      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, null, body);
+      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, customAttributeDataProvider, body);
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructor)
@@ -54,9 +55,10 @@ namespace Remotion.TypePipe.MutableReflection
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = originalConstructor.Attributes.AdjustVisibilityForAssemblyBoundaries();
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalConstructor).ToList().AsReadOnly();
+      var customAttributeDataProvider = GetCustomAttributeProvider (originalConstructor);
       var body = CreateOriginalBodyExpression (originalConstructor, typeof (void), parameterDescriptors);
 
-      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDescriptors, null, body);
+      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDescriptors, customAttributeDataProvider, body);
     }
 
     private UnderlyingConstructorInfoDescriptor (
@@ -65,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection
         ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDescriptors, () => null, body)
+        : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDescriptors, customAttributeDataProvider, body)
     {
       Assertion.IsTrue (body.Type == typeof (void));
     }

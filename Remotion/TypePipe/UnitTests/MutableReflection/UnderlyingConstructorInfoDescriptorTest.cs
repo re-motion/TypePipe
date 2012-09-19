@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (parameterDescriptors));
+      Assert.That (descriptor.CustomAttributeDataProvider.Invoke(), Is.Empty);
       Assert.That (descriptor.Body, Is.SameAs (body));
     }
 
@@ -78,8 +79,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var actualParameterDecls = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
 
-      Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
+      Assert.That (
+          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Constructor.DeclaringType),
+          Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
 
+      Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalCtor));
@@ -101,6 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private class DomainType
     {
 // ReSharper disable UnusedParameter.Local
+      [Abc, Def]
       public DomainType (string s, out int i, [In] double d, [In, Out] object o)
 // ReSharper restore UnusedParameter.Local
       {
@@ -111,5 +116,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       {
       }
     }
+
+    public class AbcAttribute : Attribute { }
+    public class DefAttribute : Attribute { }
   }
 }
