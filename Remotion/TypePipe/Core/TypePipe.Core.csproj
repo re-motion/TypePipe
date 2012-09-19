@@ -108,6 +108,8 @@
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\CustomType.cs" />
+    <Compile Include="MutableReflection\ICustomAttributeData.cs" />
+    <Compile Include="MutableReflection\ICustomAttributeNamedArgument.cs" />
     <Compile Include="MutableReflection\IMemberSelector.cs" />
     <Compile Include="MutableReflection\IMutableTypeUnmodifiedMemberHandler.cs" />
     <Compile Include="MutableReflection\IRelatedMethodFinder.cs" />
@@ -132,10 +134,6 @@
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\RelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
-    <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
-    <Compile Include="MutableReflection\TypePipeCustomAttributeDataUtility.cs" />
-    <Compile Include="MutableReflection\TypePipeCustomAttributeNamedArgument.cs" />
-    <Compile Include="MutableReflection\TypePipeCustomAttributeTypedArgument.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />

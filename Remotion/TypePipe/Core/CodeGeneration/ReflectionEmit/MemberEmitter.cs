@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         var customAttributeBuilder = new CustomAttributeBuilder (
             declaration.Constructor,
-            declaration.ConstructorArguments,
+            declaration.ConstructorArguments.ToArray(),
             propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray (),
             propertyArguments.Select (namedArg => namedArg.Value).ToArray (),
             fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray (),

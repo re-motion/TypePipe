@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -23,11 +25,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Holds all information needed to declara a custom attribute.
   /// </summary>
-  public class CustomAttributeDeclaration
+  public class CustomAttributeDeclaration : ICustomAttributeData
   {
     private readonly ConstructorInfo _constructor;
-    private readonly object[] _constructorArguments;
-    private readonly NamedAttributeArgumentDeclaration[] _namedArguments;
+    private readonly ReadOnlyCollection<object> _constructorArguments;
+    private readonly ReadOnlyCollection<ICustomAttributeNamedArgument> _namedArguments;
 
     public CustomAttributeDeclaration (
         ConstructorInfo constructor,
@@ -43,8 +45,8 @@ namespace Remotion.TypePipe.MutableReflection
       CheckDeclaringTypes (constructor, namedArguments);
 
       _constructor = constructor;
-      _constructorArguments = constructorArguments;
-      _namedArguments = namedArguments;
+      _constructorArguments = constructorArguments.ToList().AsReadOnly();
+      _namedArguments = namedArguments.Cast<ICustomAttributeNamedArgument>().ToList().AsReadOnly();
     }
 
     public ConstructorInfo Constructor
@@ -52,12 +54,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _constructor; }
     }
 
-    public object[] ConstructorArguments
+    public ReadOnlyCollection<object> ConstructorArguments
     {
       get { return _constructorArguments; }
     }
 
-    public NamedAttributeArgumentDeclaration[] NamedArguments
+    public ReadOnlyCollection<ICustomAttributeNamedArgument> NamedArguments
     {
       get { return _namedArguments; }
     }
@@ -65,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5042 : remove method
     public object CreateInstance ()
     {
-      var instance = _constructor.Invoke (_constructorArguments);
+      var instance = _constructor.Invoke (_constructorArguments.ToArray());
       foreach (var namedArgument in _namedArguments)
         ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
 

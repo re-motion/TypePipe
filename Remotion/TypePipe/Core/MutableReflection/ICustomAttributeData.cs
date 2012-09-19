@@ -14,36 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System.Collections.ObjectModel;
 using System.Reflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents the TypePipe counterpart of <see cref="CustomAttributeNamedArgument"/>.
+  /// Represents the TypePipe counterpart of <see cref="CustomAttributeData"/>.
   /// </summary>
-  public struct TypePipeCustomAttributeNamedArgument
+  public interface ICustomAttributeData
   {
-    private readonly MemberInfo _memberInfo;
-    private readonly TypePipeCustomAttributeTypedArgument _typedValue;
-
-    public TypePipeCustomAttributeNamedArgument (MemberInfo memberInfo, TypePipeCustomAttributeTypedArgument typedValue)
-    {
-      ArgumentUtility.CheckNotNull ("memberInfo", memberInfo);
-      // typedValue is struct
-
-      _memberInfo = memberInfo;
-      _typedValue = typedValue;
-    }
-
-    public MemberInfo MemberInfo
-    {
-      get { return _memberInfo; }
-    }
-    
-    public TypePipeCustomAttributeTypedArgument TypedValue
-    {
-      get { return _typedValue; }
-    }
+    ConstructorInfo Constructor { get; }
+    ReadOnlyCollection<object> ConstructorArguments { get; }
+    ReadOnlyCollection<ICustomAttributeNamedArgument> NamedArguments { get; }
   }
 }
