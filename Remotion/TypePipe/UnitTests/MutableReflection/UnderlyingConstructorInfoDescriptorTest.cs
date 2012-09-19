@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors.AsOneTime(), body);
 
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMember, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (parameterDescriptors));
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
 
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.SameAs (originalCtor));
+      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (originalCtor));
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
       Assert.That (descriptor.Attributes, Is.EqualTo (originalCtor.Attributes));
 

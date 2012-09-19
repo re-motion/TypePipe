@@ -154,10 +154,5 @@ namespace Remotion.TypePipe.MutableReflection
     {
       get { return _containsGenericParameters; }
     }
-
-    public Func<ReadOnlyCollection<ICustomAttributeData>> CustomAttributeDataProvider
-    {
-      get { return _customAttributeDataProvider; }
-    }
   }
 }

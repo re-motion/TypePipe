@@ -101,7 +101,9 @@
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtilityTest.cs" />
     <Compile Include="MutableReflection\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGeneratorTest.cs" />
+    <Compile Include="MutableReflection\TestableUnderlyingDescriptorBase.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
+    <Compile Include="MutableReflection\UnderlyingDescriptorBaseTest.cs" />
     <Compile Include="MutableReflection\UnderlyingParameterInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptorTest.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptorTest.cs" />

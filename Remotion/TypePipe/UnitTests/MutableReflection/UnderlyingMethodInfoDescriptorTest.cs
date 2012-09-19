@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           containsGenericParameters,
           body);
 
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMember, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (returnType));
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.SameAs (originalMethod));
+      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (originalMethod));
       Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
       Assert.That (descriptor.Attributes, Is.EqualTo (originalMethod.Attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (originalMethod.ReturnType));

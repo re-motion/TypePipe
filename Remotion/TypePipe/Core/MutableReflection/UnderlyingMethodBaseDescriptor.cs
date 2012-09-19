@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used as a base class for <see cref="UnderlyingMethodInfoDescriptor"/> and <see cref="UnderlyingConstructorInfoDescriptor"/>.
   /// </remarks>
-  public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> 
+  public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> : UnderlyingDescriptorBase<TMethodBase>
       where TMethodBase : MethodBase
   {
     protected static Expression CreateOriginalBodyExpression (
@@ -46,38 +46,25 @@ namespace Remotion.TypePipe.MutableReflection
       return new OriginalBodyExpression (methodBase, returnType, parameterExpressions.Cast<Expression>());
     }
 
-    private readonly TMethodBase _underlyingSystemMethodBase;
-    private readonly string _name;
     private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<UnderlyingParameterInfoDescriptor> _parameterDescriptors;
     private readonly Expression _body;
 
     protected UnderlyingMethodBaseDescriptor (
-        TMethodBase underlyingSystemMethodBase,
+        TMethodBase underlyingSystemMethodMember,
         string name,
         MethodAttributes attributes,
         ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         Expression body)
+        : base (underlyingSystemMethodMember, name)
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
       Assertion.IsNotNull (parameterDescriptors);
       Assertion.IsNotNull (body);
 
-      _underlyingSystemMethodBase = underlyingSystemMethodBase;
-      _name = name;
       _attributes = attributes;
       _parameterDescriptors = parameterDescriptors;
       _body = body;
-    }
-
-    public TMethodBase UnderlyingSystemMethodBase
-    {
-      get { return _underlyingSystemMethodBase; }
-    }
-
-    public string Name
-    {
-      get { return _name; }
     }
 
     public MethodAttributes Attributes

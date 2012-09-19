@@ -59,18 +59,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemConstructorInfo ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemMember, Is.Not.Null);
 
       var ctorInfo = Create (descriptor);
 
-      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemMethodBase));
+      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemMember));
     }
 
     [Test]
     public void UnderlyingSystemConstructorInfo_ForNull ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMember, Is.Null);
 
       var ctorInfo = Create (descriptor);
 
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewConstructor_True ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemMember, Is.Null);
 
       var ctorInfo = Create (descriptor);
 
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewConstructor_False ()
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemMethodBase, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemMember, Is.Not.Null);
 
       var ctorInfo = Create (descriptor);
 
