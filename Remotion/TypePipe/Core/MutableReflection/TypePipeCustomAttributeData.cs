@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -30,7 +31,11 @@ namespace Remotion.TypePipe.MutableReflection
         var mutableMethod = (MutableMethodInfo) member;
         return mutableMethod.GetCustomAttributeData();
       }
-      
+      else if (member is MethodInfo)
+      {
+        return CustomAttributeData.GetCustomAttributes (member).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData> ();
+      }
+
       throw new NotImplementedException ("TODO 5042");
     }
   }

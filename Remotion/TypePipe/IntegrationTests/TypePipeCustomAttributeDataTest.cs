@@ -43,15 +43,15 @@ namespace TypePipe.IntegrationTests
       var @event = typeof (DomainType).GetEvents().Single();
       var nestedType = typeof (DomainType.NestedType);
 
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (type), TypePipeCustomAttributeData.GetCustomAttributes (type));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (field), TypePipeCustomAttributeData.GetCustomAttributes (field));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (ctor), TypePipeCustomAttributeData.GetCustomAttributes (ctor));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (method), TypePipeCustomAttributeData.GetCustomAttributes (method));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (returnParameter), TypePipeCustomAttributeData.GetCustomAttributes (returnParameter));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (parameter), TypePipeCustomAttributeData.GetCustomAttributes (parameter));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (property), TypePipeCustomAttributeData.GetCustomAttributes (property));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (@event), TypePipeCustomAttributeData.GetCustomAttributes (@event));
-      //CheckEquals (CustomAttributeData.GetCustomAttributes (nestedType), TypePipeCustomAttributeData.GetCustomAttributes (nestedType));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (ctor), CustomAttributeData.GetCustomAttributes (ctor));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), CustomAttributeData.GetCustomAttributes (method));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (returnParameter));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (parameter));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (property));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), CustomAttributeData.GetCustomAttributes (@event));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
     }
 
     [Test]
@@ -112,10 +112,23 @@ namespace TypePipe.IntegrationTests
           });
     }
 
-    // TODO: swap arguments
-    //private void CheckEquals (IEnumerable<CustomAttributeData> expected, IEnumerable<TypePipeCustoAttributeData> actual)
-    //{
-    //}
+    private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<CustomAttributeData> expected)
+    {
+      CheckEquals (actual, expected.Select (ConvertToComparable));
+    }
+
+    private ICustomAttributeData ConvertToComparable (CustomAttributeData customAttributeData)
+    {
+      return new CustomAttributeDataStub
+      {
+        Constructor = customAttributeData.Constructor,
+        ConstructorArguments = customAttributeData.ConstructorArguments.Select (x => x.Value).ToList ().AsReadOnly (),
+        NamedArguments = customAttributeData.NamedArguments.Select (
+            x =>
+            new CustomAttributeNamedArgumentStub { MemberInfo = x.MemberInfo, Value = x.TypedValue.Value })
+            .Cast<ICustomAttributeNamedArgument> ().ToList ().AsReadOnly ()
+      };
+    }
 
     private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<ICustomAttributeData> expected)
     {
