@@ -40,6 +40,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
+    // TODO 5057 (Use Lazy<T>)
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeData;
 
     private Expression _body;
 
@@ -55,6 +57,9 @@ namespace Remotion.TypePipe.MutableReflection
           .Select ((pd, i) => MutableParameterInfo.CreateFromDescriptor (this, i, pd))
           .ToList()
           .AsReadOnly();
+
+      _customAttributeData =
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingMethodInfoDescriptor.CustomAttributeDataProvider);
 
       _body = _underlyingMethodInfoDescriptor.Body;
     }
@@ -229,6 +234,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
+    }
+
+    public ReadOnlyCollection<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeData.Value;
     }
 
     #region Not YET Implemented from MethodInfo interface

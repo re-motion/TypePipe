@@ -491,6 +491,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetCustomAttributeData ()
+    {
+      var result = _existingNonVirtualMethod.GetCustomAttributeData();
+
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+    }
+
+    [Test]
+    public void GetCustomAttributeData_Lazy ()
+    {
+      var result1 = _existingNonVirtualMethod.GetCustomAttributeData ();
+      var result2 = _existingNonVirtualMethod.GetCustomAttributeData ();
+
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
     public void VirtualMethodsImplementedByMethodInfo ()
     {
       // None of these members should throw an exception 
@@ -533,6 +550,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public virtual void VirtualMethod () { }
       public virtual void VirtualMethod2 () { }
       public virtual void VirtualMethodWithDifferentSignature (int i) { Dev.Null = i; }
+      [Abc]
       public void NonVirtualMethod () { }
 
       public override void OverridingMethod () { }
@@ -554,5 +572,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       void InterfaceMethod ();
     }
+
+    public class AbcAttribute : Attribute { }
   }
 }
