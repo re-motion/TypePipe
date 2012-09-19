@@ -42,7 +42,8 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Constructor bodies must have void return type.", "body");
 
       var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
-      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, body);
+
+      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, null, body);
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructor)
@@ -55,15 +56,16 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalConstructor).ToList().AsReadOnly();
       var body = CreateOriginalBodyExpression (originalConstructor, typeof (void), parameterDescriptors);
 
-      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDescriptors, body);
+      return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDescriptors, null, body);
     }
 
     private UnderlyingConstructorInfoDescriptor (
         ConstructorInfo underlyingSystemMethodBase,
         MethodAttributes attributes,
-        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors, 
+        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-      : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDescriptors, body)
+        : base (underlyingSystemMethodBase, ".ctor", attributes, parameterDescriptors, () => null, body)
     {
       Assertion.IsTrue (body.Type == typeof (void));
     }

@@ -36,8 +36,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name,
         MethodAttributes attributes,
         ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodBase, name, attributes, parameterDescriptors, body)
+        : base (underlyingSystemMethodBase, name, attributes, parameterDescriptors, customAttributeDataProvider, body)
     {
     }
   }

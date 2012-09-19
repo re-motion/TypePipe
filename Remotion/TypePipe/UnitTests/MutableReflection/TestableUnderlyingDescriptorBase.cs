@@ -22,6 +22,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public class TestableUnderlyingDescriptorBase<T> : UnderlyingDescriptorBase<T>
+    where T : class 
   {
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
@@ -33,8 +34,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return UnderlyingDescriptorBase<T>.GetCustomAttributeProvider (parameter);
     }
 
-    public TestableUnderlyingDescriptorBase (T underlyingSystemMember, string name)
-        : base(underlyingSystemMember, name)
+    public TestableUnderlyingDescriptorBase (
+        T underlyingSystemMember, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+        : base (underlyingSystemMember, name, customAttributeDataProvider)
     {
     }
   }

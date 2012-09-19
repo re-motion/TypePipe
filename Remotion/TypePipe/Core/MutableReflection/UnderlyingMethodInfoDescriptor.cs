@@ -77,10 +77,7 @@ namespace Remotion.TypePipe.MutableReflection
       var attributes = originalMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
       var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod).ToList().AsReadOnly();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
-      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider =
-          () => CustomAttributeData.GetCustomAttributes (originalMethod)
-                    .Select (x => new CustomAttributeDataAdapter (x))
-                    .Cast<ICustomAttributeData>().ToList().AsReadOnly();
+      var customAttributeDataProvider = GetCustomAttributeProvider (originalMethod);
       var body = CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
@@ -102,7 +99,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly bool _isGenericMethod;
     private readonly bool _isGenericMethodDefinition;
     private readonly bool _containsGenericParameters;
-    private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
     private UnderlyingMethodInfoDescriptor (
         MethodInfo underlyingSystemMethodInfo,
@@ -116,7 +112,7 @@ namespace Remotion.TypePipe.MutableReflection
         bool containsGenericParameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodInfo, name, attributes, parameterDescriptors, body)
+        : base (underlyingSystemMethodInfo, name, attributes, parameterDescriptors, customAttributeDataProvider, body)
     {
       Assertion.IsNotNull (returnType);
       Assertion.IsNotNull (customAttributeDataProvider);
@@ -126,7 +122,6 @@ namespace Remotion.TypePipe.MutableReflection
       _baseMethod = baseMethod;
       _isGenericMethod = isGenericMethod;
       _isGenericMethodDefinition = isGenericMethodDefinition;
-      _customAttributeDataProvider = customAttributeDataProvider;
       _containsGenericParameters = containsGenericParameters;
     }
 

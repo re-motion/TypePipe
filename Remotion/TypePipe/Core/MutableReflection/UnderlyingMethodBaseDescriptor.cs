@@ -55,8 +55,9 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodMember, name)
+        : base (underlyingSystemMethodMember, name, customAttributeDataProvider)
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
       Assertion.IsNotNull (parameterDescriptors);

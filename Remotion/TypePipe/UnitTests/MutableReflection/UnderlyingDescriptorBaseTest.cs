@@ -32,10 +32,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var member = ReflectionObjectMother.GetSomeMember();
-      var descriptor = new TestableUnderlyingDescriptorBase<MemberInfo> (member, "memberName or parameterName");
+      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => null;
+
+      var descriptor = new TestableUnderlyingDescriptorBase<MemberInfo> (member, "memberName or parameterName", customAttributeDataProvider);
 
       Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (member));
       Assert.That (descriptor.Name, Is.EqualTo ("memberName or parameterName"));
+      Assert.That (descriptor.CustomAttributeDataProvider, Is.SameAs (customAttributeDataProvider));
     }
 
     [Test]
