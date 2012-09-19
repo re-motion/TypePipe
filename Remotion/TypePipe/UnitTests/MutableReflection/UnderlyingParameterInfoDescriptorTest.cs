@@ -15,11 +15,14 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -36,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingParameterInfoDescriptor.Create (declaration);
 
-      CheckDescriptor (descriptor, null, type, name, attributes, type, expectedIsByRef: false);
+      CheckDescriptor (descriptor, null, type, name, attributes, type, expectedIsByRef: false, expectedCustomAttributeTypes: Type.EmptyTypes);
     }
 
     [Test]
@@ -48,7 +51,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = UnderlyingParameterInfoDescriptor.Create (originalParameter);
 
       var type = typeof (string);
-      CheckDescriptor (descriptor, originalParameter, type.MakeByRefType(), "parameterName", ParameterAttributes.Out, type, expectedIsByRef: true);
+      CheckDescriptor (
+          descriptor,
+          originalParameter,
+          type.MakeByRefType(),
+          "parameterName",
+          ParameterAttributes.Out,
+          type,
+          expectedIsByRef: true,
+          expectedCustomAttributeTypes: new[] { typeof (AbcAttribute), typeof(DefAttribute) });
     }
 
     [Test]
@@ -74,7 +85,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var type = declaration.Type;
       Assert.That (type.IsByRef, Is.False);
-      CheckDescriptor (descriptor, null, type, declaration.Name, declaration.Attributes, type, expectedIsByRef: false);
+      CheckDescriptor (
+          descriptor,
+          null,
+          type,
+          declaration.Name,
+          declaration.Attributes,
+          type,
+          expectedIsByRef: false,
+          expectedCustomAttributeTypes: Type.EmptyTypes);
     }
 
     [Test]
@@ -87,7 +106,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var originalParameter = method.GetParameters().Single();
       var type = typeof (string);
-      CheckDescriptor (descriptor, originalParameter, type.MakeByRefType(), "parameterName", ParameterAttributes.Out, type, expectedIsByRef: true);
+      CheckDescriptor (
+          descriptor,
+          originalParameter,
+          type.MakeByRefType(),
+          "parameterName",
+          ParameterAttributes.Out,
+          type,
+          expectedIsByRef: true,
+          expectedCustomAttributeTypes: new[] { typeof (AbcAttribute), typeof (DefAttribute) });
     }
 
     private static void CheckDescriptor (
@@ -97,17 +124,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string expectedName,
         ParameterAttributes expectedAttributes,
         Type expectedExpressionType,
-        bool expectedIsByRef)
+        bool expectedIsByRef,
+        Type[] expectedCustomAttributeTypes)
     {
-      Assert.That (descriptor.UnderlyingSystemParameterInfo, Is.SameAs (expectedParameterInfo));
+      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (expectedParameterInfo));
       Assert.That (descriptor.Type, Is.SameAs (expectedType));
       Assert.That (descriptor.Name, Is.EqualTo (expectedName));
       Assert.That (descriptor.Attributes, Is.EqualTo (expectedAttributes));
       Assert.That (descriptor.Expression.Name, Is.EqualTo (expectedName));
       Assert.That (descriptor.Expression.Type, Is.SameAs (expectedExpressionType));
       Assert.That (descriptor.Expression.IsByRef, Is.EqualTo (expectedIsByRef));
+
+      // OutAttribute is added automatically for out parameters.
+      var reducedCustomAttributeTypes =
+          descriptor.CustomAttributeDataProvider.Invoke()
+              .Select (a => a.Constructor.DeclaringType)
+              .Where (t => t != typeof (OutAttribute));
+      Assert.That (reducedCustomAttributeTypes, Is.EquivalentTo (expectedCustomAttributeTypes));
     }
 
-    private void Method (out string parameterName) { parameterName = ""; }
+    private void Method ([Abc, Def] out string parameterName) { parameterName = ""; }
+
+    private class AbcAttribute : Attribute { }
+    private class DefAttribute : Attribute { }
   }
 }

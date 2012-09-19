@@ -17,7 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Dynamic.Utils;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
@@ -30,21 +31,28 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableParameterInfo"/> to represent the original parameter, before any mutations.
   /// </remarks>
-  public class UnderlyingParameterInfoDescriptor
+  public class UnderlyingParameterInfoDescriptor : UnderlyingDescriptorBase<ParameterInfo>
   {
     public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
 
-      return new UnderlyingParameterInfoDescriptor (null, parameterDeclaration.Type, parameterDeclaration.Name, parameterDeclaration.Attributes);
+      return new UnderlyingParameterInfoDescriptor (
+          null,
+          parameterDeclaration.Type,
+          parameterDeclaration.Name,
+          parameterDeclaration.Attributes,
+          () => new ICustomAttributeData[0].ToList().AsReadOnly());
     }
 
     public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
     {
       ArgumentUtility.CheckNotNull ("originalParameter", originalParameter);
 
+      var customAttributeDataProvider = GetCustomAttributeProvider (originalParameter);
+
       return new UnderlyingParameterInfoDescriptor (
-          originalParameter, originalParameter.ParameterType, originalParameter.Name, originalParameter.Attributes);
+          originalParameter, originalParameter.ParameterType, originalParameter.Name, originalParameter.Attributes, customAttributeDataProvider);
     }
 
     public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
@@ -61,37 +69,29 @@ namespace Remotion.TypePipe.MutableReflection
       return methodBase.GetParameters ().Select (Create);
     }
 
-    private readonly ParameterInfo _underlyingSystemParameterInfo;
     private readonly Type _type;
-    private readonly string _name;
     private readonly ParameterAttributes _attributes;
     private readonly ParameterExpression _expression;
 
-    private UnderlyingParameterInfoDescriptor (ParameterInfo underlyingSystemParameterInfo, Type type, string name, ParameterAttributes attributes)
+    private UnderlyingParameterInfoDescriptor (
+        ParameterInfo underlyingSystemMember,
+        Type type,
+        string name,
+        ParameterAttributes attributes,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+        : base (underlyingSystemMember, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (type, "type");
       Assertion.IsNotNull (name, "name");
 
-      _underlyingSystemParameterInfo = underlyingSystemParameterInfo;
       _type = type;
-      _name = name;
       _attributes = attributes;
       _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
-    }
-
-    public ParameterInfo UnderlyingSystemParameterInfo
-    {
-      get { return _underlyingSystemParameterInfo; }
     }
 
     public Type Type
     {
       get { return _type; }
-    }
-
-    public string Name
-    {
-      get { return _name; }
     }
 
     public ParameterAttributes Attributes
