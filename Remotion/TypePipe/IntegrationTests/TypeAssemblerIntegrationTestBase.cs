@@ -48,6 +48,7 @@ namespace TypePipe.IntegrationTests
     public virtual void SetUp ()
     {
       _shouldDeleteGeneratedFiles = true;
+      _assemblyBuilder = null;
       _generatedFileName = null;
     }
 

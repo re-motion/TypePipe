@@ -30,7 +30,6 @@ namespace TypePipe.IntegrationTests
   public class TypePipeCustomAttributeDataTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore ("TODO 5043")]
     public void TypePipeCustomAttributeData_StandardReflection ()
     {
       var type = typeof (DomainType);
