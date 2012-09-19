@@ -63,6 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
           isGenericMethod,
           isGenericMethodDefinition,
           containsGenericParameters,
+          () => new ReadOnlyCollection<ICustomAttributeData> (new ICustomAttributeData[0]),
           body);
     }
 
@@ -76,6 +77,10 @@ namespace Remotion.TypePipe.MutableReflection
       var attributes = originalMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
       var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod).ToList().AsReadOnly();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
+      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider =
+          () => CustomAttributeData.GetCustomAttributes (originalMethod)
+                    .Select (x => new CustomAttributeDataAdapter (x))
+                    .Cast<ICustomAttributeData>().ToList().AsReadOnly();
       var body = CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
@@ -88,6 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
           originalMethod.IsGenericMethod,
           originalMethod.IsGenericMethodDefinition,
           originalMethod.ContainsGenericParameters,
+          customAttributeDataProvider,
           body);
     }
 
@@ -96,6 +102,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly bool _isGenericMethod;
     private readonly bool _isGenericMethodDefinition;
     private readonly bool _containsGenericParameters;
+    private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
     private UnderlyingMethodInfoDescriptor (
         MethodInfo underlyingSystemMethodInfo,
@@ -107,16 +114,19 @@ namespace Remotion.TypePipe.MutableReflection
         bool isGenericMethod,
         bool isGenericMethodDefinition,
         bool containsGenericParameters,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
         : base (underlyingSystemMethodInfo, name, attributes, parameterDescriptors, body)
     {
       Assertion.IsNotNull (returnType);
+      Assertion.IsNotNull (customAttributeDataProvider);
       Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));
 
       _returnType = returnType;
       _baseMethod = baseMethod;
       _isGenericMethod = isGenericMethod;
       _isGenericMethodDefinition = isGenericMethodDefinition;
+      _customAttributeDataProvider = customAttributeDataProvider;
       _containsGenericParameters = containsGenericParameters;
     }
 
@@ -143,6 +153,11 @@ namespace Remotion.TypePipe.MutableReflection
     public bool ContainsGenericParameters
     {
       get { return _containsGenericParameters; }
+    }
+
+    public Func<ReadOnlyCollection<ICustomAttributeData>> CustomAttributeDataProvider
+    {
+      get { return _customAttributeDataProvider; }
     }
   }
 }

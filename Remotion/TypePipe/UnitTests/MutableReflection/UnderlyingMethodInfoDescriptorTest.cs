@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.IsGenericMethod, Is.EqualTo (isGenericMethod));
       Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
       Assert.That (descriptor.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
+      Assert.That (descriptor.CustomAttributeDataProvider.Invoke(), Is.Empty);
       Assert.That (descriptor.Body, Is.SameAs (body));
     }
 
@@ -117,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Attributes, Is.EqualTo (originalMethod.Attributes));
       Assert.That (descriptor.ReturnType, Is.SameAs (originalMethod.ReturnType));
 
-      var expectedParamterDecls =
+      var expectedParameterDescriptors =
           new[]
           {
               new { Type = typeof (string), Name = "s", Attributes = ParameterAttributes.None },
@@ -125,11 +126,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
               new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
           };
-      var actualParameterDecls = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
-      Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
+      var actualParameterDescriptors = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      Assert.That (actualParameterDescriptors, Is.EqualTo (expectedParameterDescriptors));
       Assert.That (descriptor.BaseMethod, Is.SameAs (fakeBaseMethod));
-      Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
 
+      Assert.That (
+          descriptor.CustomAttributeDataProvider.Invoke().Select (ad => ad.Constructor.DeclaringType),
+          Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
+
+      Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (originalMethod.ReturnType));
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalMethod));
@@ -150,10 +155,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
     
-// ReSharper disable ClassNeverInstantiated.Local
-    private class DomainType
-// ReSharper restore ClassNeverInstantiated.Local
+    public class DomainType
     {
+      [Abc, Def]
       public int Method (string s, out int i, [In] double d, [In, Out] object o)
       {
         Dev.Null = s;
@@ -168,5 +172,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // Some method that has a different root definition
       public override string ToString () { return null; }
     }
+
+    public class AbcAttribute : Attribute { }
+    public class DefAttribute : Attribute { }
   }
 }
