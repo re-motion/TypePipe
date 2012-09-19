@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,19 +14,24 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  /// <summary>
-  /// Represents the TypePipe counterpart of <see cref="CustomAttributeData"/>.
-  /// </summary>
-  public interface ICustomAttributeData
+  public static class TypePipeCustomAttributeData
   {
-    ConstructorInfo Constructor { get; }
-    ReadOnlyCollection<object> ConstructorArguments { get; }
-    IEnumerable<ICustomAttributeNamedArgument> NamedArguments { get; }
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member)
+    {
+      if (member is MutableMethodInfo)
+      {
+        var mutableMethod = (MutableMethodInfo) member;
+        return mutableMethod.GetCustomAttributeData();
+      }
+      
+      throw new NotImplementedException ("TODO 5042");
+    }
   }
 }

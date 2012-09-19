@@ -15,17 +15,22 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.FunctionalProgramming;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5043")]
   [TestFixture]
   public class TypePipeCustomAttributeDataTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
+    [Ignore ("TODO 5043")]
     public void TypePipeCustomAttributeData_StandardReflection ()
     {
       var type = typeof (DomainType);
@@ -69,9 +74,9 @@ namespace TypePipe.IntegrationTests
             //var constructor = mutableType.AllMutableConstructors.Single();
             //CheckEquals(TypePipeCustomAttributeData.GetCustomAttributes(constructor), new[] { attribute4 });
 
-            //var attribute5 = BuildExpectedAttributeData ("method");
-            //var method = mutableType.AllMutableMethods.Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(method), new[] { attribute5 });
+            var attribute5 = BuildExpectedAttributeData ("method");
+            var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), new[] { attribute5 });
 
             //var attribute6 = BuildExpectedAttributeData("return value");
             //var returnParameter = method.ReturnParameter;
@@ -112,16 +117,58 @@ namespace TypePipe.IntegrationTests
     //{
     //}
 
-    //private void CheckEquals (IEnumerable<TypePipeCustoAttributeData> actual, IEnumerable<TypePipeCustoAttributeData> expected)
-    //{
-    //}
+    private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<ICustomAttributeData> expected)
+    {
+      Assert.That (actual.Count(), Is.EqualTo (expected.Count()));
+      var attributeDatas = actual.Zip (expected, (a, e) => new { Actual = a, Expected = e });
+      foreach (var attributeData in attributeDatas)
+      {
+        Assert.That (attributeData.Actual.Constructor, Is.EqualTo (attributeData.Expected.Constructor));
+        Assert.That (attributeData.Actual.ConstructorArguments, Is.EqualTo (attributeData.Expected.ConstructorArguments));
 
-    //private TypeCustomAttributeData BuildExpectedAttributeData (
-    //    string constructorArgument, string namedArgument = null, ConstructorInfo constructorInfo = null)
-    //{
-    //  constructorInfo = constructorInfo ?? NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
-    //  
-    //}
+        Assert.That (attributeData.Actual.NamedArguments.Count (), Is.EqualTo (attributeData.Expected.NamedArguments.Count ()));
+        var namedArguments = attributeData.Actual.NamedArguments.Zip (attributeData.Expected.NamedArguments, (a, e) => new { Actual = a, Expected = e });
+        foreach (var namedArgument in namedArguments)
+        {
+          Assert.That (namedArgument.Actual.MemberInfo, Is.EqualTo (namedArgument.Expected.MemberInfo));
+          Assert.That (namedArgument.Actual.Value, Is.EqualTo (namedArgument.Expected.Value));
+        }
+      }
+    }
+
+    private ICustomAttributeData BuildExpectedAttributeData (
+        string ctorArgumentValue, string namedArgumentValue = null, ConstructorInfo constructor = null)
+    {
+      constructor = constructor ?? NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
+
+      var namedArguments = new List<ICustomAttributeNamedArgument>();
+      if (namedArgumentValue != null)
+      {
+        var namedArgumentMember = NormalizingMemberInfoFromExpressionUtility.GetProperty ((AbcAttribute obj) => obj.NamedArgument);
+        var namedArgument = new CustomAttributeNamedArgumentStub { MemberInfo = namedArgumentMember, Value = namedArgumentValue };
+        namedArguments.Add (namedArgument);
+      }
+
+      return new CustomAttributeDataStub
+             {
+                 Constructor = constructor,
+                 ConstructorArguments = new object[] { ctorArgumentValue }.ToList().AsReadOnly(),
+                 NamedArguments = namedArguments.AsReadOnly()
+             };
+    }
+
+    private class CustomAttributeDataStub : ICustomAttributeData
+    {
+      public ConstructorInfo Constructor { get; set; }
+      public ReadOnlyCollection<object> ConstructorArguments { get; set; }
+      public IEnumerable<ICustomAttributeNamedArgument> NamedArguments { get; set; }
+    }
+
+    private class CustomAttributeNamedArgumentStub : ICustomAttributeNamedArgument
+    {
+      public MemberInfo MemberInfo { get; set; }
+      public object Value { get; set; }
+    }
 
     [Abc ("class")]
     [Abc ("class", NamedArgument = "multiple")]

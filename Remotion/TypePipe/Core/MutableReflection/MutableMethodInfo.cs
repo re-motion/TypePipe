@@ -236,7 +236,7 @@ namespace Remotion.TypePipe.MutableReflection
       return _parameters.ToArray();
     }
 
-    public ReadOnlyCollection<ICustomAttributeData> GetCustomAttributeData ()
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeData.Value;
     }

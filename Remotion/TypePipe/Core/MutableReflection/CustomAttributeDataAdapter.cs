@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -51,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _constructorArguments; }
     }
 
-    public ReadOnlyCollection<ICustomAttributeNamedArgument> NamedArguments
+    public IEnumerable<ICustomAttributeNamedArgument> NamedArguments
     {
       get { return _namedArguments; }
     }
