@@ -27,43 +27,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class CustomAttributeDataAdapterTest
   {
     [Test]
-    [Domain (0, 0)]
-    public void ConstructorInfo ()
+    [Domain ("ctor", 7, Property = "prop", Field = "field")]
+    public void Initialization ()
     {
-      var method = MethodInfo.GetCurrentMethod ();
+      var method = MethodBase.GetCurrentMethod();
       var customAttributeData = CustomAttributeData.GetCustomAttributes (method).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
 
       var result = new CustomAttributeDataAdapter (customAttributeData);
 
       Assert.That (result.Constructor, Is.SameAs (customAttributeData.Constructor));
-    }
-
-    [Test]
-    [Domain ("test", 7)]
-    public void ConstructorArguments ()
-    {
-      var method = MethodInfo.GetCurrentMethod ();
-      var customAttributeData = CustomAttributeData.GetCustomAttributes (method).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
-
-      var result = new CustomAttributeDataAdapter (customAttributeData);
-
-      Assert.That (result.ConstructorArguments, Is.EqualTo (new object[] { "test", 7 }));
-    }
-
-    [Test]
-    [Domain (0, 0, Property = "prop", Field = "field")]
-    public void NamedArguments ()
-    {
-      var method = MethodInfo.GetCurrentMethod ();
-      var customAttributeData = CustomAttributeData.GetCustomAttributes (method).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
-
-      var result = new CustomAttributeDataAdapter (customAttributeData);
-
+      Assert.That (result.ConstructorArguments, Is.EqualTo (new object[] { "ctor", 7 }));
       Assert.That (result.NamedArguments, Has.Count.EqualTo (2));
-      Assert.That (result.NamedArguments,
-        Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Property" && x.Value.Equals ("prop")));
-      Assert.That (result.NamedArguments,
-        Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Field" && x.Value.Equals ("field")));
+      Assert.That (
+          result.NamedArguments,
+          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Property" && x.Value.Equals ("prop")));
+      Assert.That (
+          result.NamedArguments,
+          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Field" && x.Value.Equals ("field")));
     }
 
     private class DomainAttribute : Attribute
