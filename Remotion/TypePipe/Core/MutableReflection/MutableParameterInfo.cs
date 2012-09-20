@@ -23,8 +23,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
-  /// This allows to represent the signature of members that have yet to be generated within expression trees.
+  /// Represents a <see cref="ParameterInfo"/> that can be modified.
+  /// This allows to represent parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
   /// </summary>
   public class MutableParameterInfo : ParameterInfo, ITypePipeCustomAttributeProvider
   {

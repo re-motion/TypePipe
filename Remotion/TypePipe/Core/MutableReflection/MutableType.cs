@@ -29,8 +29,7 @@ using System.Linq;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a <see cref="Type"/> that can be changed. Changes are recorded and, depending on the concrete <see cref="MutableType"/>, applied
-  /// to an existing type or to a newly created type.
+  /// Represents a <see cref="Type"/>, which allows to add or modify members.
   /// </summary>
   /// <remarks>
   ///   <para>

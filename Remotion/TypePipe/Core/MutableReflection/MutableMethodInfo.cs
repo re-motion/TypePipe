@@ -30,7 +30,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a method that does not exist yet. This is used to represent methods yet to be generated within an expression tree.
+  /// Represents a <see cref="MethodInfo"/> that can be modified.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase

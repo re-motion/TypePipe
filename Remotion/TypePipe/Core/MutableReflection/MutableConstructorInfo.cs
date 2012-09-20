@@ -29,7 +29,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a constructor that does not exist yet. This is used to represent constructors yet to be generated within an expression tree.
+  /// Represents a <see cref="ConstructorInfo"/> that can be modified.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
