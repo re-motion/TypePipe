@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableType"/> to represent the original type, before any mutations.
   /// </remarks>
-  public class UnderlyingTypeDescriptor
+  public class UnderlyingTypeDescriptor : UnderlyingInfoDescriptorBase<Type>
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
@@ -43,9 +43,14 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4695
       if (CanNotBeSubclassed (originalType) || originalType.IsAbstract)
+      {
         throw new ArgumentException (
-          "Original type must not be sealed, abstract, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
-          + "a generic parameter, contain generic parameters and must have an accessible constructor.", "originalType");
+            "Original type must not be sealed, abstract, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+            + "a generic parameter, contain generic parameters and must have an accessible constructor.",
+            "originalType");
+      }
+
+      var customAttributeDataProvider = GetCustomAttributeProvider (originalType);
 
       return new UnderlyingTypeDescriptor (
           originalType,
@@ -54,7 +59,8 @@ namespace Remotion.TypePipe.MutableReflection
           originalType.Namespace,
           originalType.FullName,
           originalType.Attributes,
-          Array.AsReadOnly (originalType.GetInterfaces ()),
+          customAttributeDataProvider,
+          Array.AsReadOnly (originalType.GetInterfaces()),
           originalType.GetFields (c_allMembers).ToList().AsReadOnly(),
           originalType.GetConstructors (c_allInstanceMembers).ToList().AsReadOnly(),
           originalType.GetMethods (c_allMembers).Where (m => !m.IsGenericMethod).ToList().AsReadOnly());
@@ -75,10 +81,7 @@ namespace Remotion.TypePipe.MutableReflection
       return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any();
     }
 
-    private readonly Type _underlyingSystemType;
-
     private readonly Type _baseType;
-    private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
     private readonly TypeAttributes _attributes;
@@ -95,21 +98,20 @@ namespace Remotion.TypePipe.MutableReflection
         string @namespace,
         string fullName,
         TypeAttributes attributes,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         ReadOnlyCollection<Type> interfaces,
         ReadOnlyCollection<FieldInfo> fields,
         ReadOnlyCollection<ConstructorInfo> constructors,
         ReadOnlyCollection<MethodInfo> methods)
+        : base (underlyingSystemType, name, customAttributeDataProvider)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
-      ArgumentUtility.CheckNotNull ("interfaces", interfaces);
-      ArgumentUtility.CheckNotNull ("fields", fields);
-      ArgumentUtility.CheckNotNull ("constructors", constructors);
-      ArgumentUtility.CheckNotNull ("methods", methods);
+      Assertion.IsNotNull (fullName);
+      Assertion.IsNotNull (interfaces);
+      Assertion.IsNotNull (fields);
+      Assertion.IsNotNull (constructors);
+      Assertion.IsNotNull (methods);
 
-      _underlyingSystemType = underlyingSystemType;
       _baseType = baseType;
-      _name = name;
       _namespace = @namespace;
       _fullName = fullName;
       _attributes = attributes;
@@ -119,19 +121,9 @@ namespace Remotion.TypePipe.MutableReflection
       _methods = methods;
     }
 
-    public Type UnderlyingSystemType
-    {
-      get { return _underlyingSystemType; }
-    }
-
     public Type BaseType
     {
       get { return _baseType; }
-    }
-
-    public string Name
-    {
-      get { return _name; }
     }
 
     public string Namespace

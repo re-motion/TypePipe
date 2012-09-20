@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class UnderlyingTypeDescriptorTest
   {
     [Test]
-    public void Create ()
+    public void Create_ForExisting ()
     {
       var originalType = typeof (ExampleType);
 
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingTypeDescriptor.Create (originalType);
 
-      Assert.That (descriptor.UnderlyingSystemType, Is.SameAs (typeof (ExampleType)));
+      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (typeof (ExampleType)));
       Assert.That (descriptor.BaseType, Is.EqualTo (typeof (ExampleType).BaseType));
       Assert.That (descriptor.Name, Is.EqualTo (originalType.Name));
       Assert.That (descriptor.Namespace, Is.EqualTo (originalType.Namespace));
@@ -51,18 +51,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Fields, Is.EqualTo (allFields));
       Assert.That (descriptor.Constructors, Is.EqualTo (instanceConstructors));
       Assert.That (descriptor.Methods, Is.EqualTo (nonGenericMethods));
+      Assert.That (
+          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Constructor.DeclaringType),
+          Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Original type must not be another mutable type.\r\nParameter name: originalType")]
-    public void Create_ThrowsIfOriginalTypeIsMutableType ()
+    public void Create_ForExisting_ThrowsIfOriginalTypeIsMutableType ()
     {
       Create (MutableTypeObjectMother.Create());
     }
 
     [Test]
-    public void Create_ThrowsIfOriginalTypeCannotBeSubclassed ()
+    public void Create_ForExisting_ThrowsIfOriginalTypeCannotBeSubclassed ()
     {
       var msg = "Original type must not be sealed, abstract, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
                 + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType";
@@ -101,6 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
 // ReSharper disable MemberCanBePrivate.Global
+    [Abc, Def]
     public class ExampleType : IDisposable
 // ReSharper restore MemberCanBePrivate.Global
     {
@@ -150,5 +154,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public abstract class AbstractDomainType { }
+
+    public class AbcAttribute : Attribute { }
+    public class DefAttribute : Attribute { }
   }
 }

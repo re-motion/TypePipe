@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.MutableReflection
         IRelatedMethodFinder relatedMethodFinder)
         : base (
             memberSelector,
-            underlyingTypeDescriptor.UnderlyingSystemType,
+            underlyingTypeDescriptor.UnderlyingSystemMember,
             underlyingTypeDescriptor.BaseType,
             underlyingTypeDescriptor.Attributes,
             underlyingTypeDescriptor.Name,
