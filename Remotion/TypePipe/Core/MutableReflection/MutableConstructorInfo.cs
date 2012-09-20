@@ -143,6 +143,11 @@ namespace Remotion.TypePipe.MutableReflection
       return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new NotImplementedException ();
+    }
+
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();

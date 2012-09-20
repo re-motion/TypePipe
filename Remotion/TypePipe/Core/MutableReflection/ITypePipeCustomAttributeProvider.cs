@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,16 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System.Collections.Generic;
+
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines a common interface for mutable members, e.g. <see cref="MutableFieldInfo"/>, <see cref="MutableMethodInfo"/> etc.
+  /// Provides access to the <see cref="ICustomAttributeData"/>s of a member or parameter.
   /// </summary>
-  public interface IMutableMember : ITypePipeCustomAttributeProvider
+  public interface ITypePipeCustomAttributeProvider
   {
-    MutableType DeclaringType { get; }
-
-    bool IsNew { get; }
-    bool IsModified { get; }
+    // TODO 4943 : derive from System.Reflection.ICustomAttributeProvider
+    IEnumerable<ICustomAttributeData> GetCustomAttributeData();
   }
 }

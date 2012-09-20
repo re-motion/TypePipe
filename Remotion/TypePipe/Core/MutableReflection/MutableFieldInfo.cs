@@ -94,6 +94,11 @@ namespace Remotion.TypePipe.MutableReflection
       return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new NotImplementedException ();
+    }
+
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
       get { return _addedCustomAttributeDeclarations.AsReadOnly(); }

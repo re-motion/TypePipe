@@ -115,6 +115,7 @@
     <Compile Include="MutableReflection\IMemberSelector.cs" />
     <Compile Include="MutableReflection\IMutableTypeUnmodifiedMemberHandler.cs" />
     <Compile Include="MutableReflection\IRelatedMethodFinder.cs" />
+    <Compile Include="MutableReflection\ITypePipeCustomAttributeProvider.cs" />
     <Compile Include="MutableReflection\MemberSelector.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyCreationContext.cs" />
