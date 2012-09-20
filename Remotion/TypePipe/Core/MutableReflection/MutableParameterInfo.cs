@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -32,6 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly Type _parameterType;
     private readonly string _name;
     private readonly ParameterAttributes _attributes;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     public MutableParameterInfo (MemberInfo member, int position, UnderlyingParameterInfoDescriptor underlyingParameterInfoDescriptor)
     {
@@ -43,6 +45,9 @@ namespace Remotion.TypePipe.MutableReflection
       _parameterType = underlyingParameterInfoDescriptor.Type;
       _name = underlyingParameterInfoDescriptor.Name;
       _attributes = underlyingParameterInfoDescriptor.Attributes;
+
+      _customAttributeDatas =
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingParameterInfoDescriptor.CustomAttributeDataProvider);
     }
 
     public override MemberInfo Member
@@ -72,7 +77,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new NotImplementedException();
+      return _customAttributeDatas.Value;
     }
   }
 }

@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -42,32 +44,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (mutableParameter.Name, Is.EqualTo (name));
       Assert.That (mutableParameter.Attributes, Is.EqualTo (attributes));
     }
-    
-    //[Test]
-    //public void GetCustomAttributeData ()
-    //{
-    //  var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
-    //  var parameter = method.GetParameters().Single();
-    //  var mutableParameter = MutableParameterInfoObjectMother.Create()
 
-    //  var result = mutableField.GetCustomAttributeData ();
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
+      var parameter = method.GetParameters().Single();
+      var mutableParameter = MutableParameterInfoObjectMother.CreateForExisting (parameter);
 
-    //  Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
-    //}
+      var result = mutableParameter.GetCustomAttributeData ();
 
-    //[Test]
-    //public void GetCustomAttributeData_Lazy ()
-    //{
-    //  var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
-    //  var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField: field);
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+    }
 
-    //  var result1 = mutableField.GetCustomAttributeData ();
-    //  var result2 = mutableField.GetCustomAttributeData ();
+    [Test]
+    public void GetCustomAttributeData_Lazy ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
+      var parameter = method.GetParameters ().Single ();
+      var mutableParameter = MutableParameterInfoObjectMother.CreateForExisting (parameter);
 
-    //  Assert.That (result1, Is.SameAs (result2));
-    //}
+      var result1 = mutableParameter.GetCustomAttributeData ();
+      var result2 = mutableParameter.GetCustomAttributeData ();
 
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
+// ReSharper disable UnusedParameter.Local
     private void Method ([Abc] string parameter) { }
+// ReSharper restore UnusedParameter.Local
 
     public class AbcAttribute : Attribute { }
   }
