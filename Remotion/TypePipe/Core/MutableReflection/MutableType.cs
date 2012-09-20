@@ -44,6 +44,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
+
     private readonly ReadOnlyCollection<Type> _existingInterfaces;
     private readonly List<Type> _addedInterfaces = new List<Type> ();
 
@@ -71,6 +73,9 @@ namespace Remotion.TypePipe.MutableReflection
 
       _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
+
+      _customAttributeDatas =
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingTypeDescriptor.CustomAttributeDataProvider);
 
       _existingInterfaces = underlyingTypeDescriptor.Interfaces;
 
@@ -151,6 +156,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO 4972: Replace usages with TypeEqualityComparer.
+
     public bool IsAssignableTo (Type other)
     {
       ArgumentUtility.CheckNotNull ("other", other);
@@ -159,6 +165,11 @@ namespace Remotion.TypePipe.MutableReflection
       return UnderlyingSystemType.Equals (other)
              || other.IsAssignableFrom (BaseType)
              || GetInterfaces ().Any (other.IsAssignableFrom);
+    }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeDatas.Value;
     }
 
     public void AddInterface (Type interfaceType)
@@ -433,11 +444,5 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
     }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      throw new NotImplementedException();
-    }
-
   }
 }

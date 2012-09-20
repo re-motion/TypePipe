@@ -223,6 +223,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetCustomAttributeData ()
+    {
+      var result = _mutableType.GetCustomAttributeData ();
+
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+    }
+
+    [Test]
+    public void GetCustomAttributeData_Lazy ()
+    {
+      var result1 = _mutableType.GetCustomAttributeData ();
+      var result2 = _mutableType.GetCustomAttributeData ();
+
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
     public void AddInterface ()
     {
       Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
@@ -1028,6 +1045,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void ExistingBaseMethod () { }
     }
 
+    [Abc]
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       // ReSharper disable UnaccessedField.Global
@@ -1055,5 +1073,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public virtual string VirtualMethod () { return ""; }
     }
+
+    public class AbcAttribute : Attribute { }
   }
 }
