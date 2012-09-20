@@ -65,7 +65,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: attributeConstructorInfo")]
+        "Type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+NonAttributeClass' does not derive from 'System.Attribute'."
+        + "\r\nParameter name: constructor")]
+    public void Initialization_NoAttributeType ()
+    {
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonAttributeClass());
+
+      new CustomAttributeDeclaration (constructor, new object[0]);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: constructor")]
     public void Initialization_NonPublicConstructor ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ("internal"));
@@ -75,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "The attribute constructor 'Void .cctor()' is not a public instance constructor.\r\nParameter name: attributeConstructorInfo")]
+      "The attribute constructor 'Void .cctor()' is not a public instance constructor.\r\nParameter name: constructor")]
     public void Initialization_TypeInitializer ()
     {
       var constructor = typeof (CustomAttribute).GetConstructor (BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
@@ -86,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "The attribute type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+PrivateCustomAttribute' is not publicly "
-        + "visible.\r\nParameter name: attributeConstructorInfo")]
+        + "visible.\r\nParameter name: constructor")]
     public void Initialization_NonVisibleCustomAttributeType ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new PrivateCustomAttribute ());
@@ -186,11 +197,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (instance.Field, Is.EqualTo ("1676"));
     }
 
-    public class CustomAttribute
+    public class CustomAttribute : Attribute
     {
-#pragma warning disable 169
-      public string Field = null;
-#pragma warning restore 169
+      public string Field;
 
       static CustomAttribute ()
       {
@@ -203,6 +212,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public CustomAttribute (ValueType valueType)
       {
+        Dev.Null = valueType;
       }
 
       public CustomAttribute (int arg)
@@ -212,6 +222,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       internal CustomAttribute (string arg)
       {
+        Dev.Null = arg;
       }
 
       public int CtorIntArg { get; set; }
@@ -225,8 +236,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 // ReSharper restore UnusedAutoPropertyAccessor.Local
     }
 
-    private class PrivateCustomAttribute
-    {
-    }
+    private class PrivateCustomAttribute : Attribute { }
+
+    public class NonAttributeClass /* does not derive from Attribute */ { }
   }
 }

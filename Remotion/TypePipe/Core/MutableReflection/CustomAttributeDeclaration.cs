@@ -75,24 +75,30 @@ namespace Remotion.TypePipe.MutableReflection
       return instance;
     }
 
-    private void CheckConstructor (ConstructorInfo attributeConstructorInfo)
+    private void CheckConstructor (ConstructorInfo constructor)
     {
-      if (!attributeConstructorInfo.IsPublic)
+      if (!typeof (Attribute).IsAssignableFrom (constructor.DeclaringType))
       {
-        var message = string.Format ("The attribute constructor '{0}' is not a public instance constructor.", attributeConstructorInfo);
-        throw new ArgumentException (message, "attributeConstructorInfo");
+        var message = string.Format ("Type '{0}' does not derive from '{1}'.", constructor.DeclaringType.FullName, typeof(Attribute).FullName);
+        throw new ArgumentException (message, "constructor");
       }
 
-      if (!attributeConstructorInfo.DeclaringType.IsVisible)
+      if (!constructor.IsPublic)
       {
-        var message = string.Format ("The attribute type '{0}' is not publicly visible.", attributeConstructorInfo.DeclaringType.FullName);
-        throw new ArgumentException (message, "attributeConstructorInfo");
+        var message = string.Format ("The attribute constructor '{0}' is not a public instance constructor.", constructor);
+        throw new ArgumentException (message, "constructor");
+      }
+
+      if (!constructor.DeclaringType.IsVisible)
+      {
+        var message = string.Format ("The attribute type '{0}' is not publicly visible.", constructor.DeclaringType.FullName);
+        throw new ArgumentException (message, "constructor");
       }
     }
 
-    private void CheckConstructorArguments (ConstructorInfo attributeConstructorInfo, object[] constructorArguments)
+    private void CheckConstructorArguments (ConstructorInfo constructor, object[] constructorArguments)
     {
-      var parameters = attributeConstructorInfo.GetParameters ();
+      var parameters = constructor.GetParameters ();
       if (parameters.Length != constructorArguments.Length)
       {
         var message = string.Format ("Expected {0} constructor argument(s), but was {1}.", parameters.Length, constructorArguments.Length);
@@ -119,9 +125,9 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
-    private void CheckDeclaringTypes (ConstructorInfo attributeConstructorInfo, NamedAttributeArgumentDeclaration[] namedArguments)
+    private void CheckDeclaringTypes (ConstructorInfo constructor, NamedAttributeArgumentDeclaration[] namedArguments)
     {
-      var attributeType = attributeConstructorInfo.DeclaringType;
+      var attributeType = constructor.DeclaringType;
       foreach (var namedArgument in namedArguments)
       {
         var memberDeclaringType = namedArgument.MemberInfo.DeclaringType;

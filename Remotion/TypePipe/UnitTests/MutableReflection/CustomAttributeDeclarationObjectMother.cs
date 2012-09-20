@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new CustomAttributeDeclaration (attributeType.GetConstructor (Type.EmptyTypes), new object[0]);
     }
 
-    public class CustomAttribute
+    public class CustomAttribute : Attribute
     {
       public object Field = null;
 
