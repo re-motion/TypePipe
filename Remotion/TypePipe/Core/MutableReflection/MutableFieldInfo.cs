@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _declaringType;
     private readonly UnderlyingFieldInfoDescriptor _underlyingFieldInfoDescriptor;
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     public MutableFieldInfo (MutableType declaringType, UnderlyingFieldInfoDescriptor underlyingFieldInfoDescriptor)
     {
@@ -42,6 +43,9 @@ namespace Remotion.TypePipe.MutableReflection
 
       _declaringType = declaringType;
       _underlyingFieldInfoDescriptor = underlyingFieldInfoDescriptor;
+
+      _customAttributeDatas =
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingFieldInfoDescriptor.CustomAttributeDataProvider);
     }
 
     public override Type DeclaringType
@@ -84,6 +88,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingFieldInfoDescriptor.Attributes; }
     }
 
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
+    }
+
     public override string ToString ()
     {
       return SignatureDebugStringGenerator.GetFieldSignature (this);
@@ -96,12 +105,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new NotImplementedException ();
-    }
-
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
-    {
-      get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
+      return _customAttributeDatas.Value;
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)

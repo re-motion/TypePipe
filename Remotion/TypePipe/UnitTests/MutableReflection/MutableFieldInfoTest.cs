@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -112,6 +114,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetCustomAttributeData ()
+    {
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
+      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField:field);
+
+      var result = mutableField.GetCustomAttributeData ();
+
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+    }
+
+    [Test]
+    public void GetCustomAttributeData_Lazy ()
+    {
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
+      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField: field);
+
+      var result1 = mutableField.GetCustomAttributeData ();
+      var result2 = mutableField.GetCustomAttributeData ();
+
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
     public void AddCustomAttribute ()
     {
       Assert.That (_fieldInfo.IsNew, Is.True);
@@ -166,5 +191,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class DerivedCustomAttribute : CustomAttribute
     {
     }
+
+    [Abc]
+    public string Field;
+
+    public class AbcAttribute : Attribute { }
   }
 }
