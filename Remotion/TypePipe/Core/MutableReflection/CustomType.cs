@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMemberSelector _memberSelector;
 
     private readonly Type _underlyingSystemType;
+    private readonly Type _declaringType;
     private readonly Type _baseType;
     private readonly TypeAttributes _typeAttributes;
     private readonly string _name;
@@ -45,6 +46,7 @@ namespace Remotion.TypePipe.MutableReflection
     protected CustomType (
         IMemberSelector memberSelector,
         Type underlyingSystemType,
+        Type declaringType,
         Type baseType,
         TypeAttributes typeAttributes,
         string name,
@@ -53,6 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingSystemType", underlyingSystemType);
+      // Declaring type may be null (for non-nested types)
       // Base type may be null (for type object)
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNullOrEmpty ("namespace", @namespace);
@@ -61,6 +64,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _memberSelector = memberSelector;
       _underlyingSystemType = underlyingSystemType;
+      _declaringType = declaringType;
       _baseType = baseType;
       _typeAttributes = typeAttributes;
       _name = name;
@@ -86,6 +90,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type UnderlyingSystemType
     {
       get { return _underlyingSystemType; }
+    }
+
+    public override Type DeclaringType
+    {
+      get { return _declaringType; }
     }
 
     public override Type BaseType

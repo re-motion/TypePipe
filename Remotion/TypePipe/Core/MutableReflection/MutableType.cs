@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
   ///     IsEquivalentTo method should be used rather than comparing via <see cref="object.Equals(object)"/>.
   ///   </para>
   /// </remarks>
-  public class MutableType : CustomType
+  public class MutableType : CustomType, IMutableMember
   {
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
@@ -58,6 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
         : base (
             memberSelector,
             underlyingTypeDescriptor.UnderlyingSystemInfo,
+            null,
             underlyingTypeDescriptor.BaseType,
             underlyingTypeDescriptor.Attributes,
             underlyingTypeDescriptor.Name,
@@ -77,6 +78,21 @@ namespace Remotion.TypePipe.MutableReflection
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableTypeMethodCollection (this, underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
+    }
+
+    public new MutableType DeclaringType
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public bool IsNew
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public bool IsModified
+    {
+      get { throw new NotImplementedException (); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -422,5 +438,11 @@ namespace Remotion.TypePipe.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
     }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new NotImplementedException();
+    }
+
   }
 }

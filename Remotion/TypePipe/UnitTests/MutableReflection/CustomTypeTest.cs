@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private IMemberSelector _memberSelectorMock;
 
     private Type _underlyingSystemType;
+    private Type _declaringType;
     private Type _baseType;
     private TypeAttributes _typeAttributes;
     private string _name;
@@ -45,13 +46,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
       _underlyingSystemType = ReflectionObjectMother.GetSomeType();
+      _declaringType = ReflectionObjectMother.GetSomeType();
       _baseType = ReflectionObjectMother.GetSomeType();
       _typeAttributes = (TypeAttributes) 777;
       _name = "type name";
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customType = new TestableCustomType (_memberSelectorMock, _underlyingSystemType, _baseType, _typeAttributes, _name, _namespace, _fullName);
+      _customType = new TestableCustomType (
+          _memberSelectorMock, _underlyingSystemType, _declaringType, _baseType, _typeAttributes, _name, _namespace, _fullName);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
@@ -61,10 +64,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Initialization ()
+    {
+      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
+      Assert.That (_customType.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_customType.BaseType, Is.SameAs (_baseType));
+      Assert.That (_customType.Attributes, Is.EqualTo (_typeAttributes));
+      Assert.That (_customType.Name, Is.EqualTo (_name));
+      Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
+      Assert.That (_customType.FullName, Is.EqualTo (_fullName));
+    }
+
+    [Test]
     public void Initialization_Null ()
     {
+      Type declaringType = null;
       Type baseType = null;
-      new TestableCustomType (_memberSelectorMock, _underlyingSystemType, baseType, _typeAttributes, _name, _namespace, _fullName);
+
+      var customType = new TestableCustomType (
+          _memberSelectorMock, _underlyingSystemType, declaringType, baseType, _typeAttributes, _name, _namespace, _fullName);
+
+      Assert.That (customType.DeclaringType, Is.Null);
+      Assert.That (customType.BaseType, Is.Null);
     }
 
     [Test]
@@ -77,46 +98,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Module ()
     {
       Assert.That (_customType.Module, Is.Null);
-    }
-
-    [Test]
-    public void UnderlyingSystemType ()
-    {
-      Assert.That (_underlyingSystemType, Is.Not.Null);
-
-      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
-    }
-
-    [Test]
-    public void BaseType ()
-    {
-      Assert.That (_baseType, Is.Not.Null);
-
-      Assert.That (_customType.BaseType, Is.SameAs (_baseType));
-    }
-
-    [Test]
-    public void Name ()
-    {
-      Assert.That (_name, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_customType.Name, Is.EqualTo (_name));
-    }
-
-    [Test]
-    public void Namespace ()
-    {
-      Assert.That (_namespace, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
-    }
-
-    [Test]
-    public void FullName ()
-    {
-      Assert.That (_fullName, Is.Not.Null.And.Not.Empty);
-
-      Assert.That (_customType.FullName, Is.EqualTo (_fullName));
     }
 
     [Test]
@@ -338,7 +319,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // None of these members should throw an exception 
       Dev.Null = _customType.MemberType;
       // TODO: DeclaringType should work correctly for nested types.
-      Dev.Null = _customType.DeclaringType;
       Dev.Null = _customType.DeclaringMethod;
       Dev.Null = _customType.ReflectedType;
       Dev.Null = _customType.IsGenericType;
