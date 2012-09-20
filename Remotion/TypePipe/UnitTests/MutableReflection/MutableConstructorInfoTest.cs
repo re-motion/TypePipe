@@ -264,6 +264,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (parametersAgain[0], Is.Not.Null);
     }
 
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      var mutableCtor = MutableConstructorInfoObjectMother.CreateForExisting (ctor);
+
+      var result = mutableCtor.GetCustomAttributeData ();
+
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+    }
+
+    [Test]
+    public void GetCustomAttributeData_Lazy ()
+    {
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
+      var mutableCtor = MutableConstructorInfoObjectMother.CreateForExisting (ctor);
+
+      var result1 = mutableCtor.GetCustomAttributeData ();
+      var result2 = mutableCtor.GetCustomAttributeData ();
+
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
     private MutableConstructorInfo Create (UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
     {
       return new MutableConstructorInfo (_declaringType, underlyingConstructorInfoDescriptor);
@@ -276,8 +299,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class DomainType
     {
+      [Abc]
       public DomainType () { }
       internal DomainType (int i) { Dev.Null = i; }
     }
+
+    public class AbcAttribute : Attribute { }
   }
 }

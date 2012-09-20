@@ -37,6 +37,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _declaringType;
     private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    // TODO 5057 (Use Lazy<T>)
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     private Expression _body;
 
@@ -53,6 +55,9 @@ namespace Remotion.TypePipe.MutableReflection
       _parameters = _underlyingConstructorInfoDescriptor.ParameterDescriptors
           .Select ((pd, i) => MutableParameterInfo.CreateFromDescriptor (this, i, pd))
           .ToList().AsReadOnly();
+
+      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (
+          underlyingConstructorInfoDescriptor.CustomAttributeDataProvider);
 
       _body = _underlyingConstructorInfoDescriptor.Body;
     }
@@ -143,14 +148,14 @@ namespace Remotion.TypePipe.MutableReflection
       return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      throw new NotImplementedException ();
-    }
-
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
+    }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeDatas.Value;
     }
 
     #region Not Implemented from ConstructorInfo interface
