@@ -33,11 +33,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static UnderlyingParameterInfoDescriptor CreateForNew (
-        Type type = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
+        Type parameterType = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
     {
       return UnderlyingParameterInfoDescriptor.Create (
           new ParameterDeclaration (
-              type ?? typeof (UnspecifiedType),
+              parameterType ?? typeof (UnspecifiedType),
               name,
               attributes));
     }

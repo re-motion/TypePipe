@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
 
       _parameters = _underlyingConstructorInfoDescriptor.ParameterDescriptors
-          .Select ((pd, i) => MutableParameterInfo.CreateFromDescriptor (this, i, pd))
+          .Select ((pd, i) => new MutableParameterInfo (this, i, pd))
           .ToList().AsReadOnly();
 
       _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (

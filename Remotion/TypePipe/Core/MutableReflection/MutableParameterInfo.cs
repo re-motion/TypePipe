@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -24,33 +25,24 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
   /// This allows to represent the signature of members that have yet to be generated within expression trees.
   /// </summary>
-  public class MutableParameterInfo : ParameterInfo
+  public class MutableParameterInfo : ParameterInfo, ITypePipeCustomAttributeProvider
   {
-    public static MutableParameterInfo CreateFromDescriptor (MemberInfo member, int position, UnderlyingParameterInfoDescriptor parameterDescriptor)
-    {
-      ArgumentUtility.CheckNotNull ("member", member);
-      ArgumentUtility.CheckNotNull ("parameterDescriptor", parameterDescriptor);
-
-      return new MutableParameterInfo (member, position, parameterDescriptor.Type, parameterDescriptor.Name, parameterDescriptor.Attributes);
-    }
-
     private readonly MemberInfo _member;
     private readonly int _position;
     private readonly Type _parameterType;
     private readonly string _name;
     private readonly ParameterAttributes _attributes;
 
-    public MutableParameterInfo (MemberInfo member, int position, Type parameterType, string name, ParameterAttributes attributes)
+    public MutableParameterInfo (MemberInfo member, int position, UnderlyingParameterInfoDescriptor underlyingParameterInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      ArgumentUtility.CheckNotNull ("parameterType", parameterType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("underlyingParameterInfoDescriptor", underlyingParameterInfoDescriptor);
 
       _member = member;
       _position = position;
-      _parameterType = parameterType;
-      _name = name;
-      _attributes = attributes;
+      _parameterType = underlyingParameterInfoDescriptor.Type;
+      _name = underlyingParameterInfoDescriptor.Name;
+      _attributes = underlyingParameterInfoDescriptor.Attributes;
     }
 
     public override MemberInfo Member
@@ -76,6 +68,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterAttributes Attributes
     {
       get { return _attributes; }
+    }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new NotImplementedException();
     }
   }
 }

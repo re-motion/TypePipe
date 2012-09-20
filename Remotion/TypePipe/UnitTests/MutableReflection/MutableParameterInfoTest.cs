@@ -25,38 +25,50 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableParameterInfoTest
   {
     [Test]
-    public void CreateFromDescriptor ()
-    {
-      var member = ReflectionObjectMother.GetSomeMember();
-      var position = 17;
-      var declaration = new ParameterDeclaration (ReflectionObjectMother.GetSomeType (), "foo", ParameterAttributes.Out);
-      var descriptor = UnderlyingParameterInfoDescriptor.Create (declaration);
-
-      var result = MutableParameterInfo.CreateFromDescriptor (member, position, descriptor);
-
-      Assert.That (result.Member, Is.SameAs (member));
-      Assert.That (result.Position, Is.EqualTo (position));
-      Assert.That (result.ParameterType, Is.SameAs (declaration.Type));
-      Assert.That (result.Name, Is.EqualTo (declaration.Name));
-      Assert.That (result.Attributes, Is.EqualTo (declaration.Attributes));
-    }
-
-    [Test]
     public void Initialization ()
     {
-      var member = ReflectionObjectMother.GetSomeMember ();
-      var position = 4711;
       var parameterType = ReflectionObjectMother.GetSomeType ();
       var name = "parameterName";
       var attributes = ParameterAttributes.Out;
+      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (parameterType, name, attributes);
+      var member = ReflectionObjectMother.GetSomeMember ();
+      var position = 4711;
 
-      var futureParameterInfo = new MutableParameterInfo (member, position, parameterType, name, attributes);
+      var mutableParameter = new MutableParameterInfo (member, position, descriptor);
 
-      Assert.That (futureParameterInfo.Member, Is.SameAs (member));
-      Assert.That (futureParameterInfo.Position, Is.EqualTo (position));
-      Assert.That (futureParameterInfo.ParameterType, Is.SameAs (parameterType));
-      Assert.That (futureParameterInfo.Name, Is.EqualTo (name));
-      Assert.That (futureParameterInfo.Attributes, Is.EqualTo (attributes));
+      Assert.That (mutableParameter.Member, Is.SameAs (member));
+      Assert.That (mutableParameter.Position, Is.EqualTo (position));
+      Assert.That (mutableParameter.ParameterType, Is.SameAs (parameterType));
+      Assert.That (mutableParameter.Name, Is.EqualTo (name));
+      Assert.That (mutableParameter.Attributes, Is.EqualTo (attributes));
     }
+    
+    //[Test]
+    //public void GetCustomAttributeData ()
+    //{
+    //  var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
+    //  var parameter = method.GetParameters().Single();
+    //  var mutableParameter = MutableParameterInfoObjectMother.Create()
+
+    //  var result = mutableField.GetCustomAttributeData ();
+
+    //  Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+    //}
+
+    //[Test]
+    //public void GetCustomAttributeData_Lazy ()
+    //{
+    //  var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
+    //  var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField: field);
+
+    //  var result1 = mutableField.GetCustomAttributeData ();
+    //  var result2 = mutableField.GetCustomAttributeData ();
+
+    //  Assert.That (result1, Is.SameAs (result2));
+    //}
+
+    private void Method ([Abc] string parameter) { }
+
+    public class AbcAttribute : Attribute { }
   }
 }

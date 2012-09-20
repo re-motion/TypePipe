@@ -54,9 +54,8 @@ namespace Remotion.TypePipe.MutableReflection
       _underlyingMethodInfoDescriptor = underlyingMethodInfoDescriptor;
 
       _parameters = _underlyingMethodInfoDescriptor.ParameterDescriptors
-          .Select ((pd, i) => MutableParameterInfo.CreateFromDescriptor (this, i, pd))
-          .ToList()
-          .AsReadOnly();
+          .Select ((pd, i) => new MutableParameterInfo (this, i, pd))
+          .ToList().AsReadOnly();
 
       _customAttributeDatas =
           new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingMethodInfoDescriptor.CustomAttributeDataProvider);
