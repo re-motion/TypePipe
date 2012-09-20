@@ -53,7 +53,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void TypePipeCustomAttributeData_MutableReflection ()
+    public void TypePipeCustomAttributeData_MutableReflection_Normal ()
     {
       AssembleType<DomainType> (
           mutableType =>
@@ -102,6 +102,42 @@ namespace TypePipe.IntegrationTests
           });
     }
 
+    [Test]
+    public void TypePipeCustomAttributeData_MutableReflection_MultipleAttribute ()
+    {
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+
+      var filteredResult = result.Where (x => x.Constructor.DeclaringType == typeof (MultipleAttribute))
+          .Select (x => x.ConstructorArguments.Single()).ToArray();
+      Assert.That (filteredResult, Is.EquivalentTo (new[] { "1", "2", "3" }));
+    }
+
+    [Test]
+    public void TypePipeCustoAttributeData_MutableReflection_NamedArguments ()
+    {
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+
+      var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithNamedArgumentsAttribute))
+          .NamedArguments.Select (x => x.Value);
+
+      Assert.That (filteredResult, Is.EqualTo (new[] { "1", "2", "3" }));
+    }
+
+    [Test]
+    public void TypePipeCustoAttributeData_MutableReflection_SelectCorrectCtor ()
+    {
+      var defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute ());
+      var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute (""));
+
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+
+      var filteredResults = result.Where (x => x.Constructor.DeclaringType == typeof (WithMultipleCtorsAttribute));
+      var attribute1 = filteredResults.Single (x => x.ConstructorArguments.Count == 0);
+      var attribute2 = filteredResults.Single (x => x.ConstructorArguments.Count == 1);
+      Assert.That (attribute1.Constructor, Is.EqualTo (defaultCtor));
+      Assert.That (attribute2.Constructor, Is.EqualTo (otherCtor));
+    }
+
     private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<CustomAttributeData> expected)
     {
       Assert.That (actual.Count (), Is.EqualTo (expected.Count ()));
@@ -130,11 +166,11 @@ namespace TypePipe.IntegrationTests
     }
 
     // Order attributes is not defined
-    [MutlipleAttribute ("3"), MutlipleAttribute ("1"), MutlipleAttribute("2")]
+    [Multiple ("3"), Multiple ("1"), Multiple("2")]
     // Order of named arguments is not defined
     [WithNamedArguments(NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
     // Select correct ctor
-    [WithMultipleCtors ("explicit ctor"), WithMultipleCtors]
+    [WithMultipleCtors ("other ctor"), WithMultipleCtors]
     [Abc ("class")]
     public class DomainType
     {
@@ -190,9 +226,9 @@ namespace TypePipe.IntegrationTests
     }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
-    public class MutlipleAttribute : Attribute
+    public class MultipleAttribute : Attribute
     {
-      public MutlipleAttribute (string constructorArgument)
+      public MultipleAttribute (string constructorArgument)
       {
         ConstructorArgument = constructorArgument;
       }
@@ -208,19 +244,12 @@ namespace TypePipe.IntegrationTests
     }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
-    public class WithMultipleCtors : Attribute
+    public class WithMultipleCtorsAttribute : Attribute
     {
-      public WithMultipleCtors ()
-      {
-        ConstructorArgument = "default ctor";
-      }
-
-      public WithMultipleCtors (string constructorArgument)
-      {
-        ConstructorArgument = constructorArgument;
-      }
-
-      public string ConstructorArgument { get; set; }
+      public WithMultipleCtorsAttribute () { }
+// ReSharper disable UnusedParameter.Local
+      public WithMultipleCtorsAttribute (string constructorArgument) { }
+// ReSharper restore UnusedParameter.Local
     }
   }
 }
