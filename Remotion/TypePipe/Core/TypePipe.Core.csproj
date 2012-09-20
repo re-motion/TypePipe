@@ -140,7 +140,7 @@
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
-    <Compile Include="MutableReflection\UnderlyingDescriptorBase.cs" />
+    <Compile Include="MutableReflection\UnderlyingInfoDescriptorBase.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodInfoDescriptor.cs" />

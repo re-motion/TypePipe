@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used as a base class for <see cref="UnderlyingMethodInfoDescriptor"/> and <see cref="UnderlyingConstructorInfoDescriptor"/>.
   /// </remarks>
-  public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> : UnderlyingDescriptorBase<TMethodBase>
+  public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> : UnderlyingInfoDescriptorBase<TMethodBase>
       where TMethodBase : MethodBase
   {
     protected static Expression CreateOriginalBodyExpression (

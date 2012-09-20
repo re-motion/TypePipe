@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Serves as a base for all descriptor classes.
   /// </summary>
   /// <typeparam name="TMember">The type of the member.</typeparam>
-  public abstract class UnderlyingDescriptorBase<TMember>
+  public abstract class UnderlyingInfoDescriptorBase<TMember>
       where TMember: class
   {
     protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _name;
     private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
-    protected UnderlyingDescriptorBase (
+    protected UnderlyingInfoDescriptorBase (
         TMember underlyingSystemMember, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
     {
       Assertion.IsTrue (underlyingSystemMember == null || underlyingSystemMember is MemberInfo || underlyingSystemMember is ParameterInfo);

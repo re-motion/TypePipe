@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableParameterInfo"/> to represent the original parameter, before any mutations.
   /// </remarks>
-  public class UnderlyingParameterInfoDescriptor : UnderlyingDescriptorBase<ParameterInfo>
+  public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
   {
     public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration)
     {

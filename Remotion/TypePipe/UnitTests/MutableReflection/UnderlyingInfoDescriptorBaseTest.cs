@@ -26,7 +26,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingDescriptorBaseTest
+  public class UnderlyingInfoDescriptorBaseTest
   {
     [Test]
     public void Initialization ()
@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = ReflectionObjectMother.GetSomeMember();
       Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => null;
 
-      var descriptor = new TestableUnderlyingDescriptorBase<MemberInfo> (member, "memberName or parameterName", customAttributeDataProvider);
+      var descriptor = new TestableUnderlyingInfoDescriptorBase<MemberInfo> (member, "memberName or parameterName", customAttributeDataProvider);
 
       Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (member));
       Assert.That (descriptor.Name, Is.EqualTo ("memberName or parameterName"));
@@ -44,9 +44,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributeProvider_MemberInfo ()
     {
-      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((UnderlyingDescriptorBaseTest obj) => obj.Method (null));
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((UnderlyingInfoDescriptorBaseTest obj) => obj.Method (null));
 
-      var result = TestableUnderlyingDescriptorBase<Dev.T>.GetCustomAttributeProvider (member);
+      var result = TestableUnderlyingInfoDescriptorBase<Dev.T>.GetCustomAttributeProvider (member);
 
       CheckSingleCustomAttributeProviderResult (result, "member", "xxx", 7);
     }
@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributeProvider_ParameterInfo ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnderlyingDescriptorBaseTest obj) => obj.Method (null));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnderlyingInfoDescriptorBaseTest obj) => obj.Method (null));
       var parameter = method.GetParameters().Single();
 
-      var result = TestableUnderlyingDescriptorBase<Dev.T>.GetCustomAttributeProvider (parameter);
+      var result = TestableUnderlyingInfoDescriptorBase<Dev.T>.GetCustomAttributeProvider (parameter);
 
       CheckSingleCustomAttributeProviderResult (result, "parameter", "yyy", 8);
     }

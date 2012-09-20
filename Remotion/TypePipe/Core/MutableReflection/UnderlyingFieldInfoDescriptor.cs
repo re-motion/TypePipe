@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableFieldInfo"/> to represent the original field, before any mutations.
   /// </remarks>
-  public class UnderlyingFieldInfoDescriptor : UnderlyingDescriptorBase<FieldInfo>
+  public class UnderlyingFieldInfoDescriptor : UnderlyingInfoDescriptorBase<FieldInfo>
   {
     public static UnderlyingFieldInfoDescriptor Create (Type fieldType, string name, FieldAttributes attributes)
     {

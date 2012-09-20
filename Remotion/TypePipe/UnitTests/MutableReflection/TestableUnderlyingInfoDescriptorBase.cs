@@ -21,20 +21,20 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class TestableUnderlyingDescriptorBase<T> : UnderlyingDescriptorBase<T>
+  public class TestableUnderlyingInfoDescriptorBase<T> : UnderlyingInfoDescriptorBase<T>
     where T : class 
   {
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
-      return UnderlyingDescriptorBase<T>.GetCustomAttributeProvider (member);
+      return UnderlyingInfoDescriptorBase<T>.GetCustomAttributeProvider (member);
     }
 
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (ParameterInfo parameter)
     {
-      return UnderlyingDescriptorBase<T>.GetCustomAttributeProvider (parameter);
+      return UnderlyingInfoDescriptorBase<T>.GetCustomAttributeProvider (parameter);
     }
 
-    public TestableUnderlyingDescriptorBase (
+    public TestableUnderlyingInfoDescriptorBase (
         T underlyingSystemMember, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
         : base (underlyingSystemMember, name, customAttributeDataProvider)
     {
