@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
         : base (
             memberSelector,
             underlyingTypeDescriptor.UnderlyingSystemInfo,
-            null,
+            underlyingTypeDescriptor.DeclaringType,
             underlyingTypeDescriptor.BaseType,
             underlyingTypeDescriptor.Attributes,
             underlyingTypeDescriptor.Name,
@@ -82,12 +82,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsNew
     {
-      get { throw new NotImplementedException (); }
+      get { throw new NotImplementedException ("TODO 4744"); }
     }
 
     public bool IsModified
     {
-      get { throw new NotImplementedException (); }
+      get { throw new NotImplementedException ("TODO 4744"); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces

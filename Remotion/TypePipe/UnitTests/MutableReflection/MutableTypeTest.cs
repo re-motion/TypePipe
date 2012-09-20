@@ -59,6 +59,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
+      Assert.That (_mutableType.UnderlyingSystemType, Is.EqualTo (_descriptor.UnderlyingSystemInfo));
+      Assert.That (_mutableType.DeclaringType, Is.EqualTo (_descriptor.DeclaringType));
+      Assert.That (_mutableType.BaseType, Is.EqualTo (_descriptor.BaseType));
+      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_mutableType.Name, Is.EqualTo (_descriptor.Name));
+      Assert.That (_mutableType.Namespace, Is.EqualTo (_descriptor.Namespace));
+      Assert.That (_mutableType.FullName, Is.EqualTo (_descriptor.FullName));
+
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
