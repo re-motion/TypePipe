@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _namedArguments; }
     }
 
-    // TODO 5042 : remove method
+    // TODO 4943 : remove method
     public object CreateInstance ()
     {
       var instance = _constructor.Invoke (_constructorArguments.ToArray());
