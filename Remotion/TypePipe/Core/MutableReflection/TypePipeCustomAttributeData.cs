@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -26,17 +27,25 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member)
     {
-      if (member is MutableMethodInfo)
-      {
-        var mutableMethod = (MutableMethodInfo) member;
-        return mutableMethod.GetCustomAttributeData();
-      }
-      else if (member is MethodInfo)
-      {
-        return CustomAttributeData.GetCustomAttributes (member).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData> ();
-      }
+      ArgumentUtility.CheckNotNull ("member", member);
 
-      throw new NotImplementedException ("TODO 5042");
+      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
+    }
+
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
+    {
+      ArgumentUtility.CheckNotNull ("parameter", parameter);
+
+      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
+    }
+
+    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeUtility, T info)
+    {
+      var typePipeCustomAttributeProvider = info as ITypePipeCustomAttributeProvider;
+      if (typePipeCustomAttributeProvider != null)
+        return typePipeCustomAttributeProvider.GetCustomAttributeData ();
+      else
+        return customAttributeUtility(info).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData> ();
     }
   }
 }

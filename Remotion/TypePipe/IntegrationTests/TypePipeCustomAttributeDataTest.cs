@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -42,15 +41,15 @@ namespace TypePipe.IntegrationTests
       var @event = typeof (DomainType).GetEvents().Single();
       var nestedType = typeof (DomainType.NestedType);
 
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (ctor), CustomAttributeData.GetCustomAttributes (ctor));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (ctor), CustomAttributeData.GetCustomAttributes (ctor));
       CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), CustomAttributeData.GetCustomAttributes (method));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (returnParameter));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (parameter));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (property));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), CustomAttributeData.GetCustomAttributes (@event));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (returnParameter));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (parameter));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (property));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), CustomAttributeData.GetCustomAttributes (@event));
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
     }
 
     [Test]
@@ -59,132 +58,84 @@ namespace TypePipe.IntegrationTests
       AssembleType<DomainType> (
           mutableType =>
           {
-            //var attribute1 = BuildExpectedAttributeData ("class");
-            //var attribute2 = BuildExpectedAttributeData ("class", "multiple");
-            //var attribute3Ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute ());
-            //var attribute3 = BuildExpectedAttributeData (null, "different ctor", attribute3Ctor);
-            //CheckEquals(TypePipeCustomAttributeData.GetCustomAttributes(mutableType), new[] { attribute1, attribute2, attribute3 });
+            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), "class");
 
-            //var attribute8 = BuildExpectedAttributeData ("field");
-            //var field = method.AllMutableFields.Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(field), new[] { attribute8 });
+            var field = mutableType.AllMutableFields.Single();
+            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), "field");
 
-            //var attribute4 = BuildExpectedAttributeData ("constructor");
-            //var constructor = mutableType.AllMutableConstructors.Single();
-            //CheckEquals(TypePipeCustomAttributeData.GetCustomAttributes(constructor), new[] { attribute4 });
+            var constructor = mutableType.AllMutableConstructors.Single();
+            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (constructor), "constructor");
 
-            var attribute5 = BuildExpectedAttributeData ("method");
             var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), new[] { attribute5 });
+            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), "method");
 
-            //var attribute6 = BuildExpectedAttributeData("return value");
+            // TODO 4793
             //var returnParameter = method.ReturnParameter;
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(returnParameter), new[] { attribute6 });
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), "return value");
 
-            //var attribute7 = BuildExpectedAttributeData ("parameter");
-            //var parameter = method.GetParameter().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(parameter), new[] { attribute7 });
+            var parameter = method.GetParameters().Single();
+            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), "parameter");
 
-            //var attribute8 = BuildExpectedAttributeData ("property");
-            //var property = method.GetProperties().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(property), new[] { attribute8 });
+            // TODO 4791
+            //var property = mutableType.GetProperties().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), "property");
 
-            //var attribute9 = BuildExpectedAttributeData ("getter");
+            // TODO 4791
             //var getter = property.GetGetMethod();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(getter), new[] { attribute9 });
-            
-            //var attribute10 = BuildExpectedAttributeData ("getter return value");
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
+
+            // TODO 4791
             //var getterReturnParameter = getter.ReturnParameter;
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(getterReturnParameter), new[] { attribute10 });
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
 
-            //var attribute11 = BuildExpectedAttributeData ("setter");
+            // TODO 4791
             //var setter = property.GetGetMethod();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(setter), new[] { attribute11 });
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
 
-            //var attribute12 = BuildExpectedAttributeData ("event");
-            //var @event = type.GetEvents().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(@event), new[] { attribute12 });
+            // TODO 4791
+            //var @event = mutableType.GetEvents().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
 
-            //var attribute13 = BuildExpectedAttributeData ("nested type");
-            //var nestedType = type.GetNestedTypes().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes(nestedType), new[] { attribute13 });
+            // TODO 4791
+            //var nestedType = mutableType.GetNestedTypes().Single();
+            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
           });
     }
 
     private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<CustomAttributeData> expected)
     {
-      CheckEquals (actual, expected.Select (ConvertToComparable));
-    }
-
-    private ICustomAttributeData ConvertToComparable (CustomAttributeData customAttributeData)
-    {
-      return new CustomAttributeDataStub
-      {
-        Constructor = customAttributeData.Constructor,
-        ConstructorArguments = customAttributeData.ConstructorArguments.Select (x => x.Value).ToList ().AsReadOnly (),
-        NamedArguments = customAttributeData.NamedArguments.Select (
-            x =>
-            new CustomAttributeNamedArgumentStub { MemberInfo = x.MemberInfo, Value = x.TypedValue.Value })
-            .Cast<ICustomAttributeNamedArgument> ().ToList ().AsReadOnly ()
-      };
-    }
-
-    private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<ICustomAttributeData> expected)
-    {
-      Assert.That (actual.Count(), Is.EqualTo (expected.Count()));
+      Assert.That (actual.Count (), Is.EqualTo (expected.Count ()));
       var attributeDatas = actual.Zip (expected, (a, e) => new { Actual = a, Expected = e });
       foreach (var attributeData in attributeDatas)
       {
         Assert.That (attributeData.Actual.Constructor, Is.EqualTo (attributeData.Expected.Constructor));
-        Assert.That (attributeData.Actual.ConstructorArguments, Is.EqualTo (attributeData.Expected.ConstructorArguments));
+        Assert.That (attributeData.Actual.ConstructorArguments, Is.EqualTo (attributeData.Expected.ConstructorArguments.Select(x => x.Value)));
 
         Assert.That (attributeData.Actual.NamedArguments.Count (), Is.EqualTo (attributeData.Expected.NamedArguments.Count ()));
         var namedArguments = attributeData.Actual.NamedArguments.Zip (attributeData.Expected.NamedArguments, (a, e) => new { Actual = a, Expected = e });
         foreach (var namedArgument in namedArguments)
         {
           Assert.That (namedArgument.Actual.MemberInfo, Is.EqualTo (namedArgument.Expected.MemberInfo));
-          Assert.That (namedArgument.Actual.Value, Is.EqualTo (namedArgument.Expected.Value));
+          Assert.That (namedArgument.Actual.Value, Is.EqualTo (namedArgument.Expected.TypedValue.Value));
         }
       }
     }
 
-    private ICustomAttributeData BuildExpectedAttributeData (
-        string ctorArgumentValue, string namedArgumentValue = null, ConstructorInfo constructor = null)
+    private void CheckEquals (IEnumerable<ICustomAttributeData> customAttributeDatas, string ctorArgument)
     {
-      constructor = constructor ?? NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
+      var abcAttribute = customAttributeDatas.SingleOrDefault (a => a.Constructor.DeclaringType == typeof (AbcAttribute));
+      Assert.That (abcAttribute, Is.Not.Null);
 
-      var namedArguments = new List<ICustomAttributeNamedArgument>();
-      if (namedArgumentValue != null)
-      {
-        var namedArgumentMember = NormalizingMemberInfoFromExpressionUtility.GetProperty ((AbcAttribute obj) => obj.NamedArgument);
-        var namedArgument = new CustomAttributeNamedArgumentStub { MemberInfo = namedArgumentMember, Value = namedArgumentValue };
-        namedArguments.Add (namedArgument);
-      }
-
-      return new CustomAttributeDataStub
-             {
-                 Constructor = constructor,
-                 ConstructorArguments = new object[] { ctorArgumentValue }.ToList().AsReadOnly(),
-                 NamedArguments = namedArguments.AsReadOnly()
-             };
+      Assert.That (abcAttribute.ConstructorArguments.Single(), Is.EqualTo (ctorArgument));
     }
 
-    private class CustomAttributeDataStub : ICustomAttributeData
-    {
-      public ConstructorInfo Constructor { get; set; }
-      public ReadOnlyCollection<object> ConstructorArguments { get; set; }
-      public IEnumerable<ICustomAttributeNamedArgument> NamedArguments { get; set; }
-    }
-
-    private class CustomAttributeNamedArgumentStub : ICustomAttributeNamedArgument
-    {
-      public MemberInfo MemberInfo { get; set; }
-      public object Value { get; set; }
-    }
-
+    // Order attributes is not defined
+    [MutlipleAttribute ("3"), MutlipleAttribute ("1"), MutlipleAttribute("2")]
+    // Order of named arguments is not defined
+    [WithNamedArguments(NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
+    // Select correct ctor
+    [WithMultipleCtors ("explicit ctor"), WithMultipleCtors]
     [Abc ("class")]
-    [Abc ("class", NamedArgument = "multiple")]
-    [Abc (NamedArgument = "different ctor")]
     public class DomainType
     {
       [Abc ("field")]
@@ -228,21 +179,48 @@ namespace TypePipe.IntegrationTests
       public class NestedType {}
     }
 
-    [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
     public class AbcAttribute : Attribute
     {
-      public AbcAttribute ()
-      {
-        ConstructorArgument = "default ctor";
-      }
-
       public AbcAttribute (string constructorArgument)
       {
         ConstructorArgument = constructorArgument;
       }
 
       public string ConstructorArgument { get; set; }
-      public string NamedArgument { get; set; }
+    }
+
+    [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
+    public class MutlipleAttribute : Attribute
+    {
+      public MutlipleAttribute (string constructorArgument)
+      {
+        ConstructorArgument = constructorArgument;
+      }
+
+      public string ConstructorArgument { get; set; }
+    }
+
+    public class WithNamedArgumentsAttribute : Attribute
+    {
+      public string NamedArgument1 { get; set; }
+      public string NamedArgument2 { get; set; }
+      public string NamedArgument3 { get; set; }
+    }
+
+    [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
+    public class WithMultipleCtors : Attribute
+    {
+      public WithMultipleCtors ()
+      {
+        ConstructorArgument = "default ctor";
+      }
+
+      public WithMultipleCtors (string constructorArgument)
+      {
+        ConstructorArgument = constructorArgument;
+      }
+
+      public string ConstructorArgument { get; set; }
     }
   }
 }
