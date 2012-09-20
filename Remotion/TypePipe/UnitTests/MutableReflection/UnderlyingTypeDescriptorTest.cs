@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingTypeDescriptor.Create (originalType);
 
-      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (typeof (ExampleType)));
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (typeof (ExampleType)));
       Assert.That (descriptor.BaseType, Is.EqualTo (typeof (ExampleType).BaseType));
       Assert.That (descriptor.Name, Is.EqualTo (originalType.Name));
       Assert.That (descriptor.Namespace, Is.EqualTo (originalType.Namespace));

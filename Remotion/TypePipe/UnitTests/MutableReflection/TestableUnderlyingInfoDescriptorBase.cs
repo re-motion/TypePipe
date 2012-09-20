@@ -24,6 +24,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class TestableUnderlyingInfoDescriptorBase<T> : UnderlyingInfoDescriptorBase<T>
     where T : class 
   {
+    public static Func<ReadOnlyCollection<ICustomAttributeData>> GetEmptyProviderField ()
+    {
+      return EmptyCustomAttributeDataProvider;
+    }
+
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
       return UnderlyingInfoDescriptorBase<T>.GetCustomAttributeProvider (member);

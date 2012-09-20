@@ -36,9 +36,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = new TestableUnderlyingInfoDescriptorBase<MemberInfo> (member, "memberName or parameterName", customAttributeDataProvider);
 
-      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (member));
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (member));
       Assert.That (descriptor.Name, Is.EqualTo ("memberName or parameterName"));
       Assert.That (descriptor.CustomAttributeDataProvider, Is.SameAs (customAttributeDataProvider));
+    }
+
+    [Test]
+    public void EmptyCustomAttributeProvider ()
+    {
+      var fieldContent = TestableUnderlyingInfoDescriptorBase<object>.GetEmptyProviderField();
+      Assert.That (fieldContent.Invoke(), Is.Empty);
     }
 
     [Test]

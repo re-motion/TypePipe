@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
           isGenericMethod,
           isGenericMethodDefinition,
           containsGenericParameters,
-          () => new ReadOnlyCollection<ICustomAttributeData> (new ICustomAttributeData[0]),
+          EmptyCustomAttributeDataProvider,
           body);
     }
 

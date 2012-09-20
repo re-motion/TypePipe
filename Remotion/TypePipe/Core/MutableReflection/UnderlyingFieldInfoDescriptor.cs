@@ -35,9 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => new ICustomAttributeData[0].ToList().AsReadOnly();
-
-      return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes, customAttributeDataProvider);
+      return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes, EmptyCustomAttributeDataProvider);
     }
 
     public static UnderlyingFieldInfoDescriptor Create (FieldInfo originalField)

@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (originalMethodInfo);
-      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExistingType (descriptor.UnderlyingSystemMember.DeclaringType);
+      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExistingType (descriptor.UnderlyingSystemInfo.DeclaringType);
       return new MutableMethodInfo (declaringType, descriptor);
     }
 

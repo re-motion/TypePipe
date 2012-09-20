@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         bool expectedIsByRef,
         Type[] expectedCustomAttributeTypes)
     {
-      Assert.That (descriptor.UnderlyingSystemMember, Is.SameAs (expectedParameterInfo));
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (expectedParameterInfo));
       Assert.That (descriptor.Type, Is.SameAs (expectedType));
       Assert.That (descriptor.Name, Is.EqualTo (expectedName));
       Assert.That (descriptor.Attributes, Is.EqualTo (expectedAttributes));

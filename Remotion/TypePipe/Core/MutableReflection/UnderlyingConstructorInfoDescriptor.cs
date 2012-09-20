@@ -42,9 +42,8 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Constructor bodies must have void return type.", "body");
 
       var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
-      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => new ICustomAttributeData[0].ToList().AsReadOnly();
 
-      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, customAttributeDataProvider, body);
+      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, EmptyCustomAttributeDataProvider, body);
     }
 
     public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo originalConstructor)

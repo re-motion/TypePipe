@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection
           parameterDeclaration.Type,
           parameterDeclaration.Name,
           parameterDeclaration.Attributes,
-          () => new ICustomAttributeData[0].ToList().AsReadOnly());
+          EmptyCustomAttributeDataProvider);
     }
 
     public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)

@@ -79,18 +79,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemMethodInfo ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemMember, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var methodInfo = Create (descriptor);
 
-      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (descriptor.UnderlyingSystemMember));
+      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (descriptor.UnderlyingSystemInfo));
     }
 
     [Test]
     public void UnderlyingSystemMethodInfo_ForNull ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemMember, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var methodInfo = Create (descriptor);
 
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewMethod_True ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemMember, Is.Null);
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var methodInfo = Create (descriptor);
 
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsNewMethod_False ()
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemMember, Is.Not.Null);
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var methodInfo = Create (descriptor);
 

@@ -25,10 +25,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Serves as a base for all descriptor classes.
   /// </summary>
-  /// <typeparam name="TMember">The type of the member.</typeparam>
-  public abstract class UnderlyingInfoDescriptorBase<TMember>
-      where TMember: class
+  /// <typeparam name="TInfo">The type of the member.</typeparam>
+  public abstract class UnderlyingInfoDescriptorBase<TInfo>
+      where TInfo: class
   {
+    protected static readonly Func<ReadOnlyCollection<ICustomAttributeData>> EmptyCustomAttributeDataProvider =
+        () => new ICustomAttributeData[0].ToList().AsReadOnly();
+
     protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
       return () => CustomAttributeData.GetCustomAttributes (member)
@@ -43,25 +46,25 @@ namespace Remotion.TypePipe.MutableReflection
                        .Cast<ICustomAttributeData>().ToList().AsReadOnly();
     }
 
-    private readonly TMember _underlyingSystemMember;
+    private readonly TInfo _underlyingSystemInfo;
     private readonly string _name;
     private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
     protected UnderlyingInfoDescriptorBase (
-        TMember underlyingSystemMember, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+        TInfo underlyingSystemInfo, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
     {
-      Assertion.IsTrue (underlyingSystemMember == null || underlyingSystemMember is MemberInfo || underlyingSystemMember is ParameterInfo);
+      Assertion.IsTrue (underlyingSystemInfo == null || underlyingSystemInfo is MemberInfo || underlyingSystemInfo is ParameterInfo);
       Assertion.IsNotNull (name);
       Assertion.IsNotNull (customAttributeDataProvider);
 
-      _underlyingSystemMember = underlyingSystemMember;
+      _underlyingSystemInfo = underlyingSystemInfo;
       _name = name;
       _customAttributeDataProvider = customAttributeDataProvider;
     }
 
-    public TMember UnderlyingSystemMember
+    public TInfo UnderlyingSystemInfo
     {
-      get { return _underlyingSystemMember; }
+      get { return _underlyingSystemInfo; }
     }
 
     public string Name
