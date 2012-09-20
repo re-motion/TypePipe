@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -26,36 +28,45 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableFieldInfo"/> to represent the original field, before any mutations.
   /// </remarks>
-  public class UnderlyingFieldInfoDescriptor
+  public class UnderlyingFieldInfoDescriptor : UnderlyingDescriptorBase<FieldInfo>
   {
     public static UnderlyingFieldInfoDescriptor Create (Type fieldType, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes);
+      Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => new ICustomAttributeData[0].ToList().AsReadOnly();
+
+      return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes, customAttributeDataProvider);
     }
 
     public static UnderlyingFieldInfoDescriptor Create (FieldInfo originalField)
     {
       ArgumentUtility.CheckNotNull ("originalField", originalField);
 
-      return new UnderlyingFieldInfoDescriptor (originalField, originalField.FieldType, originalField.Name, originalField.Attributes);
+      var customAttributeDataProvider = GetCustomAttributeProvider (originalField);
+
+      return new UnderlyingFieldInfoDescriptor (
+          originalField, originalField.FieldType, originalField.Name, originalField.Attributes, customAttributeDataProvider);
     }
 
     private readonly FieldInfo _underlyingSystemFieldInfo;
-    private readonly string _name;
     private readonly FieldAttributes _attributes;
     private readonly Type _type;
 
-    private UnderlyingFieldInfoDescriptor (FieldInfo underlyingSystemFieldInfo, Type fieldType, string name, FieldAttributes attributes)
+    private UnderlyingFieldInfoDescriptor (
+        FieldInfo underlyingSystemFieldInfo,
+        Type fieldType,
+        string name,
+        FieldAttributes attributes,
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+      : base (underlyingSystemFieldInfo, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (fieldType);
       Assertion.IsNotNull (name);
 
       _underlyingSystemFieldInfo = underlyingSystemFieldInfo;
       _type = fieldType;
-      _name = name;
       _attributes = attributes;
     }
 
@@ -67,10 +78,6 @@ namespace Remotion.TypePipe.MutableReflection
     public Type Type
     {
       get { return _type; }
-    }
-    public string Name
-    {
-      get { return _name; }
     }
 
     public FieldAttributes Attributes

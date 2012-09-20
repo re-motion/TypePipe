@@ -112,6 +112,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override object[] GetCustomAttributes (bool inherit)
     {
+      // TODO 4943 (fix implementation)
       return AddedCustomAttributeDeclarations
           .Select (attr => attr.CreateInstance())
           .ToArray();
@@ -120,6 +121,8 @@ namespace Remotion.TypePipe.MutableReflection
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      // TODO 4943 (fix implementation)
       return AddedCustomAttributeDeclarations
           .Where (attr => attributeType.IsAssignableFrom (attr.Constructor.DeclaringType))
           .Select (attr => attr.CreateInstance())

@@ -15,11 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.Type, Is.SameAs (fieldType));
+      Assert.That (descriptor.CustomAttributeDataProvider.Invoke(), Is.Empty);
     }
 
     [Test]
@@ -52,8 +53,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Name, Is.EqualTo ("_testField"));
       Assert.That (descriptor.Attributes, Is.EqualTo (FieldAttributes.Private));
       Assert.That (descriptor.Type, Is.SameAs (typeof(int)));
+
+      Assert.That (
+          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Constructor.DeclaringType),
+          Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
     }
 
+    [Abc, Def]
     private int _testField = 7;
+
+    public class AbcAttribute : Attribute { }
+    public class DefAttribute : Attribute { }
   }
 }
