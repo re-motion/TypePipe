@@ -50,16 +50,15 @@ namespace Remotion.TypePipe.MutableReflection
             "originalType");
       }
 
-      var customAttributeDataProvider = GetCustomAttributeProvider (originalType);
-
       return new UnderlyingTypeDescriptor (
           originalType,
+          originalType.DeclaringType,
           originalType.BaseType,
           originalType.Name,
           originalType.Namespace,
           originalType.FullName,
           originalType.Attributes,
-          customAttributeDataProvider,
+          GetCustomAttributeProvider (originalType),
           Array.AsReadOnly (originalType.GetInterfaces()),
           originalType.GetFields (c_allMembers).ToList().AsReadOnly(),
           originalType.GetConstructors (c_allInstanceMembers).ToList().AsReadOnly(),
@@ -81,6 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
       return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any();
     }
 
+    private readonly Type _declaringType;
     private readonly Type _baseType;
     private readonly string _namespace;
     private readonly string _fullName;
@@ -93,6 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private UnderlyingTypeDescriptor (
         Type underlyingSystemType,
+        Type declaringType,
         Type baseType,
         string name,
         string @namespace,
@@ -111,6 +112,7 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (constructors);
       Assertion.IsNotNull (methods);
 
+      _declaringType = declaringType;
       _baseType = baseType;
       _namespace = @namespace;
       _fullName = fullName;
@@ -119,6 +121,11 @@ namespace Remotion.TypePipe.MutableReflection
       _fields = fields;
       _constructors = constructors;
       _methods = methods;
+    }
+
+    public Type DeclaringType
+    {
+      get { return _declaringType; }
     }
 
     public Type BaseType
