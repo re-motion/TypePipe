@@ -53,11 +53,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    MutableType IMutableMember.DeclaringType
-    {
-      get { return _declaringType; }
-    }
-
     public FieldInfo UnderlyingSystemFieldInfo
     {
       get { return _underlyingFieldInfoDescriptor.UnderlyingSystemFieldInfo ?? this; }

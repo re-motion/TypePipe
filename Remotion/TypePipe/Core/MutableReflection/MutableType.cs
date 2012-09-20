@@ -80,11 +80,6 @@ namespace Remotion.TypePipe.MutableReflection
       _methods = new MutableTypeMethodCollection (this, underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
-    public new MutableType DeclaringType
-    {
-      get { throw new NotImplementedException (); }
-    }
-
     public bool IsNew
     {
       get { throw new NotImplementedException (); }

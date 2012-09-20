@@ -21,8 +21,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableMember : ITypePipeCustomAttributeProvider
   {
-    MutableType DeclaringType { get; }
-
     bool IsNew { get; }
     bool IsModified { get; }
   }
