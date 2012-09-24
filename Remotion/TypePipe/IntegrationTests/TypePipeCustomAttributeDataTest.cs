@@ -119,7 +119,6 @@ namespace TypePipe.IntegrationTests
 
       var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithNamedArgumentsAttribute))
           .NamedArguments.Select (x => x.Value);
-
       Assert.That (filteredResult, Is.EqualTo (new[] { "1", "2", "3" }));
     }
 
@@ -131,11 +130,23 @@ namespace TypePipe.IntegrationTests
 
       var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
 
-      var filteredResults = result.Where (x => x.Constructor.DeclaringType == typeof (WithMultipleCtorsAttribute));
-      var attribute1 = filteredResults.Single (x => x.ConstructorArguments.Count == 0);
-      var attribute2 = filteredResults.Single (x => x.ConstructorArguments.Count == 1);
+      var filteredResult = result.Where (x => x.Constructor.DeclaringType == typeof (WithMultipleCtorsAttribute));
+      var attribute1 = filteredResult.Single (x => x.ConstructorArguments.Count == 0);
+      var attribute2 = filteredResult.Single (x => x.ConstructorArguments.Count == 1);
       Assert.That (attribute1.Constructor, Is.EqualTo (defaultCtor));
       Assert.That (attribute2.Constructor, Is.EqualTo (otherCtor));
+    }
+
+    [Test]
+    [Ignore ("TODO 4943")]
+    public void TypePipeCustoAttributeData_MutableReflection_WithComplexArguments ()
+    {
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+
+      var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithComplexArgumentsAttribute));
+      Assert.That (filteredResult.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
+      Assert.That (filteredResult.ConstructorArguments[1], Is.EqualTo (new[] { typeof (string), typeof (double) }));
+      Assert.That (filteredResult.ConstructorArguments[1], Is.EqualTo (new object[] { "s", 7, typeof (int), new[] { 4, 5 } }));
     }
 
     private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<CustomAttributeData> expected)
@@ -171,6 +182,9 @@ namespace TypePipe.IntegrationTests
     [WithNamedArguments(NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
     // Select correct ctor
     [WithMultipleCtors ("other ctor"), WithMultipleCtors]
+    // Complex arguments
+    //[WithComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (string), typeof (double) }, new object[] { "s", 7, typeof (int), new[] { 4, 5 } })]
+    // Normal
     [Abc ("class")]
     public class DomainType
     {
@@ -249,6 +263,13 @@ namespace TypePipe.IntegrationTests
       public WithMultipleCtorsAttribute () { }
 // ReSharper disable UnusedParameter.Local
       public WithMultipleCtorsAttribute (string constructorArgument) { }
+// ReSharper restore UnusedParameter.Local
+    }
+
+    public class WithComplexArgumentsAttribute : Attribute
+    {
+// ReSharper disable UnusedParameter.Local
+      public WithComplexArgumentsAttribute (int[] intArray, Type[] typeArray, object obj) { }
 // ReSharper restore UnusedParameter.Local
     }
   }
