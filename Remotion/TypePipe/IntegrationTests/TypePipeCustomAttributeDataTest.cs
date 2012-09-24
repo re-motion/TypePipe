@@ -26,7 +26,7 @@ using Remotion.FunctionalProgramming;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class TypePipeCustomAttributeDataTest : TypeAssemblerIntegrationTestBase
+  public class TypePipeCustomAttributeDataTest
   {
     [Test]
     public void TypePipeCustomAttributeData_StandardReflection ()
@@ -55,51 +55,50 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void TypePipeCustomAttributeData_MutableReflection_Normal ()
     {
-      AssembleType<DomainType> (
-          mutableType =>
-          {
-            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), "class");
+      var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
+      var mutableType = new MutableType (descriptor, new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder());
 
-            var field = mutableType.AllMutableFields.Single();
-            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), "field");
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), "class");
 
-            var constructor = mutableType.AllMutableConstructors.Single();
-            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (constructor), "constructor");
+      var field = mutableType.AllMutableFields.Single();
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), "field");
 
-            var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), "method");
+      var constructor = mutableType.AllMutableConstructors.Single();
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (constructor), "constructor");
 
-            // TODO 4793
-            //var returnParameter = method.ReturnParameter;
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), "return value");
+      var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), "method");
 
-            var parameter = method.GetParameters().Single();
-            CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), "parameter");
+      // TODO 4793
+      //var returnParameter = method.ReturnParameter;
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), "return value");
 
-            // TODO 4791
-            //var property = mutableType.GetProperties().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), "property");
+      var parameter = method.GetParameters().Single();
+      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), "parameter");
 
-            // TODO 4791
-            //var getter = property.GetGetMethod();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
+      // TODO 4791
+      //var property = mutableType.GetProperties().Single();
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), "property");
 
-            // TODO 4791
-            //var getterReturnParameter = getter.ReturnParameter;
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
+      // TODO 4791
+      //var getter = property.GetGetMethod();
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
 
-            // TODO 4791
-            //var setter = property.GetGetMethod();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
+      // TODO 4791
+      //var getterReturnParameter = getter.ReturnParameter;
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
 
-            // TODO 4791
-            //var @event = mutableType.GetEvents().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
+      // TODO 4791
+      //var setter = property.GetGetMethod();
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
 
-            // TODO 4791
-            //var nestedType = mutableType.GetNestedTypes().Single();
-            //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
-          });
+      // TODO 4791
+      //var @event = mutableType.GetEvents().Single();
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
+
+      // TODO 4791
+      //var nestedType = mutableType.GetNestedTypes().Single();
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
     }
 
     [Test]
