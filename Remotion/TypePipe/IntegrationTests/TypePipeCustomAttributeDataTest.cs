@@ -29,7 +29,7 @@ namespace TypePipe.IntegrationTests
   public class TypePipeCustomAttributeDataTest
   {
     [Test]
-    public void TypePipeCustomAttributeData_StandardReflection ()
+    public void StandardReflection ()
     {
       var type = typeof (DomainType);
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.field);
@@ -53,7 +53,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void TypePipeCustomAttributeData_MutableReflection_Normal ()
+    public void MutableReflection_Normal ()
     {
       var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
       var mutableType = new MutableType (descriptor, new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder());
@@ -102,7 +102,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void TypePipeCustomAttributeData_MutableReflection_MultipleAttribute ()
+    public void MutableReflection_MultipleAttribute ()
     {
       var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
 
@@ -112,7 +112,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void TypePipeCustoAttributeData_MutableReflection_NamedArguments ()
+    public void MutableReflection_NamedArguments ()
     {
       var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
 
@@ -122,7 +122,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void TypePipeCustoAttributeData_MutableReflection_SelectCorrectCtor ()
+    public void MutableReflection_SelectCorrectCtor ()
     {
       var defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute ());
       var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute (""));
@@ -138,7 +138,7 @@ namespace TypePipe.IntegrationTests
 
     [Test]
     [Ignore ("TODO 4943")]
-    public void TypePipeCustoAttributeData_MutableReflection_WithComplexArguments ()
+    public void MutableReflection_WithComplexArguments ()
     {
       var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
 
