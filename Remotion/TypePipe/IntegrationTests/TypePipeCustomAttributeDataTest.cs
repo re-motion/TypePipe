@@ -58,23 +58,23 @@ namespace TypePipe.IntegrationTests
       var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
       var mutableType = new MutableType (descriptor, new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder());
 
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), "class");
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), "class");
 
       var field = mutableType.AllMutableFields.Single();
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), "field");
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (field), "field");
 
       var constructor = mutableType.AllMutableConstructors.Single();
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (constructor), "constructor");
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (constructor), "constructor");
 
       var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), "method");
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (method), "method");
 
       // TODO 4793
       //var returnParameter = method.ReturnParameter;
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), "return value");
 
       var parameter = method.GetParameters().Single();
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), "parameter");
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (parameter), "parameter");
 
       // TODO 4791
       //var property = mutableType.GetProperties().Single();
@@ -167,7 +167,7 @@ namespace TypePipe.IntegrationTests
       }
     }
 
-    private void CheckEquals (IEnumerable<ICustomAttributeData> customAttributeDatas, string ctorArgument)
+    private void CheckAbcAttribute (IEnumerable<ICustomAttributeData> customAttributeDatas, string ctorArgument)
     {
       var abcAttribute = customAttributeDatas.SingleOrDefault (a => a.Constructor.DeclaringType == typeof (AbcAttribute));
       Assert.That (abcAttribute, Is.Not.Null);
