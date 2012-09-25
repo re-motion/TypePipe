@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -27,11 +28,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class CustomAttributeDataAdapterTest
   {
     [Test]
-    [Domain ("ctor", 7, Property = "prop", Field = "field")]
-    public void Initialization ()
+    [Domain ("ctor", 7, Property = "prop", Field = typeof (double))]
+    public void Initialization_Simple ()
     {
-      var method = MethodBase.GetCurrentMethod();
-      var customAttributeData = CustomAttributeData.GetCustomAttributes (method).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
+      var customAttributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod());
 
       var result = new CustomAttributeDataAdapter (customAttributeData);
 
@@ -43,7 +43,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Property" && x.Value.Equals ("prop")));
       Assert.That (
           result.NamedArguments,
-          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Field" && x.Value.Equals ("field")));
+          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Field" && x.Value.Equals (typeof (double))));
+    }
+
+    [Test]
+    [Ignore("TODO 5061")]
+    [Domain (new[] { 1, 2, 3 }, 7, Field = new object[] { "s", 7, typeof (double), MyEnum.B, new[] { 4, 5 } })]
+    public void Initialization_Complex ()
+    {
+      var customAttributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod());
+
+      var result = new CustomAttributeDataAdapter (customAttributeData);
+
+      var namedArgument = result.NamedArguments.Single ();
+      var member = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainAttribute obj) => obj.Field);
+      Assert.That (result.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
+      Assert.That (namedArgument.MemberInfo, Is.EqualTo (member));
+      Assert.That (namedArgument.Value, Is.EqualTo (new object[] { "s", 7, typeof (double), MyEnum.B, new[] { 4, 5 } }));
+    }
+
+    private CustomAttributeData GetCustomAttributeData (MethodBase method)
+    {
+      return CustomAttributeData.GetCustomAttributes (method).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
     }
 
     private class DomainAttribute : Attribute
@@ -52,13 +73,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public DomainAttribute (object ctorArgument1, int ctorArgument2)
       {
-        Field = ctorArgument1;
-        Property = ctorArgument2.ToString();
+        Dev.Null = ctorArgument1;
+        Dev.Null = ctorArgument2.ToString();
         Dev.Null = Field;
         Dev.Null = Property;
       }
 
       public string Property { get; set; }
     }
+
+    private enum MyEnum { A, B, C }
   }
 }
