@@ -21,9 +21,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Provides access to the <see cref="ICustomAttributeData"/>s of a member or parameter.
   /// </summary>
-  public interface ITypePipeCustomAttributeProvider
+  public interface ITypePipeCustomAttributeProvider : System.Reflection.ICustomAttributeProvider
   {
-    // TODO 4943 : derive from System.Reflection.ICustomAttributeProvider
     IEnumerable<ICustomAttributeData> GetCustomAttributeData();
   }
 }
