@@ -39,6 +39,13 @@ namespace Remotion.TypePipe.MutableReflection
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
     }
 
+    public static object CreateInstance (this ICustomAttributeData customAttributeData)
+    {
+      ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
+
+      return null;
+    }
+
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeUtility, T info)
     {
       var typePipeCustomAttributeProvider = info as ITypePipeCustomAttributeProvider;
