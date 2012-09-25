@@ -37,8 +37,13 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
 
       _constructor = customAttributeData.Constructor;
-      _constructorArguments = customAttributeData.ConstructorArguments.Select (a => a.Value).ToList().AsReadOnly();
-      _namedArguments = customAttributeData.NamedArguments.Select (a => new CustomAttributeNamedArgumentAdapter (a))
+
+      _constructorArguments = customAttributeData.ConstructorArguments
+          .Select (CustomAttributeTypedArgumentUtility.Unwrap)
+          .ToList().AsReadOnly();
+
+      _namedArguments = customAttributeData.NamedArguments
+          .Select (a => new CustomAttributeNamedArgumentAdapter (a))
           .Cast<ICustomAttributeNamedArgument>().ToList().AsReadOnly();
     }
 

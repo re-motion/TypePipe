@@ -69,7 +69,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = CustomAttributeTypedArgumentUtility.Unwrap (typedArgument);
 
       Assert.That (result, Is.TypeOf<object[]>());
-      Assert.That (result, Is.EqualTo (new object[] { "s", 7, new[] { MyEnum.B, MyEnum.A }, typeof (int), new[] { 4, 5 } }));
+      var array = ((object[]) result);
+      Assert.That (array[2], Is.TypeOf<MyEnum[]>());
+      Assert.That (array[4], Is.TypeOf<int[]>());
+      Assert.That (array, Is.EqualTo (new object[] { "s", 7, new[] { MyEnum.B, MyEnum.A }, typeof (int), new[] { 4, 5 } }));
     }
 
     [Test]

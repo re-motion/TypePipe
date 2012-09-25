@@ -47,7 +47,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore("TODO 5061")]
     [Domain (new[] { 1, 2, 3 }, 7, Field = new object[] { "s", 7, typeof (double), MyEnum.B, new[] { 4, 5 } })]
     public void Initialization_Complex ()
     {

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       // customAttributeNamedArgument is struct
       _member = customAttributeNamedArgument.MemberInfo;
-      _value = customAttributeNamedArgument.TypedValue.Value;
+      _value = CustomAttributeTypedArgumentUtility.Unwrap (customAttributeNamedArgument.TypedValue);
     }
 
     public MemberInfo MemberInfo
