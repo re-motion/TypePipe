@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -27,13 +28,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private ConstructorInfo _defaultCtor;
     private ConstructorInfo _ctorWithArgs;
+    private ConstructorInfo _internalCtor;
     private PropertyInfo _property;
 
     [SetUp]
     public void Setup ()
     {
       _defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute());
-      _ctorWithArgs = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (null));
+      _ctorWithArgs = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (new object()));
+      _internalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
       _property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((AbcAttribute attr) => attr.Property);
     }
 
@@ -45,6 +48,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var instance = CustomAttributeDataExtensions.CreateInstance (declaration);
 
       Assert.That (instance, Is.TypeOf<AbcAttribute>());
+    }
+
+    [Test]
+    [Abc ("internal ctor")]
+    public void CreateInstance_InternalCtor ()
+    {
+      var customAttributeData = TypePipeCustomAttributeData.GetCustomAttributes (MethodBase.GetCurrentMethod())
+          .Single (x => x.Constructor.DeclaringType == typeof (AbcAttribute));
+      Assert.That (customAttributeData.Constructor.IsAssembly, Is.True);
+
+      var instance = (AbcAttribute) customAttributeData.CreateInstance();
+
+      Assert.That (instance.CtorArg, Is.EqualTo ("internal ctor"));
     }
 
     [Test]
@@ -118,6 +134,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public AbcAttribute () { }
 
       public AbcAttribute (object arg)
+      {
+        CtorArg = arg;
+      }
+
+      internal AbcAttribute (string arg)
       {
         CtorArg = arg;
       }
