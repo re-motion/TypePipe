@@ -15,11 +15,12 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly ConstructorInfo _constructor;
     private readonly ReadOnlyCollection<object> _constructorArguments;
-    private readonly ReadOnlyCollection<ICustomAttributeNamedArgument> _namedArguments;
+    private readonly ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> _namedArguments;
 
     public CustomAttributeDataAdapter (CustomAttributeData customAttributeData)
     {
@@ -44,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _namedArguments = customAttributeData.NamedArguments
           .Select (a => new CustomAttributeNamedArgumentAdapter (a))
-          .Cast<ICustomAttributeNamedArgument>().ToList().AsReadOnly();
+          .Cast<ICustomAttributeNamedArgument>().ConvertToCollection().AsReadOnly();
     }
 
     public ConstructorInfo Constructor
@@ -57,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _constructorArguments; }
     }
 
-    public IEnumerable<ICustomAttributeNamedArgument> NamedArguments
+    public ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments
     {
       get { return _namedArguments; }
     }

@@ -14,9 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Collections.Generic;
+
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -27,6 +28,6 @@ namespace Remotion.TypePipe.MutableReflection
   {
     ConstructorInfo Constructor { get; }
     ReadOnlyCollection<object> ConstructorArguments { get; }
-    IEnumerable<ICustomAttributeNamedArgument> NamedArguments { get; }
+    ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments { get; }
   }
 }
