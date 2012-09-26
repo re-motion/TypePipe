@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Domain (new[] { 1, 2, 3 }, 7, Field = new object[] { "s", 7, typeof (double), MyEnum.B, new[] { 4, 5 } })]
+    [Domain (new[] { 1, 2, 3 }, 7, Field = new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } })]
     public void Initialization_Complex ()
     {
       var customAttributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod());
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainAttribute obj) => obj.Field);
       Assert.That (result.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
       Assert.That (namedArgument.MemberInfo, Is.EqualTo (member));
-      Assert.That (namedArgument.Value, Is.EqualTo (new object[] { "s", 7, typeof (double), MyEnum.B, new[] { 4, 5 } }));
+      Assert.That (namedArgument.Value, Is.EqualTo (new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } }));
     }
 
     private CustomAttributeData GetCustomAttributeData (MethodBase method)
