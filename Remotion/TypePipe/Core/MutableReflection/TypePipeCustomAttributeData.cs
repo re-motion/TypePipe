@@ -43,7 +43,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
 
-      return null;
+      var instance = customAttributeData.Constructor.Invoke (customAttributeData.ConstructorArguments.ToArray());
+      foreach (var namedArgument in customAttributeData.NamedArguments)
+        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
+
+      return instance;
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeUtility, T info)

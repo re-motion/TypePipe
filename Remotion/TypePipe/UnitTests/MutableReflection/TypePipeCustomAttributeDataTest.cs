@@ -23,7 +23,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  [Ignore ("TODO 5061")]
   public class TypePipeCustomAttributeDataTest
   {
     private ConstructorInfo _defaultCtor;
@@ -61,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateInstance_NamedArgument ()
     {
-      var declaration = new CustomAttributeDeclaration (_ctorWithArgs, new object[0], new NamedAttributeArgumentDeclaration (_property, 4711));
+      var declaration = new CustomAttributeDeclaration (_defaultCtor, new object[0], new NamedAttributeArgumentDeclaration (_property, 4711));
 
       var instance = (AbcAttribute) declaration.CreateInstance ();
 
@@ -74,7 +73,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorArg = new object[] { "x", 7, typeof (int), new[] { MyEnum.C, MyEnum.A } };
       var namedArg = new object[] { "z", 8, new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, MyEnum.B };
       var declaration = new CustomAttributeDeclaration (
-          _defaultCtor, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, namedArg));
+          _ctorWithArgs, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, namedArg));
 
       var instance = (AbcAttribute) declaration.CreateInstance ();
 
@@ -83,6 +82,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 5061")]
     public void CreateInstance_DeepCopyForArrays ()
     {
       var arg = new[] { new[] { 1, 2 }, new[] { 3, 4 } };
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (namedArgValue[1], Is.Not.SameAs (arg[1]).And.EqualTo (arg[1]));
     }
 
-    private class AbcAttribute : Attribute
+    public class AbcAttribute : Attribute
     {
       public AbcAttribute () { }
 
