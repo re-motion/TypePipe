@@ -51,6 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
       return instance;
     }
 
+    // The value is returned to the user, which might change it. Therefore create a safe copy.
     private static object DeepCopyArrays (object value)
     {
       var array = value as Array;
