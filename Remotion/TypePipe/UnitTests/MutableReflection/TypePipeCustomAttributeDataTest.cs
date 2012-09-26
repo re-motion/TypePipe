@@ -82,7 +82,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore ("TODO 5061")]
+    public void CreateInstance_NullArguments ()
+    {
+      var ctorArg = new object[] { "x", null };
+      var declaration = new CustomAttributeDeclaration (
+          _ctorWithArgs, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, null));
+
+      var instance = (AbcAttribute) declaration.CreateInstance ();
+
+      Assert.That (instance.CtorArg, Is.EqualTo (ctorArg));
+      Assert.That (instance.Property, Is.Null);
+    }
+
+    [Test]
     public void CreateInstance_DeepCopyForArrays ()
     {
       var arg = new[] { new[] { 1, 2 }, new[] { 3, 4 } };
@@ -95,7 +107,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (ctorArgValue[0], Is.Not.SameAs (arg[0]).And.EqualTo (arg[0]));
       Assert.That (ctorArgValue[1], Is.Not.SameAs (arg[1]).And.EqualTo (arg[1]));
 
-      Assert.That (instance.Property, Is.SameAs (arg).And.Not.EqualTo (arg));
+      Assert.That (instance.Property, Is.Not.SameAs (arg).And.EqualTo (arg));
       var namedArgValue = (int[][]) instance.CtorArg;
       Assert.That (namedArgValue[0], Is.Not.SameAs (arg[0]).And.EqualTo (arg[0]));
       Assert.That (namedArgValue[1], Is.Not.SameAs (arg[1]).And.EqualTo (arg[1]));

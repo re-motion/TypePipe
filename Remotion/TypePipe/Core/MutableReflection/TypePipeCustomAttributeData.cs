@@ -43,11 +43,27 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
 
-      var instance = customAttributeData.Constructor.Invoke (customAttributeData.ConstructorArguments.ToArray());
+      var ctorArgs = customAttributeData.ConstructorArguments.Select (DeepCopyArrays);
+      var instance = customAttributeData.Constructor.Invoke (ctorArgs.ToArray());
       foreach (var namedArgument in customAttributeData.NamedArguments)
-        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
+        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, DeepCopyArrays (namedArgument.Value));
 
       return instance;
+    }
+
+    private static object DeepCopyArrays (object value)
+    {
+      var array = value as Array;
+      if (array != null)
+      {
+        var copy = (Array) array.Clone();
+        for (int i = 0; i < array.Length; i++)
+          copy.SetValue (DeepCopyArrays (array.GetValue (i)), i);
+
+        return copy;
+      }
+
+      return value;
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeUtility, T info)
