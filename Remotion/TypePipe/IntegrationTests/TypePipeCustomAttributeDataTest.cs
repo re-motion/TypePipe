@@ -28,6 +28,7 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class TypePipeCustomAttributeDataTest
   {
+    // TODO 5061: Use separate domain type for complex attributes
     [Test]
     [Ignore("TODO 5061")]
     public void StandardReflection ()

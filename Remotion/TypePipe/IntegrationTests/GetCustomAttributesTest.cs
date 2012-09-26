@@ -26,6 +26,11 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class GetCustomAttributesTest
   {
+    // TODO 5062: Tests:
+    // AttributeInstantiation (with complex arguments, named fields, named properties on just one exemplary member)
+    // Inheritance (AttributeUsage vs. bool parameter on all member kinds and parameters) => rename GetCustomAttributes test below
+    // Inheritance_WithAllowMultipleTrue/False (if AllowMultiple is False, recursion must stop when first match is found) 
+
     [Test]
     [Ignore("TODO 5062")]
     public void GetCustomAttributes ()
