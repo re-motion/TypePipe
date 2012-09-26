@@ -65,16 +65,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _namedArguments; }
     }
 
-    // TODO 4943 : remove method
-    public object CreateInstance ()
-    {
-      var instance = _constructor.Invoke (_constructorArguments.ToArray());
-      foreach (var namedArgument in _namedArguments)
-        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
-
-      return instance;
-    }
-
     private void CheckConstructor (ConstructorInfo constructor)
     {
       if (!typeof (Attribute).IsAssignableFrom (constructor.DeclaringType))

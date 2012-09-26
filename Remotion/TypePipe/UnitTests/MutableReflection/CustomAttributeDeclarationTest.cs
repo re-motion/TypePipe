@@ -31,9 +31,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
-      var property = typeof (CustomAttribute).GetProperty ("Property");
-      var field = typeof (CustomAttribute).GetField ("Field");
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainAttribute obj) => obj.Property);
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainAttribute obj) => obj.Field);
 
       var declaration = new CustomAttributeDeclaration (
           constructor,
@@ -56,11 +56,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WithNullArgument ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
 
       var declaration = new CustomAttributeDeclaration (constructor, new object[] { null });
 
       Assert.That (declaration.ConstructorArguments[0], Is.Null);
+    }
+
+    [Test]
+    public void Initialization_MemberDeclaringTypesAreAssignable ()
+    {
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ());
+      var property = typeof (DomainAttribute).GetProperty ("Property");
+
+      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
     }
 
     [Test]
@@ -79,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: constructor")]
     public void Initialization_NonPublicConstructor ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ("internal"));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ("internal"));
 
       new CustomAttributeDeclaration (constructor, new object[] { "ctorArg" });
     }
@@ -89,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "The attribute constructor 'Void .cctor()' is not a public instance constructor.\r\nParameter name: constructor")]
     public void Initialization_TypeInitializer ()
     {
-      var constructor = typeof (CustomAttribute).GetConstructor (BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+      var constructor = typeof (DomainAttribute).GetConstructor (BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
       
       new CustomAttributeDeclaration (constructor, new object[0]);
     }
@@ -110,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Expected 1 constructor argument(s), but was 2.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidConstructorArgumentCount ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
 
       new CustomAttributeDeclaration (constructor, new object[] { 7, 8 });
     }
@@ -120,7 +129,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Item 0 of argument constructorArguments has the type System.String instead of System.ValueType.")]
     public void Initialization_InvalidConstructorArgumentType ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ((ValueType) null));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
 
       new CustomAttributeDeclaration (constructor, new object[] { "string" });
     }
@@ -130,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       "Constructor parameter at 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidNullArgument ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (0));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute (0));
 
       new CustomAttributeDeclaration (constructor, new object[] { null });
     }
@@ -138,89 +147,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof(ArgumentException), ExpectedMessage =
       "Named argument 'PropertyInDerivedType' cannot be used with custom attribute type "
-      + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+CustomAttribute'."
+      + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+DomainAttribute'."
       + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedCustomAttribute attr) => attr.PropertyInDerivedType);
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ());
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedAttribute attr) => attr.PropertyInDerivedType);
 
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, 7));
     }
 
-    [Test]
-    public void Initialization_MemberDeclaringTypesAreAssignable ()
+    public class DomainAttribute : Attribute
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
-      var property = typeof (CustomAttribute).GetProperty ("Property");
-
-      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
-    }
-
-    [Test]
-    public void CreateInstance ()
-    {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
-      var declaration = new CustomAttributeDeclaration (constructor, new object[0]);
-
-      var instance = declaration.CreateInstance();
-
-      Assert.That (instance, Is.TypeOf<CustomAttribute>());
-    }
-
-    [Test]
-    public void CreateInstance_WithCtorArgs ()
-    {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (0));
-      var declaration = new CustomAttributeDeclaration (constructor, new object[] { 7 });
-
-      var instance = (CustomAttribute) declaration.CreateInstance ();
-
-      Assert.That (instance.CtorIntArg, Is.EqualTo (7));
-    }
-
-    [Test]
-    public void CreateInstance_WithNamedArgs ()
-    {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute ());
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
-      var declaration = new CustomAttributeDeclaration (
-          constructor, 
-          new object[0], 
-          new NamedAttributeArgumentDeclaration (property, 4711),
-          new NamedAttributeArgumentDeclaration (field, "1676"));
-
-      var instance = (CustomAttribute) declaration.CreateInstance ();
-
-      Assert.That (instance.Property, Is.EqualTo (4711));
-      Assert.That (instance.Field, Is.EqualTo ("1676"));
-    }
-
-    public class CustomAttribute : Attribute
-    {
-      public string Field;
-
-      static CustomAttribute ()
+      static DomainAttribute ()
       {
         Dev.Null = null;
       }
 
-      public CustomAttribute ()
+      public string Field;
+
+      public DomainAttribute ()
       {
       }
 
-      public CustomAttribute (ValueType valueType)
+      public DomainAttribute (ValueType valueType)
       {
         Dev.Null = valueType;
       }
 
-      public CustomAttribute (int arg)
+      public DomainAttribute (int arg)
       {
         CtorIntArg = arg;
       }
 
-      internal CustomAttribute (string arg)
+      internal DomainAttribute (string arg)
       {
         Dev.Null = arg;
       }
@@ -229,7 +189,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public int Property { get; set; }
     }
 
-    private class DerivedCustomAttribute : CustomAttribute
+    private class DerivedAttribute : DomainAttribute
     {
 // ReSharper disable UnusedAutoPropertyAccessor.Local
       public int PropertyInDerivedType { get; set; }
