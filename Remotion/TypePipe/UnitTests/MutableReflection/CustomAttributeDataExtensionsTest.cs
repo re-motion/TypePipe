@@ -28,7 +28,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private ConstructorInfo _defaultCtor;
     private ConstructorInfo _ctorWithArgs;
-    private ConstructorInfo _internalCtor;
     private PropertyInfo _property;
 
     [SetUp]
@@ -36,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute());
       _ctorWithArgs = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (new object()));
-      _internalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
       _property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((AbcAttribute attr) => attr.Property);
     }
 
