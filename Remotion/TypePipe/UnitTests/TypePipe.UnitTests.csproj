@@ -104,7 +104,7 @@
     <Compile Include="MutableReflection\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingInfoDescriptorBase.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
-    <Compile Include="MutableReflection\TypePipeCustomAttributeDataTest.cs" />
+    <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
     <Compile Include="MutableReflection\UnderlyingInfoDescriptorBaseTest.cs" />
     <Compile Include="MutableReflection\UnderlyingParameterInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptorTest.cs" />

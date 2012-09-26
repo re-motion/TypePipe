@@ -23,14 +23,14 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class TypePipeCustomAttributeDataTest
+  public class CustomAttributeDataExtensionsTest
   {
     private ConstructorInfo _defaultCtor;
     private ConstructorInfo _ctorWithArgs;
     private PropertyInfo _property;
 
     [SetUp]
-    public void Setup()
+    public void Setup ()
     {
       _defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute());
       _ctorWithArgs = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (null));
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       ICustomAttributeData declaration = new CustomAttributeDeclaration (_defaultCtor, new object[0]);
 
-      var instance = TypePipeCustomAttributeData.CreateInstance (declaration);
+      var instance = CustomAttributeDataExtensions.CreateInstance (declaration);
 
       Assert.That (instance, Is.TypeOf<AbcAttribute>());
     }
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       ICustomAttributeData declaration = new CustomAttributeDeclaration (_ctorWithArgs, new object[] { 7 });
 
-      var instance = (AbcAttribute) declaration.CreateInstance ();
+      var instance = (AbcAttribute) declaration.CreateInstance();
 
       Assert.That (instance.CtorArg, Is.EqualTo (7));
     }
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var declaration = new CustomAttributeDeclaration (_defaultCtor, new object[0], new NamedAttributeArgumentDeclaration (_property, 4711));
 
-      var instance = (AbcAttribute) declaration.CreateInstance ();
+      var instance = (AbcAttribute) declaration.CreateInstance();
 
       Assert.That (instance.Property, Is.EqualTo (4711));
     }
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new CustomAttributeDeclaration (
           _ctorWithArgs, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, namedArg));
 
-      var instance = (AbcAttribute) declaration.CreateInstance ();
+      var instance = (AbcAttribute) declaration.CreateInstance();
 
       Assert.That (instance.CtorArg, Is.EqualTo (ctorArg));
       Assert.That (instance.Property, Is.EqualTo (namedArg));
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new CustomAttributeDeclaration (
           _ctorWithArgs, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, null));
 
-      var instance = (AbcAttribute) declaration.CreateInstance ();
+      var instance = (AbcAttribute) declaration.CreateInstance();
 
       Assert.That (instance.CtorArg, Is.EqualTo (ctorArg));
       Assert.That (instance.Property, Is.Null);
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var arg = new[] { new[] { 1, 2 }, new[] { 3, 4 } };
       var declaration = new CustomAttributeDeclaration (_ctorWithArgs, new object[] { arg }, new NamedAttributeArgumentDeclaration (_property, arg));
 
-      var instance = (AbcAttribute) declaration.CreateInstance ();
+      var instance = (AbcAttribute) declaration.CreateInstance();
 
       Assert.That (instance.CtorArg, Is.Not.SameAs (arg).And.EqualTo (arg));
       var ctorArgValue = (int[][]) instance.CtorArg;

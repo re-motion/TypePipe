@@ -39,41 +39,13 @@ namespace Remotion.TypePipe.MutableReflection
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
     }
 
-    public static object CreateInstance (this ICustomAttributeData customAttributeData)
-    {
-      ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
-
-      var ctorArgs = customAttributeData.ConstructorArguments.Select (DeepCopyArrays);
-      var instance = customAttributeData.Constructor.Invoke (ctorArgs.ToArray());
-      foreach (var namedArgument in customAttributeData.NamedArguments)
-        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, DeepCopyArrays (namedArgument.Value));
-
-      return instance;
-    }
-
-    // The value is returned to the user, which might change it. Therefore create a safe copy.
-    private static object DeepCopyArrays (object value)
-    {
-      var array = value as Array;
-      if (array != null)
-      {
-        var copy = (Array) array.Clone();
-        for (int i = 0; i < array.Length; i++)
-          copy.SetValue (DeepCopyArrays (array.GetValue (i)), i);
-
-        return copy;
-      }
-
-      return value;
-    }
-
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeUtility, T info)
     {
       var typePipeCustomAttributeProvider = info as ITypePipeCustomAttributeProvider;
       if (typePipeCustomAttributeProvider != null)
-        return typePipeCustomAttributeProvider.GetCustomAttributeData ();
+        return typePipeCustomAttributeProvider.GetCustomAttributeData();
       else
-        return customAttributeUtility(info).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData> ();
+        return customAttributeUtility (info).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData>();
     }
   }
 }
