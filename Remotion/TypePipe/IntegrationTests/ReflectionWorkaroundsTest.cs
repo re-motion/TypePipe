@@ -16,11 +16,8 @@
 // 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
@@ -31,40 +28,54 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void PreventDisappearanceOfPropertyWhenModifying ()
     {
-      ModifyOrOverrideProperty (typeof (DomainType), "Property");
+      var modifiedType = ModifyOrOverrideProperty (typeof (DomainType), "Property");
+      Assert.That (modifiedType.GetProperty ("Property"), Is.Not.Null.And.Property ("DeclaringType").SameAs (typeof (DomainType)));
     }
 
     [Test]
     public void PreventDisappearanceOfPropertyWhenImplicitlyOverriding ()
     {
-      ModifyOrOverrideProperty (typeof (DomainTypeBase), "PropertyInBaseType");
+      var modifiedType = ModifyOrOverrideProperty (typeof (DomainTypeBase), "PropertyInBaseType");
+      Assert.That (modifiedType.GetProperty ("PropertyInBaseType"), Is.Not.Null.And.Property ("DeclaringType").SameAs (typeof (DomainTypeBase)));
     }
 
     [Test]
-    public void PreventDisappearanceOfPropertyWhenExplicitlyOverriding ()
+    public void PreventDisappearanceOfPropertyWhenExplicitlyOverriding_IsNotNecessary ()
     {
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
-      var comparer = MemberInfoEqualityComparer<PropertyInfo>.Instance;
-      Assert.That (comparer.Equals (typeof (DomainType).GetProperty ("Property"), property), Is.True);
-      Assert.That (typeof (DomainType).GetProperties().Single(p => p.Name == "Property"), Is.EqualTo (property));
-
       // DomainTypeBase.Property cannot be accessed via reflection, therefore we do not need to align the visibility of explicit overrides.
+      Assert.That (
+          typeof (DomainType).GetProperty ("Property").DeclaringType,
+          Is.SameAs (typeof (DomainType)),
+          "Base property is hidden from Reflection, even without any overrides");
+      Assert.That (
+          typeof (DomainType).GetProperties ().Single (p => p.Name == "Property").DeclaringType,
+          Is.SameAs (typeof (DomainType)),
+          "Base property is hidden from Reflection, even without any overrides");
+
+      // Even after adding an explicit override for DomainTypeBase.Property, GetProperty still returns DomainType.Property
+      var modifiedType = ModifyOrOverrideProperty (typeof (DomainTypeBase), "Property");
+
+      Assert.That (
+          modifiedType.GetProperty ("Property").DeclaringType,
+          Is.SameAs (typeof (DomainType)),
+          "Base property is still hidden from Reflection");
+      Assert.That (
+          modifiedType.GetProperties ().Single (p => p.Name == "Property").DeclaringType,
+          Is.SameAs (typeof (DomainType)),
+          "Base property is still hidden from Reflection");
     }
 
-    private void ModifyOrOverrideProperty (Type declaringType, string propertyName)
+    private Type ModifyOrOverrideProperty (Type declaringType, string propertyName)
     {
       var property = declaringType.GetProperty (propertyName);
       Assert.That (property, Is.Not.Null);
 
-      var type = AssembleType<DomainType> (
+      return AssembleType<DomainType> (
           mutableType =>
           {
             var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod());
             mutableGetter.SetBody (ctx => Expression.Constant (""));
           });
-
-      var comparer = MemberInfoEqualityComparer<PropertyInfo>.Instance;
-      Assert.That (comparer.Equals (type.GetProperty (property.Name), property), Is.True);
     }
 
     public class DomainTypeBase
