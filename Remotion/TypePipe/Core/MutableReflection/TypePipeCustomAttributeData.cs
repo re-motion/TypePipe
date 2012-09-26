@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +22,10 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  /// <summary>
+  /// Represents the TypePipe counterpart of <see cref="CustomAttributeData"/>.
+  /// Can be used to retrieve attribute data from <see cref="MemberInfo"/>s and <see cref="ParameterInfo"/>s.
+  /// </summary>
   public static class TypePipeCustomAttributeData
   {
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member)
