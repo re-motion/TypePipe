@@ -8,7 +8,7 @@ echo.
 
 mkdir build\BuildOutput\log
 
-%msbuild% build\Remotion.build /t:PackageAll /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log "/p:Version=0.0.0"
+%msbuild% build\Remotion.build /t:ZipPackageAll /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log "/p:Version=0.0.0"
     
 if not %ERRORLEVEL%==0 goto build_failed
 
