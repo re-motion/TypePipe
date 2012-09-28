@@ -52,7 +52,7 @@ namespace Remotion.Reflection
             key,
             delegate
             {
-              Type[] parameterTypes = GetParameterTypes (delegateType);
+              Type[] parameterTypes = GetSignature (delegateType).Item1;
               if (parameterTypes.Length == 0)
                 throw new InvalidOperationException ("Method call delegate must have at least one argument for the current instance ('this' in C# or 'Me' in Visual Basic).");
               Type definingType = parameterTypes[0];

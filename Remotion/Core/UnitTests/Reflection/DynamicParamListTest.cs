@@ -169,6 +169,26 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void InvokeConstructor_ValueType_DefaultConstructor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (int));
+      var list = _implementation0.InvokeConstructor (info);
+
+      Assert.That (list, Is.EqualTo (0));
+    }
+
+    [Test]
+    public void InvokeConstructor_ValueType_NonDefaultConstructor ()
+    {
+      var implementation = new DynamicParamList (new [] { typeof (int), typeof (int), typeof (int) }, new object[] { 2012, 01, 02 });
+      var info = new ConstructorLookupInfo (typeof (DateTime));
+
+      var instance = implementation.InvokeConstructor (info);
+
+      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
+    }
+
+    [Test]
     public void InvokeConstructor_ManyArguments ()
     {
       var types = new[] { typeof (int), typeof (int), typeof (int), typeof (int), typeof (int), 

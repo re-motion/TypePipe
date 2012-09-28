@@ -66,6 +66,76 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void GetDelegate_ImplicitConversion ()
+    {
+      ConstructorLookupInfo lookupInfo = new ConstructorLookupInfo (typeof (TestClass));
+      var actual = (Func<Base, object>) lookupInfo.GetDelegate (typeof (Func<Base, object>));
+
+      var instance = actual (null);
+      Assert.That (instance, Is.TypeOf<TestClass>());
+    }
+
+    [Test]
+    public void GetDelegate_ValueType_DefaultCtor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (int));
+      var actual = (Func<int>) info.GetDelegate (typeof (Func<int>));
+      var instance = actual();
+
+      Assert.That (instance, Is.EqualTo (new int()));
+    }
+
+    [Test]
+    public void GetDelegate_ValueType_DefaultCtor_Boxing ()
+    {
+      var info = new ConstructorLookupInfo (typeof (int));
+      var actual = (Func<object>) info.GetDelegate (typeof (Func<object>));
+      var instance = actual ();
+
+      Assert.That (instance, Is.EqualTo (new int ()));
+    }
+
+    [Test]
+    public void GetDelegate_ValueType_DefaultCtor_BoxingInterface ()
+    {
+      var info = new ConstructorLookupInfo (typeof (int));
+      var actual = (Func<IComparable>) info.GetDelegate (typeof (Func<IComparable>));
+      var instance = actual ();
+
+      Assert.That (instance, Is.EqualTo (new int ()));
+    }
+
+    [Test]
+    public void GetDelegate_ValueType_NonDefaultCtor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (DateTime));
+      var actual = (Func<int, int, int, DateTime>) info.GetDelegate (typeof (Func<int, int, int, DateTime>));
+      var instance = actual (2012, 01, 02);
+
+      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
+    }
+
+    [Test]
+    public void GetDelegate_ValueType_NonDefaultCtor_Boxing ()
+    {
+      var info = new ConstructorLookupInfo (typeof (DateTime));
+      var actual = (Func<int, int, int, object>) info.GetDelegate (typeof (Func<int, int, int, object>));
+      var instance = actual (2012, 01, 02);
+
+      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
+    }
+
+    [Test]
+    public void GetDelegate_ValueType_NonDefaultCtor_BoxingInterface ()
+    {
+      var info = new ConstructorLookupInfo (typeof (DateTime));
+      var actual = (Func<int, int, int, IComparable>) info.GetDelegate (typeof (Func<int, int, int, IComparable>));
+      var instance = actual (2012, 01, 02);
+
+      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
+    }
+
+    [Test]
     public void DynamicInvoke ()
     {
       var info = new ConstructorLookupInfo (typeof (AbstractClass), BindingFlags.NonPublic | BindingFlags.Instance);
@@ -73,6 +143,26 @@ namespace Remotion.UnitTests.Reflection
           () => info.DynamicInvoke (new Type[0], new object[0]),
           Throws.InvalidOperationException.With.Message.EqualTo (
               "Cannot create an instance of 'Remotion.UnitTests.Reflection.TestDomain.AbstractClass' because it is an abstract type."));
+    }
+
+    [Test]
+    public void DynamicInvoke_ValueType_DefaultCtor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (int));
+      
+      var instance = info.DynamicInvoke (new Type[0], new object[0]);
+
+      Assert.That (instance, Is.EqualTo (new int ()));
+    }
+
+    [Test]
+    public void DynamicInvoke_ValueType_NonDefaultCtor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (DateTime));
+
+      var instance = info.DynamicInvoke (new[] { typeof (int), typeof (int), typeof (int) }, new object[] { 2012, 01, 02 });
+
+      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
     }
   }
 }

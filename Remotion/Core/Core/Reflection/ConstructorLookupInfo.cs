@@ -73,6 +73,11 @@ namespace Remotion.Reflection
 
       CheckNotAbstract();
 
+      // For value types' default ctors, there is no ConstructorInfo, so just use Activator instead.
+      if (_definingType.IsValueType && parameterTypes.Length == 0)
+        return Activator.CreateInstance (_definingType);
+
+      // For other cases, don't use Activator, since we want to specify the parameter types.
       var ctor = GetConstructor (parameterTypes);
       return ctor.Invoke (parameterValues);
     }
@@ -88,29 +93,35 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      Type[] parameterTypes = GetParameterTypes (delegateType);
+      var delegateSignature = GetSignature (delegateType);
+      var parameterTypes = delegateSignature.Item1;
+      var returnType = delegateSignature.Item2;
+
       if (_definingType.IsValueType && parameterTypes.Length == 0)
-        return CreateValueTypeDefaultDelegate (_definingType, delegateType);
+        return CreateValueTypeDefaultDelegate (_definingType, delegateType, returnType);
 
       ConstructorInfo ctor = GetConstructor(parameterTypes);
-      return CreateDelegate (ctor, delegateType);
+      return CreateDelegate (ctor, delegateType, returnType);
     }
 
-    protected Delegate CreateDelegate (ConstructorInfo ctor, Type delegateType)
+    protected Delegate CreateDelegate (ConstructorInfo ctor, Type delegateType, Type returnType)
     {
       ArgumentUtility.CheckNotNull ("ctor", ctor);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       ParameterInfo[] parameters = ctor.GetParameters ();
-      Type declaringType = ctor.DeclaringType;
+      Type constructedType = ctor.DeclaringType;
+      Assertion.IsNotNull (constructedType);
       
       var parameterTypes = parameters.Select (p => p.ParameterType).ToArray();
-      var method = new DynamicMethod ("ConstructorWrapper", declaringType, parameterTypes, declaringType);
+      var method = new DynamicMethod ("ConstructorWrapper", returnType, parameterTypes, constructedType);
       ILGenerator ilgen = method.GetILGenerator ();
 
       for (int i = 0; i < parameters.Length; ++i)
         ilgen.Emit (OpCodes.Ldarg, i);
       ilgen.Emit (OpCodes.Newobj, ctor);
+      if (constructedType.IsValueType && !returnType.IsValueType)
+        ilgen.Emit (OpCodes.Box, constructedType);
       ilgen.Emit (OpCodes.Ret);
 
       try
@@ -138,15 +149,17 @@ namespace Remotion.Reflection
     /// <summary>
     /// Since value types do not have default constructors, an activation with zero parameters must create the object with the initobj IL opcode.
     /// </summary>
-    private Delegate CreateValueTypeDefaultDelegate (Type type, Type delegateType)
+    private Delegate CreateValueTypeDefaultDelegate (Type type, Type delegateType, Type returnType)
     {
-      var method = new DynamicMethod ("ConstructorWrapper", type, Type.EmptyTypes, type);
+      var method = new DynamicMethod ("ConstructorWrapper", returnType, Type.EmptyTypes, type);
       ILGenerator ilgen = method.GetILGenerator ();
 
-      ilgen.DeclareLocal (type);
-      ilgen.Emit (OpCodes.Ldloca_S, 0);     // load address of local variable
+      var localBuilder = ilgen.DeclareLocal (type);
+      ilgen.Emit (OpCodes.Ldloca_S, localBuilder);     // load address of local variable
       ilgen.Emit (OpCodes.Initobj, type);   // initialize that object with default value
       ilgen.Emit (OpCodes.Ldloc_0);         // load local variable value
+      if (!returnType.IsValueType)
+        ilgen.Emit (OpCodes.Box, type);       // box it, if required
       ilgen.Emit (OpCodes.Ret);             // and return it
 
       return method.CreateDelegate (delegateType);

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -79,12 +80,17 @@ namespace Remotion.Reflection
 
     public Type[] GetParameterTypes (Type delegateType)
     {
+      return GetSignature (delegateType).Item1;
+    }
+
+    public Tuple<Type[], Type> GetSignature (Type delegateType)
+    {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom("delegateType", delegateType, typeof (Delegate));
 
       MethodInfo invokeMethod = delegateType.GetMethod ("Invoke");
       Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method."); // according to the CLI specs, each delegate type must define this method
 
-      return invokeMethod.GetParameters ().Select (par => par.ParameterType).ToArray ();
+      return Tuple.Create (invokeMethod.GetParameters ().Select (par => par.ParameterType).ToArray (), invokeMethod.ReturnType);
     }
   }
 }

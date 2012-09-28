@@ -135,6 +135,27 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void InvokeConstructor_ValueType_DefaultConstructor ()
+    {
+      var info = new ConstructorLookupInfo (typeof (int));
+
+      var instance = _implementation0.InvokeConstructor (info);
+
+      Assert.That (instance, Is.EqualTo (new int()));
+    }
+
+    [Test]
+    public void InvokeConstructor_ValueType_NonDefaultConstructor ()
+    {
+      var implementation = new ParamListImplementation<int, int, int> (2012, 01, 02);
+      var info = new ConstructorLookupInfo (typeof (DateTime));
+
+      var instance = implementation.InvokeConstructor (info);
+
+      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
+    }
+
+    [Test]
     public void GetParameterTypes ()
     {
       Assert.That (_implementation0.GetParameterTypes (), Is.Empty);
