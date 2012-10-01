@@ -99,8 +99,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var declaration = new CustomAttributeDeclaration (
           constructor,
           constructorArguments,
-          new NamedAttributeArgumentDeclaration (property, 7),
-          new NamedAttributeArgumentDeclaration (field, "test"));
+          new NamedArgumentDeclaration (property, 7),
+          new NamedArgumentDeclaration (field, "test"));
       var addedField = MutableFieldInfoObjectMother.Create ();
       addedField.AddCustomAttribute (declaration);
 

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
     public CustomAttributeDeclaration (
         ConstructorInfo constructor,
         object[] constructorArguments,
-        params NamedAttributeArgumentDeclaration[] namedArguments)
+        params NamedArgumentDeclaration[] namedArguments)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
@@ -73,9 +73,9 @@ namespace Remotion.TypePipe.MutableReflection
       var copiedValue = DeepCopyArrays(namedArgument.Value);
       
       if (namedArgument.MemberInfo is PropertyInfo)
-        return new NamedAttributeArgumentDeclaration (((PropertyInfo) namedArgument.MemberInfo), copiedValue);
+        return new NamedArgumentDeclaration (((PropertyInfo) namedArgument.MemberInfo), copiedValue);
       else
-        return new NamedAttributeArgumentDeclaration (((FieldInfo) namedArgument.MemberInfo), copiedValue);
+        return new NamedArgumentDeclaration (((FieldInfo) namedArgument.MemberInfo), copiedValue);
     }
 
     private object DeepCopyArrays (object value)
@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
-    private void CheckDeclaringTypes (ConstructorInfo constructor, NamedAttributeArgumentDeclaration[] namedArguments)
+    private void CheckDeclaringTypes (ConstructorInfo constructor, NamedArgumentDeclaration[] namedArguments)
     {
       var attributeType = constructor.DeclaringType;
       foreach (var namedArgument in namedArguments)

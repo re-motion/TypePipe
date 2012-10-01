@@ -141,7 +141,7 @@
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
-    <Compile Include="MutableReflection\NamedAttributeArgumentDeclaration.cs" />
+    <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />
     <Compile Include="MutableReflection\UnderlyingInfoDescriptorBase.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptor.cs" />
     <Compile Include="MutableReflection\UnderlyingMethodBaseDescriptor.cs" />

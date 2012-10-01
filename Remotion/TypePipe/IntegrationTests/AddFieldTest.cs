@@ -90,8 +90,8 @@ namespace TypePipe.IntegrationTests
             var customAttributeDeclaration = new CustomAttributeDeclaration (
                 attributeCtor,
                 new[] { "ctorArg" },
-                new NamedAttributeArgumentDeclaration (namedProperty, 7),
-                new NamedAttributeArgumentDeclaration (namedField, new[] { MyEnum.Other, MyEnum.Default }));
+                new NamedArgumentDeclaration (namedProperty, 7),
+                new NamedArgumentDeclaration (namedField, new[] { MyEnum.Other, MyEnum.Default }));
             mutableFieldInfo.AddCustomAttribute (customAttributeDeclaration);
           });
 

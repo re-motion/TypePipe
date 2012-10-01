@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateInstance_NamedArgument ()
     {
-      var declaration = new CustomAttributeDeclaration (_defaultCtor, new object[0], new NamedAttributeArgumentDeclaration (_property, 4711));
+      var declaration = new CustomAttributeDeclaration (_defaultCtor, new object[0], new NamedArgumentDeclaration (_property, 4711));
 
       var instance = (AbcAttribute) declaration.CreateInstance();
 
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctorArg = new object[] { "x", 7, typeof (int), new[] { MyEnum.C, MyEnum.A } };
       var namedArg = new object[] { "z", 8, new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, MyEnum.B };
       var declaration = new CustomAttributeDeclaration (
-          _ctorWithArgs, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, namedArg));
+          _ctorWithArgs, new object[] { ctorArg }, new NamedArgumentDeclaration (_property, namedArg));
 
       var instance = (AbcAttribute) declaration.CreateInstance();
 
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var ctorArg = new object[] { "x", null };
       var declaration = new CustomAttributeDeclaration (
-          _ctorWithArgs, new object[] { ctorArg }, new NamedAttributeArgumentDeclaration (_property, null));
+          _ctorWithArgs, new object[] { ctorArg }, new NamedArgumentDeclaration (_property, null));
 
       var instance = (AbcAttribute) declaration.CreateInstance();
 
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateInstance_DeepCopyForArrays ()
     {
       var arg = new[] { new[] { 1, 2 }, new[] { 3, 4 } };
-      var declaration = new CustomAttributeDeclaration (_ctorWithArgs, new object[] { arg }, new NamedAttributeArgumentDeclaration (_property, arg));
+      var declaration = new CustomAttributeDeclaration (_ctorWithArgs, new object[] { arg }, new NamedArgumentDeclaration (_property, arg));
 
       var instance = (AbcAttribute) declaration.CreateInstance();
 

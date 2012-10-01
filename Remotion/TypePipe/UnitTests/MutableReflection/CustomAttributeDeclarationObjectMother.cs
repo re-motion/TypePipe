@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new CustomAttributeDeclaration (
           typeof (CustomAttribute).GetConstructor (new[] { typeof (int) }),
           new object[] { 7 },
-          new NamedAttributeArgumentDeclaration (typeof (CustomAttribute).GetProperty ("Property"), "string"),
-          new NamedAttributeArgumentDeclaration (typeof (CustomAttribute).GetField ("Field"), new object()));
+          new NamedArgumentDeclaration (typeof (CustomAttribute).GetProperty ("Property"), "string"),
+          new NamedArgumentDeclaration (typeof (CustomAttribute).GetField ("Field"), new object()));
     }
 
     public static CustomAttributeDeclaration Create (Type attributeType)

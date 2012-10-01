@@ -23,7 +23,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class NamedAttributeArgumentDeclarationTest
+  public class NamedArgumentDeclarationTest
   {
     [Test]
     public void Initialization_Property ()
@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var propertyInfo = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
       int value = 7;
 
-      var declaration = new NamedAttributeArgumentDeclaration (propertyInfo, value);
+      var declaration = new NamedArgumentDeclaration (propertyInfo, value);
 
       Assert.That (declaration.MemberInfo, Is.SameAs (propertyInfo));
       Assert.That (declaration.MemberType, Is.SameAs (typeof(ValueType)));
@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var propertyInfo = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
       string value = "not assignable";
 
-      new NamedAttributeArgumentDeclaration (propertyInfo, value);
+      new NamedArgumentDeclaration (propertyInfo, value);
     }
 
     [Test]
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var propertyInfo = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
       int value = 7;
 
-      new NamedAttributeArgumentDeclaration (propertyInfo, value);
+      new NamedArgumentDeclaration (propertyInfo, value);
     }
 
     [Test]
@@ -64,8 +64,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var nullableMember2 = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (object));
       var nullableMember1 = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (int?));
 
-      new NamedAttributeArgumentDeclaration (nullableMember1, null);
-      new NamedAttributeArgumentDeclaration (nullableMember2, null);
+      new NamedArgumentDeclaration (nullableMember1, null);
+      new NamedArgumentDeclaration (nullableMember2, null);
     }
 
     [Test]
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var nonNullMember = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (int));
 
-      new NamedAttributeArgumentDeclaration (nonNullMember, null);
+      new NamedArgumentDeclaration (nonNullMember, null);
     }
 
     [Test]
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization_Property_MustBeWritable ()
     {
       var property = typeof (string).GetProperty ("Length");
-      new NamedAttributeArgumentDeclaration (property, 0);
+      new NamedArgumentDeclaration (property, 0);
     }
 
     [Test]
@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty (() => PrivateProperty);
 
-      new NamedAttributeArgumentDeclaration (property, "");
+      new NamedArgumentDeclaration (property, "");
     }
 
     [Test]
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty (() => StaticProperty);
 
-      new NamedAttributeArgumentDeclaration (property, "");
+      new NamedArgumentDeclaration (property, "");
     }
 
     [Test]
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fieldInfo = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (ValueType));
       int value = 7;
 
-      var declaration = new NamedAttributeArgumentDeclaration (fieldInfo, value);
+      var declaration = new NamedArgumentDeclaration (fieldInfo, value);
 
       Assert.That (declaration.MemberInfo, Is.SameAs (fieldInfo));
       Assert.That (declaration.MemberType, Is.SameAs (typeof (ValueType)));
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var propertyInfo = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (ValueType));
       string value = "not assignable";
 
-      new NamedAttributeArgumentDeclaration (propertyInfo, value);
+      new NamedArgumentDeclaration (propertyInfo, value);
     }
 
     [Test]
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var propertyInfo = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (ValueType));
       int value = 7;
 
-      new NamedAttributeArgumentDeclaration (propertyInfo, value);
+      new NamedArgumentDeclaration (propertyInfo, value);
     }
 
     [Test]
@@ -146,8 +146,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var nullableMember2 = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (object));
       var nullableMember1 = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (int?));
 
-      new NamedAttributeArgumentDeclaration (nullableMember1, null);
-      new NamedAttributeArgumentDeclaration (nullableMember2, null);
+      new NamedArgumentDeclaration (nullableMember1, null);
+      new NamedArgumentDeclaration (nullableMember2, null);
     }
 
     [Test]
@@ -157,7 +157,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var nonNullMember = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (int));
 
-      new NamedAttributeArgumentDeclaration (nonNullMember, null);
+      new NamedArgumentDeclaration (nonNullMember, null);
     }
 
     [Test]
@@ -167,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var readonlyField = typeof (Type).GetField ("EmptyTypes");
 
-      new NamedAttributeArgumentDeclaration (readonlyField, Type.EmptyTypes);
+      new NamedArgumentDeclaration (readonlyField, Type.EmptyTypes);
     }
 
     [Test]
@@ -177,7 +177,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var literalField = GetType ().GetField ("c_string");
       
-      new NamedAttributeArgumentDeclaration (literalField, "value");
+      new NamedArgumentDeclaration (literalField, "value");
     }
 
     [Test]
@@ -187,7 +187,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var privateField = NormalizingMemberInfoFromExpressionUtility.GetField (() => _privateFied);
 
-      new NamedAttributeArgumentDeclaration (privateField, "");
+      new NamedArgumentDeclaration (privateField, "");
     }
 
     [Test]
@@ -197,7 +197,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var staticField = NormalizingMemberInfoFromExpressionUtility.GetField (() => StaticField);
 
-      new NamedAttributeArgumentDeclaration (staticField, "");
+      new NamedArgumentDeclaration (staticField, "");
     }
 
     public const string c_string = "string";

@@ -126,7 +126,7 @@
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoObjectMother.cs" />
-    <Compile Include="MutableReflection\NamedAttributeArgumentDeclarationTest.cs" />
+    <Compile Include="MutableReflection\NamedArgumentDeclarationTest.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />

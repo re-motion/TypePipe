@@ -23,13 +23,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Holds the member and value for a named attribute argument declaration.
   /// </summary>
-  public class NamedAttributeArgumentDeclaration : ICustomAttributeNamedArgument
+  public class NamedArgumentDeclaration : ICustomAttributeNamedArgument
   {
     private readonly MemberInfo _memberInfo;
     private readonly Type _memberType;
     private readonly object _value;
 
-    public NamedAttributeArgumentDeclaration (PropertyInfo propertyInfo, object value)
+    public NamedArgumentDeclaration (PropertyInfo propertyInfo, object value)
     {
       ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
       ArgumentUtility.CheckType ("value", value, propertyInfo.PropertyType);
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
       _value = value;
     }
 
-    public NamedAttributeArgumentDeclaration (FieldInfo fieldInfo, object value)
+    public NamedArgumentDeclaration (FieldInfo fieldInfo, object value)
     {
       ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
       ArgumentUtility.CheckType ("value", value, fieldInfo.FieldType);

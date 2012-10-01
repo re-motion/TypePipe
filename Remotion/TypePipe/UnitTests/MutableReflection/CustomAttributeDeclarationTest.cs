@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new CustomAttributeDeclaration (
           constructor,
           new object[] { 7 },
-          new NamedAttributeArgumentDeclaration (property, 7),
-          new NamedAttributeArgumentDeclaration (field, "value"));
+          new NamedArgumentDeclaration (property, 7),
+          new NamedArgumentDeclaration (field, "value"));
 
       Assert.That (declaration.Constructor, Is.SameAs (constructor));
       Assert.That (declaration.ConstructorArguments, Is.EqualTo(new[] {7}));
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ());
       var property = typeof (DomainAttribute).GetProperty ("Property");
 
-      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration (property, 7));
+      new CustomAttributeDeclaration (constructor, new object[0], new NamedArgumentDeclaration (property, 7));
     }
 
     [Test]
@@ -154,7 +154,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ());
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedAttribute attr) => attr.PropertyInDerivedType);
 
-      new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, 7));
+      new CustomAttributeDeclaration (constructor, new object[0], new NamedArgumentDeclaration(property, 7));
     }
 
     [Test]
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new CustomAttributeDeclaration (
           constructor,
           new object[] { new object[] { 1, new[] { 2, 3 } } },
-          new NamedAttributeArgumentDeclaration (field, new object[] { new[] { 4 }, 5, 6 }));
+          new NamedArgumentDeclaration (field, new object[] { new[] { 4 }, 5, 6 }));
 
       Assert.That (declaration.ConstructorArguments, Is.Not.SameAs (declaration.ConstructorArguments));
       Assert.That (declaration.ConstructorArguments.Single (), Is.Not.SameAs (declaration.ConstructorArguments.Single ()));
