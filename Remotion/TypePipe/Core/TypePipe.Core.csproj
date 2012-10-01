@@ -110,7 +110,6 @@
     <Compile Include="MutableReflection\CustomAttributeDataAdapter.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensions.cs" />
     <Compile Include="MutableReflection\CustomAttributeNamedArgumentAdapter.cs" />
-    <Compile Include="MutableReflection\CustomAttributeTypedArgumentUtility.cs" />
     <Compile Include="MutableReflection\CustomType.cs" />
     <Compile Include="MutableReflection\ICustomAttributeData.cs" />
     <Compile Include="MutableReflection\ICustomAttributeNamedArgument.cs" />
