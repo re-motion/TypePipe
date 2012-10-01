@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.MutableReflection
   public class NamedAttributeArgumentDeclaration : ICustomAttributeNamedArgument
   {
     private readonly MemberInfo _memberInfo;
+    private readonly Type _memberType;
     private readonly object _value;
 
     public NamedAttributeArgumentDeclaration (PropertyInfo propertyInfo, object value)
@@ -47,6 +48,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       _memberInfo = propertyInfo;
+      _memberType = propertyInfo.PropertyType;
       _value = value;
     }
 
@@ -74,12 +76,18 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       _memberInfo = fieldInfo;
+      _memberType = fieldInfo.FieldType;
       _value = value;
     }
 
     public MemberInfo MemberInfo
     {
       get { return _memberInfo; }
+    }
+
+    public Type MemberType
+    {
+      get { return _memberType; }
     }
 
     public object Value

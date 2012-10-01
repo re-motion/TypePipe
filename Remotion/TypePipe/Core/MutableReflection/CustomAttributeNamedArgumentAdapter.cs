@@ -14,7 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -24,18 +26,25 @@ namespace Remotion.TypePipe.MutableReflection
   public struct CustomAttributeNamedArgumentAdapter : ICustomAttributeNamedArgument
   {
     private readonly MemberInfo _member;
+    private readonly Type _memberType;
     private readonly object _value;
 
     public CustomAttributeNamedArgumentAdapter (CustomAttributeNamedArgument customAttributeNamedArgument)
     {
       // customAttributeNamedArgument is struct
       _member = customAttributeNamedArgument.MemberInfo;
+      _memberType = ReflectionUtility.GetFieldOrPropertyType (customAttributeNamedArgument.MemberInfo);
       _value = CustomAttributeTypedArgumentUtility.Unwrap (customAttributeNamedArgument.TypedValue);
     }
 
     public MemberInfo MemberInfo
     {
       get { return _member; }
+    }
+
+    public Type MemberType
+    {
+      get { return _memberType; }
     }
 
     public object Value

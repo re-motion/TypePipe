@@ -40,10 +40,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result.NamedArguments, Has.Count.EqualTo (2));
       Assert.That (
           result.NamedArguments,
-          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Property" && x.Value.Equals ("prop")));
+          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Property" && x.MemberType == typeof (string) && x.Value.Equals ("prop")));
       Assert.That (
           result.NamedArguments,
-          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Field" && x.Value.Equals (typeof (double))));
+          Has.Some.Matches<ICustomAttributeNamedArgument> (x => x.MemberInfo.Name == "Field" && x.MemberType == typeof (object) && x.Value.Equals (typeof (double))));
     }
 
     [Test]
@@ -58,6 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainAttribute obj) => obj.Field);
       Assert.That (result.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
       Assert.That (namedArgument.MemberInfo, Is.EqualTo (member));
+      Assert.That (namedArgument.MemberType, Is.EqualTo (typeof (object)));
       Assert.That (namedArgument.Value, Is.EqualTo (new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } }));
     }
 
@@ -73,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public DomainAttribute (object ctorArgument1, int ctorArgument2)
       {
         Dev.Null = ctorArgument1;
-        Dev.Null = ctorArgument2.ToString();
+        Dev.Null = ctorArgument2;
         Dev.Null = Field;
         Dev.Null = Property;
       }

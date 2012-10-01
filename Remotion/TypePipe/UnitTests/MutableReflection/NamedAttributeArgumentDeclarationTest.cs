@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new NamedAttributeArgumentDeclaration (propertyInfo, value);
 
       Assert.That (declaration.MemberInfo, Is.SameAs (propertyInfo));
+      Assert.That (declaration.MemberType, Is.SameAs (typeof(ValueType)));
       Assert.That (declaration.Value, Is.EqualTo (value));
     }
 
@@ -115,6 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new NamedAttributeArgumentDeclaration (fieldInfo, value);
 
       Assert.That (declaration.MemberInfo, Is.SameAs (fieldInfo));
+      Assert.That (declaration.MemberType, Is.SameAs (typeof (ValueType)));
       Assert.That (declaration.Value, Is.EqualTo (value));
     }
 

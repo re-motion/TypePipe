@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -24,6 +25,7 @@ namespace Remotion.TypePipe.MutableReflection
   public interface ICustomAttributeNamedArgument
   {
     MemberInfo MemberInfo { get; }
+    Type MemberType { get; }
     object Value { get; }
   }
 }
