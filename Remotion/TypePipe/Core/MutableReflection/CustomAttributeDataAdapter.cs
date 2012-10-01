@@ -19,8 +19,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Collections;
-using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -29,38 +29,38 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class CustomAttributeDataAdapter : ICustomAttributeData
   {
-    private readonly ConstructorInfo _constructor;
-    private readonly ReadOnlyCollection<object> _constructorArguments;
-    private readonly ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> _namedArguments;
+    private readonly CustomAttributeData _customAttributeData;
 
     public CustomAttributeDataAdapter (CustomAttributeData customAttributeData)
     {
       ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
 
-      _constructor = customAttributeData.Constructor;
-
-      _constructorArguments = customAttributeData.ConstructorArguments
-          .Select (CustomAttributeTypedArgumentUtility.Unwrap)
-          .ToList().AsReadOnly();
-
-      _namedArguments = customAttributeData.NamedArguments
-          .Select (a => new CustomAttributeNamedArgumentAdapter (a))
-          .Cast<ICustomAttributeNamedArgument>().ConvertToCollection().AsReadOnly();
+      _customAttributeData = customAttributeData;
     }
 
     public ConstructorInfo Constructor
     {
-      get { return _constructor; }
+      get { return _customAttributeData.Constructor; }
     }
 
     public ReadOnlyCollection<object> ConstructorArguments
     {
-      get { return _constructorArguments; }
+      get
+      {
+        return _customAttributeData.ConstructorArguments
+            .Select (CustomAttributeTypedArgumentUtility.Unwrap)
+            .ToList().AsReadOnly();
+      }
     }
 
     public ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments
     {
-      get { return _namedArguments; }
+      get
+      {
+        return _customAttributeData.NamedArguments
+            .Select (a => new CustomAttributeNamedArgumentAdapter (a))
+            .Cast<ICustomAttributeNamedArgument>().ConvertToCollection().AsReadOnly();
+      }
     }
   }
 }

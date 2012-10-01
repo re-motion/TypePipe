@@ -27,15 +27,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class CustomAttributeDataAdapterTest
   {
     [Test]
-    [Domain ("ctor", 7, Property = "prop", Field = typeof (double))]
-    public void Initialization_Simple ()
+    [Domain(null)]
+    public void Constructor ()
     {
-      var customAttributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod());
+      var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod());
 
-      var result = new CustomAttributeDataAdapter (customAttributeData);
+      Assert.That (result.Constructor, Is.SameAs (result.Constructor));
+    }
 
-      Assert.That (result.Constructor, Is.SameAs (customAttributeData.Constructor));
-      Assert.That (result.ConstructorArguments, Is.EqualTo (new object[] { "ctor", 7 }));
+    [Test]
+    [Domain (typeof (string), 7, "abc")]
+    public void ConstructorArguments_Simple ()
+    {
+      var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod());
+
+      Assert.That (result.ConstructorArguments, Is.EqualTo (new object[] { typeof (string), 7 , "abc"}));
+    }
+
+    [Test]
+    [Domain (new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } })]
+    public void ConstructorArguments_Complex ()
+    {
+      var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod());
+
+      Assert.That (result.ConstructorArguments[0], Is.EqualTo (new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } }));
+    }
+
+    [Test]
+    [Domain (null, Property = "prop", Field = typeof (double))]
+    public void NamedArguments ()
+    {
+      var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod());
+
       Assert.That (result.NamedArguments, Has.Count.EqualTo (2));
       Assert.That (
           result.NamedArguments,
@@ -48,29 +71,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Domain (new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } }, 0)]
-    public void Initialization_Complex ()
+    [Domain (new object[] { 1, new[] { 2, 3 } }, Field = new object[] { new[] { 4 }, 5, 6 })]
+    public void PropertiesCreateNewInstances ()
     {
-      var customAttributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod());
+      var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod());
 
-      var result = new CustomAttributeDataAdapter (customAttributeData);
+      Assert.That (result.ConstructorArguments, Is.Not.SameAs (result.ConstructorArguments));
+      Assert.That (result.ConstructorArguments.Single(), Is.Not.SameAs (result.ConstructorArguments.Single()));
+      Assert.That (((object[]) result.ConstructorArguments.Single())[1], Is.Not.SameAs (((object[]) result.ConstructorArguments.Single())[1]));
 
-      Assert.That (result.ConstructorArguments[0], Is.EqualTo (new object[] { "s", 7, null, typeof (double), MyEnum.B, new[] { 4, 5 } }));
+      Assert.That (result.NamedArguments, Is.Not.SameAs (result.NamedArguments));
+      Assert.That (result.NamedArguments.Single().Value, Is.Not.SameAs (result.NamedArguments.Single()));
+      Assert.That (((object[]) result.NamedArguments.Single().Value)[0], Is.Not.SameAs (((object[]) result.NamedArguments.Single().Value)[0]));
     }
 
-    private CustomAttributeData GetCustomAttributeData (MethodBase testMethod)
+    private CustomAttributeDataAdapter GetCustomAttributeDataAdapter (MethodBase testMethod)
     {
-      return CustomAttributeData.GetCustomAttributes (testMethod).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
+      var customAttributeData = CustomAttributeData.GetCustomAttributes (testMethod).Single (a => a.Constructor.DeclaringType == typeof (DomainAttribute));
+      return new CustomAttributeDataAdapter (customAttributeData);
     }
 
     private class DomainAttribute : Attribute
     {
       public object Field;
 
-      public DomainAttribute (object ctorArgument1, int ctorArgument2)
+      public DomainAttribute (object ctorArgument)
+      {
+        Dev.Null = ctorArgument;
+      }
+
+      public DomainAttribute (Type ctorArgument1, int ctorArgument2, object ctorArgument3)
       {
         Dev.Null = ctorArgument1;
         Dev.Null = ctorArgument2;
+        Dev.Null = ctorArgument3;
         Dev.Null = Field;
         Dev.Null = Property;
       }
