@@ -72,6 +72,7 @@
     <Compile Include="ReferenceMutableMembersTest.cs" />
     <Compile Include="TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypePipeCustomAttributeDataWithInheritanceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

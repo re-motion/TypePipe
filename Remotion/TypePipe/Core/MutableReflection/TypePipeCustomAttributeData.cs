@@ -28,9 +28,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class TypePipeCustomAttributeData
   {
-    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member)
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
       ArgumentUtility.CheckNotNull ("member", member);
+
+      // TODO: inherit can only be true for overridable members (types, methods, properties, events)
 
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
     }
