@@ -14,7 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
+using System;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Collections;
@@ -26,8 +26,28 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface ICustomAttributeData
   {
+    /// <summary>
+    /// Gets the constructor that was used to instantiate the <see cref="Attribute"/>.
+    /// </summary>
+    /// <value>
+    /// The constructor.
+    /// </value>
     ConstructorInfo Constructor { get; }
+
+    /// <summary>
+    /// Gets a fresh copy of the constructor arguments.
+    /// </summary>
+    /// <value>
+    /// The constructor arguments.
+    /// </value>
     ReadOnlyCollection<object> ConstructorArguments { get; }
+
+    /// <summary>
+    /// Gets a fresh copy the named arguments.
+    /// </summary>
+    /// <value>
+    /// The named arguments.
+    /// </value>
     ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments { get; }
   }
 }
