@@ -21,16 +21,13 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.FunctionalProgramming;
 
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
   public class TypePipeCustomAttributeDataTest
   {
-    // TODO 5061: Use separate domain type for complex attributes
     [Test]
-    [Ignore("TODO 5061")]
     public void StandardReflection ()
     {
       var type = typeof (DomainType);
@@ -40,18 +37,24 @@ namespace TypePipe.IntegrationTests
       var returnParameter = method.ReturnParameter;
       var parameter = method.GetParameters().Single();
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+      var getter = property.GetGetMethod();
+      var getterReturnParameter = getter.ReturnParameter;
+      var setter = property.GetSetMethod();
       var @event = typeof (DomainType).GetEvents().Single();
       var nestedType = typeof (DomainType.NestedType);
 
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (ctor), CustomAttributeData.GetCustomAttributes (ctor));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (method), CustomAttributeData.GetCustomAttributes (method));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (returnParameter));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (parameter));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (property));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), CustomAttributeData.GetCustomAttributes (@event));
-      CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (ctor), CustomAttributeData.GetCustomAttributes (ctor));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (method), CustomAttributeData.GetCustomAttributes (method));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (returnParameter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (parameter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (property));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (getter), CustomAttributeData.GetCustomAttributes (getter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), CustomAttributeData.GetCustomAttributes (getterReturnParameter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (setter), CustomAttributeData.GetCustomAttributes (setter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (@event), CustomAttributeData.GetCustomAttributes (@event));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
     }
 
     [Test]
@@ -59,54 +62,49 @@ namespace TypePipe.IntegrationTests
     {
       var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
       var mutableType = new MutableType (descriptor, new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder());
-
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), "class");
-
-      var field = mutableType.AllMutableFields.Single();
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (field), "field");
-
-      var constructor = mutableType.AllMutableConstructors.Single();
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (constructor), "constructor");
-
+      var field = mutableType.AllMutableFields.Single ();
+      var constructor = mutableType.AllMutableConstructors.Single ();
       var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (method), "method");
-
       // TODO 4793
       //var returnParameter = method.ReturnParameter;
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), "return value");
-
-      var parameter = method.GetParameters().Single();
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (parameter), "parameter");
-
+      var parameter = (MutableParameterInfo) method.GetParameters ().Single ();
       // TODO 4791
       //var property = mutableType.GetProperties().Single();
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), "property");
-
       // TODO 4791
       //var getter = property.GetGetMethod();
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
-
       // TODO 4791
       //var getterReturnParameter = getter.ReturnParameter;
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
-
       // TODO 4791
       //var setter = property.GetGetMethod();
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
-
       // TODO 4791
       //var @event = mutableType.GetEvents().Single();
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
-
       // TODO 4791
       //var nestedType = mutableType.GetNestedTypes().Single();
+
+      CheckAbcAttribute (
+          TypePipeCustomAttributeData.GetCustomAttributes (mutableType), CustomAttributeData.GetCustomAttributes (mutableType.UnderlyingSystemType));
+      CheckAbcAttribute (
+          TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field.UnderlyingSystemFieldInfo));
+      CheckAbcAttribute (
+          TypePipeCustomAttributeData.GetCustomAttributes (constructor),CustomAttributeData.GetCustomAttributes (constructor.UnderlyingSystemConstructorInfo));
+      CheckAbcAttribute (
+          TypePipeCustomAttributeData.GetCustomAttributes (method), CustomAttributeData.GetCustomAttributes (method.UnderlyingSystemMethodInfo));
+      //CheckAbcAttribute (
+      //    TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (returnParameter.UnderlyingParameterInfo));
+      CheckAbcAttribute (
+          TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (parameter.UnderlyingSystemParameterInfo));
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), "property");    
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
+      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
     }
 
     [Test]
     public void MutableReflection_MultipleAttribute ()
     {
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
 
       var filteredResult = result.Where (x => x.Constructor.DeclaringType == typeof (MultipleAttribute))
           .Select (x => x.ConstructorArguments.Single());
@@ -116,7 +114,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void MutableReflection_NamedArguments ()
     {
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
 
       var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithNamedArgumentsAttribute))
           .NamedArguments.Select (x => x.Value);
@@ -129,7 +127,7 @@ namespace TypePipe.IntegrationTests
       var defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute ());
       var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute (""));
 
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
 
       var filteredResult = result.Where (x => x.Constructor.DeclaringType == typeof (WithMultipleCtorsAttribute));
       var attribute1 = filteredResult.Single (x => x.ConstructorArguments.Count == 0);
@@ -141,7 +139,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void MutableReflection_WithComplexArguments ()
     {
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType));
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
 
       var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithComplexArgumentsAttribute));
       Assert.That (filteredResult.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
@@ -149,42 +147,16 @@ namespace TypePipe.IntegrationTests
       Assert.That (filteredResult.ConstructorArguments[2], Is.EqualTo (new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } }));
     }
 
-    private void CheckEquals (IEnumerable<ICustomAttributeData> actual, IEnumerable<CustomAttributeData> expected)
+    private void CheckAbcAttribute (IEnumerable<ICustomAttributeData> actualAttributes, IEnumerable<CustomAttributeData> expectedAttributes)
     {
-      Assert.That (actual.Count (), Is.EqualTo (expected.Count ()));
-      var attributeDatas = actual.Zip (expected, (a, e) => new { Actual = a, Expected = e });
-      foreach (var attributeData in attributeDatas)
-      {
-        Assert.That (attributeData.Actual.Constructor, Is.EqualTo (attributeData.Expected.Constructor));
-        Assert.That (attributeData.Actual.ConstructorArguments, Is.EqualTo (attributeData.Expected.ConstructorArguments.Select(x => x.Value)));
-
-        Assert.That (attributeData.Actual.NamedArguments.Count (), Is.EqualTo (attributeData.Expected.NamedArguments.Count ()));
-        var namedArguments = attributeData.Actual.NamedArguments.Zip (attributeData.Expected.NamedArguments, (a, e) => new { Actual = a, Expected = e });
-        foreach (var namedArgument in namedArguments)
-        {
-          Assert.That (namedArgument.Actual.MemberInfo, Is.EqualTo (namedArgument.Expected.MemberInfo));
-          Assert.That (namedArgument.Actual.Value, Is.EqualTo (namedArgument.Expected.TypedValue.Value));
-        }
-      }
+      // Check value of AbcAttribute
+      var actualAbcAttribute = actualAttributes.Single();
+      var expectedAbcAttribute = expectedAttributes.Single();
+      Assert.That (
+          actualAbcAttribute.ConstructorArguments.Single(),
+          Is.Not.Null.And.EqualTo (expectedAbcAttribute.ConstructorArguments.Single().Value));
     }
 
-    private void CheckAbcAttribute (IEnumerable<ICustomAttributeData> customAttributeDatas, string ctorArgument)
-    {
-      var abcAttribute = customAttributeDatas.SingleOrDefault (a => a.Constructor.DeclaringType == typeof (AbcAttribute));
-      Assert.That (abcAttribute, Is.Not.Null);
-
-      Assert.That (abcAttribute.ConstructorArguments.Single(), Is.EqualTo (ctorArgument));
-    }
-
-    // Order of attributes is not defined
-    [Multiple ("3"), Multiple ("1"), Multiple("2")]
-    // Order of named arguments is not defined
-    [WithNamedArguments(NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
-    // Select correct ctor
-    [WithMultipleCtors ("other ctor"), WithMultipleCtors]
-    // Complex arguments
-    [WithComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } })]
-    // Normal
     [Abc ("class")]
     public class DomainType
     {
@@ -238,6 +210,16 @@ namespace TypePipe.IntegrationTests
 
       public string ConstructorArgument { get; set; }
     }
+
+    // Order of attributes is not defined
+    [Multiple ("3"), Multiple ("1"), Multiple ("2")]
+    // Order of named arguments is not defined
+    [WithNamedArguments (NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
+    // Select correct ctor
+    [WithMultipleCtors ("other ctor"), WithMultipleCtors]
+    // Complex arguments
+    [WithComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } })]
+    public class DomainTypeWithComplexAttributes { }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
     public class MultipleAttribute : Attribute
