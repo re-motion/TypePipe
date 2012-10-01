@@ -30,8 +30,8 @@ namespace Remotion.TypePipe.MutableReflection
   public class CustomAttributeDeclaration : ICustomAttributeData
   {
     private readonly ConstructorInfo _constructor;
-    private readonly ReadOnlyCollection<object> _constructorArguments;
-    private readonly ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> _namedArguments;
+    private readonly ReadOnlyCollection<object> _constructorArgumentsTemplate;
+    private readonly ReadOnlyCollection<ICustomAttributeNamedArgument> _namedArguments;
 
     public CustomAttributeDeclaration (
         ConstructorInfo constructor,
@@ -47,8 +47,8 @@ namespace Remotion.TypePipe.MutableReflection
       CheckDeclaringTypes (constructor, namedArguments);
 
       _constructor = constructor;
-      _constructorArguments = constructorArguments.ToList().AsReadOnly();
-      _namedArguments = namedArguments.Cast<ICustomAttributeNamedArgument>().ConvertToCollection().AsReadOnly();
+      _constructorArgumentsTemplate = constructorArguments.ToList().AsReadOnly();
+      _namedArguments = namedArguments.Cast<ICustomAttributeNamedArgument>().ToList().AsReadOnly();
     }
 
     public ConstructorInfo Constructor
@@ -56,14 +56,41 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _constructor; }
     }
 
+    // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
     public ReadOnlyCollection<object> ConstructorArguments
     {
-      get { return _constructorArguments; }
+      get { return _constructorArgumentsTemplate.Select (DeepCopyArrays).ToList().AsReadOnly(); }
     }
 
+    // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
     public ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments
     {
-      get { return _namedArguments; }
+      get { return _namedArguments.Select (CopyNamedArgument).ConvertToCollection().AsReadOnly(); }
+    }
+
+    private ICustomAttributeNamedArgument CopyNamedArgument (ICustomAttributeNamedArgument namedArgument)
+    {
+      var copiedValue = DeepCopyArrays(namedArgument.Value);
+      
+      if (namedArgument.MemberInfo is PropertyInfo)
+        return new NamedAttributeArgumentDeclaration (((PropertyInfo) namedArgument.MemberInfo), copiedValue);
+      else
+        return new NamedAttributeArgumentDeclaration (((FieldInfo) namedArgument.MemberInfo), copiedValue);
+    }
+
+    private object DeepCopyArrays (object value)
+    {
+      var array = value as Array;
+      if (array != null)
+      {
+        var copy = (Array) array.Clone ();
+        for (int i = 0; i < array.Length; i++)
+          copy.SetValue (DeepCopyArrays (array.GetValue (i)), i);
+
+        return copy;
+      }
+
+      return value;
     }
 
     private void CheckConstructor (ConstructorInfo constructor)

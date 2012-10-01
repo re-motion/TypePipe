@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _customAttributeData.Constructor; }
     }
 
+    // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
     public ReadOnlyCollection<object> ConstructorArguments
     {
       get
@@ -53,6 +54,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
+    // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
     public ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments
     {
       get

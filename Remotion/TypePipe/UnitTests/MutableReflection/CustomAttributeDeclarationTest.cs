@@ -157,6 +157,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       new CustomAttributeDeclaration (constructor, new object[0], new NamedAttributeArgumentDeclaration(property, 7));
     }
 
+    [Test]
+    public void PropertiesCreateNewInstances ()
+    {
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((object) null));
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainAttribute obj) => obj.ObjectField);
+
+      var declaration = new CustomAttributeDeclaration (
+          constructor,
+          new object[] { new object[] { 1, new[] { 2, 3 } } },
+          new NamedAttributeArgumentDeclaration (field, new object[] { new[] { 4 }, 5, 6 }));
+
+      Assert.That (declaration.ConstructorArguments, Is.Not.SameAs (declaration.ConstructorArguments));
+      Assert.That (declaration.ConstructorArguments.Single (), Is.Not.SameAs (declaration.ConstructorArguments.Single ()));
+      Assert.That (((object[]) declaration.ConstructorArguments.Single ())[1], Is.Not.SameAs (((object[]) declaration.ConstructorArguments.Single ())[1]));
+
+      Assert.That (declaration.NamedArguments, Is.Not.SameAs (declaration.NamedArguments));
+      Assert.That (declaration.NamedArguments.Single ().Value, Is.Not.SameAs (declaration.NamedArguments.Single ()));
+      Assert.That (((object[]) declaration.NamedArguments.Single ().Value)[0], Is.Not.SameAs (((object[]) declaration.NamedArguments.Single ().Value)[0]));
+    }
+
     public class DomainAttribute : Attribute
     {
       static DomainAttribute ()
@@ -165,9 +185,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
 
       public string Field;
+      public object ObjectField;
 
-      public DomainAttribute ()
+      public DomainAttribute () { }
+
+      public DomainAttribute (object arg)
       {
+        Dev.Null = arg;
       }
 
       public DomainAttribute (ValueType valueType)

@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
     ConstructorInfo Constructor { get; }
 
     /// <summary>
-    /// Gets a fresh copy of the constructor arguments.
+    /// Gets a <b>fresh copy</b> of the constructor arguments.
     /// </summary>
     /// <value>
     /// The constructor arguments.
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
     ReadOnlyCollection<object> ConstructorArguments { get; }
 
     /// <summary>
-    /// Gets a fresh copy the named arguments.
+    /// Gets a <b>fresh copy</b> the named arguments.
     /// </summary>
     /// <value>
     /// The named arguments.
