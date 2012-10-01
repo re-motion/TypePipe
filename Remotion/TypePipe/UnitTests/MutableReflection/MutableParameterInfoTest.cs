@@ -26,23 +26,68 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableParameterInfoTest
   {
+    private MemberInfo _declaringMember;
+    private UnderlyingParameterInfoDescriptor _descriptor;
+    private MutableParameterInfo _mutableParameter;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _declaringMember = ReflectionObjectMother.GetSomeMember();
+      _descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew();
+      _mutableParameter = new MutableParameterInfo (_declaringMember, 0, _descriptor);
+    }
+
     [Test]
     public void Initialization ()
     {
-      var parameterType = ReflectionObjectMother.GetSomeType ();
-      var name = "parameterName";
-      var attributes = ParameterAttributes.Out;
-      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (parameterType, name, attributes);
       var member = ReflectionObjectMother.GetSomeMember ();
       var position = 4711;
 
-      var mutableParameter = new MutableParameterInfo (member, position, descriptor);
+      var mutableParameter = new MutableParameterInfo (member, position, _descriptor);
 
       Assert.That (mutableParameter.Member, Is.SameAs (member));
       Assert.That (mutableParameter.Position, Is.EqualTo (position));
-      Assert.That (mutableParameter.ParameterType, Is.SameAs (parameterType));
-      Assert.That (mutableParameter.Name, Is.EqualTo (name));
-      Assert.That (mutableParameter.Attributes, Is.EqualTo (attributes));
+    }
+
+    [Test]
+    public void UnderlyingSystemParameterInfo ()
+    {
+      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForExisting();
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
+
+      var mutableParameter = Create (descriptor);
+
+      Assert.That (mutableParameter.UnderlyingSystemParameterInfo, Is.SameAs (descriptor.UnderlyingSystemInfo));
+    }
+
+    [Test]
+    public void UnderlyingSystemParameterInfo_ForNull ()
+    {
+      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew ();
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+
+      var mutableParameter = Create (descriptor);
+
+      Assert.That (mutableParameter.UnderlyingSystemParameterInfo, Is.SameAs (mutableParameter));
+    }
+
+    [Test]
+    public void ParameterType ()
+    {
+      Assert.That (_mutableParameter.ParameterType, Is.SameAs (_descriptor.Type));
+    }
+
+    [Test]
+    public void Name ()
+    {
+      Assert.That (_mutableParameter.Name, Is.SameAs (_descriptor.Name));
+    }
+
+    [Test]
+    public void Attributes ()
+    {
+      Assert.That (_mutableParameter.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]
@@ -68,6 +113,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result2 = mutableParameter.GetCustomAttributeData ();
 
       Assert.That (result1, Is.SameAs (result2));
+    }
+
+    private MutableParameterInfo Create (UnderlyingParameterInfoDescriptor descriptor)
+    {
+      return new MutableParameterInfo (ReflectionObjectMother.GetSomeMember (), 0, descriptor);
     }
 
 // ReSharper disable UnusedParameter.Local

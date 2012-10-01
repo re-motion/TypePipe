@@ -30,9 +30,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MemberInfo _member;
     private readonly int _position;
-    private readonly Type _parameterType;
-    private readonly string _name;
-    private readonly ParameterAttributes _attributes;
+    private readonly UnderlyingParameterInfoDescriptor _underlyingParameterInfoDescriptor;
+
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     public MutableParameterInfo (MemberInfo member, int position, UnderlyingParameterInfoDescriptor underlyingParameterInfoDescriptor)
@@ -42,9 +41,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _member = member;
       _position = position;
-      _parameterType = underlyingParameterInfoDescriptor.Type;
-      _name = underlyingParameterInfoDescriptor.Name;
-      _attributes = underlyingParameterInfoDescriptor.Attributes;
+      _underlyingParameterInfoDescriptor = underlyingParameterInfoDescriptor;
 
       _customAttributeDatas =
           new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingParameterInfoDescriptor.CustomAttributeDataProvider);
@@ -60,19 +57,24 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _position; }
     }
 
+    public ParameterInfo UnderlyingSystemParameterInfo
+    {
+      get { return _underlyingParameterInfoDescriptor.UnderlyingSystemInfo ?? this; }
+    }
+
     public override Type ParameterType
     {
-      get { return _parameterType; }
+      get { return _underlyingParameterInfoDescriptor.Type; }
     }
 
     public override string Name
     {
-      get { return _name; }
+      get { return _underlyingParameterInfoDescriptor.Name; }
     }
 
     public override ParameterAttributes Attributes
     {
-      get { return _attributes; }
+      get { return _underlyingParameterInfoDescriptor.Attributes; }
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
