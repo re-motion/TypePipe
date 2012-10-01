@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Adapts <see cref="CustomAttributeNamedArgument"/> to the interface <see cref="ICustomAttributeNamedArgument"/>.
   /// </summary>
-  public struct CustomAttributeNamedArgumentAdapter : ICustomAttributeNamedArgument
+  public class CustomAttributeNamedArgumentAdapter : ICustomAttributeNamedArgument
   {
     private readonly MemberInfo _member;
     private readonly Type _memberType;
