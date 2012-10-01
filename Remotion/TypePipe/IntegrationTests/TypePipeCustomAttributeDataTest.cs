@@ -58,7 +58,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void MutableReflection_Normal ()
+    public void MutableReflection ()
     {
       var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
       var mutableType = new MutableType (descriptor, new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder());
@@ -102,49 +102,47 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void MutableReflection_MultipleAttribute ()
+    public void MultipleAttributes ()
     {
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => MultipleAttributeMember());
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (member);
 
-      var filteredResult = result.Where (x => x.Constructor.DeclaringType == typeof (MultipleAttribute))
-          .Select (x => x.ConstructorArguments.Single());
-      Assert.That (filteredResult, Is.EquivalentTo (new[] { "1", "2", "3" }));
+      Assert.That (result.Select (x => x.ConstructorArguments.Single()), Is.EquivalentTo (new[] { "1", "2", "3" }));
     }
 
     [Test]
-    public void MutableReflection_NamedArguments ()
+    public void NamedArguments ()
     {
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => NamedArgumentsMember());
+      var attributeData = TypePipeCustomAttributeData.GetCustomAttributes (member).Single();
 
-      var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithNamedArgumentsAttribute))
-          .NamedArguments.Select (x => x.Value);
-      Assert.That (filteredResult, Is.EquivalentTo (new[] { "1", "2", "3" }));
+      Assert.That (attributeData.NamedArguments.Select (x => x.Value), Is.EquivalentTo (new[] { "1", "2", "3" }));
     }
 
     [Test]
-    public void MutableReflection_SelectCorrectCtor ()
+    public void CorrectCtor ()
     {
-      var defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute ());
-      var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new WithMultipleCtorsAttribute (""));
+      var defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleCtorsAttribute ());
+      var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleCtorsAttribute (""));
 
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => MultipleCtorsMember());
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (member);
 
-      var filteredResult = result.Where (x => x.Constructor.DeclaringType == typeof (WithMultipleCtorsAttribute));
-      var attribute1 = filteredResult.Single (x => x.ConstructorArguments.Count == 0);
-      var attribute2 = filteredResult.Single (x => x.ConstructorArguments.Count == 1);
-      Assert.That (attribute1.Constructor, Is.EqualTo (defaultCtor));
-      Assert.That (attribute2.Constructor, Is.EqualTo (otherCtor));
+      var data1 = result.Single (x => x.ConstructorArguments.Count == 0);
+      var data2 = result.Single (x => x.ConstructorArguments.Count == 1);
+      Assert.That (data1.Constructor, Is.EqualTo (defaultCtor));
+      Assert.That (data2.Constructor, Is.EqualTo (otherCtor));
     }
 
     [Test]
-    public void MutableReflection_WithComplexArguments ()
+    public void WithComplexArguments ()
     {
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainTypeWithComplexAttributes));
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => ComplexArgumentsMember());
+      var attributeData = TypePipeCustomAttributeData.GetCustomAttributes (member).Single();
 
-      var filteredResult = result.Single (x => x.Constructor.DeclaringType == typeof (WithComplexArgumentsAttribute));
-      Assert.That (filteredResult.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
-      Assert.That (filteredResult.ConstructorArguments[1], Is.EqualTo (new[] { typeof (double), typeof (string) }));
-      Assert.That (filteredResult.ConstructorArguments[2], Is.EqualTo (new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } }));
+      Assert.That (attributeData.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
+      Assert.That (attributeData.ConstructorArguments[1], Is.EqualTo (new[] { typeof (double), typeof (string) }));
+      Assert.That (attributeData.ConstructorArguments[2], Is.EqualTo (new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } }));
     }
 
     private void CheckAbcAttribute (IEnumerable<ICustomAttributeData> actualAttributes, IEnumerable<CustomAttributeData> expectedAttributes)
@@ -213,13 +211,19 @@ namespace TypePipe.IntegrationTests
 
     // Order of attributes is not defined
     [Multiple ("3"), Multiple ("1"), Multiple ("2")]
+    public void MultipleAttributeMember () { }
+
     // Order of named arguments is not defined
-    [WithNamedArguments (NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
+    [NamedArguments (NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
+    public void NamedArgumentsMember () { }
+
     // Select correct ctor
-    [WithMultipleCtors ("other ctor"), WithMultipleCtors]
+    [MultipleCtors ("other ctor"), MultipleCtors]
+    public void MultipleCtorsMember () { }
+
     // Complex arguments
-    [WithComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } })]
-    public class DomainTypeWithComplexAttributes { }
+    [ComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } })]
+    public void ComplexArgumentsMember () { }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
     public class MultipleAttribute : Attribute
@@ -232,7 +236,7 @@ namespace TypePipe.IntegrationTests
       public string ConstructorArgument { get; set; }
     }
 
-    public class WithNamedArgumentsAttribute : Attribute
+    public class NamedArgumentsAttribute : Attribute
     {
       public string NamedArgument1 { get; set; }
       public string NamedArgument2 { get; set; }
@@ -240,18 +244,18 @@ namespace TypePipe.IntegrationTests
     }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
-    public class WithMultipleCtorsAttribute : Attribute
+    public class MultipleCtorsAttribute : Attribute
     {
-      public WithMultipleCtorsAttribute () { }
+      public MultipleCtorsAttribute () { }
 // ReSharper disable UnusedParameter.Local
-      public WithMultipleCtorsAttribute (string constructorArgument) { }
+      public MultipleCtorsAttribute (string constructorArgument) { }
 // ReSharper restore UnusedParameter.Local
     }
 
-    public class WithComplexArgumentsAttribute : Attribute
+    public class ComplexArgumentsAttribute : Attribute
     {
 // ReSharper disable UnusedParameter.Local
-      public WithComplexArgumentsAttribute (int[] intArray, Type[] typeArray, object obj) { }
+      public ComplexArgumentsAttribute (int[] intArray, Type[] typeArray, object obj) { }
 // ReSharper restore UnusedParameter.Local
     }
   }
