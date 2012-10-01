@@ -96,17 +96,17 @@ namespace TypePipe.IntegrationTests
 
 #pragma warning disable 67
 
-    [Inherit, NonInherit]
+    [Inheritable, NonInheritable]
     class BaseClass
     {
-      [Inherit, NonInherit]
-      [return: Inherit, NonInherit]
-      public virtual int OverriddenMethod ([Inherit, NonInherit] string arg) { return 0; }
+      [Inheritable, NonInheritable]
+      [return: Inheritable, NonInheritable]
+      public virtual int OverriddenMethod ([Inheritable, NonInheritable] string arg) { return 0; }
 
-      [Inherit, NonInherit]
-      public virtual string OverriddenProperty { [Inherit, NonInherit] get; set; }
+      [Inheritable, NonInheritable]
+      public virtual string OverriddenProperty { [Inheritable, NonInheritable] get; set; }
 
-      [Inherit, NonInherit]
+      [Inheritable, NonInheritable]
       public virtual event EventHandler OverridenEvent;
     }
 
@@ -117,10 +117,10 @@ namespace TypePipe.IntegrationTests
       public override event EventHandler OverridenEvent;
     }
 
-    [Inherit, NonInherit]
+    [Inheritable, NonInheritable]
     interface IInterface
     {
-      [Inherit, NonInherit]
+      [Inheritable, NonInheritable]
       void InterfaceMethod ();
     }
 
@@ -130,10 +130,10 @@ namespace TypePipe.IntegrationTests
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
-    public sealed class InheritAttribute : Attribute { }
+    public sealed class InheritableAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = false)]
-    public sealed class NonInheritAttribute : Attribute { }
+    public sealed class NonInheritableAttribute : Attribute { }
 
 #pragma warning restore 67
 
