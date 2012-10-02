@@ -27,6 +27,14 @@ namespace Remotion.TypePipe.MutableReflection
   public interface ICustomAttributeData
   {
     /// <summary>
+    /// Gets the type of the attribute.
+    /// </summary>
+    /// <value>
+    /// The attribute type.
+    /// </value>
+    Type Type { get; }
+
+    /// <summary>
     /// Gets the constructor that was used to instantiate the <see cref="Attribute"/>.
     /// </summary>
     /// <value>

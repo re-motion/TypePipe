@@ -51,6 +51,11 @@ namespace Remotion.TypePipe.MutableReflection
       _namedArguments = namedArguments.Cast<ICustomAttributeNamedArgument>().ToList().AsReadOnly();
     }
 
+    public Type Type
+    {
+      get { return _constructor.DeclaringType; }
+    }
+
     public ConstructorInfo Constructor
     {
       get { return _constructor; }

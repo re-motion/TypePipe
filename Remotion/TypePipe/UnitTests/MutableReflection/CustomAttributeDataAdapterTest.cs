@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -27,12 +28,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class CustomAttributeDataAdapterTest
   {
     [Test]
-    [Domain(null)]
+    [Domain (null)]
+    public void Type ()
+    {
+      var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod ());
+
+      Assert.That (result.Type, Is.SameAs (typeof (DomainAttribute)));
+    }
+
+    [Test]
+    [Domain (null)]
     public void Constructor ()
     {
       var result = GetCustomAttributeDataAdapter (MethodBase.GetCurrentMethod());
 
-      Assert.That (result.Constructor, Is.SameAs (result.Constructor));
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute (null));
+      Assert.That (result.Constructor, Is.EqualTo (expected));
     }
 
     [Test]

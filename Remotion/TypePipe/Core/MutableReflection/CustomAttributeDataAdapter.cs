@@ -38,6 +38,11 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeData = customAttributeData;
     }
 
+    public Type Type
+    {
+      get { return _customAttributeData.Constructor.DeclaringType; }
+    }
+
     public ConstructorInfo Constructor
     {
       get { return _customAttributeData.Constructor; }
