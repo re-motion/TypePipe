@@ -30,6 +30,8 @@ namespace Remotion.TypePipe.MutableReflection
   public static class TypePipeCustomAttributeData
   {
     private static readonly IRelatedMethodFinder s_relatedMethodFinder = new RelatedMethodFinder();
+    private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
+    private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
@@ -44,6 +46,10 @@ namespace Remotion.TypePipe.MutableReflection
           return GetCustomAttributes ((Type) member, inherit);
         case MemberTypes.Method:
           return GetCustomAttributes ((MethodInfo) member, inherit);
+        case MemberTypes.Property:
+          return GetCustomAttributes ((PropertyInfo) member, inherit);
+        case MemberTypes.Event:
+          return GetCustomAttributes ((EventInfo) member, inherit);
       }
 
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
@@ -61,6 +67,20 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("method", method);
 
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, s_relatedMethodFinder.GetBaseMethod, method, inherit);
+    }
+
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (PropertyInfo property, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("property", property);
+
+      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, s_relatedPropertyFinder.GetBaseProperty, property, inherit);
+    }
+
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (EventInfo @event, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("event", @event);
+
+      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, s_relatedEventFinder.GetBaseEvent, @event, inherit);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)

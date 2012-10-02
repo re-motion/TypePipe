@@ -84,7 +84,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DomainType obj) => obj.Method ());
       var customAttributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
 
-      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType).ToArray();
+      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType);
+      Assert.That (customAttributeTypes, Is.EqualTo (new[] { typeof (InheritableAttribute) }));
+    }
+
+    [Test]
+    public void GetCustomAttributes_Property_NoInheritance ()
+    {
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DomainType obj) => obj.Property);
+      var customAttributes = TypePipeCustomAttributeData.GetCustomAttributes (member, false);
+
+      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType);
+      Assert.That (customAttributeTypes, Is.Empty);
+    }
+
+    [Test]
+    public void GetCustomAttributes_Property_Inheritance ()
+    {
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DomainType obj) => obj.Property);
+      var customAttributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
+
+      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType);
+      Assert.That (customAttributeTypes, Is.EqualTo (new[] { typeof (InheritableAttribute) }));
+    }
+
+    [Test]
+    public void GetCustomAttributes_Event_NoInheritance ()
+    {
+      var member = typeof (DomainType).GetMember ("Event").Single();
+      var customAttributes = TypePipeCustomAttributeData.GetCustomAttributes (member, false);
+
+      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType);
+      Assert.That (customAttributeTypes, Is.Empty);
+    }
+
+    [Test]
+    public void GetCustomAttributes_Event_Inheritance ()
+    {
+      var member = typeof (DomainType).GetMember ("Event").Single();
+      var customAttributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
+
+      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType).ToArray ();
       Assert.That (customAttributeTypes, Is.EqualTo (new[] { typeof (InheritableAttribute) }));
     }
 
@@ -94,14 +134,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Inheritable, NonInheritable]
     public class BaseType
     {
-      [Inheritable, NonInheritable]     
+      [Inheritable, NonInheritable]
       public virtual void Method () { }
+
+      [Inheritable, NonInheritable]
+      public virtual int Property { get; set; }
+
+      [Inheritable, NonInheritable]
+      public virtual event EventHandler Event;
     }
+
     public class DomainType : BaseType
     {
       public override void Method () { }
+      public override int Property { get; set; }
+      public override event EventHandler Event;
     }
-
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
     public sealed class InheritableAttribute : Attribute { }
