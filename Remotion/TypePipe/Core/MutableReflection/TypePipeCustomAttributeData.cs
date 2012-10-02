@@ -115,17 +115,11 @@ namespace Remotion.TypePipe.MutableReflection
       var encounteredAttributeTypes = new HashSet<Type>();
       foreach (var data in attributesFromDerivedToBase)
       {
-        if (!encounteredAttributeTypes.Contains (AttributeType (data)) || AttributeUtility.IsAttributeAllowMultiple (AttributeType (data)))
+        if (!encounteredAttributeTypes.Contains (data.Type) || AttributeUtility.IsAttributeAllowMultiple (data.Type))
           yield return data;
 
-        encounteredAttributeTypes.Add (AttributeType (data));
+        encounteredAttributeTypes.Add (data.Type);
       }
-    }
-
-    // TODO 5072: Property on ICustomAttributeData
-    private static Type AttributeType (ICustomAttributeData d)
-    {
-      return d.Constructor.DeclaringType;
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
