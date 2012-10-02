@@ -53,30 +53,14 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      if (inherit)
-      {
-        var typeHierarchy = type.CreateSequence (t => t.BaseType);
-        return typeHierarchy
-            .SelectMany (t => GetCustomAttributes (CustomAttributeData.GetCustomAttributes, t))
-            .Where (IsInheritableAttribute);
-      }
-      else
-        return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, type);
+      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, t => t.BaseType, type, inherit);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MethodInfo method, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      if (inherit)
-      {
-        var methodHierarchy = method.CreateSequence (m => s_relatedMethodFinder.GetBaseMethod (m));
-        return methodHierarchy
-            .SelectMany (m => GetCustomAttributes (CustomAttributeData.GetCustomAttributes, m))
-            .Where (IsInheritableAttribute);
-      }
-      else
-        return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, method);
+      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, s_relatedMethodFinder.GetBaseMethod, method, inherit);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
@@ -86,23 +70,39 @@ namespace Remotion.TypePipe.MutableReflection
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
     }
 
+    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
+        Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider, Func<T, T> baseInfoProvider, T member, bool inherit)
+        where T : class
+    {
+      if (inherit)
+      {
+        return member
+            .CreateSequence (baseInfoProvider)
+            .SelectMany (t => GetCustomAttributes (customAttributeProvider, t))
+            .Where (IsInheritableAttribute);
+      }
+      else
+        return GetCustomAttributes (customAttributeProvider, member);
+    }
+
     private static bool IsInheritableAttribute (ICustomAttributeData customAttributeData)
     {
       var attributeType = customAttributeData.Constructor.DeclaringType;
       Assertion.IsNotNull (attributeType);
       // TODO: implement using attributedata?!
-      var attributeUsageAttribute = (AttributeUsageAttribute) attributeType.GetCustomAttributes (typeof (AttributeUsageAttribute), true).Single ();
+      var attributeUsageAttribute = (AttributeUsageAttribute) attributeType.GetCustomAttributes (typeof (AttributeUsageAttribute), true).Single();
 
       return attributeUsageAttribute.Inherited;
     }
 
-    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeUtility, T info)
+    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
+        Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider, T info)
     {
       var typePipeCustomAttributeProvider = info as ITypePipeCustomAttributeProvider;
       if (typePipeCustomAttributeProvider != null)
         return typePipeCustomAttributeProvider.GetCustomAttributeData();
       else
-        return customAttributeUtility (info).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData>();
+        return customAttributeProvider (info).Select (a => new CustomAttributeDataAdapter (a)).Cast<ICustomAttributeData>();
     }
   }
 }
