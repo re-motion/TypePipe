@@ -30,9 +30,13 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("property", property);
 
+      Assertion.IsNotNull (property.DeclaringType);
       var baseTypeSequence = property.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var baseProperty = baseTypeSequence.SelectMany (t => t.GetProperties (bindingFlags)).FirstOrDefault (p => IsPropertyOverride (p, property));
+      var baseProperty = (from t in baseTypeSequence
+                          from p in t.GetProperties (bindingFlags)
+                          where IsPropertyOverride (p, property)
+                          select p).FirstOrDefault();
 
       return baseProperty;
     }

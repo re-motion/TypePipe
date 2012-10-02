@@ -66,11 +66,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseProperty_NonPublic ()
     {
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ProtectedOverridingProperty);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.NonPublicOverridingProperty);
 
       var result = _finder.GetBaseProperty (property);
 
-      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.ProtectedOverridingProperty);
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.NonPublicOverridingProperty);
       Assert.That (result, Is.EqualTo (expected));
     }
 
@@ -85,6 +85,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.EqualTo (expected));
     }
 
+    [Test]
+    public void GetBaseProperty_NoGetter_NonPublicSetter ()
+    {
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.OnlyNonPublicSetterOverridingProperty);
+
+      var result = _finder.GetBaseProperty (property);
+
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.OnlyNonPublicSetterOverridingProperty);
+      Assert.That (result, Is.EqualTo (expected));
+    }
+
     private class BaseBaseType
     {
       public virtual string OveriddenOverridingProperty { get; set; }
@@ -94,16 +105,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public override string OveriddenOverridingProperty { get; set; }
       public virtual string ShadowingProperty { get; set; }
-      protected internal virtual string ProtectedOverridingProperty { get; set; }
+      internal virtual string NonPublicOverridingProperty { get; set; }
       public virtual string OnlySetterOverridingProperty { get; set; }
+      internal virtual string OnlyNonPublicSetterOverridingProperty { get; set; }
       }
 
     private class DomainType : BaseType
     {
       public override string OveriddenOverridingProperty { get; set; }
       public new virtual string ShadowingProperty { get; set; }
-      protected internal override string ProtectedOverridingProperty { get; set; }
+      internal override string NonPublicOverridingProperty { get; set; }
       public override string OnlySetterOverridingProperty { set { } }
+      internal override string OnlyNonPublicSetterOverridingProperty { set { } }
     }
   }
 }
