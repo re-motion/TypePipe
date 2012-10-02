@@ -54,6 +54,37 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (customAttributeTypes, Is.EquivalentTo (new[] { typeof (InheritableAttribute), typeof (NonInheritableAttribute) }));
     }
 
+    [Test]
+    public void GetCustomAttributes_WithAllowMultipleFiltering_AttributesOnBaseAndDerived ()
+    {
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DomainType obj) => obj.AttributesOnBaseAndDerived ());
+
+      var attributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
+
+      var attributeTypesAndCtorArgs = attributes
+          .Select (d => new { Type = d.Constructor.DeclaringType, Arg = (string) d.ConstructorArguments.Single () })
+          .ToArray ();
+      var expectedAttributeTypesAndCtorArgs =
+          new[] 
+          {
+              new { Type = typeof (InheritableNonMultipleAttribute), Arg = "derived" },
+              new { Type = typeof (InheritableAllowMultipleAttribute), Arg = "base" },
+              new { Type = typeof (InheritableAllowMultipleAttribute), Arg = "derived" }
+          };
+      Assert.That (attributeTypesAndCtorArgs, Is.EquivalentTo (expectedAttributeTypesAndCtorArgs));
+    }
+
+    [Test]
+    public void GetCustomAttributes_WithAllowMultipleFiltering_AttributesOnBaseOnly ()
+    {
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DomainType obj) => obj.AttributesOnBaseOnly ());
+
+      var attributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
+
+      var attributeTypes = attributes.Select (d => d.Constructor.DeclaringType).ToArray ();
+      Assert.That (attributeTypes, Is.EquivalentTo (new[] { typeof (InheritableAllowMultipleAttribute), typeof (InheritableNonMultipleAttribute) }));
+    }
+
     private void CheckSimpleAttributeDataInheritance (MemberInfo member)
     {
       var customAttributesWithoutInheritance = TypePipeCustomAttributeData.GetCustomAttributes (member, false).ToArray ();
@@ -77,6 +108,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       [Inheritable, NonInheritable]
       public virtual event EventHandler Event;
+
+      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      public virtual void AttributesOnBaseAndDerived () { }
+
+      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      public virtual void AttributesOnBaseOnly () { }
     }
 
     public class DomainType : BaseType
@@ -87,6 +124,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       [Inheritable, NonInheritable]
       public void MethodOnDomainType () { }
+
+      [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
+      public override void AttributesOnBaseAndDerived () { }
+      public override void AttributesOnBaseOnly () { }
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]

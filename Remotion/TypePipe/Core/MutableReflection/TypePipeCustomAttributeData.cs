@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
     private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
 
-    // TODO: Overloads for FieldInfo, ConstructorInfo
+    // TODO 5072: Overloads for FieldInfo, ConstructorInfo
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
       ArgumentUtility.CheckNotNull ("member", member);
@@ -105,7 +105,27 @@ namespace Remotion.TypePipe.MutableReflection
           .CreateSequence (baseMemberProvider)
           .SelectMany (m => GetCustomAttributes (customAttributeProvider, m))
           .Where (d => AttributeUtility.IsAttributeInherited (d.Constructor.DeclaringType));
-      return attributes.Concat (inheritedAttributes);
+      
+      var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
+      return EvaluateAllowMultiple (allAttributesWithInheritance);
+    }
+
+    private static IEnumerable<ICustomAttributeData> EvaluateAllowMultiple (IEnumerable<ICustomAttributeData> attributesFromDerivedToBase)
+    {
+      var encounteredAttributeTypes = new HashSet<Type>();
+      foreach (var data in attributesFromDerivedToBase)
+      {
+        if (!encounteredAttributeTypes.Contains (AttributeType (data)) || AttributeUtility.IsAttributeAllowMultiple (AttributeType (data)))
+          yield return data;
+
+        encounteredAttributeTypes.Add (AttributeType (data));
+      }
+    }
+
+    // TODO 5072: Property on ICustomAttributeData
+    private static Type AttributeType (ICustomAttributeData d)
+    {
+      return d.Constructor.DeclaringType;
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
