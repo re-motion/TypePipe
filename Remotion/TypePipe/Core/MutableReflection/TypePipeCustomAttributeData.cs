@@ -94,15 +94,19 @@ namespace Remotion.TypePipe.MutableReflection
         Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider, Func<T, T> baseInfoProvider, T member, bool inherit)
         where T : class
     {
+      var attributes = GetCustomAttributes (customAttributeProvider, member);
+      
       if (inherit)
       {
-        return member
+        var baseMember = baseInfoProvider (member);
+        var inheritedAttributes = baseMember
             .CreateSequence (baseInfoProvider)
-            .SelectMany (t => GetCustomAttributes (customAttributeProvider, t))
+            .SelectMany (m => GetCustomAttributes (customAttributeProvider, m))
             .Where (IsInheritableAttribute);
+        attributes = attributes.Concat (inheritedAttributes);
       }
-      else
-        return GetCustomAttributes (customAttributeProvider, member);
+
+      return attributes;
     }
 
     private static bool IsInheritableAttribute (ICustomAttributeData customAttributeData)

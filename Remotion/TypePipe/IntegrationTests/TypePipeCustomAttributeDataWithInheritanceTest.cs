@@ -82,7 +82,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (customAttributesWithInheritance, Is.Not.Empty);
 
       var customAttributeTypesWithInheritance = customAttributesWithInheritance.Select (d => d.Constructor.DeclaringType).ToArray ();
-      Assert.That (customAttributeTypesWithInheritance, Is.EquivalentTo (new[] { typeof (InheritableAttribute), typeof (NonInheritableAttribute) }));
+      Assert.That (customAttributeTypesWithInheritance, Is.EquivalentTo (new[] { typeof (InheritableAttribute) }));
     }
 
     [Inheritable, NonInheritable]
