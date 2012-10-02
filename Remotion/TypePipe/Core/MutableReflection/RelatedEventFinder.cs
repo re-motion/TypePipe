@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Provides useful methods for investigating event overrides.
   /// </summary>
-  public class RelatedEventFinder
+  public class RelatedEventFinder : IRelatedEventFinder
   {
     public EventInfo GetBaseEvent (EventInfo @event)
     {

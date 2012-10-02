@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Provides useful methods for investigating property overrides.
   /// </summary>
-  public class RelatedPropertyFinder
+  public class RelatedPropertyFinder : IRelatedPropertyFinder
   {
     public PropertyInfo GetBaseProperty (PropertyInfo property)
     {
