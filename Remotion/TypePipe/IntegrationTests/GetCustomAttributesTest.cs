@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -94,20 +95,24 @@ namespace TypePipe.IntegrationTests
       return new MutableType (UnderlyingTypeDescriptor.Create (underlyingType), new MemberSelector (new BindingFlagsEvaluator ()), new RelatedMethodFinder ());
     }
 
-#pragma warning disable 67
-
     [Inheritable, NonInheritable]
     class BaseClass
     {
       [Inheritable, NonInheritable]
       [return: Inheritable, NonInheritable]
-      public virtual int OverriddenMethod ([Inheritable, NonInheritable] string arg) { return 0; }
+      public virtual int OverriddenMethod ([Inheritable, NonInheritable] string arg)
+      {
+        Dev.Null = arg;
+        return 0; 
+      }
 
       [Inheritable, NonInheritable]
       public virtual string OverriddenProperty { [Inheritable, NonInheritable] get; set; }
 
+      // ReSharper disable EventNeverInvoked.Global
       [Inheritable, NonInheritable]
       public virtual event EventHandler OverridenEvent;
+      // ReSharper restore EventNeverInvoked.Global
     }
 
     class DerivedClass : BaseClass {
@@ -134,8 +139,5 @@ namespace TypePipe.IntegrationTests
 
     [AttributeUsage (AttributeTargets.All, Inherited = false)]
     public sealed class NonInheritableAttribute : Attribute { }
-
-#pragma warning restore 67
-
   }
 }

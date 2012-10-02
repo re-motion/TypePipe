@@ -42,32 +42,46 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void InheritedAttributes_WithAllowMultipleTrue ()
+    public void InheritedAttributes_WithAllowMultipleFiltering_AttributesOnBaseAndDerived ()
     {
-      // Methods only: AllowMultiple true
-      // Attributes on derived and base should both be included
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DerivedClass obj) => obj.OverriddenMethodWithAttributesOnBaseAndDerived ());
+
+      var attributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
+
+      var attributeTypesAndCtorArgs = attributes
+          .Select (d => new { Type = d.Constructor.DeclaringType, Arg = (string) d.ConstructorArguments.Single () })
+          .ToArray ();
+      var expectedAttributeTypesAndCtorArgs = 
+          new[] 
+          {
+              new { Type = typeof (InheritableNonMultipleAttribute), Arg = "derived" },
+              new { Type = typeof (InheritableAllowMultipleAttribute), Arg = "base" },
+              new { Type = typeof (InheritableAllowMultipleAttribute), Arg = "derived" }
+          };
+      Assert.That (attributeTypesAndCtorArgs, Is.EquivalentTo (expectedAttributeTypesAndCtorArgs));
     }
 
     [Test]
-    public void InheritedAttributes_WithAllowMultipleFalse ()
+    public void InheritedAttributes_WithAllowMultipleFiltering_AttributesOnBaseOnly ()
     {
-      // Methods only: AllowMultiple false
-      // Attributes on derived hide attributes on base
-      // When no attributes on derived, base attributes are returned
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DerivedClass obj) => obj.OverriddenMethodWithAttributesOnBaseOnly());
+      
+      var attributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
+      
+      var attributeTypes = attributes.Select (d => d.Constructor.DeclaringType).ToArray();
+      Assert.That (attributeTypes, Is.EquivalentTo (new[] { typeof (InheritableAllowMultipleAttribute), typeof (InheritableNonMultipleAttribute) }));
     }
 
     private void CheckAttributeDataInheritance (MemberInfo member)
     {
-      var inheritableType = typeof (InheritableAttribute);
-      var nonInheritableType = typeof (NonInheritableAttribute);
-
       var customAttributesWithoutInheritance = TypePipeCustomAttributeData.GetCustomAttributes (member, false).ToArray();
       Assert.That (customAttributesWithoutInheritance, Is.Empty);
 
       var customAttributesWithInheritance = TypePipeCustomAttributeData.GetCustomAttributes (member, true).ToArray();
       Assert.That (customAttributesWithInheritance, Is.Not.Empty);
-      Assert.That (customAttributesWithInheritance, Has.Some.Matches<ICustomAttributeData> (d => d.Constructor.DeclaringType == inheritableType));
-      Assert.That (customAttributesWithInheritance, Has.None.Matches<ICustomAttributeData> (d => d.Constructor.DeclaringType == nonInheritableType));
+
+      var customAttributeTypesWithInheritance = customAttributesWithInheritance.Select (d => d.Constructor.DeclaringType).ToArray ();
+      Assert.That (customAttributeTypesWithInheritance, Is.EquivalentTo (new[] { typeof (InheritableAttribute), typeof (NonInheritableAttribute) }));
     }
 
     [Inheritable, NonInheritable]
@@ -79,10 +93,16 @@ namespace TypePipe.IntegrationTests
       [Inheritable, NonInheritable]
       public virtual string OverriddenProperty { get; set; }
 
+      // ReSharper disable EventNeverInvoked.Global
       [Inheritable, NonInheritable]
-// ReSharper disable EventNeverInvoked.Global
       public virtual event EventHandler OverriddenEvent;
-// ReSharper restore EventNeverInvoked.Global
+      // ReSharper restore EventNeverInvoked.Global
+
+      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      public virtual void OverriddenMethodWithAttributesOnBaseAndDerived () { }
+
+      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      public virtual void OverriddenMethodWithAttributesOnBaseOnly () { }
     }
 
     class DerivedClass : BaseClass
@@ -90,6 +110,10 @@ namespace TypePipe.IntegrationTests
       public override void OverriddenMethod () { }
       public override string OverriddenProperty { get; set; }
       public override event EventHandler OverriddenEvent;
+
+      [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
+      public override void OverriddenMethodWithAttributesOnBaseAndDerived () { }
+      public override void OverriddenMethodWithAttributesOnBaseOnly () { }
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
@@ -98,5 +122,15 @@ namespace TypePipe.IntegrationTests
     [AttributeUsage (AttributeTargets.All, Inherited = false)]
     public sealed class NonInheritableAttribute : Attribute { }
 
+    [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = true)]
+    public sealed class InheritableAllowMultipleAttribute : Attribute {
+      public InheritableAllowMultipleAttribute (string arg) { }
+    }
+
+    [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = false)]
+    public sealed class InheritableNonMultipleAttribute : Attribute 
+    { 
+      public InheritableNonMultipleAttribute (string arg) { }
+    }
   }
 }
