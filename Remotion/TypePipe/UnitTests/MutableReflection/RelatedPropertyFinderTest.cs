@@ -109,13 +109,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.EqualTo (expected));
     }
 
-    private class BaseBaseType
+    public class BaseBaseType
     {
       public virtual string OverridingProperty { get; set; }
       public virtual string OverridingPropertySkippingMiddleClass { get; set; }
     }
 
-    private class BaseType : BaseBaseType
+    public class BaseType : BaseBaseType
     {
       public override string OverridingProperty { get; set; }
       public virtual string ShadowingProperty { get; set; }
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       internal virtual string OnlyNonPublicSetterOverridingProperty { set { Dev.Null = value; } } 
     }
 
-    private class DomainType : BaseType
+    public class DomainType : BaseType
     {
       public override string OverridingProperty { get; set; }
       public new virtual string ShadowingProperty { get; set; }
