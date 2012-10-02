@@ -117,7 +117,7 @@ namespace Remotion.TypePipe.MutableReflection
       var inheritedAttributes = baseMember
           .CreateSequence (baseMemberProvider)
           .SelectMany (m => ExtractCustomAttributes (customAttributeProvider, m))
-          .Where (d => AttributeUtility.IsAttributeInherited (d.Constructor.DeclaringType));
+          .Where (d => AttributeUtility.IsAttributeInherited (d.Type));
       
       var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
       return EvaluateAllowMultiple (allAttributesWithInheritance);

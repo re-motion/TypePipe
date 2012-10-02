@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4943 (fix implementation)
       return AddedCustomAttributeDeclarations
-          .Where (attr => attributeType.IsAssignableFrom (attr.Constructor.DeclaringType))
+          .Where (attr => attributeType.IsAssignableFrom (attr.Type))
           .Select (attr => attr.CreateInstance())
           .ToArray();
     }
