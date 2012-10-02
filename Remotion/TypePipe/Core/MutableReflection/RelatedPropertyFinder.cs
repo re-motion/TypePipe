@@ -33,15 +33,14 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (property.DeclaringType);
       var baseTypeSequence = property.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-      var baseProperty = (from t in baseTypeSequence
-                          from p in t.GetProperties (bindingFlags)
-                          where IsPropertyOverride (p, property)
-                          select p).FirstOrDefault();
-
-      return baseProperty;
+      var baseProperties = from t in baseTypeSequence
+                           from p in t.GetProperties (bindingFlags)
+                           where IsBaseProperty (p, property)
+                           select p;
+      return baseProperties.FirstOrDefault();
     }
 
-    private bool IsPropertyOverride (PropertyInfo baseCandidateProperty, PropertyInfo property)
+    private bool IsBaseProperty (PropertyInfo baseCandidateProperty, PropertyInfo property)
     {
       var getter = property.GetGetMethod (true);
       var setter = property.GetSetMethod (true);
@@ -53,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private bool SafeHasSameBaseDefinition(MethodInfo a, MethodInfo b)
     {
-      return a != null && b != null && a.GetBaseDefinition() == b.GetBaseDefinition();
+      return a != null && b != null && a.GetBaseDefinition () == b.GetBaseDefinition ();
     }
   }
 }

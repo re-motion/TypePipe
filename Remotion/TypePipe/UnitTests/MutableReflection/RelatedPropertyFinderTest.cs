@@ -15,7 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -35,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseProperty_NoBaseMethod ()
     {
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseBaseType obj) => obj.OveriddenOverridingProperty);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseBaseType obj) => obj.OverridingProperty);
 
       var result = _finder.GetBaseProperty (property);
 
@@ -45,11 +47,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseProperty_Overridden ()
     {
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.OveriddenOverridingProperty);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.OverridingProperty);
 
       var result = _finder.GetBaseProperty(property);
 
-      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.OveriddenOverridingProperty);
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.OverridingProperty);
       Assert.That (result, Is.EqualTo (expected));
     }
 
@@ -61,6 +63,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = _finder.GetBaseProperty (property);
 
       Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetBaseProperty_SkippingMiddleClass ()
+    {
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.OverridingPropertySkippingMiddleClass);
+
+      var result = _finder.GetBaseProperty (property);
+
+      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseBaseType obj) => obj.OverridingPropertySkippingMiddleClass);
+      Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
@@ -77,43 +90,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseProperty_NoGetter ()
     {
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.OnlySetterOverridingProperty);
+      var property = typeof (DomainType).GetProperty ("OnlySetterOverridingProperty");
 
       var result = _finder.GetBaseProperty (property);
 
-      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.OnlySetterOverridingProperty);
+      var expected = typeof (BaseType).GetProperty ("OnlySetterOverridingProperty");
       Assert.That (result, Is.EqualTo (expected));
     }
 
     [Test]
     public void GetBaseProperty_NoGetter_NonPublicSetter ()
     {
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.OnlyNonPublicSetterOverridingProperty);
+      var property = typeof (DomainType).GetProperty ("OnlyNonPublicSetterOverridingProperty", BindingFlags.NonPublic | BindingFlags.Instance);
 
       var result = _finder.GetBaseProperty (property);
 
-      var expected = NormalizingMemberInfoFromExpressionUtility.GetProperty ((BaseType obj) => obj.OnlyNonPublicSetterOverridingProperty);
+      var expected = typeof (BaseType).GetProperty ("OnlyNonPublicSetterOverridingProperty", BindingFlags.NonPublic | BindingFlags.Instance);
       Assert.That (result, Is.EqualTo (expected));
     }
 
     private class BaseBaseType
     {
-      public virtual string OveriddenOverridingProperty { get; set; }
+      public virtual string OverridingProperty { get; set; }
+      public virtual string OverridingPropertySkippingMiddleClass { get; set; }
     }
 
     private class BaseType : BaseBaseType
     {
-      public override string OveriddenOverridingProperty { get; set; }
+      public override string OverridingProperty { get; set; }
       public virtual string ShadowingProperty { get; set; }
+      
       internal virtual string NonPublicOverridingProperty { get; set; }
-      public virtual string OnlySetterOverridingProperty { get; set; }
-      internal virtual string OnlyNonPublicSetterOverridingProperty { get; set; }
-      }
+      public virtual string OnlySetterOverridingProperty { set { Dev.Null = value; } }
+      internal virtual string OnlyNonPublicSetterOverridingProperty { set { Dev.Null = value; } } 
+    }
 
     private class DomainType : BaseType
     {
-      public override string OveriddenOverridingProperty { get; set; }
+      public override string OverridingProperty { get; set; }
       public new virtual string ShadowingProperty { get; set; }
+      public override string OverridingPropertySkippingMiddleClass { get; set; }
+
       internal override string NonPublicOverridingProperty { get; set; }
       public override string OnlySetterOverridingProperty { set { } }
       internal override string OnlyNonPublicSetterOverridingProperty { set { } }
