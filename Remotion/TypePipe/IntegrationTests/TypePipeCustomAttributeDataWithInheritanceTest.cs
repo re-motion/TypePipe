@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -123,14 +124,15 @@ namespace TypePipe.IntegrationTests
     public sealed class NonInheritableAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = true)]
-    public sealed class InheritableAllowMultipleAttribute : Attribute {
-      public InheritableAllowMultipleAttribute (string arg) { }
+    public sealed class InheritableAllowMultipleAttribute : Attribute 
+    {
+      public InheritableAllowMultipleAttribute (string arg) { Dev.Null = arg; }
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = false)]
     public sealed class InheritableNonMultipleAttribute : Attribute 
     { 
-      public InheritableNonMultipleAttribute (string arg) { }
+      public InheritableNonMultipleAttribute (string arg) { Dev.Null = arg; }
     }
   }
 }
