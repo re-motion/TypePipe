@@ -137,6 +137,7 @@
     <Compile Include="MutableReflection\MutableTypeMethodCollection.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\RelatedMethodFinder.cs" />
+    <Compile Include="MutableReflection\RelatedPropertyFinder.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
