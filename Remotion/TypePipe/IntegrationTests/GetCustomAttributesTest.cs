@@ -29,13 +29,15 @@ namespace TypePipe.IntegrationTests
   {
     // TODO 5062: Tests:
     // AttributeInstantiation (with complex arguments, named fields, named properties on just one exemplary member)
-    // Inheritance (AttributeUsage vs. bool parameter on all member kinds and parameters) => rename GetCustomAttributes test below
+    // Inheritance (AttributeUsage vs. bool parameter on all member kinds and parameters) => test see below
     // Inheritance_WithAllowMultipleTrue/False (if AllowMultiple is False, recursion must stop when first match is found) 
 
     [Test]
     [Ignore("TODO 5062")]
-    public void GetCustomAttributes ()
+    public void GetCustomAttributes_Inheritance ()
     {
+      // TODO 5062: Maybe add for param: on setter, adder, remover and generics, think about other stuff?
+
       var type = typeof (DerivedClass);
       var mutableType = CreateMutableType(type);
       CheckAttributes (mutableType, type);

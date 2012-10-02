@@ -40,8 +40,14 @@ namespace TypePipe.IntegrationTests
       var getter = property.GetGetMethod();
       var getterReturnParameter = getter.ReturnParameter;
       var setter = property.GetSetMethod();
+      var setterValueParameter = setter.GetParameters().Single();
       var @event = typeof (DomainType).GetEvents().Single();
+      var eventAdder = @event.GetAddMethod();
+      var eventAdderParameter = eventAdder.GetParameters().Single();
+      var eventRemover = @event.GetRemoveMethod();
+      var eventRemoveParameter = eventRemover.GetParameters().Single();
       var nestedType = typeof (DomainType.NestedType);
+      var genericType = typeof (DomainType.GenericType<>).GetGenericArguments().Single();
 
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
@@ -52,9 +58,15 @@ namespace TypePipe.IntegrationTests
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (property));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (getter), CustomAttributeData.GetCustomAttributes (getter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), CustomAttributeData.GetCustomAttributes (getterReturnParameter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (setterValueParameter), CustomAttributeData.GetCustomAttributes (setterValueParameter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (setter), CustomAttributeData.GetCustomAttributes (setter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (@event), CustomAttributeData.GetCustomAttributes (@event));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (eventAdder), CustomAttributeData.GetCustomAttributes (eventAdder));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (eventAdderParameter), CustomAttributeData.GetCustomAttributes (eventAdderParameter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (eventRemover), CustomAttributeData.GetCustomAttributes (eventRemover));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (eventRemoveParameter), CustomAttributeData.GetCustomAttributes (eventRemoveParameter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (genericType), CustomAttributeData.GetCustomAttributes (genericType));
     }
 
     [Test]
@@ -80,6 +92,8 @@ namespace TypePipe.IntegrationTests
       //var @event = mutableType.GetEvents().Single();
       // TODO 4791
       //var nestedType = mutableType.GetNestedTypes().Single();
+      // TODO 4791
+      // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
 
       CheckAbcAttribute (
           TypePipeCustomAttributeData.GetCustomAttributes (mutableType), CustomAttributeData.GetCustomAttributes (mutableType.UnderlyingSystemType));
@@ -97,8 +111,15 @@ namespace TypePipe.IntegrationTests
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
+      // setter value parameter
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
+      // Event Adder
+      // Event Adder Parameter
+      // Event Remover
+      // Event Remover Parameter
+      // Invoker?
       //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
+      // Generic Type
     }
 
     [Test]
@@ -126,7 +147,7 @@ namespace TypePipe.IntegrationTests
       var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleCtorsAttribute (""));
 
       var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => MultipleCtorsMember());
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (member);
+      var result = TypePipeCustomAttributeData.GetCustomAttributes (member).ToArray();
 
       var data1 = result.Single (x => x.ConstructorArguments.Count == 0);
       var data2 = result.Single (x => x.ConstructorArguments.Count == 1);
@@ -180,7 +201,7 @@ namespace TypePipe.IntegrationTests
         get { return field; }
 
         [Abc ("setter")]
-        // Annotate parameter?
+        [param: Abc ("setter value parameter")]
         set { field = value; }
       }
 
@@ -188,15 +209,20 @@ namespace TypePipe.IntegrationTests
       public event Action<string> Action
       {
         [Abc ("event adder")]
-        // Annotate parameter?
+        [param: Abc ("event adder parameter")]
         add { throw new NotImplementedException(); }
+
         [Abc ("event remover")]
-        // Annotate parameter?
+        [param: Abc ("event remover parameter")]
         remove { throw new NotImplementedException(); }
       }
 
       [Abc ("nested type")]
       public class NestedType {}
+
+// ReSharper disable UnusedTypeParameter
+      public class GenericType<[Abc("type parameter")] T> { }
+// ReSharper restore UnusedTypeParameter
     }
 
     public class AbcAttribute : Attribute
