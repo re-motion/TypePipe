@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
     private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
 
-    // TODO 5072: Overloads for FieldInfo, ConstructorInfo
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
       ArgumentUtility.CheckNotNull ("member", member);
@@ -50,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
         case MemberTypes.Event:
           return GetCustomAttributes ((EventInfo) member, inherit);
         default:
-          return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
+          return ExtractCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
       }
     }
 
@@ -59,6 +58,20 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
 
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, t => t.BaseType, type, inherit);
+    }
+
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (FieldInfo field)
+    {
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      return ExtractCustomAttributes (CustomAttributeData.GetCustomAttributes, field);
+    }
+
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ConstructorInfo constructor)
+    {
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      return ExtractCustomAttributes (CustomAttributeData.GetCustomAttributes, constructor);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MethodInfo method, bool inherit)
@@ -86,7 +99,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameter", parameter);
 
-      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
+      return ExtractCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
@@ -96,14 +109,14 @@ namespace Remotion.TypePipe.MutableReflection
         bool inherit)
         where T : MemberInfo
     {
-      var attributes = GetCustomAttributes (customAttributeProvider, member);
+      var attributes = ExtractCustomAttributes (customAttributeProvider, member);
       if (!inherit)
         return attributes;
 
       var baseMember = baseMemberProvider (member);
       var inheritedAttributes = baseMember
           .CreateSequence (baseMemberProvider)
-          .SelectMany (m => GetCustomAttributes (customAttributeProvider, m))
+          .SelectMany (m => ExtractCustomAttributes (customAttributeProvider, m))
           .Where (d => AttributeUtility.IsAttributeInherited (d.Constructor.DeclaringType));
       
       var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
@@ -122,7 +135,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
-    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
+    private static IEnumerable<ICustomAttributeData> ExtractCustomAttributes<T> (
         Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider, T info)
     {
       var typePipeCustomAttributeProvider = info as ITypePipeCustomAttributeProvider;
