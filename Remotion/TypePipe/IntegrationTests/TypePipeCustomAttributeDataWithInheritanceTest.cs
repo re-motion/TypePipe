@@ -58,13 +58,17 @@ namespace TypePipe.IntegrationTests
 
     private void CheckAttributeDataInheritance (MemberInfo member)
     {
-      Assert.That (TypePipeCustomAttributeData.GetCustomAttributes (member, false), Is.Empty);
+      var inheritableType = typeof (InheritableAttribute);
+      var nonInheritableType = typeof (NonInheritableAttribute);
 
-      var attributeDataType = TypePipeCustomAttributeData.GetCustomAttributes (member, true).Single ().Constructor.DeclaringType;
-      Assert.That (attributeDataType, Is.SameAs (typeof (InheritableAttribute)));
+      var customAttributesWithoutInheritance = TypePipeCustomAttributeData.GetCustomAttributes (member, false).ToArray();
+      Assert.That (customAttributesWithoutInheritance, Is.Empty);
+
+      var customAttributesWithInheritance = TypePipeCustomAttributeData.GetCustomAttributes (member, true).ToArray();
+      Assert.That (customAttributesWithInheritance, Is.Not.Empty);
+      Assert.That (customAttributesWithInheritance, Has.Some.Matches<ICustomAttributeData> (d => d.Constructor.DeclaringType == inheritableType));
+      Assert.That (customAttributesWithInheritance, Has.None.Matches<ICustomAttributeData> (d => d.Constructor.DeclaringType == nonInheritableType));
     }
-
-#pragma warning disable 67
 
     [Inheritable, NonInheritable]
     class BaseClass
@@ -73,17 +77,19 @@ namespace TypePipe.IntegrationTests
       public virtual void OverriddenMethod () { }
 
       [Inheritable, NonInheritable]
-      public virtual string OverriddenProperty { [Inheritable, NonInheritable] get; set; }
+      public virtual string OverriddenProperty { get; set; }
 
       [Inheritable, NonInheritable]
-      public virtual event EventHandler OverridenEvent;
+// ReSharper disable EventNeverInvoked.Global
+      public virtual event EventHandler OverriddenEvent;
+// ReSharper restore EventNeverInvoked.Global
     }
 
     class DerivedClass : BaseClass
     {
       public override void OverriddenMethod () { }
       public override string OverriddenProperty { get; set; }
-      public override event EventHandler OverridenEvent;
+      public override event EventHandler OverriddenEvent;
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
@@ -91,8 +97,6 @@ namespace TypePipe.IntegrationTests
 
     [AttributeUsage (AttributeTargets.All, Inherited = false)]
     public sealed class NonInheritableAttribute : Attribute { }
-
-#pragma warning restore 67
 
   }
 }
