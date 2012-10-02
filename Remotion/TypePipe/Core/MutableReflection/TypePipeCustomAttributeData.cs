@@ -33,13 +33,12 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
     private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
 
+    // TODO: Overloads for FieldInfo, ConstructorInfo
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
       ArgumentUtility.CheckNotNull ("member", member);
 
-      // TODO: inherit can only be true for overridable members (types, methods, properties, events)
-
-      switch(member.MemberType)
+      switch (member.MemberType)
       {
         case MemberTypes.TypeInfo:
         case MemberTypes.NestedType:
@@ -50,9 +49,9 @@ namespace Remotion.TypePipe.MutableReflection
           return GetCustomAttributes ((PropertyInfo) member, inherit);
         case MemberTypes.Event:
           return GetCustomAttributes ((EventInfo) member, inherit);
+        default:
+          return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
       }
-
-      return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Type type, bool inherit)
@@ -91,32 +90,22 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
-        Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider, Func<T, T> baseInfoProvider, T member, bool inherit)
-        where T : class
+        Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider,
+        Func<T, T> baseMemberProvider,
+        T member,
+        bool inherit)
+        where T : MemberInfo
     {
       var attributes = GetCustomAttributes (customAttributeProvider, member);
-      
-      if (inherit)
-      {
-        var baseMember = baseInfoProvider (member);
-        var inheritedAttributes = baseMember
-            .CreateSequence (baseInfoProvider)
-            .SelectMany (m => GetCustomAttributes (customAttributeProvider, m))
-            .Where (IsInheritableAttribute);
-        attributes = attributes.Concat (inheritedAttributes);
-      }
+      if (!inherit)
+        return attributes;
 
-      return attributes;
-    }
-
-    private static bool IsInheritableAttribute (ICustomAttributeData customAttributeData)
-    {
-      var attributeType = customAttributeData.Constructor.DeclaringType;
-      Assertion.IsNotNull (attributeType);
-      // TODO: implement using attributedata?!
-      var attributeUsageAttribute = (AttributeUsageAttribute) attributeType.GetCustomAttributes (typeof (AttributeUsageAttribute), true).Single();
-
-      return attributeUsageAttribute.Inherited;
+      var baseMember = baseMemberProvider (member);
+      var inheritedAttributes = baseMember
+          .CreateSequence (baseMemberProvider)
+          .SelectMany (m => GetCustomAttributes (customAttributeProvider, m))
+          .Where (d => AttributeUtility.IsAttributeInherited (d.Constructor.DeclaringType));
+      return attributes.Concat (inheritedAttributes);
     }
 
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
