@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -34,7 +35,39 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO: inherit can only be true for overridable members (types, methods, properties, events)
 
+      switch(member.MemberType)
+      {
+        case MemberTypes.TypeInfo:
+        case MemberTypes.NestedType:
+          return GetCustomAttributes ((Type) member, inherit);
+      }
+
       return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
+    }
+
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Type type, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      if (inherit)
+      {
+        var typeHierarchy = type.CreateSequence (t => t.BaseType);
+        return typeHierarchy
+            .SelectMany (t => GetCustomAttributes (CustomAttributeData.GetCustomAttributes, t))
+            .Where (IsInheritableAttribute);
+      }
+      else
+        return GetCustomAttributes (CustomAttributeData.GetCustomAttributes, type);
+    }
+
+    private static bool IsInheritableAttribute (ICustomAttributeData customAttributeData)
+    {
+      var attributeType = customAttributeData.Constructor.DeclaringType;
+      Assertion.IsNotNull (attributeType);
+      // TODO: implement using attributedata?!
+      var attributeUsageAttribute = (AttributeUsageAttribute) attributeType.GetCustomAttributes (typeof (AttributeUsageAttribute), true).Single();
+
+      return attributeUsageAttribute.Inherited;
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
