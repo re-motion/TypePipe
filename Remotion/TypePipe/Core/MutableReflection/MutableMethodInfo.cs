@@ -235,17 +235,26 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributeDatas.Value;
     }
 
-    #region Not YET Implemented from MethodInfo interface
-
     public override object[] GetCustomAttributes (bool inherit)
     {
-      throw new NotImplementedException();
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
     }
+
+    #region Not YET Implemented from MethodInfo interface
 
     public override MethodImplAttributes GetMethodImplementationFlags ()
     {
@@ -265,11 +274,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override RuntimeMethodHandle MethodHandle
     {
       get { throw new NotImplementedException(); }
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
     }
 
     public override Type[] GetGenericArguments ()

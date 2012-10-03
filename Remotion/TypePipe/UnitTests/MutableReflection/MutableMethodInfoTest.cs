@@ -43,6 +43,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableMethodInfo _existingFinalMethod;
     private MutableMethodInfo _existingVirtualMethod;
 
+    private bool _randomInherit;
+    private MutableMethodInfo _attributeMethod;
+
     [SetUp]
     public void SetUp ()
     {
@@ -63,6 +66,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var virtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
       _existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
+
+      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
+      var attributeUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AttributeMethod());
+      _attributeMethod = MutableMethodInfoObjectMother.CreateForExisting (originalMethodInfo: attributeUnderlyingMethod);
     }
 
     [Test]
@@ -492,18 +499,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributeData ()
     {
-      var result = _existingNonVirtualMethod.GetCustomAttributeData();
+      var result = _attributeMethod.GetCustomAttributeData();
 
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
+      Assert.That (result, Is.SameAs (_attributeMethod.GetCustomAttributeData ()), "should be cached");
     }
 
     [Test]
-    public void GetCustomAttributeData_Lazy ()
+    public void GetCustomAttributes ()
     {
-      var result1 = _existingNonVirtualMethod.GetCustomAttributeData ();
-      var result2 = _existingNonVirtualMethod.GetCustomAttributeData ();
+      var result = _attributeMethod.GetCustomAttributes (_randomInherit);
 
-      Assert.That (result1, Is.SameAs (result2));
+      Assert.That (result, Has.Length.EqualTo (1));
+      var attribute = result.Single ();
+      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
+      Assert.That (_attributeMethod.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
+    }
+
+    [Test]
+    public void GetCustomAttributes_Filter ()
+    {
+      Assert.That (_attributeMethod.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
+      Assert.That (_attributeMethod.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
+    }
+
+    [Test]
+    public void IsDefined ()
+    {
+      Assert.That (_attributeMethod.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
+      Assert.That (_attributeMethod.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
     [Test]
@@ -549,12 +573,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public virtual void VirtualMethod () { }
       public virtual void VirtualMethod2 () { }
       public virtual void VirtualMethodWithDifferentSignature (int i) { Dev.Null = i; }
-      [Abc]
       public void NonVirtualMethod () { }
 
       public override void OverridingMethod () { }
       public sealed override void FinalMethod () { }
       public void InterfaceMethod () { }
+
+      [Derived]
+      public void AttributeMethod () { }
     }
 
     public class UnrelatedType
@@ -572,6 +598,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       void InterfaceMethod ();
     }
 
-    public class AbcAttribute : Attribute { }
+    class BaseAttribute : Attribute { }
+    class DerivedAttribute : BaseAttribute { }
+    class UnrelatedAttribute : Attribute { }
   }
 }
