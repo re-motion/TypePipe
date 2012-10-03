@@ -131,19 +131,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
-    public sealed class InheritableAttribute : Attribute { }
+    public class InheritableAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = false)]
-    public sealed class NonInheritableAttribute : Attribute { }
+    public class NonInheritableAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = true)]
-    public sealed class InheritableAllowMultipleAttribute : Attribute
+    public class InheritableAllowMultipleAttribute : Attribute
     {
       public InheritableAllowMultipleAttribute (string arg) { Dev.Null = arg; }
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = false)]
-    public sealed class InheritableNonMultipleAttribute : Attribute
+    public class InheritableNonMultipleAttribute : Attribute
     {
       public InheritableNonMultipleAttribute (string arg) { Dev.Null = arg; }
     }
