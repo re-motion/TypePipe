@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -30,12 +31,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private UnderlyingParameterInfoDescriptor _descriptor;
     private MutableParameterInfo _mutableParameter;
 
+    private MutableParameterInfo _mutableParameterWithAttribute;
+    private bool _randomInherit;
+
     [SetUp]
     public void SetUp ()
     {
       _declaringMember = ReflectionObjectMother.GetSomeMember();
       _descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew();
       _mutableParameter = new MutableParameterInfo (_declaringMember, 0, _descriptor);
+
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
+      var parameter = method.GetParameters().Single();
+      _mutableParameterWithAttribute = MutableParameterInfoObjectMother.CreateForExisting (originalParameter: parameter);
+      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
     }
 
     [Test]
@@ -93,26 +102,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributeData ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
-      var parameter = method.GetParameters().Single();
-      var mutableParameter = MutableParameterInfoObjectMother.CreateForExisting (parameter);
+      var result = _mutableParameterWithAttribute.GetCustomAttributeData ();
 
-      var result = mutableParameter.GetCustomAttributeData ();
-
-      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
+      Assert.That (result, Is.SameAs (_mutableParameterWithAttribute.GetCustomAttributeData ()), "should be cached");
     }
 
     [Test]
-    public void GetCustomAttributeData_Lazy ()
+    public void GetCustomAttributes ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
-      var parameter = method.GetParameters ().Single ();
-      var mutableParameter = MutableParameterInfoObjectMother.CreateForExisting (parameter);
+      var result = _mutableParameterWithAttribute.GetCustomAttributes (_randomInherit);
 
-      var result1 = mutableParameter.GetCustomAttributeData ();
-      var result2 = mutableParameter.GetCustomAttributeData ();
+      Assert.That (result, Has.Length.EqualTo (1));
+      var attribute = result.Single ();
+      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
+      Assert.That (_mutableParameterWithAttribute.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
+    }
 
-      Assert.That (result1, Is.SameAs (result2));
+    [Test]
+    public void GetCustomAttributes_Filter ()
+    {
+      Assert.That (_mutableParameterWithAttribute.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
+      Assert.That (_mutableParameterWithAttribute.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
+    }
+
+    [Test]
+    public void IsDefined ()
+    {
+      Assert.That (_mutableParameterWithAttribute.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
+      Assert.That (_mutableParameterWithAttribute.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
     private MutableParameterInfo Create (UnderlyingParameterInfoDescriptor descriptor)
@@ -121,9 +139,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
 // ReSharper disable UnusedParameter.Local
-    private void Method ([Abc] string parameter) { }
+    private void Method ([Derived] string parameter) { }
 // ReSharper restore UnusedParameter.Local
 
-    public class AbcAttribute : Attribute { }
+    class BaseAttribute : Attribute { }
+    class DerivedAttribute : BaseAttribute { }
+    class UnrelatedAttribute : Attribute { }
   }
 }

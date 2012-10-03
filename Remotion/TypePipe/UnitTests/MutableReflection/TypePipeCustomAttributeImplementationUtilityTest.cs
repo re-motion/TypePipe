@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using SUT = Remotion.TypePipe.MutableReflection.TypePipeCustomAttributeImplementationUtility;
@@ -28,12 +29,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class TypePipeCustomAttributeImplementationUtilityTest
   {
     private MemberInfo _member;
+    private ParameterInfo _parameter;
     private bool _randomInherit;
 
     [SetUp]
     public void SetUp ()
     {
-      _member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => Member());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Member(7));
+      _member = method;
+      _parameter = method.GetParameters().Single();
       _randomInherit = BooleanObjectMother.GetRandomBoolean();
     }
 
@@ -74,8 +78,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (SUT.IsDefined (_member, typeof (IBaseAttributeInterface), _randomInherit), Is.True);
     }
 
+    [Test]
+    public void GetCustomAttributes_Parameter ()
+    {
+      var result = SUT.GetCustomAttributes (_parameter);
+
+      Assert.That (result, Has.Length.EqualTo (1));
+      var attribute = result.Single ();
+      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
+    }
+
+    [Test]
+    public void GetCustomAttributes_Parameter_NewInstance ()
+    {
+      var attribute1 = SUT.GetCustomAttributes (_parameter).Single ();
+      var attribute2 = SUT.GetCustomAttributes (_parameter).Single ();
+
+      Assert.That (attribute1, Is.Not.SameAs (attribute2));
+    }
+
+    [Test]
+    public void GetCustomAttributes_Parameter_Filter ()
+    {
+      Assert.That (SUT.GetCustomAttributes (_parameter, typeof (UnrelatedAttribute)), Is.Empty);
+      Assert.That (SUT.GetCustomAttributes (_parameter, typeof (DerivedAttribute)), Has.Length.EqualTo (1));
+      Assert.That (SUT.GetCustomAttributes (_parameter, typeof (BaseAttribute)), Has.Length.EqualTo (1));
+      Assert.That (SUT.GetCustomAttributes (_parameter, typeof (IBaseAttributeInterface)), Has.Length.EqualTo (1));
+    }
+
+    [Test]
+    public void IsDefined_Parameter ()
+    {
+      Assert.That (SUT.IsDefined (_parameter, typeof (UnrelatedAttribute)), Is.False);
+      Assert.That (SUT.IsDefined (_parameter, typeof (DerivedAttribute)), Is.True);
+      Assert.That (SUT.IsDefined (_parameter, typeof (BaseAttribute)), Is.True);
+      Assert.That (SUT.IsDefined (_parameter, typeof (IBaseAttributeInterface)), Is.True);
+    }
+
     [Derived]
-    void Member () { }
+    void Member ([Derived] int arg) { Dev.Null = arg; }
 
     interface IBaseAttributeInterface { }
     class BaseAttribute : Attribute, IBaseAttributeInterface { }
