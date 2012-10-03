@@ -79,15 +79,6 @@ namespace TypePipe.IntegrationTests
       var mutableMethod = mutableType.GetOrAddMutableMethod (method);
       CheckAttributeInheritance (mutableMethod, method);
 
-      var parameter = method.GetParameters().Single();
-      var mutableParameter = (MutableParameterInfo) mutableMethod.GetParameters().Single();
-      CheckAttributeInheritance (mutableParameter, parameter);
-
-      // TODO 4793
-      //var returnParameter = method.ReturnParameter;
-      //var mutableReturnParameter = mutableMethod.ReturnParameter;
-      //CheckAttributes (mutableReturnParameter, returnParameter);
-
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.OverriddenProperty);
       //var mutableProperty = mutableType.AllMutableProperties.Single();
@@ -135,14 +126,42 @@ namespace TypePipe.IntegrationTests
       //var mutableProperty = mutableType.GetMutableProperty(property);
       //CheckAttributes (mutableEvent, @event);
 
-      // TODO 4791: propert getter, property setter
-
       // TODO 4791
       //var @event = type.GetEvents().Single ...
       //var mutableEvent = mutableType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
+    }
 
-      // TODO 4791: event adder, event remover
+    [Test]
+    public void IsDefined ()
+    {
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => IsDefinedMemberWithDerivedAttribute());
+
+      Assert.That (member.IsDefined (typeof (UnrelatedAttribute), false), Is.False);
+      Assert.That (member.IsDefined (typeof (BaseAttribute), false), Is.True);
+      Assert.That (member.IsDefined (typeof (DerivedAttribute), false), Is.True);
+    }
+
+    [Test]
+    public void IsDefined_Inheritance_BehavesLikeReflection ()
+    {
+      var type = typeof (DerivedClass);
+      var mutableType = CreateMutableType (type);
+      CheckIsDefinedInheritance (mutableType, type);
+
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod ());
+      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+      CheckIsDefinedInheritance (mutableMethod, method);
+
+      // TODO 4791
+      //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
+      //var mutableProperty = mutableType.GetMutableProperty(property);
+      //CheckIsDefinedInheritance (mutableEvent, @event);
+
+      // TODO 4791
+      //var @event = type.GetEvents().Single ...
+      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //CheckIsDefinedInheritance (mutableEvent, @event);
     }
 
     private IMutableMember CreateMutableMember (MethodBase underlyingMethod)
@@ -158,27 +177,37 @@ namespace TypePipe.IntegrationTests
 
     private void CheckAttributeInheritance (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
     {
-      var actualNonInheritAttributes = typePipeAttributeProvider.GetCustomAttributes (false);
-      var actualInheritAttributes = typePipeAttributeProvider.GetCustomAttributes (true);
-      var expectedNonInheritAttributes = attributeProvider.GetCustomAttributes (false);
-      var expectedInheritAttributes = attributeProvider.GetCustomAttributes (true);
+      var actualNonInheritableAttributes = typePipeAttributeProvider.GetCustomAttributes (false);
+      var actualInheritableAttributes = typePipeAttributeProvider.GetCustomAttributes (true);
+      var expectedNonInheritableAttributes = attributeProvider.GetCustomAttributes (false);
+      var expectedInheritableAttributes = attributeProvider.GetCustomAttributes (true);
 
       Comparison<object> typeComparer = (a, b) => a.GetType() == b.GetType() ? 0 : -1;
-      Assert.That (actualNonInheritAttributes, Is.EqualTo (expectedNonInheritAttributes).Using (typeComparer));
-      Assert.That (actualInheritAttributes, Is.EqualTo (expectedInheritAttributes).Using (typeComparer));
+      Assert.That (actualNonInheritableAttributes, Is.EqualTo (expectedNonInheritableAttributes).Using (typeComparer));
+      Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (typeComparer));
     }
 
     private void CheckAttributeInheritanceAllowMultiple (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
     {
       var filterType = typeof (AllowMultipleBaseAttribute);
-      var actualNonInheritAttributes = (AllowMultipleBaseAttribute[]) typePipeAttributeProvider.GetCustomAttributes (filterType, false);
-      var actualInheritAttributes = (AllowMultipleBaseAttribute[]) typePipeAttributeProvider.GetCustomAttributes (filterType, true);
-      var expectedNonInheritAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, false);
-      var expectedInheritAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, true);
+      var actualNonInheritableAttributes = (AllowMultipleBaseAttribute[]) typePipeAttributeProvider.GetCustomAttributes (filterType, false);
+      var actualInheritableAttributes = (AllowMultipleBaseAttribute[]) typePipeAttributeProvider.GetCustomAttributes (filterType, true);
+      var expectedNonInheritableAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, false);
+      var expectedInheritableAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, true);
 
       Comparison<AllowMultipleBaseAttribute> multipleAttributeComparer = (a, b) => a.CtorArg == b.CtorArg ? 0 : -1;
-      Assert.That (actualNonInheritAttributes, Is.EqualTo (expectedNonInheritAttributes).Using (multipleAttributeComparer));
-      Assert.That (actualInheritAttributes, Is.EqualTo (expectedInheritAttributes).Using (multipleAttributeComparer));
+      Assert.That (actualNonInheritableAttributes, Is.EqualTo (expectedNonInheritableAttributes).Using (multipleAttributeComparer));
+      Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (multipleAttributeComparer));
+    }
+
+    private void CheckIsDefinedInheritance (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
+    {
+      Assert.That (
+          typePipeAttributeProvider.IsDefined (typeof (InheritableAttribute), true),
+          Is.EqualTo (attributeProvider.IsDefined (typeof (InheritableAttribute), true)));
+      Assert.That (
+          typePipeAttributeProvider.IsDefined (typeof (NonInheritableAttribute), true),
+          Is.EqualTo (attributeProvider.IsDefined (typeof (NonInheritableAttribute), true)));
     }
 
     [Inheritable, NonInheritable]
@@ -186,8 +215,7 @@ namespace TypePipe.IntegrationTests
     class BaseClass
     {
       [Inheritable, NonInheritable]
-      [return: Inheritable, NonInheritable]
-      public virtual int Method (string arg) { Dev.Null = arg; return 0; }
+      public virtual void Method () { }
 
       [Inheritable, NonInheritable]
       public virtual string Property { [Inheritable, NonInheritable] get; [Inheritable, NonInheritable] set; }
@@ -220,7 +248,7 @@ namespace TypePipe.IntegrationTests
     [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
     class DerivedClass : BaseClass
     {
-      public override int Method (string arg) { return 0; }
+      public override void Method () { }
       public override string Property { get; set; }
       public override event EventHandler Event;
 
@@ -255,6 +283,15 @@ namespace TypePipe.IntegrationTests
       public object Property { get; set; }
     }
 
+    enum MyEnum { A, B, C }
+
+    [DerivedAttribute]
+    void IsDefinedMemberWithDerivedAttribute () { }
+
+    class BaseAttribute : Attribute { }
+    class DerivedAttribute : BaseAttribute { }
+    class UnrelatedAttribute : Attribute { }
+
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
     class InheritableAttribute : Attribute { }
 
@@ -280,7 +317,5 @@ namespace TypePipe.IntegrationTests
     {
       public InheritableNonMultipleAttribute (string arg) : base(arg) { }
     }
-
-    enum MyEnum { A, B, C }
   }
 }
