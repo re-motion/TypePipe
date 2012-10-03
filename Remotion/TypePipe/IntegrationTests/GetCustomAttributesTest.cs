@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -75,7 +74,7 @@ namespace TypePipe.IntegrationTests
       var mutableType = CreateMutableType (type);
       CheckAttributeInheritance (mutableType, type);
 
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method (""));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method ());
       var mutableMethod = mutableType.GetOrAddMutableMethod (method);
       CheckAttributeInheritance (mutableMethod, method);
 
