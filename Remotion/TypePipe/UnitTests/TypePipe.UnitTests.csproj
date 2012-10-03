@@ -109,6 +109,7 @@
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
+    <Compile Include="MutableReflection\TypePipeCustomAttributeImplementationUtilityTest.cs" />
     <Compile Include="MutableReflection\UnderlyingInfoDescriptorBaseTest.cs" />
     <Compile Include="MutableReflection\UnderlyingParameterInfoDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\UnderlyingFieldInfoDescriptorTest.cs" />

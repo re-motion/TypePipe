@@ -143,6 +143,7 @@
     <Compile Include="MutableReflection\RelatedPropertyFinder.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
+    <Compile Include="MutableReflection\TypePipeCustomAttributeImplementationUtility.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />
