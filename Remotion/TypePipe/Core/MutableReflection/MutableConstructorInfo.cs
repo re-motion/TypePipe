@@ -153,17 +153,22 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributeDatas.Value;
     }
 
-    #region Not Implemented from ConstructorInfo interface
-
     public override object[] GetCustomAttributes (bool inherit)
     {
-      throw new NotImplementedException();
+      throw new NotImplementedException ();
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      throw new NotImplementedException ();
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      throw new NotImplementedException();
+      return TypePipeCustomAttributeData.GetCustomAttributes (this).Any (a => attributeType.IsAssignableFrom (a.Type));
     }
+
+    #region Not Implemented from ConstructorInfo interface
 
     public override MethodImplAttributes GetMethodImplementationFlags ()
     {
@@ -183,11 +188,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override RuntimeMethodHandle MethodHandle
     {
       get { throw new NotImplementedException(); }
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
     }
 
     public override object Invoke (BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)

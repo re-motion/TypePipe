@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     
     private MutableConstructorInfo _mutableCtor;
     private UnderlyingConstructorInfoDescriptor _descriptor;
+    private MutableConstructorInfo _domainTypeDefaultCtor;
 
     [SetUp]
     public void SetUp ()
@@ -43,6 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
       _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameters);
       _mutableCtor = Create (_descriptor);
+
+      _domainTypeDefaultCtor =
+          MutableConstructorInfoObjectMother.CreateForExisting (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
     }
 
     [Test]
@@ -153,6 +158,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7))));
       var existingAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
           NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ())));
+      Assert.That (existingInaccesibleCtor.IsPublic, Is.False);
 
       Assert.That (newInaccessibleCtor.CanSetBody, Is.True);
       Assert.That (newAccessibleCtor.CanSetBody, Is.True);
@@ -234,7 +240,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           new[]
           {
               new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
-              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes },
+              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes }
           };
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
     }
@@ -266,24 +272,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributeData ()
     {
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      var mutableCtor = MutableConstructorInfoObjectMother.CreateForExisting (ctor);
+      var result = _domainTypeDefaultCtor.GetCustomAttributeData();
 
-      var result = mutableCtor.GetCustomAttributeData ();
-
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
+      Assert.That (result, Is.SameAs (_domainTypeDefaultCtor.GetCustomAttributeData ()), "should be cached");
     }
 
     [Test]
-    public void GetCustomAttributeData_Lazy ()
+    public void IsDefined ()
     {
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
-      var mutableCtor = MutableConstructorInfoObjectMother.CreateForExisting (ctor);
+      var inherit = BooleanObjectMother.GetRandomBoolean();
 
-      var result1 = mutableCtor.GetCustomAttributeData ();
-      var result2 = mutableCtor.GetCustomAttributeData ();
-
-      Assert.That (result1, Is.SameAs (result2));
+      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (UnrelatedAttribute), inherit), Is.False);
+      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (DerivedAttribute), inherit), Is.True);
+      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (BaseAttribute), inherit), Is.True);
+      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (IDerivedAttributeInterface), inherit), Is.True);
     }
 
     private MutableConstructorInfo Create (UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
@@ -296,13 +299,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors));
     }
 
-    public class DomainType
+    class DomainType
     {
-      [Abc]
+      [Derived]
       public DomainType () { }
       internal DomainType (int i) { Dev.Null = i; }
     }
 
-    public class AbcAttribute : Attribute { }
+    class BaseAttribute : Attribute { }
+    class DerivedAttribute : BaseAttribute, IDerivedAttributeInterface { }
+    interface IDerivedAttributeInterface { }
+    class UnrelatedAttribute : Attribute { }
   }
 }
