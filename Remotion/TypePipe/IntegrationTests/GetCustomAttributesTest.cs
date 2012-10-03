@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -129,6 +130,17 @@ namespace TypePipe.IntegrationTests
       //var @event = type.GetEvents().Single ...
       //var mutableEvent = mutableType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
+    }
+
+    [Test]
+    public void GetCustomAttributes_ArrayType_BehavesLikeReflection ()
+    {
+      var member = MethodBase.GetCurrentMethod();
+      var mutableMember = CreateMutableMember (member);
+      var inherit = BooleanObjectMother.GetRandomBoolean();
+
+      Assert.That (mutableMember.GetCustomAttributes (inherit), Is.TypeOf (member.GetCustomAttributes (inherit).GetType()));
+      Assert.That (mutableMember.GetCustomAttributes (typeof (BaseAttribute), inherit), Is.TypeOf (member.GetCustomAttributes (inherit).GetType()));
     }
 
     [Test]
