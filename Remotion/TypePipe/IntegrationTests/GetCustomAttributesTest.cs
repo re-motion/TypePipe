@@ -137,8 +137,9 @@ namespace TypePipe.IntegrationTests
       var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => IsDefinedMemberWithDerivedAttribute());
 
       Assert.That (member.IsDefined (typeof (UnrelatedAttribute), false), Is.False);
-      Assert.That (member.IsDefined (typeof (BaseAttribute), false), Is.True);
       Assert.That (member.IsDefined (typeof (DerivedAttribute), false), Is.True);
+      Assert.That (member.IsDefined (typeof (BaseAttribute), false), Is.True);
+      Assert.That (member.IsDefined (typeof (IDerivedAttributeInterface), false), Is.True);
     }
 
     [Test]
@@ -288,7 +289,8 @@ namespace TypePipe.IntegrationTests
     void IsDefinedMemberWithDerivedAttribute () { }
 
     class BaseAttribute : Attribute { }
-    class DerivedAttribute : BaseAttribute { }
+    class DerivedAttribute : BaseAttribute, IDerivedAttributeInterface { }
+    interface IDerivedAttributeInterface { }
     class UnrelatedAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
