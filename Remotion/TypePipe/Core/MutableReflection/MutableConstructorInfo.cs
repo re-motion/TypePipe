@@ -155,16 +155,25 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override object[] GetCustomAttributes (bool inherit)
     {
-      throw new NotImplementedException ();
+      return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit).Select (a => a.CreateInstance()).ToArray();
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      throw new NotImplementedException ();
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit)
+          .Where (a => attributeType.IsAssignableFrom (a.Type))
+          .Select (a => a.CreateInstance()).ToArray();
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      // Drawback: instanciation
+      //return GetCustomAttributes (attributeType, inherit).Any();
+
       return TypePipeCustomAttributeData.GetCustomAttributes (this).Any (a => attributeType.IsAssignableFrom (a.Type));
     }
 
