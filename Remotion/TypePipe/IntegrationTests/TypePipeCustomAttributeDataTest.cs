@@ -123,31 +123,31 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Multiple ("3"), Multiple ("1"), Multiple ("2")]
     public void MultipleAttributes ()
     {
-      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => MultipleAttributeMember());
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (member);
+      var result = GetCustomAttributeData (MethodBase.GetCurrentMethod());
 
       Assert.That (result.Select (x => x.ConstructorArguments.Single()), Is.EquivalentTo (new[] { "1", "2", "3" }));
     }
 
     [Test]
+    [NamedArguments (NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
     public void NamedArguments ()
     {
-      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => NamedArgumentsMember());
-      var attributeData = TypePipeCustomAttributeData.GetCustomAttributes (member).Single();
+      var attributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod()).Single();
 
       Assert.That (attributeData.NamedArguments.Select (x => x.Value), Is.EquivalentTo (new[] { "1", "2", "3" }));
     }
 
     [Test]
+    [MultipleCtors ("other ctor"), MultipleCtors]
     public void CorrectCtor ()
     {
       var defaultCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleCtorsAttribute ());
       var otherCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleCtorsAttribute (""));
 
-      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => MultipleCtorsMember());
-      var result = TypePipeCustomAttributeData.GetCustomAttributes (member).ToArray();
+      var result = GetCustomAttributeData (MethodBase.GetCurrentMethod()).ToArray();
 
       var data1 = result.Single (x => x.ConstructorArguments.Count == 0);
       var data2 = result.Single (x => x.ConstructorArguments.Count == 1);
@@ -156,10 +156,10 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [ComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } })]
     public void WithComplexArguments ()
     {
-      var member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => ComplexArgumentsMember());
-      var attributeData = TypePipeCustomAttributeData.GetCustomAttributes (member).Single();
+      var attributeData = GetCustomAttributeData (MethodBase.GetCurrentMethod()).Single();
 
       Assert.That (attributeData.ConstructorArguments[0], Is.EqualTo (new[] { 1, 2, 3 }));
       Assert.That (attributeData.ConstructorArguments[1], Is.EqualTo (new[] { typeof (double), typeof (string) }));
@@ -174,6 +174,11 @@ namespace TypePipe.IntegrationTests
       Assert.That (
           actualAbcAttribute.ConstructorArguments.Single(),
           Is.Not.Null.And.EqualTo (expectedAbcAttribute.ConstructorArguments.Single().Value));
+    }
+
+    private IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member)
+    {
+      return TypePipeCustomAttributeData.GetCustomAttributes (member).Where (a => a.Type != typeof (TestAttribute));
     }
 
     [Abc ("class")]
@@ -234,22 +239,6 @@ namespace TypePipe.IntegrationTests
 
       public string ConstructorArgument { get; set; }
     }
-
-    // Order of attributes is not defined
-    [Multiple ("3"), Multiple ("1"), Multiple ("2")]
-    public void MultipleAttributeMember () { }
-
-    // Order of named arguments is not defined
-    [NamedArguments (NamedArgument3 = "3", NamedArgument1 = "1", NamedArgument2 = "2")]
-    public void NamedArgumentsMember () { }
-
-    // Select correct ctor
-    [MultipleCtors ("other ctor"), MultipleCtors]
-    public void MultipleCtorsMember () { }
-
-    // Complex arguments
-    [ComplexArguments (new[] { 1, 2, 3 }, new[] { typeof (double), typeof (string) }, new object[] { "s", 7, null, typeof (int), new[] { 4, 5 } })]
-    public void ComplexArgumentsMember () { }
 
     [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
     public class MultipleAttribute : Attribute
