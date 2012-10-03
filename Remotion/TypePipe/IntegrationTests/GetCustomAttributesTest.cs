@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5062")]
   [TestFixture]
   public class GetCustomAttributesTest
   {
@@ -110,6 +109,7 @@ namespace TypePipe.IntegrationTests
       //CheckAttributes (mutableEventsetter, @eventsetter);
     }
 
+    [Ignore ("TODO 5062")]
     [Test]
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
@@ -132,6 +132,7 @@ namespace TypePipe.IntegrationTests
       //CheckAttributes (mutableEvent, @event);
     }
 
+    [Ignore ("TODO 5062")]
     [Test]
     public void GetCustomAttributes_ArrayType_BehavesLikeReflection ()
     {
@@ -139,8 +140,11 @@ namespace TypePipe.IntegrationTests
       var mutableMember = CreateMutableMember (member);
       var inherit = BooleanObjectMother.GetRandomBoolean();
 
-      Assert.That (mutableMember.GetCustomAttributes (inherit), Is.TypeOf (member.GetCustomAttributes (inherit).GetType()));
-      Assert.That (mutableMember.GetCustomAttributes (typeof (BaseAttribute), inherit), Is.TypeOf (member.GetCustomAttributes (inherit).GetType()));
+      var expectedType1 = member.GetCustomAttributes (inherit).GetType();
+      Assert.That (mutableMember.GetCustomAttributes (inherit), Is.TypeOf (expectedType1));
+
+      var expectedType2 = member.GetCustomAttributes (typeof (BaseAttribute), inherit).GetType ();
+      Assert.That (mutableMember.GetCustomAttributes (typeof (BaseAttribute), inherit),Is.TypeOf (expectedType2));
     }
 
     [Test]
