@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DomainType obj) => obj.MethodOnDomainType());
       var customAttributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
 
-      var customAttributeTypes = customAttributes.Select (a => a.Constructor.DeclaringType).ToArray();
+      var customAttributeTypes = customAttributes.Select (a => a.Type).ToArray();
       Assert.That (customAttributeTypes, Is.EquivalentTo (new[] { typeof (InheritableAttribute), typeof (NonInheritableAttribute) }));
     }
 
@@ -61,9 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var attributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
 
-      var attributeTypesAndCtorArgs = attributes
-          .Select (d => new { Type = d.Constructor.DeclaringType, Arg = (string) d.ConstructorArguments.Single () })
-          .ToArray ();
+      var attributeTypesAndCtorArgs = attributes.Select (d => new { d.Type, Arg = (string) d.ConstructorArguments.Single () }).ToArray ();
       var expectedAttributeTypesAndCtorArgs =
           new[] 
           {
@@ -81,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var attributes = TypePipeCustomAttributeData.GetCustomAttributes (member, true);
 
-      var attributeTypes = attributes.Select (d => d.Constructor.DeclaringType).ToArray ();
+      var attributeTypes = attributes.Select (d => d.Type).ToArray ();
       Assert.That (attributeTypes, Is.EquivalentTo (new[] { typeof (InheritableAllowMultipleAttribute), typeof (InheritableNonMultipleAttribute) }));
     }
 
@@ -93,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var customAttributesWithInheritance = TypePipeCustomAttributeData.GetCustomAttributes (member, true).ToArray ();
       Assert.That (customAttributesWithInheritance, Is.Not.Empty);
 
-      var customAttributeTypesWithInheritance = customAttributesWithInheritance.Select (d => d.Constructor.DeclaringType).ToArray ();
+      var customAttributeTypesWithInheritance = customAttributesWithInheritance.Select (d => d.Type).ToArray ();
       Assert.That (customAttributeTypesWithInheritance, Is.EqualTo (new[] { typeof (InheritableAttribute) }));
     }
 

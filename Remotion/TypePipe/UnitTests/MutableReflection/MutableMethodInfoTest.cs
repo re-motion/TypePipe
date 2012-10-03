@@ -501,7 +501,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var result = _attributeMethod.GetCustomAttributeData();
 
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
+      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
       Assert.That (result, Is.SameAs (_attributeMethod.GetCustomAttributeData ()), "should be cached");
     }
 

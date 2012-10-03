@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // OutAttribute is added automatically for out parameters.
       var reducedCustomAttributeTypes =
           descriptor.CustomAttributeDataProvider.Invoke()
-              .Select (a => a.Constructor.DeclaringType)
+              .Select (a => a.Type)
               .Where (t => t != typeof (OutAttribute));
       Assert.That (reducedCustomAttributeTypes, Is.EquivalentTo (expectedCustomAttributeTypes));
     }

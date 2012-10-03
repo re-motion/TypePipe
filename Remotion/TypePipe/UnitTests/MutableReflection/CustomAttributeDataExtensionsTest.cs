@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateInstance_InternalCtor ()
     {
       var customAttributeData = TypePipeCustomAttributeData.GetCustomAttributes (MethodBase.GetCurrentMethod())
-          .Single (x => x.Constructor.DeclaringType == typeof (AbcAttribute));
+          .Single (a => a.Type == typeof (AbcAttribute));
       Assert.That (customAttributeData.Constructor.IsAssembly, Is.True);
 
       var instance = (AbcAttribute) customAttributeData.CreateInstance();

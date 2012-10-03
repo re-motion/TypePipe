@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Type, Is.SameAs (typeof(int)));
 
       Assert.That (
-          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Constructor.DeclaringType),
+          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Type),
           Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
     }
 

@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
 
       Assert.That (
-          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Constructor.DeclaringType),
+          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Type),
           Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
 
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());

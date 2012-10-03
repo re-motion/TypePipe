@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = mutableField.GetCustomAttributeData ();
 
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
     }
 
     [Test]
@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       
       var result = _fieldInfo.GetCustomAttributes (false);
       
-      Assert.That (result, Has.Length.EqualTo (1).And.Some.TypeOf (customAttribute.Constructor.DeclaringType));
+      Assert.That (result, Has.Length.EqualTo (1).And.Some.TypeOf (customAttribute.Type));
     }
 
     [Test]

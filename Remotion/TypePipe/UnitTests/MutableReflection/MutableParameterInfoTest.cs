@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = mutableParameter.GetCustomAttributeData ();
 
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
     }
 
     [Test]
