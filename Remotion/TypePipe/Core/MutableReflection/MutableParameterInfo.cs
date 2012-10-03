@@ -81,5 +81,24 @@ namespace Remotion.TypePipe.MutableReflection
     {
       return _customAttributeDatas.Value;
     }
+
+    public override object[] GetCustomAttributes (bool inherit)
+    {
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this);
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType);
+    }
+
+    public override bool IsDefined (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType);
+    }
   }
 }

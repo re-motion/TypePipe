@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
@@ -38,10 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("member", member);
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeData.GetCustomAttributes (member, inherit)
-          .Where (a => attributeType.IsAssignableFrom (a.Type))
-          .Select (a => a.CreateInstance())
-          .ToArray();
+      return GetCustomAttributes (TypePipeCustomAttributeData.GetCustomAttributes (member, inherit), attributeType);
     }
 
     public static bool IsDefined (MemberInfo member, Type attributeType, bool inherit)
@@ -49,7 +47,43 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("member", member);
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeData.GetCustomAttributes (member, inherit)
+      return IsDefined (TypePipeCustomAttributeData.GetCustomAttributes (member, inherit), attributeType);
+    }
+
+    public static object[] GetCustomAttributes (ParameterInfo parameter)
+    {
+      ArgumentUtility.CheckNotNull ("parameter", parameter);
+
+      return GetCustomAttributes (parameter, typeof (object));
+    }
+
+    public static object[] GetCustomAttributes (ParameterInfo parameter, Type attributeType)
+    {
+      ArgumentUtility.CheckNotNull ("parameter", parameter);
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return GetCustomAttributes (TypePipeCustomAttributeData.GetCustomAttributes (parameter), attributeType);
+    }
+
+    public static bool IsDefined (ParameterInfo parameter, Type attributeType)
+    {
+      ArgumentUtility.CheckNotNull ("parameter", parameter);
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return IsDefined (TypePipeCustomAttributeData.GetCustomAttributes (parameter), attributeType);
+    }
+
+    private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
+    {
+      return customAttributeDatas
+          .Where (a => attributeType.IsAssignableFrom (a.Type))
+          .Select (a => a.CreateInstance())
+          .ToArray();
+    }
+
+    private static bool IsDefined (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
+    {
+      return customAttributeDatas
           .Any (a => attributeType.IsAssignableFrom (a.Type));
     }
   }
