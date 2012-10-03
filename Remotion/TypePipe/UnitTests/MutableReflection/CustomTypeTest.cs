@@ -17,9 +17,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
@@ -39,6 +41,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private string _fullName;
 
     private TestableCustomType _customType;
+
+    private bool _randomInherit;
 
     [SetUp]
     public void SetUp ()
@@ -61,6 +65,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
       _customType.Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() };
       _customType.Methods = new[] { ReflectionObjectMother.GetSomeMethod() };
+      _customType.CustomAttributeDatas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (DerivedAttribute)) };
+
+      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
     }
 
     [Test]
@@ -117,6 +124,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetElementType ()
     {
       Assert.That (_customType.GetElementType (), Is.Null);
+    }
+
+    [Test]
+    public void GetCustomAttributes ()
+    {
+      var result = _customType.GetCustomAttributes (_randomInherit);
+
+      Assert.That (result, Has.Length.EqualTo (1));
+      var attribute = result.Single ();
+      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
+      Assert.That (_customType.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
+    }
+
+    [Test]
+    public void GetCustomAttributes_Filter ()
+    {
+      Assert.That (_customType.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
+      Assert.That (_customType.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
+    }
+
+    [Test]
+    public void IsDefined ()
+    {
+      Assert.That (_customType.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
+      Assert.That (_customType.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
     [Test]
@@ -382,8 +414,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     // This exists for GetInterface method with ignore case parameter.
-    private interface Idisposable
-    {
-    }
+    private interface Idisposable { }
+
+    public class BaseAttribute : Attribute { }
+    public class DerivedAttribute : BaseAttribute { }
+    public class UnrelatedAttribute : Attribute { }
   }
 }

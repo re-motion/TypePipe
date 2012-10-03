@@ -36,10 +36,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
     }
 
+    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
     public IEnumerable<Type> Interfaces;
     public IEnumerable<FieldInfo> Fields;
     public IEnumerable<ConstructorInfo> Constructors;
     public IEnumerable<MethodInfo> Methods;
+
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return CustomAttributeDatas;
+    }
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {

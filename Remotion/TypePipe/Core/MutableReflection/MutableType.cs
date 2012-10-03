@@ -166,11 +166,6 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return _customAttributeDatas.Value;
-    }
-
     public void AddInterface (Type interfaceType)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
@@ -373,6 +368,11 @@ namespace Remotion.TypePipe.MutableReflection
         handler.HandleModifiedConstructor (ctor);
       foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
         handler.HandleModifiedMethod (method);
+    }
+
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeDatas.Value;
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()

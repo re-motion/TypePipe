@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Other classes may derive from this class to inherit this implementation.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public abstract class CustomType : Type
+  public abstract class CustomType : Type, ITypePipeCustomAttributeProvider
   {
     private readonly IMemberSelector _memberSelector;
 
@@ -71,6 +71,8 @@ namespace Remotion.TypePipe.MutableReflection
       _namespace = @namespace;
       _fullName = fullName;
     }
+
+    public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
 
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
@@ -130,6 +132,25 @@ namespace Remotion.TypePipe.MutableReflection
     public override Type GetElementType ()
     {
       return null;
+    }
+
+    public override object[] GetCustomAttributes (bool inherit)
+    {
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
+    }
+
+    public override bool IsDefined (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
     }
 
     public override Type[] GetInterfaces ()
@@ -265,21 +286,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
     {
       return new PropertyInfo[0]; // Needed for virtual method check
-    }
-
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException ();
     }
 
     #endregion
