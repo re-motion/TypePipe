@@ -35,6 +35,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     
     private MutableConstructorInfo _mutableCtor;
     private UnderlyingConstructorInfoDescriptor _descriptor;
+
+    private bool _randomInherit;
     private MutableConstructorInfo _domainTypeDefaultCtor;
 
     [SetUp]
@@ -46,6 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameters);
       _mutableCtor = Create (_descriptor);
 
+      _randomInherit = BooleanObjectMother.GetRandomBoolean();
       _domainTypeDefaultCtor =
           MutableConstructorInfoObjectMother.CreateForExisting (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
     }
@@ -281,32 +284,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributes ()
     {
-      var inherit = BooleanObjectMother.GetRandomBoolean ();
-
-      var result = _domainTypeDefaultCtor.GetCustomAttributes (inherit);
+      var result = _domainTypeDefaultCtor.GetCustomAttributes (_randomInherit);
 
       Assert.That (result, Has.Length.EqualTo (1));
       var attribute = result.Single();
       Assert.That (attribute, Is.TypeOf<DerivedAttribute>());
-      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (inherit).Single(), Is.Not.SameAs (attribute), "new instance");
+      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (_randomInherit).Single(), Is.Not.SameAs (attribute), "new instance");
     }
 
     [Test]
     public void GetCustomAttributes_Filter ()
     {
-      var inherit = BooleanObjectMother.GetRandomBoolean ();
-
-      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (typeof (BaseAttribute), inherit), Has.Length.EqualTo (1));
-      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (typeof (UnrelatedAttribute), inherit), Is.Empty);
+      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
+      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
     }
 
     [Test]
     public void IsDefined ()
     {
-      var inherit = BooleanObjectMother.GetRandomBoolean();
-
-      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (UnrelatedAttribute), inherit), Is.False);
-      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (BaseAttribute), inherit), Is.True);
+      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
+      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
     private MutableConstructorInfo Create (UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
