@@ -75,10 +75,15 @@ namespace Remotion.TypePipe.MutableReflection
 
     private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
-      return customAttributeDatas
+      var attributeArray = customAttributeDatas
           .Where (a => attributeType.IsAssignableFrom (a.Type))
           .Select (a => a.CreateInstance())
           .ToArray();
+
+      var typedAttributeArray = Array.CreateInstance(attributeType, attributeArray.Length);
+      Array.Copy (attributeArray, typedAttributeArray, attributeArray.Length);
+
+      return (object[]) typedAttributeArray;
     }
 
     private static bool IsDefined (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)

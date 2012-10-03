@@ -70,6 +70,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetCustomAttributes_ArrayType ()
+    {
+      Assert.That (SUT.GetCustomAttributes (_member, _randomInherit), Is.TypeOf (typeof (object[])));
+      Assert.That (SUT.GetCustomAttributes (_member, typeof (BaseAttribute), _randomInherit), Is.TypeOf (typeof (BaseAttribute[])));
+    }
+
+    [Test]
     public void IsDefined ()
     {
       Assert.That (SUT.IsDefined (_member, typeof (UnrelatedAttribute), _randomInherit), Is.False);
@@ -104,6 +111,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (SUT.GetCustomAttributes (_parameter, typeof (DerivedAttribute)), Has.Length.EqualTo (1));
       Assert.That (SUT.GetCustomAttributes (_parameter, typeof (BaseAttribute)), Has.Length.EqualTo (1));
       Assert.That (SUT.GetCustomAttributes (_parameter, typeof (IBaseAttributeInterface)), Has.Length.EqualTo (1));
+    }
+
+    [Test]
+    public void GetCustomAttributes_Parameter_ArrayType ()
+    {
+      Assert.That (SUT.GetCustomAttributes (_parameter), Is.TypeOf (typeof (object[])));
+      Assert.That (SUT.GetCustomAttributes (_parameter, typeof (BaseAttribute)), Is.TypeOf (typeof (BaseAttribute[])));
     }
 
     [Test]

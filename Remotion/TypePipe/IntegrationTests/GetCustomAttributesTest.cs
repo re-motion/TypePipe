@@ -132,7 +132,6 @@ namespace TypePipe.IntegrationTests
       //CheckAttributes (mutableEvent, @event);
     }
 
-    [Ignore ("TODO 5062")]
     [Test]
     public void GetCustomAttributes_ArrayType_BehavesLikeReflection ()
     {
