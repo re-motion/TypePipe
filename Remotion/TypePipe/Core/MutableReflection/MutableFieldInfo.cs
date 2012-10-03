@@ -100,7 +100,29 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeDatas.Value;
+      // TODO: 4695
+      Assertion.IsTrue (IsNew || _addedCustomAttributeDeclarations.Count == 0);
+
+      return IsNew ? AddedCustomAttributeDeclarations.Cast<ICustomAttributeData>() : _customAttributeDatas.Value;
+    }
+
+    public override object[] GetCustomAttributes (bool inherit)
+    {
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
+    }
+
+    public override bool IsDefined (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
@@ -114,31 +136,7 @@ namespace Remotion.TypePipe.MutableReflection
       _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
     }
 
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      // TODO 4943 (fix implementation)
-      return AddedCustomAttributeDeclarations
-          .Select (attr => attr.CreateInstance())
-          .ToArray();
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      // TODO 4943 (fix implementation)
-      return AddedCustomAttributeDeclarations
-          .Where (attr => attributeType.IsAssignableFrom (attr.Type))
-          .Select (attr => attr.CreateInstance())
-          .ToArray();
-    }
-
     #region Not Implemented from FieldInfo interface
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      throw new NotImplementedException();
-    }
 
     public override object GetValue (object obj)
     {

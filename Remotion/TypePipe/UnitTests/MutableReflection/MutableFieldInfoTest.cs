@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -26,12 +27,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableFieldInfoTest
   {
-    private MutableFieldInfo _fieldInfo;
+    private MutableFieldInfo _field;
+
+    private MutableFieldInfo _fieldWithAttribute;
+    private bool _randomInherit;
 
     [SetUp]
     public void SetUp ()
     {
-      _fieldInfo = MutableFieldInfoObjectMother.Create ();
+      _field = MutableFieldInfoObjectMother.Create ();
+
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
+      _fieldWithAttribute = MutableFieldInfoObjectMother.CreateForExisting (originalField: field);
+      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
     }
 
     [Test]
@@ -83,15 +91,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsModified_False ()
     {
-      Assert.That (_fieldInfo.IsModified, Is.False);
+      Assert.That (_field.IsModified, Is.False);
     }
 
     [Test]
     public void IsModified_True ()
     {
-      _fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
+      _field.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
 
-      Assert.That (_fieldInfo.IsModified, Is.True);
+      Assert.That (_field.IsModified, Is.True);
     }
 
     [Test]
@@ -105,46 +113,58 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ToDebugString ()
     {
-      var declaringTypeName = _fieldInfo.DeclaringType.Name;
-      var fieldTypeName = _fieldInfo.FieldType.Name;
-      var fieldName = _fieldInfo.Name;
+      var declaringTypeName = _field.DeclaringType.Name;
+      var fieldTypeName = _field.FieldType.Name;
+      var fieldName = _field.Name;
       var expected = "MutableField = \"" + fieldTypeName + " " + fieldName + "\", DeclaringType = \"" + declaringTypeName + "\"";
 
-      Assert.That (_fieldInfo.ToDebugString(), Is.EqualTo (expected));
+      Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
     }
 
     [Test]
     public void GetCustomAttributeData ()
     {
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
-      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField:field);
+      var result = _fieldWithAttribute.GetCustomAttributeData ();
 
-      var result = mutableField.GetCustomAttributeData ();
-
-      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
+      Assert.That (result, Is.SameAs (_fieldWithAttribute.GetCustomAttributeData ()), "should be cached");
     }
 
     [Test]
-    public void GetCustomAttributeData_Lazy ()
+    public void GetCustomAttributes ()
     {
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
-      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField: field);
+      var result = _fieldWithAttribute.GetCustomAttributes (_randomInherit);
 
-      var result1 = mutableField.GetCustomAttributeData ();
-      var result2 = mutableField.GetCustomAttributeData ();
+      Assert.That (result, Has.Length.EqualTo (1));
+      var attribute = result.Single ();
+      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
+      Assert.That (_fieldWithAttribute.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
+    }
 
-      Assert.That (result1, Is.SameAs (result2));
+    [Test]
+    public void GetCustomAttributes_Filter ()
+    {
+      Assert.That (_fieldWithAttribute.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
+      Assert.That (_fieldWithAttribute.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
+    }
+
+    [Test]
+    public void IsDefined ()
+    {
+      Assert.That (_fieldWithAttribute.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
+      Assert.That (_fieldWithAttribute.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
     [Test]
     public void AddCustomAttribute ()
     {
-      Assert.That (_fieldInfo.IsNew, Is.True);
+      Assert.That (_field.IsNew, Is.True);
       var declaration = CustomAttributeDeclarationObjectMother.Create();
 
-      _fieldInfo.AddCustomAttribute (declaration);
+      _field.AddCustomAttribute (declaration);
 
-      Assert.That (_fieldInfo.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+      Assert.That (_field.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+      Assert.That (_field.GetCustomAttributeData(), Is.EqualTo (new[] { declaration }));
     }
 
     [Test]
@@ -157,44 +177,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create ());
     }
 
-    [Test]
-    public void GetCustomAttributes_WithoutFilter ()
-    {
-      var customAttribute = CustomAttributeDeclarationObjectMother.Create ();
-      _fieldInfo.AddCustomAttribute (customAttribute);
-      
-      var result = _fieldInfo.GetCustomAttributes (false);
-      
-      Assert.That (result, Has.Length.EqualTo (1).And.Some.TypeOf (customAttribute.Type));
-    }
-
-    [Test]
-    public void GetCustomAttributes_WithFilter ()
-    {
-      var baseCustomAttribute = CustomAttributeDeclarationObjectMother.Create (typeof (CustomAttribute));
-      var derivedCustomAttribute = CustomAttributeDeclarationObjectMother.Create (typeof (DerivedCustomAttribute));
-
-      _fieldInfo.AddCustomAttribute (baseCustomAttribute);
-      _fieldInfo.AddCustomAttribute (derivedCustomAttribute);
-
-      var resultWithBaseFilter = _fieldInfo.GetCustomAttributes (typeof (CustomAttribute), false);
-      var resultWithDerivedFilter = _fieldInfo.GetCustomAttributes (typeof (DerivedCustomAttribute), false);
-
-      Assert.That (resultWithBaseFilter, Has.Length.EqualTo (2).And.Some.TypeOf<CustomAttribute> ().And.Some.TypeOf<DerivedCustomAttribute> ());
-      Assert.That (resultWithDerivedFilter, Has.Length.EqualTo (1).And.Some.TypeOf<DerivedCustomAttribute> ());
-    }
-
-    public class CustomAttribute : Attribute
-    {
-    }
-
-    public class DerivedCustomAttribute : CustomAttribute
-    {
-    }
-
-    [Abc]
+    [Derived]
     public string Field;
 
-    public class AbcAttribute : Attribute { }
+    class BaseAttribute : Attribute { }
+    class DerivedAttribute : BaseAttribute { }
+    class UnrelatedAttribute : Attribute { }
   }
 }

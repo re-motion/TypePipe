@@ -132,9 +132,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = _customType.GetCustomAttributes (_randomInherit);
 
       // result may contain attributes inherited from _customType.BaseType
-      var attribute = result.Single (a => a.GetType() == typeof (DerivedAttribute));
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
-      Assert.That (_customType.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
+      var attribute1 = result.Single (a => a.GetType() == typeof (DerivedAttribute));
+      Assert.That (attribute1, Is.TypeOf<DerivedAttribute> ());
+
+      var attribute2 = _customType.GetCustomAttributes (_randomInherit).Single (a => a.GetType() == typeof (DerivedAttribute));
+      Assert.That (attribute2, Is.Not.SameAs (attribute1), "new instance");
     }
 
     [Test]
