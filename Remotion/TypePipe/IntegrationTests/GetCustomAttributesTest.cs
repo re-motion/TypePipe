@@ -109,7 +109,6 @@ namespace TypePipe.IntegrationTests
       //CheckAttributes (mutableEventsetter, @eventsetter);
     }
 
-    [Ignore ("TODO 5062")]
     [Test]
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
