@@ -59,6 +59,17 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           visitor => visitor.VisitMethodAddress (expression));
     }
 
+    [Test]
+    public void VisitVirtualMethodAddress ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeVirtualMethodAddressExpression ();
+
+      CheckDefaultVisitImplementation (
+          expression,
+          mock => TypePipeExpressionVisitorTestHelper.CallVisitVirtualMethodAddress (mock, expression),
+          visitor => visitor.VisitVirtualMethodAddress (expression));
+    }
+
     private void CheckDefaultVisitImplementation<T> (
       T expression,
       Function<TypePipeExpressionVisitorBase, Expression> expectedVisitMethod,

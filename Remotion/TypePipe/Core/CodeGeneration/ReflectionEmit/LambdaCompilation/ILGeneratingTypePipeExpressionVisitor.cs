@@ -59,5 +59,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       throw new NotImplementedException();
     }
+
+    public Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

@@ -50,5 +50,12 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var method = ReflectionObjectMother.GetSomeMethod ();
       return new MethodAddressExpression (method);
     }
+
+    public static VirtualMethodAddressExpression GetSomeVirtualMethodAddressExpression ()
+    {
+      var method = ReflectionObjectMother.GetSomeVirtualMethod();
+      var instance = GetSomeExpression (method.DeclaringType);
+      return new VirtualMethodAddressExpression (instance, method);
+    }
   }
 }

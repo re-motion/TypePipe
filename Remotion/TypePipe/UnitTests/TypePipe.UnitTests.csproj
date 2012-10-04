@@ -79,6 +79,7 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
+    <Compile Include="Expressions\VirtualMethodAddressExpressionTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />

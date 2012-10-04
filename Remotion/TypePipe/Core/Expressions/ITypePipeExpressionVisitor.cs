@@ -10,5 +10,6 @@ namespace Remotion.TypePipe.Expressions
     Expression VisitThis (ThisExpression expression);
     Expression VisitOriginalBody (OriginalBodyExpression expression);
     Expression VisitMethodAddress (MethodAddressExpression expression);
+    Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression);
   }
 }
