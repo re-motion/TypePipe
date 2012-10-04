@@ -81,17 +81,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       Assert.That (result, Is.SameAs (expression));
     }
 
-    [Ignore("TODO 5079")]
     [Test]
     public void VisitVirtualMethodAddress ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeVirtualMethodAddressExpression();
-      // TODO: Push instance object to stack
-      // Prevent multiple computation of instance object (with respect to planned NewDelegateExpression)
+      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Instance));
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldvirtftn, expression.Method));
 
       var result = _visitor.VisitVirtualMethodAddress (expression);
-      
+
+      _childExpressionEmitterMock.VerifyAllExpectations ();
       _ilGeneratorMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (expression));
     }
