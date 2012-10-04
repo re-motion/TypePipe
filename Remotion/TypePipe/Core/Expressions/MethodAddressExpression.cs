@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.Expressions
     private readonly MethodInfo _method;
 
     public MethodAddressExpression (MethodInfo method)
-        : base (typeof (IntPtr)) // TOOD: 5079 verify
+        : base (typeof (IntPtr))
     {
       ArgumentUtility.CheckNotNull ("method", method);
 

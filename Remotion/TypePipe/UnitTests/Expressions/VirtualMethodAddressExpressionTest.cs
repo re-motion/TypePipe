@@ -51,6 +51,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Method must be virtual.\r\nParameter name: virtualMethod")]
+    public void Initialization_NonVirtualMethod ()
+    {
+      var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
+      new VirtualMethodAddressExpression (_instance, method);
+    }
+
+    [Test]
     public void Initialization_MethodDeclaringTypeIsAssignableFromInstanceType ()
     {
       var instance = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));

@@ -91,6 +91,48 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     // checks: delegatetype matches method
 
+    [Test]
+    public void CanReduce ()
+    {
+      Assert.That (_expression.CanReduce, Is.True);
+    }
+
+    [Test]
+    public void Reduce ()
+    {
+      var result = _expression.Reduce();
+
+      Assert.That (result, Is.TypeOf<NewExpression>());
+      var newExpression = (NewExpression) result;
+
+      Assert.That (newExpression.Constructor, Is.EqualTo (_delegateType.GetConstructor (new[] { typeof (object), typeof (IntPtr) })));
+      Assert.That (newExpression.Arguments, Has.Count.EqualTo (2));
+      Assert.That (newExpression.Arguments[0], Is.EqualTo (_target));
+      Assert.That (newExpression.Arguments[1], Is.TypeOf<MethodAddressExpression>());
+      var methodAddressExpression = (MethodAddressExpression) newExpression.Arguments[1];
+
+      Assert.That (methodAddressExpression.Method, Is.SameAs (_method));
+    }
+
+    [Ignore("TODO 5080")]
+    [Test]
+    public void Reduce_VirtualMethod ()
+    {
+      var delegateType = typeof (Action);
+      var method = ReflectionObjectMother.GetSomeVirtualMethod();
+      var target = ExpressionTreeObjectMother.GetSomeExpression (method.DeclaringType);
+      var expression = new NewDelegateExpression (delegateType, target, method);
+
+      var result = expression.Reduce ();
+
+      var newExpression = (NewExpression) result;
+      Assert.That (newExpression.Arguments[1], Is.TypeOf<VirtualMethodAddressExpression>());
+      var methodAddressExpression = (VirtualMethodAddressExpression) newExpression.Arguments[1];
+
+      Assert.That (methodAddressExpression.Instance, Is.SameAs (_target));
+      Assert.That (methodAddressExpression.Method, Is.SameAs (_method));
+    }
+
     interface IDomainInterface { void Method (); }
     class BaseType { public virtual void Method () { } }
     class DomainType : BaseType, IDomainInterface { public override void Method () { } }

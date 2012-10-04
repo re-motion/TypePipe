@@ -57,5 +57,13 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var instance = GetSomeExpression (method.DeclaringType);
       return new VirtualMethodAddressExpression (instance, method);
     }
+
+    public static NewDelegateExpression GetSomeNewDelegateExpression ()
+    {
+      var delegateType = typeof (Action); // TODO 5080: must match
+      var method = ReflectionObjectMother.GetSomeMethod();
+      var target = GetSomeExpression (method.DeclaringType);
+      return new NewDelegateExpression (delegateType, target, method);
+    }
   }
 }
