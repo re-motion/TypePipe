@@ -29,18 +29,18 @@ namespace Remotion.TypePipe.UnitTests.Expressions
   {
     private Type _delegateType;
     private Expression _target;
-    private MethodInfo _method;
+    private MethodInfo _nonVirtualMethod;
 
     private NewDelegateExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
-      _method = ReflectionObjectMother.GetSomeMethod();
+      _nonVirtualMethod = ReflectionObjectMother.GetSomeNonVirtualMethod();
       _delegateType = typeof (Action);
-      _target = ExpressionTreeObjectMother.GetSomeExpression (_method.DeclaringType);
+      _target = ExpressionTreeObjectMother.GetSomeExpression (_nonVirtualMethod.DeclaringType);
 
-      _expression = new NewDelegateExpression (_delegateType, _target, _method);
+      _expression = new NewDelegateExpression (_delegateType, _target, _nonVirtualMethod);
     }
 
     [Test]
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       Assert.That (_expression.Type, Is.SameAs (_delegateType));
       Assert.That (_expression.Target, Is.SameAs (_target));
-      Assert.That (_expression.Method, Is.SameAs (_method));
+      Assert.That (_expression.Method, Is.SameAs (_nonVirtualMethod));
     }
 
     [Test]
@@ -111,26 +111,25 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (newExpression.Arguments[1], Is.TypeOf<MethodAddressExpression>());
       var methodAddressExpression = (MethodAddressExpression) newExpression.Arguments[1];
 
-      Assert.That (methodAddressExpression.Method, Is.SameAs (_method));
+      Assert.That (methodAddressExpression.Method, Is.SameAs (_nonVirtualMethod));
     }
 
-    [Ignore("TODO 5080")]
     [Test]
     public void Reduce_VirtualMethod ()
     {
       var delegateType = typeof (Action);
-      var method = ReflectionObjectMother.GetSomeVirtualMethod();
-      var target = ExpressionTreeObjectMother.GetSomeExpression (method.DeclaringType);
-      var expression = new NewDelegateExpression (delegateType, target, method);
+      var virtualMethod = ReflectionObjectMother.GetSomeVirtualMethod();
+      var target = ExpressionTreeObjectMother.GetSomeExpression (virtualMethod.DeclaringType);
+      var expression = new NewDelegateExpression (delegateType, target, virtualMethod);
 
       var result = expression.Reduce ();
 
       var newExpression = (NewExpression) result;
       Assert.That (newExpression.Arguments[1], Is.TypeOf<VirtualMethodAddressExpression>());
-      var methodAddressExpression = (VirtualMethodAddressExpression) newExpression.Arguments[1];
+      var virtualMethodAddressExpression = (VirtualMethodAddressExpression) newExpression.Arguments[1];
 
-      Assert.That (methodAddressExpression.Instance, Is.SameAs (_target));
-      Assert.That (methodAddressExpression.Method, Is.SameAs (_method));
+      Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (target));
+      Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (virtualMethod));
     }
 
     interface IDomainInterface { void Method (); }
