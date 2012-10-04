@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           Throws.ArgumentException.With.Message.EqualTo ("Method is not declared on type hierarchy of target.\r\nParameter name: method"));
     }
 
-    // checks: delegatetype matches method
+    // TODO 5080: check that delegatetype matches method
 
     [Test]
     public void CanReduce ()
