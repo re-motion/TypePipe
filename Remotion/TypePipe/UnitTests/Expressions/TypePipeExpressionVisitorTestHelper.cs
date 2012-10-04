@@ -42,5 +42,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitVirtualMethodAddress", expression);
     }
+
+    public static Expression CallVisitNewDelegate (TypePipeExpressionVisitorBase expressionVisitor, NewDelegateExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitNewDelegate", expression);
+    }
   }
 }

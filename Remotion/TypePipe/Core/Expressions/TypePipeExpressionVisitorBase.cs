@@ -76,5 +76,19 @@ namespace Remotion.TypePipe.Expressions
 
       return VisitExtension (expression);
     }
+
+    Expression ITypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      return VisitNewDelegate (expression);
+    }
+
+    protected virtual Expression VisitNewDelegate (NewDelegateExpression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      return VisitExtension (expression);
+    }
   }
 }

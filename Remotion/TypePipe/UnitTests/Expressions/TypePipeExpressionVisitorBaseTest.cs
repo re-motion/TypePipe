@@ -27,47 +27,37 @@ namespace Remotion.TypePipe.UnitTests.Expressions
   public class TypePipeExpressionVisitorBaseTest
   {
     [Test]
-    public void VisitThis ()
+    public void Visit_XXX ()
     {
-      var expression = ExpressionTreeObjectMother.GetSomeThisExpression();
-
+      var thisExpression = ExpressionTreeObjectMother.GetSomeThisExpression();
       CheckDefaultVisitImplementation (
-          expression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitThis (mock, expression),
-          visitor => visitor.VisitThis (expression));
-    }
+          thisExpression,
+          mock => TypePipeExpressionVisitorTestHelper.CallVisitThis (mock, thisExpression),
+          visitor => visitor.VisitThis (thisExpression));
 
-    [Test]
-    public void VisitOriginalBody ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeOriginalBodyExpression ();
-
+      var originalBodyExpression = ExpressionTreeObjectMother.GetSomeOriginalBodyExpression();
       CheckDefaultVisitImplementation (
-          expression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (mock, expression),
-          visitor => visitor.VisitOriginalBody (expression));
-    }
+          originalBodyExpression,
+          mock => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (mock, originalBodyExpression),
+          visitor => visitor.VisitOriginalBody (originalBodyExpression));
 
-    [Test]
-    public void VisitMethodAddress ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeMethodAddressExpression ();
-
+      var methodAddressExpression = ExpressionTreeObjectMother.GetSomeMethodAddressExpression();
       CheckDefaultVisitImplementation (
-          expression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitMethodAddress (mock, expression),
-          visitor => visitor.VisitMethodAddress (expression));
-    }
+          methodAddressExpression,
+          mock => TypePipeExpressionVisitorTestHelper.CallVisitMethodAddress (mock, methodAddressExpression),
+          visitor => visitor.VisitMethodAddress (methodAddressExpression));
 
-    [Test]
-    public void VisitVirtualMethodAddress ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeVirtualMethodAddressExpression ();
-
+      var virtualMethodAddressExpression = ExpressionTreeObjectMother.GetSomeVirtualMethodAddressExpression();
       CheckDefaultVisitImplementation (
-          expression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitVirtualMethodAddress (mock, expression),
-          visitor => visitor.VisitVirtualMethodAddress (expression));
+          virtualMethodAddressExpression,
+          mock => TypePipeExpressionVisitorTestHelper.CallVisitVirtualMethodAddress (mock, virtualMethodAddressExpression),
+          visitor => visitor.VisitVirtualMethodAddress (virtualMethodAddressExpression));
+
+      var newDelegateExpression = ExpressionTreeObjectMother.GetSomeNewDelegateExpression ();
+      CheckDefaultVisitImplementation (
+          newDelegateExpression,
+          mock => TypePipeExpressionVisitorTestHelper.CallVisitNewDelegate (mock, newDelegateExpression),
+          visitor => visitor.VisitNewDelegate (newDelegateExpression));
     }
 
     private void CheckDefaultVisitImplementation<T> (

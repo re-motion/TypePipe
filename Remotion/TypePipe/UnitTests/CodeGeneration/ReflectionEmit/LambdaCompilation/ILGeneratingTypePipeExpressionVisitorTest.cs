@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void VisitThisExpression ()
+    public void VisitThis ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeThisExpression();
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldarg_0));
@@ -60,13 +60,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "OriginalBodyExpression must be replaced before code generation.")]
-    public void VisitOriginalBodyExpression ()
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "OriginalBodyExpression must be replaced before code generation.")]
+    public void VisitOriginalBody ()
     {
-      var expression = new OriginalBodyExpression (
-          ReflectionObjectMother.GetSomeMethod(), ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
-
-      _visitor.VisitOriginalBody (expression);
+      _visitor.VisitOriginalBody (ExpressionTreeObjectMother.GetSomeOriginalBodyExpression());
     }
 
     [Test]
@@ -93,6 +90,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       _childExpressionEmitterMock.VerifyAllExpectations ();
       _ilGeneratorMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "NewDelegateExpression must be replaced before code generation.")]
+    public void VisitNewDelegate ()
+    {
+      _visitor.VisitNewDelegate (ExpressionTreeObjectMother.GetSomeNewDelegateExpression());
     }
   }
 }

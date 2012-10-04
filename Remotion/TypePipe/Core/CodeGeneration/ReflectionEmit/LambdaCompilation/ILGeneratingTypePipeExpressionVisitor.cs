@@ -47,8 +47,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public Expression VisitOriginalBody (OriginalBodyExpression expression)
     {
-      var message = string.Format ("{0} must be replaced before code generation.", typeof(OriginalBodyExpression).Name);
-      throw new NotSupportedException (message);
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (expression);
     }
 
     public Expression VisitMethodAddress (MethodAddressExpression expression)
@@ -66,6 +67,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _childExpressionEmitter (expression.Instance);
       _ilGenerator.Emit (OpCodes.Ldvirtftn, expression.Method);
       return expression;
+    }
+
+    public Expression VisitNewDelegate (NewDelegateExpression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (expression);
+    }
+
+    private NotSupportedException NewNotSupportedMustBeReplacedBeforeCodeGenerationException (ITypePipeExpression expression)
+    {
+      var message = string.Format ("{0} must be replaced before code generation.", expression.GetType().Name);
+      return new NotSupportedException (message);
     }
   }
 }
