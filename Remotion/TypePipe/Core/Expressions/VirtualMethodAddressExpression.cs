@@ -28,13 +28,12 @@ namespace Remotion.TypePipe.Expressions
   /// <remarks>
   ///   This is the expression equivalent to <see cref="OpCodes.Ldvirtftn"/>.
   /// </remarks>
-  public class VirtualMethodAddressExpression : TypePipeExpressionBase
+  public class VirtualMethodAddressExpression : MethodAddressExpression
   {
     private readonly Expression _instance;
-    private readonly MethodInfo _method;
 
     public VirtualMethodAddressExpression (Expression instance, MethodInfo virtualMethod)
-        : base (typeof (IntPtr))
+        : base (virtualMethod)
     {
       ArgumentUtility.CheckNotNull ("instance", instance);
       ArgumentUtility.CheckNotNull ("virtualMethod", virtualMethod);
@@ -47,17 +46,11 @@ namespace Remotion.TypePipe.Expressions
         throw new ArgumentException ("Method is not declared on type hierarchy of instance.", "virtualMethod");
 
       _instance = instance;
-      _method = virtualMethod;
     }
 
     public Expression Instance
     {
       get { return _instance; }
-    }
-
-    public MethodInfo Method
-    {
-      get { return _method; }
     }
 
     public override Expression Accept (ITypePipeExpressionVisitor visitor)
@@ -73,7 +66,7 @@ namespace Remotion.TypePipe.Expressions
 
       var newInstance = visitor.Visit (_instance);
       if (newInstance != _instance)
-        return new VirtualMethodAddressExpression (newInstance, _method);
+        return new VirtualMethodAddressExpression (newInstance, Method);
       else
         return this;
     }
