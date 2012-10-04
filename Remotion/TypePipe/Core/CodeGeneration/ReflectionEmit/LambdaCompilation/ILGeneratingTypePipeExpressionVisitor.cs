@@ -57,12 +57,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public Expression VisitMethodAddress (MethodAddressExpression expression)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      _ilGenerator.Emit (OpCodes.Ldftn, expression.Method);
+      return expression;
     }
 
     public Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      return null;
     }
   }
 }

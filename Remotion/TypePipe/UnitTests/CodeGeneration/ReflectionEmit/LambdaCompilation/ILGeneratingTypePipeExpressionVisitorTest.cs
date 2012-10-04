@@ -21,6 +21,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -49,13 +50,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void VisitThisExpression ()
     {
-      var thisExpression = new ThisExpression (ReflectionObjectMother.GetSomeType ());
+      var expression = ExpressionTreeObjectMother.GetSomeThisExpression();
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldarg_0));
 
-      var result = _visitor.VisitThis (thisExpression);
+      var result = _visitor.VisitThis (expression);
 
       _ilGeneratorMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (thisExpression));
+      Assert.That (result, Is.SameAs (expression));
     }
 
     [Test]
@@ -66,6 +67,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
           ReflectionObjectMother.GetSomeMethod(), ReflectionObjectMother.GetSomeType(), Enumerable.Empty<Expression>());
 
       _visitor.VisitOriginalBody (expression);
+    }
+
+    [Test]
+    public void VisitMethodAddress ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeMethodAddressExpression();
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
+
+      var result = _visitor.VisitMethodAddress (expression);
+      
+      _ilGeneratorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Ignore("TODO 5079")]
+    [Test]
+    public void VisitVirtualMethodAddress ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeVirtualMethodAddressExpression();
+      // TODO: Push instance object to stack
+      // Prevent multiple computation of instance object (with respect to planned NewDelegateExpression)
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldvirtftn, expression.Method));
+
+      var result = _visitor.VisitVirtualMethodAddress (expression);
+      
+      _ilGeneratorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.SameAs (expression));
     }
   }
 }

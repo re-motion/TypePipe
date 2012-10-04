@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public static MethodAddressExpression GetSomeMethodAddressExpression ()
     {
-      var method = ReflectionObjectMother.GetSomeMethod ();
+      var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
       return new MethodAddressExpression (method);
     }
 

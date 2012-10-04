@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [SetUp]
     public void SetUp ()
     {
-      _method = ReflectionObjectMother.GetSomeMethod ();
+      _method = ReflectionObjectMother.GetSomeNonVirtualMethod();
       _expression = new MethodAddressExpression (_method);
     }
 
