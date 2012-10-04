@@ -30,11 +30,14 @@ namespace Remotion.TypePipe.Expressions
     private readonly MethodInfo _method;
 
     public NewDelegateExpression (Type delegateType, Expression target, MethodInfo method)
-        : base (delegateType)
+        : base (ArgumentUtility.CheckNotNull ("delegateType", delegateType))
     {
       // target may be null for static methods
       ArgumentUtility.CheckNotNull ("method", method);
       Assertion.IsNotNull (method.DeclaringType);
+
+      if (!delegateType.IsSubclassOf (typeof (Delegate)))
+        throw new ArgumentException ("Delegate type must be subclass of 'System.Delegate'.", "delegateType");
 
       if (!method.IsStatic && target == null)
         throw new ArgumentException ("Instance method requires target.", "method");
@@ -69,7 +72,7 @@ namespace Remotion.TypePipe.Expressions
       return Expression.New (constructor, _target, methodAddress);
     }
 
-    // TODO: Accept and VisitChildren
+    // TODO 5080: Accept and VisitChildren
     public override Expression Accept (ITypePipeExpressionVisitor visitor)
     {
       throw new NotImplementedException();

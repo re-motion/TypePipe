@@ -62,6 +62,17 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
+    public void Initialization_DelegateTypeIsSubclassOfSystemDelegate ()
+    {
+      Assert.That (
+          () => new NewDelegateExpression (typeof (string), _target, _nonVirtualMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Delegate type must be subclass of 'System.Delegate'.\r\nParameter name: delegateType"));
+      Assert.That (
+          () => new NewDelegateExpression (typeof (Delegate), _target, _nonVirtualMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Delegate type must be subclass of 'System.Delegate'.\r\nParameter name: delegateType"));
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Instance method requires target.\r\nParameter name: method")]
     public void Initialization_InstanceMethodRequiresTarget ()
     {
