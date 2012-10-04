@@ -17,27 +17,31 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.Expressions;
+using Remotion.Utilities;
 
 // This is on purpose.
 // ReSharper disable CheckNamespace
 namespace Microsoft.Scripting.Ast
 // ReSharper restore CheckNamespace
 {
-  /// <summary>
-  /// Provides factory methods for creating <see cref="ITypePipeExpression"/>.
-  /// </summary>
+  // Do not add docs to this class.
+  // Provides factory methods for creating custom expressions.
   public partial class Expression
   {
     /// <summary>
-    /// Creates an expression which represents the instantiation of a delegate type.
+    /// Creates a new <see cref="NewDelegateExpression"/> that represents the instantiation of a delegate.
     /// </summary>
-    /// <param name="delegateType">Type of the delegate.</param>
-    /// <param name="target">The target instance, <see langword="null"/> for static methods.</param>
-    /// <param name="targetMethod">The target method.</param>
+    /// <param name="delegateType">The type of the delegate.</param>
+    /// <param name="target">The target instance or <see langword="null"/> for static methods.</param>
+    /// <param name="method">The method.</param>
     /// <returns></returns>
-    public static NewDelegateExpression NewDelegate (Type delegateType, Expression target, MethodInfo targetMethod)
+    public static NewDelegateExpression NewDelegate (Type delegateType, Expression target, MethodInfo method)
     {
-      return null;
+      ArgumentUtility.CheckNotNull ("delegateType", delegateType);
+      // target can be null for static methods
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      return new NewDelegateExpression (delegateType, target, method);
     }
   }
 }
