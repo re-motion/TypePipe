@@ -44,5 +44,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var method = ReflectionObjectMother.GetSomeMethod();
       return new OriginalBodyExpression (method, method.ReturnType, Enumerable.Empty<Expression>());
     }
+
+    public static MethodAddressExpression GetSomeMethodAddressExpression ()
+    {
+      var method = ReflectionObjectMother.GetSomeMethod ();
+      return new MethodAddressExpression (method);
+    }
   }
 }

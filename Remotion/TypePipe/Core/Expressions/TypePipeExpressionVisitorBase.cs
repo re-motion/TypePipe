@@ -48,5 +48,19 @@ namespace Remotion.TypePipe.Expressions
 
       return VisitExtension (expression);
     }
+
+    Expression ITypePipeExpressionVisitor.VisitMethodAddress (MethodAddressExpression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      return VisitMethodAddress (expression);
+    }
+
+    protected virtual Expression VisitMethodAddress (MethodAddressExpression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      return VisitExtension (expression);
+    }
   }
 }

@@ -54,5 +54,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       var message = string.Format ("{0} must be replaced before code generation.", typeof(OriginalBodyExpression).Name);
       throw new NotSupportedException (message);
     }
+
+    public Expression VisitMethodAddress (MethodAddressExpression expression)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

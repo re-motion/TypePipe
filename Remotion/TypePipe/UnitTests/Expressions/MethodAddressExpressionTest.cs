@@ -15,24 +15,50 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
   public class MethodAddressExpressionTest
   {
+    private MethodInfo _method;
+    private MethodAddressExpression _expression;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _method = ReflectionObjectMother.GetSomeMethod ();
+      _expression = new MethodAddressExpression (_method);
+    }
+
     [Test]
     public void Initialization ()
     {
-      var method = ReflectionObjectMother.GetSomeMethod();
+      Assert.That (_expression.Type, Is.SameAs (typeof (IntPtr)));
+      Assert.That (_expression.Method, Is.SameAs (_method));
+    }
 
-      var expression = new MethodAddressExpression (method);
+    [Test]
+    public void Accept ()
+    {
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitMethodAddress (_expression));
+    }
 
-      Assert.That (expression.Type, Is.SameAs (typeof (IntPtr)));
-      Assert.That (expression.Method, Is.SameAs (method));
+    [Test]
+    public void VisitChildren ()
+    {
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
+
+      // Expectation: No calls to expressionVisitorMock.
+      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
+
+      Assert.That (result, Is.SameAs (_expression));
     }
   }
 }

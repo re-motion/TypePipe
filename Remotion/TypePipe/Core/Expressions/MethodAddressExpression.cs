@@ -47,7 +47,16 @@ namespace Remotion.TypePipe.Expressions
 
     public override Expression Accept (ITypePipeExpressionVisitor visitor)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      return visitor.VisitMethodAddress (this);
+    }
+
+    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
+    {
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      // Do nothing here - visitors must use Accept (ITypePipeExpressionVisitor)
+      return this;
     }
   }
 }
