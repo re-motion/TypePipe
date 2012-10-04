@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -47,6 +48,25 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (_expression.Type, Is.SameAs (typeof (IntPtr)));
       Assert.That (_expression.Instance, Is.SameAs (_instance));
       Assert.That (_expression.Method, Is.SameAs (_method));
+    }
+
+    [Test]
+    public void Initialization_xxx ()
+    {
+      var instance = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
+
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((BaseType obj) => obj.Method());
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
+      var unrelatedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.Method ());
+
+      Assert.That (() => new VirtualMethodAddressExpression (instance, method), Throws.Nothing);
+      Assert.That (() => new VirtualMethodAddressExpression (instance, baseMethod), Throws.Nothing);
+      Assert.That (() => new VirtualMethodAddressExpression (instance, interfaceMethod), Throws.Nothing);
+
+      Assert.That (
+          () => new VirtualMethodAddressExpression (instance, unrelatedMethod),
+          Throws.ArgumentException.With.Message.EqualTo ("Method is not declared on type hierarchy of instance.\r\nParameter name: virtualMethod"));
     }
 
     [Test]
@@ -81,5 +101,26 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (_expression.Method));
       Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (newInnerExpression));
     }
+
+    interface IDomainInterface
+    {
+      void Method ();
+    }
+
+    class BaseType
+    {
+      public virtual void Method () { }
+    }
+
+    class DomainType : BaseType, IDomainInterface
+    {
+      public override void Method () { }
+    }
+
+    class UnrelatedType
+    {
+      public virtual void Method () { }
+    }
+
   }
 }
