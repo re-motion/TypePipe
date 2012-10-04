@@ -16,26 +16,60 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 5078")]
+  [Ignore ("TODO 5078")]
   [TestFixture]
   public class DelegateInstantiationTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void CreateNonVirtualFunc_Instance ()
+    public void CreateNonVirtualFunc_FromStaticMethod ()
+    {
+      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DerivedType.StaticMethod());
+
+      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, "static method");
+    }
+
+    [Test]
+    public void CreateNonVirtualFunc_FromInstanceMethod ()
     {
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.Method());
 
+      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, "method");
+    }
+
+    [Test]
+    public void CreateNonVirtualAction ()
+    {
+      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.VoidMethod());
+
+      CheckDelegateInstantiation (typeof (Action), targetMethod, expectedFieldValue: "void method");
+    }
+
+    [Test]
+    public void CreateVirtualFunc ()
+    {
+      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.VirtualMethod());
+
+      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, "derived");
+    }
+
+    private void CheckDelegateInstantiation (Type delegateType, MethodInfo targetMethod, string expectedReturnValue = null, string expectedFieldValue = null)
+    {
       var type = AssembleType<DerivedType> (
           mutableType =>
           {
             var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
-            createDelegateMethod.SetBody (ctx => Expression.NewDelegate (typeof (Func<string>), ctx.This, targetMethod));
+            createDelegateMethod.SetBody (ctx =>
+            {
+              var target = targetMethod.IsStatic ? null : ctx.This;
+              return Expression.NewDelegate (delegateType, target, targetMethod);
+            });
           });
 
       var instance = (DerivedType) Activator.CreateInstance (type);
@@ -43,48 +77,27 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (delegate_.Method, Is.EqualTo (targetMethod));
       Assert.That (delegate_.Target, Is.EqualTo (instance));
-      Assert.That (delegate_.DynamicInvoke(), Is.EqualTo ("method"));
+      Assert.That (delegate_.DynamicInvoke(), Is.EqualTo (expectedReturnValue));
+      Assert.That (instance.Field, Is.EqualTo (expectedFieldValue));
     }
 
-    // TODO: static method
     // TODO: think about creating a delegate (an maybe invoking) which takes parameters
 
     class BaseType
     {
-      public virtual string VirtualMethod ()
-      {
-        return "base";
-      }
+      public virtual string VirtualMethod () { return "base"; }
     }
 
     class DerivedType : BaseType
     {
       public string Field;
 
-      public static string StaticMethod ()
-      {
-        return "static method";
-      }
+      public static string StaticMethod () { return "static method"; }
+      public string Method () { return "method"; }
+      public void VoidMethod () { Field = "void method"; }
+      public override string VirtualMethod () { return "derived"; }
 
-      public string Method ()
-      {
-        return "method";
-      }
-
-      public void VoidMethod ()
-      {
-        Field = "void method";
-      }
-
-      public override string VirtualMethod ()
-      {
-        return "derived";
-      }
-
-      public virtual Delegate CreateDelegate ()
-      {
-        throw new NotImplementedException();
-      }
+      public virtual Delegate CreateDelegate () { throw new NotImplementedException(); }
     }
   }
 }
