@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void Initialization_xxx ()
+    public void Initialization_MethodDeclaringTypeIsAssignableFromInstanceType ()
     {
       var instance = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
 
@@ -102,25 +102,9 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (newInnerExpression));
     }
 
-    interface IDomainInterface
-    {
-      void Method ();
-    }
-
-    class BaseType
-    {
-      public virtual void Method () { }
-    }
-
-    class DomainType : BaseType, IDomainInterface
-    {
-      public override void Method () { }
-    }
-
-    class UnrelatedType
-    {
-      public virtual void Method () { }
-    }
-
+    interface IDomainInterface { void Method (); }
+    class BaseType { public virtual void Method () { } }
+    class DomainType : BaseType, IDomainInterface { public override void Method () { } }
+    class UnrelatedType { public virtual void Method () { } }
   }
 }

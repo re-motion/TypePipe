@@ -15,7 +15,9 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
 {
@@ -24,9 +26,34 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public class NewDelegateExpression : TypePipeExpressionBase
   {
-    public NewDelegateExpression (Type type)
-        : base(type)
+    private readonly Expression _target;
+    private readonly MethodInfo _method;
+
+    public NewDelegateExpression (Type delegateType, Expression target, MethodInfo method)
+        : base (delegateType)
     {
+      // target may be null for static methods
+      ArgumentUtility.CheckNotNull ("method", method);
+      Assertion.IsNotNull (method.DeclaringType);
+
+      if (!method.IsStatic && target == null)
+        throw new ArgumentException ("Instance method requires target.", "method");
+
+      if (target != null && !method.DeclaringType.IsAssignableFrom (target.Type))
+        throw new ArgumentException ("Method is not declared on type hierarchy of target.", "method");
+
+      _target = target;
+      _method = method;
+    }
+
+    public Expression Target
+    {
+      get { return _target; }
+    }
+
+    public MethodInfo Method
+    {
+      get { return _method; }
     }
 
     public override Expression Accept (ITypePipeExpressionVisitor visitor)

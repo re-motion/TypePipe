@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.Expressions
       ArgumentUtility.CheckNotNull ("virtualMethod", virtualMethod);
       Assertion.IsNotNull (virtualMethod.DeclaringType);
 
-      if (!virtualMethod.DeclaringType.IsAssignableFrom(instance.Type))
+      if (!virtualMethod.DeclaringType.IsAssignableFrom (instance.Type))
         throw new ArgumentException ("Method is not declared on type hierarchy of instance.", "virtualMethod");
 
       _instance = instance;
