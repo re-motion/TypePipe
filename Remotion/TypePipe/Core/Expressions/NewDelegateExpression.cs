@@ -67,7 +67,9 @@ namespace Remotion.TypePipe.Expressions
     public override Expression Reduce ()
     {
       var constructor = Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
-      var methodAddress = _method.IsVirtual ? new VirtualMethodAddressExpression (_target, _method) : new NonVirtualMethodAddressExpression (_method);
+      var methodAddress = _method.IsVirtual
+                              ? (Expression) new VirtualMethodAddressExpression (_target, _method)
+                              : new NonVirtualMethodAddressExpression (_method);
       var target = _target ?? Expression.Constant (null, typeof (object));
 
       return Expression.New (constructor, target, methodAddress);

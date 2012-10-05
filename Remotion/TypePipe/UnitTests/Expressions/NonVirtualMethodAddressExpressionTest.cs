@@ -40,7 +40,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expression.Type, Is.SameAs (typeof (IntPtr)));
       Assert.That (_expression.Method, Is.SameAs (_method));
     }
 

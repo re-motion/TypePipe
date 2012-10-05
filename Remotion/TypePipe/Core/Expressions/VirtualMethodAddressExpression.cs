@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.Expressions
   /// <remarks>
   ///   This is the expression equivalent to <see cref="OpCodes.Ldvirtftn"/>.
   /// </remarks>
-  public class VirtualMethodAddressExpression : NonVirtualMethodAddressExpression
+  public class VirtualMethodAddressExpression : MethodAddressExpressionBase
   {
     private readonly Expression _instance;
 
