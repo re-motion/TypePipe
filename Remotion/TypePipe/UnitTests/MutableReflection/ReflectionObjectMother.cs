@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly MethodInfo[] s_staticMethod = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (double).GetMethod ("IsNaN") });
     private static readonly MethodInfo[] s_virtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof(object).GetMethod("GetHashCode") });
     private static readonly MethodInfo[] s_nonVirtualMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
+    private static readonly MethodInfo[] s_nonVirtualInstanceMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("GetType"), typeof (string).GetMethod ("Contains", new[] { typeof (string) }) });
     private static readonly MethodInfo[] s_overridingMethods = EnsureNoNulls (new[] { typeof (DomainType).GetMethod ("Override"), typeof (DomainType).GetMethod ("ToString") });
     private static readonly MethodInfo[] s_finalMethods = EnsureNoNulls (new[] { typeof(DomainType).GetMethod("FinalMethod") });
     private static readonly MethodInfo[] s_nonGenericMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
@@ -123,6 +124,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = GetRandomElement (s_nonVirtualMethods);
       Assertion.IsFalse (method.IsVirtual);
+      return method;
+    }
+
+    public static MethodInfo GetSomeNonVirtualInstanceMethod ()
+    {
+      var method = GetRandomElement (s_nonVirtualInstanceMethods);
+      Assertion.IsFalse (method.IsVirtual);
+      Assertion.IsFalse (method.IsStatic);
+
       return method;
     }
 

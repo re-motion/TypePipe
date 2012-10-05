@@ -68,8 +68,9 @@ namespace Remotion.TypePipe.Expressions
     {
       var constructor = Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
       var methodAddress = _method.IsVirtual ? new VirtualMethodAddressExpression (_target, _method) : new MethodAddressExpression (_method);
+      var target = _target ?? Expression.Constant (null, typeof (object));
 
-      return Expression.New (constructor, _target, methodAddress);
+      return Expression.New (constructor, target, methodAddress);
     }
 
     public override Expression Accept (ITypePipeExpressionVisitor visitor)

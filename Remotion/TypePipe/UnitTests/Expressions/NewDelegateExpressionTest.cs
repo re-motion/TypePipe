@@ -30,18 +30,18 @@ namespace Remotion.TypePipe.UnitTests.Expressions
   {
     private Type _delegateType;
     private Expression _target;
-    private MethodInfo _nonVirtualMethod;
+    private MethodInfo _nonVirtualInstanceMethod;
 
     private NewDelegateExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
-      _nonVirtualMethod = ReflectionObjectMother.GetSomeNonVirtualMethod();
+      _nonVirtualInstanceMethod = ReflectionObjectMother.GetSomeNonVirtualInstanceMethod();
       _delegateType = typeof (Action);
-      _target = ExpressionTreeObjectMother.GetSomeExpression (_nonVirtualMethod.DeclaringType);
+      _target = ExpressionTreeObjectMother.GetSomeExpression (_nonVirtualInstanceMethod.DeclaringType);
 
-      _expression = new NewDelegateExpression (_delegateType, _target, _nonVirtualMethod);
+      _expression = new NewDelegateExpression (_delegateType, _target, _nonVirtualInstanceMethod);
     }
 
     [Test]
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       Assert.That (_expression.Type, Is.SameAs (_delegateType));
       Assert.That (_expression.Target, Is.SameAs (_target));
-      Assert.That (_expression.Method, Is.SameAs (_nonVirtualMethod));
+      Assert.That (_expression.Method, Is.SameAs (_nonVirtualInstanceMethod));
     }
 
     [Test]
@@ -66,10 +66,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void Initialization_DelegateTypeIsSubclassOfSystemDelegate ()
     {
       Assert.That (
-          () => new NewDelegateExpression (typeof (string), _target, _nonVirtualMethod),
+          () => new NewDelegateExpression (typeof (string), _target, _nonVirtualInstanceMethod),
           Throws.ArgumentException.With.Message.EqualTo ("Delegate type must be subclass of 'System.Delegate'.\r\nParameter name: delegateType"));
       Assert.That (
-          () => new NewDelegateExpression (typeof (Delegate), _target, _nonVirtualMethod),
+          () => new NewDelegateExpression (typeof (Delegate), _target, _nonVirtualInstanceMethod),
           Throws.ArgumentException.With.Message.EqualTo ("Delegate type must be subclass of 'System.Delegate'.\r\nParameter name: delegateType"));
     }
 
@@ -115,15 +115,32 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var result = _expression.Reduce();
 
       Assert.That (result, Is.TypeOf<NewExpression>());
-      var newExpression = (NewExpression) result;
 
+      var newExpression = (NewExpression) result;
       Assert.That (newExpression.Constructor, Is.EqualTo (_delegateType.GetConstructor (new[] { typeof (object), typeof (IntPtr) })));
       Assert.That (newExpression.Arguments, Has.Count.EqualTo (2));
       Assert.That (newExpression.Arguments[0], Is.EqualTo (_target));
       Assert.That (newExpression.Arguments[1], Is.TypeOf<MethodAddressExpression>());
-      var methodAddressExpression = (MethodAddressExpression) newExpression.Arguments[1];
 
-      Assert.That (methodAddressExpression.Method, Is.SameAs (_nonVirtualMethod));
+      var methodAddressExpression = (MethodAddressExpression) newExpression.Arguments[1];
+      Assert.That (methodAddressExpression.Method, Is.SameAs (_nonVirtualInstanceMethod));
+    }
+
+    [Test]
+    public void Reduce_StaticMethod ()
+    {
+      var delegateType = typeof (Action);
+      var staticMethod = ReflectionObjectMother.GetSomeStaticMethod();
+      var expression = new NewDelegateExpression (delegateType, null, staticMethod);
+
+      var result = expression.Reduce();
+
+      var newExpression = (NewExpression) result;
+      Assert.That (newExpression.Arguments[0], Is.TypeOf<ConstantExpression>());
+
+      var constantExpression = (ConstantExpression) newExpression.Arguments[0];
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+      Assert.That (constantExpression.Value, Is.Null);
     }
 
     [Test]
@@ -138,8 +155,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       var newExpression = (NewExpression) result;
       Assert.That (newExpression.Arguments[1], Is.TypeOf<VirtualMethodAddressExpression>());
-      var virtualMethodAddressExpression = (VirtualMethodAddressExpression) newExpression.Arguments[1];
 
+      var virtualMethodAddressExpression = (VirtualMethodAddressExpression) newExpression.Arguments[1];
       Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (target));
       Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (virtualMethod));
     }
