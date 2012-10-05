@@ -84,18 +84,18 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void VisitVirtualMethodAddress_NoChanges ()
+    public void VisitChildren_NoChanges ()
     {
       ExpressionTestHelper.CheckVisitChildren_NoChanges (_expression, _expression.Instance);
     }
 
     [Test]
-    public void VisitVirtualMethodAddress_WithChanges ()
+    public void VisitChildren_WithChanges ()
     {
-      var newInnerExpression = ExpressionTreeObjectMother.GetSomeExpression (_method.DeclaringType);
+      var newInstanceExpression = ExpressionTreeObjectMother.GetSomeExpression (_method.DeclaringType);
 
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
-      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Instance)).Return (newInnerExpression);
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Instance)).Return (newInstanceExpression);
 
       var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
 
@@ -106,8 +106,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (result, Is.TypeOf<VirtualMethodAddressExpression> ());
 
       var virtualMethodAddressExpression = (VirtualMethodAddressExpression) result;
+      Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (newInstanceExpression));
       Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (_expression.Method));
-      Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (newInnerExpression));
     }
 
     interface IDomainInterface { void Method (); }

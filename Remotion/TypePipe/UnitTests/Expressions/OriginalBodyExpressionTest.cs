@@ -67,10 +67,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void VisitChildren_WithChanges ()
     {
-      var newInnerExpression = ExpressionTreeObjectMother.GetSomeExpression ();
+      var newArgumentExpression = ExpressionTreeObjectMother.GetSomeExpression ();
 
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
-      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Arguments[0])).Return (newInnerExpression);
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Arguments[0])).Return (newArgumentExpression);
       expressionVisitorMock.Expect (mock => mock.Visit (_expression.Arguments[1])).Return (_expression.Arguments[1]);
 
       var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       var originalBodyExpression = (OriginalBodyExpression) result;
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (_methodBase));
-      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { newInnerExpression, _expression.Arguments[1] }));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { newArgumentExpression, _expression.Arguments[1] }));
     }
   }
 }

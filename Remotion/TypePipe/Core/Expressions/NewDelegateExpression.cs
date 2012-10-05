@@ -72,10 +72,22 @@ namespace Remotion.TypePipe.Expressions
       return Expression.New (constructor, _target, methodAddress);
     }
 
-    // TODO 5080: Accept and VisitChildren
     public override Expression Accept (ITypePipeExpressionVisitor visitor)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      return visitor.VisitNewDelegate (this);
+    }
+
+    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
+    {
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      var newTarget = visitor.Visit (_target);
+      if (newTarget != _target)
+        return new NewDelegateExpression (Type, newTarget, _method);
+      else
+        return this;
     }
   }
 }

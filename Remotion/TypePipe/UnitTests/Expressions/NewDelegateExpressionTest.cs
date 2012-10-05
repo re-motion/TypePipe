@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -141,6 +142,39 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (target));
       Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (virtualMethod));
+    }
+
+    [Test]
+    public void Accept ()
+    {
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitNewDelegate (_expression));
+    }
+
+    [Test]
+    public void VisitChildren_NoChanges ()
+    {
+      ExpressionTestHelper.CheckVisitChildren_NoChanges (_expression, _expression.Target);
+    }
+
+    [Test]
+    public void VisitChildren_WithChanges ()
+    {
+      var newTargetExpression = ExpressionTreeObjectMother.GetSomeExpression (_expression.Target.Type);
+
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Target)).Return (newTargetExpression);
+
+      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
+
+      expressionVisitorMock.VerifyAllExpectations ();
+
+      Assert.That (result, Is.Not.SameAs (_expression));
+      Assert.That (result.Type, Is.SameAs (_expression.Type));
+      Assert.That (result, Is.TypeOf<NewDelegateExpression>());
+
+      var virtualMethodAddressExpression = (NewDelegateExpression) result;
+      Assert.That (virtualMethodAddressExpression.Target, Is.SameAs (newTargetExpression));
+      Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (_expression.Method));
     }
 
     interface IDomainInterface { void Method (); }
