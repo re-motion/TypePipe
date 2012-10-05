@@ -36,8 +36,8 @@ namespace Remotion.TypePipe.Expressions
       ArgumentUtility.CheckNotNull ("method", method);
       Assertion.IsNotNull (method.DeclaringType);
 
-      if (!delegateType.IsSubclassOf (typeof (Delegate)))
-        throw new ArgumentException ("Delegate type must be subclass of 'System.Delegate'.", "delegateType");
+      if (!delegateType.IsSubclassOf (typeof (MulticastDelegate)))
+        throw new ArgumentException ("Delegate type must be subclass of 'System.MulticastDelegate'.", "delegateType");
 
       if (!method.IsStatic && target == null)
         throw new ArgumentException ("Instance method requires target.", "target");

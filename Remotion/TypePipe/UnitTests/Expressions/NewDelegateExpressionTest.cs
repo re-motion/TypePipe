@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -63,14 +64,20 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void Initialization_DelegateTypeIsSubclassOfSystemDelegate ()
+    public void Initialization_DelegateTypeIsSubclassOfMulticastDelegate ()
     {
       Assert.That (
           () => new NewDelegateExpression (typeof (string), _target, _nonVirtualInstanceMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Delegate type must be subclass of 'System.Delegate'.\r\nParameter name: delegateType"));
+          Throws.ArgumentException.With.Message.EqualTo (
+              "Delegate type must be subclass of 'System.MulticastDelegate'.\r\nParameter name: delegateType"));
       Assert.That (
           () => new NewDelegateExpression (typeof (Delegate), _target, _nonVirtualInstanceMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Delegate type must be subclass of 'System.Delegate'.\r\nParameter name: delegateType"));
+          Throws.ArgumentException.With.Message.EqualTo (
+              "Delegate type must be subclass of 'System.MulticastDelegate'.\r\nParameter name: delegateType"));
+      Assert.That (
+          () => new NewDelegateExpression (typeof (MulticastDelegate), _target, _nonVirtualInstanceMethod),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "Delegate type must be subclass of 'System.MulticastDelegate'.\r\nParameter name: delegateType"));
     }
 
     [Test]
