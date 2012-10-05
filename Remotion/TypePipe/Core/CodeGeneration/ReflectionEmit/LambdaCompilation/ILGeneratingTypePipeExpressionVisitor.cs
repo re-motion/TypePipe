@@ -76,8 +76,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
       var constructorInfo = expression.Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
 
-      _childExpressionEmitter (expression.Target);
-      _ilGenerator.Emit (OpCodes.Ldftn, expression.Method);
+      if (expression.Method.IsStatic)
+        _ilGenerator.Emit (OpCodes.Ldnull);
+      else
+        _childExpressionEmitter (expression.Target);
+
+      if (expression.Method.IsVirtual)
+      {
+        _ilGenerator.Emit (OpCodes.Dup);
+        _ilGenerator.Emit (OpCodes.Ldvirtftn, expression.Method);
+      }
+      else
+        _ilGenerator.Emit (OpCodes.Ldftn, expression.Method);
+
       _ilGenerator.Emit (OpCodes.Newobj, constructorInfo);
 
       return expression;

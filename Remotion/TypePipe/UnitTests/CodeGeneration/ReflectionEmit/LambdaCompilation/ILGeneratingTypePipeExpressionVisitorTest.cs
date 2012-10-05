@@ -100,8 +100,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     {
       var delegateType = typeof (Action);
       var delegateCtor = delegateType.GetConstructors().Single();
-      var targetExpression = ExpressionTreeObjectMother.GetSomeExpression (GetType());
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method());
+      var targetExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
       var expression = new NewDelegateExpression (delegateType, targetExpression, method);
 
       _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Target));
@@ -115,6 +115,52 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       Assert.That (result, Is.SameAs (expression));
     }
 
-    private void Method () { }
+    [Test]
+    public void VisitNewDelegate_Static ()
+    {
+      var delegateType = typeof (Action);
+      var delegateCtor = delegateType.GetConstructors ().Single ();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.StaticMethod());
+      var expression = new NewDelegateExpression (delegateType, null, method);
+
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldnull));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Newobj, delegateCtor));
+
+      _visitor.VisitNewDelegate (expression);
+
+      _ilGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void VisitNewDelegate_Virtual ()
+    {
+      var delegateType = typeof (Action);
+      var delegateCtor = delegateType.GetConstructors ().Single ();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((BaseType obj) => obj.VirtualMethod());
+      var targetExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
+      var expression = new NewDelegateExpression (delegateType, targetExpression, method);
+
+      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Target));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Dup));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldvirtftn, expression.Method));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Newobj, delegateCtor));
+
+      _visitor.VisitNewDelegate (expression);
+
+      _ilGeneratorMock.VerifyAllExpectations ();
+    }
+
+    class BaseType
+    {
+      public virtual void VirtualMethod () { }
+    }
+
+    class DomainType : BaseType
+    {
+      public void Method () { }
+      public static void StaticMethod () { }
+      public override void VirtualMethod () { }
+    }
   }
 }
