@@ -71,6 +71,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return Visit (baseCall);
     }
 
+    protected override Expression VisitNewDelegate (NewDelegateExpression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      return expression.ReduceAndCheck();
+    }
+
     private MethodInfo AdaptOriginalMethodBase (MethodBase methodBase)
     {
       Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
