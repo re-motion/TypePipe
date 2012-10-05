@@ -292,6 +292,7 @@
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
+    <None Include="Dlr\Preserve-Dlr.licenseheader" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
