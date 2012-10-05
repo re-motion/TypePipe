@@ -23,17 +23,15 @@ using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  
   [TestFixture]
   public class DelegateInstantiationTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TODO 5080")]
     [Test]
     public void CreateFunc_FromStaticMethod ()
     {
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DerivedType.StaticMethod());
 
-      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, "static method");
+      CheckStaticDelegateInstantiation (typeof (Func<string>), targetMethod, "static method");
     }
 
     [Test]
@@ -67,11 +65,7 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
-            createDelegateMethod.SetBody (ctx =>
-            {
-              var target = targetMethod.IsStatic ? null : ctx.This;
-              return Expression.NewDelegate (delegateType, target, targetMethod);
-            });
+            createDelegateMethod.SetBody (ctx => Expression.NewDelegate (delegateType, ctx.This, targetMethod));
           });
 
       var instance = (DerivedType) Activator.CreateInstance (type);
@@ -81,6 +75,23 @@ namespace TypePipe.IntegrationTests
       Assert.That (delegate_.Target, Is.EqualTo (instance));
       Assert.That (delegate_.DynamicInvoke(), Is.EqualTo (expectedReturnValue));
       Assert.That (instance.Field, Is.EqualTo (expectedFieldValue));
+    }
+
+    private void CheckStaticDelegateInstantiation (Type delegateType, MethodInfo targetMethod, string expectedReturnValue)
+    {
+      var type = AssembleType<DerivedType> (
+          mutableType =>
+          {
+            var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
+            createDelegateMethod.SetBody (ctx => Expression.NewDelegate (delegateType, null, targetMethod));
+          });
+
+      var instance = (DerivedType) Activator.CreateInstance (type);
+      var delegate_ = instance.CreateDelegate ();
+
+      Assert.That (delegate_.Method, Is.EqualTo (targetMethod));
+      Assert.That (delegate_.Target, Is.Null);
+      Assert.That (delegate_.DynamicInvoke (), Is.EqualTo (expectedReturnValue));
     }
 
     // TODO 5080: think about creating a delegate (an maybe invoking) which takes parameters
