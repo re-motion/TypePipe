@@ -49,34 +49,6 @@ namespace Remotion.TypePipe.Expressions
       return VisitExtension (expression);
     }
 
-    Expression ITypePipeExpressionVisitor.VisitNonVirtualMethodAddress (NonVirtualMethodAddressExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      return VisitNonVirtualMethodAddress (expression);
-    }
-
-    protected virtual Expression VisitNonVirtualMethodAddress (NonVirtualMethodAddressExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      return VisitExtension (expression);
-    }
-
-    Expression ITypePipeExpressionVisitor.VisitVirtualMethodAddress (VirtualMethodAddressExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      return VisitVirtualMethodAddress (expression);
-    }
-
-    protected virtual Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      return VisitExtension (expression);
-    }
-
     Expression ITypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);

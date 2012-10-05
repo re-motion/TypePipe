@@ -53,23 +53,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (expression);
     }
 
-    public Expression VisitNonVirtualMethodAddress (NonVirtualMethodAddressExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      _ilGenerator.Emit (OpCodes.Ldftn, expression.Method);
-      return expression;
-    }
-
-    public Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-
-      _childExpressionEmitter (expression.Instance);
-      _ilGenerator.Emit (OpCodes.Ldvirtftn, expression.Method);
-      return expression;
-    }
-
     public Expression VisitNewDelegate (NewDelegateExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);

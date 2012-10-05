@@ -70,32 +70,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void VisitNonVirtualMethodAddress ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeMethodAddressExpression();
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
-
-      var result = _visitor.VisitNonVirtualMethodAddress (expression);
-      
-      _ilGeneratorMock.VerifyAllExpectations ();
-      Assert.That (result, Is.SameAs (expression));
-    }
-
-    [Test]
-    public void VisitVirtualMethodAddress ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeVirtualMethodAddressExpression();
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Instance));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldvirtftn, expression.Method));
-
-      var result = _visitor.VisitVirtualMethodAddress (expression);
-
-      _childExpressionEmitterMock.VerifyAllExpectations ();
-      _ilGeneratorMock.VerifyAllExpectations ();
-      Assert.That (result, Is.SameAs (expression));
-    }
-
-    [Test]
     public void VisitNewDelegate ()
     {
       var delegateType = typeof (Action);

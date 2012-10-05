@@ -69,8 +69,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
     <Compile Include="Expressions\ExpressionTreeComparer.cs" />
-    <Compile Include="Expressions\MethodAddressExpressionBaseTest.cs" />
-    <Compile Include="Expressions\NonVirtualMethodAddressExpressionTest.cs" />
     <Compile Include="Expressions\NewDelegateExpressionTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
@@ -82,7 +80,6 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
-    <Compile Include="Expressions\VirtualMethodAddressExpressionTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />

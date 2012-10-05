@@ -45,19 +45,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return new OriginalBodyExpression (method, method.ReturnType, Enumerable.Empty<Expression>());
     }
 
-    public static NonVirtualMethodAddressExpression GetSomeMethodAddressExpression ()
-    {
-      var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
-      return new NonVirtualMethodAddressExpression (method);
-    }
-
-    public static VirtualMethodAddressExpression GetSomeVirtualMethodAddressExpression ()
-    {
-      var method = ReflectionObjectMother.GetSomeVirtualMethod();
-      var instance = GetSomeExpression (method.DeclaringType);
-      return new VirtualMethodAddressExpression (instance, method);
-    }
-
     public static NewDelegateExpression GetSomeNewDelegateExpression ()
     {
       var delegateType = typeof (Action); // TODO 5080: must match
