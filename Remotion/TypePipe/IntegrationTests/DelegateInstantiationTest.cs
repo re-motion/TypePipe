@@ -23,12 +23,12 @@ using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5078")]
+  [Ignore ("TODO 5080")]
   [TestFixture]
   public class DelegateInstantiationTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void CreateNonVirtualFunc_FromStaticMethod ()
+    public void CreateFunc_FromStaticMethod ()
     {
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DerivedType.StaticMethod());
 
@@ -36,7 +36,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void CreateNonVirtualFunc_FromInstanceMethod ()
+    public void CreateFunc_FromInstanceMethod ()
     {
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.Method());
 
@@ -44,7 +44,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void CreateNonVirtualAction ()
+    public void CreateAction ()
     {
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.VoidMethod());
 
