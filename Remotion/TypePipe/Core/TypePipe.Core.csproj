@@ -86,7 +86,8 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="Expressions\Expression.cs" />
-    <Compile Include="Expressions\MethodAddressExpression.cs" />
+    <Compile Include="Expressions\MethodAddressExpressionBase.cs" />
+    <Compile Include="Expressions\NonVirtualMethodAddressExpression.cs" />
     <Compile Include="Expressions\NewDelegateExpression.cs" />
     <Compile Include="Expressions\OriginalBodyExpression.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapter.cs" />

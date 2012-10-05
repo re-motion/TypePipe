@@ -25,16 +25,16 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class MethodAddressExpressionTest
+  public class NonVirtualMethodAddressExpressionTest
   {
     private MethodInfo _method;
-    private MethodAddressExpression _expression;
+    private NonVirtualMethodAddressExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
       _method = ReflectionObjectMother.GetSomeNonVirtualMethod();
-      _expression = new MethodAddressExpression (_method);
+      _expression = new NonVirtualMethodAddressExpression (_method);
     }
 
     [Test]

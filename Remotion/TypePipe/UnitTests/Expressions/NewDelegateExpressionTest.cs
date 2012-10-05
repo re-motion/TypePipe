@@ -120,9 +120,9 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (newExpression.Constructor, Is.EqualTo (_delegateType.GetConstructor (new[] { typeof (object), typeof (IntPtr) })));
       Assert.That (newExpression.Arguments, Has.Count.EqualTo (2));
       Assert.That (newExpression.Arguments[0], Is.EqualTo (_target));
-      Assert.That (newExpression.Arguments[1], Is.TypeOf<MethodAddressExpression>());
+      Assert.That (newExpression.Arguments[1], Is.TypeOf<NonVirtualMethodAddressExpression>());
 
-      var methodAddressExpression = (MethodAddressExpression) newExpression.Arguments[1];
+      var methodAddressExpression = (NonVirtualMethodAddressExpression) newExpression.Arguments[1];
       Assert.That (methodAddressExpression.Method, Is.SameAs (_nonVirtualInstanceMethod));
     }
 

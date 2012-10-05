@@ -15,19 +15,38 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Defines an interface for classes handling <see cref="ITypePipeExpression"/> instances.
+  ///   Represents the address of a statically bound method.
   /// </summary>
-  public interface ITypePipeExpressionVisitor
+  /// <remarks>
+  ///   This is the expression equivalent to <see cref="OpCodes.Ldftn"/>.
+  /// </remarks>
+  public class NonVirtualMethodAddressExpression : MethodAddressExpressionBase
   {
-    Expression VisitThis (ThisExpression expression);
-    Expression VisitOriginalBody (OriginalBodyExpression expression);
-    Expression VisitMethodAddress (NonVirtualMethodAddressExpression expression);
-    Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression);
-    Expression VisitNewDelegate (NewDelegateExpression expression);
+    public NonVirtualMethodAddressExpression (MethodInfo method)
+        : base(method)
+    {
+    }
+
+    public override Expression Accept (ITypePipeExpressionVisitor visitor)
+    {
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      return visitor.VisitMethodAddress (this);
+    }
+
+    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
+    {
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      // Do nothing here - visitors must use Accept (ITypePipeExpressionVisitor)
+      return this;
+    }
   }
 }

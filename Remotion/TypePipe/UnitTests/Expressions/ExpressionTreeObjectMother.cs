@@ -45,10 +45,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return new OriginalBodyExpression (method, method.ReturnType, Enumerable.Empty<Expression>());
     }
 
-    public static MethodAddressExpression GetSomeMethodAddressExpression ()
+    public static NonVirtualMethodAddressExpression GetSomeMethodAddressExpression ()
     {
       var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
-      return new MethodAddressExpression (method);
+      return new NonVirtualMethodAddressExpression (method);
     }
 
     public static VirtualMethodAddressExpression GetSomeVirtualMethodAddressExpression ()

@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (expression);
     }
 
-    public Expression VisitMethodAddress (MethodAddressExpression expression)
+    public Expression VisitMethodAddress (NonVirtualMethodAddressExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 

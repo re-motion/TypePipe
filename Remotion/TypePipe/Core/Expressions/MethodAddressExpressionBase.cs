@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,23 +16,18 @@
 // 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
-using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  ///   Represents the address of a method.
+  ///  Represents the address of a method.
   /// </summary>
-  /// <remarks>
-  ///   This is the expression equivalent to <see cref="OpCodes.Ldftn"/>.
-  /// </remarks>
-  public class MethodAddressExpression : TypePipeExpressionBase
+  public abstract class MethodAddressExpressionBase : TypePipeExpressionBase
   {
     private readonly MethodInfo _method;
 
-    public MethodAddressExpression (MethodInfo method)
+    protected MethodAddressExpressionBase (MethodInfo method)
         : base (typeof (IntPtr))
     {
       ArgumentUtility.CheckNotNull ("method", method);
@@ -43,20 +38,6 @@ namespace Remotion.TypePipe.Expressions
     public MethodInfo Method
     {
       get { return _method; }
-    }
-
-    public override Expression Accept (ITypePipeExpressionVisitor visitor)
-    {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-
-      return visitor.VisitMethodAddress (this);
-    }
-
-    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
-    {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-      // Do nothing here - visitors must use Accept (ITypePipeExpressionVisitor)
-      return this;
     }
   }
 }

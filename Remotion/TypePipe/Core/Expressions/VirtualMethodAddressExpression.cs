@@ -23,12 +23,12 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  ///   Represents the address of a virtual method.
+  ///   Represents the address of a dynamically bound method.
   /// </summary>
   /// <remarks>
   ///   This is the expression equivalent to <see cref="OpCodes.Ldvirtftn"/>.
   /// </remarks>
-  public class VirtualMethodAddressExpression : MethodAddressExpression
+  public class VirtualMethodAddressExpression : NonVirtualMethodAddressExpression
   {
     private readonly Expression _instance;
 
