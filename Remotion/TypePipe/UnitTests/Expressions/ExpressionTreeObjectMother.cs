@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public static NewDelegateExpression GetSomeNewDelegateExpression ()
     {
-      var delegateType = typeof (Action); // TODO 5080: must match
+      var delegateType = typeof (Action);
       var method = ReflectionObjectMother.GetSomeMethod();
       var target = GetSomeExpression (method.DeclaringType);
       return new NewDelegateExpression (delegateType, target, method);

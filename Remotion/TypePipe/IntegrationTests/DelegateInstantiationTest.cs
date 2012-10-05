@@ -133,8 +133,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (delegate_.DynamicInvoke (), Is.EqualTo (expectedReturnValue));
     }
 
-    // TODO 5080: think about creating a delegate (an maybe invoking) which takes parameters
-
     public class BaseType
     {
       public virtual string VirtualMethod () { return "base"; }
