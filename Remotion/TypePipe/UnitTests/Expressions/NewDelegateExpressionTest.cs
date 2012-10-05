@@ -18,8 +18,8 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [SetUp]
     public void SetUp ()
     {
-      _nonVirtualInstanceMethod = ReflectionObjectMother.GetSomeNonVirtualInstanceMethod();
-      _delegateType = typeof (Action);
+      _nonVirtualInstanceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (7, null));
+      _delegateType = typeof (Func<int, object, string>);
       _target = ExpressionTreeObjectMother.GetSomeExpression (_nonVirtualInstanceMethod.DeclaringType);
 
       _expression = new NewDelegateExpression (_delegateType, _target, _nonVirtualInstanceMethod);
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Initialization_StaticMethod ()
     {
-      var method = ReflectionObjectMother.GetSomeStaticMethod();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => StaticMethod());
 
       var expression = new NewDelegateExpression (typeof (Action), null, method);
 
@@ -118,7 +118,16 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           Throws.ArgumentException.With.Message.EqualTo ("Method is not declared on type hierarchy of target.\r\nParameter name: method"));
     }
 
-    // TODO 5080: check that delegatetype matches method
+    [Test]
+    [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Method signature must match delegate type.\r\nParameter name: method")]
+    public void Initialization_MethodSignatureMustMatchDelegateType ()
+    {
+      var delegateType = typeof (Action<string>);
+      var target = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ());
+
+      new NewDelegateExpression (delegateType, target, method);
+    }
 
     [Test]
     public void Accept ()
@@ -152,6 +161,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (virtualMethodAddressExpression.Target, Is.SameAs (newTargetExpression));
       Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (_expression.Method));
     }
+
+    string Method (int i, object o)
+    {
+      Dev.Null = i;
+      Dev.Null = o;
+      return "";
+    }
+    static void StaticMethod () { }
 
     interface IDomainInterface { void Method (); }
     class BaseType { public virtual void Method () { } }

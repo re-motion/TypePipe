@@ -17,6 +17,7 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
@@ -28,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void NewDelegate ()
     {
       var delegateType = typeof (Action);
-      var method = ReflectionObjectMother.GetSomeNonVirtualMethod ();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method());
       var target = ExpressionTreeObjectMother.GetSomeExpression (method.DeclaringType);
 
       var result = Expression.NewDelegate (delegateType, target, method);
@@ -42,11 +43,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void NewDelegate_StaticMethod ()
     {
       var delegateType = typeof (Action);
-      var staticMethod = ReflectionObjectMother.GetSomeStaticMethod();
+      var staticMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => StaticMethod());
 
       var result = Expression.NewDelegate (delegateType, null, staticMethod);
 
       Assert.That (result.Target, Is.Null);
     }
+
+    void Method () { }
+    static void StaticMethod () { }
   }
 }

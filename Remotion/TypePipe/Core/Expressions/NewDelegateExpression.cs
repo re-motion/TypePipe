@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
@@ -47,6 +48,9 @@ namespace Remotion.TypePipe.Expressions
 
       if (target != null && !method.DeclaringType.IsAssignableFrom (target.Type))
         throw new ArgumentException ("Method is not declared on type hierarchy of target.", "method");
+
+      if (!MethodSignature.AreEqual (delegateType.GetMethod ("Invoke"), method))
+        throw new ArgumentException ("Method signature must match delegate type.", "method");
 
       _target = target;
       _method = method;

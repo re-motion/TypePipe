@@ -27,8 +27,7 @@ using System.Diagnostics;
 using System.Reflection;
 
 namespace System.Dynamic.Utils {
-
-    internal static class TypeUtils {
+  public static class TypeUtils {
         private const BindingFlags AnyStatic = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
         internal const MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
 
@@ -147,7 +146,7 @@ namespace System.Dynamic.Utils {
             return false;
         }
 
-        internal static bool AreEquivalent(Type t1, Type t2)
+    public static bool AreEquivalent(Type t1, Type t2)
         {
 #if CLR2 || SILVERLIGHT
             return t1 == t2;
@@ -156,7 +155,7 @@ namespace System.Dynamic.Utils {
 #endif
         }
 
-        internal static bool AreReferenceAssignable(Type dest, Type src) {
+    public static bool AreReferenceAssignable(Type dest, Type src) {
             // WARNING: This actually implements "Is this identity assignable and/or reference assignable?"
             if (AreEquivalent(dest, src)) {
                 return true;

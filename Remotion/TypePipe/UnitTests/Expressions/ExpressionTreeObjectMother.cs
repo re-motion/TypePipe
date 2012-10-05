@@ -17,6 +17,8 @@
 using System;
 using System.Linq;
 using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
@@ -47,10 +49,20 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public static NewDelegateExpression GetSomeNewDelegateExpression ()
     {
-      var delegateType = typeof (Action);
-      var method = ReflectionObjectMother.GetSomeMethod();
+      var delegateType = typeof (Func<int, object, string>);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DomainMethod (7, null));
       var target = GetSomeExpression (method.DeclaringType);
       return new NewDelegateExpression (delegateType, target, method);
+    }
+
+    class DomainType
+    {
+      public string DomainMethod (int i, object o)
+      {
+        Dev.Null = i;
+        Dev.Null = o;
+        return "";
+      }
     }
   }
 }

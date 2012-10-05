@@ -505,9 +505,9 @@ namespace System.Linq.Expressions {
             return CreateLambda(delegateType, body, name, tailCall, paramList);
         }
 
-        private static void ValidateLambdaArgs(Type delegateType, ref Expression body, ReadOnlyCollection<ParameterExpression> parameters) {
+        public static void ValidateLambdaArgs(Type delegateType, ref Expression body, ReadOnlyCollection<ParameterExpression> parameters) {
             ContractUtils.RequiresNotNull(delegateType, "delegateType");
-            RequiresCanRead(body, "body");
+            //RequiresCanRead(body, "body");
 
             if (!typeof(MulticastDelegate).IsAssignableFrom(delegateType) || delegateType == typeof(MulticastDelegate)) {
                 throw Error.LambdaTypeMustBeDerivedFromSystemDelegate();
@@ -553,11 +553,11 @@ namespace System.Linq.Expressions {
             } else if (parameters.Count > 0) {
                 throw Error.IncorrectNumberOfLambdaDeclarationParameters();
             }
-            if (mi.ReturnType != typeof(void) && !TypeUtils.AreReferenceAssignable(mi.ReturnType, body.Type)) {
-                if (!TryQuote(mi.ReturnType, ref body)) {
-                    throw Error.ExpressionTypeDoesNotMatchReturn(body.Type, mi.ReturnType);
-                }
-            }
+            //if (mi.ReturnType != typeof(void) && !TypeUtils.AreReferenceAssignable(mi.ReturnType, body.Type)) {
+            //    if (!TryQuote(mi.ReturnType, ref body)) {
+            //        throw Error.ExpressionTypeDoesNotMatchReturn(body.Type, mi.ReturnType);
+            //    }
+            //}
         }
 
         private static bool ValidateTryGetFuncActionArgs(Type[] typeArgs) {
