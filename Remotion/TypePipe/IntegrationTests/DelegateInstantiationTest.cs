@@ -26,6 +26,7 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class DelegateInstantiationTest : TypeAssemblerIntegrationTestBase
   {
+    [Ignore ("TODO 5080")]
     [Test]
     public void CreateFunc_FromStaticMethod ()
     {

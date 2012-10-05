@@ -18,9 +18,15 @@ using System;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using Rhino.Mocks.Constraints;
+using Is = NUnit.Framework.Is;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
@@ -90,10 +96,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "NewDelegateExpression must be replaced before code generation.")]
     public void VisitNewDelegate ()
     {
-      _visitor.VisitNewDelegate (ExpressionTreeObjectMother.GetSomeNewDelegateExpression());
+      var delegateType = typeof (Action);
+      var delegateCtor = delegateType.GetConstructors().Single();
+      var targetExpression = ExpressionTreeObjectMother.GetSomeExpression (GetType());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method());
+      var expression = new NewDelegateExpression (delegateType, targetExpression, method);
+
+      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Target));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Newobj, delegateCtor));
+
+      var result = _visitor.VisitNewDelegate (expression);
+
+      _childExpressionEmitterMock.VerifyAllExpectations();
+      _ilGeneratorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (expression));
     }
+
+    private void Method () { }
   }
 }

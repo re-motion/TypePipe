@@ -104,64 +104,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     // TODO 5080: check that delegatetype matches method
 
     [Test]
-    public void CanReduce ()
-    {
-      Assert.That (_expression.CanReduce, Is.True);
-    }
-
-    [Test]
-    public void Reduce ()
-    {
-      var result = _expression.Reduce();
-
-      Assert.That (result, Is.TypeOf<NewExpression>());
-
-      var newExpression = (NewExpression) result;
-      Assert.That (newExpression.Constructor, Is.EqualTo (_delegateType.GetConstructor (new[] { typeof (object), typeof (IntPtr) })));
-      Assert.That (newExpression.Arguments, Has.Count.EqualTo (2));
-      Assert.That (newExpression.Arguments[0], Is.EqualTo (_target));
-      Assert.That (newExpression.Arguments[1], Is.TypeOf<NonVirtualMethodAddressExpression>());
-
-      var methodAddressExpression = (NonVirtualMethodAddressExpression) newExpression.Arguments[1];
-      Assert.That (methodAddressExpression.Method, Is.SameAs (_nonVirtualInstanceMethod));
-    }
-
-    [Test]
-    public void Reduce_StaticMethod ()
-    {
-      var delegateType = typeof (Action);
-      var staticMethod = ReflectionObjectMother.GetSomeStaticMethod();
-      var expression = new NewDelegateExpression (delegateType, null, staticMethod);
-
-      var result = expression.Reduce();
-
-      var newExpression = (NewExpression) result;
-      Assert.That (newExpression.Arguments[0], Is.TypeOf<ConstantExpression>());
-
-      var constantExpression = (ConstantExpression) newExpression.Arguments[0];
-      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
-      Assert.That (constantExpression.Value, Is.Null);
-    }
-
-    [Test]
-    public void Reduce_VirtualMethod ()
-    {
-      var delegateType = typeof (Action);
-      var virtualMethod = ReflectionObjectMother.GetSomeVirtualMethod();
-      var target = ExpressionTreeObjectMother.GetSomeExpression (virtualMethod.DeclaringType);
-      var expression = new NewDelegateExpression (delegateType, target, virtualMethod);
-
-      var result = expression.Reduce ();
-
-      var newExpression = (NewExpression) result;
-      Assert.That (newExpression.Arguments[1], Is.TypeOf<VirtualMethodAddressExpression>());
-
-      var virtualMethodAddressExpression = (VirtualMethodAddressExpression) newExpression.Arguments[1];
-      Assert.That (virtualMethodAddressExpression.Instance, Is.SameAs (target));
-      Assert.That (virtualMethodAddressExpression.Method, Is.SameAs (virtualMethod));
-    }
-
-    [Test]
     public void Accept ()
     {
       ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitNewDelegate (_expression));

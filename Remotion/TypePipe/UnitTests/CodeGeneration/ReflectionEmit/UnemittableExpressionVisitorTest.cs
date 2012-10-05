@@ -161,25 +161,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckVisitOriginalBody (expression, arguments, checkMethodInCallExpressionAction);
     }
 
-    [Test]
-    public void VisitNewDelegate_CallReduceAndCheck ()
-    {
-      var delegateType = typeof (Func<int, string, double>);
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainClass.StaticMethod (7, ""));
-      var expressionPartialMock = MockRepository.GeneratePartialMock<NewDelegateExpression> (delegateType, null, method);
-
-      var expressionFake = ExpressionTreeObjectMother.GetSomeExpression (expressionPartialMock.Type);
-      // ReduceAndCheck() is not virtual and cannot be mocked.
-      expressionPartialMock.Expect (mock => mock.Reduce()).Return (expressionFake);
-
-      var result = TypePipeExpressionVisitorTestHelper.CallVisitNewDelegate (_visitorPartialMock, expressionPartialMock);
-
-      expressionPartialMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (expressionFake));
-    }
-
-
-
     private void CheckVisitOriginalBodyForInstanceMethod (
         OriginalBodyExpression expression, Expression[] expectedMethodCallArguments, Action<MethodInfo> checkMethodInCallExpressionAction)
     {

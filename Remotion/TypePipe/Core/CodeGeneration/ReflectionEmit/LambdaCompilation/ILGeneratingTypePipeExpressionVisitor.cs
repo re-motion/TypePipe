@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
@@ -73,7 +74,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (expression);
+      var constructorInfo = expression.Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
+
+      _childExpressionEmitter (expression.Target);
+      _ilGenerator.Emit (OpCodes.Ldftn, expression.Method);
+      _ilGenerator.Emit (OpCodes.Newobj, constructorInfo);
+
+      return expression;
     }
 
     private NotSupportedException NewNotSupportedMustBeReplacedBeforeCodeGenerationException (ITypePipeExpression expression)
