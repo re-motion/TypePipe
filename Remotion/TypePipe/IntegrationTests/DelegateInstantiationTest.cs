@@ -39,7 +39,7 @@ namespace TypePipe.IntegrationTests
     {
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.Method());
 
-      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, "method");
+      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedReturnValue: "method");
     }
 
     [Test]
@@ -52,14 +52,56 @@ namespace TypePipe.IntegrationTests
 
     [Ignore ("TODO 5080")]
     [Test]
-    public void CreateVirtualFunc ()
+    public void CreateVirtualFunc_FromTargetMethod ()
     {
-      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.VirtualMethod());
+      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.VirtualMethod ());
+      var expectedDelegateTargetMethod = targetMethod;
 
-      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, "derived");
+      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedDelegateTargetMethod, expectedReturnValue: "derived");
     }
 
-    private void CheckDelegateInstantiation (Type delegateType, MethodInfo targetMethod, string expectedReturnValue = null, string expectedFieldValue = null)
+    [Ignore ("TODO 5080")]
+    [Test]
+    public void CreateVirtualFunc_FromBaseDefinition ()
+    {
+      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((BaseType obj) => obj.VirtualMethod());
+      var expectedDelegateTargetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedType obj) => obj.VirtualMethod());
+
+      CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedDelegateTargetMethod, expectedReturnValue: "derived");
+    }
+
+    [Ignore("TODO 5080")]
+    [Test]
+    public void CreateVirtualFunc_PreventsMultipleExecutionOfSideEffects ()
+    {
+      var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((BaseType obj) => obj.VirtualMethod());
+
+      var type = AssembleType<DerivedType> (
+          mutableType =>
+          {
+            var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
+            var targetProviderMethod = mutableType.AllMutableMethods.Single (m => m.Name == "SideEffectMethod");
+            createDelegateMethod.SetBody (
+                ctx =>
+                {
+                  var targetExpression = Expression.Call (ctx.This, targetProviderMethod);
+                  return Expression.NewDelegate (typeof (Func<string>), targetExpression, targetMethod);
+                });
+          });
+
+      var instance = (DerivedType) Activator.CreateInstance (type);
+
+      Assert.That (instance.SideEffectCounter, Is.EqualTo (0));
+      instance.CreateDelegate ();
+      Assert.That (instance.SideEffectCounter, Is.EqualTo (1));
+    }
+
+    private void CheckDelegateInstantiation (
+        Type delegateType,
+        MethodInfo targetMethod,
+        MethodInfo expectedDelegateTargetMethod = null,
+        string expectedReturnValue = null,
+        string expectedFieldValue = null)
     {
       var type = AssembleType<DerivedType> (
           mutableType =>
@@ -71,7 +113,7 @@ namespace TypePipe.IntegrationTests
       var instance = (DerivedType) Activator.CreateInstance (type);
       var delegate_ = instance.CreateDelegate();
 
-      Assert.That (delegate_.Method, Is.EqualTo (targetMethod));
+      Assert.That (delegate_.Method, Is.EqualTo (expectedDelegateTargetMethod ?? targetMethod));
       Assert.That (delegate_.Target, Is.EqualTo (instance));
       Assert.That (delegate_.DynamicInvoke(), Is.EqualTo (expectedReturnValue));
       Assert.That (instance.Field, Is.EqualTo (expectedFieldValue));
@@ -104,11 +146,18 @@ namespace TypePipe.IntegrationTests
     public class DerivedType : BaseType
     {
       public string Field;
+      public int SideEffectCounter;
 
       public static string StaticMethod () { return "static method"; }
       public string Method () { return "method"; }
       public void VoidMethod () { Field = "void method"; }
       public override string VirtualMethod () { return "derived"; }
+
+      public BaseType SideEffectMethod ()
+      {
+        SideEffectCounter++;
+        return this;
+      }
 
       public virtual Delegate CreateDelegate () { throw new NotImplementedException(); }
     }
