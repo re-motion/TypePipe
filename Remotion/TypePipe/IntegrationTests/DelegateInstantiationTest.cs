@@ -23,10 +23,11 @@ using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5080")]
+  
   [TestFixture]
   public class DelegateInstantiationTest : TypeAssemblerIntegrationTestBase
   {
+    [Ignore ("TODO 5080")]
     [Test]
     public void CreateFunc_FromStaticMethod ()
     {
@@ -51,6 +52,7 @@ namespace TypePipe.IntegrationTests
       CheckDelegateInstantiation (typeof (Action), targetMethod, expectedFieldValue: "void method");
     }
 
+    [Ignore ("TODO 5080")]
     [Test]
     public void CreateVirtualFunc ()
     {
@@ -83,12 +85,12 @@ namespace TypePipe.IntegrationTests
 
     // TODO 5080: think about creating a delegate (an maybe invoking) which takes parameters
 
-    class BaseType
+    public class BaseType
     {
       public virtual string VirtualMethod () { return "base"; }
     }
 
-    class DerivedType : BaseType
+    public class DerivedType : BaseType
     {
       public string Field;
 
