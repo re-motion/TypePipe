@@ -26,7 +26,6 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class DelegateInstantiationTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TODO 5080")]
     [Test]
     public void CreateFunc_FromStaticMethod ()
     {
@@ -51,7 +50,6 @@ namespace TypePipe.IntegrationTests
       CheckDelegateInstantiation (typeof (Action), targetMethod, expectedFieldValue: "void method");
     }
 
-    [Ignore ("TODO 5080")]
     [Test]
     public void CreateVirtualFunc_FromTargetMethod ()
     {
@@ -61,7 +59,6 @@ namespace TypePipe.IntegrationTests
       CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedDelegateTargetMethod, expectedReturnValue: "derived");
     }
 
-    [Ignore ("TODO 5080")]
     [Test]
     public void CreateVirtualFunc_FromBaseDefinition ()
     {
@@ -71,7 +68,6 @@ namespace TypePipe.IntegrationTests
       CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedDelegateTargetMethod, expectedReturnValue: "derived");
     }
 
-    [Ignore("TODO 5080")]
     [Test]
     public void CreateVirtualFunc_PreventsMultipleExecutionOfSideEffects ()
     {
