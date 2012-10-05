@@ -74,12 +74,22 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Instance method requires target.\r\nParameter name: method")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Instance method requires target.\r\nParameter name: target")]
     public void Initialization_InstanceMethodRequiresTarget ()
     {
       var method = ReflectionObjectMother.GetSomeInstanceMethod();
 
       new NewDelegateExpression (typeof (Action), null, method);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Static method must not have target.\r\nParameter name: target")]
+    public void Initialization_StaticMethodRequiresNullTarget ()
+    {
+      var method = ReflectionObjectMother.GetSomeStaticMethod();
+      var target = ExpressionTreeObjectMother.GetSomeExpression (method.DeclaringType);
+
+      new NewDelegateExpression (typeof (Action), target, method);
     }
 
     [Test]

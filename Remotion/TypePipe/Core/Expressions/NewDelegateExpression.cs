@@ -40,7 +40,10 @@ namespace Remotion.TypePipe.Expressions
         throw new ArgumentException ("Delegate type must be subclass of 'System.Delegate'.", "delegateType");
 
       if (!method.IsStatic && target == null)
-        throw new ArgumentException ("Instance method requires target.", "method");
+        throw new ArgumentException ("Instance method requires target.", "target");
+      
+      if (method.IsStatic && target != null)
+        throw new ArgumentException ("Static method must not have target.", "target");
 
       if (target != null && !method.DeclaringType.IsAssignableFrom (target.Type))
         throw new ArgumentException ("Method is not declared on type hierarchy of target.", "method");
