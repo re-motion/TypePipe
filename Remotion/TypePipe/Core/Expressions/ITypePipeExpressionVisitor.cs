@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.Expressions
   {
     Expression VisitThis (ThisExpression expression);
     Expression VisitOriginalBody (OriginalBodyExpression expression);
-    Expression VisitMethodAddress (NonVirtualMethodAddressExpression expression);
+    Expression VisitNonVirtualMethodAddress (NonVirtualMethodAddressExpression expression);
     Expression VisitVirtualMethodAddress (VirtualMethodAddressExpression expression);
     Expression VisitNewDelegate (NewDelegateExpression expression);
   }

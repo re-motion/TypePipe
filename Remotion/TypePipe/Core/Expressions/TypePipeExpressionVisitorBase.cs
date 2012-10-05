@@ -49,14 +49,14 @@ namespace Remotion.TypePipe.Expressions
       return VisitExtension (expression);
     }
 
-    Expression ITypePipeExpressionVisitor.VisitMethodAddress (NonVirtualMethodAddressExpression expression)
+    Expression ITypePipeExpressionVisitor.VisitNonVirtualMethodAddress (NonVirtualMethodAddressExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
-      return VisitMethodAddress (expression);
+      return VisitNonVirtualMethodAddress (expression);
     }
 
-    protected virtual Expression VisitMethodAddress (NonVirtualMethodAddressExpression expression)
+    protected virtual Expression VisitNonVirtualMethodAddress (NonVirtualMethodAddressExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 

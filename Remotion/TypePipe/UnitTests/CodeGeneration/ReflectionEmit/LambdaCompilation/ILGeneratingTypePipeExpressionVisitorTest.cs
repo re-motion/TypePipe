@@ -15,14 +15,11 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -67,12 +64,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void VisitMethodAddress ()
+    public void VisitNonVirtualMethodAddress ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeMethodAddressExpression();
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
 
-      var result = _visitor.VisitMethodAddress (expression);
+      var result = _visitor.VisitNonVirtualMethodAddress (expression);
       
       _ilGeneratorMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (expression));

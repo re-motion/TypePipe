@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.Expressions
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 
-      return visitor.VisitMethodAddress (this);
+      return visitor.VisitNonVirtualMethodAddress (this);
     }
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)

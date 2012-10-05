@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void Accept ()
     {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitMethodAddress (_expression));
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitNonVirtualMethodAddress (_expression));
     }
 
     [Test]
