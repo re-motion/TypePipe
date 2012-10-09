@@ -31,11 +31,18 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void WithoutAbstractMethods_BecomesConcrete ()
     {
-      var type = AssembleType<AbstractTypeWithoutMethods> (mutableType => Assert.That (mutableType.IsAbstract, Is.False));
+      var type = AssembleType<AbstractTypeWithoutMethods> (
+          mutableType =>
+          {
+            Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsAbstract, Is.False);
+          });
 
       Assert.That (type.IsAbstract, Is.False);
+      Assert.That (type.UnderlyingSystemType.IsAbstract, Is.True);
+      Assert.That (() => Activator.CreateInstance (type), Throws.Nothing);
     }
-
+    
     [Test]
     public void ImplementPartially_RemainsAbstract ()
     {
@@ -68,8 +75,6 @@ namespace TypePipe.IntegrationTests
           });
 
       Assert.That (type.IsAbstract, Is.False);
-      Assert.That (type.UnderlyingSystemType.IsAbstract, Is.True);
-      Assert.That (() => Activator.CreateInstance (type), Throws.Nothing);
     }
 
     [Test]
