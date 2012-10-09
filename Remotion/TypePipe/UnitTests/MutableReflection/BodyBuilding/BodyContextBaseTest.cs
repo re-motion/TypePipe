@@ -28,7 +28,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
@@ -118,7 +117,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Instance method 'Foo' could not be found on base type "
-        + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+DomainTypeBase'.\r\nParameter name: methodName")]    
+        + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+DomainTypeBase'.\r\nParameter name: baseMethod")]    
     public void GetBaseCall_Name_Params_NoMatchingMethod ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -140,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: methodName")]
+        ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: baseMethod")]
     public void GetBaseCall_Name_Params_DisallowedVisibility ()
     {
       var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
@@ -177,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.\r\nParameter name: baseMethod")]
     public void GetBaseCall_MethodInfo_Params_StaticMethodInfo ()
     {
       var method = ReflectionObjectMother.GetSomeStaticMethod();
@@ -204,6 +203,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
       _instanceContext.GetBaseCall (internalMethod);
+    }
+    
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call on abstract method.\r\nParameter name: baseMethod")]
+    public void GetBaseCall_MethodInfo_Abstract_Throws ()
+    {
+      var abstractMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.Method());
+      _instanceContext.GetBaseCall (abstractMethod);
     }
 
     [Test]
@@ -290,6 +297,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       protected void ProtectedMethod () { }
       protected internal void ProtectedInternalMethod () { }
       internal void InternalMethod () { }
+    }
+
+    private abstract class AbstractType
+    {
+      public abstract void Method ();
     }
 
     private class UnrelatedType

@@ -75,17 +75,17 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get { return _isStatic; }
     }
 
-    public MethodCallExpression GetBaseCall (string methodName, params Expression[] arguments)
+    public MethodCallExpression GetBaseCall (string baseMethod, params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseCall (methodName, (IEnumerable<Expression>) arguments);
+      return GetBaseCall (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public MethodCallExpression GetBaseCall (string methodName, IEnumerable<Expression> arguments)
+    public MethodCallExpression GetBaseCall (string baseMethod, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic ();
 
@@ -99,18 +99,16 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var baseTypeMethods = baseType.GetMethods (bindingFlags);
       var argumentTypes = arguments.Select (a => a.Type).ToArray ();
-      var baseMethod = _memberSelector.SelectSingleMethod (
-          baseTypeMethods, Type.DefaultBinder, bindingFlags, methodName, _declaringType, argumentTypes, null);
+      var baseMethodInfo = _memberSelector.SelectSingleMethod (
+          baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, null);
 
-      if (baseMethod == null)
+      if (baseMethodInfo == null)
       {
-        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", methodName, baseType);
-        throw new ArgumentException (message, "methodName");
+        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", baseMethod, baseType);
+        throw new ArgumentException (message, "baseMethod");
       }
 
-      CheckVisibility (baseMethod, "methodName");
-
-      return GetBaseCall (baseMethod, arguments);
+      return GetBaseCall (baseMethodInfo, arguments);
     }
 
     public MethodCallExpression GetBaseCall (MethodInfo baseMethod, params Expression[] arguments)
@@ -127,7 +125,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic ();
       CheckNotStatic (baseMethod);
-      CheckVisibility (baseMethod, "baseMethod");
+      CheckVisibility (baseMethod);
+      CheckNotAbstract (baseMethod);
 
       return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
     }
@@ -164,16 +163,22 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new InvalidOperationException ("Cannot perform base call from static method.");
     }
 
-    private void CheckNotStatic (MethodInfo method)
+    private void CheckNotStatic (MethodInfo baseMethod)
     {
-      if (method.IsStatic)
-        throw new ArgumentException ("Cannot perform base call for static method.");
+      if (baseMethod.IsStatic)
+        throw new ArgumentException ("Cannot perform base call for static method.", "baseMethod");
     }
 
-    private void CheckVisibility (MethodInfo baseMethod, string parameterName)
+    private void CheckVisibility (MethodInfo baseMethod)
     {
       if (!baseMethod.IsPublic && !baseMethod.IsFamilyOrAssembly && !baseMethod.IsFamily)
-        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", parameterName);
+        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", "baseMethod");
+    }
+
+    private void CheckNotAbstract (MethodInfo baseMethod)
+    {
+      if (baseMethod.IsAbstract)
+        throw new ArgumentException ("Cannot perform base call on abstract method.", "baseMethod");
     }
   }
 }
