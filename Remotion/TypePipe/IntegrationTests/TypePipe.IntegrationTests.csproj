@@ -50,6 +50,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="AbstractTypeTest.cs" />
     <Compile Include="AddFieldTest.cs" />
     <Compile Include="AddInterfaceTest.cs" />
     <Compile Include="AddMethodTest.cs" />
