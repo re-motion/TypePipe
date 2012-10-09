@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
@@ -36,9 +37,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private Expression _previousBody;
     private MethodInfo _baseMethod;
     private bool _isStatic;
+    private IMemberSelector _memberSelector;
 
     private MethodBodyModificationContext _context;
-    private IMemberSelector _memberSelector;
+    private MethodBodyModificationContext _contextWithoutPreviousBody;
 
     [SetUp]
     public void SetUp ()
@@ -51,6 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
       _context = new MethodBodyModificationContext (_declaringType, _parameters.AsOneTime(), _previousBody, _isStatic, _baseMethod, _memberSelector);
+      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _parameters, null, _isStatic, _baseMethod, _memberSelector);
     }
 
     [Test]
@@ -58,15 +61,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_context.Parameters, Is.EqualTo (_parameters));
+      Assert.That (_context.HasPreviousBody, Is.True);
       Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
       Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
       Assert.That (_context.BaseMethod, Is.SameAs(_baseMethod));
     }
 
     [Test]
-    public void PreviousBody ()
+    public void HasPreviousBody_False ()
     {
-      Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
+      Assert.That (_contextWithoutPreviousBody.HasPreviousBody, Is.False);
+    }
+      
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
+    public void PreviousBody_ThrowsForNoPreviousBody ()
+    {
+      Dev.Null = _contextWithoutPreviousBody.PreviousBody;
     }
 
     [Test]
@@ -88,6 +99,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
+    public void GetPreviousBodyWithArguments_Params_ThrowsForNoPreviousBody ()
+    {
+      _contextWithoutPreviousBody.GetPreviousBodyWithArguments();
     }
   }
 }
