@@ -242,9 +242,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ParameterExpressions ()
     {
       var parameterDeclarations = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
-      var methodInfo = CreateWithParameters (parameterDeclarations);
+      var method = CreateWithParameters (parameterDeclarations);
 
-      Assert.That (methodInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+      Assert.That (method.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
+    public void Body_ThrowsForAbstractMethod ()
+    {
+      var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
+      var method = MutableMethodInfoObjectMother.CreateForExisting (_declaringType, abstractMethod);
+
+      Dev.Null = method.Body;
     }
 
     [Test]

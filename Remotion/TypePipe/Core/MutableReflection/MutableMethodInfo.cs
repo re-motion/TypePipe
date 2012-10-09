@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -138,7 +139,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     public Expression Body
     {
-      get { return _body; }
+      get
+      {
+        if (IsAbstract)
+          throw new InvalidOperationException ("An abstract method has no body.");
+
+        return _body;
+      }
     }
 
     public bool CanAddExplicitBaseDefinition
