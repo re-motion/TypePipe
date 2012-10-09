@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -336,6 +337,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Constructor info is stored
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { ctorInfo }));
+    }
+
+    [Test]
+    public void AddConstructor_ThrowsForInvalidMethodAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for constructors: " +
+                             "Abstract, HideBySig, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.HideBySig), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -977,6 +991,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)
     {
       return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations.AsOneTime(), context => Expression.Empty());
+    }
+
+    private MutableConstructorInfo AddConstructor (MutableType mutableType, MethodAttributes attributes)
+    {
+      return mutableType.AddConstructor (attributes, ParameterDeclaration.EmptyParameters, context => { throw new NotImplementedException(); });
     }
 
     private MutableMethodInfo AddMethod (MutableType mutableType, string name, params ParameterDeclaration[] parameterDeclarations)

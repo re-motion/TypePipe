@@ -40,6 +40,17 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableMember
   {
+    private static readonly MethodAttributes[] s_invalidMethodAttributes =
+        new[]
+        {
+            MethodAttributes.Abstract,
+            MethodAttributes.HideBySig,
+            MethodAttributes.PinvokeImpl,
+            MethodAttributes.RequireSecObject,
+            MethodAttributes.UnmanagedExport,
+            MethodAttributes.Virtual
+        };
+
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
@@ -213,6 +224,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      CheckForInvalidAttributes(attributes);
 
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
@@ -395,7 +408,18 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods;
     }
 
-    private static void CheckNotFinalForOverride (MethodInfo overridenMethod)
+    private void CheckForInvalidAttributes (MethodAttributes attributes)
+    {
+      var hasInvalidAttributes = s_invalidMethodAttributes.Any (x => attributes.IsSet (x));
+      if (hasInvalidAttributes)
+      {
+        var invalidAttributeList = string.Join (", ", s_invalidMethodAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
+        var message = string.Format ("The following MethodAttributes are not supported for constructors: {0}.", invalidAttributeList);
+        throw new ArgumentException (message, "attributes");
+      }
+    }
+
+    private void CheckNotFinalForOverride (MethodInfo overridenMethod)
     {
       if (overridenMethod.IsFinal)
       {
