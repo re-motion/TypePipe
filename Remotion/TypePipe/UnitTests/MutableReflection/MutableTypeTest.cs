@@ -451,8 +451,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddMethod_ThrowsForInvalidMethodAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for methods: " +
+                             "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
-    public void AddMethod_NonVirtualAndNewSlot ()
+    public void AddMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
       _mutableType.AddMethod ("NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
     }
@@ -995,7 +1005,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableConstructorInfo AddConstructor (MutableType mutableType, MethodAttributes attributes)
     {
-      return mutableType.AddConstructor (attributes, ParameterDeclaration.EmptyParameters, context => { throw new NotImplementedException(); });
+      return mutableType.AddConstructor (attributes, ParameterDeclaration.EmptyParameters, context => Expression.Empty());
     }
 
     private MutableMethodInfo AddMethod (MutableType mutableType, string name, params ParameterDeclaration[] parameterDeclarations)
@@ -1004,6 +1014,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
+    }
+
+    private MutableMethodInfo AddMethod (MutableType mutableType, MethodAttributes attributes)
+    {
+      return mutableType.AddMethod ("dummy", attributes, typeof (void), ParameterDeclaration.EmptyParameters, context => Expression.Empty());
     }
 
     private MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> GetAllFields (MutableType mutableType)

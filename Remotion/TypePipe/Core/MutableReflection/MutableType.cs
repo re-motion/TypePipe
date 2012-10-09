@@ -40,17 +40,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableMember
   {
-    private static readonly MethodAttributes[] s_invalidMethodAttributes =
-        new[]
-        {
-            MethodAttributes.Abstract,
-            MethodAttributes.HideBySig,
-            MethodAttributes.PinvokeImpl,
-            MethodAttributes.RequireSecObject,
-            MethodAttributes.UnmanagedExport,
-            MethodAttributes.Virtual
-        };
-
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
@@ -225,7 +214,13 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      CheckForInvalidAttributes(attributes);
+      var invalidAttributes =
+          new[]
+          {
+              MethodAttributes.Abstract, MethodAttributes.HideBySig, MethodAttributes.PinvokeImpl,
+              MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
+          };
+      CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
@@ -266,6 +261,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
+      CheckForInvalidAttributes ("method", invalidAttributes, attributes);
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
@@ -408,13 +406,13 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods;
     }
 
-    private void CheckForInvalidAttributes (MethodAttributes attributes)
+    private void CheckForInvalidAttributes (string memberKind, MethodAttributes[] invalidAttributes, MethodAttributes attributes)
     {
-      var hasInvalidAttributes = s_invalidMethodAttributes.Any (x => attributes.IsSet (x));
+      var hasInvalidAttributes = invalidAttributes.Any (x => attributes.IsSet (x));
       if (hasInvalidAttributes)
       {
-        var invalidAttributeList = string.Join (", ", s_invalidMethodAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
-        var message = string.Format ("The following MethodAttributes are not supported for constructors: {0}.", invalidAttributeList);
+        var invalidAttributeList = string.Join (", ", invalidAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
+        var message = string.Format ("The following MethodAttributes are not supported for {0}s: {1}.",  memberKind, invalidAttributeList);
         throw new ArgumentException (message, "attributes");
       }
     }
