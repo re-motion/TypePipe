@@ -85,6 +85,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\NewDelegateExpression.cs" />
     <Compile Include="Expressions\OriginalBodyExpression.cs" />
