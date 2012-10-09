@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 5098")]
+  [Ignore("TODO 5099")]
   [TestFixture]
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
