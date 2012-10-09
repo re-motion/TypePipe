@@ -56,7 +56,6 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ExpandingExpressionPreparerTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />

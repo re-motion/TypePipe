@@ -94,8 +94,6 @@
     <Compile Include="Expressions\ITypePipeExpression.cs" />
     <Compile Include="Expressions\ITypePipeExpressionVisitor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\MethodBuilderForLambdaCompiler.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\GuidBasedSubclassProxyNameProvider.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyNameProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IModuleBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ITypeBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderAdapter.cs" />

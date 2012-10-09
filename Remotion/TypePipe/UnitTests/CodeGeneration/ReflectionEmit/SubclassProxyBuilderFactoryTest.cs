@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilderFactoryTest
   {
     private IModuleBuilder _moduleBuilderMock;
-    private ISubclassProxyNameProvider _subclassProxyNameProviderMock;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IExpressionPreparer _expressionPreparer;
 
@@ -39,18 +38,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _moduleBuilderMock = MockRepository.GenerateMock<IModuleBuilder> ();
-      _subclassProxyNameProviderMock = MockRepository.GenerateMock<ISubclassProxyNameProvider> ();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
       _expressionPreparer = MockRepository.GenerateStub<IExpressionPreparer>();
 
-      _builderFactory = new SubclassProxyBuilderFactory (
-          _moduleBuilderMock, _subclassProxyNameProviderMock, _expressionPreparer, _debugInfoGeneratorStub);
+      _builderFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, _expressionPreparer, _debugInfoGeneratorStub);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handlerFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, _subclassProxyNameProviderMock, _expressionPreparer, null);
+      var handlerFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, _expressionPreparer, null);
       Assert.That (handlerFactory.DebugInfoGenerator, Is.Null);
     }
 
@@ -58,13 +55,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder ()
     {
       var originalType = ReflectionObjectMother.GetSomeSubclassableType();
-      var mutableType = MutableTypeObjectMother.CreateForExistingType(originalType: originalType);
-
-      _subclassProxyNameProviderMock.Expect (mock => mock.GetSubclassProxyName (mutableType)).Return ("foofoo");
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (originalType);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _moduleBuilderMock.Expect (mock => mock.DefineType ("foofoo", attributes, originalType)).Return (typeBuilderMock);
+      _moduleBuilderMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderMock);
       
       EmittableOperandProvider emittableOperandProvider = null;
       typeBuilderMock

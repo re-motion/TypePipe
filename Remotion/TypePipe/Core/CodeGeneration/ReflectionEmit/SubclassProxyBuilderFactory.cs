@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -31,19 +30,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilderFactory : ISubclassProxyBuilderFactory
   {
     private readonly IModuleBuilder _moduleBuilder;
-    private readonly ISubclassProxyNameProvider _subclassProxyNameProvider;
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
     [CLSCompliant (false)]
-    public SubclassProxyBuilderFactory (IModuleBuilder moduleBuilder, ISubclassProxyNameProvider subclassProxyNameProvider, IExpressionPreparer expressionPreparer, DebugInfoGenerator debugInfoGeneratorOrNull)
+    public SubclassProxyBuilderFactory (
+        IModuleBuilder moduleBuilder,
+        IExpressionPreparer expressionPreparer,
+        DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
-      ArgumentUtility.CheckNotNull ("subclassProxyNameProvider", subclassProxyNameProvider);
       ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
 
       _moduleBuilder = moduleBuilder;
-      _subclassProxyNameProvider = subclassProxyNameProvider;
       _expressionPreparer = expressionPreparer;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
     }
@@ -52,11 +51,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IModuleBuilder ModuleBuilder
     {
       get { return _moduleBuilder; }
-    }
-
-    public ISubclassProxyNameProvider SubclassProxyNameProvider
-    {
-      get { return _subclassProxyNameProvider; }
     }
 
     public IExpressionPreparer ExpressionPreparer
@@ -71,9 +65,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
     {
-      var subclassProxyName = _subclassProxyNameProvider.GetSubclassProxyName (mutableType);
       var typeBuilder = _moduleBuilder.DefineType (
-          subclassProxyName,
+          mutableType.FullName,
           TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
           mutableType.UnderlyingSystemType);
 
