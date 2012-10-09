@@ -73,29 +73,9 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void AccessingBodyOfAbstractMethod_Throws ()
-    {
-      var message = "An abstract method has no body.";
-      AssembleType<AbstractTypeWithOneMethod> (
-          mutableType =>
-          {
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-
-            Assert.That (() => mutableMethod.Body, Throws.InvalidOperationException.With.Message.EqualTo(message));
-            mutableMethod.SetBody (
-                ctx =>
-                {
-                  Assert.That (() => ctx.PreviousBody, Throws.InvalidOperationException.With.Message.EqualTo (message));
-                  Assert.That (() => ctx.GetPreviousBodyWithArguments(), Throws.InvalidOperationException.With.Message.EqualTo (message));
-                  return Expression.Empty();
-                });
-          });
-    }
-
-    [Test]
     public void ImplementFully_AbstractBaseType_AddMethod_BecomesConcrete ()
     {
-      var type = AssembleType<DerivedType> (
+      var type = AssembleType<AbstractDerivedTypeWithOneAbstractMethod> (
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
@@ -116,7 +96,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
     {
-      var type = AssembleType<DerivedType> (
+      var type = AssembleType<AbstractDerivedTypeWithOneAbstractMethod> (
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.False);
@@ -134,6 +114,44 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.False);
     }
 
+    [Test]
+    public void AccessingBodyOfAbstractMethod_Throws ()
+    {
+      var message = "An abstract method has no body.";
+      AssembleType<AbstractTypeWithOneMethod> (
+          mutableType =>
+          {
+            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+
+            Assert.That (() => mutableMethod.Body, Throws.InvalidOperationException.With.Message.EqualTo (message));
+            mutableMethod.SetBody (
+                ctx =>
+                {
+                  Assert.That (() => ctx.PreviousBody, Throws.InvalidOperationException.With.Message.EqualTo (message));
+                  Assert.That (() => ctx.GetPreviousBodyWithArguments (), Throws.InvalidOperationException.With.Message.EqualTo (message));
+                  return Expression.Empty ();
+                });
+          });
+    }
+
+    [Test]
+    public void BaseCallForAbstractMethod_Throws ()
+    {
+      AssembleType<AbstractDerivedTypeWithOneAbstractMethod> (
+          mutableType =>
+          {
+            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+            mutableMethod.SetBody (
+                ctx =>
+                {
+                  Assert.That (
+                      () => ctx.GetBaseCall ("Method"),
+                      Throws.InvalidOperationException.With.Message.EqualTo ("An abstract base method cannot be called non-dynamically."));
+                  return Expression.Empty();
+                });
+          });
+    }
+
     public abstract class AbstractTypeWithoutMethods { }
 
     public abstract class AbstractTypeWithOneMethod
@@ -147,6 +165,6 @@ namespace TypePipe.IntegrationTests
       public abstract void Method2 ();
     }
 
-    public abstract class DerivedType : AbstractTypeWithOneMethod { }
+    public abstract class AbstractDerivedTypeWithOneAbstractMethod : AbstractTypeWithOneMethod { }
   }
 }
