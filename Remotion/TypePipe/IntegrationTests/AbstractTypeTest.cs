@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 5097")]
+  [Ignore("TODO 5098")]
   [TestFixture]
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
@@ -75,7 +75,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ImplementFully_AbstractBaseType_AddMethod_BecomesConcrete ()
     {
-      var type = AssembleType<AbstractDerivedTypeWithOneAbstractMethod> (
+      var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
@@ -96,7 +96,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
     {
-      var type = AssembleType<AbstractDerivedTypeWithOneAbstractMethod> (
+      var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.False);
@@ -137,16 +137,16 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void BaseCallForAbstractMethod_Throws ()
     {
-      AssembleType<AbstractDerivedTypeWithOneAbstractMethod> (
+      AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+            var mutableMethod = mutableType.AllMutableMethods.Single();
             mutableMethod.SetBody (
                 ctx =>
                 {
                   Assert.That (
                       () => ctx.GetBaseCall ("Method"),
-                      Throws.InvalidOperationException.With.Message.EqualTo ("An abstract base method cannot be called non-dynamically."));
+                      Throws.ArgumentException.With.Message.EqualTo ("Cannot perform base call on abstract method.\r\nParameter name: baseMethod"));
                   return Expression.Empty();
                 });
           });
@@ -165,6 +165,9 @@ namespace TypePipe.IntegrationTests
       public abstract void Method2 ();
     }
 
-    public abstract class AbstractDerivedTypeWithOneAbstractMethod : AbstractTypeWithOneMethod { }
+    public abstract class AbstractDerivedTypeWithOneMethod : AbstractTypeWithOneMethod
+    {
+      public virtual void Dummy () { }
+    }
   }
 }
