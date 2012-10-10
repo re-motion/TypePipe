@@ -65,10 +65,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
     {
-      var typeBuilder = _moduleBuilder.DefineType (
-          mutableType.FullName,
-          TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-          mutableType.UnderlyingSystemType);
+      var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
+      if (!mutableType.IsFullyImplemented)
+        typeAttributes |= TypeAttributes.Abstract;
+
+      var typeBuilder = _moduleBuilder.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
 
       var emittableOperandProvider = new EmittableOperandProvider ();
       typeBuilder.RegisterWith (emittableOperandProvider, mutableType);

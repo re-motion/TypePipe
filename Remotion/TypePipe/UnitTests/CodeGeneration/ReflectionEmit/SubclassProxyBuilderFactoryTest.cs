@@ -68,6 +68,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = _builderFactory.CreateBuilder (mutableType);
 
+      _moduleBuilderMock.VerifyAllExpectations();
       typeBuilderMock.VerifyAllExpectations();
 
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
@@ -87,6 +88,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
       Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+    }
+
+    [Test]
+    public void CreateBuilder_NotFullyImplemented ()
+    {
+      var originalType = typeof (AbstractType);
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (originalType);
+
+      var typeBuilderFake = MockRepository.GenerateStub<ITypeBuilder> ();
+      var attributes = TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit;
+      _moduleBuilderMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderFake);
+
+      _builderFactory.CreateBuilder (mutableType);
+
+      _moduleBuilderMock.VerifyAllExpectations ();
+    }
+
+    abstract class AbstractType
+    {
+      public abstract void Method ();
     }
   }
 }
