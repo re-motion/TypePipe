@@ -129,11 +129,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsFullyImplemented_ConcretType ()
+    public void IsFullyImplemented ()
     {
       Assert.That (CreateForExisting (typeof (ConcreteType)).IsFullyImplemented, Is.True);
       Assert.That (CreateForExisting (typeof (AbstractTypeWithoutMethods)).IsFullyImplemented, Is.True);
       Assert.That (CreateForExisting (typeof (AbstractTypeWithOneMethod)).IsFullyImplemented, Is.False);
+      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod)).IsFullyImplemented, Is.False);
+      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeOverridesAbstractBaseMethod)).IsFullyImplemented, Is.True);
     }
 
     [Test]
@@ -1112,12 +1114,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class AbcAttribute : Attribute { }
 
     class ConcreteType { }
-
     abstract class AbstractTypeWithoutMethods { }
-
     abstract class AbstractTypeWithOneMethod
     {
       public abstract void Method ();
+    }
+    abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
+    abstract class DerivedAbstractTypeOverridesAbstractBaseMethod : AbstractTypeWithOneMethod
+    {
+      public override void Method () { }
     }
   }
 }

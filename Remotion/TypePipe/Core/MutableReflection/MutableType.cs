@@ -103,7 +103,8 @@ namespace Remotion.TypePipe.MutableReflection
     /// </value>
     public bool IsFullyImplemented
     {
-      get { return !IsAbstract || AllMutableMethods.All (x => !x.IsAbstract); }
+      get { return !IsAbstract || GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
+      }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
