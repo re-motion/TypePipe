@@ -194,7 +194,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
       Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
-
       _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
@@ -202,8 +201,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
     }
+
+    [Test]
+    public void Create_ForExisting_AbstractMethodResultsInNullBody ()
+    {
+      var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.Method());
+      Assert.That (originalMethod.IsAbstract, Is.True);
+      _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
+
+      Assert.That (descriptor.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
+      Assert.That (descriptor.Body, Is.Null);
+    }
     
-    public class DomainType
+    class DomainType
     {
       [Abc, Def]
       public int Method (string s, out int i, [In] double d, [In, Out] object o)
@@ -221,7 +233,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override string ToString () { return null; }
     }
 
-    public class AbcAttribute : Attribute { }
-    public class DefAttribute : Attribute { }
+    class AbcAttribute : Attribute { }
+    class DefAttribute : Attribute { }
+
+    abstract class AbstractType
+    {
+      public abstract void Method ();
+    }
   }
 }

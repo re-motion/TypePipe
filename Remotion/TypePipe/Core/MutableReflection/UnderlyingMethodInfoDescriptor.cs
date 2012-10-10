@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod).ToList().AsReadOnly();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
       var customAttributeDataProvider = GetCustomAttributeProvider (originalMethod);
-      var body = CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
+      var body = originalMethod.IsAbstract ? null : CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
           originalMethod,
