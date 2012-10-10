@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 5099")]
   [TestFixture]
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
@@ -40,10 +39,11 @@ namespace TypePipe.IntegrationTests
           });
 
       Assert.That (type.IsAbstract, Is.False);
-      Assert.That (type.UnderlyingSystemType.IsAbstract, Is.True);
-      Assert.That (() => Activator.CreateInstance (type), Throws.Nothing);
+      // The generated default constructor of abstract class has family visibility (protected in C#). 
+      Assert.That (() => Activator.CreateInstance (type, nonPublic: true), Throws.Nothing);
     }
     
+    [Ignore("TODO 5099")]
     [Test]
     public void ImplementPartially_MutableTypeIsAbstract_GeneratedTypeIsAbstract ()
     {
@@ -53,7 +53,6 @@ namespace TypePipe.IntegrationTests
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method1");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.True);
             Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
@@ -72,13 +71,14 @@ namespace TypePipe.IntegrationTests
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsAbstract, Is.True);
             Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
     }
 
+    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_AbstractBaseType_AddMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
@@ -100,6 +100,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.False);
     }
 
+    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
@@ -141,6 +142,7 @@ namespace TypePipe.IntegrationTests
           });
     }
 
+    [Ignore ("TODO 5099")]
     [Test]
     public void BaseCallForAbstractMethod_Throws ()
     {
