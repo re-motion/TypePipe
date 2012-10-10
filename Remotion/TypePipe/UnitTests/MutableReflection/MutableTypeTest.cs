@@ -393,7 +393,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var name = "Method";
       var attributes = MethodAttributes.Public;
-      var returnType = typeof (object);
+      var returnType = typeof(object);
       var parameterDeclarations = new[]
                                   {
                                       ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
@@ -448,11 +448,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, context =>
+      var method = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, context =>
       {
         Assert.That (context.IsStatic, Is.True);
         return fakeBody;
       });
+
+      Assert.That (method.IsStatic, Is.True);
     }
 
     [Test]
@@ -566,6 +568,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           typeof (void),
           ParameterDeclaration.EmptyParameters,
           ctx => Expression.Empty());
+    }
+
+    [Test]
+    public void AddAbstractMethod ()
+    {
+      var name = "AbstractMethod";
+      var attributes = MethodAttributes.Public;
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+
+      var method = _mutableType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations.AsOneTime ());
+
+      Assert.That (method.IsAbstract, Is.True);
     }
 
     [Test]

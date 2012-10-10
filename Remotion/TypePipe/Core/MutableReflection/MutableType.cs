@@ -40,9 +40,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableMember
   {
-    private static readonly Func<MethodBodyCreationContext, Expression> s_abstractMethodBodyProvider =
-        ctx => { throw new Exception ("Abstract methods have no body."); };
-
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
@@ -271,7 +268,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
+      // bodyProvider is null for abstract methods
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
       CheckForInvalidAttributes ("method", invalidAttributes, attributes);
@@ -298,7 +297,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
-      var body = bodyProvider == s_abstractMethodBodyProvider ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+      var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
@@ -307,6 +306,20 @@ namespace Remotion.TypePipe.MutableReflection
       _methods.Add (methodInfo);
 
       return methodInfo;
+    }
+
+    public MutableMethodInfo AddAbstractMethod (
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameterDeclarations)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+
+      attributes = attributes.Set (MethodAttributes.Abstract);
+      return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
     }
 
     /// <summary>
@@ -352,7 +365,10 @@ namespace Remotion.TypePipe.MutableReflection
                            : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       var returnType = baseMethod.ReturnType;
       var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
-      var bodyProvider = baseMethod.IsAbstract ? s_abstractMethodBodyProvider : ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>());
+      var bodyProvider = baseMethod.IsAbstract
+                             ? null
+                             : new Func<MethodBodyCreationContext, Expression> (
+                                   ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var addedOverride = AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
