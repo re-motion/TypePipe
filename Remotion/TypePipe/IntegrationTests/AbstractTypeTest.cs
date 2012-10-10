@@ -28,7 +28,7 @@ namespace TypePipe.IntegrationTests
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void WithoutAbstractMethods_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
+    public void NoChanges_RemainsAbstract ()
     {
       var type = AssembleType<AbstractTypeWithoutMethods> (
           mutableType =>
@@ -44,7 +44,7 @@ namespace TypePipe.IntegrationTests
     }
     
     [Test]
-    public void ImplementPartially_MutableTypeIsAbstract_GeneratedTypeIsAbstract ()
+    public void ImplementPartially_RemainsAbstract ()
     {
       var type = AssembleType<AbstractTypeWithTwoMethods> (
           mutableType =>
@@ -52,14 +52,36 @@ namespace TypePipe.IntegrationTests
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method1");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
+            Assert.That (mutableType.IsAbstract, Is.True);
             Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.True);
     }
 
+    [Ignore("TODO 5099")]
     [Test]
-    public void ImplementFully_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
+    public void AddAbstractMethod_BecomesAbstract ()
+    {
+      var type = AssembleType<ConcreteType> (
+          mutableType =>
+          {
+            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsFullyImplemented, Is.True);
+
+            var mutableMethod = mutableType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
+            Assert.That (mutableMethod.IsAbstract, Is.True);
+
+            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsFullyImplemented, Is.False);
+          });
+
+      Assert.That (type.IsAbstract, Is.True);
+    }
+
+    [Ignore ("TODO 5099")]
+    [Test]
+    public void ImplementFully_BecomesConcrete ()
     {
       var type = AssembleType<AbstractTypeWithOneMethod> (
           mutableType =>
@@ -70,19 +92,21 @@ namespace TypePipe.IntegrationTests
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsAbstract, Is.False);
             Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
     }
 
+    [Ignore ("TODO 5099")]
     [Test]
-    public void ImplementFully_AbstractBaseType_AddMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
+    public void ImplementFully_AbstractBaseType_AddMethod_BecomesConcrete ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
+            Assert.That (mutableType.IsAbstract, Is.True);
             Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             mutableType.AddMethod (
@@ -92,20 +116,20 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Empty());
 
+            Assert.That (mutableType.IsAbstract, Is.False);
             Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
     }
 
+    [Ignore ("TODO 5099")]
     [Test]
-    public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
+    public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
-
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
             var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
 
@@ -113,6 +137,7 @@ namespace TypePipe.IntegrationTests
             mutableMethod.SetBody (ctx => Expression.Empty ());
             Assert.That (mutableMethod.IsAbstract, Is.False);
 
+            Assert.That (mutableType.IsAbstract, Is.False);
             Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
@@ -156,6 +181,8 @@ namespace TypePipe.IntegrationTests
                 });
           });
     }
+
+    public class ConcreteType { }
 
     public abstract class AbstractTypeWithoutMethods { }
 
