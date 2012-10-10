@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -33,71 +34,119 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class UnderlyingMethodInfoDescriptorTest
   {
+    private string _name;
+    private MethodAttributes _attributes;
+    private Type _returnType;
+    private UnderlyingParameterInfoDescriptor[] _parameterDescriptors;
+    private MethodInfo _baseMethod;
+    private bool _isGenMethod;
+    private bool _isGenMethodDef;
+    private bool _containsGenParams;
+    private Expression _body;
+
     private IRelatedMethodFinder _relatedMethodFinderMock;
 
     [SetUp]
     public void SetUp ()
     {
+      _name = "Method";
+      _attributes = MethodAttributes.HasSecurity;
+      _returnType = ReflectionObjectMother.GetSomeType ();
+      _parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      _baseMethod = ReflectionObjectMother.GetSomeMethod ();
+      _isGenMethod = BooleanObjectMother.GetRandomBoolean ();
+      _isGenMethodDef = BooleanObjectMother.GetRandomBoolean ();
+      _containsGenParams = BooleanObjectMother.GetRandomBoolean ();
+      _body = ExpressionTreeObjectMother.GetSomeExpression (_returnType);
+
       _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
     }
 
     [Test]
     public void Create_ForNew ()
     {
-      var name = "Method";
-      var attributes = MethodAttributes.Abstract;
-      var returnType = ReflectionObjectMother.GetSomeType();
-      var parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
-      var baseMethod = ReflectionObjectMother.GetSomeMethod();
-      var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
-      var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean();
-      var containsGenericParameters = BooleanObjectMother.GetRandomBoolean();
-      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
-
-
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name,
-          attributes,
-          returnType,
-          parameterDescriptors.AsOneTime(),
-          baseMethod,
-          isGenericMethod,
-          isGenericMethodDefinition,
-          containsGenericParameters,
-          body);
+          _name,
+          _attributes,
+          _returnType,
+          _parameterDescriptors.AsOneTime(),
+          _baseMethod,
+          _isGenMethod,
+          _isGenMethodDef,
+          _containsGenParams,
+          _body);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
-      Assert.That (descriptor.Name, Is.EqualTo (name));
-      Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
-      Assert.That (descriptor.ReturnType, Is.SameAs (returnType));
-      Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (parameterDescriptors));
-      Assert.That (descriptor.BaseMethod, Is.SameAs (baseMethod));
-      Assert.That (descriptor.IsGenericMethod, Is.EqualTo (isGenericMethod));
-      Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
-      Assert.That (descriptor.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
+      Assert.That (descriptor.Name, Is.EqualTo (_name));
+      Assert.That (descriptor.Attributes, Is.EqualTo (_attributes));
+      Assert.That (descriptor.ReturnType, Is.SameAs (_returnType));
+      Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (_parameterDescriptors));
+      Assert.That (descriptor.BaseMethod, Is.SameAs (_baseMethod));
+      Assert.That (descriptor.IsGenericMethod, Is.EqualTo (_isGenMethod));
+      Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (_isGenMethodDef));
+      Assert.That (descriptor.ContainsGenericParameters, Is.EqualTo (_containsGenParams));
       Assert.That (descriptor.CustomAttributeDataProvider.Invoke(), Is.Empty);
-      Assert.That (descriptor.Body, Is.SameAs (body));
+      Assert.That (descriptor.Body, Is.SameAs (_body));
     }
 
     [Test]
     public void Create_ForNew_NullBaseMethod ()
     {
-      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       MethodInfo baseMethod = null;
+
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          "Method", MethodAttributes.Abstract, typeof (int), new UnderlyingParameterInfoDescriptor[0], baseMethod, false, false, false, body);
+          _name, _attributes, _returnType, _parameterDescriptors, baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, _body);
 
       Assert.That (descriptor.BaseMethod, Is.Null);
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException), ExpectedMessage =
+    public void Create_ForNew_NullBody ()
+    {
+      var attributes = MethodAttributes.Abstract;
+      Expression body = null;
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
+
+      Assert.That (descriptor.Body, Is.Null);
+    }
+
+    [Test]
+    public void Create_ForNew_BodyAssignableFromReturnType ()
+    {
+      var returnType = typeof (IComparable);
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
+
+      Assert.That (
+          () => UnderlyingMethodInfoDescriptor.Create (
+              _name, _attributes, returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body),
+          Throws.Nothing);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Non-abstract method must have a body.\r\nParameter name: body")]
+    public void Create_ForNew_ThrowsForNonAbstractNullBody ()
+    {
+      var attributes = MethodAttributes.HasSecurity;
+      Expression body = null;
+
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
+
+      Assert.That (descriptor.Body, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "The body's return type must be assignable to the method return type.\r\nParameter name: body")]
     public void Create_ForNew_ThrowsForInvalidBodyReturnType ()
     {
+      var returnType = typeof (int);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
+
       UnderlyingMethodInfoDescriptor.Create (
-          "Method", MethodAttributes.Abstract, typeof (int), new UnderlyingParameterInfoDescriptor[0], null, false, false, false, body);
+          _name, _attributes, returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
     }
     
     [Test]
