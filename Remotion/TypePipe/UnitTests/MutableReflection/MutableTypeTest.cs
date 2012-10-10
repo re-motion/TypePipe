@@ -176,12 +176,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsNewType ()
-    {
-      Assert.That (_mutableType.IsNewType, Is.False);
-    }
-
-    [Test]
     public new void ToString ()
     {
       // Note: ToString() is implemented in CustomType base class.

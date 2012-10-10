@@ -94,6 +94,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException ("TODO 4744"); }
     }
 
+    public bool IsFullyImplemented
+    {
+      get { throw new NotImplementedException (); }
+    }
+
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
@@ -147,11 +152,6 @@ namespace Remotion.TypePipe.MutableReflection
     public IEnumerable<MutableMethodInfo> AllMutableMethods
     {
       get { return _methods.AllMutableMembers; }
-    }
-
-    public bool IsNewType
-    {
-      get { return false; }
     }
 
     // TODO 4972: Replace usages with TypeEqualityComparer.
