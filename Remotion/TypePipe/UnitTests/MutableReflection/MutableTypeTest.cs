@@ -129,6 +129,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsFullyImplemented_ConcretType ()
+    {
+      Assert.That (CreateForExisting (typeof (ConcreteType)).IsFullyImplemented, Is.True);
+      Assert.That (CreateForExisting (typeof (AbstractTypeWithoutMethods)).IsFullyImplemented, Is.True);
+      Assert.That (CreateForExisting (typeof (AbstractTypeWithOneMethod)).IsFullyImplemented, Is.False);
+    }
+
+    [Test]
     public void AllMutableFields ()
     {
       Assert.That (GetAllFields (_mutableType).ExistingBaseMembers, Is.Not.Empty);
@@ -280,6 +288,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.AddedFields, Has.Count.EqualTo (1));
     }
+
+    
 
     [Test]
     public void GetMutableField ()
@@ -937,6 +947,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
     }
 
+    private MutableType CreateForExisting (Type originalType)
+    {
+      return MutableTypeObjectMother.CreateForExistingType (originalType);
+    }
+
     private void CallAndCheckGetOrAddMutableMethod (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
@@ -1095,5 +1110,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public class AbcAttribute : Attribute { }
+
+    class ConcreteType { }
+
+    abstract class AbstractTypeWithoutMethods { }
+
+    abstract class AbstractTypeWithOneMethod
+    {
+      public abstract void Method ();
+    }
   }
 }

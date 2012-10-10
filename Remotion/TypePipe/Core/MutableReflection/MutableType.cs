@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsFullyImplemented
     {
-      get { throw new NotImplementedException (); }
+      get { return !IsAbstract || AllMutableMethods.All (x => !x.IsAbstract); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
