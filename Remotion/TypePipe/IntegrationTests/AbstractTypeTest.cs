@@ -77,7 +77,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.False);
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_AbstractBaseType_AddMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
@@ -141,7 +140,6 @@ namespace TypePipe.IntegrationTests
           });
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void BaseCallForAbstractMethod_Throws ()
     {
