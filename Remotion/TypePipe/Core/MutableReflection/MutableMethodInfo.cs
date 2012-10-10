@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -44,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5057 (Use Lazy<T>)
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
+    private MethodAttributes _attributes;
     private Expression _body;
 
     public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor)
@@ -61,6 +61,7 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeDatas =
           new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingMethodInfoDescriptor.CustomAttributeDataProvider);
 
+      _attributes = _underlyingMethodInfoDescriptor.Attributes;
       _body = _underlyingMethodInfoDescriptor.Body;
     }
 
@@ -91,7 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodAttributes Attributes
     {
-      get { return _underlyingMethodInfoDescriptor.Attributes; }
+      get { return _attributes; }
     }
 
     public override CallingConventions CallingConvention
@@ -219,7 +220,15 @@ namespace Remotion.TypePipe.MutableReflection
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic, BaseMethod, memberSelector);
-      _body = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
+      var newBody = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
+
+      if (_body == null)
+      {
+        Assertion.IsTrue (IsAbstract);
+        _attributes = _attributes.Unset (MethodAttributes.Abstract);
+      }
+
+      _body = newBody;
     }
 
     public override string ToString ()

@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private UnderlyingMethodInfoDescriptor _descriptor;
     private MutableMethodInfo _mutableMethod;
+
     private MutableMethodInfo _newNonVirtualMethod;
     private MutableMethodInfo _newFinalMethod;
     private MutableMethodInfo _newVirtualMethod;
@@ -49,10 +50,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create(UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainType)));
+      _declaringType = MutableTypeObjectMother.Create (UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainType)));
 
       _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
-      _mutableMethod = Create(_descriptor);
+      _mutableMethod = Create (_descriptor);
 
       _newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
       _newFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual | MethodAttributes.Final));
@@ -78,6 +79,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
 
       Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (mutableMethodInfo.Attributes, Is.EqualTo (_descriptor.Attributes));
       Assert.That (mutableMethodInfo.Body, Is.SameAs (_descriptor.Body));
     }
 
@@ -153,12 +155,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Name ()
     {
       Assert.That (_mutableMethod.Name, Is.EqualTo (_descriptor.Name));
-      }
-
-    [Test]
-    public void Attributes ()
-    {
-      Assert.That (_mutableMethod.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]
@@ -420,6 +416,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void SetBody_ImplementsAbstractMethod ()
+    {
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNewWithNullBody (attributes: MethodAttributes.Abstract));
+      Assert.That (mutableMethod.IsAbstract, Is.True);
+
+      mutableMethod.SetBody (
+          ctx =>
+          {
+            Assert.That (ctx.HasPreviousBody, Is.False);
+            return Expression.Default (mutableMethod.ReturnType);
+          });
+
+      Assert.That (mutableMethod.IsAbstract, Is.False);
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The body of the existing non-virtual or final method 'NonVirtualMethod' cannot be replaced.")]
     public void SetBody_CannotSetBody ()
@@ -431,7 +443,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
       {
         Assert.Fail ("Should not be called.");
-        throw new NotImplementedException ();
+        return Expression.Empty();
       };
 
       mutableMethod.SetBody (bodyProvider);
