@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -604,14 +603,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
-      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
           inputMethod,
-          mostDerivedOverride,
+          baseMethod,
           false,
-          mostDerivedOverride,
+          baseMethod,
           new MethodInfo[0],
           "OverrideHierarchy",
           MethodAttributes.Public,
@@ -623,16 +622,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
       var inputMethod = baseDefinition;
-      var mostDerivedOverride = baseDefinition;
-      Assert.That (mostDerivedOverride.IsFamilyOrAssembly, Is.True);
-      Assert.That (mostDerivedOverride.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
+      var baseMethod = baseDefinition;
+      Assert.That (baseMethod.IsFamilyOrAssembly, Is.True);
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
           inputMethod,
-          mostDerivedOverride,
+          baseMethod,
           false,
-          mostDerivedOverride,
+          baseMethod,
           new MethodInfo[0],
           "ProtectedOrInternalVirtualNewSlotMethodInB",
           MethodAttributes.Family,
@@ -644,19 +643,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
-      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
-      Assert.That (mostDerivedOverride.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
           inputMethod,
-          mostDerivedOverride,
+          baseMethod,
           true,
           null,
           new[] { baseDefinition },
           "Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeTest+C_OverrideHierarchy",
           MethodAttributes.Private,
           MethodAttributes.NewSlot);
+    }
+
+    [Test]
+    public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride_Abstract ()
+    {
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (
+          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
+      SetupExpectationsForGetOrAddMutableMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
+
+      var result = mutableType.GetOrAddMutableMethod (baseMethod);
+
+      _relatedMethodFinderMock.VerifyAllExpectations();
+
+      Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
+      Assert.That (result.IsAbstract, Is.True);
     }
 
     [Test]
@@ -693,10 +709,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
       var inputMethod = baseDefinition;
-      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean();
 
-      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, mostDerivedOverride, isBaseDefinitionShadowed, null);
+      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
       _mutableType.GetOrAddMutableMethod (inputMethod);
     }
@@ -957,7 +973,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private void CallAndCheckGetOrAddMutableMethod (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
-        MethodInfo mostDerivedOverride,
+        MethodInfo baseMethod,
         bool isBaseDefinitionShadowed,
         MethodInfo expectedBaseMethod,
         IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions,
@@ -965,7 +981,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodAttributes expectedOverrideVisibility,
         MethodAttributes expectedVtableLayout)
     {
-      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, mostDerivedOverride, isBaseDefinitionShadowed, expectedBaseMethod);
+      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
       var result = _mutableType.GetOrAddMutableMethod (inputMethod);
 
@@ -985,26 +1001,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var methodCallExpression = (MethodCallExpression) result.Body;
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
       var baceCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
-      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (mostDerivedOverride));
+      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (baseMethod));
     }
 
     private void SetupExpectationsForGetOrAddMutableMethod (
-        MethodInfo baseDefinition, MethodInfo mostDerivedOverride, bool isBaseDefinitionShadowed, MethodInfo fakeBaseMethod)
+        MethodInfo baseDefinition,
+        MethodInfo baseMethod,
+        bool isBaseDefinitionShadowed,
+        MethodInfo fakeBaseMethod,
+        MutableType mutableType = null,
+        Type typeToStartSearchForMostDerivedOverride = null)
     {
+      mutableType = mutableType ?? _mutableType;
+      typeToStartSearchForMostDerivedOverride = typeToStartSearchForMostDerivedOverride ?? typeof (DomainTypeBase);
+
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (mutableType.AllMutableMethods)))
           .Return (null);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (baseDefinition, GetAllMethods (_mutableType)))
+          .Expect (mock => mock.IsShadowed (baseDefinition, GetAllMethods (mutableType)))
           .Return (isBaseDefinitionShadowed);
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeof (DomainTypeBase)))
-          .Return (mostDerivedOverride);
+          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeToStartSearchForMostDerivedOverride))
+          .Return (baseMethod);
       // Needed for AddMethod (will only be called for implicit overrides)
       if (!isBaseDefinitionShadowed)
       {
         _relatedMethodFinderMock
-            .Expect (mock => mock.GetMostDerivedVirtualMethod (mostDerivedOverride.Name, MethodSignature.Create (mostDerivedOverride), _mutableType.BaseType))
+            .Expect (mock => mock.GetMostDerivedVirtualMethod (baseMethod.Name, MethodSignature.Create (baseMethod), mutableType.BaseType))
             .Return (fakeBaseMethod);
       }
     }

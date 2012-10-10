@@ -32,9 +32,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           relatedMethodFinder ?? new RelatedMethodFinder());
     }
 
-    public static MutableType CreateForExistingType (Type originalType = null)
+    public static MutableType CreateForExistingType (
+        Type originalType = null, IMemberSelector memberSelector = null, IRelatedMethodFinder relatedMethodFinder = null)
     {
-      return Create (underlyingTypeDescriptor: UnderlyingTypeDescriptorObjectMother.Create (originalType));
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType);
+      return Create (descriptor, memberSelector, relatedMethodFinder);
     }
   }
 }

@@ -40,6 +40,9 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableMember
   {
+    private static readonly Func<MethodBodyCreationContext, Expression> s_abstractMethodBodyProvider =
+        ctx => { throw new Exception ("Abstract methods have no body."); };
+
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
@@ -295,7 +298,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
-      var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+      var body = bodyProvider == s_abstractMethodBodyProvider ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
@@ -318,6 +321,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableMethodInfo GetOrAddMutableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
+      Assertion.IsNotNull (method.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!UnderlyingSystemType.Equals (method.DeclaringType) && !IsSubclassOf (method.DeclaringType))
@@ -339,16 +343,16 @@ namespace Remotion.TypePipe.MutableReflection
         return existingMutableOverride;
 
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, _methods);
-      var mostDerivedOverride = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
-      CheckNotFinalForOverride (mostDerivedOverride);
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
+      CheckNotFinalForOverride (baseMethod);
 
-      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (mostDerivedOverride) : mostDerivedOverride.Name;
+      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (baseMethod) : baseMethod.Name;
       var attributes = needsExplicitOverride
-                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (mostDerivedOverride)
-                           : MethodOverrideUtility.GetAttributesForImplicitOverride (mostDerivedOverride);
-      var returnType = mostDerivedOverride.ReturnType;
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (mostDerivedOverride).ConvertToCollection();
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (mostDerivedOverride, ctx.Parameters.Cast<Expression>());
+                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
+                           : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
+      var returnType = baseMethod.ReturnType;
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
+      var bodyProvider = baseMethod.IsAbstract ? s_abstractMethodBodyProvider : ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>());
 
       var addedOverride = AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
