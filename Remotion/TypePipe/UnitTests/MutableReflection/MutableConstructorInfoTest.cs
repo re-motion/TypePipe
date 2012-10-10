@@ -213,7 +213,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var ctorInfo = CreateWithParameters (
           UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
-          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", ParameterAttributes.Out));
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
 
       Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }

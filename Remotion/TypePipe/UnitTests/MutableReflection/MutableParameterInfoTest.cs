@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringMember = ReflectionObjectMother.GetSomeMember();
       _descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew();
-      _mutableParameter = new MutableParameterInfo (_declaringMember, 0, _descriptor);
+      _mutableParameter = new MutableParameterInfo (_declaringMember, _descriptor);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
       var parameter = method.GetParameters().Single();
@@ -51,12 +51,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var member = ReflectionObjectMother.GetSomeMember ();
-      var position = 4711;
 
-      var mutableParameter = new MutableParameterInfo (member, position, _descriptor);
+      var mutableParameter = new MutableParameterInfo (member, _descriptor);
 
       Assert.That (mutableParameter.Member, Is.SameAs (member));
-      Assert.That (mutableParameter.Position, Is.EqualTo (position));
     }
 
     [Test]
@@ -90,7 +88,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Name ()
     {
-      Assert.That (_mutableParameter.Name, Is.SameAs (_descriptor.Name));
+      Assert.That (_mutableParameter.Name, Is.EqualTo (_descriptor.Name));
+    }
+
+    [Test]
+    public void Position ()
+    {
+      Assert.That (_mutableParameter.Position, Is.EqualTo (_descriptor.Position));
     }
 
     [Test]
@@ -135,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableParameterInfo Create (UnderlyingParameterInfoDescriptor descriptor)
     {
-      return new MutableParameterInfo (ReflectionObjectMother.GetSomeMember (), 0, descriptor);
+      return new MutableParameterInfo (ReflectionObjectMother.GetSomeMember (), descriptor);
     }
 
 // ReSharper disable UnusedParameter.Local

@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
       _underlyingMethodInfoDescriptor = underlyingMethodInfoDescriptor;
 
       _parameters = _underlyingMethodInfoDescriptor.ParameterDescriptors
-          .Select ((pd, i) => new MutableParameterInfo (this, i, pd))
+          .Select (pd => new MutableParameterInfo (this, pd))
           .ToList().AsReadOnly();
 
       _customAttributeDatas =

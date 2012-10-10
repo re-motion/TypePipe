@@ -33,13 +33,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
   {
-    public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration)
+    public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
     {
-      ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
-
       return new UnderlyingParameterInfoDescriptor (
           null,
           parameterDeclaration.Type,
+          position,
           parameterDeclaration.Name,
           parameterDeclaration.Attributes,
           EmptyCustomAttributeDataProvider);
@@ -47,12 +46,15 @@ namespace Remotion.TypePipe.MutableReflection
 
     public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
     {
-      ArgumentUtility.CheckNotNull ("originalParameter", originalParameter);
-
       var customAttributeDataProvider = GetCustomAttributeProvider (originalParameter);
 
       return new UnderlyingParameterInfoDescriptor (
-          originalParameter, originalParameter.ParameterType, originalParameter.Name, originalParameter.Attributes, customAttributeDataProvider);
+          originalParameter,
+          originalParameter.ParameterType,
+          originalParameter.Position,
+          originalParameter.Name,
+          originalParameter.Attributes,
+          customAttributeDataProvider);
     }
 
     public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
@@ -70,21 +72,25 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     private readonly Type _type;
+    private readonly int _position;
     private readonly ParameterAttributes _attributes;
     private readonly ParameterExpression _expression;
 
     private UnderlyingParameterInfoDescriptor (
         ParameterInfo underlyingSystemMember,
         Type type,
+        int position,
         string name,
         ParameterAttributes attributes,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
         : base (underlyingSystemMember, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (type, "type");
+      Assertion.IsTrue (position >= 0);
       Assertion.IsNotNull (name, "name");
 
       _type = type;
+      _position = position;
       _attributes = attributes;
       _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
     }
@@ -92,6 +98,11 @@ namespace Remotion.TypePipe.MutableReflection
     public Type Type
     {
       get { return _type; }
+    }
+
+    public int Position
+    {
+      get { return _position; }
     }
 
     public ParameterAttributes Attributes

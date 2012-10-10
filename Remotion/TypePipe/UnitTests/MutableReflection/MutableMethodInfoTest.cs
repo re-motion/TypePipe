@@ -456,7 +456,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameters = new[]
                        {
                            UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
-                           UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
+                           UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType(), "p2", attributes:ParameterAttributes.Out)
                        };
       var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDescriptors: parameters);
 

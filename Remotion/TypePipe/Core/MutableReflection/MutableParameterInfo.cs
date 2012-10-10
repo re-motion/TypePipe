@@ -29,18 +29,16 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableParameterInfo : ParameterInfo, ITypePipeCustomAttributeProvider
   {
     private readonly MemberInfo _member;
-    private readonly int _position;
     private readonly UnderlyingParameterInfoDescriptor _underlyingParameterInfoDescriptor;
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
-    public MutableParameterInfo (MemberInfo member, int position, UnderlyingParameterInfoDescriptor underlyingParameterInfoDescriptor)
+    public MutableParameterInfo (MemberInfo member, UnderlyingParameterInfoDescriptor underlyingParameterInfoDescriptor)
     {
       ArgumentUtility.CheckNotNull ("member", member);
       ArgumentUtility.CheckNotNull ("underlyingParameterInfoDescriptor", underlyingParameterInfoDescriptor);
 
       _member = member;
-      _position = position;
       _underlyingParameterInfoDescriptor = underlyingParameterInfoDescriptor;
 
       _customAttributeDatas =
@@ -54,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override int Position
     {
-      get { return _position; }
+      get { return _underlyingParameterInfoDescriptor.Position; }
     }
 
     public ParameterInfo UnderlyingSystemParameterInfo

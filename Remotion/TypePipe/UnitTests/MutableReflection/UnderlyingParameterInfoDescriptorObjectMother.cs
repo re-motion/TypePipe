@@ -33,13 +33,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static UnderlyingParameterInfoDescriptor CreateForNew (
-        Type parameterType = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
+        Type parameterType = null, string name = "parameter", int position = 7, ParameterAttributes attributes = ParameterAttributes.In)
     {
       return UnderlyingParameterInfoDescriptor.Create (
           new ParameterDeclaration (
               parameterType ?? typeof (UnspecifiedType),
               name,
-              attributes));
+              attributes),
+          position);
     }
 
     public static UnderlyingParameterInfoDescriptor CreateForExisting (ParameterInfo parameter = null)
@@ -53,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static UnderlyingParameterInfoDescriptor[] CreateMultiple (int count)
     {
-      return Enumerable.Range (1, count).Select (i => CreateForNew()).ToArray();
+      return Enumerable.Range (0, count).Select (i => CreateForNew (position: i)).ToArray();
     }
   }
 }
