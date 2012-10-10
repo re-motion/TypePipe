@@ -36,11 +36,21 @@ namespace Remotion.TypePipe.MutableReflection
       return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
     }
 
-    public static bool IsSet (this MethodAttributes attributes, MethodAttributes flag)
+    public static bool IsSet (this MethodAttributes attributes, MethodAttributes flags)
     {
-      Assertion.IsTrue (flag != 0);
+      Assertion.IsTrue (flags != 0);
 
-      return (attributes & flag) == flag;
+      return (attributes & flags) == flags;
+    }
+
+    public static MethodAttributes Set (this MethodAttributes attributes, MethodAttributes flags)
+    {
+      return attributes | flags;
+    }
+
+    public static MethodAttributes Unset (this MethodAttributes attributes, MethodAttributes flags)
+    {
+      return attributes & ~flags;
     }
   }
 }
