@@ -29,13 +29,14 @@ namespace TypePipe.IntegrationTests
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void WithoutAbstractMethods_BecomesConcrete ()
+    public void WithoutAbstractMethods_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
       var type = AssembleType<AbstractTypeWithoutMethods> (
           mutableType =>
           {
             Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -44,46 +45,47 @@ namespace TypePipe.IntegrationTests
     }
     
     [Test]
-    public void ImplementPartially_RemainsAbstract ()
+    public void ImplementPartially_MutableTypeIsAbstract_GeneratedTypeIsAbstract ()
     {
       var type = AssembleType<AbstractTypeWithTwoMethods> (
           mutableType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.True);
-
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method1");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.True);
     }
 
     [Test]
-    public void ImplementFully_BecomesConcrete ()
+    public void ImplementFully_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
       var type = AssembleType<AbstractTypeWithOneMethod> (
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
     }
 
     [Test]
-    public void ImplementFully_AbstractBaseType_AddMethod_BecomesConcrete ()
+    public void ImplementFully_AbstractBaseType_AddMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             mutableType.AddMethod (
                 "Method",
@@ -92,19 +94,19 @@ namespace TypePipe.IntegrationTests
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
     }
 
     [Test]
-    public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
+    public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_MutableTypeIsAbstract_GeneratedTypeIsConcrete ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
           mutableType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
             var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
@@ -113,7 +115,7 @@ namespace TypePipe.IntegrationTests
             mutableMethod.SetBody (ctx => Expression.Empty ());
             Assert.That (mutableMethod.IsAbstract, Is.False);
 
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
