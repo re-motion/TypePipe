@@ -146,6 +146,7 @@
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\ReflectionObjectMother.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeAssembly\AbstractMemberCheckerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
   </ItemGroup>
   <ItemGroup>

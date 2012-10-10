@@ -278,6 +278,8 @@
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
+    <Compile Include="TypeAssembly\AbstractMemberChecker.cs" />
+    <Compile Include="TypeAssembly\IAbstractMemberChecker.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssembler.cs" />
