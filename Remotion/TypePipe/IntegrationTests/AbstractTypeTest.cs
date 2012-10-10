@@ -43,7 +43,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (() => Activator.CreateInstance (type, nonPublic: true), Throws.Nothing);
     }
     
-    [Ignore("TODO 5099")]
     [Test]
     public void ImplementPartially_MutableTypeIsAbstract_GeneratedTypeIsAbstract ()
     {
