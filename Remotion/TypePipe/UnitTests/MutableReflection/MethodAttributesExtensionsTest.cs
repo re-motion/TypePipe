@@ -57,5 +57,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (attributes.IsSet ((MethodAttributes) 3), Is.True);
       Assert.That (attributes.IsSet ((MethodAttributes) 4), Is.False);
     }
+
+    [Test]
+    public void Set ()
+    {
+      var attributes = (MethodAttributes) 2;
+
+      Assert.That (attributes.Set ((MethodAttributes) 6), Is.EqualTo ((MethodAttributes) 6));
+      Assert.That (attributes.Set (0), Is.EqualTo ((MethodAttributes) 2));
+    }
+
+    [Test]
+    public void Unset ()
+    {
+      var attributes = (MethodAttributes) 3;
+
+      Assert.That (attributes.Unset ((MethodAttributes) 2), Is.EqualTo ((MethodAttributes) 1));
+      Assert.That (attributes.Unset (0), Is.EqualTo ((MethodAttributes) 3));
+    }
   }
 }

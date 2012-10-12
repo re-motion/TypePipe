@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static readonly MethodInfo[] s_nonGenericMethods = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (string).GetMethod ("Concat", new[] { typeof (object) }) });
     private static readonly MethodInfo[] s_genericMethods = EnsureNoNulls (new[] { typeof (Enumerable).GetMethod ("Empty"), typeof (ReflectionObjectMother).GetMethod ("GetRandomElement", BindingFlags.NonPublic | BindingFlags.Static) });
     private static readonly MethodInfo[] s_modifiableMethodInfos = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("Equals", new[] { typeof (object ) }) });
+    private static readonly MethodInfo[] s_abstractMethodInfos = EnsureNoNulls (new[] { typeof (MethodInfo).GetMethod ("GetBaseDefinition"), typeof (Type).GetMethod ("GetMethods", new[] { typeof (BindingFlags) }) });
     private static readonly ParameterInfo[] s_parameterInfos = EnsureNoNulls (typeof (Dictionary<,>).GetMethod ("TryGetValue").GetParameters());
 
     public static Type GetSomeType ()
@@ -132,7 +133,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = GetRandomElement (s_nonVirtualInstanceMethods);
       Assertion.IsFalse (method.IsVirtual);
       Assertion.IsFalse (method.IsStatic);
+      return method;
+    }
 
+    public static MethodInfo GetSomeAbstractMethod ()
+    {
+      var method = GetRandomElement (s_abstractMethodInfos);
+      Assertion.IsTrue (method.IsAbstract);
       return method;
     }
 

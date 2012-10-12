@@ -129,8 +129,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddConstructor ()
     {
       var ctor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
-          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string), "p1", ParameterAttributes.In),
-          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int).MakeByRefType (), "p2", ParameterAttributes.Out));
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string), "p1", 9, ParameterAttributes.In),
+          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int).MakeByRefType(), "p2", 4, ParameterAttributes.Out));
       var expectedAttributes = ctor.Attributes;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType () };
 
@@ -140,8 +140,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (constructorBuilderMock);
       constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, ctor));
 
-      constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
-      constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
+      constructorBuilderMock.Expect (mock => mock.DefineParameter (10, ParameterAttributes.In, "p1"));
+      constructorBuilderMock.Expect (mock => mock.DefineParameter (5, ParameterAttributes.Out, "p2"));
 
       Assert.That (_postDeclarationsManager.Actions, Is.Empty);
 
@@ -165,8 +165,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           parameterDescriptors:
               new[]
               {
-                  UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "i", ParameterAttributes.None),
-                  UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
+                  UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "i", 8, ParameterAttributes.None),
+                  UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (double).MakeByRefType(), "d", 17, ParameterAttributes.Out)
               });
 
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
@@ -183,8 +183,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
-      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
-      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
+      methodBuilderMock.Expect (mock => mock.DefineParameter (9, ParameterAttributes.None, "i"));
+      methodBuilderMock.Expect (mock => mock.DefineParameter (18, ParameterAttributes.Out, "d"));
 
       Assert.That (_postDeclarationsManager.Actions, Is.Empty);
 

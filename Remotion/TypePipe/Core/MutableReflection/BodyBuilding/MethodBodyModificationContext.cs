@@ -39,13 +39,23 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IMemberSelector memberSelector)
         : base (declaringType, parameterExpressions, isStatic, baseMethod, memberSelector)
     {
-      ArgumentUtility.CheckNotNull ("previousBody", previousBody);
+      // previousBody is null for abstract methods.
       _previousBody = previousBody;
+    }
+
+    public bool HasPreviousBody
+    {
+      get { return _previousBody != null; }
     }
 
     public Expression PreviousBody
     {
-      get { return _previousBody; }
+      get
+      {
+        if (!HasPreviousBody)
+          throw new InvalidOperationException ("An abstract method has no body.");
+        
+        return _previousBody; }
     }
 
     public Expression GetPreviousBodyWithArguments (params Expression[] arguments)
@@ -59,7 +69,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return BodyContextUtility.ReplaceParameters (Parameters, _previousBody, arguments);
+      return BodyContextUtility.ReplaceParameters (Parameters, PreviousBody, arguments);
     }
   }
 }

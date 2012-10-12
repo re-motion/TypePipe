@@ -128,6 +128,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsFullyImplemented ()
+    {
+      Assert.That (CreateForExisting (typeof (ConcreteType)).IsFullyImplemented, Is.True);
+      Assert.That (CreateForExisting (typeof (AbstractTypeWithoutMethods)).IsFullyImplemented, Is.True);
+      Assert.That (CreateForExisting (typeof (AbstractTypeWithOneMethod)).IsFullyImplemented, Is.False);
+      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod)).IsFullyImplemented, Is.False);
+      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeOverridesAbstractBaseMethod)).IsFullyImplemented, Is.True);
+    }
+
+    [Test]
     public void AllMutableFields ()
     {
       Assert.That (GetAllFields (_mutableType).ExistingBaseMembers, Is.Not.Empty);
@@ -172,12 +182,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (allMethods[1].DeclaringType, Is.SameAs (_mutableType));
       Assert.That (allMethods[1].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[1]));
       Assert.That (allMethods[2], Is.SameAs (addedMethod));
-    }
-
-    [Test]
-    public void IsNewType ()
-    {
-      Assert.That (_mutableType.IsNewType, Is.False);
     }
 
     [Test]
@@ -286,6 +290,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.AddedFields, Has.Count.EqualTo (1));
     }
 
+    
+
     [Test]
     public void GetMutableField ()
     {
@@ -339,6 +345,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddConstructor_ThrowsForInvalidMethodAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for constructors: " +
+                             "Abstract, HideBySig, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.HideBySig), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddConstructor (_mutableType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Adding static constructors is not (yet) supported.\r\nParameter name: attributes")]
     public void AddConstructor_ThrowsForStatic ()
@@ -374,7 +393,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var name = "Method";
       var attributes = MethodAttributes.Public;
-      var returnType = typeof (object);
+      var returnType = typeof(object);
       var parameterDeclarations = new[]
                                   {
                                       ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
@@ -429,16 +448,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, context =>
+      var method = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, context =>
       {
         Assert.That (context.IsStatic, Is.True);
         return fakeBody;
       });
+
+      Assert.That (method.IsStatic, Is.True);
+    }
+
+    [Test]
+    public void AddMethod_ThrowsForInvalidMethodAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for methods: " +
+                             "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
-    public void AddMethod_NonVirtualAndNewSlot ()
+    public void AddMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
       _mutableType.AddMethod ("NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
     }
@@ -540,6 +571,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddAbstractMethod ()
+    {
+      var name = "AbstractMethod";
+      var attributes = MethodAttributes.Public;
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+
+      var method = _mutableType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations.AsOneTime ());
+
+      Assert.That (method.IsAbstract, Is.True);
+    }
+
+    [Test]
     public void GetOrAddMutableMethod_ExistingMethod_UsesMemberCollection ()
     {
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
@@ -574,14 +618,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
-      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
           inputMethod,
-          mostDerivedOverride,
+          baseMethod,
           false,
-          mostDerivedOverride,
+          baseMethod,
           new MethodInfo[0],
           "OverrideHierarchy",
           MethodAttributes.Public,
@@ -593,16 +637,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
       var inputMethod = baseDefinition;
-      var mostDerivedOverride = baseDefinition;
-      Assert.That (mostDerivedOverride.IsFamilyOrAssembly, Is.True);
-      Assert.That (mostDerivedOverride.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
+      var baseMethod = baseDefinition;
+      Assert.That (baseMethod.IsFamilyOrAssembly, Is.True);
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
           inputMethod,
-          mostDerivedOverride,
+          baseMethod,
           false,
-          mostDerivedOverride,
+          baseMethod,
           new MethodInfo[0],
           "ProtectedOrInternalVirtualNewSlotMethodInB",
           MethodAttributes.Family,
@@ -614,19 +658,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
-      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
-      Assert.That (mostDerivedOverride.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
 
       CallAndCheckGetOrAddMutableMethod (
           baseDefinition,
           inputMethod,
-          mostDerivedOverride,
+          baseMethod,
           true,
           null,
           new[] { baseDefinition },
           "Remotion.TypePipe.UnitTests.MutableReflection.MutableTypeTest+C_OverrideHierarchy",
           MethodAttributes.Private,
           MethodAttributes.NewSlot);
+    }
+
+    [Test]
+    public void GetOrAddMutableMethod_BaseMethod_ImplicitOverride_Abstract ()
+    {
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (
+          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
+      SetupExpectationsForGetOrAddMutableMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
+
+      var result = mutableType.GetOrAddMutableMethod (baseMethod);
+
+      _relatedMethodFinderMock.VerifyAllExpectations();
+
+      Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
+      Assert.That (result.IsAbstract, Is.True);
     }
 
     [Test]
@@ -663,10 +724,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
       var inputMethod = baseDefinition;
-      var mostDerivedOverride = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean();
 
-      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, mostDerivedOverride, isBaseDefinitionShadowed, null);
+      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
       _mutableType.GetOrAddMutableMethod (inputMethod);
     }
@@ -919,10 +980,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
     }
 
+    private MutableType CreateForExisting (Type originalType)
+    {
+      return MutableTypeObjectMother.CreateForExistingType (originalType);
+    }
+
     private void CallAndCheckGetOrAddMutableMethod (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
-        MethodInfo mostDerivedOverride,
+        MethodInfo baseMethod,
         bool isBaseDefinitionShadowed,
         MethodInfo expectedBaseMethod,
         IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions,
@@ -930,7 +996,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodAttributes expectedOverrideVisibility,
         MethodAttributes expectedVtableLayout)
     {
-      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, mostDerivedOverride, isBaseDefinitionShadowed, expectedBaseMethod);
+      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
       var result = _mutableType.GetOrAddMutableMethod (inputMethod);
 
@@ -950,26 +1016,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var methodCallExpression = (MethodCallExpression) result.Body;
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
       var baceCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
-      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (mostDerivedOverride));
+      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (baseMethod));
     }
 
     private void SetupExpectationsForGetOrAddMutableMethod (
-        MethodInfo baseDefinition, MethodInfo mostDerivedOverride, bool isBaseDefinitionShadowed, MethodInfo fakeBaseMethod)
+        MethodInfo baseDefinition,
+        MethodInfo baseMethod,
+        bool isBaseDefinitionShadowed,
+        MethodInfo fakeBaseMethod,
+        MutableType mutableType = null,
+        Type typeToStartSearchForMostDerivedOverride = null)
     {
+      mutableType = mutableType ?? _mutableType;
+      typeToStartSearchForMostDerivedOverride = typeToStartSearchForMostDerivedOverride ?? typeof (DomainTypeBase);
+
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (mutableType.AllMutableMethods)))
           .Return (null);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (baseDefinition, GetAllMethods (_mutableType)))
+          .Expect (mock => mock.IsShadowed (baseDefinition, GetAllMethods (mutableType)))
           .Return (isBaseDefinitionShadowed);
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeof (DomainTypeBase)))
-          .Return (mostDerivedOverride);
+          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeToStartSearchForMostDerivedOverride))
+          .Return (baseMethod);
       // Needed for AddMethod (will only be called for implicit overrides)
       if (!isBaseDefinitionShadowed)
       {
         _relatedMethodFinderMock
-            .Expect (mock => mock.GetMostDerivedVirtualMethod (mostDerivedOverride.Name, MethodSignature.Create (mostDerivedOverride), _mutableType.BaseType))
+            .Expect (mock => mock.GetMostDerivedVirtualMethod (baseMethod.Name, MethodSignature.Create (baseMethod), mutableType.BaseType))
             .Return (fakeBaseMethod);
       }
     }
@@ -979,12 +1053,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return mutableType.AddConstructor (MethodAttributes.Public, parameterDeclarations.AsOneTime(), context => Expression.Empty());
     }
 
+    private MutableConstructorInfo AddConstructor (MutableType mutableType, MethodAttributes attributes)
+    {
+      return mutableType.AddConstructor (attributes, ParameterDeclaration.EmptyParameters, context => Expression.Empty());
+    }
+
     private MutableMethodInfo AddMethod (MutableType mutableType, string name, params ParameterDeclaration[] parameterDeclarations)
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       return mutableType.AddMethod (name, MethodAttributes.Public, returnType, parameterDeclarations.AsOneTime(), ctx => body);
+    }
+
+    private MutableMethodInfo AddMethod (MutableType mutableType, MethodAttributes attributes)
+    {
+      return mutableType.AddMethod ("dummy", attributes, typeof (void), ParameterDeclaration.EmptyParameters, context => Expression.Empty());
     }
 
     private MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> GetAllFields (MutableType mutableType)
@@ -1067,5 +1151,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public class AbcAttribute : Attribute { }
+
+    class ConcreteType { }
+    abstract class AbstractTypeWithoutMethods { }
+    abstract class AbstractTypeWithOneMethod
+    {
+      public abstract void Method ();
+    }
+    abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
+    abstract class DerivedAbstractTypeOverridesAbstractBaseMethod : AbstractTypeWithOneMethod
+    {
+      public override void Method () { }
+    }
   }
 }

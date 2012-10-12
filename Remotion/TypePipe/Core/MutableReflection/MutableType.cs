@@ -94,6 +94,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException ("TODO 4744"); }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this <see cref="MutableType"/> is fully implemented,
+    /// i.e., has no abstract members and implements all abstract members of its base types.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if this instance is fully implemented; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsFullyImplemented
+    {
+      get { return !IsAbstract || GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
+      }
+    }
+
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
@@ -147,11 +160,6 @@ namespace Remotion.TypePipe.MutableReflection
     public IEnumerable<MutableMethodInfo> AllMutableMethods
     {
       get { return _methods.AllMutableMembers; }
-    }
-
-    public bool IsNewType
-    {
-      get { return false; }
     }
 
     // TODO 4972: Replace usages with TypeEqualityComparer.
@@ -214,6 +222,14 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
+      var invalidAttributes =
+          new[]
+          {
+              MethodAttributes.Abstract, MethodAttributes.HideBySig, MethodAttributes.PinvokeImpl,
+              MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
+          };
+      CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
+
       if ((attributes & MethodAttributes.Static) != 0)
         throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
 
@@ -252,7 +268,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
+      // bodyProvider is null for abstract methods
+
+      var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
+      CheckForInvalidAttributes ("method", invalidAttributes, attributes);
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
@@ -276,7 +297,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (this, parameterExpressions, isStatic, baseMethod, _memberSelector);
-      var body = BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+      var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
@@ -285,6 +306,20 @@ namespace Remotion.TypePipe.MutableReflection
       _methods.Add (methodInfo);
 
       return methodInfo;
+    }
+
+    public MutableMethodInfo AddAbstractMethod (
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameterDeclarations)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+
+      attributes = attributes.Set (MethodAttributes.Abstract);
+      return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
     }
 
     /// <summary>
@@ -299,6 +334,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableMethodInfo GetOrAddMutableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
+      Assertion.IsNotNull (method.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!UnderlyingSystemType.Equals (method.DeclaringType) && !IsSubclassOf (method.DeclaringType))
@@ -320,16 +356,19 @@ namespace Remotion.TypePipe.MutableReflection
         return existingMutableOverride;
 
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, _methods);
-      var mostDerivedOverride = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
-      CheckNotFinalForOverride (mostDerivedOverride);
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, BaseType);
+      CheckNotFinalForOverride (baseMethod);
 
-      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (mostDerivedOverride) : mostDerivedOverride.Name;
+      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (baseMethod) : baseMethod.Name;
       var attributes = needsExplicitOverride
-                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (mostDerivedOverride)
-                           : MethodOverrideUtility.GetAttributesForImplicitOverride (mostDerivedOverride);
-      var returnType = mostDerivedOverride.ReturnType;
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (mostDerivedOverride).ConvertToCollection();
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.GetBaseCall (mostDerivedOverride, ctx.Parameters.Cast<Expression>());
+                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
+                           : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
+      var returnType = baseMethod.ReturnType;
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
+      var bodyProvider = baseMethod.IsAbstract
+                             ? null
+                             : new Func<MethodBodyCreationContext, Expression> (
+                                   ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var addedOverride = AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
@@ -395,7 +434,18 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods;
     }
 
-    private static void CheckNotFinalForOverride (MethodInfo overridenMethod)
+    private void CheckForInvalidAttributes (string memberKind, MethodAttributes[] invalidAttributes, MethodAttributes attributes)
+    {
+      var hasInvalidAttributes = invalidAttributes.Any (x => attributes.IsSet (x));
+      if (hasInvalidAttributes)
+      {
+        var invalidAttributeList = string.Join (", ", invalidAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
+        var message = string.Format ("The following MethodAttributes are not supported for {0}s: {1}.",  memberKind, invalidAttributeList);
+        throw new ArgumentException (message, "attributes");
+      }
+    }
+
+    private void CheckNotFinalForOverride (MethodInfo overridenMethod)
     {
       if (overridenMethod.IsFinal)
       {

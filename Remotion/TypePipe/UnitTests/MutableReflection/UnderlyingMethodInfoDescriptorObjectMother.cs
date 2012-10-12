@@ -43,6 +43,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null)
     {
       var actualReturnType = returnType ?? typeof (UnspecifiedType);
+      return CreateForNewWithNullBody (
+          name,
+          attributes,
+          returnType,
+          parameterDescriptors,
+          baseMethod,
+          isGenericMethod,
+          isGenericMethodDefinition,
+          containsGenericParameters,
+          body ?? ExpressionTreeObjectMother.GetSomeExpression (actualReturnType));
+    }
+
+    public static UnderlyingMethodInfoDescriptor CreateForNewWithNullBody (
+        string name = "UnspecifiedMethod",
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+        Type returnType = null,
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        MethodInfo baseMethod = null,
+        bool isGenericMethod = false,
+        bool isGenericMethodDefinition = false,
+        bool containsGenericParameters = false,
+        Expression body = null)
+    {
+      var actualReturnType = returnType ?? typeof (UnspecifiedType);
       return UnderlyingMethodInfoDescriptor.Create (
           name,
           attributes,
@@ -52,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           isGenericMethod,
           isGenericMethodDefinition,
           containsGenericParameters,
-          body ?? ExpressionTreeObjectMother.GetSomeExpression (actualReturnType));
+          body);
     }
 
     public static UnderlyingMethodInfoDescriptor CreateForExisting (

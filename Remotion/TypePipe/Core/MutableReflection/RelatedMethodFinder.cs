@@ -55,6 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MethodInfo GetBaseMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
+      Assertion.IsNotNull (method.DeclaringType);
 
       var baseDefinition = method.GetBaseDefinition ();
       if (method.Equals (baseDefinition))

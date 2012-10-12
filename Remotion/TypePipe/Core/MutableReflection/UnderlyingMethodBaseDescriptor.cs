@@ -61,7 +61,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
       Assertion.IsNotNull (parameterDescriptors);
-      Assertion.IsNotNull (body);
 
       _attributes = attributes;
       _parameterDescriptors = parameterDescriptors;

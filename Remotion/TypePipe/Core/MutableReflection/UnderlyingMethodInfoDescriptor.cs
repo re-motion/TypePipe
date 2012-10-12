@@ -46,10 +46,13 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
-      // Base method may be null
-      ArgumentUtility.CheckNotNull ("body", body);
+      // baseMethod may be null
+      // body may be null
 
-      if (!returnType.IsAssignableFrom (body.Type))
+      if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
+        throw new ArgumentException ("Non-abstract method must have a body.", "body");
+
+      if (body != null && !returnType.IsAssignableFrom (body.Type))
         throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
 
       var readonlyParameterDescriptors = parameterDescriptors.ToList().AsReadOnly();
@@ -78,7 +81,7 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod).ToList().AsReadOnly();
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
       var customAttributeDataProvider = GetCustomAttributeProvider (originalMethod);
-      var body = CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
+      var body = originalMethod.IsAbstract ? null : CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
           originalMethod,
@@ -116,7 +119,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       Assertion.IsNotNull (returnType);
       Assertion.IsNotNull (customAttributeDataProvider);
-      Assertion.IsTrue (returnType.IsAssignableFrom (body.Type));
+      Assertion.IsTrue (body == null || returnType.IsAssignableFrom (body.Type));
 
       _returnType = returnType;
       _baseMethod = baseMethod;
