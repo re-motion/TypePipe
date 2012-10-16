@@ -70,6 +70,14 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 5112")]
+    public void InheritedMethod_FromObject ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString());
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (method, true), CustomAttributeData.GetCustomAttributes (method));
+    }
+
+    [Test]
     public void MutableReflection ()
     {
       var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
