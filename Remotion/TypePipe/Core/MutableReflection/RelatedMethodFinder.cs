@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (method.DeclaringType);
 
       var baseDefinition = method.GetBaseDefinition ();
-      if (method.Equals (baseDefinition))
+      if (baseDefinition.DeclaringType.BaseType == null)
         return null;
 
       return GetMostDerivedOverride (baseDefinition, method.DeclaringType.BaseType);

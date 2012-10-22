@@ -230,6 +230,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetBaseMethod_VirtualMethod_FromObject ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString());
+
+      var result = _finder.GetBaseMethod (method);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
     public void IsShadowed_BaseTypeMethod ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
