@@ -35,23 +35,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
         Type returnType = null,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
         bool isGenericMethod = false,
         bool isGenericMethodDefinition = false,
         bool containsGenericParameters = false,
         Expression body = null)
     {
+      parameterDeclarations = parameterDeclarations ?? ParameterDeclaration.EmptyParameters;
+
       returnType = returnType ?? (body != null ? body.Type : typeof (UnspecifiedType));
 
       if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
         body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
+
       return UnderlyingMethodInfoDescriptor.Create (
           name,
           attributes,
           returnType,
-          parameterDescriptors ?? new UnderlyingParameterInfoDescriptor[0],
+          UnderlyingParameterInfoDescriptor.CreateFromDeclarations(parameterDeclarations),
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,

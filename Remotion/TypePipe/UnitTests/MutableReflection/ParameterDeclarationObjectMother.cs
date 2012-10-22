@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static ParameterDeclaration[] CreateMultiple (int count)
     {
-      return Enumerable.Range (1, count).Select (i => Create()).ToArray();
+      return Enumerable.Range (1, count).Select (i => Create (name: "p" + i)).ToArray();
     }
   }
 }

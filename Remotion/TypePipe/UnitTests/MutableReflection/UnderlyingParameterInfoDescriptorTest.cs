@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -32,12 +33,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForNew ()
     {
       var type = ReflectionObjectMother.GetSomeType();
-      var position = 7;
+      var position = 0;
       var name = "parameterName";
       var attributes = ParameterAttributes.Optional | ParameterAttributes.In;
       var declaration = new ParameterDeclaration (type, name, attributes);
 
-      var descriptor = UnderlyingParameterInfoDescriptor.Create (declaration, position);
+      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (new[] { declaration }.AsOneTime()).Single();
 
       CheckDescriptor (descriptor, null, type, name, position, attributes, type, false, Type.EmptyTypes);
     }
@@ -46,9 +47,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       string s;
-      var originalParameter = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s)).GetParameters().Last();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
+      var originalParameter = method.GetParameters().Last();
 
-      var descriptor = UnderlyingParameterInfoDescriptor.Create (originalParameter);
+      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
 
       var type = typeof (string);
       CheckDescriptor (
@@ -67,9 +69,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Expression_ReturnsSameInstance ()
     {
       string s;
-      var originalParameter = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s)).GetParameters ().Last ();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
 
-      var descriptor = UnderlyingParameterInfoDescriptor.Create (originalParameter);
+      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
 
       var result1 = descriptor.Expression;
       var result2 = descriptor.Expression;

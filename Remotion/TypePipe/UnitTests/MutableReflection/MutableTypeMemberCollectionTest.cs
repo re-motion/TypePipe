@@ -19,11 +19,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
-using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -141,13 +138,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableMethodInfo CreateMutableMember (
         string name = "UnspecifiedMember",
         Type returnType = null,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null)
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null)
     {
       return MutableMethodInfoObjectMother.Create (
           declaringType: _declaringType,
           name: name,
           returnType: returnType,
-          parameterDescriptors: parameterDescriptors);
+          parameterDeclarations: parameterDeclarations);
     }
 
     public class DomainType

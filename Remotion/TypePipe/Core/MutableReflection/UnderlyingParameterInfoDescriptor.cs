@@ -33,30 +33,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
   {
-    public static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
-    {
-      return new UnderlyingParameterInfoDescriptor (
-          null,
-          parameterDeclaration.Type,
-          position,
-          parameterDeclaration.Name,
-          parameterDeclaration.Attributes,
-          EmptyCustomAttributeDataProvider);
-    }
-
-    public static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
-    {
-      var customAttributeDataProvider = GetCustomAttributeProvider (originalParameter);
-
-      return new UnderlyingParameterInfoDescriptor (
-          originalParameter,
-          originalParameter.ParameterType,
-          originalParameter.Position,
-          originalParameter.Name,
-          originalParameter.Attributes,
-          customAttributeDataProvider);
-    }
-
     public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
@@ -68,7 +44,29 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
 
-      return methodBase.GetParameters ().Select (Create);
+      return methodBase.GetParameters().Select (Create);
+    }
+
+    private static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
+    {
+      return new UnderlyingParameterInfoDescriptor (
+          null,
+          parameterDeclaration.Type,
+          position,
+          parameterDeclaration.Name,
+          parameterDeclaration.Attributes,
+          EmptyCustomAttributeDataProvider);
+    }
+
+    private static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
+    {
+      return new UnderlyingParameterInfoDescriptor (
+          originalParameter,
+          originalParameter.ParameterType,
+          originalParameter.Position,
+          originalParameter.Name,
+          originalParameter.Attributes,
+          GetCustomAttributeProvider (originalParameter));
     }
 
     private readonly Type _type;

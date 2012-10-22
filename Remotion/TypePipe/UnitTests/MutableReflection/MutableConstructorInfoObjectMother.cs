@@ -47,20 +47,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MutableConstructorInfo CreateForNew (MutableType declaringType = null)
     {
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew();
-      return Create (declaringType: declaringType, underlyingConstructorInfoDescriptor: descriptor);
+      return Create (declaringType, descriptor);
     }
 
     public static MutableConstructorInfo CreateForNewWithParameters (
         MutableType declaringType,
-        params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
+        params ParameterDeclaration[] parameterDeclarations)
     {
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations);
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors);
-      return Create (declaringType: declaringType, underlyingConstructorInfoDescriptor: descriptor);
+      return Create (declaringType, descriptor);
     }
 
-    public static MutableConstructorInfo CreateForNewWithParameters (params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
+    public static MutableConstructorInfo CreateForNewWithParameters (params ParameterDeclaration[] parameterDeclarations)
     {
-      return CreateForNewWithParameters (null, parameterDescriptors);
+      return CreateForNewWithParameters (null, parameterDeclarations);
     }
   }
 }

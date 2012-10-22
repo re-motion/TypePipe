@@ -29,13 +29,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
         Expression body = null,
         Action notifyMethodWasImplementedAction = null)
     {
       return CreateForNew (
-          declaringType, name, methodAttributes, returnType, parameterDescriptors, baseMethod, body, notifyMethodWasImplementedAction);
+          declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body, notifyMethodWasImplementedAction);
     }
 
     public static MutableMethodInfo CreateForExisting (
@@ -64,13 +64,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
         Expression body = null,
         Action notifyMethodWasImplementedAction = null)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
-          name, attributes, returnType, parameterDescriptors, body: body, baseMethod: baseMethod);
+          name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
 
       return new MutableMethodInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
