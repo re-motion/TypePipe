@@ -96,18 +96,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException ("TODO 4744"); }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this <see cref="MutableType"/> is fully implemented,
-    /// i.e., has no abstract members and implements all abstract members of its base types.
-    /// </summary>
-    /// <value>
-    /// <c>true</c> if this instance is fully implemented; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsFullyImplemented
-    {
-      get { return !IsAbstract || GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract); }
-    }
-
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }

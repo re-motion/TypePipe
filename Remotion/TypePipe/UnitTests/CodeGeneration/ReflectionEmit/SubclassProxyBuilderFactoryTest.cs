@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void CreateBuilder_NotFullyImplemented ()
+    public void CreateBuilder_AbstractType ()
     {
       var originalType = typeof (AbstractType);
       var mutableType = MutableTypeObjectMother.CreateForExistingType (originalType);

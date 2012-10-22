@@ -36,7 +36,6 @@ namespace TypePipe.IntegrationTests
           {
             Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -54,7 +53,6 @@ namespace TypePipe.IntegrationTests
             mutableMethod.SetBody (ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -68,13 +66,11 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
 
             var mutableMethod = mutableType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
             Assert.That (mutableMethod.IsAbstract, Is.True);
 
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -88,13 +84,11 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -108,7 +102,6 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             mutableType.AddMethod (
                 "Method",
@@ -118,7 +111,6 @@ namespace TypePipe.IntegrationTests
                 ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -139,7 +131,6 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethod.IsAbstract, Is.False);
 
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);

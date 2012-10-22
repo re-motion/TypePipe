@@ -140,16 +140,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsFullyImplemented ()
-    {
-      Assert.That (CreateForExisting (typeof (ConcreteType)).IsFullyImplemented, Is.True);
-      Assert.That (CreateForExisting (typeof (AbstractTypeWithoutMethods)).IsFullyImplemented, Is.True);
-      Assert.That (CreateForExisting (typeof (AbstractTypeWithOneMethod)).IsFullyImplemented, Is.False);
-      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod)).IsFullyImplemented, Is.False);
-      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeOverridesAbstractBaseMethod)).IsFullyImplemented, Is.True);
-    }
-
-    [Test]
     public void AllMutableFields ()
     {
       Assert.That (GetAllFields (_mutableType).ExistingBaseMembers, Is.Not.Empty);
