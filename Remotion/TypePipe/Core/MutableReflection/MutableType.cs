@@ -45,13 +45,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
-    private readonly TypeAttributes _attributes;
     private readonly ReadOnlyCollection<Type> _existingInterfaces;
     private readonly List<Type> _addedInterfaces = new List<Type> ();
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _methods;
+
+    private TypeAttributes _attributes;
 
     public MutableType (
         UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -79,7 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
       _attributes = underlyingTypeDescriptor.Attributes;
       _existingInterfaces = underlyingTypeDescriptor.Interfaces;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingField);
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingMutableField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableTypeMethodCollection (this, underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
@@ -196,15 +197,15 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
 
       var signature = new FieldSignature (type);
-      if (AllMutableFields.Any (field => field.Name == name && FieldSignature.Create (field).Equals (signature)))
+      if (AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
       var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
-      var fieldInfo = new MutableFieldInfo (this, descriptor);
+      var field = new MutableFieldInfo (this, descriptor);
 
-      _fields.Add (fieldInfo);
+      _fields.Add (field);
 
-      return fieldInfo;
+      return field;
     }
 
     public MutableFieldInfo GetMutableField (FieldInfo field)
@@ -244,11 +245,11 @@ namespace Remotion.TypePipe.MutableReflection
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors, body);
-      var constructorInfo = new MutableConstructorInfo (this, descriptor);
+      var constructor = new MutableConstructorInfo (this, descriptor);
 
-      _constructors.Add (constructorInfo);
+      _constructors.Add (constructor);
 
-      return constructorInfo;
+      return constructor;
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
@@ -300,12 +301,15 @@ namespace Remotion.TypePipe.MutableReflection
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
-      var methodInfo = new MutableMethodInfo (this, descriptor, () => { });
+        name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
+      var method = CreateMutableMethod (descriptor);
 
-      _methods.Add (methodInfo);
+      _methods.Add (method);
 
-      return methodInfo;
+      if (method.IsAbstract)
+        _attributes |= TypeAttributes.Abstract;
+
+      return method;
     }
 
     public MutableMethodInfo AddAbstractMethod (
@@ -481,7 +485,19 @@ namespace Remotion.TypePipe.MutableReflection
       return mutableMember;
     }
 
-    private MutableFieldInfo CreateExistingField (FieldInfo originalField)
+    private MutableMethodInfo CreateMutableMethod (UnderlyingMethodInfoDescriptor descriptor)
+    {
+      return new MutableMethodInfo (this, descriptor, MakeConcreteIfPossible);
+    }
+
+    private void MakeConcreteIfPossible ()
+    {
+      var implementsAllMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
+      if (implementsAllMethods)
+        _attributes &= ~TypeAttributes.Abstract;
+    }
+
+    private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
     {
       var descriptor = UnderlyingFieldInfoDescriptor.Create (originalField);
       return new MutableFieldInfo (this, descriptor);
@@ -496,7 +512,7 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
-      return new MutableMethodInfo (this, descriptor, () => { });
+      return CreateMutableMethod (descriptor);
     }
   } 
 }

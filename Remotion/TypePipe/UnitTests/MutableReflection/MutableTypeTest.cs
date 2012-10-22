@@ -128,7 +128,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore("TODO 5099")]
     public void Initialization_AbstractType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (AbstractTypeWithOneMethod));
@@ -582,7 +581,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [Ignore("TODO 5099")]
     public void AddMethod_AbstractMethod_UpdatesIsAbstract ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExistingType ();
