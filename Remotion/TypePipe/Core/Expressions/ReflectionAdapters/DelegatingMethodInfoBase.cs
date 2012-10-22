@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
       _innerMethod = innerMethod;
     }
 
-    protected abstract Type GetReturnType ();
+    public abstract override Type ReturnType { get; }
     
     protected TMethodBase InnerMethod
     {
@@ -51,11 +51,6 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
     public override MethodAttributes Attributes
     {
       get { return _innerMethod.Attributes; }
-    }
-
-    public sealed override Type ReturnType
-    {
-      get { return GetReturnType(); }
     }
 
     public override CallingConventions CallingConvention

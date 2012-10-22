@@ -37,6 +37,11 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
       get { return InnerMethod; }
     }
 
+    public override Type ReturnType
+    {
+      get { return InnerMethod.ReturnType; }
+    }
+
     public override ICustomAttributeProvider ReturnTypeCustomAttributes
     {
       get { return InnerMethod.ReturnTypeCustomAttributes; }
@@ -45,11 +50,6 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
     public override MethodInfo GetBaseDefinition ()
     {
       return InnerMethod.GetBaseDefinition();
-    }
-
-    protected override Type GetReturnType ()
-    {
-      return InnerMethod.ReturnType;
     }
   }
 }
