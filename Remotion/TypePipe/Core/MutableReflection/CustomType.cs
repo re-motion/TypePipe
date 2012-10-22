@@ -38,7 +38,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly Type _underlyingSystemType;
     private readonly Type _declaringType;
     private readonly Type _baseType;
-    private readonly TypeAttributes _typeAttributes;
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
@@ -48,7 +47,6 @@ namespace Remotion.TypePipe.MutableReflection
         Type underlyingSystemType,
         Type declaringType,
         Type baseType,
-        TypeAttributes typeAttributes,
         string name,
         string @namespace,
         string fullName)
@@ -66,7 +64,6 @@ namespace Remotion.TypePipe.MutableReflection
       _underlyingSystemType = underlyingSystemType;
       _declaringType = declaringType;
       _baseType = baseType;
-      _typeAttributes = typeAttributes;
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
@@ -74,6 +71,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
 
+    protected abstract override TypeAttributes GetAttributeFlagsImpl ();
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
@@ -213,11 +211,6 @@ namespace Remotion.TypePipe.MutableReflection
     protected override bool HasElementTypeImpl ()
     {
       return false;
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
-    {
-      return _typeAttributes;
     }
 
     protected override bool IsByRefImpl ()

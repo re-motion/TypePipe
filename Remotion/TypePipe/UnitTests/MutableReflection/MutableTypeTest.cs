@@ -899,6 +899,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAttributeFlagsImpl");
+
+      Assert.That (result, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
+    }
+
+    [Test]
     public void GetAllInterfaces ()
     {
       Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));

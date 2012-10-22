@@ -45,6 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
+    private readonly TypeAttributes _attributes;
     private readonly ReadOnlyCollection<Type> _existingInterfaces;
     private readonly List<Type> _addedInterfaces = new List<Type> ();
 
@@ -61,7 +62,6 @@ namespace Remotion.TypePipe.MutableReflection
             underlyingTypeDescriptor.UnderlyingSystemInfo,
             underlyingTypeDescriptor.DeclaringType,
             underlyingTypeDescriptor.BaseType,
-            underlyingTypeDescriptor.Attributes,
             underlyingTypeDescriptor.Name,
             underlyingTypeDescriptor.Namespace,
             underlyingTypeDescriptor.FullName)
@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeDatas =
           new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingTypeDescriptor.CustomAttributeDataProvider);
 
+      _attributes = underlyingTypeDescriptor.Attributes;
       _existingInterfaces = underlyingTypeDescriptor.Interfaces;
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingField);
@@ -411,6 +412,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeDatas.Value;
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return _attributes;
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()
