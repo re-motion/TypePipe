@@ -595,6 +595,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = _mutableType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations.AsOneTime ());
 
       Assert.That (method.IsAbstract, Is.True);
+      Assert.That (method.IsVirtual, Is.True);
     }
 
     [Test]

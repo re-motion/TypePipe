@@ -58,7 +58,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.True);
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void AddAbstractMethod_BecomesAbstract ()
     {

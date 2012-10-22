@@ -109,8 +109,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineParameters (methodBuilder, method.GetParameters ());
 
-      var bodyBuildAction = CreateBodyBuildAction (context, methodBuilder, method.ParameterExpressions, method.Body);
-      context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
+      if (!method.IsAbstract)
+      {
+        var bodyBuildAction = CreateBodyBuildAction (context, methodBuilder, method.ParameterExpressions, method.Body);
+        context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
+      }
 
       var explicitOverrideAction = CreateExplicitOverrideBuildAction (context.TypeBuilder, context.EmittableOperandProvider, method);
       context.PostDeclarationsActionManager.AddAction (explicitOverrideAction);
