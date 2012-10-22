@@ -58,7 +58,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.True);
     }
 
-    [Ignore("TODO 5099")]
+    [Ignore ("TODO 5099")]
     [Test]
     public void AddAbstractMethod_BecomesAbstract ()
     {
@@ -76,7 +76,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.True);
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_BecomesConcrete ()
     {
@@ -116,7 +115,6 @@ namespace TypePipe.IntegrationTests
       Assert.That (type.IsAbstract, Is.False);
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
     {
