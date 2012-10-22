@@ -128,6 +128,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore("TODO 5099")]
+    public void Initialization_AbstractType ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (AbstractTypeWithOneMethod));
+      Assert.That (mutableType.IsAbstract, Is.True);
+
+      var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+
+      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
+      Assert.That (mutableType.IsAbstract, Is.False);
+    }
+
+    [Test]
     public void IsFullyImplemented ()
     {
       Assert.That (CreateForExisting (typeof (ConcreteType)).IsFullyImplemented, Is.True);
@@ -289,8 +302,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.AddedFields, Has.Count.EqualTo (1));
     }
-
-    
 
     [Test]
     public void GetMutableField ()
@@ -568,6 +579,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           typeof (void),
           ParameterDeclaration.EmptyParameters,
           ctx => Expression.Empty());
+    }
+
+    [Test]
+    [Ignore("TODO 5099")]
+    public void AddMethod_AbstractMethod_UpdatesIsAbstract ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType ();
+      Assert.That (mutableType.IsAbstract, Is.False);
+
+      var mutableMethod = mutableType.AddMethod (
+          "AbstractMethod", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
+      Assert.That (mutableType.IsAbstract, Is.True);
+
+      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
+      Assert.That (mutableType.IsAbstract, Is.False);
     }
 
     [Test]

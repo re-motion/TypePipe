@@ -436,10 +436,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var wasCalled = false;
       Action action = () => wasCalled = true;
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null);
-      var method = new MutableMethodInfo (_declaringType, descriptor, action);
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null), action);
 
-      method.SetBody (ctx => Expression.Default (method.ReturnType));
+      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
 
       Assert.That (wasCalled, Is.True);
     }
@@ -585,9 +584,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
     }
 
-    private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor)
+    private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor, Action notifyMethodWasImplemented = null)
     {
-      return new MutableMethodInfo (_declaringType, descriptor, () => { });
+      return new MutableMethodInfo (_declaringType, descriptor, notifyMethodWasImplemented ?? (() => { }));
     }
 
     private MutableMethodInfo CreateWithParameters (params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
