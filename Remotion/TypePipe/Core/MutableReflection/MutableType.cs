@@ -103,8 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </value>
     public bool IsFullyImplemented
     {
-      get { return !IsAbstract || GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
-      }
+      get { return !IsAbstract || GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -301,7 +300,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
-      var methodInfo = new MutableMethodInfo (this, descriptor);
+      var methodInfo = new MutableMethodInfo (this, descriptor, () => { });
 
       _methods.Add (methodInfo);
 
@@ -491,7 +490,7 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
-      return new MutableMethodInfo (this, descriptor);
+      return new MutableMethodInfo (this, descriptor, () => { });
     }
-  }
+  } 
 }

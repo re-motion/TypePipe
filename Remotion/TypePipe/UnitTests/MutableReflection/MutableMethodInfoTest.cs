@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
+      var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor, () => { });
 
       Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (mutableMethodInfo.Attributes, Is.EqualTo (_descriptor.Attributes));
@@ -163,8 +163,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var instanceDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0);
       var staticDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static);
 
-      var instanceMethod = new MutableMethodInfo (_declaringType, instanceDescriptor);
-      var staticMethod = new MutableMethodInfo (_declaringType, staticDescriptor);
+      var instanceMethod = new MutableMethodInfo (_declaringType, instanceDescriptor, () => { });
+      var staticMethod = new MutableMethodInfo (_declaringType, staticDescriptor, () => { });
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -418,7 +418,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody_ImplementsAbstractMethod ()
     {
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNewWithNullBody (attributes: MethodAttributes.Abstract));
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null));
       Assert.That (mutableMethod.IsAbstract, Is.True);
 
       mutableMethod.SetBody (
@@ -429,6 +429,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           });
 
       Assert.That (mutableMethod.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void SetBody_AbstractMethod_CallsNotifyMethodWasImplemented ()
+    {
+      var wasCalled = false;
+      Action action = () => wasCalled = true;
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null);
+      var method = new MutableMethodInfo (_declaringType, descriptor, action);
+
+      method.SetBody (ctx => Expression.Default (method.ReturnType));
+
+      Assert.That (wasCalled, Is.True);
     }
 
     [Test]
@@ -448,7 +461,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       mutableMethod.SetBody (bodyProvider);
     }
-
 
     [Test]
     public void ToString_WithParameters ()
@@ -575,13 +587,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor)
     {
-      return new MutableMethodInfo (_declaringType, descriptor);
+      return new MutableMethodInfo (_declaringType, descriptor, () => { });
     }
 
     private MutableMethodInfo CreateWithParameters (params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors);
-      return new MutableMethodInfo (_declaringType, descriptor);
+      return new MutableMethodInfo (_declaringType, descriptor, () => { });
     }
 
     public class DomainTypeBase

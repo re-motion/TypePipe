@@ -37,8 +37,9 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly UnderlyingMethodInfoDescriptor _underlyingMethodInfoDescriptor;
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly Action _notifyMethodWasImplemented;
 
+    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
     // TODO 5057 (Use Lazy<T>)
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
@@ -46,13 +47,15 @@ namespace Remotion.TypePipe.MutableReflection
     private MethodAttributes _attributes;
     private Expression _body;
 
-    public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor)
+    public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor, Action notifyMethodWasImplemented)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("underlyingMethodInfoDescriptor", underlyingMethodInfoDescriptor);
+      ArgumentUtility.CheckNotNull ("notifyMethodWasImplemented", notifyMethodWasImplemented);
 
       _declaringType = declaringType;
       _underlyingMethodInfoDescriptor = underlyingMethodInfoDescriptor;
+      _notifyMethodWasImplemented = notifyMethodWasImplemented;
 
       _parameters = _underlyingMethodInfoDescriptor.ParameterDescriptors
           .Select (pd => new MutableParameterInfo (this, pd))
@@ -226,6 +229,7 @@ namespace Remotion.TypePipe.MutableReflection
       {
         Assertion.IsTrue (IsAbstract);
         _attributes = _attributes.Unset (MethodAttributes.Abstract);
+        _notifyMethodWasImplemented();
       }
 
       _body = newBody;
