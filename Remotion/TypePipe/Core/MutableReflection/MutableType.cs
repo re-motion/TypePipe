@@ -258,6 +258,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
+      // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
       // TODO 5099: add check attributes to be virtual if also abstract
       // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
       // bodyProvider is null for abstract methods

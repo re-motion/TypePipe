@@ -584,6 +584,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (mutableType.IsAbstract, Is.False);
     }
 
+    [Ignore("TODO 5099")]
+    [Test]
+    public void AddMethod_ImplementsAbstractBaseMethod_UpdatesIsAbstract ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod));
+      Assert.That (mutableType.IsAbstract, Is.True);
+
+      mutableType.AddMethod ("Method", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      Assert.That (mutableType.IsAbstract, Is.False);
+    }
+
     [Test]
     public void AddAbstractMethod ()
     {
