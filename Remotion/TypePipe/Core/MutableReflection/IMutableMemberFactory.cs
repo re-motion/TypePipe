@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Serves as a factory for mutable members.
   /// </summary>
   /// <remarks>
-  /// This is used by the <see cref="MutableType"/> class.
+  /// This class is an implementation detail of <see cref="MutableType"/>.
   /// </remarks>
   public interface IMutableMemberFactory
   {

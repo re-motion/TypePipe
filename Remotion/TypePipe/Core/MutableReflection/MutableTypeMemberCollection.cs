@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// A container storing members and providing convenience properties for <see cref="ExistingDeclaredMembers"/> <see cref="ExistingBaseMembers"/>
   /// and <see cref="AddedMembers"/>.
-  /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version for an existing member.
+  /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version for a member.
   /// This class is an implementation detail of <see cref="MutableType"/>.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
