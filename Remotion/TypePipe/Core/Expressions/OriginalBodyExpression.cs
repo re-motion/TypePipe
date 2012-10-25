@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.Expressions
     private readonly ReadOnlyCollection<Expression> _arguments;
 
     public OriginalBodyExpression (MethodBase methodBase, Type returnType, IEnumerable<Expression> arguments)
-        : base (returnType)
+        : base (ArgumentUtility.CheckNotNull ("returnType", returnType))
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
