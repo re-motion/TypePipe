@@ -28,11 +28,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type underlyingSystemType,
         Type declaringType,
         Type baseType,
-        TypeAttributes typeAttributes,
         string name,
         string @namespace,
         string fullName)
-        : base (memberSelector, underlyingSystemType, declaringType, baseType, typeAttributes, name, @namespace, fullName)
+        : base (memberSelector, underlyingSystemType, declaringType, baseType, name, @namespace, fullName)
     {
     }
 
@@ -45,6 +44,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return CustomAttributeDatas;
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      throw new NotImplementedException();
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()

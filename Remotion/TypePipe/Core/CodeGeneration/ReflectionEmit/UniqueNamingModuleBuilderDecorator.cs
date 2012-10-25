@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -29,17 +30,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private int _counter;
 
-    [CLSCompliant(false)]
+    [CLSCompliant (false)]
     public UniqueNamingModuleBuilderDecorator (IModuleBuilder innerModuleBuilder)
     {
+      ArgumentUtility.CheckNotNull ("innerModuleBuilder", innerModuleBuilder);
+
       _innerModuleBuilder = innerModuleBuilder;
     }
 
     [CLSCompliant (false)]
     public ITypeBuilder DefineType (string suggestedName, TypeAttributes attr, Type parent)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("suggestedName", suggestedName);
+      ArgumentUtility.CheckNotNull ("parent", parent);
+
       _counter++;
-      var name = string.Format("{0}_Proxy{1}", suggestedName, _counter);
+      var name = string.Format ("{0}_Proxy{1}", suggestedName, _counter);
       return _innerModuleBuilder.DefineType (name, attr, parent);
     }
   }

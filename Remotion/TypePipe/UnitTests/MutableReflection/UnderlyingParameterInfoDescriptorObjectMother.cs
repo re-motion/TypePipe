@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
@@ -22,7 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class UnderlyingParameterInfoDescriptorObjectMother
+  public static class UnderlyingParameterInfoDescriptorObjectMother
   {
     private class UnspecifiedType
     {
@@ -33,14 +34,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static UnderlyingParameterInfoDescriptor CreateForNew (
-        Type parameterType = null, string name = "parameter", int position = 7, ParameterAttributes attributes = ParameterAttributes.In)
+        Type parameterType = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
     {
-      return UnderlyingParameterInfoDescriptor.Create (
-          new ParameterDeclaration (
-              parameterType ?? typeof (UnspecifiedType),
-              name,
-              attributes),
-          position);
+      var parameterDeclartion = new ParameterDeclaration (parameterType ?? typeof (UnspecifiedType), name, attributes);
+      return UnderlyingParameterInfoDescriptor.CreateFromDeclarations (new[] { parameterDeclartion }).Single();
     }
 
     public static UnderlyingParameterInfoDescriptor CreateForExisting (ParameterInfo parameter = null)
@@ -49,12 +46,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       parameter = parameter
                   ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.Method (out s)).GetParameters().Single();
 
-      return UnderlyingParameterInfoDescriptor.Create (parameter);
+      return UnderlyingParameterInfoDescriptor.CreateFromMethodBase ((MethodBase) parameter.Member).Single (p => p.UnderlyingSystemInfo == parameter);
     }
 
     public static UnderlyingParameterInfoDescriptor[] CreateMultiple (int count)
     {
-      return Enumerable.Range (0, count).Select (i => CreateForNew (position: i)).ToArray();
+      return UnderlyingParameterInfoDescriptor.CreateFromDeclarations (ParameterDeclarationObjectMother.CreateMultiple (count)).ToArray();
     }
   }
 }

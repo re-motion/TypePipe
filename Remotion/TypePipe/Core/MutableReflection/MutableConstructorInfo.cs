@@ -101,9 +101,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _underlyingConstructorInfoDescriptor.Name; }
     }
 
-    public IEnumerable<ParameterExpression> ParameterExpressions
+    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _underlyingConstructorInfoDescriptor.ParameterDescriptors.Select (pd => pd.Expression); }
+      get { return _underlyingConstructorInfoDescriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public Expression Body

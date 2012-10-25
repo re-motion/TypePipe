@@ -28,6 +28,7 @@ namespace TypePipe.IntegrationTests
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
+    [Ignore("TODO 5099")]
     public void NoChanges_RemainsAbstract ()
     {
       var type = AssembleType<AbstractTypeWithoutMethods> (
@@ -35,10 +36,9 @@ namespace TypePipe.IntegrationTests
           {
             Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
-      Assert.That (type.IsAbstract, Is.False);
+      Assert.That (type.IsAbstract, Is.True);
       // The generated default constructor of abstract class has family visibility (protected in C#). 
       Assert.That (() => Activator.CreateInstance (type, nonPublic: true), Throws.Nothing);
     }
@@ -53,13 +53,11 @@ namespace TypePipe.IntegrationTests
             mutableMethod.SetBody (ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.True);
     }
 
-    [Ignore("TODO 5099")]
     [Test]
     public void AddAbstractMethod_BecomesAbstract ()
     {
@@ -67,19 +65,16 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
 
             var mutableMethod = mutableType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
             Assert.That (mutableMethod.IsAbstract, Is.True);
 
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.True);
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_BecomesConcrete ()
     {
@@ -87,13 +82,11 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -107,7 +100,6 @@ namespace TypePipe.IntegrationTests
           mutableType =>
           {
             Assert.That (mutableType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsFullyImplemented, Is.False);
 
             mutableType.AddMethod (
                 "Method",
@@ -117,13 +109,11 @@ namespace TypePipe.IntegrationTests
                 ctx => Expression.Empty());
 
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);
     }
 
-    [Ignore ("TODO 5099")]
     [Test]
     public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
     {
@@ -138,7 +128,6 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableMethod.IsAbstract, Is.False);
 
             Assert.That (mutableType.IsAbstract, Is.False);
-            Assert.That (mutableType.IsFullyImplemented, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.False);

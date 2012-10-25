@@ -54,13 +54,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void DefineType_Uniqueness ()
     {
-      _moduleBuilderMock.Expect (x => x.DefineType ("ClassName_Proxy1", 0, null)).Return (null);
-      _moduleBuilderMock.Expect (x => x.DefineType ("ClassName_Proxy2", 0, null)).Return (null);
-      _moduleBuilderMock.Expect (x => x.DefineType ("OtherClassName_Proxy3", 0, null)).Return (null);
+      var baseType = ReflectionObjectMother.GetSomeType ();
 
-      _decorator.DefineType ("ClassName", 0, null);
-      _decorator.DefineType ("ClassName", 0, null);
-      _decorator.DefineType ("OtherClassName", 0, null);
+      _moduleBuilderMock.Expect (x => x.DefineType ("ClassName_Proxy1", 0, baseType)).Return (null);
+      _moduleBuilderMock.Expect (x => x.DefineType ("ClassName_Proxy2", 0, baseType)).Return (null);
+      _moduleBuilderMock.Expect (x => x.DefineType ("OtherClassName_Proxy3", 0, baseType)).Return (null);
+
+      _decorator.DefineType ("ClassName", 0, baseType);
+      _decorator.DefineType ("ClassName", 0, baseType);
+      _decorator.DefineType ("OtherClassName", 0, baseType);
 
       _moduleBuilderMock.VerifyAllExpectations ();
     }

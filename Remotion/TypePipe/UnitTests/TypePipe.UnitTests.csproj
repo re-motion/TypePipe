@@ -90,6 +90,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\MutableMemberFactoryTest.cs" />
     <Compile Include="MutableReflection\RelatedEventFinderTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataAdapterTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeNamedArgumentAdapterTest.cs" />

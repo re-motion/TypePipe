@@ -128,13 +128,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsFullyImplemented ()
+    public void Initialization_AbstractType ()
     {
-      Assert.That (CreateForExisting (typeof (ConcreteType)).IsFullyImplemented, Is.True);
-      Assert.That (CreateForExisting (typeof (AbstractTypeWithoutMethods)).IsFullyImplemented, Is.True);
-      Assert.That (CreateForExisting (typeof (AbstractTypeWithOneMethod)).IsFullyImplemented, Is.False);
-      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod)).IsFullyImplemented, Is.False);
-      Assert.That (CreateForExisting (typeof (DerivedAbstractTypeOverridesAbstractBaseMethod)).IsFullyImplemented, Is.True);
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (AbstractTypeWithOneMethod));
+      Assert.That (mutableType.IsAbstract, Is.True);
+
+      var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+
+      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
+      Assert.That (mutableType.IsAbstract, Is.False);
     }
 
     [Test]
@@ -289,8 +291,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.AddedFields, Has.Count.EqualTo (1));
     }
-
-    
 
     [Test]
     public void GetMutableField ()
@@ -571,6 +571,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddMethod_AbstractMethod_UpdatesIsAbstract ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType ();
+      Assert.That (mutableType.IsAbstract, Is.False);
+
+      var mutableMethod = mutableType.AddMethod (
+          "AbstractMethod", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
+      Assert.That (mutableType.IsAbstract, Is.True);
+
+      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
+      Assert.That (mutableType.IsAbstract, Is.False);
+    }
+
+    [Ignore("TODO 5099")]
+    [Test]
+    public void AddMethod_ImplementsAbstractBaseMethod_UpdatesIsAbstract ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod));
+      Assert.That (mutableType.IsAbstract, Is.True);
+
+      mutableType.AddMethod ("Method", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      Assert.That (mutableType.IsAbstract, Is.False);
+    }
+
+    [Test]
     public void AddAbstractMethod ()
     {
       var name = "AbstractMethod";
@@ -581,6 +606,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = _mutableType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations.AsOneTime ());
 
       Assert.That (method.IsAbstract, Is.True);
+      Assert.That (method.IsVirtual, Is.True);
     }
 
     [Test]
@@ -870,6 +896,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
       Assert.That (result, Is.SameAs (_mutableType.GetCustomAttributeData ()), "should be cached");
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl ()
+    {
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAttributeFlagsImpl");
+
+      Assert.That (result, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]

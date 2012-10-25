@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
     {
       var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      if (!mutableType.IsFullyImplemented)
+      if (mutableType.IsAbstract)
         typeAttributes |= TypeAttributes.Abstract;
 
       var typeBuilder = _moduleBuilder.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);

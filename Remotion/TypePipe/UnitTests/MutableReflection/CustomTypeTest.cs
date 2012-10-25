@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private Type _underlyingSystemType;
     private Type _declaringType;
     private Type _baseType;
-    private TypeAttributes _typeAttributes;
     private string _name;
     private string _namespace;
     private string _fullName;
@@ -52,13 +51,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _underlyingSystemType = ReflectionObjectMother.GetSomeType();
       _declaringType = ReflectionObjectMother.GetSomeType();
       _baseType = ReflectionObjectMother.GetSomeType();
-      _typeAttributes = (TypeAttributes) 777;
       _name = "type name";
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customType = new TestableCustomType (
-          _memberSelectorMock, _underlyingSystemType, _declaringType, _baseType, _typeAttributes, _name, _namespace, _fullName);
+      _customType = new TestableCustomType (_memberSelectorMock, _underlyingSystemType, _declaringType, _baseType, _name, _namespace, _fullName);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
@@ -76,7 +73,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_customType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
       Assert.That (_customType.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_customType.BaseType, Is.SameAs (_baseType));
-      Assert.That (_customType.Attributes, Is.EqualTo (_typeAttributes));
       Assert.That (_customType.Name, Is.EqualTo (_name));
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
       Assert.That (_customType.FullName, Is.EqualTo (_fullName));
@@ -88,8 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Type declaringType = null;
       Type baseType = null;
 
-      var customType = new TestableCustomType (
-          _memberSelectorMock, _underlyingSystemType, declaringType, baseType, _typeAttributes, _name, _namespace, _fullName);
+      var customType = new TestableCustomType (_memberSelectorMock, _underlyingSystemType, declaringType, baseType, _name, _namespace, _fullName);
 
       Assert.That (customType.DeclaringType, Is.Null);
       Assert.That (customType.BaseType, Is.Null);
@@ -311,12 +306,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void HasElementTypeImpl ()
     {
       Assert.That (_customType.HasElementType, Is.False);
-    }
-
-    [Test]
-    public void GetAttributeFlagsImpl ()
-    {
-      Assert.That (_customType.Attributes, Is.EqualTo (_typeAttributes));
     }
 
     [Test]

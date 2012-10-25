@@ -52,6 +52,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> _methods;
 
+    private TypeAttributes _attributes;
+
     public MutableType (
         UnderlyingTypeDescriptor underlyingTypeDescriptor,
         IMemberSelector memberSelector,
@@ -61,7 +63,6 @@ namespace Remotion.TypePipe.MutableReflection
             underlyingTypeDescriptor.UnderlyingSystemInfo,
             underlyingTypeDescriptor.DeclaringType,
             underlyingTypeDescriptor.BaseType,
-            underlyingTypeDescriptor.Attributes,
             underlyingTypeDescriptor.Name,
             underlyingTypeDescriptor.Namespace,
             underlyingTypeDescriptor.FullName)
@@ -76,9 +77,10 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeDatas =
           new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingTypeDescriptor.CustomAttributeDataProvider);
 
+      _attributes = underlyingTypeDescriptor.Attributes;
       _existingInterfaces = underlyingTypeDescriptor.Interfaces;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingField);
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingMutableField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableTypeMethodCollection (this, underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
@@ -92,19 +94,6 @@ namespace Remotion.TypePipe.MutableReflection
     public bool IsModified
     {
       get { throw new NotImplementedException ("TODO 4744"); }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this <see cref="MutableType"/> is fully implemented,
-    /// i.e., has no abstract members and implements all abstract members of its base types.
-    /// </summary>
-    /// <value>
-    /// <c>true</c> if this instance is fully implemented; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsFullyImplemented
-    {
-      get { return !IsAbstract || GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
-      }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -196,15 +185,15 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
 
       var signature = new FieldSignature (type);
-      if (AllMutableFields.Any (field => field.Name == name && FieldSignature.Create (field).Equals (signature)))
+      if (AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new ArgumentException ("Field with equal name and signature already exists.", "name");
 
       var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
-      var fieldInfo = new MutableFieldInfo (this, descriptor);
+      var field = new MutableFieldInfo (this, descriptor);
 
-      _fields.Add (fieldInfo);
+      _fields.Add (field);
 
-      return fieldInfo;
+      return field;
     }
 
     public MutableFieldInfo GetMutableField (FieldInfo field)
@@ -244,11 +233,11 @@ namespace Remotion.TypePipe.MutableReflection
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors, body);
-      var constructorInfo = new MutableConstructorInfo (this, descriptor);
+      var constructor = new MutableConstructorInfo (this, descriptor);
 
-      _constructors.Add (constructorInfo);
+      _constructors.Add (constructor);
 
-      return constructorInfo;
+      return constructor;
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
@@ -269,6 +258,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
+      // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
+      // TODO 5099: add check attributes to be virtual if also abstract
       // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
       // bodyProvider is null for abstract methods
 
@@ -300,12 +291,15 @@ namespace Remotion.TypePipe.MutableReflection
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
-      var methodInfo = new MutableMethodInfo (this, descriptor);
+        name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
+      var method = CreateMutableMethod (descriptor);
 
-      _methods.Add (methodInfo);
+      _methods.Add (method);
 
-      return methodInfo;
+      if (method.IsAbstract)
+        _attributes |= TypeAttributes.Abstract;
+
+      return method;
     }
 
     public MutableMethodInfo AddAbstractMethod (
@@ -318,7 +312,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
-      attributes = attributes.Set (MethodAttributes.Abstract);
+      attributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
       return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
     }
 
@@ -414,6 +408,11 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributeDatas.Value;
     }
 
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return _attributes;
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return _existingInterfaces.Concat (_addedInterfaces);
@@ -476,7 +475,19 @@ namespace Remotion.TypePipe.MutableReflection
       return mutableMember;
     }
 
-    private MutableFieldInfo CreateExistingField (FieldInfo originalField)
+    private MutableMethodInfo CreateMutableMethod (UnderlyingMethodInfoDescriptor descriptor)
+    {
+      return new MutableMethodInfo (this, descriptor, MakeConcreteIfPossible);
+    }
+
+    private void MakeConcreteIfPossible ()
+    {
+      var implementsAllMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
+      if (implementsAllMethods)
+        _attributes &= ~TypeAttributes.Abstract;
+    }
+
+    private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
     {
       var descriptor = UnderlyingFieldInfoDescriptor.Create (originalField);
       return new MutableFieldInfo (this, descriptor);
@@ -491,7 +502,7 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
-      return new MutableMethodInfo (this, descriptor);
+      return CreateMutableMethod (descriptor);
     }
-  }
+  } 
 }

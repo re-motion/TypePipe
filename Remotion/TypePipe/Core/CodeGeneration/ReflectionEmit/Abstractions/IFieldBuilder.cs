@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 
@@ -24,7 +23,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Defines an interface for <see cref="FieldBuilder"/>.
   /// </summary>
-  [CLSCompliant (false)]
   public interface IFieldBuilder
   {
     void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field);

@@ -21,13 +21,12 @@ using Microsoft.Scripting.Ast;
 namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 {
   /// <summary>
-  /// Represents a constructor as a <see cref="MethodInfo"/>. This is required for calling a constructor using a 
-  /// <see cref="MethodCallExpression"/>.
+  /// Represents a constructor as a <see cref="MethodInfo"/>. This is required for calling a constructor using a <see cref="MethodCallExpression"/>.
   /// </summary>
   public class ConstructorAsMethodInfoAdapter : DelegatingMethodInfoBase<ConstructorInfo>
   {
     public ConstructorAsMethodInfoAdapter (ConstructorInfo adaptedConstructor)
-        : base(adaptedConstructor)
+        : base (adaptedConstructor)
     {
     }
 
@@ -36,19 +35,19 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
       get { return InnerMethod; }
     }
 
+    public override Type ReturnType
+    {
+      get { return typeof (void); }
+    }
+
     public override ICustomAttributeProvider ReturnTypeCustomAttributes
     {
-      get { throw new NotSupportedException (); }
+      get { throw new NotSupportedException(); }
     }
 
     public override MethodInfo GetBaseDefinition ()
     {
       return this;
-    }
-
-    protected override Type GetReturnType ()
-    {
-      return typeof (void);
     }
   }
 }

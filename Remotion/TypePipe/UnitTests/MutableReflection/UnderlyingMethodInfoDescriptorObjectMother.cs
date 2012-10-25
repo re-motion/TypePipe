@@ -35,43 +35,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
         Type returnType = null,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
         bool isGenericMethod = false,
         bool isGenericMethodDefinition = false,
         bool containsGenericParameters = false,
         Expression body = null)
     {
-      var actualReturnType = returnType ?? typeof (UnspecifiedType);
-      return CreateForNewWithNullBody (
-          name,
-          attributes,
-          returnType,
-          parameterDescriptors,
-          baseMethod,
-          isGenericMethod,
-          isGenericMethodDefinition,
-          containsGenericParameters,
-          body ?? ExpressionTreeObjectMother.GetSomeExpression (actualReturnType));
-    }
+      parameterDeclarations = parameterDeclarations ?? ParameterDeclaration.EmptyParameters;
 
-    public static UnderlyingMethodInfoDescriptor CreateForNewWithNullBody (
-        string name = "UnspecifiedMethod",
-        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
-        Type returnType = null,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
-        MethodInfo baseMethod = null,
-        bool isGenericMethod = false,
-        bool isGenericMethodDefinition = false,
-        bool containsGenericParameters = false,
-        Expression body = null)
-    {
-      var actualReturnType = returnType ?? typeof (UnspecifiedType);
+      returnType = returnType ?? (body != null ? body.Type : typeof (UnspecifiedType));
+
+      if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
+        body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
+
+
       return UnderlyingMethodInfoDescriptor.Create (
           name,
           attributes,
-          actualReturnType,
-          parameterDescriptors ?? new UnderlyingParameterInfoDescriptor[0],
+          returnType,
+          UnderlyingParameterInfoDescriptor.CreateFromDeclarations(parameterDeclarations),
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,

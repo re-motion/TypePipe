@@ -34,17 +34,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static MutableParameterInfo Create (
         MemberInfo member = null,
-        int position = 7,
         Type parameterType = null,
         string name = "param7",
         ParameterAttributes attributes = ParameterAttributes.In)
     {
-      return CreateForNew (member, position, parameterType, name, attributes);
+      return CreateForNew (member, parameterType, name, attributes);
     }
 
     public static MutableParameterInfo CreateForNew (
         MemberInfo member = null,
-        int position = 7,
         Type parameterType = null,
         string name = "param7",
         ParameterAttributes attributes = ParameterAttributes.In)
@@ -52,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       member = member ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.M());
       parameterType = parameterType ?? typeof (UnspecifiedType);
 
-      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (parameterType, name, position, attributes);
+      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (parameterType, name, attributes);
 
       return new MutableParameterInfo (member, descriptor);
     }
