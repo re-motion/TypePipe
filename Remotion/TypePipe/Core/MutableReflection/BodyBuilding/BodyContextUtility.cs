@@ -58,8 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
           .Zip (argumentCollection, (t, a) => new { t.Parameter, Argument = EnsureCorrectType (a, t.Parameter.Type, t.Index, "arguments") })
           .ToDictionary (t => (Expression) t.Parameter, t => t.Argument);
 
-      var visitor = new ReplacingExpressionVisitor (replacements);
-      return visitor.Visit (body);
+      return body.Replace (replacements);
     }
 
     private static Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)
