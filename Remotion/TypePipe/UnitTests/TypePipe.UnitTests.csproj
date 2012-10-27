@@ -67,6 +67,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecoratorTest.cs" />
+    <Compile Include="Expressions\ContainsNodeOfTypeExpressionVisitorTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
     <Compile Include="Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="Expressions\NewDelegateExpressionTest.cs" />
