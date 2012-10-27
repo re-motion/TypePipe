@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -18,28 +18,31 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Replaces <see cref="Expression"/>s in an expression tree non-recursively, i.e. occurrences within replacements are not replaced.
+  /// Provides extension methods for working with <see cref="Expression"/> trees.
   /// </summary>
-  public class ReplacingExpressionVisitor : ExpressionVisitor
+  public static class ExpressionExtensions
   {
-    private readonly IDictionary<Expression, Expression> _replacements;
-
-    public ReplacingExpressionVisitor (IDictionary<Expression, Expression> replacements)
+    public static Expression Replace (this Expression expression, IDictionary<Expression, Expression> replacements)
     {
+      ArgumentUtility.CheckNotNull ("expression", expression);
       ArgumentUtility.CheckNotNull ("replacements", replacements);
-      _replacements = replacements;
+
+      return new ReplacingExpressionVisitor (replacements).Visit (expression);
     }
 
-    public override Expression Visit (Expression node)
+    public static bool Contains (this Expression expression, Predicate<Expression> predicate)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("predicate", predicate);
 
-      return _replacements.GetValueOrDefault (node) ?? base.Visit (node);
+      var visitor = new ContainsExpressionVisitor (predicate);
+      visitor.Visit (expression);
+
+      return visitor.Result;
     }
   }
 }

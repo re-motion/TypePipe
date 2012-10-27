@@ -23,13 +23,13 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class ContainsNodeOfTypeExpressionVisitorTest
+  public class ContainsExpressionVisitorTest
   {
     [Test]
-    public void Visit_DoesNotContainsNodeOfProvidedType ()
+    public void Visit_DoesNotContainMatchingNode ()
     {
-      var tree = Expression.Block (Expression.Add (Expression.Parameter (typeof (int)), Expression.Constant (7)), Expression.Empty());
-      var visitor = new ContainsNodeOfTypeExpressionVisitor (typeof (MethodCallExpression));
+      var tree = Expression.Block (Expression.Constant (7), Expression.Constant (8));
+      var visitor = new ContainsExpressionVisitor (exp => false);
 
       visitor.Visit (tree);
 
@@ -37,24 +37,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void Visit_ContainsNodeOfProvidedType ()
+    public void Visit_ContainsMatchingNode ()
     {
-      var tree = Expression.Block (Expression.Add (Expression.Parameter (typeof (int)), Expression.Constant (7)), Expression.Empty());
-      var visitor = new ContainsNodeOfTypeExpressionVisitor (typeof (ConstantExpression));
-
-      visitor.Visit (tree);
-
-      Assert.That (visitor.Result, Is.True);
-    }
-
-    [Test]
-    public void Visit_MatchesAssignable ()
-    {
-      var blockExpression = Expression.Block (Expression.Empty(), Expression.Constant (7));
-      Assert.That (blockExpression, Is.Not.TypeOf<BlockExpression>(), "should be some specialized subclass");
-
-      var tree = Expression.Add (Expression.Parameter (typeof (int)), blockExpression);
-      var visitor = new ContainsNodeOfTypeExpressionVisitor (typeof (BlockExpression));
+      var tree = Expression.Block (Expression.Constant (7), Expression.Constant (8));
+      var visitor = new ContainsExpressionVisitor (exp => exp is ConstantExpression && ((ConstantExpression) exp).Value.Equals (8));
 
       visitor.Visit (tree);
 
@@ -66,7 +52,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       var expr = Expression.Constant (8);
       var tree = Expression.Block (Expression.Constant (7), Expression.Block (expr));
-      var visitorPartialMock = MockRepository.GeneratePartialMock<ContainsNodeOfTypeExpressionVisitor> (typeof (ConstantExpression));
+      Predicate<Expression> predicate = exp => exp is ConstantExpression && ((ConstantExpression) exp).Value.Equals (7);
+      var visitorPartialMock = MockRepository.GeneratePartialMock<ContainsExpressionVisitor> (predicate);
 
       visitorPartialMock.Visit (tree);
 

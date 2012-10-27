@@ -21,17 +21,17 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Checks if an <see cref="Expression"/> tree contains a node of a certain type (assignable).
+  /// Checks if an <see cref="Expression"/> tree contains a node that matches the given <see cref="Predicate{Expression}"/>.
   /// The result can be accessed via the property <see cref="Result"/>.
   /// </summary>
-  public class ContainsNodeOfTypeExpressionVisitor : ExpressionVisitor
+  public class ContainsExpressionVisitor : ExpressionVisitor
   {
-    private readonly Type _nodeType;
+    private readonly Predicate<Expression> _predicate;
 
-    public ContainsNodeOfTypeExpressionVisitor (Type nodeType)
+    public ContainsExpressionVisitor (Predicate<Expression> predicate)
     {
-      ArgumentUtility.CheckNotNull ("nodeType", nodeType);
-      _nodeType = nodeType;
+      ArgumentUtility.CheckNotNull ("predicate", predicate);
+      _predicate = predicate;
     }
 
     public bool Result { get; private set; }
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.Expressions
       if (Result)
         return node;
 
-      if (_nodeType.IsInstanceOfType (node))
+      if (_predicate (node))
       {
         Result = true;
         return node;
