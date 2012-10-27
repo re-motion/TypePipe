@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
@@ -43,6 +44,17 @@ namespace Remotion.TypePipe.Expressions
       visitor.Visit (expression);
 
       return visitor.Result;
+    }
+
+    public static ReadOnlyCollection<Expression> Collect (this Expression expression, Predicate<Expression> predicate)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("predicate", predicate);
+
+      var visitor = new CollectingExpressionVisitor (predicate);
+      visitor.Visit (expression);
+
+      return visitor.MatchingNodes;
     }
   }
 }
