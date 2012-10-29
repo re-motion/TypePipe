@@ -23,6 +23,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -83,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var fields = _descriptor.Fields;
       Assert.That (fields, Is.Not.Empty); // base field, declared field
-      var expectedField = fields.Single (m => m.Name == "ProtectedField");
+      var expectedField = fields.Single (m => m.Name == "Field");
 
       Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
       var mutableField = _mutableType.ExistingMutableFields.Single();
@@ -208,9 +209,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.BaseType, Is.SameAs (typeof (DomainTypeBase)));
       Assert.That (_mutableType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
 
-      Assert.IsNotNull (_mutableType.BaseType); // For ReSharper...
-      Assert.That (_mutableType.BaseType.BaseType, Is.SameAs (typeof (C)));
-      Assert.That (_mutableType.IsAssignableTo (typeof (C)), Is.True);
+      Assertion.IsNotNull (_mutableType.BaseType); // For ReSharper...
+      Assert.That (_mutableType.BaseType.BaseType, Is.SameAs (typeof (object)));
       Assert.That (_mutableType.IsAssignableTo (typeof (object)), Is.True);
 
       Assert.That (underlyingSystemType.GetInterfaces(), Has.Member (typeof (IDomainInterface)));
@@ -273,7 +273,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetMutableField ()
     {
-      var existingField = _descriptor.Fields.Single (m => m.Name == "ProtectedField");
+      var existingField = _descriptor.Fields.Single (m => m.Name == "Field");
       Assert.That (existingField, Is.Not.AssignableTo<MutableFieldInfo>());
 
       var result = _mutableType.GetMutableField (existingField);
@@ -457,7 +457,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.ExistingMutableMethods, Has.Count.EqualTo (2));
       var unmodfiedMethod1 = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
-      var unmodfiedMethod2 = _mutableType.ExistingMutableMethods.Single (m => m.Name == "InterfaceMethod");
+      var unmodfiedMethod2 = _mutableType.ExistingMutableMethods.Single (m => m.Name == "NonVirtualMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeUnmodifiedMutableMemberHandler> ();
 
@@ -487,7 +487,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       MutableMethodInfoTestHelper.ModifyMethod (_mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod"));
       AddMethod (_mutableType, "AddedMethod");
       // Currently, non-virual methods cannot be modified.
-      var unmodifiedMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "InterfaceMethod");
+      var unmodifiedMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "NonVirtualMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeUnmodifiedMutableMemberHandler> ();
 
@@ -706,7 +706,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableFieldInfo AddField (MutableType mutableType, string name)
     {
-      Assert.That (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
+      Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeField = MutableFieldInfoObjectMother.Create (mutableType, name: name);
       _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableField (null, "", null, 0)).IgnoreArguments().Return (fakeField);
@@ -716,7 +716,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableConstructorInfo AddConstructor (MutableType mutableType, params ParameterDeclaration[] parameterDeclarations)
     {
-      Assert.That (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
+      Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeCtor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (mutableType, parameterDeclarations);
       _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor);
@@ -726,7 +726,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableMethodInfo AddMethod (MutableType mutableType, string name, params ParameterDeclaration[] parameterDeclarations)
     {
-      Assert.That (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
+      Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeMethod = MutableMethodInfoObjectMother.Create (mutableType, name, parameterDeclarations: parameterDeclarations);
       _mutableMemberFactoryMock
@@ -752,30 +752,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return (MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_constructors");
     }
 
-    public class A
-    {
-      // base definition
-      public virtual  void OverrideHierarchy (int aaa) { }
-
-      public virtual void FinalBaseMethodInB (int i) { }
-    }
-
-    public class B : A
-    {
-      // GetOrAddMutableMethod input
-      public override void OverrideHierarchy (int bbb) { }
-
-      protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int parameterName) { }
-      public override sealed void FinalBaseMethodInB (int i) { }
-    }
-
-    public class C : B
-    {
-      // base inputMethod
-      public override void OverrideHierarchy (int parameterName) { }
-    }
-
-    public class DomainTypeBase : C
+    public class DomainTypeBase
     {
       public int BaseField;
 
@@ -785,44 +762,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Abc]
     public class DomainType : DomainTypeBase, IDomainInterface
     {
-      // ReSharper disable UnaccessedField.Global
-      protected int ProtectedField;
-      // ReSharper restore UnaccessedField.Global
-
-      public DomainType ()
-      {
-        ProtectedField = Dev<int>.Null;
-      }
+      public int Field;
 
       public virtual string VirtualMethod () { return ""; }
 
-      public void InterfaceMethod () { }
+      public void NonVirtualMethod () { }
     }
 
-    public interface IDomainInterface
-    {
-      void InterfaceMethod ();
-    }
+    public interface IDomainInterface { }
 
-// ReSharper disable ClassWithVirtualMembersNeverInherited.Local
-    private class UnrelatedType
-// ReSharper restore ClassWithVirtualMembersNeverInherited.Local
-    {
-      public virtual string VirtualMethod () { return ""; }
-    }
+    private class UnrelatedType { }
 
     public class AbcAttribute : Attribute { }
 
-    class ConcreteType { }
-    abstract class AbstractTypeWithoutMethods { }
     abstract class AbstractTypeWithOneMethod
     {
       public abstract void Method ();
     }
     abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
-    abstract class DerivedAbstractTypeOverridesAbstractBaseMethod : AbstractTypeWithOneMethod
-    {
-      public override void Method () { }
-    }
   }
 }

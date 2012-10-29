@@ -214,6 +214,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       if (overridenMethod.IsFinal)
       {
+        Assertion.IsNotNull (overridenMethod.DeclaringType);
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }
