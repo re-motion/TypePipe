@@ -111,14 +111,18 @@ namespace Remotion.TypePipe.MutableReflection
       // bodyProvider is null for abstract methods
 
       // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
-      // TODO 5099: add check attributes to be virtual if also abstract
-      // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
+
+      var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
+      if (!isAbstract)
+        ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
       CheckForInvalidAttributes ("method", invalidAttributes, attributes);
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
+      if (isAbstract && !isVirtual)
+        throw new ArgumentException ("Abstract methods must also be virtual.", "attributes");
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
@@ -151,6 +155,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("method", method);
+      Assertion.IsNotNull (method.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))

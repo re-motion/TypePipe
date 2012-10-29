@@ -237,10 +237,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public MutableMethodInfo AddAbstractMethod (
-        string name,
-        MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations)
+        string name, MethodAttributes attributes, Type returnType, IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);

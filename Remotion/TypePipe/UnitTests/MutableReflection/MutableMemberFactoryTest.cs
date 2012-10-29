@@ -220,34 +220,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableMethod_ThrowsForInvalidMethodAttributes ()
-    {
-      const string message = "The following MethodAttributes are not supported for methods: " +
-                             "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
-      Assert.That (() => AddMethod (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddMethod (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddMethod (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
-    public void CreateMutableMethod_ThrowsIfNonVirtualAndNewSlot ()
-    {
-      _mutableMemberFactory.CreateMutableMethod (_mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty ());
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method 'VirtualMethod' with equal signature already exists.\r\nParameter name: name")]
-    public void CreateMutableMethod_ThrowsIfAlreadyExists ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
-      Assert.That (method.GetParameters (), Is.Empty);
-
-      _mutableMemberFactory.CreateMutableMethod (_mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty ());
-    }
-
-    [Test]
     public void CreateMutableMethod_Shadowing_NonVirtual ()
     {
       var baseMethod = GetBaseMethod (_mutableType, "ToString");
@@ -325,6 +297,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (method.BaseMethod, Is.EqualTo (fakeOverridenMethod));
       Assert.That (method.GetBaseDefinition (), Is.EqualTo (fakeOverridenMethod.GetBaseDefinition ()));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Value cannot be null.\r\nParameter name: bodyProvider")]
+    public void CreateMutableMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
+    {
+      _mutableMemberFactory.CreateMutableMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
+    }
+
+    [Test]
+    public void CreateMutableMethod_ThrowsForInvalidMethodAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for methods: " +
+                             "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => AddMethod (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods must also be virtual.\r\nParameter name: attributes")]
+    public void CreateMutableMethod_ThrowsIfAbstractAndNotVirtual ()
+    {
+      _mutableMemberFactory.CreateMutableMethod (
+          _mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
+    public void CreateMutableMethod_ThrowsIfNonVirtualAndNewSlot ()
+    {
+      _mutableMemberFactory.CreateMutableMethod (
+          _mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method 'VirtualMethod' with equal signature already exists.\r\nParameter name: name")]
+    public void CreateMutableMethod_ThrowsIfAlreadyExists ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
+      Assert.That (method.GetParameters (), Is.Empty);
+
+      _mutableMemberFactory.CreateMutableMethod (
+          _mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
     }
 
     [Test]
