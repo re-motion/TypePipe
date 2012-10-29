@@ -143,6 +143,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return method;
     }
 
+    public static MethodInfo GetSomeConcreteMethod ()
+    {
+      var method = GetRandomElement (s_instanceMethod);
+      Assertion.IsFalse (method.IsAbstract);
+      return method;
+    }
+
     public static MethodInfo GetSomeOverridingMethod ()
     {
       var method = GetRandomElement (s_overridingMethods);
@@ -197,14 +204,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       get
       {
-        return s_nonGenericMethods
-            .Concat (s_instanceMethod)
+        return s_instanceMethod
             .Concat (s_staticMethod)
-            .Concat (s_genericMethods)
             .Concat (s_virtualMethods)
             .Concat (s_nonVirtualMethods)
+            .Concat (s_nonVirtualInstanceMethods)
             .Concat (s_overridingMethods)
-            .Concat (s_finalMethods);
+            .Concat (s_finalMethods)
+            .Concat (s_nonGenericMethods)
+            .Concat (s_genericMethods)
+            .Concat (s_modifiableMethodInfos)
+            .Concat (s_abstractMethodInfos);
       }
     }
 

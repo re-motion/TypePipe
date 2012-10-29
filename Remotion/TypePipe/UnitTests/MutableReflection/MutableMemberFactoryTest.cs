@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       };
 
       var method = _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, name, attributes, returnType, parameterDeclarations.AsOneTime (), bodyProvider, () => { });
+          _mutableType, name, attributes, returnType, parameterDeclarations.AsOneTime (), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
@@ -214,7 +214,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         return fakeBody;
       };
       var method = _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider, () => { });
+          _mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider);
 
       Assert.That (method.IsStatic, Is.True);
     }
@@ -233,7 +233,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
     public void CreateMutableMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
-      _mutableMemberFactory.CreateMutableMethod (_mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty (), () => { });
+      _mutableMemberFactory.CreateMutableMethod (_mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty ());
     }
 
     [Test]
@@ -244,7 +244,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
       Assert.That (method.GetParameters (), Is.Empty);
 
-      _mutableMemberFactory.CreateMutableMethod (_mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty (), () => { });
+      _mutableMemberFactory.CreateMutableMethod (_mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty ());
     }
 
     [Test]
@@ -266,8 +266,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           nonVirtualAttributes,
           typeof (string),
           ParameterDeclaration.EmptyParameters,
-          bodyProvider,
-          () => { });
+          bodyProvider);
 
       Assert.That (method, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (method.BaseMethod, Is.Null);
@@ -293,8 +292,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           nonVirtualAttributes,
           typeof (string),
           ParameterDeclaration.EmptyParameters,
-          bodyProvider,
-          () => { });
+          bodyProvider);
 
       Assert.That (method, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (method.BaseMethod, Is.Null);
@@ -322,32 +320,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           MethodAttributes.Public | MethodAttributes.Virtual,
           typeof (int),
           ParameterDeclaration.EmptyParameters,
-          bodyProvider,
-          () => { });
+          bodyProvider);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (method.BaseMethod, Is.EqualTo (fakeOverridenMethod));
       Assert.That (method.GetBaseDefinition (), Is.EqualTo (fakeOverridenMethod.GetBaseDefinition ()));
-    }
-
-    [Test]
-    public void CreateMutableMethod_AbstractMethod ()
-    {
-      var wasCalled = false;
-      Action notifyMethodImplementedAction = () => wasCalled = true;
-
-      var method = _mutableMemberFactory.CreateMutableMethod (
-          _mutableType,
-          "dummy",
-          MethodAttributes.Abstract,
-          typeof (void),
-          ParameterDeclaration.EmptyParameters,
-          null,
-          notifyMethodImplementedAction);
-
-      method.SetBody (ctx => Expression.Default (method.ReturnType));
-
-      Assert.That (wasCalled, Is.True);
     }
 
     [Test]
@@ -366,8 +343,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           MethodAttributes.Public | MethodAttributes.Virtual,
           typeof (void),
           ParameterDeclaration.EmptyParameters,
-          ctx => Expression.Empty (),
-          () => { });
+          ctx => Expression.Empty ());
     }
 
     [Test]
@@ -383,7 +359,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (fakeExistingOverride);
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
@@ -474,7 +450,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_mutableType.GetInterfaces (), Has.Member (typeof (IDomainInterface)));
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod ());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -483,7 +459,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethodOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -492,7 +468,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethodOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod ());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -506,7 +482,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, () => { }, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddMutableMethod (
@@ -522,7 +498,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, () => { }, out _isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (_isNewlyCreated, Is.True);
@@ -587,8 +563,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           attributes,
           typeof (void),
           ParameterDeclaration.EmptyParameters,
-          ctx => Expression.Empty (),
-          () => { });
+          ctx => Expression.Empty ());
     }
 
     private MethodInfo GetBaseMethod (MutableType mutableType, string name)

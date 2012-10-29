@@ -102,15 +102,13 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<MethodBodyCreationContext, Expression> bodyProvider,
-        Action notifyMethodWasImplemented)
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       // bodyProvider is null for abstract methods
-      ArgumentUtility.CheckNotNull ("notifyMethodWasImplemented", notifyMethodWasImplemented);
 
       // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
       // TODO 5099: add check attributes to be virtual if also abstract
@@ -144,17 +142,15 @@ namespace Remotion.TypePipe.MutableReflection
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
-      var method = new MutableMethodInfo (declaringType, descriptor, notifyMethodWasImplemented);
+      var method = new MutableMethodInfo (declaringType, descriptor);
 
       return method;
     }
 
-    public MutableMethodInfo GetOrCreateMutableMethodOverride (
-        MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateMutableMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("method", method);
-      ArgumentUtility.CheckNotNull ("notifyMethodWasImplemented", notifyMethodWasImplemented);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
@@ -191,7 +187,7 @@ namespace Remotion.TypePipe.MutableReflection
                                    ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var addedOverride = CreateMutableMethod (
-          declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider, notifyMethodWasImplemented);
+          declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
         addedOverride.AddExplicitBaseDefinition (baseDefinition);
 

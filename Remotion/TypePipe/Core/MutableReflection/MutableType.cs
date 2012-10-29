@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMethodCollection _methods;
 
-    private TypeAttributes _attributes;
+    private TypeAttributes _originalAttributes;    
 
     public MutableType (
         UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeDatas =
           new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingTypeDescriptor.CustomAttributeDataProvider);
 
-      _attributes = underlyingTypeDescriptor.Attributes;
+      _originalAttributes = underlyingTypeDescriptor.Attributes;
       _existingInterfaces = underlyingTypeDescriptor.Interfaces;
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingMutableField);
@@ -230,11 +230,8 @@ namespace Remotion.TypePipe.MutableReflection
       // bodyProvider is null for abstract methods
 
       var method = _mutableMemberFactory.CreateMutableMethod (
-          this, name, attributes, returnType, parameterDeclarations, bodyProvider, MakeConcreteIfPossible);
+          this, name, attributes, returnType, parameterDeclarations, bodyProvider);
       _methods.Add (method);
-
-      if (method.IsAbstract)
-        _attributes |= TypeAttributes.Abstract;
 
       return method;
     }
@@ -271,7 +268,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (mutableMethod == null)
       {
         bool isNewlyCreated;
-        mutableMethod = _mutableMemberFactory.GetOrCreateMutableMethodOverride (this, method, MakeConcreteIfPossible, out isNewlyCreated);
+        mutableMethod = _mutableMemberFactory.GetOrCreateMutableMethodOverride (this, method, out isNewlyCreated);
         if (isNewlyCreated)
           _methods.Add (mutableMethod);
       }
@@ -318,7 +315,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      return _attributes;
+      var attributes = _originalAttributes & ~TypeAttributes.Abstract;
+
+      var hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Any (m => m.IsAbstract);
+      if (hasAbstractMethods)
+        attributes |= TypeAttributes.Abstract;
+      
+      return attributes;
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()
@@ -363,13 +366,6 @@ namespace Remotion.TypePipe.MutableReflection
       return mutableMember;
     }
 
-    private void MakeConcreteIfPossible ()
-    {
-      var implementsAllMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).All (m => !m.IsAbstract);
-      if (implementsAllMethods)
-        _attributes &= ~TypeAttributes.Abstract;
-    }
-
     private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
     {
       var descriptor = UnderlyingFieldInfoDescriptor.Create (originalField);
@@ -385,7 +381,7 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
-      return new MutableMethodInfo (this, descriptor, MakeConcreteIfPossible);
+      return new MutableMethodInfo (this, descriptor);
     }
   } 
 }

@@ -59,7 +59,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.UnderlyingSystemType, Is.EqualTo (_descriptor.UnderlyingSystemInfo));
       Assert.That (_mutableType.DeclaringType, Is.EqualTo (_descriptor.DeclaringType));
       Assert.That (_mutableType.BaseType, Is.EqualTo (_descriptor.BaseType));
-      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
       Assert.That (_mutableType.Name, Is.EqualTo (_descriptor.Name));
       Assert.That (_mutableType.Namespace, Is.EqualTo (_descriptor.Namespace));
       Assert.That (_mutableType.FullName, Is.EqualTo (_descriptor.FullName));
@@ -122,18 +121,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       // Test that the _relatedMethodFinderMock was passed to the underlying descriptor.
       _relatedMethodFinderMock.AssertWasCalled (mock => mock.GetBaseMethod (expectedMethod));
-    }
-
-    [Test]
-    public void Initialization_AbstractType ()
-    {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (AbstractTypeWithOneMethod));
-      Assert.That (mutableType.IsAbstract, Is.True);
-
-      var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-
-      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
-      Assert.That (mutableType.IsAbstract, Is.False);
     }
 
     [Test]
@@ -329,8 +316,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                   Arg.Is (attributes),
                   Arg.Is (returnType),
                   Arg.Is (parameterDeclarations),
-                  Arg.Is (bodyProvider),
-                  Arg<Action>.Is.Anything))
+                  Arg.Is (bodyProvider)))
           .Return (fakeMethod);
 
       var result = _mutableType.AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
@@ -338,31 +324,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeMethod));
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result }));
-    }
-
-    [Test]
-    public void AddMethod_AbstractMethod_UpdatesIsAbstract ()
-    {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType ();
-      Assert.That (mutableType.IsAbstract, Is.False);
-
-      var mutableMethod = mutableType.AddMethod (
-          "AbstractMethod", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
-      Assert.That (mutableType.IsAbstract, Is.True);
-
-      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
-      Assert.That (mutableType.IsAbstract, Is.False);
-    }
-
-    [Ignore("TODO 5099")]
-    [Test]
-    public void AddMethod_ImplementsAbstractBaseMethod_UpdatesIsAbstract ()
-    {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DerivedAbstractTypeLeavesAbstractBaseMethod));
-      Assert.That (mutableType.IsAbstract, Is.True);
-
-      mutableType.AddMethod ("Method", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
-      Assert.That (mutableType.IsAbstract, Is.False);
     }
 
     [Test]
@@ -382,8 +343,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                   Arg.Is (attributes | MethodAttributes.Abstract | MethodAttributes.Virtual),
                   Arg.Is (returnType),
                   Arg.Is (parameterDeclarations),
-                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Equal (null),
-                  Arg<Action>.Is.Anything))
+                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Equal (null)))
           .Return (fakeMethod);
 
       var result = _mutableType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations);
@@ -415,7 +375,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               mock => mock.GetOrCreateMutableMethodOverride (
                   Arg.Is (_mutableType),
                   Arg.Is (baseMethod),
-                  Arg<Action>.Is.Anything,
                   out Arg<bool>.Out (true).Dummy))
           .Return (fakeOverride);
 
@@ -436,7 +395,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               mock => mock.GetOrCreateMutableMethodOverride (
                   Arg.Is (_mutableType),
                   Arg.Is (baseMethod),
-                  Arg<Action>.Is.Anything,
                   out Arg<bool>.Out (false).Dummy))
           .Return (fakeOverride);
 
@@ -589,10 +547,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl ()
     {
+      var allMethods = GetAllMethods (_mutableType);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _mutableType)).Return (new MethodInfo[0]).Repeat.Times (2);
+
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAttributeFlagsImpl");
 
       Assert.That (result, Is.EqualTo (_descriptor.Attributes));
       Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_Abstract ()
+    {
+      var allMethods = GetAllMethods (_mutableType);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var fakeMethods = new[] { ReflectionObjectMother.GetSomeAbstractMethod() };
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _mutableType)).Return (fakeMethods).Repeat.Times(2);
+
+      Assert.That (_mutableType.IsAbstract, Is.True);
+      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes | TypeAttributes.Abstract));
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_NonAbstract ()
+    {
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (AbstractType));
+      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var mutableType = MutableTypeObjectMother.Create (descriptor, memberSelectorMock);
+
+      var allMethods = GetAllMethods (mutableType);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var fakeMethods = new[] { ReflectionObjectMother.GetSomeConcreteMethod() };
+      memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, mutableType)).Return (fakeMethods).Repeat.Times (2);
+
+      Assert.That (mutableType.IsAbstract, Is.False);
+      Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
+      Assert.That (mutableType.Attributes, Is.EqualTo (descriptor.Attributes & ~TypeAttributes.Abstract));
     }
 
     [Test]
@@ -660,7 +651,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           parameterDeclarations: ParameterDeclaration.EmptyParameters,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMutableMethod (null, null, 0, null, null, null, null))
+          .Expect (mock => mock.CreateMutableMethod (null, null, 0, null, null, null))
           .IgnoreArguments()
           .Return (fakeOverride);
       _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.EmptyParameters, ctx => null);
@@ -730,7 +721,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var fakeMethod = MutableMethodInfoObjectMother.Create (mutableType, name, parameterDeclarations: parameterDeclarations);
       _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateMutableMethod (null, "", 0, null, null, null, null))
+          .Stub (stub => stub.CreateMutableMethod (null, "", 0, null, null, null))
           .IgnoreArguments()
           .Return (fakeMethod);
 
@@ -775,10 +766,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class AbcAttribute : Attribute { }
 
-    abstract class AbstractTypeWithOneMethod
-    {
-      public abstract void Method ();
-    }
-    abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
+    abstract class AbstractType { }
   }
 }

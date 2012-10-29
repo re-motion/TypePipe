@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor, () => { });
+      var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
 
       Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (mutableMethodInfo.Attributes, Is.EqualTo (_descriptor.Attributes));
@@ -163,8 +163,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var instanceDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0);
       var staticDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static);
 
-      var instanceMethod = new MutableMethodInfo (_declaringType, instanceDescriptor, () => { });
-      var staticMethod = new MutableMethodInfo (_declaringType, staticDescriptor, () => { });
+      var instanceMethod = new MutableMethodInfo (_declaringType, instanceDescriptor);
+      var staticMethod = new MutableMethodInfo (_declaringType, staticDescriptor);
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -433,18 +433,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void SetBody_AbstractMethod_CallsNotifyMethodWasImplemented ()
-    {
-      var wasCalled = false;
-      Action action = () => wasCalled = true;
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null), action);
-
-      mutableMethod.SetBody (ctx => Expression.Default (mutableMethod.ReturnType));
-
-      Assert.That (wasCalled, Is.True);
-    }
-
-    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The body of the existing non-virtual or final method 'NonVirtualMethod' cannot be replaced.")]
     public void SetBody_CannotSetBody ()
@@ -587,13 +575,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor, Action notifyMethodWasImplemented = null)
     {
-      return new MutableMethodInfo (_declaringType, descriptor, notifyMethodWasImplemented ?? (() => { }));
+      return new MutableMethodInfo (_declaringType, descriptor);
     }
 
     private MutableMethodInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-      return new MutableMethodInfo (_declaringType, descriptor, () => { });
+      return new MutableMethodInfo (_declaringType, descriptor);
     }
 
     public class DomainTypeBase

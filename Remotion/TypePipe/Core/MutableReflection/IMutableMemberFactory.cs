@@ -44,10 +44,9 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<MethodBodyCreationContext, Expression> bodyProvider,
-        Action notifyMethodWasImplemented);
+        Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo GetOrCreateMutableMethodOverride (
-        MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented, out bool isNewlyCreated);
+        MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
   }
 }

@@ -31,30 +31,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
-        Expression body = null,
-        Action notifyMethodWasImplementedAction = null)
+        Expression body = null)
     {
       return CreateForNew (
-          declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body, notifyMethodWasImplementedAction);
+          declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
     }
 
-    public static MutableMethodInfo CreateForExisting (
-        MutableType declaringType = null,
-        MethodInfo originalMethodInfo = null,
-        Action notifyMethodWasImplementedAction = null)
+    public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (originalMethodInfo);
       declaringType = declaringType ?? MutableTypeObjectMother.CreateForExistingType (descriptor.UnderlyingSystemInfo.DeclaringType);
-      return new MutableMethodInfo (declaringType, descriptor, notifyMethodWasImplementedAction ?? (() => { }));
+      return new MutableMethodInfo (declaringType, descriptor);
     }
 
-    public static MutableMethodInfo CreateForExistingAndModify (
-        MutableType declaringType = null,
-        MethodInfo originalMethodInfo = null,
-        Action notifyMethodWasImplementedAction = null)
+    public static MutableMethodInfo CreateForExistingAndModify (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
     {
       var method = CreateForExisting (
-          declaringType, originalMethodInfo ?? ReflectionObjectMother.GetSomeModifiableMethod(), notifyMethodWasImplementedAction);
+          declaringType, originalMethodInfo ?? ReflectionObjectMother.GetSomeModifiableMethod());
       MutableMethodInfoTestHelper.ModifyMethod (method);
       return method;
     }
@@ -66,16 +59,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
-        Expression body = null,
-        Action notifyMethodWasImplementedAction = null)
+        Expression body = null)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
           name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
 
       return new MutableMethodInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          descriptor,
-          notifyMethodWasImplementedAction ?? (() => { }));
+          descriptor);
     }
   }
 }
