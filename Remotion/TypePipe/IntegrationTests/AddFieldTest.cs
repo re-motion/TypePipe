@@ -31,7 +31,7 @@ namespace TypePipe.IntegrationTests
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField (typeof (string), "_privateInstanceField", FieldAttributes.Private));
+      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("_privateInstanceField", typeof (string), FieldAttributes.Private));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField" }));
 
@@ -47,7 +47,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
       var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.InitOnly;
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField (typeof (int), "PublicStaticField", fieldAttributes));
+      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("PublicStaticField", typeof (int), fieldAttributes));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "PublicStaticField" }));
 
@@ -66,7 +66,7 @@ namespace TypePipe.IntegrationTests
 
       var type = AssembleType<DerivedType> (mutableType => 
       { 
-        var addedField = mutableType.AddField (existingField.FieldType, existingField.Name, FieldAttributes.Family);
+        var addedField = mutableType.AddField (existingField.Name, existingField.FieldType, FieldAttributes.Family);
 
         Assert.That (
             mutableType.GetFields (nonPublicInstanceFlags),
@@ -82,7 +82,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<OriginalType> (
           mutableType =>
           {
-            var mutableFieldInfo = mutableType.AddField (typeof (int), "_fieldWithCustomAttributes");
+            var mutableFieldInfo = mutableType.AddField ("_fieldWithCustomAttributes", typeof (int));
 
             var attributeCtor = typeof (AddedAttribute).GetConstructor (new[] { typeof (string) });
             var namedProperty = typeof (AddedAttribute).GetProperty ("NamedPropertyArg");
@@ -112,7 +112,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<OriginalType> (
           mutableType =>
           {
-            var fieldInfo = mutableType.AddField (typeof (string), "_privateInstanceField");
+            var fieldInfo = mutableType.AddField ("_privateInstanceField", typeof (string));
             mutableType.AddConstructor (
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (string), "arg") },

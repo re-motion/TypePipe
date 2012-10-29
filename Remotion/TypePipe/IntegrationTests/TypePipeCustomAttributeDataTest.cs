@@ -79,8 +79,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void MutableReflection ()
     {
-      var descriptor = UnderlyingTypeDescriptor.Create (typeof (DomainType));
-      var mutableType = new MutableType (descriptor, new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder());
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
       var field = mutableType.AllMutableFields.Single ();
       var constructor = mutableType.AllMutableConstructors.Single ();
       var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");

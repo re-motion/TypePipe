@@ -64,10 +64,12 @@ namespace Remotion.TypePipe.TypeAssembly
 
     private MutableType CreateMutableType (Type requestedType)
     {
-      return new MutableType (
-          UnderlyingTypeDescriptor.Create (requestedType),
-          new MemberSelector (new BindingFlagsEvaluator()),
-          new RelatedMethodFinder());
+      var underlyingTypeDescriptor = UnderlyingTypeDescriptor.Create (requestedType);
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var relatedMethodFinder = new RelatedMethodFinder();
+      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
+
+      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
     }
   }
 }

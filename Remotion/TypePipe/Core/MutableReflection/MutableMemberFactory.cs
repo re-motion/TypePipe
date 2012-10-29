@@ -36,11 +36,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableMemberFactory (IMemberSelector memberSelector, IRelatedMethodFinder relatedMethodFinder)
     {
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+
       _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
     }
 
-    public MutableFieldInfo CreateMutableField (MutableType declaringType, Type type, string name, FieldAttributes attributes)
+    public MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("type", type);
@@ -102,10 +105,16 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> bodyProvider,
         Action notifyMethodWasImplemented)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      // bodyProvider is null for abstract methods
+      ArgumentUtility.CheckNotNull ("notifyMethodWasImplemented", notifyMethodWasImplemented);
+
       // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
       // TODO 5099: add check attributes to be virtual if also abstract
       // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
-      // bodyProvider is null for abstract methods
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
       CheckForInvalidAttributes ("method", invalidAttributes, attributes);
@@ -118,7 +127,6 @@ namespace Remotion.TypePipe.MutableReflection
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
 
       var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
-      // Fix code duplication?
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
       {
         var message = string.Format ("Method '{0}' with equal signature already exists.", name);
@@ -141,8 +149,13 @@ namespace Remotion.TypePipe.MutableReflection
       return method;
     }
 
-    public MutableMethodInfo CreateMutableMethodOverride (MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented)
+    public MutableMethodInfo GetOrCreateMutableMethodOverride (
+        MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented, out bool isNewlyCreated)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull ("notifyMethodWasImplemented", notifyMethodWasImplemented);
+
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
       {
@@ -156,7 +169,10 @@ namespace Remotion.TypePipe.MutableReflection
       var baseDefinition = method.GetBaseDefinition();
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AllMutableMethods);
       if (existingMutableOverride != null)
+      {
+        isNewlyCreated = false;
         return existingMutableOverride;
+      }
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
@@ -179,6 +195,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (needsExplicitOverride)
         addedOverride.AddExplicitBaseDefinition (baseDefinition);
 
+      isNewlyCreated = true;
       return addedOverride;
     }
 

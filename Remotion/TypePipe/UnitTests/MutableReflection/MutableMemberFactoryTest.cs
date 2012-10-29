@@ -42,6 +42,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
 
+    private bool _isNewlyCreated;
+
     [SetUp]
     public void SetUp ()
     {
@@ -55,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateMutableField ()
     {
-      var field = _mutableMemberFactory.CreateMutableField (_mutableType, typeof (string), "_newField", FieldAttributes.FamANDAssem);
+      var field = _mutableMemberFactory.CreateMutableField (_mutableType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
 
       Assert.That (field.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (field.Name, Is.EqualTo ("_newField"));
@@ -69,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableField_ThrowsIfAlreadyExist ()
     {
       var field = _mutableType.ExistingMutableFields.Single ();
-      _mutableMemberFactory.CreateMutableField (_mutableType, field.FieldType, field.Name, FieldAttributes.Private);
+      _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, field.FieldType, FieldAttributes.Private);
     }
 
     [Test]
@@ -79,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (field.FieldType, Is.Not.SameAs (typeof (string)));
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableField (_mutableType, typeof (string), field.Name, FieldAttributes.Private), Throws.Nothing);
+          () => _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, typeof (string), FieldAttributes.Private), Throws.Nothing);
     }
 
     [Test]
@@ -380,10 +382,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
           .Return (fakeExistingOverride);
 
-      var result = _mutableMemberFactory.CreateMutableMethodOverride (_mutableType, method, () => { });
+      bool isNewlyCreated;
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
+      Assert.That (isNewlyCreated, Is.False);
     }
 
     [Test]
@@ -470,7 +474,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_mutableType.GetInterfaces (), Has.Member (typeof (IDomainInterface)));
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod ());
-      _mutableMemberFactory.CreateMutableMethodOverride (_mutableType, method, () => { });
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out _isNewlyCreated);
     }
 
     [Test]
@@ -479,7 +483,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethodOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
-      _mutableMemberFactory.CreateMutableMethodOverride (_mutableType, method, () => { });
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out _isNewlyCreated);
     }
 
     [Test]
@@ -488,7 +492,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethodOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod ());
-      _mutableMemberFactory.CreateMutableMethodOverride (_mutableType, method, () => { });
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, () => { }, out _isNewlyCreated);
     }
 
     [Test]
@@ -502,7 +506,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
-      _mutableMemberFactory.CreateMutableMethodOverride (_mutableType, inputMethod, () => { });
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, () => { }, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddMutableMethod (
@@ -518,9 +522,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
-      var result = _mutableMemberFactory.CreateMutableMethodOverride (_mutableType, inputMethod, () => { });
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, () => { }, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
+      Assert.That (_isNewlyCreated, Is.True);
 
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
       Assert.That (result.BaseMethod, Is.SameAs (expectedBaseMethod));
@@ -621,22 +626,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class DomainTypeBase : C
     {
-      public int BaseField;
-
       public void ExistingBaseMethod () { }
     }
 
-    [Abc]
     public class DomainType : DomainTypeBase, IDomainInterface
     {
-      // ReSharper disable UnaccessedField.Global
-      protected int ProtectedField;
-      // ReSharper restore UnaccessedField.Global
+      public int IntField;
 
-      public DomainType ()
-      {
-        ProtectedField = Dev<int>.Null;
-      }
+      public DomainType () { }
 
       public virtual string VirtualMethod () { return ""; }
 
@@ -648,25 +645,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       void InterfaceMethod ();
     }
 
-    // ReSharper disable ClassWithVirtualMembersNeverInherited.Local
-    private class UnrelatedType
-    // ReSharper restore ClassWithVirtualMembersNeverInherited.Local
-    {
-      public virtual string VirtualMethod () { return ""; }
-    }
-
-    public class AbcAttribute : Attribute { }
-
-    class ConcreteType { }
-    abstract class AbstractTypeWithoutMethods { }
     abstract class AbstractTypeWithOneMethod
     {
       public abstract void Method ();
     }
     abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
-    abstract class DerivedAbstractTypeOverridesAbstractBaseMethod : AbstractTypeWithOneMethod
-    {
-      public override void Method () { }
-    }
+
   }
 }

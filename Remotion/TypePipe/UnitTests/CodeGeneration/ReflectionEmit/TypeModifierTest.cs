@@ -32,16 +32,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mockRepository = new MockRepository();
       var handlerFactoryMock = mockRepository.StrictMock<ISubclassProxyBuilderFactory>();
 
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create ();
-      var mutableTypePartialMock = mockRepository.PartialMock<MutableType> (
-          descriptor,
-          new MemberSelector (new BindingFlagsEvaluator()),
-          new RelatedMethodFinder());
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var relatedMethodFinder = new RelatedMethodFinder();
+      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
+      var mutableTypePartialMock = mockRepository.PartialMock<MutableType> (descriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
 
       var builderMock = mockRepository.StrictMock<ISubclassProxyBuilder>();
-      var fakeType = ReflectionObjectMother.GetSomeType ();
+      var fakeType = ReflectionObjectMother.GetSomeType();
 
-      using (mockRepository.Ordered ())
+      using (mockRepository.Ordered())
       {
         handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
         mutableTypePartialMock.Expect (mock => mock.Accept ((IMutableTypeUnmodifiedMutableMemberHandler) builderMock));
@@ -50,11 +50,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       }
 
       mockRepository.ReplayAll();
-      
+
       var typeModifier = new TypeModifier (handlerFactoryMock);
       var result = typeModifier.ApplyModifications (mutableTypePartialMock);
 
-      mockRepository.VerifyAll ();
+      mockRepository.VerifyAll();
 
       Assert.That (result, Is.SameAs (fakeType));
     }

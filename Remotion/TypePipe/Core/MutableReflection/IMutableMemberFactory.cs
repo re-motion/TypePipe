@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public interface IMutableMemberFactory
   {
-    MutableFieldInfo CreateMutableField (MutableType declaringType, Type type, string name, FieldAttributes attributes);
+    MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
 
     MutableConstructorInfo CreateMutableConstructor (
         MutableType declaringType,
@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> bodyProvider,
         Action notifyMethodWasImplemented);
 
-    MutableMethodInfo CreateMutableMethodOverride (MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented);
+    MutableMethodInfo GetOrCreateMutableMethodOverride (
+        MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented, out bool isNewlyCreated);
   }
 }
