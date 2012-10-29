@@ -28,19 +28,18 @@ namespace TypePipe.IntegrationTests
   public class AbstractTypeTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore("TODO 5099")]
-    public void NoChanges_RemainsAbstract ()
+    [Ignore ("TODO 5099")]
+    public void NoChanges_BecomesConcrete ()
     {
       var type = AssembleType<AbstractTypeWithoutMethods> (
           mutableType =>
           {
             Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (mutableType.IsAbstract, Is.False);
           });
 
-      Assert.That (type.IsAbstract, Is.True);
-      // The generated default constructor of abstract class has family visibility (protected in C#). 
-      Assert.That (() => Activator.CreateInstance (type, nonPublic: true), Throws.Nothing);
+      Assert.That (type.IsAbstract, Is.False);
+      Assert.That (() => Activator.CreateInstance (type), Throws.Nothing);
     }
     
     [Test]
