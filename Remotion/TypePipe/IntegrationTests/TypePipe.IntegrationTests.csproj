@@ -57,6 +57,7 @@
     <Compile Include="CopyMethodBodyTest.cs" />
     <Compile Include="DelegateInstantiationTest.cs" />
     <Compile Include="GetCustomAttributesTest.cs" />
+    <Compile Include="LambdaExpressionTest.cs" />
     <Compile Include="MutableTypeObjectMother.cs" />
     <Compile Include="TypePipeCustomAttributeDataTest.cs" />
     <Compile Include="ExplicitOverridesTest.cs" />
