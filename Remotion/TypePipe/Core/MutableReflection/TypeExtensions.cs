@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using Remotion.Utilities;
 
@@ -29,8 +28,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var typeOfType = type.GetType();
-      return typeOfType.Namespace == "System" && typeOfType.Name == "RuntimeType";
+      // ReSharper disable PossibleMistakenCallToGetType.2
+      return type.GetType().FullName == "System.RuntimeType";
+      // ReSharper restore PossibleMistakenCallToGetType.2
     }
   }
 }
