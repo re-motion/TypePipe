@@ -148,6 +148,7 @@
     <Compile Include="MutableReflection\RelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\RelatedPropertyFinder.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
+    <Compile Include="MutableReflection\TypeExtensions.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeImplementationUtility.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />
