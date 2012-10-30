@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\prereq\Assemblies\NUnit 2.5\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6.2\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
