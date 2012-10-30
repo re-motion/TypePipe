@@ -113,6 +113,7 @@
     <Compile Include="MutableReflection\TestableUnderlyingInfoDescriptorBase.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
+    <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeImplementationUtilityTest.cs" />
     <Compile Include="MutableReflection\UnderlyingInfoDescriptorBaseTest.cs" />

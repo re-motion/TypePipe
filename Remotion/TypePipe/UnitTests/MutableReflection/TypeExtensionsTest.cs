@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,23 +14,23 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using Remotion.Utilities;
+using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// <see cref="Type"/> extension methods that are useful when working with <see cref="MutableType"/>s.
-  /// </summary>
-  public static class TypeExtensions
+  [TestFixture]
+  public class TypeExtensionsTest
   {
-    public static bool IsRuntimeType (this Type type)
+    [Test]
+    public void IsRuntimeType ()
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      var runtimeType = typeof (int);
+      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
 
-      var typeOfType = type.GetType();
-      return typeOfType.Namespace == "System" && typeOfType.Name == "RuntimeType";
+      Assert.That (runtimeType.IsRuntimeType(), Is.True);
+      Assert.That (mutableType.IsRuntimeType(), Is.False);
     }
   }
 }
