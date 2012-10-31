@@ -16,6 +16,7 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -24,6 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface IExpressionPreparer
   {
-    Expression PrepareBody (Expression body, IEmittableOperandProvider emittableOperandProvider);
+    Expression PrepareBody (MutableType declaringType, Expression body, IEmittableOperandProvider emittableOperandProvider);
   }
 }

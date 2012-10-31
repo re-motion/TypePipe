@@ -75,6 +75,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var builder = (SubclassProxyBuilder) result;
 
       var context = builder.MemberEmitterContext;
+      Assert.That (context.MutableType, Is.SameAs (mutableType));
       Assert.That (context.TypeBuilder, Is.SameAs (typeBuilderMock));
       Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (context.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));

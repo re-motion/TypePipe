@@ -17,6 +17,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -26,6 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MemberEmitterContext
   {
+    private readonly MutableType _mutableType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
@@ -33,19 +35,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public MemberEmitterContext (
+        MutableType mutableType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
         DeferredActionManager postDeclarationsActionManager)
     {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("postDeclarationsActionManager", postDeclarationsActionManager);
 
+      _mutableType = mutableType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
       _postDeclarationsActionManager = postDeclarationsActionManager;
+    }
+
+    public MutableType MutableType
+    {
+      get { return _mutableType; }
     }
 
     [CLSCompliant (false)]

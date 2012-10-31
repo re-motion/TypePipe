@@ -18,6 +18,7 @@ using System;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -28,12 +29,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ExpandingExpressionPreparer : IExpressionPreparer
   {
-    public Expression PrepareBody (Expression body, IEmittableOperandProvider emittableOperandProvider)
+    public Expression PrepareBody (MutableType declaringType, Expression body, IEmittableOperandProvider emittableOperandProvider)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      return new UnemittableExpressionVisitor (emittableOperandProvider).Visit (body);
+      return new UnemittableExpressionVisitor (declaringType, emittableOperandProvider).Visit (body);
     }
   }
 }

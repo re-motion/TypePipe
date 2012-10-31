@@ -24,7 +24,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -36,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMemberEmitter _memberEmitterMock;
+    private MutableType _mutableType;
 
     private SubclassProxyBuilder _builder;
 
@@ -48,8 +48,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
+      _mutableType = MutableTypeObjectMother.CreateForExistingType();
 
-      _builder = new SubclassProxyBuilder (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _memberEmitterMock);
+      _builder = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _memberEmitterMock);
 
       _context = _builder.MemberEmitterContext;
     }
@@ -59,6 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (_builder.MemberEmitter, Is.SameAs (_memberEmitterMock));
 
+      Assert.That (_context.MutableType, Is.SameAs (_mutableType));
       Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
@@ -68,7 +70,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handler = new SubclassProxyBuilder (_typeBuilderMock, null, _emittableOperandProviderMock, _memberEmitterMock);
+      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _memberEmitterMock);
       Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
     }
 

@@ -42,6 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private DeferredActionManager _postDeclarationsManager;
+    private MutableType _mutableType; 
 
     private MemberEmitter _emitter;
 
@@ -60,7 +61,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
 
-      _context = new MemberEmitterContext (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _postDeclarationsManager);
+      _mutableType = MutableTypeObjectMother.CreateForExistingType();
+      _context = new MemberEmitterContext (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _postDeclarationsManager);
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
     }
 
@@ -252,8 +254,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)
     {
-      methodBuilderMock.BackToRecord ();
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (mutableMethodBase.Body, _emittableOperandProviderMock)).Return (_fakeBody);
+      methodBuilderMock.BackToRecord();
+      _expressionPreparerMock
+          .Expect (mock => mock.PrepareBody (_mutableType, mutableMethodBase.Body, _emittableOperandProviderMock))
+          .Return (_fakeBody);
       methodBuilderMock
           .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
           .WhenCalled (
@@ -263,7 +267,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                 Assert.That (lambdaExpression.Body, Is.SameAs (_fakeBody));
                 Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableMethodBase.ParameterExpressions));
               });
-      methodBuilderMock.Replay ();
+      methodBuilderMock.Replay();
 
       testedAction ();
 

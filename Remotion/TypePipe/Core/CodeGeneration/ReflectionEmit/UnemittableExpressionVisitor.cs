@@ -21,6 +21,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -31,12 +32,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class UnemittableExpressionVisitor : TypePipeExpressionVisitorBase
   {
+    private readonly MutableType _declaringType;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
-    public UnemittableExpressionVisitor (IEmittableOperandProvider emittableOperandProvider)
+    public UnemittableExpressionVisitor (MutableType declaringType, IEmittableOperandProvider emittableOperandProvider)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
+      _declaringType = declaringType;
       _emittableOperandProvider = emittableOperandProvider;
     }
 
@@ -69,16 +73,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (thisExpressions.Count == 0)
         return node.Update (body, node.Parameters);
 
-      var thisType = thisExpressions.First ().Type;
-      Assertion.IsTrue (thisExpressions.All (x => x.Type == thisType));
-      var thisClosureVariable = Expression.Variable (thisType, "thisClosure");
+      var thisClosureVariable = Expression.Variable (_declaringType, "thisClosure");
       var replacements = thisExpressions.ToDictionary (exp => exp, exp => (Expression) thisClosureVariable);
       var newBody = body.Replace (replacements);
       var newLambda = node.Update (newBody, node.Parameters);
 
       var block = Expression.Block (
           new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, new ThisExpression (thisType)),
+          Expression.Assign (thisClosureVariable, CreateThisExpression ()),
           newLambda);
 
       return Visit (block);
@@ -89,7 +91,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("expression", expression);
 
       var methodBase = expression.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (methodBase.DeclaringType);
+      var thisExpression = methodBase.IsStatic ? null : CreateThisExpression();
       var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
@@ -103,6 +105,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
       return new NonVirtualCallMethodInfoAdapter (method);
+    }
+
+    private ThisExpression CreateThisExpression ()
+    {
+      return new ThisExpression (_declaringType);
     }
 
     private Exception NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)

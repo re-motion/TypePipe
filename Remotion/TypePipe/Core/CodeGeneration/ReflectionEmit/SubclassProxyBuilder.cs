@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -39,17 +38,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
+        MutableType mutableType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter)
     {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
       _memberEmitter = memberEmitter;
-      _context = new MemberEmitterContext (typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, _postDeclarationsActions);
+      _context = new MemberEmitterContext (mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, _postDeclarationsActions);
     }
 
     [CLSCompliant (false)]

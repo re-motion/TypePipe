@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpandingExpressionPreparer(), ilGeneratorFactory);
 
-      return new SubclassProxyBuilder (typeBuilder, _debugInfoGenerator, emittableOperandProvider, memberEmitter);
+      return new SubclassProxyBuilder (mutableType, typeBuilder, _debugInfoGenerator, emittableOperandProvider, memberEmitter);
     }
   }
 }
