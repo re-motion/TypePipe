@@ -185,7 +185,7 @@ namespace Remotion.TypePipe.MutableReflection
                            ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
                            : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       var returnType = baseMethod.ReturnType;
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod);
       var bodyProvider = baseMethod.IsAbstract
                              ? null
                              : new Func<MethodBodyCreationContext, Expression> (

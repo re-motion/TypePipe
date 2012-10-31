@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
@@ -35,13 +36,15 @@ namespace Remotion.TypePipe.MutableReflection
     public static ParameterDeclaration CreateEquivalent (ParameterInfo parameterInfo)
     {
       ArgumentUtility.CheckNotNull ("parameterInfo", parameterInfo);
+
       return new ParameterDeclaration (parameterInfo.ParameterType, parameterInfo.Name, parameterInfo.Attributes);
     }
 
-    public static IEnumerable<ParameterDeclaration> CreateForEquivalentSignature (MethodBase methodBase)
+    public static ReadOnlyCollection<ParameterDeclaration> CreateForEquivalentSignature (MethodBase methodBase)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
-      return methodBase.GetParameters ().Select (CreateEquivalent);
+
+      return methodBase.GetParameters().Select (CreateEquivalent).ToList().AsReadOnly();
     }
 
     private readonly Type _type;

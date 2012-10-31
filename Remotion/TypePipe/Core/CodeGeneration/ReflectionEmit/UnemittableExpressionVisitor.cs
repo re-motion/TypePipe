@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -69,18 +70,36 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var body = Visit (node.Body);
 
-      var thisExpressions = body.Collect (exp => exp is ThisExpression);
+      // TODO: Collect should build a set, not a list of expressions to avoid key-already-exists exception below
+      var thisExpressions = body.Collect<ThisExpression>();
       if (thisExpressions.Count == 0)
         return node.Update (body, node.Parameters);
 
       var thisClosureVariable = Expression.Variable (_declaringType, "thisClosure");
-      var replacements = thisExpressions.ToDictionary (exp => exp, exp => (Expression) thisClosureVariable);
+      var replacements = thisExpressions.ToDictionary (exp => (Expression) exp, exp => (Expression) thisClosureVariable);
+
+      foreach (var baseCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
+      {
+        var baseMethod = ((NonVirtualCallMethodInfoAdapter) baseCall.Method).AdaptedMethodInfo;
+        var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseMethod);
+        var baseCallMethod = _declaringType.AddMethod (
+            "xxx",
+            MethodAttributes.Private,
+            baseMethod.ReturnType,
+            parameters,
+            ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (baseMethod), ctx.Parameters.Cast<Expression>()));
+
+        var baseCallReplacement = Expression.Call (thisClosureVariable, baseCallMethod, baseCall.Arguments);
+
+        replacements.Add (baseCall, baseCallReplacement);
+      }
+
       var newBody = body.Replace (replacements);
       var newLambda = node.Update (newBody, node.Parameters);
 
       var block = Expression.Block (
           new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, CreateThisExpression ()),
+          Expression.Assign (thisClosureVariable, CreateThisExpression()),
           newLambda);
 
       return Visit (block);

@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return Expression.Default (type);
     }
 
-    public static ThisExpression GetSomeThisExpression ()
+    public static ThisExpression GetSomeThisExpression (Type type = null)
     {
-      return new ThisExpression (ReflectionObjectMother.GetSomeType());
+      return new ThisExpression (type ?? ReflectionObjectMother.GetSomeType());
     }
 
     public static OriginalBodyExpression GetSomeOriginalBodyExpression ()
