@@ -90,7 +90,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public LocalBuilder DeclareLocal (Type localType)
     {
-      return _innerILGenerator.DeclareLocal (localType);
+      ArgumentUtility.CheckNotNull ("localType", localType);
+
+      var emittableOperand = _emittableOperandProvider.GetEmittableType (localType);
+      return _innerILGenerator.DeclareLocal (emittableOperand);
     }
 
     public Label DefineLabel ()

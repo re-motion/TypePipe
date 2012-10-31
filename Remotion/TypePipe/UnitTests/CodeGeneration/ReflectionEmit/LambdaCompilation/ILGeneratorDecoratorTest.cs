@@ -58,15 +58,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    public void DeclareLocal ()
+    {
+      var localVariableType = ReflectionObjectMother.GetSomeType();
+      var fakeEmittableOperand = MockRepository.GenerateStub<Type>();
+      var fakeLocalBuilder = ReflectionEmitObjectMother.GetSomeLocalBuilder();
+      _emittableOperandProviderStub.Stub (stub => stub.GetEmittableType (localVariableType)).Return (fakeEmittableOperand);
+
+      _innerILGeneratorMock.Expect (mock => mock.DeclareLocal (fakeEmittableOperand)).Return (fakeLocalBuilder);
+
+      var result = _decorator.DeclareLocal (localVariableType);
+
+      _innerILGeneratorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeLocalBuilder));
+    }
+
+    [Test]
     public void Emit_ConstructorInfo ()
     {
-      var constructorInfo = ReflectionObjectMother.GetSomeConstructor();
+      var constructor = ReflectionObjectMother.GetSomeConstructor();
       var fakeEmittableOperand = MockRepository.GenerateStub<ConstructorInfo>();
-      _emittableOperandProviderStub.Stub (stub => stub.GetEmittableConstructor (constructorInfo)).Return (fakeEmittableOperand);
+      _emittableOperandProviderStub.Stub (stub => stub.GetEmittableConstructor (constructor)).Return (fakeEmittableOperand);
       
       _innerILGeneratorMock.Expect (mock => mock.Emit (OpCodes.Call, fakeEmittableOperand));
 
-      _decorator.Emit (OpCodes.Call, constructorInfo);
+      _decorator.Emit (OpCodes.Call, constructor);
 
       _innerILGeneratorMock.VerifyAllExpectations ();
     }
