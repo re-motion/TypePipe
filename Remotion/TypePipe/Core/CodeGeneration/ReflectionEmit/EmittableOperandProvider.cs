@@ -18,9 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -35,9 +37,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
     private readonly Dictionary<MutableType, Type> _mappedTypes = new Dictionary<MutableType, Type> ();
-    private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFieldInfos = new Dictionary<MutableFieldInfo, FieldInfo> ();
-    private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructorInfos = new Dictionary<MutableConstructorInfo, ConstructorInfo> ();
-    private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethodInfos = new Dictionary<MutableMethodInfo, MethodInfo> ();
+    private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo> ();
+    private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo> ();
+    private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo> ();
 
     public void AddMapping (MutableType mappedType, Type emittableType)
     {
@@ -52,7 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mappedField", mappedField);
       ArgumentUtility.CheckNotNull ("emittableField", emittableField);
 
-      AddMapping (_mappedFieldInfos, mappedField, emittableField);
+      AddMapping (_mappedFields, mappedField, emittableField);
     }
 
     public void AddMapping (MutableConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor)
@@ -60,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mappedConstructor", mappedConstructor);
       ArgumentUtility.CheckNotNull ("emittableConstructor", emittableConstructor);
 
-      AddMapping (_mappedConstructorInfos, mappedConstructor, emittableConstructor);
+      AddMapping (_mappedConstructors, mappedConstructor, emittableConstructor);
     }
 
     public void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod)
@@ -68,60 +70,75 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mappedMethod", mappedMethod);
       ArgumentUtility.CheckNotNull ("emittableMethod", emittableMethod);
 
-      AddMapping (_mappedMethodInfos, mappedMethod, emittableMethod);
+      AddMapping (_mappedMethods, mappedMethod, emittableMethod);
     }
 
     public Type GetEmittableType (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand (_mappedTypes, type);
+      return GetEmittableOperand (_mappedTypes, type, t => t is TypeBuilder || t.IsRuntimeType(), GetEmittableGenericType);
     }
 
-    public FieldInfo GetEmittableField (FieldInfo fieldInfo)
+    public FieldInfo GetEmittableField (FieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
+      ArgumentUtility.CheckNotNull ("field", field);
 
-      return GetEmittableOperand (_mappedFieldInfos, fieldInfo);
+      return GetEmittableOperand (
+          _mappedFields,
+          field,
+          f => f is FieldBuilder || f.DeclaringType.IsRuntimeType(),
+          f => GetEmittableMemberOfGenericType<FieldInfo, FieldOnTypeInstantiation> (f, fi => fi.GenericField, TypeBuilder.GetField));
     }
 
-    public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo)
+    public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructorInfo", constructorInfo);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return GetEmittableOperand (_mappedConstructorInfos, constructorInfo);
+      return GetEmittableOperand (
+          _mappedConstructors,
+          constructor,
+          c => c is ConstructorBuilder || c.DeclaringType.IsRuntimeType(),
+          c =>
+          GetEmittableMemberOfGenericType<ConstructorInfo, ConstructorOnTypeInstantiation> (
+              c, ci => ci.GenericConstructor, TypeBuilder.GetConstructor));
     }
 
-    public MethodInfo GetEmittableMethod (MethodInfo methodInfo)
+    public MethodInfo GetEmittableMethod (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
+      ArgumentUtility.CheckNotNull ("method", method);
 
-      return GetEmittableOperand (_mappedMethodInfos, methodInfo);
+      return GetEmittableOperand (
+          _mappedMethods,
+          method,
+          m => m is MethodBuilder || m.DeclaringType.IsRuntimeType(),
+          m => GetEmittableMemberOfGenericType<MethodInfo, MethodOnTypeInstantiation> (m, mi => mi.GenericMethod, TypeBuilder.GetMethod));
     }
 
     public object GetEmittableOperand (object operand)
     {
       ArgumentUtility.CheckNotNull ("operand", operand);
 
-      if (operand is MutableType)
-        return GetEmittableType ((MutableType) operand);
-      if (operand is MutableFieldInfo)
-        return GetEmittableField ((MutableFieldInfo) operand);
-      if (operand is MutableConstructorInfo)
-        return GetEmittableConstructor ((MutableConstructorInfo) operand);
-      if (operand is MutableMethodInfo)
-        return GetEmittableMethod ((MutableMethodInfo) operand);
+      if (operand is Type)
+        return GetEmittableType ((Type) operand);
+      if (operand is FieldInfo)
+        return GetEmittableField ((FieldInfo) operand);
+      if (operand is ConstructorInfo)
+        return GetEmittableConstructor ((ConstructorInfo) operand);
+      if (operand is MethodInfo)
+        return GetEmittableMethod ((MethodInfo) operand);
 
       return operand;
     }
 
-    private void AddMapping<TMapped, TEmittable> (Dictionary<TMapped, TEmittable> mapping, TMapped key, TEmittable value)
+    private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
+        where TMutable : T
+        where T : MemberInfo
     {
       if (mapping.ContainsKey (key))
       {
-        var itemTypeName = typeof (TEmittable).Name;
-        var message = itemTypeName + " is already mapped.";
-        var parameterName = "mapped" + itemTypeName.Replace ("Info", "");
+        var message = typeof (TMutable).Name + " is already mapped.";
+        var parameterName = "mapped" + typeof (T).Name.Replace ("Info", "");
 
         throw new ArgumentException (message, parameterName);
       }
@@ -129,21 +146,51 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (key, value);
     }
 
-    private TBase GetEmittableOperand<TMutable, TBase> (Dictionary<TMutable, TBase> mapping, TBase operandToBeEmitted)
-        where TMutable: TBase
+    private static T GetEmittableOperand<T, TMutable, TBuilder> (
+        Dictionary<TMutable, TBuilder> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<T, T> genericEmittableOperandProvider)
+        where TMutable : T
+        where TBuilder : T
+        where T : MemberInfo
     {
-      if (!(operandToBeEmitted is TMutable))
-        return operandToBeEmitted;
+      if (isAlreadyEmittable (operand))
+        return operand;
 
-      try
-      {
-        return mapping[(TMutable) operandToBeEmitted];
-      }
-      catch (KeyNotFoundException exception)
-      {
-        var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operandToBeEmitted, operandToBeEmitted.GetType().Name);
-        throw new InvalidOperationException (message, exception);
-      }
+      var mutableOperand = operand as TMutable;
+      if (mutableOperand == null)
+        return genericEmittableOperandProvider (operand);
+
+      TBuilder emittableOperand;
+      if (mapping.TryGetValue (mutableOperand, out emittableOperand))
+        return emittableOperand;
+
+      var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operand, operand.GetType().Name);
+      throw new InvalidOperationException (message);
+    }
+
+    private Type GetEmittableGenericType (Type constructedType)
+    {
+      Assertion.IsTrue (constructedType.IsGenericType);
+
+      // ToArray() is necessary here, because the TypeBuilderInstantiation does not create a defensive copy.
+      var typeArguments = constructedType.GetGenericArguments().ToArray();
+      for (int i = 0; i < typeArguments.Length; i++)
+        typeArguments[i] = GetEmittableType (typeArguments[i]);
+
+      return constructedType.GetGenericTypeDefinition().MakeGenericType (typeArguments);
+    }
+
+    private T GetEmittableMemberOfGenericType<T, TMemberInstantiation> (
+        T member, Func<TMemberInstantiation, T> genericMemberAccessor, Func<Type, T, T> typeBuilderMemberProvider)
+        where TMemberInstantiation : T
+        where T : MemberInfo
+    {
+      Assertion.IsTrue (member.GetType() == typeof (TMemberInstantiation));
+
+      var memberOnTypeInstantiation = (TMemberInstantiation) member;
+      var emittableDeclaringType = GetEmittableGenericType (memberOnTypeInstantiation.DeclaringType);
+      var genericMember = genericMemberAccessor (memberOnTypeInstantiation);
+
+      return typeBuilderMemberProvider (emittableDeclaringType, genericMember);
     }
   }
 }

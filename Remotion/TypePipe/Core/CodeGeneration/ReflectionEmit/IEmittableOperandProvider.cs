@@ -32,9 +32,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod);
 
     Type GetEmittableType (Type type);
-    FieldInfo GetEmittableField (FieldInfo fieldInfo);
-    ConstructorInfo GetEmittableConstructor (ConstructorInfo constructorInfo);
-    MethodInfo GetEmittableMethod (MethodInfo methodInfo);
+    FieldInfo GetEmittableField (FieldInfo field);
+    ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor);
+    MethodInfo GetEmittableMethod (MethodInfo method);
 
     object GetEmittableOperand (object operand);
   }
