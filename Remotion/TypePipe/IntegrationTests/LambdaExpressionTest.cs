@@ -22,7 +22,6 @@ using NUnit.Framework;
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 5095")]
   public class LambdaExpressionTest : TypeAssemblerIntegrationTestBase
   {
     public override void SetUp ()
@@ -31,6 +30,7 @@ namespace TypePipe.IntegrationTests
       SkipDeletion();
     }
 
+    [Ignore ("TODO 5095")]
     [Test]
     public void InvokeLambda ()
     {
@@ -44,7 +44,7 @@ namespace TypePipe.IntegrationTests
       var instance = (DomainType) Activator.CreateInstance (type);
       var result = instance.InvokeLambda (3);
 
-      //Assert.That (result, Is.EqualTo (5));
+      Assert.That (result, Is.EqualTo (5));
     }
 
     [Test]
