@@ -105,7 +105,7 @@ namespace System.Linq.Expressions.Compiler {
                 _array = array;
                 _index = index;
                 _boxType = typeof(StrongBox<>).MakeGenericType(variable.Type);
-                _boxValueField = _boxType.GetField("Value");
+                _boxValueField = GetStrongBoxValueField(_boxType);
             }
 
             internal override void EmitLoad() {
@@ -149,7 +149,7 @@ namespace System.Linq.Expressions.Compiler {
             internal LocalBoxStorage(LambdaCompiler compiler, ParameterExpression variable)
                 : base(compiler, variable) {
                 _boxType = typeof(StrongBox<>).MakeGenericType(variable.Type);
-                _boxValueField = _boxType.GetField("Value");
+                _boxValueField = GetStrongBoxValueField(_boxType);
                 _boxLocal = compiler.GetNamedLocal(_boxType, variable);
             }
 
