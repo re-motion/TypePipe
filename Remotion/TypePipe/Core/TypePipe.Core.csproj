@@ -68,6 +68,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ITrampolineMethodProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGenerator.cs">

@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private MutableType _mutableType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
+    private ITrampolineMethodProvider _trampolineMethodProvider;
 
     private UnemittableExpressionVisitor _visitorPartialMock;
 
@@ -44,8 +45,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _mutableType = MutableTypeObjectMother.CreateForExistingType(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _trampolineMethodProvider = MockRepository.GenerateStrictMock<ITrampolineMethodProvider>();
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor>(_mutableType, _emittableOperandProviderMock);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (
+          _mutableType, _emittableOperandProviderMock, _trampolineMethodProvider);
     }
 
     [Test]
@@ -117,72 +120,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void VisitLambda_InstanceClosure ()
-    {
-      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
-      var parameter = Expression.Parameter (typeof (int));
-      var expression = Expression.Lambda<Action<int>> (body, parameter);
-      var fakeInstanceClosure = ExpressionTreeObjectMother.GetSomeThisExpression();
-      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeInstanceClosure);
-
-      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      var thisClosure = Expression.Variable (_mutableType, "thisClosure");
-      var expectedTree =
-          Expression.Block (
-              new[] { thisClosure },
-              Expression.Assign (thisClosure, new ThisExpression (_mutableType)),
-              Expression.Lambda<Action<int>> (thisClosure, parameter));
-      _visitorPartialMock
-          .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
-          .WhenCalled (mi => ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, (Expression) mi.Arguments[0]))
-          .Return (fakeExpression);
-
-      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
-
-      Assert.That (result, Is.SameAs (fakeExpression));
-      Assert.That (_mutableType.AddedMethods, Is.Empty);
-    }
-
-    [Test]
-    public void VisitLambda_BaseCall ()
+    public void VisitLambda_InstanceClosureWithBaseCall ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7, ""));
       var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       var expression = Expression.Lambda<Func<int, string, double>> (body, parameters);
-      var fakeBaseCall = Expression.Call (
+
+      var fakeBody = Expression.Call (
           ExpressionTreeObjectMother.GetSomeThisExpression (_mutableType), new NonVirtualCallMethodInfoAdapter (method), parameters);
-      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBaseCall);
+      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
 
-      Expression actualExpression = null;
-      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression ();
-      _visitorPartialMock
-          .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
-          .WhenCalled (mi => actualExpression = (Expression) mi.Arguments[0])
-          .Return (fakeExpression);
-
-      Assert.That (_mutableType.AddedMethods, Is.Empty);
-      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
-      Assert.That (_mutableType.AddedMethods, Has.Count.EqualTo (1));
-      var generatedMethod = _mutableType.AddedMethods.Single();
-
-      Assert.That (result, Is.SameAs (fakeExpression));
+      var fakeBaseCallMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
+      _trampolineMethodProvider.Expect (mock => mock.GetBaseCallMethod (method)).Return (fakeBaseCallMethod);
 
       var thisClosure = Expression.Parameter (_mutableType, "thisClosure");
       var expectedTree =
           Expression.Block (
               new[] { thisClosure },
               Expression.Assign (thisClosure, new ThisExpression (_mutableType)),
-              Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, generatedMethod, parameters), parameters));
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, actualExpression);
+              Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, fakeBaseCallMethod, parameters), parameters));
+      var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _visitorPartialMock
+          .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
+          .WhenCalled (mi => ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, (Expression) mi.Arguments[0]))
+          .Return (fakeResultExpression);
 
-      Assert.That (generatedMethod.Attributes, Is.EqualTo (MethodAttributes.Private));
-      Assert.That (generatedMethod.ParameterExpressions.Select (p => p.Type), Is.EqualTo (new[] { typeof (int), typeof (string) }));
-      Assert.That (generatedMethod.Body, Is.InstanceOf<MethodCallExpression>());
-      var methodCallExpression = ((MethodCallExpression) generatedMethod.Body);
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_mutableType));
-      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethodInfo").SameAs (method));
-      Assert.That (methodCallExpression.Arguments, Is.EqualTo (generatedMethod.ParameterExpressions));
+      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+
+      Assert.That (result, Is.SameAs (fakeResultExpression));
     }
 
     [Test]
@@ -303,6 +269,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         Dev.Null = p1;
         Dev.Null = p2;
         return 7.7;
+      }
+
+      public double TrampolineMethod (int p1, string p2)
+      {
+        return 0;
       }
     }
   }

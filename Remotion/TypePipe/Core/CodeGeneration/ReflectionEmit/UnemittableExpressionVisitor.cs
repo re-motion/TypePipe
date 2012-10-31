@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -35,14 +34,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly MutableType _declaringType;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
+    private readonly ITrampolineMethodProvider _trampolineMethodProvider;
 
-    public UnemittableExpressionVisitor (MutableType declaringType, IEmittableOperandProvider emittableOperandProvider)
+    public UnemittableExpressionVisitor (
+        MutableType declaringType, IEmittableOperandProvider emittableOperandProvider, ITrampolineMethodProvider trampolineMethodProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      //ArgumentUtility.CheckNotNull ("trampolineMethodProvider", trampolineMethodProvider);
 
       _declaringType = declaringType;
       _emittableOperandProvider = emittableOperandProvider;
+      _trampolineMethodProvider = trampolineMethodProvider;
     }
 
     protected internal override Expression VisitConstant (ConstantExpression node)
@@ -70,7 +73,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var body = Visit (node.Body);
 
-      // TODO: Collect should build a set, not a list of expressions to avoid key-already-exists exception below
       var thisExpressions = body.Collect<ThisExpression>();
       if (thisExpressions.Count == 0)
         return node.Update (body, node.Parameters);
@@ -81,14 +83,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       foreach (var baseCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
       {
         var baseMethod = ((NonVirtualCallMethodInfoAdapter) baseCall.Method).AdaptedMethodInfo;
-        var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseMethod);
-        var baseCallMethod = _declaringType.AddMethod (
-            "xxx",
-            MethodAttributes.Private,
-            baseMethod.ReturnType,
-            parameters,
-            ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (baseMethod), ctx.Parameters.Cast<Expression>()));
-
+        var baseCallMethod = _trampolineMethodProvider.GetBaseCallMethod (baseMethod);
         var baseCallReplacement = Expression.Call (thisClosureVariable, baseCallMethod, baseCall.Arguments);
 
         replacements.Add (baseCall, baseCallReplacement);
@@ -99,7 +94,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var block = Expression.Block (
           new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, CreateThisExpression()),
+          Expression.Assign (thisClosureVariable, new ThisExpression (_declaringType)),
           newLambda);
 
       return Visit (block);
@@ -110,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("expression", expression);
 
       var methodBase = expression.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : CreateThisExpression();
+      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_declaringType);
       var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
@@ -124,11 +119,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
       return new NonVirtualCallMethodInfoAdapter (method);
-    }
-
-    private ThisExpression CreateThisExpression ()
-    {
-      return new ThisExpression (_declaringType);
     }
 
     private Exception NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)
