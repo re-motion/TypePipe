@@ -97,6 +97,50 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void VisitLambda_StaticClosure ()
+    {
+      var body = ExpressionTreeObjectMother.GetSomeExpression();
+      var parameter = Expression.Parameter (typeof (int));      
+      var expression = Expression.Lambda<Action<int>> (body, parameter);
+      var fakeStaticClosure = ExpressionTreeObjectMother.GetSomeExpression();
+      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeStaticClosure);
+
+      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+
+      Assert.That (result, Is.InstanceOf<LambdaExpression>());
+      var lambdaExpression = ((LambdaExpression) result);
+      Assert.That (lambdaExpression.Parameters, Is.EqualTo (new[] { parameter }));
+      Assert.That (lambdaExpression.Body, Is.SameAs (fakeStaticClosure));
+    }
+
+    [Test]
+    public void VisitLambda_InstanceClosure ()
+    {
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      var parameter = Expression.Parameter (typeof (int));
+      var expression = Expression.Lambda<Action<int>> (body, parameter);
+      var type = ReflectionObjectMother.GetSomeType();
+      var fakeInstanceClosure = new ThisExpression (type);
+      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeInstanceClosure);
+
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      var thisClosure = Expression.Parameter (type, "thisClosure");
+      var expectedTree =
+          Expression.Block (
+              new[] { thisClosure },
+              Expression.Assign (thisClosure, new ThisExpression (type)),
+              Expression.Lambda<Action<int>> (thisClosure, parameter));
+      _visitorPartialMock
+          .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
+          .WhenCalled (mi => ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, (Expression) mi.Arguments[0]))
+          .Return (fakeExpression);
+
+      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+
+      Assert.That (result, Is.SameAs (fakeExpression));
+    }
+
+    [Test]
     public void VisitOriginalBody_Method ()
     {
       var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));

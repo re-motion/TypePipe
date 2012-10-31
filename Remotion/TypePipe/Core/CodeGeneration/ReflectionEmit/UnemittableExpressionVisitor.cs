@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
@@ -56,6 +57,31 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
 
       return base.VisitConstant (node);
+    }
+
+    protected internal override Expression VisitLambda<T> (Expression<T> node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      var body = Visit (node.Body);
+
+      var thisExpressions = body.Collect (exp => exp is ThisExpression);
+      if (thisExpressions.Count == 0)
+        return node.Update (body, node.Parameters);
+
+      var thisType = thisExpressions.First ().Type;
+      Assertion.IsTrue (thisExpressions.All (x => x.Type == thisType));
+      var thisClosureVariable = Expression.Variable (thisType, "thisClosure");
+      var replacements = thisExpressions.ToDictionary (exp => exp, exp => (Expression) thisClosureVariable);
+      var newBody = body.Replace (replacements);
+      var newLambda = node.Update (newBody, node.Parameters);
+
+      var block = Expression.Block (
+          new[] { thisClosureVariable },
+          Expression.Assign (thisClosureVariable, new ThisExpression (thisType)),
+          newLambda);
+
+      return Visit (block);
     }
 
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
