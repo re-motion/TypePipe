@@ -16,8 +16,8 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
@@ -29,17 +29,18 @@ namespace Remotion.TypePipe.Expressions
   public class CollectingExpressionVisitor : ExpressionVisitor
   {
     private readonly Predicate<Expression> _predicate;
-    private readonly List<Expression> _matchingNodes = new List<Expression>();
+    private readonly HashSet<Expression> _matchingNodes = new HashSet<Expression>();
 
     public CollectingExpressionVisitor (Predicate<Expression> predicate)
     {
       ArgumentUtility.CheckNotNull ("predicate", predicate);
+
       _predicate = predicate;
     }
 
-    public ReadOnlyCollection<Expression> MatchingNodes
+    public ReadOnlyCollectionDecorator<Expression> MatchingNodes
     {
-      get { return _matchingNodes.AsReadOnly(); }
+      get { return new ReadOnlyCollectionDecorator<Expression> (_matchingNodes); }
     }
 
     public override Expression Visit (Expression node)

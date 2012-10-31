@@ -16,9 +16,11 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using Microsoft.Scripting.Ast;
+using Remotion.Collections;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.Expressions
 {
@@ -46,7 +48,7 @@ namespace Remotion.TypePipe.Expressions
       return visitor.Result;
     }
 
-    public static ReadOnlyCollection<Expression> Collect (this Expression expression, Predicate<Expression> predicate)
+    public static ReadOnlyCollectionDecorator<Expression> Collect (this Expression expression, Predicate<Expression> predicate)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
       ArgumentUtility.CheckNotNull ("predicate", predicate);
@@ -55,6 +57,18 @@ namespace Remotion.TypePipe.Expressions
       visitor.Visit (expression);
 
       return visitor.MatchingNodes;
+    }
+
+    public static ReadOnlyCollectionDecorator<T> Collect<T> (this Expression expression, Predicate<T> predicate = null)
+        where T : Expression
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      var matchingExpressions = predicate == null
+                            ? Collect (expression, expr => expr is T)
+                            : Collect (expression, expr => expr is T && predicate ((T) expr));
+
+      return matchingExpressions.Cast<T>().ConvertToCollection().AsReadOnly();
     }
   }
 }

@@ -25,12 +25,13 @@ namespace Remotion.TypePipe.UnitTests.Expressions
   public class CollectingExpressionVisitorTest
   {
     [Test]
-    public void Visit_ContainsMatchingNode ()
+    public void Visit_ContainsDistinctMatchingNodes ()
     {
       var expr1 = Expression.Constant ("a");
       var expr2 = Expression.Constant ("b");
       var expr3 = Expression.Constant ("ab");
-      var tree = Expression.Block (expr1, expr2, expr3);
+      var nonDistinct = expr3;
+      var tree = Expression.Block (expr1, expr2, expr3, nonDistinct);
       var visitor = new CollectingExpressionVisitor (exp => exp is ConstantExpression && ((ConstantExpression) exp).Value.ToString().Contains ("a"));
 
       visitor.Visit (tree);
