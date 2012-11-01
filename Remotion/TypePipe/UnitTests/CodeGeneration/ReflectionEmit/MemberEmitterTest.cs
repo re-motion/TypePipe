@@ -37,33 +37,40 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class MemberEmitterTest
   {
     private IExpressionPreparer _expressionPreparerMock;
-    private ITypeBuilder _typeBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
-    private DebugInfoGenerator _debugInfoGeneratorStub;
-    private IEmittableOperandProvider _emittableOperandProviderMock;
-    private DeferredActionManager _postDeclarationsManager;
-    private MutableType _mutableType; 
 
     private MemberEmitter _emitter;
 
+    private MutableType _mutableType; 
+    private ITypeBuilder _typeBuilderMock;
+    private DebugInfoGenerator _debugInfoGeneratorStub;
+    private IEmittableOperandProvider _emittableOperandProviderMock;
+    private IMethodTrampolineProvider _methodTrampolineProviderStub;
+    private DeferredActionManager _postDeclarationsManager;
+
     private MemberEmitterContext _context;
+
     private Expression _fakeBody;
 
     [SetUp]
     public void SetUp ()
     {
-      _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer> ();
-      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
-      _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory> ();
-      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
-      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider> ();
-      _postDeclarationsManager = new DeferredActionManager();
+      _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer>();
+      _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
 
       _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
 
       _mutableType = MutableTypeObjectMother.CreateForExistingType();
-      _context = new MemberEmitterContext (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _postDeclarationsManager);
-      _fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
+      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
+      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
+      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _methodTrampolineProviderStub = MockRepository.GenerateStub<IMethodTrampolineProvider>();
+      _postDeclarationsManager = new DeferredActionManager();
+
+      _context = new MemberEmitterContext (
+          _mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderStub, _postDeclarationsManager);
+
+      _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
 
     [Test]
@@ -255,9 +262,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)
     {
       methodBuilderMock.BackToRecord();
-      _expressionPreparerMock
-          .Expect (mock => mock.PrepareBody (_mutableType, mutableMethodBase.Body, _emittableOperandProviderMock))
-          .Return (_fakeBody);
+      _expressionPreparerMock.Expect (mock => mock.PrepareBody (_context, mutableMethodBase.Body)).Return (_fakeBody);
       methodBuilderMock
           .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
           .WhenCalled (
@@ -269,7 +274,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               });
       methodBuilderMock.Replay();
 
-      testedAction ();
+      testedAction();
 
       _emittableOperandProviderMock.VerifyAllExpectations();
       methodBuilderMock.VerifyAllExpectations ();

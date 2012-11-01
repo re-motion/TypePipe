@@ -68,7 +68,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ITrampolineMethodProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGenerator.cs">
@@ -85,6 +85,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>

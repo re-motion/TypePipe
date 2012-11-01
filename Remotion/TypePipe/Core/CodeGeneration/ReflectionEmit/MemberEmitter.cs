@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members).
       return () =>
       {
-        var body = _expressionPreparer.PrepareBody (context.MutableType, unpreparedBody, context.EmittableOperandProvider);
+        var body = _expressionPreparer.PrepareBody (context, unpreparedBody);
         var bodyLambda = Expression.Lambda (body, parameterExpressions);
         methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, context.DebugInfoGenerator);
       };

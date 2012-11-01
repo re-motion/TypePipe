@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 
@@ -28,5 +27,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public interface IMethodBuilder : IMethodBaseBuilder
   {
     void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method);
+
+    // TODO 4876: Break abstraction?
+    MethodBuilder GetInternalMethodBuilder ();
   }
 }

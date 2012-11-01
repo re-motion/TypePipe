@@ -79,9 +79,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (context.TypeBuilder, Is.SameAs (typeBuilderMock));
       Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (context.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+      Assert.That (context.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider> ().And.Property ("TypeBuilder").SameAs(typeBuilderMock));
+      Assert.That (context.PostDeclarationsActionManager.Actions, Is.Empty);
 
       Assert.That (builder.MemberEmitter, Is.TypeOf<MemberEmitter>());
-      var memberEmitter = ((MemberEmitter) builder.MemberEmitter);
+      var memberEmitter = (MemberEmitter) builder.MemberEmitter;
 
       Assert.That (memberEmitter.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer>());
       Assert.That (memberEmitter.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());

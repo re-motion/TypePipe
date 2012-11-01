@@ -20,10 +20,10 @@ using System.Reflection;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Provides method stubs for performing base calls.
+  /// Provides method stubs for performing non virtual calls to virtual methods as it is needed for base calls.
   /// </summary>
-  public interface ITrampolineMethodProvider
+  public interface IMethodTrampolineProvider
   {
-    MethodInfo GetBaseCallMethod (MethodInfo baseMethod);
+    MethodInfo GetNonVirtualCallTrampoline (MethodInfo method);
   }
 }

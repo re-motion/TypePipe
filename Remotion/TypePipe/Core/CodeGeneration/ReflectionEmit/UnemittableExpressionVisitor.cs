@@ -34,18 +34,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly MutableType _declaringType;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
-    private readonly ITrampolineMethodProvider _trampolineMethodProvider;
+    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
 
     public UnemittableExpressionVisitor (
-        MutableType declaringType, IEmittableOperandProvider emittableOperandProvider, ITrampolineMethodProvider trampolineMethodProvider)
+        MutableType declaringType, IEmittableOperandProvider emittableOperandProvider, IMethodTrampolineProvider methodTrampolineProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      //ArgumentUtility.CheckNotNull ("trampolineMethodProvider", trampolineMethodProvider);
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
 
       _declaringType = declaringType;
       _emittableOperandProvider = emittableOperandProvider;
-      _trampolineMethodProvider = trampolineMethodProvider;
+      _methodTrampolineProvider = methodTrampolineProvider;
     }
 
     protected internal override Expression VisitConstant (ConstantExpression node)
@@ -80,13 +80,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var thisClosureVariable = Expression.Variable (_declaringType, "thisClosure");
       var replacements = thisExpressions.ToDictionary (exp => (Expression) exp, exp => (Expression) thisClosureVariable);
 
-      foreach (var baseCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
+      foreach (var nonVirtualCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
       {
-        var baseMethod = ((NonVirtualCallMethodInfoAdapter) baseCall.Method).AdaptedMethodInfo;
-        var baseCallMethod = _trampolineMethodProvider.GetBaseCallMethod (baseMethod);
-        var baseCallReplacement = Expression.Call (thisClosureVariable, baseCallMethod, baseCall.Arguments);
+        var method = ((NonVirtualCallMethodInfoAdapter) nonVirtualCall.Method).AdaptedMethodInfo;
+        var trampolineMethod = _methodTrampolineProvider.GetNonVirtualCallTrampoline (method);
+        var nonVirtualCallReplacement = Expression.Call (thisClosureVariable, trampolineMethod, nonVirtualCall.Arguments);
 
-        replacements.Add (baseCall, baseCallReplacement);
+        replacements.Add (nonVirtualCall, nonVirtualCallReplacement);
       }
 
       var newBody = body.Replace (replacements);

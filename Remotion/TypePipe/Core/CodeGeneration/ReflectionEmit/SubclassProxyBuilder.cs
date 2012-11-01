@@ -42,15 +42,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
+        IMethodTrampolineProvider methodTrampolineProvider,
         IMemberEmitter memberEmitter)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
       _memberEmitter = memberEmitter;
-      _context = new MemberEmitterContext (mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, _postDeclarationsActions);
+      _context = new MemberEmitterContext (
+          mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider, _postDeclarationsActions);
     }
 
     [CLSCompliant (false)]

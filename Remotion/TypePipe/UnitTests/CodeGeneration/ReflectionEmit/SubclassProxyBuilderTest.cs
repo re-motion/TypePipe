@@ -31,11 +31,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class SubclassProxyBuilderTest
   {
+    private MutableType _mutableType;
     private ITypeBuilder _typeBuilderMock;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
+    private IMethodTrampolineProvider _methodTrampolineProvider;
     private IMemberEmitter _memberEmitterMock;
-    private MutableType _mutableType;
 
     private SubclassProxyBuilder _builder;
 
@@ -44,13 +45,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
+      _mutableType = MutableTypeObjectMother.CreateForExistingType ();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
       _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
-      _mutableType = MutableTypeObjectMother.CreateForExistingType();
 
-      _builder = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _memberEmitterMock);
+      _builder = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
 
       _context = _builder.MemberEmitterContext;
     }
@@ -64,13 +66,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+      Assert.That (_context.MethodTrampolineProvider, Is.SameAs (_methodTrampolineProvider));
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _memberEmitterMock);
+      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
       Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
     }
 

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private MutableType _mutableType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
-    private ITrampolineMethodProvider _trampolineMethodProvider;
+    private IMethodTrampolineProvider _methodTrampolineProvider;
 
     private UnemittableExpressionVisitor _visitorPartialMock;
 
@@ -45,10 +45,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _mutableType = MutableTypeObjectMother.CreateForExistingType(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _trampolineMethodProvider = MockRepository.GenerateStrictMock<ITrampolineMethodProvider>();
+      _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
 
       _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (
-          _mutableType, _emittableOperandProviderMock, _trampolineMethodProvider);
+          _mutableType, _emittableOperandProviderMock, _methodTrampolineProvider);
     }
 
     [Test]
@@ -131,15 +131,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           ExpressionTreeObjectMother.GetSomeThisExpression (_mutableType), new NonVirtualCallMethodInfoAdapter (method), parameters);
       _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
 
-      var fakeBaseCallMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
-      _trampolineMethodProvider.Expect (mock => mock.GetBaseCallMethod (method)).Return (fakeBaseCallMethod);
+      var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
+      _methodTrampolineProvider.Expect (mock => mock.GetNonVirtualCallTrampoline (method)).Return (fakeTrampolineMethod);
 
       var thisClosure = Expression.Parameter (_mutableType, "thisClosure");
       var expectedTree =
           Expression.Block (
               new[] { thisClosure },
               Expression.Assign (thisClosure, new ThisExpression (_mutableType)),
-              Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, fakeBaseCallMethod, parameters), parameters));
+              Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, fakeTrampolineMethod, parameters), parameters));
       var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _visitorPartialMock
           .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
