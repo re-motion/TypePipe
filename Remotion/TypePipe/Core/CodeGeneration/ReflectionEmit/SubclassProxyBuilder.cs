@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
-      _memberEmitter.AddMethod (_context, method, method.Name, method.Attributes);
+      _memberEmitter.AddMethod (_context, method, method.Attributes);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo constructor)
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       // Modified methods are added as implicit method overrides for the underlying method.
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
-      _memberEmitter.AddMethod (_context, method, method.Name, attributes);
+      _memberEmitter.AddMethod (_context, method, attributes);
     }
 
     public void HandleUnmodifiedField (MutableFieldInfo field)

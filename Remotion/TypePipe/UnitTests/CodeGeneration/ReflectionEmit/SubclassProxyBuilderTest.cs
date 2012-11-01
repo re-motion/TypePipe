@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedMethod ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew ();
-      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMethod, addedMethod.Name, addedMethod.Attributes));
+      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMethod, addedMethod.Attributes));
 
       _builder.HandleAddedMethod (addedMethod);
 
@@ -173,9 +173,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
       var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
 
-      var expectedName = "Method";
       var expectedAttributes = MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
-      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedName, expectedAttributes));
+      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedAttributes));
 
       _builder.HandleModifiedMethod (modifiedMethod);
 

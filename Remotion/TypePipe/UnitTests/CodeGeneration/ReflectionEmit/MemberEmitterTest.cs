@@ -177,14 +177,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
       addedMethod.AddExplicitBaseDefinition (overriddenMethod);
 
-      var expectedName = "ExplicitlySpecifiedName";
       var expectedAttributes = MethodAttributes.HideBySig;
-      var expectedReturnType = typeof (string);
-      var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType () };
+      var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
 
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
+          .Expect (mock => mock.DefineMethod ("AddedMethod", expectedAttributes, typeof (string), expectedParameterTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
@@ -193,7 +191,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_postDeclarationsManager.Actions, Is.Empty);
 
-      _emitter.AddMethod (_context, addedMethod, expectedName, expectedAttributes);
+      _emitter.AddMethod (_context, addedMethod, expectedAttributes);
 
       _typeBuilderMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
@@ -214,20 +212,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           typeof (int),
           ParameterDeclaration.EmptyParameters);
 
-      var expectedName = "ExplicitlySpecifiedName";
-      var expectedAttributes = MethodAttributes.Abstract;
-
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, typeof (int), Type.EmptyTypes))
+          .Expect (mock => mock.DefineMethod ("AddedAbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
-      _emitter.AddMethod (_context, addedMethod, expectedName, expectedAttributes);
-      
-      _typeBuilderMock.VerifyAllExpectations ();
-      methodBuilderMock.VerifyAllExpectations ();
-      var actions = _postDeclarationsManager.Actions.ToArray ();
+      _emitter.AddMethod (_context, addedMethod, MethodAttributes.Abstract);
+
+      _typeBuilderMock.VerifyAllExpectations();
+      methodBuilderMock.VerifyAllExpectations();
+      var actions = _postDeclarationsManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (1));
 
       // Executing the action has no side effect (strict mocks; empty override build action).

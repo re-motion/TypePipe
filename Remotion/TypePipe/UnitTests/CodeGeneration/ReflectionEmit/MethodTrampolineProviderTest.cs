@@ -62,10 +62,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       int i;
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Abc (out i, 0.7));
-      var trampolineName ="Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
       MutableMethodInfo mutableMethod = null;
       _memberEmitterMock
-          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything, Arg.Is(trampolineName), Arg.Is (MethodAttributes.Private)))
+          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything, Arg.Is (MethodAttributes.Private)))
           .WhenCalled (mi => mutableMethod = (MutableMethodInfo) mi.Arguments[1]);
 
       var result = _provider.GetNonVirtualCallTrampoline (_context, method);
@@ -73,7 +72,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _memberEmitterMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (mutableMethod));
 
-      Assert.That (result.Name, Is.EqualTo (trampolineName));
+      var name = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
+      Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Private));
       Assert.That (result.ReturnType, Is.SameAs (typeof (string)));
 
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method2 = typeof (DomainType).GetMethod ("ToString");
       Assert.That (method1.ReflectedType, Is.Not.SameAs (method2.ReflectedType));
-      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, "", 0)).IgnoreArguments().Repeat.Once();
+      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Once();
 
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);

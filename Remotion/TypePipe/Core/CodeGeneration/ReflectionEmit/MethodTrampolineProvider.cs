@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           ParameterDeclaration.CreateForEquivalentSignature (method),
           ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
 
-      _memberEmitter.AddMethod (context, trampoline, trampolineName, trampoline.Attributes);
+      _memberEmitter.AddMethod (context, trampoline, trampoline.Attributes);
 
       return trampoline;
     }

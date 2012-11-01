@@ -27,6 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     void AddField (MemberEmitterContext context, MutableFieldInfo field);
     void AddConstructor (MemberEmitterContext context, MutableConstructorInfo constructor);
-    void AddMethod (MemberEmitterContext context, MutableMethodInfo method, string name, MethodAttributes attributes);
+    void AddMethod (MemberEmitterContext context, MutableMethodInfo method, MethodAttributes attributes);
   }
 }
