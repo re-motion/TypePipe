@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -24,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class DeferredActionManager
   {
-    private readonly List<Action> _deferredActions = new List<Action>();
+    private readonly Queue<Action> _deferredActions = new Queue<Action>();
 
     public IEnumerable<Action> Actions
     {
@@ -33,15 +34,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddAction (Action action)
     {
-      _deferredActions.Add (action);
+      ArgumentUtility.CheckNotNull ("action", action);
+
+      _deferredActions.Enqueue (action);
     }
 
     public void ExecuteAllActions ()
     {
-      foreach (var deferredAction in _deferredActions)
-      {
-        deferredAction();
-      }
+      while (_deferredActions.Count > 0)
+        _deferredActions.Dequeue()();
     }
   }
 }

@@ -57,5 +57,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (actionExecuted, Is.True);
     }
+
+    [Test]
+    public void ExecuteAllActions_AddsAnotherActionWhichIsAlsoExecuted ()
+    {
+      var actionExecuted = false;
+      Action action1 = () => actionExecuted = true;
+      Action action2 = () => _manager.AddAction (action1);
+      _manager.AddAction (action2);
+
+      _manager.ExecuteAllActions ();
+
+      Assert.That (actionExecuted, Is.True);
+    }
   }
 }
