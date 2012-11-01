@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MutableType _mutableType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMethodTrampolineProvider _methodTrampolineProvider;
+    private MemberEmitterContext _context;
 
     private UnemittableExpressionVisitor _visitorPartialMock;
 
@@ -46,9 +47,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mutableType = MutableTypeObjectMother.CreateForExistingType(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
+      _context = MemberEmitterContextObjectMother.GetSomeContext (
+          _mutableType, emittableOperandProvider: _emittableOperandProviderMock, methodTrampolineProvider: _methodTrampolineProvider);
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (
-          _mutableType, _emittableOperandProviderMock, _methodTrampolineProvider);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (_context);
     }
 
     [Test]
@@ -132,7 +134,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
 
       var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
-      _methodTrampolineProvider.Expect (mock => mock.GetNonVirtualCallTrampoline (method)).Return (fakeTrampolineMethod);
+      _methodTrampolineProvider.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
 
       var thisClosure = Expression.Parameter (_mutableType, "thisClosure");
       var expectedTree =

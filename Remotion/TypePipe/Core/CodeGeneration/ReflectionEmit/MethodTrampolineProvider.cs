@@ -15,10 +15,11 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -29,56 +30,41 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks>This class is used by <see cref="UnemittableExpressionVisitor"/>.</remarks>
   public class MethodTrampolineProvider : IMethodTrampolineProvider
   {
-    private readonly ITypeBuilder _typeBuilder;
+    private readonly IMemberEmitter _memberEmitter;
 
-    private readonly Dictionary<MethodInfo, MethodInfo> _trampolines =
-        new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
-        // TODO 4972: Use TypeEqualityComparer.
-
-    [CLSCompliant (false)]
-    public MethodTrampolineProvider (ITypeBuilder typeBuilder)
+    public MethodTrampolineProvider (IMemberEmitter memberEmitter)
     {
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
+      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
-      _typeBuilder = typeBuilder;
+      _memberEmitter = memberEmitter;
     }
 
-    [CLSCompliant (false)]
-    public ITypeBuilder TypeBuilder
+    public IMemberEmitter MemberEmitter
     {
-      get { return _typeBuilder; }
+      get { return _memberEmitter; }
     }
 
-    public MethodInfo GetNonVirtualCallTrampoline (MethodInfo method)
+    public MethodInfo GetNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method)
     {
+      ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
 
-      MethodInfo trampoline;
-      if (!_trampolines.TryGetValue (method, out trampoline))
-      {
-        trampoline = CreateNonVirtualCallTrampoline (method);
-        _trampolines.Add (method, trampoline);
-      }
-
-      return trampoline;
+      var name = string.Format ("{0}.{1}_NonVirtualCallTrampoline", method.DeclaringType.FullName, method.Name);
+      return context.MutableType.AddedMethods.SingleOrDefault (m => m.Name == name) ?? CreateNonVirtualCallTrampoline (context, method, name);
     }
 
-    private MethodInfo CreateNonVirtualCallTrampoline (MethodInfo method)
+    private MethodInfo CreateNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method, string trampolineName)
     {
-      var trampolineName = string.Format ("{0}.{1}_NonVirtualCallTrampoline", method.DeclaringType.FullName, method.Name);
-      var parameterTypes = method.GetParameters().Select (p => p.ParameterType).ToArray();
-      var methodBuilder = _typeBuilder.DefineMethod (trampolineName, MethodAttributes.Private, method.ReturnType, parameterTypes);
+      var trampoline = context.MutableType.AddMethod (
+          trampolineName,
+          MethodAttributes.Private,
+          method.ReturnType,
+          ParameterDeclaration.CreateForEquivalentSignature (method),
+          ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
 
-      foreach (var parameter in method.GetParameters())
-        methodBuilder.DefineParameter (parameter.Position + 1, parameter.Attributes, parameter.Name);
+      _memberEmitter.AddMethod (context, trampoline, trampolineName, trampoline.Attributes);
 
-      // TODO 4876: Break abstraction?
-      //var dummy = new EmittableOperandProvider();
-      //MutableMethodInfo mutableMethod = null;
-      //methodBuilder.RegisterWith (dummy, mutableMethod);
-      //return dummy.GetEmittableMethod (mutableMethod);
-
-      return methodBuilder.GetInternalMethodBuilder();
+      return trampoline;
     }
   }
 }

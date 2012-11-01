@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -32,20 +31,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class UnemittableExpressionVisitor : TypePipeExpressionVisitorBase
   {
-    private readonly MutableType _declaringType;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
-    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
+    private readonly MemberEmitterContext _context;
 
-    public UnemittableExpressionVisitor (
-        MutableType declaringType, IEmittableOperandProvider emittableOperandProvider, IMethodTrampolineProvider methodTrampolineProvider)
+    public UnemittableExpressionVisitor (MemberEmitterContext context)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
+      ArgumentUtility.CheckNotNull ("context", context);
 
-      _declaringType = declaringType;
-      _emittableOperandProvider = emittableOperandProvider;
-      _methodTrampolineProvider = methodTrampolineProvider;
+      _context = context;
     }
 
     protected internal override Expression VisitConstant (ConstantExpression node)
@@ -55,7 +47,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (node.Value == null)
         return base.VisitConstant (node);
 
-      var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
+      var emittableValue = _context.EmittableOperandProvider.GetEmittableOperand (node.Value);
       if (emittableValue != node.Value)
       {
         if (!node.Type.IsInstanceOfType (emittableValue))
@@ -77,13 +69,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (thisExpressions.Count == 0)
         return node.Update (body, node.Parameters);
 
-      var thisClosureVariable = Expression.Variable (_declaringType, "thisClosure");
+      var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
       var replacements = thisExpressions.ToDictionary (exp => (Expression) exp, exp => (Expression) thisClosureVariable);
 
       foreach (var nonVirtualCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
       {
         var method = ((NonVirtualCallMethodInfoAdapter) nonVirtualCall.Method).AdaptedMethodInfo;
-        var trampolineMethod = _methodTrampolineProvider.GetNonVirtualCallTrampoline (method);
+        var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
         var nonVirtualCallReplacement = Expression.Call (thisClosureVariable, trampolineMethod, nonVirtualCall.Arguments);
 
         replacements.Add (nonVirtualCall, nonVirtualCallReplacement);
@@ -94,7 +86,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var block = Expression.Block (
           new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, new ThisExpression (_declaringType)),
+          Expression.Assign (thisClosureVariable, new ThisExpression (_context.MutableType)),
           newLambda);
 
       return Visit (block);
@@ -105,7 +97,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("expression", expression);
 
       var methodBase = expression.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_declaringType);
+      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.MutableType);
       var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);

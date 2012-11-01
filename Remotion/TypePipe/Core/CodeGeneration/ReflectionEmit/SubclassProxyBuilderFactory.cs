@@ -30,20 +30,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilderFactory : ISubclassProxyBuilderFactory
   {
     private readonly IModuleBuilder _moduleBuilder;
-    private readonly IExpressionPreparer _expressionPreparer;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
     [CLSCompliant (false)]
-    public SubclassProxyBuilderFactory (
-        IModuleBuilder moduleBuilder,
-        IExpressionPreparer expressionPreparer,
-        DebugInfoGenerator debugInfoGeneratorOrNull)
+    public SubclassProxyBuilderFactory (IModuleBuilder moduleBuilder, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
-      ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
 
       _moduleBuilder = moduleBuilder;
-      _expressionPreparer = expressionPreparer;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
     }
 
@@ -51,11 +45,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IModuleBuilder ModuleBuilder
     {
       get { return _moduleBuilder; }
-    }
-
-    public IExpressionPreparer ExpressionPreparer
-    {
-      get { return _expressionPreparer; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
@@ -74,10 +63,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var emittableOperandProvider = new EmittableOperandProvider ();
       typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
 
-      var methodTrampolineProvider = new MethodTrampolineProvider (typeBuilder);
-
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpandingExpressionPreparer(), ilGeneratorFactory);
+
+      var methodTrampolineProvider = new MethodTrampolineProvider (memberEmitter);
 
       return new SubclassProxyBuilder (
           mutableType, typeBuilder, _debugInfoGenerator, emittableOperandProvider, methodTrampolineProvider, memberEmitter);

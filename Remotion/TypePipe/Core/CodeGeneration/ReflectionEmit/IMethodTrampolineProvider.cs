@@ -24,6 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface IMethodTrampolineProvider
   {
-    MethodInfo GetNonVirtualCallTrampoline (MethodInfo method);
+    MethodInfo GetNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method);
   }
 }

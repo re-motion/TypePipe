@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -43,9 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private MutableType _mutableType; 
     private ITypeBuilder _typeBuilderMock;
-    private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
-    private IMethodTrampolineProvider _methodTrampolineProviderStub;
     private DeferredActionManager _postDeclarationsManager;
 
     private MemberEmitterContext _context;
@@ -62,13 +59,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _mutableType = MutableTypeObjectMother.CreateForExistingType();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
-      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _methodTrampolineProviderStub = MockRepository.GenerateStub<IMethodTrampolineProvider>();
       _postDeclarationsManager = new DeferredActionManager();
 
-      _context = new MemberEmitterContext (
-          _mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderStub, _postDeclarationsManager);
+      _context = MemberEmitterContextObjectMother.GetSomeContext (
+          _mutableType,
+          _typeBuilderMock,
+          emittableOperandProvider: _emittableOperandProviderMock,
+          postDeclarationsActionManager: _postDeclarationsManager);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
@@ -264,7 +262,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.BackToRecord();
       _expressionPreparerMock.Expect (mock => mock.PrepareBody (_context, mutableMethodBase.Body)).Return (_fakeBody);
       methodBuilderMock
-          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
+          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_context.DebugInfoGenerator)))
           .WhenCalled (
               mi =>
               {

@@ -45,11 +45,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _methodBuilder; }
     }
 
-    public MethodBuilder GetInternalMethodBuilder ()
-    {
-      return _methodBuilder;
-    }
-
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
