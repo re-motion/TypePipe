@@ -24,13 +24,6 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class LambdaExpressionTest : TypeAssemblerIntegrationTestBase
   {
-    public override void SetUp ()
-    {
-      base.SetUp ();
-      SkipDeletion();
-    }
-
-    [Ignore ("TODO 5095")]
     [Test]
     public void InvokeLambda ()
     {
@@ -76,7 +69,7 @@ namespace TypePipe.IntegrationTests
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var lambda = instance.ReturnLambda (7);
-      var result = lambda ();
+      var result = lambda();
 
       Assert.That (result, Is.EqualTo (7));
     }
@@ -93,9 +86,28 @@ namespace TypePipe.IntegrationTests
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var lambda = instance.ReturnLambda (7);
-      var result = lambda ();
+      var result = lambda();
 
       Assert.That (result, Is.EqualTo (8));
+    }
+
+    [Test]
+    public void ReturnLambda_InstanceClosure_BaseCall ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
+            method.SetBody (
+                ctx =>
+                Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), Expression.Invoke (ctx.PreviousBody))));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var lambda = instance.ReturnLambda (3);
+      var result = lambda();
+
+      Assert.That (result, Is.EqualTo (5));
     }
 
     public class DomainType
