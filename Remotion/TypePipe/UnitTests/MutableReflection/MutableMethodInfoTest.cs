@@ -467,7 +467,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToDebugString ()
     {
       var methodInfo = MutableMethodInfoObjectMother.Create (
-          declaringType: MutableTypeObjectMother.CreateForExistingType (GetType()),
+          declaringType: MutableTypeObjectMother.CreateForExisting (GetType()),
           returnType: typeof (void),
           name: "Xxx",
           parameterDeclarations: new[] { new ParameterDeclaration (typeof (int), "p1") });

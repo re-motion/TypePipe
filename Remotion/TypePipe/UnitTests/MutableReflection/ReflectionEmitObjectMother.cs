@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public static Type GetSomeTypeBuilderInstantiation ()
     {
-      var type = typeof (UnspecifiedType<>).MakeGenericType (MutableTypeObjectMother.CreateForExistingType());
+      var type = typeof (UnspecifiedType<>).MakeGenericType (MutableTypeObjectMother.CreateForExisting());
       Assertion.IsTrue (type.GetType().FullName == "System.Reflection.Emit.TypeBuilderInstantiation");
       return type;
     }

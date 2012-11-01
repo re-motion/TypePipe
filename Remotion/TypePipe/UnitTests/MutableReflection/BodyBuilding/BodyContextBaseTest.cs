@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void SetUp ()
     {
       _emptyParameters = new List<ParameterExpression> ().AsReadOnly ();
-      _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
       _staticContext = new TestableBodyContextBase (_mutableType, _emptyParameters, true, _memberSelector);
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'Object' has no base type.")]
     public void GetBaseCall_Name_Params_NoBaseType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (object));
       var context = new TestableBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
 
       context.GetBaseCall ("DoesNotExist");

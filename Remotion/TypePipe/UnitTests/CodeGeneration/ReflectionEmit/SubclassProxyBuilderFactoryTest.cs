@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder ()
     {
       var originalType = ReflectionObjectMother.GetSomeSubclassableType();
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (originalType);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (originalType);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder_AbstractType ()
     {
       var originalType = typeof (AbstractType);
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (originalType);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (originalType);
 
       var typeBuilderFake = MockRepository.GenerateStub<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit;

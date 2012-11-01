@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         DeferredActionManager postDeclarationsActionManager = null)
     {
       return new MemberEmitterContext (
-          mutableType ?? MutableTypeObjectMother.CreateForExistingType(),
+          mutableType ?? MutableTypeObjectMother.CreateForExisting(),
           typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
           emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>(),

@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
     }
 
-    public static MutableType CreateForExistingType (
+    public static MutableType CreateForExisting (
         Type originalType = null, IMemberSelector memberSelector = null, IRelatedMethodFinder relatedMethodFinder = null)
     {
       var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType);

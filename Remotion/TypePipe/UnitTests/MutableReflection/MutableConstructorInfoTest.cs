@@ -221,7 +221,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = MutableTypeObjectMother.CreateForExistingType (GetType());
+      var declaringType = MutableTypeObjectMother.CreateForExisting (GetType());
       var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (declaringType, new ParameterDeclaration (typeof (int), "p1"));
 
       var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";

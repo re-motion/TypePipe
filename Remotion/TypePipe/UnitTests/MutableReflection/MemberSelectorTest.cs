@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaredType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
+      _declaredType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
       _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator> ();
 
       _selector = new MemberSelector (_bindingFlagsEvaluatorMock);

@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
 
-      _mutableType = MutableTypeObjectMother.CreateForExistingType();
+      _mutableType = MutableTypeObjectMother.CreateForExisting();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _postDeclarationsManager = new DeferredActionManager();
@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExistingType (typeof (DomainType)),
+          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
           "AddedMethod",
           MethodAttributes.Virtual,
           typeof (string),
@@ -206,7 +206,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod_Abstract ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExistingType (typeof (DomainType)),
+          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
           "AddedAbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),

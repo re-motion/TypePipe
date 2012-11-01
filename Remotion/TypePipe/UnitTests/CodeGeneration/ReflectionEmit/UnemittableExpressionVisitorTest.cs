@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExistingType(typeof(DomainType));
+      _mutableType = MutableTypeObjectMother.CreateForExisting(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
       _context = MemberEmitterContextObjectMother.GetSomeContext (

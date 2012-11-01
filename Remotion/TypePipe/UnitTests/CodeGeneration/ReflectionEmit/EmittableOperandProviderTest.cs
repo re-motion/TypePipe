@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _provider = new EmittableOperandProvider();
 
-      _mutableType = MutableTypeObjectMother.CreateForExistingType();
+      _mutableType = MutableTypeObjectMother.CreateForExisting();
       _mutableField = MutableFieldInfoObjectMother.CreateForExisting();
       _mutableConstructor = MutableConstructorInfoObjectMother.CreateForExisting();
       _mutableMethod = MutableMethodInfoObjectMother.CreateForExisting();
@@ -186,7 +186,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType();
+      var mutableType = MutableTypeObjectMother.CreateForExisting();
       var emittableType = ReflectionObjectMother.GetSomeType();
       _provider.AddMapping (mutableType, emittableType);
 
@@ -203,7 +203,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableField_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType();
+      var mutableType = MutableTypeObjectMother.CreateForExisting();
       var constructedType = typeof (StrongBox<>).MakeGenericType (mutableType);
       var field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
 
@@ -213,7 +213,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableConstructor_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType ();
+      var mutableType = MutableTypeObjectMother.CreateForExisting ();
       var constructedType = typeof (List<>).MakeGenericType (mutableType);
       var ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
 
@@ -223,7 +223,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableMethod_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType();
+      var mutableType = MutableTypeObjectMother.CreateForExisting();
       var constructedType = typeof (List<>).MakeGenericType (mutableType);
       var method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
 

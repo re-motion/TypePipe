@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExistingType ();
+      _mutableType = MutableTypeObjectMother.CreateForExisting ();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();

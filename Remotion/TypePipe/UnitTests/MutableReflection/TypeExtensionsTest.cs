@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsRuntimeType ()
     {
       var runtimeType = typeof (int);
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (object));
 
       Assert.That (runtimeType.IsRuntimeType(), Is.True);
       Assert.That (mutableType.IsRuntimeType(), Is.False);
