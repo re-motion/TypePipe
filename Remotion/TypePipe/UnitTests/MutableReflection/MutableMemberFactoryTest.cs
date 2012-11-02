@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableMemberFactoryTest
   {
-    private IMutableMemberFactory _mutableMemberFactory;
+    private MutableMemberFactory _mutableMemberFactory;
 
     private MutableType _mutableType;
     private IMemberSelector _memberSelectorMock;
@@ -66,22 +66,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Field with equal name and signature already exists.\r\nParameter name: name")]
     public void CreateMutableField_ThrowsIfAlreadyExist ()
     {
-      var field = _mutableType.ExistingMutableFields.Single ();
-      _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, field.FieldType, FieldAttributes.Private);
-    }
-
-    [Test]
-    public void CreateMutableField_ReliesOnFieldSignature ()
-    {
-      var field = _mutableType.ExistingMutableFields.Single ();
-      Assert.That (field.FieldType, Is.Not.SameAs (typeof (string)));
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, typeof (string), FieldAttributes.Private), Throws.Nothing);
+          () => _mutableMemberFactory.CreateMutableField (_mutableType, "OtherName", field.FieldType, 0),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, typeof (string), 0),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, field.FieldType, 0),
+          Throws.ArgumentException.With.Message.EqualTo ("Field with equal signature already exists.\r\nParameter name: name"));
     }
 
     [Test]
@@ -134,14 +133,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void CreateMutableConstructor_ThrowsIfAlreadyExists ()
     {
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      Assert.That (_mutableType.ExistingMutableConstructors.Single ().GetParameters (), Is.Empty);
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
 
-      _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableConstructor (
+              _mutableType, MethodAttributes.Static, ParameterDeclaration.CreateForEquivalentSignature (ctor), bodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclaration.EmptyParameters, bodyProvider),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations"));
     }
 
     [Test]
@@ -325,15 +334,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method 'VirtualMethod' with equal signature already exists.\r\nParameter name: name")]
     public void CreateMutableMethod_ThrowsIfAlreadyExists ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
-      Assert.That (method.GetParameters (), Is.Empty);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod());
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
 
-      _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableMethod (
+              _mutableType, "OtherName", 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
+          Throws.Nothing);
+
+      // TODO 5119: return type does not contribute to 'method signature'?!
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableMethod (
+              _mutableType, method.Name, 0, typeof (int), ParameterDeclaration.CreateForEquivalentSignature (method), ctx => Expression.Constant (7)),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableMethod (
+              _mutableType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateMutableMethod (
+              _mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "Method 'InterfaceMethod' with equal signature already exists.\r\nParameter name: parameterDeclarations"));
     }
 
     [Test]
@@ -458,7 +484,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethodOverride_InterfaceDeclaringType ()
     {
       Assert.That (_mutableType.GetInterfaces (), Has.Member (typeof (IDomainInterface)));
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
       _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
@@ -618,8 +644,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public int IntField;
 
       public DomainType () { }
-
-      public virtual string VirtualMethod () { return ""; }
 
       public void InterfaceMethod () { }
     }

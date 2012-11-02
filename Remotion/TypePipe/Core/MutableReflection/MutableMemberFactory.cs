@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var signature = new FieldSignature (type);
       if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
-        throw new ArgumentException ("Field with equal name and signature already exists.", "name");
+        throw new ArgumentException ("Field with equal signature already exists.", "name");
 
       var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
       var field = new MutableFieldInfo (declaringType, descriptor);
@@ -79,8 +79,9 @@ namespace Remotion.TypePipe.MutableReflection
 
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
 
+      var ctorName = attributes.IsSet (MethodAttributes.Static) ? ConstructorInfo.TypeConstructorName : ConstructorInfo.ConstructorName;
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
-      if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
+      if (declaringType.AllMutableConstructors.Any (ctor => ctor.Name == ctorName && signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
@@ -129,7 +130,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
       {
         var message = string.Format ("Method '{0}' with equal signature already exists.", name);
-        throw new ArgumentException (message, "name");
+        throw new ArgumentException (message, "parameterDeclarations");
       }
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
