@@ -56,7 +56,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void StaticMethodCannotUseThisExpression ()
+    public void StaticMethodCannotUseThis ()
     {
       var type = AssembleType<DomainType> (
           mutableType => mutableType.AddMethod (

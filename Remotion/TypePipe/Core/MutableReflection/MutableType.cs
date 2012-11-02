@@ -210,6 +210,11 @@ namespace Remotion.TypePipe.MutableReflection
       return constructor;
     }
 
+    public MutableConstructorInfo GetOrAddTypeInitializer ()
+    {
+      return null;
+    }
+
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);

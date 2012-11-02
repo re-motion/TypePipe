@@ -39,9 +39,7 @@ namespace TypePipe.IntegrationTests
 
       var addedCtor = type.GetConstructor (new[] { typeof (int) });
       Assert.That (addedCtor, Is.Not.Null);
-      Assert.That (
-          addedCtor.Attributes,
-          Is.EqualTo (MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
+      Assert.That (addedCtor.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
 
       var arguments = new object[] { 7 };
       var instance = (DomainType) addedCtor.Invoke (arguments);
