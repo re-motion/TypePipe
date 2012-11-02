@@ -212,7 +212,16 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableConstructorInfo GetOrAddTypeInitializer ()
     {
-      return null;
+      var typeInitializer = (MutableConstructorInfo) TypeInitializer;
+
+      if (typeInitializer == null)
+      {
+        typeInitializer = _mutableMemberFactory.CreateMutableConstructor (
+            this, MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+        _constructors.Add (typeInitializer);
+      }
+
+      return typeInitializer;
     }
 
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)

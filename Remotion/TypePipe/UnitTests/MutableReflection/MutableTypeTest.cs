@@ -274,7 +274,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var attributes = (MethodAttributes) 7;
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = context => null;
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
       var constructorFake = MutableConstructorInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations, bodyProvider))
@@ -284,6 +284,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _mutableMemberFactoryMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (constructorFake));
+      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { result }));
+    }
+
+    [Test]
+    public void GetOrAddTypeInitializer_Get ()
+    {
+      var allConstructors = GetAllConstructors (_mutableType);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+      var typeInitializerFake = MutableConstructorInfoObjectMother.Create (_mutableType);
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (allConstructors, Type.DefaultBinder, bindingFlags, null, _mutableType, Type.EmptyTypes, null))
+          .Return (typeInitializerFake);
+
+      var result = _mutableType.GetOrAddTypeInitializer();
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (typeInitializerFake));
+      Assert.That (_mutableType.AddedConstructors, Is.Empty);
+    }
+
+    [Test]
+    public void GetOrAddTypeInitializer_Add ()
+    {
+      _memberSelectorMock
+          .Stub (stub => stub.SelectSingleMethod<ConstructorInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
+          .Return (null);
+
+      var typeInitializerFake = MutableConstructorInfoObjectMother.Create (_mutableType);
+      _mutableMemberFactoryMock
+          .Expect (
+              mock => mock.CreateMutableConstructor (
+                  Arg.Is (_mutableType),
+                  Arg.Is (MethodAttributes.Private | MethodAttributes.Static),
+                  Arg.Is (ParameterDeclaration.EmptyParameters),
+                  Arg<Func<ConstructorBodyCreationContext, Expression>>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                var bodyProvider = (Func<ConstructorBodyCreationContext, Expression>) mi.Arguments[3];
+                Assert.That (bodyProvider (null), Is.TypeOf<DefaultExpression>().And.Property ("Type").SameAs (typeof (void)));
+              })
+          .Return (typeInitializerFake);
+
+      var result = _mutableType.GetOrAddTypeInitializer();
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (typeInitializerFake));
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { result }));
     }
 
@@ -306,7 +353,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = MethodAttributes.Public;
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      Func<MethodBodyCreationContext, Expression> bodyProvider = context => null;
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeMethod = MutableMethodInfoObjectMother.Create(_mutableType);
       _mutableMemberFactoryMock
           .Expect (
