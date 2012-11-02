@@ -77,9 +77,6 @@ namespace Remotion.TypePipe.MutableReflection
           };
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
-      if ((attributes & MethodAttributes.Static) != 0)
-        throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
-
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
 
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);

@@ -134,15 +134,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Adding static constructors is not (yet) supported.\r\nParameter name: attributes")]
-    public void CreateMutableConstructor_ThrowsForStatic ()
-    {
-      _mutableMemberFactory.CreateMutableConstructor (
-          _mutableType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations")]
     public void CreateMutableConstructor_ThrowsIfAlreadyExists ()
     {
