@@ -100,8 +100,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (method1.ReflectedType, Is.Not.SameAs (method2.ReflectedType));
       _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Once();
 
+      Assert.That (_mutableType.AddedMethods, Is.Empty);
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
+      Assert.That (_mutableType.AddedMethods, Has.Count.EqualTo (1));
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);
+      Assert.That (_mutableType.AddedMethods, Has.Count.EqualTo (1));
 
       Assert.That (result1, Is.SameAs (result2));
     }
