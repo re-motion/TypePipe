@@ -262,7 +262,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock
           .Expect (
               mock =>
-              mock.SelectSingleMethod (_customType.Constructors, expectedBinder, bindingAttr, ".ctor", _customType, typesOrNull, modifiersOrNull))
+              mock.SelectSingleMethod (_customType.Constructors, expectedBinder, bindingAttr, null, _customType, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
       var arguments = new object[] { bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };

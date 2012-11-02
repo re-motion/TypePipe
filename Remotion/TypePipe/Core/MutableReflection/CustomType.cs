@@ -193,7 +193,7 @@ namespace Remotion.TypePipe.MutableReflection
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
       var binder = binderOrNull ?? DefaultBinder;
-      return _memberSelector.SelectSingleMethod (GetAllConstructors(), binder, bindingAttr, ".ctor", this, typesOrNull, modifiersOrNull);
+      return _memberSelector.SelectSingleMethod (GetAllConstructors(), binder, bindingAttr, null, this, typesOrNull, modifiersOrNull);
     }
 
     protected override MethodInfo GetMethodImpl (
