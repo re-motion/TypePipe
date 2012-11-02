@@ -160,11 +160,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      var instanceDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0);
-      var staticDescriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static);
-
-      var instanceMethod = new MutableMethodInfo (_declaringType, instanceDescriptor);
-      var staticMethod = new MutableMethodInfo (_declaringType, staticDescriptor);
+      var instanceMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
+      var staticMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -573,7 +570,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
     }
 
-    private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor, Action notifyMethodWasImplemented = null)
+    private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor)
     {
       return new MutableMethodInfo (_declaringType, descriptor);
     }

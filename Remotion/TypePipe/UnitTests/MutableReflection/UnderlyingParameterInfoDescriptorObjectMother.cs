@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
@@ -25,13 +24,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class UnderlyingParameterInfoDescriptorObjectMother
   {
-    private class UnspecifiedType
-    {
-      public void Method (out string parameterName)
-      {
-        parameterName = "";
-      }
-    }
+    public static readonly UnderlyingParameterInfoDescriptor[] Empty = new UnderlyingParameterInfoDescriptor[0];
 
     public static UnderlyingParameterInfoDescriptor CreateForNew (
         Type parameterType = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
@@ -52,6 +45,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static UnderlyingParameterInfoDescriptor[] CreateMultiple (int count)
     {
       return UnderlyingParameterInfoDescriptor.CreateFromDeclarations (ParameterDeclarationObjectMother.CreateMultiple (count)).ToArray();
+    }
+
+    private class UnspecifiedType
+    {
+      public void Method (out string parameterName)
+      {
+        parameterName = "";
+      }
     }
   }
 }

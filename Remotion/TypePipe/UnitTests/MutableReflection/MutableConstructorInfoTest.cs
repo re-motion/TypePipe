@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _declaringType = MutableTypeObjectMother.Create();
 
       var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
-      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameters);
+      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.Create (parameterDescriptors: parameters);
       _mutableCtor = Create (_descriptor);
 
       _randomInherit = BooleanObjectMother.GetRandomBoolean();
@@ -56,9 +56,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var ctorInfo = new MutableConstructorInfo (_declaringType, _descriptor);
+      var ctor = new MutableConstructorInfo (_declaringType, _descriptor);
 
-      Assert.That (ctorInfo.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (ctor.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (ctor.Name, Is.EqualTo (".ctor"));
       Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
     }
 
@@ -68,9 +69,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
-      var ctorInfo = Create (descriptor);
+      var ctor = Create (descriptor);
 
-      Assert.That (ctorInfo.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemInfo));
+      Assert.That (ctor.UnderlyingSystemConstructorInfo, Is.SameAs (descriptor.UnderlyingSystemInfo));
     }
 
     [Test]
@@ -125,6 +126,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Name ()
+    {
+      Assert.That (_mutableCtor.Name, Is.EqualTo (_descriptor.Name));
+    }
+
+    [Test]
     public void Attributes ()
     {
       Assert.That (_mutableCtor.Attributes, Is.EqualTo (_descriptor.Attributes));
@@ -133,13 +140,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      Assert.That (_mutableCtor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
-    }
+      var constructor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: 0));
+      var typeInitializer = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
 
-    [Test]
-    public void Name ()
-    {
-      Assert.That (_mutableCtor.Name, Is.EqualTo (_descriptor.Name));
+      Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
     }
 
     [Test]

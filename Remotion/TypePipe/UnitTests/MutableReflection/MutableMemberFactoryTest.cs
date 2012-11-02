@@ -103,9 +103,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         return fakeBody;
       };
 
-      var constructor = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations.AsOneTime (), bodyProvider);
+      var constructor = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (constructor.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (constructor.Name, Is.EqualTo (".ctor"));
       Assert.That (constructor.Attributes, Is.EqualTo (attributes));
       var expectedParameterInfos =
           new[]

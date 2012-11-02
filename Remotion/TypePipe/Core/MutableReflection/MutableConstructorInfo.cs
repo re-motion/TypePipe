@@ -50,8 +50,6 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _underlyingConstructorInfoDescriptor = underlyingConstructorInfoDescriptor;
 
-      Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
-
       _parameters = _underlyingConstructorInfoDescriptor.ParameterDescriptors
           .Select (pd => new MutableParameterInfo (this, pd))
           .ToList().AsReadOnly();
@@ -82,6 +80,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body != _underlyingConstructorInfoDescriptor.Body; }
     }
 
+    public override string Name
+    {
+      get { return _underlyingConstructorInfoDescriptor.Name; }
+    }
+
     public override MethodAttributes Attributes
     {
       get { return _underlyingConstructorInfoDescriptor.Attributes; }
@@ -89,16 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override CallingConventions CallingConvention
     {
-      get
-      {
-        Assertion.IsFalse (IsStatic, "Static constructors are not (yet) supported.");
-        return CallingConventions.HasThis;
-      }
-    }
-
-    public override string Name
-    {
-      get { return _underlyingConstructorInfoDescriptor.Name; }
+      get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
     }
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
