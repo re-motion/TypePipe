@@ -85,7 +85,8 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
-      var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, _memberSelector);
+      var isStatic = attributes.IsSet (MethodAttributes.Static);
+      var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, isStatic, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors, body);

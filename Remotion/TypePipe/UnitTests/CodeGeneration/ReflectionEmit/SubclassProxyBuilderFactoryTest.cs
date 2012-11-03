@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _moduleBuilderMock = MockRepository.GenerateMock<IModuleBuilder> ();
+      _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
 
       _builderFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, _debugInfoGeneratorStub);

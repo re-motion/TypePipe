@@ -386,23 +386,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody ()
     {
-      MethodAttributes nonVirtualAttribtes = 0;
+      var attribtes = (MethodAttributes) 7;
       var returnType = typeof (object);
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMetod = ReflectionObjectMother.GetSomeMethod();
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
-          "Method", nonVirtualAttribtes, returnType, parameterDeclarations, baseMetod);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ("Method", attribtes, returnType, parameterDeclarations, baseMetod);
       var mutableMethod = Create (descriptor);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
-      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
+      Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
       {
         Assert.That (mutableMethod.ParameterExpressions, Is.Not.Empty);
-        Assert.That (context.Parameters, Is.EqualTo (mutableMethod.ParameterExpressions));
-        Assert.That (context.DeclaringType, Is.SameAs (mutableMethod.DeclaringType));
-        Assert.That (context.IsStatic, Is.False);
+        Assert.That (ctx.Parameters, Is.EqualTo (mutableMethod.ParameterExpressions));
+        Assert.That (ctx.DeclaringType, Is.SameAs (mutableMethod.DeclaringType));
+        Assert.That (ctx.IsStatic, Is.False);
         Assert.That (mutableMethod.BaseMethod, Is.Not.Null);
-        Assert.That (context.BaseMethod, Is.SameAs (mutableMethod.BaseMethod));
-        Assert.That (context.PreviousBody, Is.SameAs (mutableMethod.Body));
+        Assert.That (ctx.BaseMethod, Is.SameAs (mutableMethod.BaseMethod));
+        Assert.That (ctx.PreviousBody, Is.SameAs (mutableMethod.Body));
 
         return fakeBody;
       };
@@ -411,6 +410,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var expectedBody = Expression.Convert (fakeBody, returnType);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, mutableMethod.Body);
+    }
+
+    [Test]
+    public void SetBody_Static ()
+    {
+      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
+      Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
+      {
+        Assert.That (ctx.IsStatic, Is.True);
+        return ExpressionTreeObjectMother.GetSomeExpression (mutableMethod.ReturnType);
+      };
+
+      mutableMethod.SetBody (bodyProvider);
     }
 
     [Test]
@@ -438,12 +450,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
       var mutableMethod = Create (descriptor);
 
-      Func<MethodBodyModificationContext, Expression> bodyProvider = context =>
-      {
-        Assert.Fail ("Should not be called.");
-        return Expression.Empty();
-      };
-
+      Func<MethodBodyModificationContext, Expression> bodyProvider = ctx => null;
       mutableMethod.SetBody (bodyProvider);
     }
 

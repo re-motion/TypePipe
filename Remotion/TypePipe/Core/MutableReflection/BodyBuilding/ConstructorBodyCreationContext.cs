@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   public class ConstructorBodyCreationContext : ConstructorBodyContextBase
   {
     public ConstructorBodyCreationContext (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-      : base (declaringType, parameterExpressions, memberSelector)
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
+      : base (declaringType, parameterExpressions, isStatic, memberSelector)
     {
     }
   }

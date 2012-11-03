@@ -120,6 +120,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CreateMutableConstructor_Static ()
+    {
+      var attributes = MethodAttributes.Static;
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx =>
+      {
+        Assert.That (ctx.IsStatic, Is.True);
+        return Expression.Empty();
+      };
+      var method = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations, bodyProvider);
+
+      Assert.That (method.IsStatic, Is.True);
+    }
+
+    [Test]
     public void CreateMutableConstructor_ThrowsForInvalidMethodAttributes ()
     {
       const string message = "The following MethodAttributes are not supported for constructors: " +
@@ -205,17 +221,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var name = "StaticMethod";
       var attributes = MethodAttributes.Static;
-      var returnType = ReflectionObjectMother.GetSomeType ();
+      var returnType = ReflectionObjectMother.GetSomeType();
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx =>
       {
         Assert.That (ctx.IsStatic, Is.True);
-        return fakeBody;
+
+        return ExpressionTreeObjectMother.GetSomeExpression (returnType);
       };
-      var method = _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _mutableMemberFactory.CreateMutableMethod (_mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider);
 
       Assert.That (method.IsStatic, Is.True);
     }

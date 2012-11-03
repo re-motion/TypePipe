@@ -196,6 +196,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void SetBody_Static ()
+    {
+      var mutableMethod = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
+      Func<ConstructorBodyModificationContext, Expression> bodyProvider = ctx =>
+      {
+        Assert.That (ctx.IsStatic, Is.True);
+        return Expression.Empty();
+      };
+
+      mutableMethod.SetBody (bodyProvider);
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The body of the existing inaccessible constructor 'Void .ctor(Int32)' cannot be replaced.")]
     public void SetBody_NonSettableCtor ()
