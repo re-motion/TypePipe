@@ -54,6 +54,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
     {
+      // TODO 5119: Is non-lazy really what we want?
+      // http://csharpindepth.com/Articles/General/Beforefieldinit.aspx
+
       var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
       if (mutableType.IsAbstract)
         typeAttributes |= TypeAttributes.Abstract;
