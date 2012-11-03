@@ -15,13 +15,13 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5119")]
   [TestFixture]
   public class AddTypeInitializerTest : TypeAssemblerIntegrationTestBase
   {
@@ -29,20 +29,31 @@ namespace TypePipe.IntegrationTests
     public void Standard ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.StaticField);
+
       var type = AssembleType<DomainType> (
           mutableType =>
           {
             Assert.That (mutableType.TypeInitializer, Is.Null);
             var typeInitializer = mutableType.GetOrAddTypeInitializer();
+
             Assert.That (mutableType.TypeInitializer, Is.SameAs (typeInitializer));
             Assert.That (mutableType.GetOrAddTypeInitializer(), Is.SameAs (typeInitializer));
+            Assert.That (mutableType.AddedConstructors, Is.EqualTo (new[] { typeInitializer }));
 
             typeInitializer.SetBody (ctx => Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc")));
           });
 
-      var fieldValue = type.GetField (field.Name).GetValue (null);
-      Assert.That (fieldValue, Is.EqualTo ("abc"));
+      // Force type to be loaded.
+      // TODO 5119: Better alternative?
+      Activator.CreateInstance (type);
+
+      var bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+      var value = type.GetField (field.Name, bindingFlags).GetValue (null);
+      Assert.That (value, Is.EqualTo ("abc"));
     }
+
+    // TODO 5119: With the subclass proxy model we can never prevent the base initializer from executing.
+    // Should we therefore force the user to include the previous body into the new body?
 
     [Test]
     public void TypeInitializerCannotUseThis ()
