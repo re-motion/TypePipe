@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleModifiedMethod ()
     {
       var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
-      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
+      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (underlyingMethod: originalMethod);
 
       var expectedAttributes = MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
       _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedAttributes));
@@ -247,7 +247,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedMethod ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForExisting ();
+      var method = MutableMethodInfoObjectMother.CreateForExisting();
 
       _emittableOperandProviderMock.Expect (mock => mock.AddMapping (method, method.UnderlyingSystemMethodInfo));
 
@@ -341,7 +341,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = isNew
                        ? MutableMethodInfoObjectMother.CreateForNew (attributes: MethodAttributes.Virtual)
                        : MutableMethodInfoObjectMother.CreateForExisting (
-                           originalMethodInfo: NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
+                           underlyingMethod: NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
       if (isModified)
         MutableMethodInfoTestHelper.ModifyMethod (method);
 

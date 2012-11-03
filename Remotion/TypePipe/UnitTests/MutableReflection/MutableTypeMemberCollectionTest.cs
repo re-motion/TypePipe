@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _declaredMembers = allDeclaredMembers.Except (new[] { _excludedDeclaredMember }).ToArray();
       _baseMembers = typeof (DomainType).GetMethods (c_all).Except (allDeclaredMembers).ToArray();
       _allExistingMembers = _declaredMembers.Concat (_baseMembers).ToArray();
-      _mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
+      _mutableMemberProvider = MutableMethodInfoObjectMother.CreateForExisting;
 
       _collection = new MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> (
           _declaringType, _allExistingMembers.AsOneTime(), _mutableMemberProvider);

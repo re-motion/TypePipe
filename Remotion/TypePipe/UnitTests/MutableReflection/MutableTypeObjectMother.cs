@@ -36,10 +36,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static MutableType CreateForExisting (
-        Type originalType = null, IMemberSelector memberSelector = null, IRelatedMethodFinder relatedMethodFinder = null)
+        Type underlyingType = null, IMemberSelector memberSelector = null, IRelatedMethodFinder relatedMethodFinder = null)
     {
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (originalType);
+      underlyingType = underlyingType ?? typeof (UnspecifiedType);
+      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (underlyingType);
       return Create (descriptor, memberSelector, relatedMethodFinder);
     }
+
+    private class UnspecifiedType { }
   }
 }

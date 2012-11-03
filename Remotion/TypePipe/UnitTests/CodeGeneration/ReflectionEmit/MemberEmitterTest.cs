@@ -40,7 +40,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private MemberEmitter _emitter;
 
-    private MutableType _mutableType; 
     private ITypeBuilder _typeBuilderMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private DeferredActionManager _postDeclarationsManager;
@@ -57,14 +56,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
 
-      _mutableType = MutableTypeObjectMother.CreateForExisting();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _postDeclarationsManager = new DeferredActionManager();
 
       _context = MemberEmitterContextObjectMother.GetSomeContext (
-          _mutableType,
-          _typeBuilderMock,
+          typeBuilder: _typeBuilderMock,
           emittableOperandProvider: _emittableOperandProviderMock,
           postDeclarationsActionManager: _postDeclarationsManager);
 
@@ -158,6 +155,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_postDeclarationsManager.Actions.Count(), Is.EqualTo (1));
       CheckBodyBuildAction (_postDeclarationsManager.Actions.Single(), constructorBuilderMock, ctor);
+    }
+
+    [Test]
+    public void AddConstructor_Static ()
+    {
+      var ctor = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder>();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineConstructor (MethodAttributes.Static, CallingConventions.Standard, Type.EmptyTypes))
+          .Return (constructorBuilderStub);
+
+      _emitter.AddConstructor (_context, ctor);
+
+      _typeBuilderMock.VerifyAllExpectations();
     }
 
     [Test]

@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _randomInherit = BooleanObjectMother.GetRandomBoolean ();
       var attributeUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AttributeMethod());
-      _attributeMethod = MutableMethodInfoObjectMother.CreateForExisting (originalMethodInfo: attributeUnderlyingMethod);
+      _attributeMethod = MutableMethodInfoObjectMother.CreateForExisting (attributeUnderlyingMethod);
     }
 
     [Test]
@@ -246,7 +246,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Body_ThrowsForAbstractMethod ()
     {
       var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
-      var method = MutableMethodInfoObjectMother.CreateForExisting (_declaringType, abstractMethod);
+      var method = MutableMethodInfoObjectMother.CreateForExisting (abstractMethod);
 
       Dev.Null = method.Body;
     }

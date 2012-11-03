@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -37,17 +38,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
     }
 
-    public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
+    public static MutableMethodInfo CreateForExisting (MethodInfo underlyingMethod = null)
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (originalMethodInfo);
-      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExisting (descriptor.UnderlyingSystemInfo.DeclaringType);
+      int i;
+      underlyingMethod = underlyingMethod
+                         ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod (out i, 0.7));
+      var declaringType = MutableTypeObjectMother.CreateForExisting (underlyingMethod.DeclaringType);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (underlyingMethod);
+
       return new MutableMethodInfo (declaringType, descriptor);
     }
 
-    public static MutableMethodInfo CreateForExistingAndModify (MutableType declaringType = null, MethodInfo originalMethodInfo = null)
+    public static MutableMethodInfo CreateForExistingAndModify (MethodInfo underlyingMethod = null)
     {
-      var method = CreateForExisting (
-          declaringType, originalMethodInfo ?? ReflectionObjectMother.GetSomeModifiableMethod());
+      var method = CreateForExisting (underlyingMethod ?? ReflectionObjectMother.GetSomeModifiableMethod());
       MutableMethodInfoTestHelper.ModifyMethod (method);
       return method;
     }
@@ -67,6 +71,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableMethodInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
           descriptor);
+    }
+
+    private class UnspecifiedType
+    {
+      public string UnspecifiedMethod (out int i, double d) { i = 7; return ""; }
     }
   }
 }

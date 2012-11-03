@@ -242,7 +242,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetCopiedMethodBody_Params_DeclaredByUnrelatedType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod (7));
-      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (originalMethodInfo: method);
+      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (method);
 
       _instanceContext.GetCopiedMethodBody (methodToCopy);
     }
@@ -271,7 +271,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     private void GetCopiedMethodBodyAndCheckOriginalBodyExpression (BodyContextBase context, MethodInfo method)
     {
-      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (_mutableType, method);
+      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (method);
       var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
 
       var result = context.GetCopiedMethodBody (methodToCopy, argument);
