@@ -47,9 +47,7 @@ namespace TypePipe.IntegrationTests
       // TODO 5119: Better alternative?
       Activator.CreateInstance (type);
 
-      var bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
-      var value = type.GetField (field.Name, bindingFlags).GetValue (null);
-      Assert.That (value, Is.EqualTo ("abc"));
+      Assert.That (DomainType.StaticField, Is.EqualTo ("abc"));
     }
 
     // TODO 5119: With the subclass proxy model we can never prevent the base initializer from executing.
