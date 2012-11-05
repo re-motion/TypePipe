@@ -176,15 +176,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       for (int i = 0; i < typeArguments.Length; i++)
         typeArguments[i] = GetEmittableType (typeArguments[i]);
 
+      // TODO: Test requiring ToArray, then use this implementation
+      // var typeArguments = constructedType.GetGenericArguments().Select (GetEmittableType).ToArray();
       return constructedType.GetGenericTypeDefinition().MakeGenericType (typeArguments);
     }
 
     private T GetEmittableMemberOfGenericType<T, TMemberInstantiation> (
-        T member, Func<TMemberInstantiation, T> genericMemberAccessor, Func<Type, T, T> typeBuilderMemberProvider)
+        T member, 
+        Func<TMemberInstantiation, T> genericMemberAccessor, 
+        Func<Type, T, T> typeBuilderMemberProvider)
         where TMemberInstantiation : T
         where T : MemberInfo
     {
-      Assertion.IsTrue (member.GetType() == typeof (TMemberInstantiation));
+      Assertion.IsTrue (member is TMemberInstantiation);
 
       var memberOnTypeInstantiation = (TMemberInstantiation) member;
       var emittableDeclaringType = GetEmittableGenericType (memberOnTypeInstantiation.DeclaringType);
