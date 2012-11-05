@@ -128,6 +128,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void GetEmittableType ()
+    {
+      var mutableType = MutableTypeObjectMother.Create();
+      _provider.AddMapping (mutableType, ReflectionObjectMother.GetSomeType());
+
+      var constructedType = typeof (List<>).MakeGenericType (mutableType);
+      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { mutableType }));
+
+      _provider.GetEmittableType (constructedType);
+
+      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { mutableType }));
+    }
+
+    [Test]
     public void GetEmittableOperand_Mutable ()
     {
       var typeBuilder = ReflectionEmitObjectMother.GetSomeTypeBuilder ();

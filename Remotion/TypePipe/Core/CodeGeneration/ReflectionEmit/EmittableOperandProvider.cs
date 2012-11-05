@@ -171,13 +171,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       Assertion.IsTrue (constructedType.IsGenericType);
 
-      // ToArray() is necessary here, because the TypeBuilderInstantiation does not create a defensive copy.
-      var typeArguments = constructedType.GetGenericArguments().ToArray();
-      for (int i = 0; i < typeArguments.Length; i++)
-        typeArguments[i] = GetEmittableType (typeArguments[i]);
-
-      // TODO: Test requiring ToArray, then use this implementation
-      // var typeArguments = constructedType.GetGenericArguments().Select (GetEmittableType).ToArray();
+      var typeArguments = constructedType.GetGenericArguments().Select (GetEmittableType).ToArray();
       return constructedType.GetGenericTypeDefinition().MakeGenericType (typeArguments);
     }
 
