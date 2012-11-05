@@ -123,16 +123,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableConstructor_Static ()
     {
       var attributes = MethodAttributes.Static;
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx =>
       {
         Assert.That (ctx.IsStatic, Is.True);
         return Expression.Empty();
       };
-      var method = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations, bodyProvider);
 
-      Assert.That (method.IsStatic, Is.True);
+      var constructor = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, ParameterDeclaration.EmptyParameters, bodyProvider);
+
+      Assert.That (constructor.IsStatic, Is.True);
     }
 
     [Test]
@@ -149,10 +148,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameterDeclarations")]
+    public void CreateMutableConstructor_ThrowsIfStaticAndNonEmptyParameters ()
+    {
+      _mutableMemberFactory.CreateMutableConstructor (
+          _mutableType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null);
+    }
+
+    [Test]
     public void CreateMutableConstructor_ThrowsIfAlreadyExists ()
     {
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty ();
 
       Assert.That (
           () => _mutableMemberFactory.CreateMutableConstructor (
@@ -193,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       };
 
       var method = _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, name, attributes, returnType, parameterDeclarations.AsOneTime (), bodyProvider);
+          _mutableType, name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
@@ -657,8 +665,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public int IntField;
-
-      public DomainType () { }
 
       public void InterfaceMethod () { }
     }

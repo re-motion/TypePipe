@@ -77,9 +77,12 @@ namespace Remotion.TypePipe.MutableReflection
           };
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
+      var isAbstract = attributes.IsSet (MethodAttributes.Static);
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
+      if (isAbstract && parameterDescriptors.Count > 0)
+        throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameterDeclarations");
 
-      var ctorName = attributes.IsSet (MethodAttributes.Static) ? ConstructorInfo.TypeConstructorName : ConstructorInfo.ConstructorName;
+      var ctorName = isAbstract ? ConstructorInfo.TypeConstructorName : ConstructorInfo.ConstructorName;
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableConstructors.Any (ctor => ctor.Name == ctorName && signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
