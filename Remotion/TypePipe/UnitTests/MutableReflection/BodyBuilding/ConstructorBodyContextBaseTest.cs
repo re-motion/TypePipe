@@ -70,11 +70,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var thisExpression = (ThisExpression) methodCallExpression.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
 
-      Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter> ());
-      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
+      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethod;
 
-      Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.TypeOf<MutableConstructorInfo>());
-      var mutableCtor = (MutableConstructorInfo) constructorAsMethodInfoAdapter.ConstructorInfo;
+      Assert.That (constructorAsMethodInfoAdapter.AdaptedConstructor, Is.TypeOf<MutableConstructorInfo>());
+      var mutableCtor = (MutableConstructorInfo) constructorAsMethodInfoAdapter.AdaptedConstructor;
       var expectedUnderlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ClassWithConstructor (null));
       Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedUnderlyingCtor));
 

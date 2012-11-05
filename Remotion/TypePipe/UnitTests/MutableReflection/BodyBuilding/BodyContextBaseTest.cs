@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (fakeBaseMethod));
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (fakeBaseMethod));
 
       Assert.That (result.Arguments, Is.EqualTo (arguments.Expressions));
     }
@@ -266,7 +266,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (baseCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) baseCallExpression.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (method));
     }
 
     private void GetCopiedMethodBodyAndCheckOriginalBodyExpression (BodyContextBase context, MethodInfo method)

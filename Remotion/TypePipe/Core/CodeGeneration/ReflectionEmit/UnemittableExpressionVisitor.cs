@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
@@ -74,7 +73,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       foreach (var nonVirtualCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
       {
-        var method = ((NonVirtualCallMethodInfoAdapter) nonVirtualCall.Method).AdaptedMethodInfo;
+        var method = ((NonVirtualCallMethodInfoAdapter) nonVirtualCall.Method).AdaptedMethod;
         var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
         var nonVirtualCallReplacement = Expression.Call (thisClosureVariable, trampolineMethod, nonVirtualCall.Arguments);
 
@@ -98,19 +97,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var methodBase = expression.MethodBase;
       var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.MutableType);
-      var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
+      var methodRepresentingOriginalBody = NonVirtualCallMethodInfoAdapter.Adapt (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
 
       return Visit (baseCall);
-    }
-
-    private MethodInfo AdaptOriginalMethodBase (MethodBase methodBase)
-    {
-      Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
-
-      var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
-      return new NonVirtualCallMethodInfoAdapter (method);
     }
 
     private Exception NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)

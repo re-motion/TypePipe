@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
       var argumentCollection = arguments.ConvertToCollection();
 
-      var argumentTypes = argumentCollection.Select (e => e.Type).ToArray ();
+      var argumentTypes = argumentCollection.Select (e => e.Type).ToArray();
       var constructor = DeclaringType.GetConstructor (argumentTypes);
       if (constructor == null)
       {
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new MemberNotFoundException (message);
       }
 
-      var adapter = new ConstructorAsMethodInfoAdapter (constructor);
+      var adapter = NonVirtualCallMethodInfoAdapter.Adapt (constructor);
 
       return Expression.Call (This, adapter, argumentCollection);
     }

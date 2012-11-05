@@ -575,7 +575,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var methodCallExpression = (MethodCallExpression) result.Body;
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
       var baceCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
-      Assert.That (baceCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (baseMethod));
+      Assert.That (baceCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (baseMethod));
     }
 
     private void SetupExpectationsForGetOrAddMutableMethod (
