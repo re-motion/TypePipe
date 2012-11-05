@@ -1,18 +1,18 @@
-// This file is part of the re-motion TypePipe project (typepipe.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
-// 
-// re-motion TypePipe is free software; you can redistribute it 
-// and/or modify it under the terms of the Apache License, Version 2.0
-// as published by the Apache Software Foundation.
-// 
-// re-motion TypePipe is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// Apache License, Version 2.0 for more details.
-// 
-// You should have received a copy of the Apache License, Version 2.0
-// along with re-motion; if not, see http://www.apache.org/licenses.
-// 
+/* ****************************************************************************
+ *
+ * Copyright (c) Microsoft Corporation. 
+ *
+ * This source code is subject to terms and conditions of the Apache License, Version 2.0. A 
+ * copy of the license can be found in the License.html file at the root of this distribution. If 
+ * you cannot locate the  Apache License, Version 2.0, please send an email to 
+ * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+ * by the terms of the Apache License, Version 2.0.
+ *
+ * You must not remove this notice, or any other, from this software.
+ *
+ *
+ * ***************************************************************************/
+
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
