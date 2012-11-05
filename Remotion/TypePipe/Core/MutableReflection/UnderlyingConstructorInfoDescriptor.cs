@@ -60,15 +60,19 @@ namespace Remotion.TypePipe.MutableReflection
       return new UnderlyingConstructorInfoDescriptor (originalConstructor, attributes, parameterDescriptors, customAttributeDataProvider, body);
     }
 
+    private static string GetConstructorName (MethodAttributes attributes)
+    {
+      return attributes.IsSet (MethodAttributes.Static) ? ConstructorInfo.TypeConstructorName : ConstructorInfo.ConstructorName;
+    }
+
     private UnderlyingConstructorInfoDescriptor (
         ConstructorInfo underlyingSystemMethodBase,
         MethodAttributes attributes,
         ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodBase, ConstructorInfo.ConstructorName, attributes, parameterDescriptors, customAttributeDataProvider, body)
+        : base (underlyingSystemMethodBase, GetConstructorName (attributes), attributes, parameterDescriptors, customAttributeDataProvider, body)
     {
-      Assertion.IsFalse (attributes.IsSet (MethodAttributes.Static));
       Assertion.IsTrue (body.Type == typeof (void));
     }
   }

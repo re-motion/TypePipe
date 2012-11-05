@@ -140,7 +140,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      Assert.That (_mutableCtor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      var constructor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: 0));
+      var typeInitializer = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
+
+      Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
     }
 
     [Test]

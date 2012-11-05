@@ -46,7 +46,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("underlyingConstructorInfoDescriptor", underlyingConstructorInfoDescriptor);
-      Assertion.IsFalse (underlyingConstructorInfoDescriptor.Attributes.IsSet (MethodAttributes.Static));
 
       _declaringType = declaringType;
       _underlyingConstructorInfoDescriptor = underlyingConstructorInfoDescriptor;
@@ -93,11 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override CallingConventions CallingConvention
     {
-      get
-      {
-        Assertion.IsFalse (IsStatic);
-        return CallingConventions.HasThis;
-      }
+      get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
     }
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
@@ -119,6 +114,7 @@ namespace Remotion.TypePipe.MutableReflection
     public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      Assertion.IsFalse (IsStatic);
 
       if (!CanSetBody)
       {
