@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
+    private readonly List<Expression> _typeInitializations = new List<Expression>();
     private readonly ReadOnlyCollection<Type> _existingInterfaces;
     private readonly List<Type> _addedInterfaces = new List<Type> ();
 
@@ -50,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMethodCollection _methods;
 
-    private TypeAttributes _originalAttributes;    
+    private TypeAttributes _originalAttributes;
 
     public MutableType (
         UnderlyingTypeDescriptor underlyingTypeDescriptor,
@@ -97,7 +98,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<Expression> TypeInitializations
     {
-      get { return null; }
+      get { return _typeInitializations.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -170,6 +171,8 @@ namespace Remotion.TypePipe.MutableReflection
     public void AddTypeInitialization (Expression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
+
+      _typeInitializations.Add (expression);
     }
 
     public void AddInterface (Type interfaceType)

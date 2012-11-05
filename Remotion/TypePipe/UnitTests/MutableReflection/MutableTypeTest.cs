@@ -23,6 +23,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -63,6 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.Namespace, Is.EqualTo (_descriptor.Namespace));
       Assert.That (_mutableType.FullName, Is.EqualTo (_descriptor.FullName));
 
+      Assert.That (_mutableType.TypeInitializations, Is.Empty);
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
@@ -209,6 +211,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.IsAssignableTo (typeof (IDisposable)), Is.True);
 
       Assert.That (_mutableType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
+    }
+
+    [Test]
+    public void AddTypeInitialization ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeExpression();
+
+      _mutableType.AddTypeInitialization (expression);
+
+      Assert.That (_mutableType.TypeInitializations, Is.EqualTo (new[] { expression }));
     }
 
     [Test]
