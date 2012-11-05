@@ -288,53 +288,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddTypeInitializer_Get ()
-    {
-      var allConstructors = GetAllConstructors (_mutableType);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-      var typeInitializerFake = MutableConstructorInfoObjectMother.Create (_mutableType);
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (allConstructors, Type.DefaultBinder, bindingFlags, null, _mutableType, Type.EmptyTypes, null))
-          .Return (typeInitializerFake);
-
-      var result = _mutableType.GetOrAddTypeInitializer();
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (typeInitializerFake));
-      Assert.That (_mutableType.AddedConstructors, Is.Empty);
-    }
-
-    [Test]
-    public void GetOrAddTypeInitializer_Add ()
-    {
-      _memberSelectorMock
-          .Stub (stub => stub.SelectSingleMethod<ConstructorInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
-          .Return (null);
-
-      var typeInitializerFake = MutableConstructorInfoObjectMother.Create (_mutableType);
-      _mutableMemberFactoryMock
-          .Expect (
-              mock => mock.CreateMutableConstructor (
-                  Arg.Is (_mutableType),
-                  Arg.Is (MethodAttributes.Private | MethodAttributes.Static),
-                  Arg.Is (ParameterDeclaration.EmptyParameters),
-                  Arg<Func<ConstructorBodyCreationContext, Expression>>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var bodyProvider = (Func<ConstructorBodyCreationContext, Expression>) mi.Arguments[3];
-                Assert.That (bodyProvider (null), Is.TypeOf<DefaultExpression>().And.Property ("Type").SameAs (typeof (void)));
-              })
-          .Return (typeInitializerFake);
-
-      var result = _mutableType.GetOrAddTypeInitializer();
-
-      _mutableMemberFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (typeInitializerFake));
-      Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { result }));
-    }
-
-    [Test]
     public void GetMutableConstructor ()
     {
       var existingCtor = _descriptor.Constructors.Single();
