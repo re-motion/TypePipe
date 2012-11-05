@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -52,6 +53,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     private bool IsFlagDefined (BindingFlags bindingFlags, BindingFlags checkedFlag)
     {
+      Assertion.IsTrue (checkedFlag != 0);
+
       return (bindingFlags & checkedFlag) == checkedFlag;
     }
   }

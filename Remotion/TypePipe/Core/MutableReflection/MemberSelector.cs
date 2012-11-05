@@ -38,25 +38,25 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
+    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
+      ArgumentUtility.CheckNotNull ("fields", fields);
 
-      return candidates.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
+      return fields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
     }
 
-    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType)
+    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
         where T : MethodBase
     {
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
+      ArgumentUtility.CheckNotNull ("methods", methods);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      var methods = candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
+      var candidates = methods.Where (m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
       if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
           // TODO 4972: Use TypeEqualityComparer.
-        methods = methods.Where (method => declaringType.UnderlyingSystemType.Equals (method.DeclaringType));
+        candidates = candidates.Where (m => declaringType.UnderlyingSystemType.Equals (m.DeclaringType));
 
-      return methods;
+      return candidates;
     }
 
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
 
       if (nameOrNull != null)
-        methods = methods.Where (mi => mi.Name == nameOrNull);
+        methods = methods.Where (m => m.Name == nameOrNull);
 
       var candidates = SelectMethods (methods, bindingAttr, declaringType).ToArray();
       if (candidates.Length == 0)
