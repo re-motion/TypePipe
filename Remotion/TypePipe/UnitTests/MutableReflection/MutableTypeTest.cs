@@ -510,10 +510,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Accept_ModificationHandler_WithTypeInitializations ()
+    {
+      var expression = Expression.Constant (7);
+      _mutableType.AddTypeInitialization (expression);
+
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
+      handlerMock.Expect (mock => mock.HandleAddedConstructor (Arg<MutableConstructorInfo>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                var constructor = ((MutableConstructorInfo) mi.Arguments[0]);
+                Assert.That (constructor.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Static));
+                Assert.That (constructor.GetParameters(), Is.Empty);
+                Assert.That (constructor.Body, Is.InstanceOf<BlockExpression>());
+
+                var blockExpression = (BlockExpression) constructor.Body;
+                Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
+                Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { expression }));
+              });
+
+      _mutableType.Accept (handlerMock);
+
+      handlerMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void Accept_ModificationHandler_WithModifiedConstructors ()
     {
       Assert.That (_mutableType.ExistingMutableConstructors, Is.Not.Empty);
-      var modifiedExistingConstructorInfo = _mutableType.ExistingMutableConstructors.First();
+      var modifiedExistingConstructorInfo = _mutableType.ExistingMutableConstructors.Single();
       MutableConstructorInfoTestHelper.ModifyConstructor (modifiedExistingConstructorInfo);
 
       var modifiedAddedConstructorInfo = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());

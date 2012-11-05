@@ -302,6 +302,12 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("handler", handler);
 
+      if (_typeInitializations.Count > 0)
+      {
+        var typeInitializer = CreateTypeInitializer();
+        handler.HandleAddedConstructor (typeInitializer);
+      }
+
       foreach (var ifc in AddedInterfaces)
         handler.HandleAddedInterface (ifc);
 
@@ -392,6 +398,16 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
+    }
+
+    private MutableConstructorInfo CreateTypeInitializer ()
+    {
+      var attributes = MethodAttributes.Private | MethodAttributes.Static;
+      var parameters = Enumerable.Empty<UnderlyingParameterInfoDescriptor>();
+      var body = Expression.Block (typeof (void), _typeInitializations);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameters, body);
+
+      return new MutableConstructorInfo (this, descriptor);
     }
   } 
 }
