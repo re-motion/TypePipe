@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMethodCollection _methods;
 
-    private TypeAttributes _originalAttributes;
+    private readonly TypeAttributes _originalAttributes;
 
     public MutableType (
         UnderlyingTypeDescriptor underlyingTypeDescriptor,
