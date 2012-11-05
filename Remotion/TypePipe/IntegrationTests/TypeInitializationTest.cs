@@ -20,6 +20,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace TypePipe.IntegrationTests
 {
@@ -42,12 +43,11 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableType.TypeInitializations, Is.EqualTo (new[] { initializationExpression }));
           });
 
+      Assert.That (DomainType.StaticField, Is.Null);
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
-
       Assert.That (DomainType.StaticField, Is.EqualTo ("abc"));
     }
 
-    [Ignore("TODO 5119")]
     [Test]
     public void TypeInitializer ()
     {
@@ -62,6 +62,10 @@ namespace TypePipe.IntegrationTests
             Assert.That (
                 () => mutableType.GetConstructor (bindingFlags, null, Type.EmptyTypes, null),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+            Assert.That (
+                () => mutableType.AddConstructor (MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
+                    "Type initializers (static constructors) cannot be added via this API, use MutableType.AddTypeInitialization instead."));
           });
     }
 
