@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   {
     private MutableType _mutableType;
     private ParameterExpression[] _parameters;
-    private bool _isStatic;
     private IMemberSelector _memberSelectorMock;
 
     private ConstructorBodyContextBase _context;
@@ -43,25 +42,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ClassWithConstructor));
       _parameters = new[] { Expression.Parameter (typeof (string)) };
-      _isStatic = BooleanObjectMother.GetRandomBoolean();
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _context = new TestableConstructorBodyContextBase (_mutableType, _parameters.AsOneTime(), _isStatic, _memberSelectorMock);
+      _context = new TestableConstructorBodyContextBase (_mutableType, _parameters.AsOneTime(), _memberSelectorMock);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
+      Assert.That (_context.IsStatic, Is.False);
     }
 
     [Test]
     public void GetConstructorCall ()
     {
-      var instanceContext = new TestableConstructorBodyContextBase (_mutableType, _parameters.AsOneTime (), false, _memberSelectorMock);
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
 
-      var result = instanceContext.GetConstructorCall (argumentExpressions);
+      var result = _context.GetConstructorCall (argumentExpressions);
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result;

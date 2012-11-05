@@ -48,17 +48,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Create_ForNew_Static ()
-    {
-      var attributes = MethodAttributes.Static;
-      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, UnderlyingParameterInfoDescriptorObjectMother.Empty, body);
-
-      Assert.That (descriptor.Name, Is.EqualTo (".cctor"));
-    }
-
-    [Test]
     [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Constructor bodies must have void return type.\r\nParameter name: body")]
     public void Create_ForNew_WithNonVoidBody ()
     {

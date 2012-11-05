@@ -158,20 +158,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddConstructor_Static ()
-    {
-      var ctor = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
-      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder>();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (MethodAttributes.Static, CallingConventions.Standard, Type.EmptyTypes))
-          .Return (constructorBuilderStub);
-
-      _emitter.AddConstructor (_context, ctor);
-
-      _typeBuilderMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void AddMethod ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew (

@@ -120,21 +120,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableConstructor_Static ()
-    {
-      var attributes = MethodAttributes.Static;
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx =>
-      {
-        Assert.That (ctx.IsStatic, Is.True);
-        return Expression.Empty();
-      };
-
-      var constructor = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, ParameterDeclaration.EmptyParameters, bodyProvider);
-
-      Assert.That (constructor.IsStatic, Is.True);
-    }
-
-    [Test]
     public void CreateMutableConstructor_ThrowsForInvalidMethodAttributes ()
     {
       const string message = "The following MethodAttributes are not supported for constructors: " +
@@ -148,12 +133,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameterDeclarations")]
+    [ExpectedException (typeof (NotSupportedException),
+        ExpectedMessage = "Type initializers (static constructors) cannot be added via this API, use XXX instead.")]
     public void CreateMutableConstructor_ThrowsIfStaticAndNonEmptyParameters ()
     {
-      _mutableMemberFactory.CreateMutableConstructor (
-          _mutableType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null);
+      // TODO 5119: name of api to use
+      _mutableMemberFactory.CreateMutableConstructor (_mutableType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null);
     }
 
     [Test]
@@ -163,16 +148,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty ();
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableConstructor (
-              _mutableType, MethodAttributes.Static, ParameterDeclaration.CreateForEquivalentSignature (ctor), bodyProvider),
-          Throws.Nothing);
-
-      Assert.That (
           () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclaration.EmptyParameters, bodyProvider),
+          () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclaration.CreateForEquivalentSignature (ctor), bodyProvider),
           Throws.ArgumentException.With.Message.EqualTo (
               "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations"));
     }

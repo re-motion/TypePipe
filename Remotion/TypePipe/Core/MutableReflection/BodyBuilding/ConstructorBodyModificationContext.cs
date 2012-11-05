@@ -31,10 +31,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     public ConstructorBodyModificationContext (
         MutableType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
-        bool isStatic,
         Expression previousBody,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, memberSelector)
+        : base (declaringType, parameterExpressions, memberSelector)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
 

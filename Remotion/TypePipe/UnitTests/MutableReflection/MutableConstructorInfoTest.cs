@@ -140,11 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      var constructor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: 0));
-      var typeInitializer = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
-
-      Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
-      Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
+      Assert.That (_mutableCtor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
     }
 
     [Test]
@@ -193,19 +189,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var expectedBody = Expression.Block (typeof (void), fakeBody);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableCtor.Body);
-    }
-
-    [Test]
-    public void SetBody_Static ()
-    {
-      var mutableMethod = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
-      Func<ConstructorBodyModificationContext, Expression> bodyProvider = ctx =>
-      {
-        Assert.That (ctx.IsStatic, Is.True);
-        return Expression.Empty();
-      };
-
-      mutableMethod.SetBody (bodyProvider);
     }
 
     [Test]

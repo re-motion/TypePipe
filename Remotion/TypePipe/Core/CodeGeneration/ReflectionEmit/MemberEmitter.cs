@@ -86,12 +86,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      var callingConvention = constructor.IsStatic ? CallingConventions.Standard : CallingConventions.HasThis;
       var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, callingConvention, parameterTypes);
+      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
       ctorBuilder.RegisterWith (context.EmittableOperandProvider, constructor);
 
-      DefineParameters (ctorBuilder, constructor.GetParameters ());
+      DefineParameters (ctorBuilder, constructor.GetParameters());
 
       var bodyBuildAction = CreateBodyBuildAction (context, ctorBuilder, constructor.ParameterExpressions, constructor.Body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);

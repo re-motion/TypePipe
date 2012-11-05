@@ -21,6 +21,7 @@ using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
+  [Ignore("TODO 5119")]
   [TestFixture]
   public class AddTypeInitializerTest : TypeAssemblerIntegrationTestBase
   {

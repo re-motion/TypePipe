@@ -77,19 +77,16 @@ namespace Remotion.TypePipe.MutableReflection
           };
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
-      var isAbstract = attributes.IsSet (MethodAttributes.Static);
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
-      if (isAbstract && parameterDescriptors.Count > 0)
-        throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameterDeclarations");
+      if (attributes.IsSet (MethodAttributes.Static))
+        throw new NotSupportedException ("Type initializers (static constructors) cannot be added via this API, use XXX instead.");
 
-      var ctorName = isAbstract ? ConstructorInfo.TypeConstructorName : ConstructorInfo.ConstructorName;
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
-      if (declaringType.AllMutableConstructors.Any (ctor => ctor.Name == ctorName && signature.Equals (MethodSignature.Create (ctor))))
+      if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
 
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
-      var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, isStatic, _memberSelector);
+      var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors, body);
