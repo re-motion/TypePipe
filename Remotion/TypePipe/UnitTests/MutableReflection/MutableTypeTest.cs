@@ -679,6 +679,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetConstructors_CallBase ()
+    {
+      var fakeCtors = new[] { ReflectionObjectMother.GetSomeConstructor() };
+      _memberSelectorMock
+          .Expect (mock => mock.SelectMethods (GetAllConstructors (_mutableType), BindingFlags.Default, _mutableType))
+          .Return (fakeCtors);
+
+      var result = _mutableType.GetConstructors (BindingFlags.Default);
+
+      Assert.That (result, Is.EqualTo (fakeCtors));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException),
+        ExpectedMessage = "Type initializers (static constructors) cannot be modified via this API, use MutableType.AddTypeInitialization instead.")]
+    public void GetConstructors_ThrowsIfStatic ()
+    {
+      Dev.Null = _mutableType.GetConstructors (BindingFlags.Static);
+    }
+
+    [Test]
+    public void GetConstructorImpl ()
+    {
+      var fakeCtor = ReflectionObjectMother.GetSomeConstructor();
+      _memberSelectorMock
+          .Expect (
+              mock =>
+              mock.SelectSingleMethod (GetAllConstructors (_mutableType), Type.DefaultBinder, BindingFlags.Default, null, _mutableType, null, null))
+          .Return (fakeCtor);
+
+      var result = PrivateInvoke.InvokeNonPublicMethod (
+          _mutableType, "GetConstructorImpl", BindingFlags.Default, null, CallingConventions.Any, null, null);
+
+      Assert.That (result, Is.SameAs (fakeCtor));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException),
+        ExpectedMessage = "Type initializers (static constructors) cannot be modified via this API, use MutableType.AddTypeInitialization instead.")]
+    public void GetConstructorImpl_ThrowsIfStatic ()
+    {
+      PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetConstructorImpl", BindingFlags.Static, null, CallingConventions.Any, null, null);
+    }
+
+    [Test]
     public void GetMethods_FiltersOverriddenMethods ()
     {
       var baseMethod = _descriptor.Methods.Single (m => m.Name == "ToString");

@@ -48,8 +48,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
-      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder> ();
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
       _mutableMemberFactory = new MutableMemberFactory (_memberSelectorMock, _relatedMethodFinderMock);
     }
@@ -134,10 +134,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "Type initializers (static constructors) cannot be added via this API, use XXX instead.")]
+        ExpectedMessage = "Type initializers (static constructors) cannot be added via this API, use MutableType.AddTypeInitialization instead.")]
     public void CreateMutableConstructor_ThrowsIfStaticAndNonEmptyParameters ()
     {
-      // TODO 5119: name of api to use
       _mutableMemberFactory.CreateMutableConstructor (_mutableType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null);
     }
 

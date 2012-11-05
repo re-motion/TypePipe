@@ -19,7 +19,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
-using System.Linq;
 using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -37,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator> ();
+      _bindingFlagsEvaluatorMock = MockRepository.GenerateStrictMock<IBindingFlagsEvaluator>();
 
       _selector = new MemberSelector (_bindingFlagsEvaluatorMock);
 
@@ -266,9 +265,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fieldStub = MockRepository.GenerateStub<FieldInfo>();
       fieldStub.Stub (stub => stub.Name).Return (name);
       fieldStub.Stub (stub => stub.Attributes).Return (fieldAttributes);
-
-      var x = fieldStub.Attributes;
-      var y = fieldStub.Attributes;
 
       return fieldStub;
     }

@@ -78,7 +78,12 @@ namespace Remotion.TypePipe.MutableReflection
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
       if (attributes.IsSet (MethodAttributes.Static))
-        throw new NotSupportedException ("Type initializers (static constructors) cannot be added via this API, use XXX instead.");
+      {
+        var method = MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddTypeInitialization (null));
+        var message = string.Format (
+            "Type initializers (static constructors) cannot be added via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
+        throw new NotSupportedException (message);
+      }
 
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);

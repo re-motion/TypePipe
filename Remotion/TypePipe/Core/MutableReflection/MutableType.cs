@@ -360,6 +360,32 @@ namespace Remotion.TypePipe.MutableReflection
       return _methods;
     }
 
+    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
+    {
+      CheckBindingFlagsNotStatic (bindingAttr);
+
+      return base.GetConstructors (bindingAttr);
+    }
+
+    protected override ConstructorInfo GetConstructorImpl (
+        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+    {
+      CheckBindingFlagsNotStatic (bindingAttr);
+
+      return base.GetConstructorImpl (bindingAttr, binderOrNull, callConvention, typesOrNull, modifiersOrNull);
+    }
+
+    private static void CheckBindingFlagsNotStatic (BindingFlags bindingAttr)
+    {
+      if ((bindingAttr & BindingFlags.Static) == BindingFlags.Static)
+      {
+        var method = MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddTypeInitialization (null));
+        var message = string.Format (
+            "Type initializers (static constructors) cannot be modified via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
+        throw new NotSupportedException (message);
+      }
+    }
+
     private TMutableMember GetMutableMemberOrThrow<TMember, TMutableMember> (
         MutableTypeMemberCollection<TMember, TMutableMember> collection, TMember member, string memberType)
         where TMember: MemberInfo
