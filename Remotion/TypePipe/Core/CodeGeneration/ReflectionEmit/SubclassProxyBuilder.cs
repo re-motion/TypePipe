@@ -153,9 +153,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type Build ()
     {
-      if (_hasBeenBuilt)
-        throw new InvalidOperationException ("Build can only be called once.");
-      
+      EnsureNotBuilt();
       _hasBeenBuilt = true;
 
       _postDeclarationsActions.ExecuteAllActions();

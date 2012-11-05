@@ -285,15 +285,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void Build_Twice ()
-    {
-      _typeBuilderMock.Stub (mock => mock.CreateType ());
-
-      _builder.Build ();
-      Assert.That (() => _builder.Build (), Throws.InvalidOperationException.With.Message.EqualTo ("Build can only be called once."));
-    }
-
-    [Test]
     public void Build_DisablesOperations ()
     {
       _typeBuilderMock.Stub (mock => mock.CreateType ());
@@ -311,6 +302,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedField (MutableFieldInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
+
+      CheckThrowsForOperationAfterBuild (() => _builder.Build());
     }
 
     private void CheckThrowsForOperationAfterBuild (Action action)
