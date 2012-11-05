@@ -95,6 +95,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException ("TODO 4744"); }
     }
 
+    public ReadOnlyCollection<Expression> TypeInitializations
+    {
+      get { return null; }
+    }
+
     public ReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
@@ -160,6 +165,11 @@ namespace Remotion.TypePipe.MutableReflection
       return UnderlyingSystemType.Equals (other)
              || other.IsAssignableFrom (BaseType)
              || GetInterfaces ().Any (other.IsAssignableFrom);
+    }
+
+    public void AddTypeInitialization (Expression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
     }
 
     public void AddInterface (Type interfaceType)
