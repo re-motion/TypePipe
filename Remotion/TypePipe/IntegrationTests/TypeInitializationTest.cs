@@ -15,15 +15,16 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5119")]
   [TestFixture]
-  public class AddTypeInitializationTest : TypeAssemblerIntegrationTestBase
+  public class TypeInitializationTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void Standard ()
@@ -39,21 +40,39 @@ namespace TypePipe.IntegrationTests
             mutableType.AddTypeInitialization (initializationExpression);
 
             Assert.That (mutableType.TypeInitializations, Is.EqualTo (new[] { initializationExpression }));
-
-            // TODO 5119 whats happens if we modify type with a type initializer
-            // TODO 5119 what should be returned for mutableType.TypeInitializer
           });
 
-      // Force type to be loaded.
-      // TODO 5119: Better alternative?
-      Activator.CreateInstance (type);
+      RuntimeHelpers.RunClassConstructor (type.TypeHandle);
 
       Assert.That (DomainType.StaticField, Is.EqualTo ("abc"));
+    }
+
+    [Ignore("TODO 5119")]
+    [Test]
+    public void TypeInitializer ()
+    {
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            var message = "Type initializers (static constructors) cannot be modified via this API, use MutableType.AddTypeInitialization instead.";
+            var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+
+            Assert.That (() => mutableType.TypeInitializer, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+            Assert.That (() => mutableType.GetConstructors (bindingFlags), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+            Assert.That (
+                () => mutableType.GetConstructor (bindingFlags, null, Type.EmptyTypes, null),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+          });
     }
 
     public class DomainType
     {
       public static string StaticField;
+    }
+
+    public class TypeWithInitializer
+    {
+      static TypeWithInitializer () { }
     }
   }
 }
