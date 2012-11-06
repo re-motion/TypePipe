@@ -14,9 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.TypeAssembly
+namespace Remotion.TypePipe
 {
   /// <summary>
   /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.

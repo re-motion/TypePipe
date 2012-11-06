@@ -25,12 +25,12 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 using Remotion.Development.UnitTesting.Enumerables;
 

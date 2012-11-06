@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +23,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.TypeAssembly
+namespace Remotion.TypePipe
 {
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="ITypePipeParticipant"/> instances and an instance of 

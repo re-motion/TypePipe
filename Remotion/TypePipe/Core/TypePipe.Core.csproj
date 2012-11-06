@@ -292,9 +292,9 @@
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
-    <Compile Include="TypeAssembly\ITypePipeParticipant.cs" />
+    <Compile Include="ITypePipeParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeAssembly\TypeAssembler.cs" />
+    <Compile Include="TypeAssembler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

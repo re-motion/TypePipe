@@ -19,7 +19,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 

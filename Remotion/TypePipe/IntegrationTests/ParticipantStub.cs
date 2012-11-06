@@ -15,8 +15,8 @@
 // under the License.
 // 
 using System;
+using Remotion.TypePipe;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
