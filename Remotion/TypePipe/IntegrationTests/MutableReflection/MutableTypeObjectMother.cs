@@ -14,10 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {

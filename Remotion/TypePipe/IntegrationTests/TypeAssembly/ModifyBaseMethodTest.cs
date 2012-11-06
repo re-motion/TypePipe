@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Linq;
 using System.Reflection;
@@ -24,7 +25,7 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class ModifyBaseMethodTest : TypeAssemblerIntegrationTestBase

@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -21,7 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class ModifyConstructorTest : TypeAssemblerIntegrationTestBase

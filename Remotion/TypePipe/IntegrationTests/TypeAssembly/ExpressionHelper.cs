@@ -14,9 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
 using Microsoft.Scripting.Ast;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.TypeAssembly
 {
   public static class ExpressionHelper
   {

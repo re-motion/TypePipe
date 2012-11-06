@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
   public class TypePipeCustomAttributeDataTest
@@ -246,7 +247,7 @@ namespace TypePipe.IntegrationTests
       public string ConstructorArgument { get; set; }
     }
 
-    [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
+    [AttributeUsage (AttributeTargets.All, AllowMultiple = true)]
     public class MultipleAttribute : Attribute
     {
       public MultipleAttribute (string constructorArgument)
@@ -264,7 +265,7 @@ namespace TypePipe.IntegrationTests
       public string NamedArgument3 { get; set; }
     }
 
-    [AttributeUsageAttribute (AttributeTargets.All, AllowMultiple = true)]
+    [AttributeUsage (AttributeTargets.All, AllowMultiple = true)]
     public class MultipleCtorsAttribute : Attribute
     {
       public MultipleCtorsAttribute () { }

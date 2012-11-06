@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -33,7 +34,7 @@ using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 using Remotion.Development.UnitTesting.Enumerables;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.TypeAssembly
 {
   public abstract class TypeAssemblerIntegrationTestBase
   {

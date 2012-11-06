@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Linq;
 using System.Reflection;
@@ -22,7 +23,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
   public class GetCustomAttributesTest
@@ -56,7 +57,7 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    [InheritableAllowMultipleAttribute ("2"), InheritableAllowMultipleAttribute ("1")]
+    [InheritableAllowMultiple ("2"), InheritableAllowMultiple ("1")]
     public void GetCustomAttributes_AttributeInstantiation_AllowMultiple ()
     {
       var mutableMember = CreateMutableMember (MethodBase.GetCurrentMethod ());
@@ -71,7 +72,7 @@ namespace TypePipe.IntegrationTests
     public void GetCustomAttributes_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var mutableType = CreateMutableType (type);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
       CheckAttributeInheritance (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method ());
@@ -113,7 +114,7 @@ namespace TypePipe.IntegrationTests
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var mutableType = CreateMutableType (type);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
       CheckAttributeInheritanceAllowMultiple (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod());
@@ -160,7 +161,7 @@ namespace TypePipe.IntegrationTests
     public void IsDefined_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var mutableType = CreateMutableType (type);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
       CheckIsDefinedInheritance (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod ());
@@ -180,18 +181,8 @@ namespace TypePipe.IntegrationTests
 
     private IMutableMember CreateMutableMember (MethodBase underlyingMethod)
     {
-      var mutableType = CreateMutableType (typeof (GetCustomAttributesTest));
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
       return mutableType.GetOrAddMutableMethod ((MethodInfo) underlyingMethod);
-    }
-
-    private MutableType CreateMutableType (Type underlyingType)
-    {
-      var underlyingTypeDescriptor = UnderlyingTypeDescriptor.Create (underlyingType);
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var relatedMethodFinder = new RelatedMethodFinder();
-      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
-
-      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
     }
 
     private void CheckAttributeInheritance (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
@@ -304,7 +295,7 @@ namespace TypePipe.IntegrationTests
 
     enum MyEnum { A, B, C }
 
-    [DerivedAttribute]
+    [Derived]
     void IsDefinedMemberWithDerivedAttribute () { }
 
     class BaseAttribute : Attribute { }
