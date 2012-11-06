@@ -23,10 +23,10 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Prepares method (and constructor) bodies so that code can be generated for them by expanding all nodes not
+  /// Prepares method (and constructor) bodies so that code can be generated for them by replacing all nodes not
   /// understood by <see cref="LambdaCompiler"/> and <see cref="ILGeneratingTypePipeExpressionVisitor"/>.
   /// </summary>
-  public class ExpandingExpressionPreparer : IExpressionPreparer
+  public class ExpressionPreparer : IExpressionPreparer
   {
     public Expression PrepareBody (MemberEmitterContext context, Expression body)
     {

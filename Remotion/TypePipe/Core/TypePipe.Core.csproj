@@ -79,7 +79,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecorator.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ExpandingExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />

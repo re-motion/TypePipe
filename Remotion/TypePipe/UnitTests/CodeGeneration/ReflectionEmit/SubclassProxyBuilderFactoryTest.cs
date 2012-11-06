@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (builder.MemberEmitter, Is.TypeOf<MemberEmitter>());
       var memberEmitter = (MemberEmitter) builder.MemberEmitter;
 
-      Assert.That (memberEmitter.ExpressionPreparer, Is.TypeOf<ExpandingExpressionPreparer>());
+      Assert.That (memberEmitter.ExpressionPreparer, Is.TypeOf<ExpressionPreparer>());
       Assert.That (memberEmitter.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) memberEmitter.ILGeneratorFactory;
 

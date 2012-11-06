@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), emittableOperandProvider);
-      var memberEmitter = new MemberEmitter (new ExpandingExpressionPreparer(), ilGeneratorFactory);
+      var memberEmitter = new MemberEmitter (new ExpressionPreparer(), ilGeneratorFactory);
 
       var methodTrampolineProvider = new MethodTrampolineProvider (memberEmitter);
 
