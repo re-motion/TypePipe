@@ -346,7 +346,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               _mutableType, "OtherName", 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
           Throws.Nothing);
 
-      // TODO 5119: return type does not contribute to 'method signature'?!
       Assert.That (
           () => _mutableMemberFactory.CreateMutableMethod (
               _mutableType, method.Name, 0, typeof (int), ParameterDeclaration.CreateForEquivalentSignature (method), ctx => Expression.Constant (7)),
