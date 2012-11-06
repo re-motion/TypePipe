@@ -32,6 +32,11 @@ namespace TypePipe.IntegrationTests
       _typeModification = typeModification;
     }
 
+    public ICacheKey GetCacheKey (Type type)
+    {
+      throw new NotImplementedException();
+    }
+
     public void ModifyType (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);

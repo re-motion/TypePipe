@@ -22,9 +22,12 @@ namespace Remotion.TypePipe
 {
   /// <summary>
   /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
+  /// A participant is also responsible for computing a <see cref="ICacheKey"/> for a requested type.
   /// </summary>
   public interface ITypePipeParticipant
   {
+    ICacheKey GetCacheKey (Type type);
+
     void ModifyType (MutableType mutableType);
   }
 }
