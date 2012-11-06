@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -38,22 +39,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
-      var isPublic = ((methodAttributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public);
-      var checkedFlag = isPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+      var flag = methodAttributes.IsSet (MethodAttributes.Public) ? BindingFlags.Public : BindingFlags.NonPublic;
 
-      return IsFlagDefined (bindingFlags, checkedFlag);
+      return IsFlagDefined (bindingFlags, flag);
     }
 
     public bool HasRightInstanceOrStaticFlag (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
-      var isStatic = (methodAttributes & MethodAttributes.Static) == MethodAttributes.Static;
-      var checkedFlag = isStatic ? BindingFlags.Static : BindingFlags.Instance;
+      var flag = methodAttributes.IsSet (MethodAttributes.Static) ? BindingFlags.Static : BindingFlags.Instance;
 
-      return IsFlagDefined (bindingFlags, checkedFlag);
+      return IsFlagDefined (bindingFlags, flag);
     }
 
     private bool IsFlagDefined (BindingFlags bindingFlags, BindingFlags checkedFlag)
     {
+      Assertion.IsTrue (checkedFlag != 0);
+
       return (bindingFlags & checkedFlag) == checkedFlag;
     }
   }

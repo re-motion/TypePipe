@@ -66,17 +66,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       foreach (var declaration in field.AddedCustomAttributeDeclarations)
       {
-        var propertyArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property);
-        var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field);
+        var propertyArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property).ToArray();
+        var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field).ToArray();
 
         var customAttributeBuilder = new CustomAttributeBuilder (
             declaration.Constructor,
             declaration.ConstructorArguments.ToArray(),
-            propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray (),
-            propertyArguments.Select (namedArg => namedArg.Value).ToArray (),
-            fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray (),
-            fieldArguments.Select (namedArg => namedArg.Value).ToArray ()
-            );
+            propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray(),
+            propertyArguments.Select (namedArg => namedArg.Value).ToArray(),
+            fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray(),
+            fieldArguments.Select (namedArg => namedArg.Value).ToArray());
 
         fieldBuilder.SetCustomAttribute (customAttributeBuilder);
       }
@@ -87,24 +86,24 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
+      var callingConvention = constructor.IsStatic ? CallingConventions.Standard : CallingConventions.HasThis;
       var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, CallingConventions.HasThis, parameterTypes);
+      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, callingConvention, parameterTypes);
       ctorBuilder.RegisterWith (context.EmittableOperandProvider, constructor);
 
-      DefineParameters (ctorBuilder, constructor.GetParameters ());
+      DefineParameters (ctorBuilder, constructor.GetParameters());
 
       var bodyBuildAction = CreateBodyBuildAction (context, ctorBuilder, constructor.ParameterExpressions, constructor.Body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
     }
 
-    public void AddMethod (MemberEmitterContext context, MutableMethodInfo method, string name, MethodAttributes attributes)
+    public void AddMethod (MemberEmitterContext context, MutableMethodInfo method, MethodAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       var parameterTypes = GetParameterTypes (method);
-      var methodBuilder = context.TypeBuilder.DefineMethod (name, attributes, method.ReturnType, parameterTypes);
+      var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
       DefineParameters (methodBuilder, method.GetParameters ());
@@ -139,7 +138,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Bodies need to be generated after all other members have been declared (to allow bodies to reference new members).
       return () =>
       {
-        var body = _expressionPreparer.PrepareBody (unpreparedBody, context.EmittableOperandProvider);
+        var body = _expressionPreparer.PrepareBody (context, unpreparedBody);
         var bodyLambda = Expression.Lambda (body, parameterExpressions);
         methodBuilder.SetBody (bodyLambda, _ilGeneratorFactory, context.DebugInfoGenerator);
       };

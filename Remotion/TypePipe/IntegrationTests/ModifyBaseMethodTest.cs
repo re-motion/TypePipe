@@ -23,7 +23,6 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
@@ -323,7 +322,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (thisExpression.Type, Is.SameAs (mutableMethod.DeclaringType));
 
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
-      Assert.That (((NonVirtualCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethodInfo, Is.EqualTo (baseMethod));
+      Assert.That (((NonVirtualCallMethodInfoAdapter) methodCallExpression.Method).AdaptedMethod, Is.EqualTo (baseMethod));
     }
 
     public class DomainTypeBaseBase

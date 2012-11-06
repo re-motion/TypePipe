@@ -186,7 +186,12 @@ namespace TypePipe.IntegrationTests
 
     private MutableType CreateMutableType (Type underlyingType)
     {
-      return new MutableType (UnderlyingTypeDescriptor.Create (underlyingType), new MemberSelector (new BindingFlagsEvaluator ()), new RelatedMethodFinder ());
+      var underlyingTypeDescriptor = UnderlyingTypeDescriptor.Create (underlyingType);
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var relatedMethodFinder = new RelatedMethodFinder();
+      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
+
+      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
     }
 
     private void CheckAttributeInheritance (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)

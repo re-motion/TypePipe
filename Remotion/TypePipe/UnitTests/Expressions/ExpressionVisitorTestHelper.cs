@@ -14,6 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting;
 
@@ -24,6 +26,12 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public static Expression CallVisitConstant (ExpressionVisitor expressionVisitor, ConstantExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitConstant", expression);
+    }
+
+    public static Expression CallVisitLambda<T> (ExpressionVisitor expressionVisitor, Expression<T> expression)
+    {
+      var method = typeof (ExpressionVisitor).GetMethod ("VisitLambda", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod (typeof (T));
+      return (Expression) method.Invoke (expressionVisitor, new object[] { expression });
     }
 
     public static Expression CallVisitExtension (ExpressionVisitor expressionVisitor, Expression expression)

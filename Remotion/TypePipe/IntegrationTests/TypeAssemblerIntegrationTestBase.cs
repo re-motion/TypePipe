@@ -116,6 +116,20 @@ namespace TypePipe.IntegrationTests
       return method;
     }
 
+    protected MutableMethodInfo AddEquivalentMethod (
+        MutableType mutableType,
+        MethodInfo template,
+        MethodAttributes adjustedAttributes,
+        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
+    {
+      return mutableType.AddMethod (
+          template.Name,
+          adjustedAttributes,
+          template.ReturnType,
+          ParameterDeclaration.CreateForEquivalentSignature (template),
+          bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
+    }
+
     private Type AssembleType (Type originalType, string testName, Action<MutableType>[] participantActions)
     {
       var participants = participantActions.Select (a => new ParticipantStub (a)).AsOneTime();
@@ -134,9 +148,8 @@ namespace TypePipe.IntegrationTests
       var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
       var decoratedModuleBuilderAdapter = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
-      var expressionPreparer = new ExpandingExpressionPreparer();
       var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator ();
-      var handlerFactory = new SubclassProxyBuilderFactory (decoratedModuleBuilderAdapter, expressionPreparer, debugInfoGenerator);
+      var handlerFactory = new SubclassProxyBuilderFactory (decoratedModuleBuilderAdapter, debugInfoGenerator);
 
       return new TypeModifier (handlerFactory);
     }
@@ -146,20 +159,6 @@ namespace TypePipe.IntegrationTests
       var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
       var method = stackFrame.GetMethod ();
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
-    }
-
-    protected MutableMethodInfo AddEquivalentMethod (
-        MutableType mutableType,
-        MethodInfo template,
-        MethodAttributes adjustedAttributes,
-        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
-    {
-      return mutableType.AddMethod (
-          template.Name,
-          adjustedAttributes,
-          template.ReturnType,
-          ParameterDeclaration.CreateForEquivalentSignature (template),
-          bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
     }
   }
 }

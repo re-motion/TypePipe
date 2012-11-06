@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -31,30 +32,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
-        Expression body = null,
-        Action notifyMethodWasImplementedAction = null)
+        Expression body = null)
     {
       return CreateForNew (
-          declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body, notifyMethodWasImplementedAction);
+          declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
     }
 
-    public static MutableMethodInfo CreateForExisting (
-        MutableType declaringType = null,
-        MethodInfo originalMethodInfo = null,
-        Action notifyMethodWasImplementedAction = null)
+    public static MutableMethodInfo CreateForExisting (MethodInfo underlyingMethod = null)
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (originalMethodInfo);
-      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExistingType (descriptor.UnderlyingSystemInfo.DeclaringType);
-      return new MutableMethodInfo (declaringType, descriptor, notifyMethodWasImplementedAction ?? (() => { }));
+      int i;
+      underlyingMethod = underlyingMethod
+                         ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod (out i, 0.7));
+      var declaringType = MutableTypeObjectMother.CreateForExisting (underlyingMethod.DeclaringType);
+      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (underlyingMethod);
+
+      return new MutableMethodInfo (declaringType, descriptor);
     }
 
-    public static MutableMethodInfo CreateForExistingAndModify (
-        MutableType declaringType = null,
-        MethodInfo originalMethodInfo = null,
-        Action notifyMethodWasImplementedAction = null)
+    public static MutableMethodInfo CreateForExistingAndModify (MethodInfo underlyingMethod = null)
     {
-      var method = CreateForExisting (
-          declaringType, originalMethodInfo ?? ReflectionObjectMother.GetSomeModifiableMethod(), notifyMethodWasImplementedAction);
+      var method = CreateForExisting (underlyingMethod ?? ReflectionObjectMother.GetSomeModifiableMethod());
       MutableMethodInfoTestHelper.ModifyMethod (method);
       return method;
     }
@@ -66,16 +63,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
-        Expression body = null,
-        Action notifyMethodWasImplementedAction = null)
+        Expression body = null)
     {
       var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
           name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
 
       return new MutableMethodInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          descriptor,
-          notifyMethodWasImplementedAction ?? (() => { }));
+          descriptor);
+    }
+
+    private class UnspecifiedType
+    {
+      public string UnspecifiedMethod (out int i, double d) { i = 7; return ""; }
     }
   }
 }

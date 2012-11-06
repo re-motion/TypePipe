@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
     {
     }
 
-    public ConstructorInfo ConstructorInfo
+    public ConstructorInfo AdaptedConstructor
     {
       get { return InnerMethod; }
     }

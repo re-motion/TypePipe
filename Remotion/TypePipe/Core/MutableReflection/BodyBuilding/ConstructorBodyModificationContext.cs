@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
         IMemberSelector memberSelector)
-      : base (declaringType, parameterExpressions, memberSelector)
+        : base (declaringType, parameterExpressions, memberSelector)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
 

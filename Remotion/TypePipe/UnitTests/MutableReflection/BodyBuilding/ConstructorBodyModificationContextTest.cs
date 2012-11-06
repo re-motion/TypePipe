@@ -20,6 +20,7 @@ using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -33,8 +34,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private MutableType _declaringType;
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
-    private ConstructorBodyModificationContext _context;
     private IMemberSelector _memberSelector;
+
+    private ConstructorBodyModificationContext _context;
 
     [SetUp]
     public void SetUp ()
@@ -53,7 +55,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (_context.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_context.Parameters, Is.EqualTo (_parameters));
       Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
-      Assert.That (_context.IsStatic, Is.False);
     }
 
     [Test]

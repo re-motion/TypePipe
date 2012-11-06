@@ -24,6 +24,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class UnderlyingConstructorInfoDescriptorObjectMother
   {
+    public static UnderlyingConstructorInfoDescriptor Create (
+        MethodAttributes attributes =
+            MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
+        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        Expression body = null)
+    {
+      return CreateForNew (attributes, parameterDescriptors, body);
+    }
+
     public static UnderlyingConstructorInfoDescriptor CreateForNew (
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,

@@ -90,7 +90,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public LocalBuilder DeclareLocal (Type localType)
     {
-      return _innerILGenerator.DeclareLocal (localType);
+      ArgumentUtility.CheckNotNull ("localType", localType);
+
+      var emittableOperand = _emittableOperandProvider.GetEmittableType (localType);
+      return _innerILGenerator.DeclareLocal (emittableOperand);
     }
 
     public Label DefineLabel ()
@@ -165,14 +168,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       var constructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
       if (constructorMethodInfo != null)
       {
-        Emit (opcode, constructorMethodInfo.ConstructorInfo);
+        Emit (opcode, constructorMethodInfo.AdaptedConstructor);
         return;
       }
 
       var baseCallMethodInfo = meth as NonVirtualCallMethodInfoAdapter;
       if (baseCallMethodInfo != null)
       {
-        Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo);
+        Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethod);
         return;
       }
 
@@ -191,14 +194,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
         if (!ArrayUtility.IsNullOrEmpty (optionalParameterTypes))
           throw new InvalidOperationException ("Constructor calls cannot have optional parameters.");
 
-        Emit (opcode, baseConstructorMethodInfo.ConstructorInfo);
+        Emit (opcode, baseConstructorMethodInfo.AdaptedConstructor);
         return;
       }
 
       var baseCallMethodInfo = methodInfo as NonVirtualCallMethodInfoAdapter;
       if (baseCallMethodInfo != null)
       {
-        EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethodInfo, optionalParameterTypes);
+        EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethod, optionalParameterTypes);
         return;
       }
 

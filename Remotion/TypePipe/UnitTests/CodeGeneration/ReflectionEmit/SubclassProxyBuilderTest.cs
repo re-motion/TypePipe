@@ -24,7 +24,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -32,9 +31,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class SubclassProxyBuilderTest
   {
+    private MutableType _mutableType;
     private ITypeBuilder _typeBuilderMock;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
+    private IMethodTrampolineProvider _methodTrampolineProvider;
     private IMemberEmitter _memberEmitterMock;
 
     private SubclassProxyBuilder _builder;
@@ -44,12 +45,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
+      _mutableType = MutableTypeObjectMother.CreateForExisting ();
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
       _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
 
-      _builder = new SubclassProxyBuilder (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _memberEmitterMock);
+      _builder = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
 
       _context = _builder.MemberEmitterContext;
     }
@@ -59,16 +62,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (_builder.MemberEmitter, Is.SameAs (_memberEmitterMock));
 
+      Assert.That (_context.MutableType, Is.SameAs (_mutableType));
       Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+      Assert.That (_context.MethodTrampolineProvider, Is.SameAs (_methodTrampolineProvider));
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handler = new SubclassProxyBuilder (_typeBuilderMock, null, _emittableOperandProviderMock, _memberEmitterMock);
+      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
       Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
     }
 
@@ -126,7 +131,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedMethod ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew ();
-      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMethod, addedMethod.Name, addedMethod.Attributes));
+      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMethod, addedMethod.Attributes));
 
       _builder.HandleAddedMethod (addedMethod);
 
@@ -166,11 +171,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleModifiedMethod ()
     {
       var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
-      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (originalMethodInfo: originalMethod);
+      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (underlyingMethod: originalMethod);
 
-      var expectedName = "Method";
       var expectedAttributes = MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
-      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedName, expectedAttributes));
+      _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedAttributes));
 
       _builder.HandleModifiedMethod (modifiedMethod);
 
@@ -243,7 +247,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedMethod ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForExisting ();
+      var method = MutableMethodInfoObjectMother.CreateForExisting();
 
       _emittableOperandProviderMock.Expect (mock => mock.AddMapping (method, method.UnderlyingSystemMethodInfo));
 
@@ -281,15 +285,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void Build_Twice ()
-    {
-      _typeBuilderMock.Stub (mock => mock.CreateType ());
-
-      _builder.Build ();
-      Assert.That (() => _builder.Build (), Throws.InvalidOperationException.With.Message.EqualTo ("Build can only be called once."));
-    }
-
-    [Test]
     public void Build_DisablesOperations ()
     {
       _typeBuilderMock.Stub (mock => mock.CreateType ());
@@ -307,6 +302,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedField (MutableFieldInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
+
+      CheckThrowsForOperationAfterBuild (() => _builder.Build());
     }
 
     private void CheckThrowsForOperationAfterBuild (Action action)
@@ -337,7 +334,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = isNew
                        ? MutableMethodInfoObjectMother.CreateForNew (attributes: MethodAttributes.Virtual)
                        : MutableMethodInfoObjectMother.CreateForExisting (
-                           originalMethodInfo: NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
+                           underlyingMethod: NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString()));
       if (isModified)
         MutableMethodInfoTestHelper.ModifyMethod (method);
 

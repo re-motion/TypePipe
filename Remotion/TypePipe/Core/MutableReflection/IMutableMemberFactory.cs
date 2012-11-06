@@ -26,11 +26,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// Serves as a factory for mutable members.
   /// </summary>
   /// <remarks>
-  /// This is used by the <see cref="MutableType"/> class.
+  /// This class is an implementation detail of <see cref="MutableType"/>.
   /// </remarks>
   public interface IMutableMemberFactory
   {
-    MutableFieldInfo CreateMutableField (MutableType declaringType, Type type, string name, FieldAttributes attributes);
+    MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
 
     MutableConstructorInfo CreateMutableConstructor (
         MutableType declaringType,
@@ -44,9 +44,9 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<MethodBodyCreationContext, Expression> bodyProvider,
-        Action notifyMethodWasImplemented);
+        Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo CreateMutableMethodOverride (MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented);
+    MutableMethodInfo GetOrCreateMutableMethodOverride (
+        MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
   }
 }

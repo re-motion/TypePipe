@@ -33,10 +33,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
-      Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = mi => MutableMethodInfoObjectMother.CreateForExisting (_declaringType, mi);
+      _declaringType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = MutableMethodInfoObjectMother.CreateForExisting;
 
-      _collection = new MutableTypeMethodCollection (_declaringType, typeof (DomainType).GetMethods (), mutableMemberProvider);
+      _collection = new MutableTypeMethodCollection (_declaringType, typeof (DomainType).GetMethods(), mutableMemberProvider);
     }
 
     [Test]

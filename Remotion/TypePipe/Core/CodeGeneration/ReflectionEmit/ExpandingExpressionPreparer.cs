@@ -28,12 +28,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ExpandingExpressionPreparer : IExpressionPreparer
   {
-    public Expression PrepareBody (Expression body, IEmittableOperandProvider emittableOperandProvider)
+    public Expression PrepareBody (MemberEmitterContext context, Expression body)
     {
+      ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("body", body);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      return new UnemittableExpressionVisitor (emittableOperandProvider).Visit (body);
+      return new UnemittableExpressionVisitor (context).Visit (body);
     }
   }
 }

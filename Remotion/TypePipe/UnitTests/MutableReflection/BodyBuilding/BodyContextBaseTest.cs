@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void SetUp ()
     {
       _emptyParameters = new List<ParameterExpression> ().AsReadOnly ();
-      _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
       _staticContext = new TestableBodyContextBase (_mutableType, _emptyParameters, true, _memberSelector);
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (fakeBaseMethod));
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (fakeBaseMethod));
 
       Assert.That (result.Arguments, Is.EqualTo (arguments.Expressions));
     }
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'Object' has no base type.")]
     public void GetBaseCall_Name_Params_NoBaseType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (object));
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (object));
       var context = new TestableBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
 
       context.GetBaseCall ("DoesNotExist");
@@ -242,7 +242,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetCopiedMethodBody_Params_DeclaredByUnrelatedType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod (7));
-      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (originalMethodInfo: method);
+      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (method);
 
       _instanceContext.GetCopiedMethodBody (methodToCopy);
     }
@@ -266,12 +266,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (baseCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) baseCallExpression.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.SameAs (method));
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (method));
     }
 
     private void GetCopiedMethodBodyAndCheckOriginalBodyExpression (BodyContextBase context, MethodInfo method)
     {
-      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (_mutableType, method);
+      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (method);
       var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
 
       var result = context.GetCopiedMethodBody (methodToCopy, argument);

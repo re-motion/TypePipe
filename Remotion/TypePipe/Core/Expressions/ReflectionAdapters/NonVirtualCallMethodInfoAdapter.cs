@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 {
@@ -27,12 +28,21 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
   /// </summary>
   public class NonVirtualCallMethodInfoAdapter : DelegatingMethodInfoBase<MethodInfo>
   {
+    public static NonVirtualCallMethodInfoAdapter Adapt (MethodBase methodBase)
+    {
+      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+      Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
+
+      var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
+      return new NonVirtualCallMethodInfoAdapter (method);
+    }
+
     public NonVirtualCallMethodInfoAdapter (MethodInfo adaptedMethod)
         : base (adaptedMethod)
     {
     }
 
-    public MethodInfo AdaptedMethodInfo
+    public MethodInfo AdaptedMethod
     {
       get { return InnerMethod; }
     }

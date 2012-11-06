@@ -18,6 +18,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (ClassWithConstructor));
+      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ClassWithConstructor));
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
@@ -59,18 +60,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var result = _context.GetConstructorCall (argumentExpressions);
 
-      Assert.That (result, Is.AssignableTo<MethodCallExpression> ());
+      Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result;
 
       Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>());
       var thisExpression = (ThisExpression) methodCallExpression.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
 
-      Assert.That (methodCallExpression.Method, Is.TypeOf<ConstructorAsMethodInfoAdapter> ());
-      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
+      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethod;
 
-      Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.TypeOf<MutableConstructorInfo>());
-      var mutableCtor = (MutableConstructorInfo) constructorAsMethodInfoAdapter.ConstructorInfo;
+      Assert.That (constructorAsMethodInfoAdapter.AdaptedConstructor, Is.TypeOf<MutableConstructorInfo>());
+      var mutableCtor = (MutableConstructorInfo) constructorAsMethodInfoAdapter.AdaptedConstructor;
       var expectedUnderlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ClassWithConstructor (null));
       Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedUnderlyingCtor));
 

@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -33,16 +34,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class UnemittableExpressionVisitorTest
   {
+    private MutableType _mutableType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
+    private IMethodTrampolineProvider _methodTrampolineProvider;
+    private MemberEmitterContext _context;
 
     private UnemittableExpressionVisitor _visitorPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
+      _mutableType = MutableTypeObjectMother.CreateForExisting(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
+      _context = MemberEmitterContextObjectMother.GetSomeContext (
+          _mutableType, emittableOperandProvider: _emittableOperandProviderMock, methodTrampolineProvider: _methodTrampolineProvider);
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor>(_emittableOperandProviderMock);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (_context);
     }
 
     [Test]
@@ -97,27 +105,76 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void VisitLambda_StaticClosure ()
+    {
+      var body = ExpressionTreeObjectMother.GetSomeExpression();
+      var parameter = Expression.Parameter (typeof (int));      
+      var expression = Expression.Lambda<Action<int>> (body, parameter);
+      var fakeStaticClosure = ExpressionTreeObjectMother.GetSomeExpression();
+      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeStaticClosure);
+
+      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+
+      Assert.That (result, Is.InstanceOf<LambdaExpression>());
+      var lambdaExpression = ((LambdaExpression) result);
+      Assert.That (lambdaExpression.Parameters, Is.EqualTo (new[] { parameter }));
+      Assert.That (lambdaExpression.Body, Is.SameAs (fakeStaticClosure));
+    }
+
+    [Test]
+    public void VisitLambda_InstanceClosureWithBaseCall ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7, ""));
+      var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      var expression = Expression.Lambda<Func<int, string, double>> (body, parameters);
+
+      var fakeBody = Expression.Call (
+          ExpressionTreeObjectMother.GetSomeThisExpression (_mutableType), new NonVirtualCallMethodInfoAdapter (method), parameters);
+      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
+
+      var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
+      _methodTrampolineProvider.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
+
+      var thisClosure = Expression.Parameter (_mutableType, "thisClosure");
+      var expectedTree =
+          Expression.Block (
+              new[] { thisClosure },
+              Expression.Assign (thisClosure, new ThisExpression (_mutableType)),
+              Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, fakeTrampolineMethod, parameters), parameters));
+      var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _visitorPartialMock
+          .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
+          .WhenCalled (mi => ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, (Expression) mi.Arguments[0]))
+          .Return (fakeResultExpression);
+
+      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+
+      Assert.That (result, Is.SameAs (fakeResultExpression));
+    }
+
+    [Test]
     public void VisitOriginalBody_Method ()
     {
-      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainClass obj) => obj.Method (7, "string"));
+      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7, "string"));
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
       var expression = new OriginalBodyExpression (methodBase, typeof (double), arguments);
       Action<MethodInfo> checkMethodInCallExpressionAction =
-          methodInfo => Assert.That (methodInfo, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethodInfo").SameAs (methodBase));
+          methodInfo => Assert.That (methodInfo, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethod").SameAs (methodBase));
 
-      CheckVisitOriginalBodyForInstanceMethod (expression, arguments, checkMethodInCallExpressionAction);
+      CheckVisitOriginalBodyForInstanceMethod (_mutableType, expression, arguments, checkMethodInCallExpressionAction);
     }
 
     [Test]
     public void VisitOriginalBody_StaticMethod ()
     {
-      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainClass.StaticMethod (7, "string"));
+      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.StaticMethod (7, "string"));
       var arguments = new ArgumentTestHelper (7, "string").Expressions;
       var expression = new OriginalBodyExpression (methodBase, typeof (double), arguments);
       Action<MethodCallExpression> checkMethodCallExpressionAction = methodCallExpression =>
       {
         Assert.That (methodCallExpression.Object, Is.Null);
-        Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethodInfo").SameAs (methodBase));
+        Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethod").SameAs (methodBase));
       };
 
       CheckVisitOriginalBody (expression, arguments, checkMethodCallExpressionAction);
@@ -126,25 +183,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void VisitOriginalBody_Constructor ()
     {
-      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainClass());
+      var methodBase = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       var arguments = new Expression[0];
       var expression = new OriginalBodyExpression (methodBase, typeof (void), arguments);
       Action<MethodInfo> checkMethodInCallExpressionAction = methodInfo =>
       {
         Assert.That (methodInfo, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
         var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodInfo;
-        Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
-        var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo;
-        Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (methodBase));
+        Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
+        var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethod;
+        Assert.That (constructorAsMethodInfoAdapter.AdaptedConstructor, Is.SameAs (methodBase));
       };
 
-      CheckVisitOriginalBodyForInstanceMethod (expression,arguments, checkMethodInCallExpressionAction);
+      CheckVisitOriginalBodyForInstanceMethod (_mutableType, expression, arguments, checkMethodInCallExpressionAction);
     }
 
     [Test]
     public void VisitOriginalBody_StaticConstructor ()
     {
-      var methodBase = typeof (DomainClass).GetConstructors (BindingFlags.NonPublic | BindingFlags.Static).Single();
+      var methodBase = typeof (DomainType).GetConstructors (BindingFlags.NonPublic | BindingFlags.Static).Single();
       var arguments = new Expression[0];
       var expression = new OriginalBodyExpression (methodBase, typeof (void), arguments);
       Action<MethodCallExpression> checkMethodInCallExpressionAction = methodCallExpression =>
@@ -153,20 +210,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
         Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
         var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
-        Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo, Is.TypeOf<ConstructorAsMethodInfoAdapter> ());
-        var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethodInfo;
-        Assert.That (constructorAsMethodInfoAdapter.ConstructorInfo, Is.SameAs (methodBase));
+        Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.TypeOf<ConstructorAsMethodInfoAdapter> ());
+        var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethod;
+        Assert.That (constructorAsMethodInfoAdapter.AdaptedConstructor, Is.SameAs (methodBase));
       };
 
       CheckVisitOriginalBody (expression, arguments, checkMethodInCallExpressionAction);
     }
 
     private void CheckVisitOriginalBodyForInstanceMethod (
-        OriginalBodyExpression expression, Expression[] expectedMethodCallArguments, Action<MethodInfo> checkMethodInCallExpressionAction)
+        MutableType thisMutableType,
+        OriginalBodyExpression expression,
+        Expression[] expectedMethodCallArguments,
+        Action<MethodInfo> checkMethodInCallExpressionAction)
     {
       CheckVisitOriginalBody (expression, expectedMethodCallArguments, methodCallExpression =>
       {
-        Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (typeof (DomainClass)));
+        Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (thisMutableType));
 
         checkMethodInCallExpressionAction (methodCallExpression.Method);
       });
@@ -195,11 +255,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
-    public class DomainClass
+    public class DomainType
     {
-// ReSharper disable EmptyConstructor
-      static DomainClass () { }
-// ReSharper restore EmptyConstructor
+      static DomainType () { }
 
       public static double StaticMethod (int p1, string p2)
       {
@@ -213,6 +271,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         Dev.Null = p1;
         Dev.Null = p2;
         return 7.7;
+      }
+
+      public double TrampolineMethod (int p1, string p2)
+      {
+        return 0;
       }
     }
   }

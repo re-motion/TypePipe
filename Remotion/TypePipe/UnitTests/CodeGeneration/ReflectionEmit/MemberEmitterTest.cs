@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -37,31 +36,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class MemberEmitterTest
   {
     private IExpressionPreparer _expressionPreparerMock;
-    private ITypeBuilder _typeBuilderMock;
     private IILGeneratorFactory _ilGeneratorFactoryStub;
-    private DebugInfoGenerator _debugInfoGeneratorStub;
-    private IEmittableOperandProvider _emittableOperandProviderMock;
-    private DeferredActionManager _postDeclarationsManager;
 
     private MemberEmitter _emitter;
 
+    private ITypeBuilder _typeBuilderMock;
+    private IEmittableOperandProvider _emittableOperandProviderMock;
+    private DeferredActionManager _postDeclarationsManager;
+
     private MemberEmitterContext _context;
+
     private Expression _fakeBody;
 
     [SetUp]
     public void SetUp ()
     {
-      _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer> ();
-      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
-      _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory> ();
-      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
-      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider> ();
-      _postDeclarationsManager = new DeferredActionManager();
+      _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer>();
+      _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
 
       _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
 
-      _context = new MemberEmitterContext (_typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _postDeclarationsManager);
-      _fakeBody = ExpressionTreeObjectMother.GetSomeExpression ();
+      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
+      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _postDeclarationsManager = new DeferredActionManager();
+
+      _context = MemberEmitterContextObjectMother.GetSomeContext (
+          typeBuilder: _typeBuilderMock,
+          emittableOperandProvider: _emittableOperandProviderMock,
+          postDeclarationsActionManager: _postDeclarationsManager);
+
+      _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
 
     [Test]
@@ -154,10 +158,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void AddConstructor_Static ()
+    {
+      var ctor = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineConstructor (MethodAttributes.Static, CallingConventions.Standard, Type.EmptyTypes))
+          .Return (constructorBuilderStub);
+
+      _emitter.AddConstructor (_context, ctor);
+
+      _typeBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     public void AddMethod ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExistingType (typeof (DomainType)),
+          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
           "AddedMethod",
           MethodAttributes.Virtual,
           typeof (string),
@@ -170,14 +188,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
       addedMethod.AddExplicitBaseDefinition (overriddenMethod);
 
-      var expectedName = "ExplicitlySpecifiedName";
       var expectedAttributes = MethodAttributes.HideBySig;
-      var expectedReturnType = typeof (string);
-      var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType () };
+      var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
 
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, expectedReturnType, expectedParameterTypes))
+          .Expect (mock => mock.DefineMethod ("AddedMethod", expectedAttributes, typeof (string), expectedParameterTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
@@ -186,7 +202,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_postDeclarationsManager.Actions, Is.Empty);
 
-      _emitter.AddMethod (_context, addedMethod, expectedName, expectedAttributes);
+      _emitter.AddMethod (_context, addedMethod, expectedAttributes);
 
       _typeBuilderMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
@@ -201,26 +217,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod_Abstract ()
     {
       var addedMethod = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExistingType (typeof (DomainType)),
+          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
           "AddedAbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),
           ParameterDeclaration.EmptyParameters);
 
-      var expectedName = "ExplicitlySpecifiedName";
-      var expectedAttributes = MethodAttributes.Abstract;
-
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod (expectedName, expectedAttributes, typeof (int), Type.EmptyTypes))
+          .Expect (mock => mock.DefineMethod ("AddedAbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
 
-      _emitter.AddMethod (_context, addedMethod, expectedName, expectedAttributes);
-      
-      _typeBuilderMock.VerifyAllExpectations ();
-      methodBuilderMock.VerifyAllExpectations ();
-      var actions = _postDeclarationsManager.Actions.ToArray ();
+      _emitter.AddMethod (_context, addedMethod, MethodAttributes.Abstract);
+
+      _typeBuilderMock.VerifyAllExpectations();
+      methodBuilderMock.VerifyAllExpectations();
+      var actions = _postDeclarationsManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (1));
 
       // Executing the action has no side effect (strict mocks; empty override build action).
@@ -252,10 +265,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)
     {
-      methodBuilderMock.BackToRecord ();
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (mutableMethodBase.Body, _emittableOperandProviderMock)).Return (_fakeBody);
+      methodBuilderMock.BackToRecord();
+      _expressionPreparerMock.Expect (mock => mock.PrepareBody (_context, mutableMethodBase.Body)).Return (_fakeBody);
       methodBuilderMock
-          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_debugInfoGeneratorStub)))
+          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_context.DebugInfoGenerator)))
           .WhenCalled (
               mi =>
               {
@@ -263,9 +276,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                 Assert.That (lambdaExpression.Body, Is.SameAs (_fakeBody));
                 Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableMethodBase.ParameterExpressions));
               });
-      methodBuilderMock.Replay ();
+      methodBuilderMock.Replay();
 
-      testedAction ();
+      testedAction();
 
       _emittableOperandProviderMock.VerifyAllExpectations();
       methodBuilderMock.VerifyAllExpectations ();

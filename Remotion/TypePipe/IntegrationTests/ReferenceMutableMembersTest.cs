@@ -54,7 +54,7 @@ namespace TypePipe.IntegrationTests
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var newMutableField = mutableType.AddField (typeof (string), "_newField");
+            var newMutableField = mutableType.AddField ("_newField", typeof (string));
             var existingMutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
 
             mutableType.AddMethod (

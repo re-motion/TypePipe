@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExistingType (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
 
       _publicField = _mutableType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
       _publicConstructorWithOverloadEmpty =_mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));

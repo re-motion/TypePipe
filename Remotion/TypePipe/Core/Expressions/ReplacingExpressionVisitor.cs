@@ -27,9 +27,9 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public class ReplacingExpressionVisitor : ExpressionVisitor
   {
-    private readonly Dictionary<Expression, Expression> _replacements;
+    private readonly IDictionary<Expression, Expression> _replacements;
 
-    public ReplacingExpressionVisitor (Dictionary<Expression, Expression> replacements)
+    public ReplacingExpressionVisitor (IDictionary<Expression, Expression> replacements)
     {
       ArgumentUtility.CheckNotNull ("replacements", replacements);
       _replacements = replacements;

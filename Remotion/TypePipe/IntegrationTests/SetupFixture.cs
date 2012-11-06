@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using System.Linq;
 using Remotion.Utilities;
@@ -59,7 +60,8 @@ namespace TypePipe.IntegrationTests
     {
       Directory.CreateDirectory (s_generatedFileDirectory);
 
-      CopyModuleToOutputDirectory(GetType().Assembly.ManifestModule);
+      CopyModuleToOutputDirectory (GetType().Assembly.ManifestModule);
+      CopyModuleToOutputDirectory (typeof (Closure).Assembly.ManifestModule);
     }
 
     private void CopyModuleToOutputDirectory (Module copiedModule)

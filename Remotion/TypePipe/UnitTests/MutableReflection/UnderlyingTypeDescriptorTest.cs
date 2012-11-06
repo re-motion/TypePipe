@@ -31,23 +31,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting ()
     {
-      var originalType = typeof (ExampleType);
+      var underlyingType = typeof (DomainType);
 
-      var allFields = typeof (ExampleType).GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-      var instanceConstructors = typeof (ExampleType).GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-      var allMethods = typeof (ExampleType).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-      var genericMethod = typeof (ExampleType).GetMethod ("GenericMethod");
+      var allFields = typeof (DomainType).GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      var instanceConstructors = typeof (DomainType).GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+      var allMethods = typeof (DomainType).GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      var genericMethod = typeof (DomainType).GetMethod ("GenericMethod");
       var nonGenericMethods = allMethods.Except (new[] { genericMethod });
 
-      var descriptor = UnderlyingTypeDescriptor.Create (originalType);
+      var descriptor = UnderlyingTypeDescriptor.Create (underlyingType);
 
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (typeof (ExampleType)));
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (typeof (DomainType)));
       Assert.That (descriptor.DeclaringType, Is.EqualTo (typeof (UnderlyingTypeDescriptorTest)));
-      Assert.That (descriptor.BaseType, Is.EqualTo (typeof (ExampleType).BaseType));
-      Assert.That (descriptor.Name, Is.EqualTo (originalType.Name));
-      Assert.That (descriptor.Namespace, Is.EqualTo (originalType.Namespace));
-      Assert.That (descriptor.FullName, Is.EqualTo (originalType.FullName));
-      Assert.That (descriptor.Attributes, Is.EqualTo (typeof (ExampleType).Attributes));
+      Assert.That (descriptor.BaseType, Is.EqualTo (typeof (DomainType).BaseType));
+      Assert.That (descriptor.Name, Is.EqualTo (underlyingType.Name));
+      Assert.That (descriptor.Namespace, Is.EqualTo (underlyingType.Namespace));
+      Assert.That (descriptor.FullName, Is.EqualTo (underlyingType.FullName));
+      Assert.That (descriptor.Attributes, Is.EqualTo (typeof (DomainType).Attributes));
       Assert.That (descriptor.Interfaces, Is.EquivalentTo (new[] { typeof (IDisposable) }));
       Assert.That (descriptor.Fields, Is.EqualTo (allFields));
       Assert.That (descriptor.Constructors, Is.EqualTo (instanceConstructors));
@@ -97,34 +97,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => Create (typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
     }
 
-    private UnderlyingTypeDescriptor Create (Type originalType)
+    private UnderlyingTypeDescriptor Create (Type underlyingType)
     {
-      return UnderlyingTypeDescriptor.Create (originalType);
+      return UnderlyingTypeDescriptor.Create (underlyingType);
     }
 
-// ReSharper disable MemberCanBePrivate.Global
     [Abc, Def]
-    public class ExampleType : IDisposable
-// ReSharper restore MemberCanBePrivate.Global
+    public class DomainType : IDisposable
     {
+      static DomainType () { }
+
       public int PublicField;
       private int _nonPublicField = 0;
       public static int StaticField;
 
       // Public ctor
-      public ExampleType ()
+      public DomainType ()
       {
       }
 
       // Non-public ctor
-      protected ExampleType (int i)
+      protected DomainType (int i)
       {
         Dev.Null = i;
-      }
-
-      static ExampleType ()
-      {
-        Dev.Null = 17;
       }
 
       public void Dispose ()
@@ -132,9 +127,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Dev.Null = _nonPublicField;
       }
 
-// ReSharper disable UnusedMember.Local
       private void PrivateMethod () { }
-// ReSharper restore UnusedMember.Local
       protected void ProtecteMethod () { }
       public static void PublicStaticMethod () { }
 
@@ -146,9 +139,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class TypeWithoutAccessibleConstructor
     {
-// ReSharper disable UnusedMember.Local
-      private TypeWithoutAccessibleConstructor (string s) { }
-// ReSharper restore UnusedMember.Local
       internal TypeWithoutAccessibleConstructor () { }
     }
 

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -34,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<MethodInfo> FilterBaseMembers (IEnumerable<MethodInfo> baseMembers)
     {
-      var overridenBaseDefinitions = AddedMembers.Select (mi => mi.GetBaseDefinition());
+      var overridenBaseDefinitions = new Set<MethodInfo> (AddedMembers.Select (mi => mi.GetBaseDefinition()));
       return baseMembers.Where (m => !overridenBaseDefinitions.Contains (m.GetBaseDefinition()));
     }
   }

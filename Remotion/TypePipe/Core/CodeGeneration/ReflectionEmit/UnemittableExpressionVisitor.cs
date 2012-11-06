@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
@@ -30,13 +30,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class UnemittableExpressionVisitor : TypePipeExpressionVisitorBase
   {
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
+    private readonly MemberEmitterContext _context;
 
-    public UnemittableExpressionVisitor (IEmittableOperandProvider emittableOperandProvider)
+    public UnemittableExpressionVisitor (MemberEmitterContext context)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("context", context);
 
-      _emittableOperandProvider = emittableOperandProvider;
+      _context = context;
     }
 
     protected internal override Expression VisitConstant (ConstantExpression node)
@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (node.Value == null)
         return base.VisitConstant (node);
 
-      var emittableValue = _emittableOperandProvider.GetEmittableOperand (node.Value);
+      var emittableValue = _context.EmittableOperandProvider.GetEmittableOperand (node.Value);
       if (emittableValue != node.Value)
       {
         if (!node.Type.IsInstanceOfType (emittableValue))
@@ -58,25 +58,50 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return base.VisitConstant (node);
     }
 
+    protected internal override Expression VisitLambda<T> (Expression<T> node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      var body = Visit (node.Body);
+
+      var thisExpressions = body.Collect<ThisExpression>();
+      if (thisExpressions.Count == 0)
+        return node.Update (body, node.Parameters);
+
+      var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
+      var replacements = thisExpressions.ToDictionary (exp => (Expression) exp, exp => (Expression) thisClosureVariable);
+
+      foreach (var nonVirtualCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
+      {
+        var method = ((NonVirtualCallMethodInfoAdapter) nonVirtualCall.Method).AdaptedMethod;
+        var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
+        var nonVirtualCallReplacement = Expression.Call (thisClosureVariable, trampolineMethod, nonVirtualCall.Arguments);
+
+        replacements.Add (nonVirtualCall, nonVirtualCallReplacement);
+      }
+
+      var newBody = body.Replace (replacements);
+      var newLambda = node.Update (newBody, node.Parameters);
+
+      var block = Expression.Block (
+          new[] { thisClosureVariable },
+          Expression.Assign (thisClosureVariable, new ThisExpression (_context.MutableType)),
+          newLambda);
+
+      return Visit (block);
+    }
+
     protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 
       var methodBase = expression.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (methodBase.DeclaringType);
-      var methodRepresentingOriginalBody = AdaptOriginalMethodBase (methodBase);
+      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.MutableType);
+      var methodRepresentingOriginalBody = NonVirtualCallMethodInfoAdapter.Adapt (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
 
       return Visit (baseCall);
-    }
-
-    private MethodInfo AdaptOriginalMethodBase (MethodBase methodBase)
-    {
-      Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
-
-      var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
-      return new NonVirtualCallMethodInfoAdapter (method);
     }
 
     private Exception NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)

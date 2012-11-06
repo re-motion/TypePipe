@@ -42,7 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\prereq\Assemblies\NUnit 2.5\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks.dll</HintPath>
@@ -55,22 +55,26 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ExpandingExpressionPreparerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContextObjectMother.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifierTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecoratorTest.cs" />
+    <Compile Include="Expressions\CollectingExpressionVisitorTest.cs" />
+    <Compile Include="Expressions\ContainsExpressionVisitorTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
     <Compile Include="Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="Expressions\NewDelegateExpressionTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
+    <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
@@ -91,6 +95,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\MutableMemberFactoryTest.cs" />
+    <Compile Include="MutableReflection\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\RelatedEventFinderTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataAdapterTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeNamedArgumentAdapterTest.cs" />
@@ -111,6 +116,7 @@
     <Compile Include="MutableReflection\TestableUnderlyingInfoDescriptorBase.cs" />
     <Compile Include="MutableReflection\TestableUnderlyingMethodBaseDescriptor.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
+    <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeImplementationUtilityTest.cs" />
     <Compile Include="MutableReflection\UnderlyingInfoDescriptorBaseTest.cs" />

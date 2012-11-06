@@ -315,16 +315,16 @@ namespace System.Linq.Expressions.Compiler {
                     // array[i] = new StrongBox<T>(argument);
                     int index = lc.Parameters.IndexOf(v);
                     lc.EmitLambdaArgument(index);
-                    lc.IL.Emit(OpCodes.Newobj, boxType.GetConstructor(new Type[] { v.Type }));
+                    lc.IL.Emit(OpCodes.Newobj, GetStrongBoxConstructor(boxType));
                 } else if (v == _hoistedLocals.ParentVariable) {
                     // array[i] = new StrongBox<T>(closure.Locals);
                     ResolveVariable(v, _closureHoistedLocals).EmitLoad();
-                    lc.IL.Emit(OpCodes.Newobj, boxType.GetConstructor(new Type[] { v.Type }));
+                    lc.IL.Emit(OpCodes.Newobj, GetStrongBoxConstructor(boxType));
                 } else {
 #if CLR2
                     // array[i] = new StrongBox<T>(default(T));
                     lc.IL.EmitDefault(v.Type);
-                    lc.IL.Emit(OpCodes.Newobj, boxType.GetConstructor(new Type[] { v.Type }));
+                    lc.IL.Emit(OpCodes.Newobj, GetStrongBoxConstructor(boxType));
 #else
                     // array[i] = new StrongBox<T>();
                     lc.IL.Emit(OpCodes.Newobj, boxType.GetConstructor(Type.EmptyTypes));

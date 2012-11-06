@@ -53,18 +53,22 @@
     </Compile>
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorOnTypeInstantiation.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldOnTypeInstantiation.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBaseBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IFieldBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodOnTypeInstantiation.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGenerator.cs">
@@ -81,12 +85,19 @@
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
+    <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Expressions\CollectingExpressionVisitor.cs" />
+    <Compile Include="Expressions\ContainsExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
+    <Compile Include="Expressions\ExpressionExtensions.cs" />
     <Compile Include="Expressions\NewDelegateExpression.cs" />
     <Compile Include="Expressions\OriginalBodyExpression.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapter.cs" />
@@ -145,6 +156,7 @@
     <Compile Include="MutableReflection\RelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\RelatedPropertyFinder.cs" />
     <Compile Include="MutableReflection\SignatureDebugStringGenerator.cs" />
+    <Compile Include="MutableReflection\TypeExtensions.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeImplementationUtility.cs" />
     <Compile Include="MutableReflection\UnderlyingConstructorInfoDescriptor.cs" />

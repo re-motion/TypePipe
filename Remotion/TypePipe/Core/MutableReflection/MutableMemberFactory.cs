@@ -36,11 +36,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableMemberFactory (IMemberSelector memberSelector, IRelatedMethodFinder relatedMethodFinder)
     {
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+
       _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
     }
 
-    public MutableFieldInfo CreateMutableField (MutableType declaringType, Type type, string name, FieldAttributes attributes)
+    public MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("type", type);
@@ -48,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var signature = new FieldSignature (type);
       if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
-        throw new ArgumentException ("Field with equal name and signature already exists.", "name");
+        throw new ArgumentException ("Field with equal signature already exists.", "name");
 
       var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
       var field = new MutableFieldInfo (declaringType, descriptor);
@@ -74,11 +77,15 @@ namespace Remotion.TypePipe.MutableReflection
           };
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
-      if ((attributes & MethodAttributes.Static) != 0)
-        throw new ArgumentException ("Adding static constructors is not (yet) supported.", "attributes");
+      if (attributes.IsSet (MethodAttributes.Static))
+      {
+        var method = MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddTypeInitialization (null));
+        var message = string.Format (
+            "Type initializers (static constructors) cannot be added via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
+        throw new NotSupportedException (message);
+      }
 
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
-
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
@@ -99,30 +106,37 @@ namespace Remotion.TypePipe.MutableReflection
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<MethodBodyCreationContext, Expression> bodyProvider,
-        Action notifyMethodWasImplemented)
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
-      // TODO 5099: add check attributes to be virtual if also abstract
-      // TODO 5099: check bodyProvider for null if attributes doesn't contain Abstract flag
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       // bodyProvider is null for abstract methods
+
+      // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
+
+      var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
+      if (!isAbstract)
+        ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
       CheckForInvalidAttributes ("method", invalidAttributes, attributes);
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
+      if (isAbstract && !isVirtual)
+        throw new ArgumentException ("Abstract methods must also be virtual.", "attributes");
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
       var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
 
       var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
-      // Fix code duplication?
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
       {
         var message = string.Format ("Method '{0}' with equal signature already exists.", name);
-        throw new ArgumentException (message, "name");
+        throw new ArgumentException (message, "parameterDeclarations");
       }
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
@@ -136,13 +150,17 @@ namespace Remotion.TypePipe.MutableReflection
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
-      var method = new MutableMethodInfo (declaringType, descriptor, notifyMethodWasImplemented);
+      var method = new MutableMethodInfo (declaringType, descriptor);
 
       return method;
     }
 
-    public MutableMethodInfo CreateMutableMethodOverride (MutableType declaringType, MethodInfo method, Action notifyMethodWasImplemented)
+    public MutableMethodInfo GetOrCreateMutableMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("method", method);
+      Assertion.IsNotNull (method.DeclaringType);
+
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
       if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
       {
@@ -156,7 +174,10 @@ namespace Remotion.TypePipe.MutableReflection
       var baseDefinition = method.GetBaseDefinition();
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AllMutableMethods);
       if (existingMutableOverride != null)
+      {
+        isNewlyCreated = false;
         return existingMutableOverride;
+      }
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
@@ -168,17 +189,18 @@ namespace Remotion.TypePipe.MutableReflection
                            ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
                            : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       var returnType = baseMethod.ReturnType;
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod).ConvertToCollection();
+      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod);
       var bodyProvider = baseMethod.IsAbstract
                              ? null
                              : new Func<MethodBodyCreationContext, Expression> (
                                    ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var addedOverride = CreateMutableMethod (
-          declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider, notifyMethodWasImplemented);
+          declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
         addedOverride.AddExplicitBaseDefinition (baseDefinition);
 
+      isNewlyCreated = true;
       return addedOverride;
     }
 
@@ -197,6 +219,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       if (overridenMethod.IsFinal)
       {
+        Assertion.IsNotNull (overridenMethod.DeclaringType);
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }

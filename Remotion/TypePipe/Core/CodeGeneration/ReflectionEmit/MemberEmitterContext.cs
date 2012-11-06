@@ -17,6 +17,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -26,26 +27,39 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MemberEmitterContext
   {
+    private readonly MutableType _mutableType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
+    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
     private readonly DeferredActionManager _postDeclarationsActionManager;
 
     [CLSCompliant (false)]
     public MemberEmitterContext (
+        MutableType mutableType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
+        IMethodTrampolineProvider methodTrampolineProvider,
         DeferredActionManager postDeclarationsActionManager)
     {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
       ArgumentUtility.CheckNotNull ("postDeclarationsActionManager", postDeclarationsActionManager);
 
+      _mutableType = mutableType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
+      _methodTrampolineProvider = methodTrampolineProvider;
       _postDeclarationsActionManager = postDeclarationsActionManager;
+    }
+
+    public MutableType MutableType
+    {
+      get { return _mutableType; }
     }
 
     [CLSCompliant (false)]
@@ -62,6 +76,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }
+    }
+
+    public IMethodTrampolineProvider MethodTrampolineProvider
+    {
+      get { return _methodTrampolineProvider; }
     }
 
     public DeferredActionManager PostDeclarationsActionManager

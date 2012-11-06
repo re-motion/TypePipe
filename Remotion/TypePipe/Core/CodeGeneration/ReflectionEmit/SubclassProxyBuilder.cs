@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -39,17 +38,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
+        MutableType mutableType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
+        IMethodTrampolineProvider methodTrampolineProvider,
         IMemberEmitter memberEmitter)
     {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
       _memberEmitter = memberEmitter;
-      _context = new MemberEmitterContext (typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, _postDeclarationsActions);
+      _context = new MemberEmitterContext (
+          mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider, _postDeclarationsActions);
     }
 
     [CLSCompliant (false)]
@@ -95,7 +99,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt ();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
-      _memberEmitter.AddMethod (_context, method, method.Name, method.Attributes);
+      _memberEmitter.AddMethod (_context, method, method.Attributes);
     }
 
     public void HandleModifiedConstructor (MutableConstructorInfo constructor)
@@ -115,7 +119,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       // Modified methods are added as implicit method overrides for the underlying method.
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
-      _memberEmitter.AddMethod (_context, method, method.Name, attributes);
+      _memberEmitter.AddMethod (_context, method, attributes);
     }
 
     public void HandleUnmodifiedField (MutableFieldInfo field)
@@ -149,9 +153,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type Build ()
     {
-      if (_hasBeenBuilt)
-        throw new InvalidOperationException ("Build can only be called once.");
-      
+      EnsureNotBuilt();
       _hasBeenBuilt = true;
 
       _postDeclarationsActions.ExecuteAllActions();

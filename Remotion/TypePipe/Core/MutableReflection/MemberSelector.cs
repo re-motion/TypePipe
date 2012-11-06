@@ -38,61 +38,25 @@ namespace Remotion.TypePipe.MutableReflection
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, CustomType declaringType)
-        where T: MethodBase
+    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("fields", fields);
 
-      var methods = candidates.Where (method => _bindingFlagsEvaluator.HasRightAttributes (method.Attributes, bindingAttr));
-      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
-        // TODO 4972: Use TypeEqualityComparer.
-        methods = methods.Where (method => declaringType.UnderlyingSystemType.Equals (method.DeclaringType));
-
-      return methods;
+      return fields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
     }
 
-    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> candidates, BindingFlags bindingAttr)
+    public IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
+        where T : MethodBase
     {
-      ArgumentUtility.CheckNotNull ("candidates", candidates);
-
-      return candidates.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
-    }
-
-    public T SelectSingleMethod<T> (
-        IEnumerable<T> methods,
-        Binder binder,
-        BindingFlags bindingAttr,
-        string name,
-        CustomType declaringType,
-        Type[] typesOrNull,
-        ParameterModifier[] modifiersOrNull)
-        where T: MethodBase
-    {
-      ArgumentUtility.CheckNotNull ("binder", binder);
       ArgumentUtility.CheckNotNull ("methods", methods);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      if (typesOrNull == null && modifiersOrNull != null)
-        throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
+      var candidates = methods.Where (m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
+      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
+          // TODO 4972: Use TypeEqualityComparer.
+        candidates = candidates.Where (m => declaringType.UnderlyingSystemType.Equals (m.DeclaringType));
 
-      var methodsFilteredByName = methods.Where (mi => mi.Name == name);
-      var candidates = SelectMethods (methodsFilteredByName, bindingAttr, declaringType).ToArray ();
-      if (candidates.Length == 0)
-        return null;
-
-      if (typesOrNull == null)
-      {
-        if (candidates.Length > 1)
-        {
-          var message = string.Format ("Ambiguous method name '{0}'.", name);
-          throw new AmbiguousMatchException (message);
-        }
-
-        return candidates.Single();
-      }
-
-      return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      return candidates;
     }
 
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
@@ -103,6 +67,44 @@ namespace Remotion.TypePipe.MutableReflection
 
       var message = string.Format ("Ambiguous field name '{0}'.", name);
       return SelectFields (candidates, bindingAttr).SingleOrDefault (() => new AmbiguousMatchException (message));
+    }
+
+    public T SelectSingleMethod<T> (
+        IEnumerable<T> methods,
+        Binder binder,
+        BindingFlags bindingAttr,
+        string nameOrNull,
+        Type declaringType,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
+        where T : MethodBase
+    {
+      ArgumentUtility.CheckNotNull ("methods", methods);
+      ArgumentUtility.CheckNotNull ("binder", binder);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      if (typesOrNull == null && modifiersOrNull != null)
+        throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
+
+      if (nameOrNull != null)
+        methods = methods.Where (m => m.Name == nameOrNull);
+
+      var candidates = SelectMethods (methods, bindingAttr, declaringType).ToArray();
+      if (candidates.Length == 0)
+        return null;
+
+      if (typesOrNull == null)
+      {
+        if (candidates.Length > 1)
+        {
+          var message = string.Format ("Ambiguous method name '{0}'.", nameOrNull);
+          throw new AmbiguousMatchException (message);
+        }
+
+        return candidates.Single();
+      }
+
+      return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
   }
 }

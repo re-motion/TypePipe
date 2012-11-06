@@ -123,10 +123,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
-      EnsureNotStatic ();
+      EnsureNotStatic();
       CheckNotStatic (baseMethod);
       CheckVisibility (baseMethod);
       CheckNotAbstract (baseMethod);
+      // TODO: Check if really base call!
 
       return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
     }
