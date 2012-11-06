@@ -21,7 +21,7 @@ namespace Remotion.TypePipe.TypeAssembly
   /// <summary>
   /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
   /// </summary>
-  public interface ITypeAssemblyParticipant
+  public interface ITypePipeParticipant
   {
     void ModifyType (MutableType mutableType);
   }

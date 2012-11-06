@@ -31,23 +31,23 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void Initialization ()
     {
-      var participants = new[] { MockRepository.GenerateStub<ITypeAssemblyParticipant>() };
+      var participants = new[] { MockRepository.GenerateStub<ITypePipeParticipant>() };
       var codeGenerator = MockRepository.GenerateStub<ITypeModifier>();
 
-      var typeAssembler = new TypeAssembler(participants.AsOneTime(), codeGenerator);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime(), codeGenerator);
 
-      Assert.That (typeAssembler.Participants, Is.EqualTo(participants));
+      Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
       // Make sure that participants are iterated only once
-      Assert.That (typeAssembler.Participants, Is.EqualTo(participants));
-      Assert.That (typeAssembler.TypeModifier, Is.SameAs(codeGenerator));
+      Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
+      Assert.That (typeAssembler.TypeModifier, Is.SameAs (codeGenerator));
     }
 
     [Test]
     public void AssemblyType ()
     {
       var mockRepository = new MockRepository();
-      var participantMock1 = mockRepository.StrictMock<ITypeAssemblyParticipant>();
-      var participantMock2 = mockRepository.StrictMock<ITypeAssemblyParticipant> ();
+      var participantMock1 = mockRepository.StrictMock<ITypePipeParticipant>();
+      var participantMock2 = mockRepository.StrictMock<ITypePipeParticipant>();
       var participants = new[] { participantMock1, participantMock2 };
 
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       MutableType mutableType = null;
       var fakeResult = ReflectionObjectMother.GetSomeType();
 
-      using (mockRepository.Ordered ())
+      using (mockRepository.Ordered())
       {
         participantMock1
             .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == requestedType)))
