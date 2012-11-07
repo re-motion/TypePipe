@@ -115,7 +115,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
-    <Compile Include="ICacheKey.cs" />
+    <Compile Include="CacheKey.cs" />
+    <Compile Include="ICacheKeyProvider.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />

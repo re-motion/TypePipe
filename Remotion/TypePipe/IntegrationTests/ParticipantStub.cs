@@ -32,7 +32,7 @@ namespace TypePipe.IntegrationTests
       _typeModification = typeModification;
     }
 
-    public ICacheKey GetCacheKey (Type type)
+    public ICacheKeyProvider GetCacheKeyProvider ()
     {
       throw new NotImplementedException();
     }

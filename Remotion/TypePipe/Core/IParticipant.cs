@@ -22,11 +22,24 @@ namespace Remotion.TypePipe
 {
   /// <summary>
   /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
-  /// A participant is also responsible for computing a <see cref="ICacheKey"/> for a requested type.
+  /// Framework authors implement this interface in order to specify their code generation needs.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Instances of this interface can be configured in the pipeline.
+  /// Every participant has the chance the specify type modifications via the provided <see cref="MutableType"/> instance.
+  /// The <see cref="MutableType"/> is a representation of the type to be generated for the requested type.
+  /// In addition, it contains all modifications applied by preceding participants in the pipeline.
+  /// </para>
+  /// <para>
+  /// A participant must also provide an instance of <see cref="ICacheKeyProvider"/> if generated types cannot be cached unconditionally, i.e.,
+  /// the modifications depend solely on the requested type.
+  /// If generated types can be cached unconditionally, the participant should return <see langword="null"/> from <see cref="GetCacheKeyProvider"/>.
+  /// </para>
+  /// </remarks>
   public interface IParticipant
   {
-    ICacheKey GetCacheKey (Type type);
+    ICacheKeyProvider GetCacheKeyProvider ();
 
     void ModifyType (MutableType mutableType);
   }
