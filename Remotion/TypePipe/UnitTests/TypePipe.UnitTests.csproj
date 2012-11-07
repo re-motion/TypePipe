@@ -75,7 +75,7 @@
     <Compile Include="Expressions\NewDelegateExpressionTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapterTest.cs" />
-    <Compile Include="Expressions\ReplacementExpressionVisitorTest.cs" />
+    <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />

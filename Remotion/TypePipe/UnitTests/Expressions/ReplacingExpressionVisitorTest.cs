@@ -23,7 +23,7 @@ using Remotion.TypePipe.Expressions;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class ReplacementExpressionVisitorTest
+  public class ReplacingExpressionVisitorTest
   {
     [Test]
     public void Visit_NoModifications ()
@@ -67,10 +67,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (actualTree, Is.SameAs (replacementExpr));
     }
 
-    private ReplacementExpressionVisitor CreateVisitor (Expression replacedExpr, Expression replacingExpr)
+    private ReplacingExpressionVisitor CreateVisitor (Expression replacedExpr, Expression replacingExpr)
     {
       var replacements = new Dictionary<Expression, Expression> { { replacedExpr, replacingExpr } };
-      return new ReplacementExpressionVisitor (replacements);
+      return new ReplacingExpressionVisitor (replacements);
     }
   }
 }

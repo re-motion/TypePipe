@@ -25,11 +25,11 @@ namespace Remotion.TypePipe.Expressions
   /// <summary>
   /// Replaces <see cref="Expression"/>s in an expression tree non-recursively, i.e. occurrences within replacements are not replaced.
   /// </summary>
-  public class ReplacementExpressionVisitor : ExpressionVisitor
+  public class ReplacingExpressionVisitor : ExpressionVisitor
   {
     private readonly IDictionary<Expression, Expression> _replacements;
 
-    public ReplacementExpressionVisitor (IDictionary<Expression, Expression> replacements)
+    public ReplacingExpressionVisitor (IDictionary<Expression, Expression> replacements)
     {
       ArgumentUtility.CheckNotNull ("replacements", replacements);
       _replacements = replacements;
