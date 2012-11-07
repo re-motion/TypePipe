@@ -62,27 +62,31 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
+      // Visit inner nodes in order to replace OriginalBodyExpressions with ThisExpressions.
       var body = Visit (node.Body);
 
-      var thisExpressions = body.Collect<ThisExpression>();
-      if (thisExpressions.Count == 0)
-        return node.Update (body, node.Parameters);
-
       var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
-      var replacements = thisExpressions.ToDictionary (exp => (Expression) exp, exp => (Expression) thisClosureVariable);
-
-      foreach (var nonVirtualCall in body.Collect<MethodCallExpression> (expr => expr.Method is NonVirtualCallMethodInfoAdapter))
+      Func<Expression, Expression> lambdaFixer = expr =>
       {
-        var method = ((NonVirtualCallMethodInfoAdapter) nonVirtualCall.Method).AdaptedMethod;
-        var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
-        var nonVirtualCallReplacement = Expression.Call (thisClosureVariable, trampolineMethod, nonVirtualCall.Arguments);
+        if (expr is ThisExpression)
+          return thisClosureVariable;
 
-        replacements.Add (nonVirtualCall, nonVirtualCallReplacement);
-      }
+        var methodCall = expr as MethodCallExpression;
+        if (methodCall != null && methodCall.Method is NonVirtualCallMethodInfoAdapter)
+        {
+          var method = ((NonVirtualCallMethodInfoAdapter) methodCall.Method).AdaptedMethod;
+          var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
+          return Expression.Call (thisClosureVariable, trampolineMethod, methodCall.Arguments);
+        }
 
-      var newBody = body.Replace (replacements);
+        return expr;
+      };
+
+      var newBody = body.Replace (lambdaFixer);
+      if (newBody == body)
+        return node;
+
       var newLambda = node.Update (newBody, node.Parameters);
-
       var block = Expression.Block (
           new[] { thisClosureVariable },
           Expression.Assign (thisClosureVariable, new ThisExpression (_context.MutableType)),
