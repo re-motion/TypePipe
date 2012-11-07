@@ -45,26 +45,22 @@ namespace Remotion.TypePipe.Expressions
       return new DelegateBasedExpressionVisitor (expressionVisitorDelegate).Visit (expression);
     }
 
-    public static bool Contains (this Expression expression, Predicate<Expression> predicate)
-    {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-      ArgumentUtility.CheckNotNull ("predicate", predicate);
-
-      var visitor = new ContainsExpressionVisitor (predicate);
-      visitor.Visit (expression);
-
-      return visitor.Result;
-    }
-
     public static ReadOnlyCollectionDecorator<Expression> Collect (this Expression expression, Predicate<Expression> predicate)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
       ArgumentUtility.CheckNotNull ("predicate", predicate);
 
-      var visitor = new CollectingExpressionVisitor (predicate);
-      visitor.Visit (expression);
+      var matchingNodes = new HashSet<Expression>();
+      Func<Expression, Expression> collectingDelegate = expr =>
+      {
+        if (predicate (expr))
+          matchingNodes.Add (expr);
+        return expr;
+      };
 
-      return visitor.MatchingNodes;
+      new DelegateBasedExpressionVisitor (collectingDelegate).Visit (expression);
+
+      return matchingNodes.AsReadOnly();
     }
 
     public static ReadOnlyCollectionDecorator<T> Collect<T> (this Expression expression, Predicate<T> predicate = null)

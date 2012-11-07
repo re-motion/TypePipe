@@ -22,21 +22,35 @@ using Remotion.TypePipe.Expressions;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class CollectingExpressionVisitorTest
+  public class ExpressionExtensionsTest
   {
     [Test]
-    public void Visit_ContainsDistinctMatchingNodes ()
+    public void Collect ()
     {
       var expr1 = Expression.Constant ("a");
       var expr2 = Expression.Constant ("b");
       var expr3 = Expression.Constant ("ab");
       var nonDistinct = expr3;
       var tree = Expression.Block (expr1, expr2, expr3, nonDistinct);
-      var visitor = new CollectingExpressionVisitor (exp => exp is ConstantExpression && ((ConstantExpression) exp).Value.ToString().Contains ("a"));
 
-      visitor.Visit (tree);
+      var result = tree.Collect (exp => exp is ConstantExpression && ((ConstantExpression) exp).Value.ToString ().Contains ("a"));
 
-      Assert.That (visitor.MatchingNodes, Is.EqualTo (new[] { expr1, expr3 }));
+      Assert.That (result, Is.EquivalentTo (new[] { expr1, expr3 }));
+    }
+
+    [Test]
+    public void Collect_Generic ()
+    {
+      var expr1 = Expression.Constant (null);
+      var expr2 = Expression.Empty();
+      var expr3 = Expression.Variable (typeof (int));
+      var tree = Expression.Block (new Expression[] { expr1, expr2, expr3 });
+
+      var result1 = tree.Collect<ConstantExpression>();
+      var result2 = tree.Collect<ParameterExpression> (x => x.Type == typeof (int));
+
+      Assert.That (result1, Is.EqualTo (new[] { expr1 }));
+      Assert.That (result2, Is.EqualTo (new[] { expr3 }));
     }
   }
 }

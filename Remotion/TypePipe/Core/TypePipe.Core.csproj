@@ -94,8 +94,6 @@
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Expressions\CollectingExpressionVisitor.cs" />
-    <Compile Include="Expressions\ContainsExpressionVisitor.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />
