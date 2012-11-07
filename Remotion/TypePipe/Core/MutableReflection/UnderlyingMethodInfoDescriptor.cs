@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = originalMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod).ToList().AsReadOnly();
+      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod);
       var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
       var customAttributeDataProvider = GetCustomAttributeProvider (originalMethod);
       var body = originalMethod.IsAbstract ? null : CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);

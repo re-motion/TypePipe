@@ -33,18 +33,18 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
   {
-    public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public static ReadOnlyCollection<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
-      return parameterDeclarations.Select (Create);
+      return parameterDeclarations.Select (Create).ToList().AsReadOnly();
     }
 
-    public static IEnumerable<UnderlyingParameterInfoDescriptor> CreateFromMethodBase (MethodBase methodBase)
+    public static ReadOnlyCollection<UnderlyingParameterInfoDescriptor> CreateFromMethodBase (MethodBase methodBase)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
 
-      return methodBase.GetParameters().Select (Create);
+      return methodBase.GetParameters().Select (Create).ToList().AsReadOnly();
     }
 
     private static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration, int position)

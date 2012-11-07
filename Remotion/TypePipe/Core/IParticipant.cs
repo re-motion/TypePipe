@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,34 +14,20 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using Remotion.TypePipe;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe
 {
-  public class ParticipantStub : IParticipant
+  /// <summary>
+  /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
+  /// A participant is also responsible for computing a <see cref="ICacheKey"/> for a requested type.
+  /// </summary>
+  public interface IParticipant
   {
-    private readonly Action<MutableType> _typeModification;
+    ICacheKey GetCacheKey (Type type);
 
-    public ParticipantStub (Action<MutableType> typeModification)
-    {
-      ArgumentUtility.CheckNotNull ("typeModification", typeModification);
-
-      _typeModification = typeModification;
-    }
-
-    public ICacheKey GetCacheKey (Type type)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ModifyType (MutableType mutableType)
-    {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      _typeModification (mutableType);
-    }
+    void ModifyType (MutableType mutableType);
   }
 }

@@ -37,15 +37,12 @@ namespace Remotion.TypePipe.Expressions
       return new ReplacingExpressionVisitor (replacements).Visit (expression);
     }
 
-    public static bool Contains (this Expression expression, Predicate<Expression> predicate)
+    public static Expression InlinedVisit (this Expression expression, Func<Expression, Expression> expressionVisitorDelegate)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
-      ArgumentUtility.CheckNotNull ("predicate", predicate);
+      ArgumentUtility.CheckNotNull ("expressionVisitorDelegate", expressionVisitorDelegate);
 
-      var visitor = new ContainsExpressionVisitor (predicate);
-      visitor.Visit (expression);
-
-      return visitor.Result;
+      return new DelegateBasedExpressionVisitor (expressionVisitorDelegate).Visit (expression);
     }
 
     public static ReadOnlyCollectionDecorator<Expression> Collect (this Expression expression, Predicate<Expression> predicate)
@@ -53,10 +50,17 @@ namespace Remotion.TypePipe.Expressions
       ArgumentUtility.CheckNotNull ("expression", expression);
       ArgumentUtility.CheckNotNull ("predicate", predicate);
 
-      var visitor = new CollectingExpressionVisitor (predicate);
-      visitor.Visit (expression);
+      var matchingNodes = new HashSet<Expression>();
+      Func<Expression, Expression> collectingDelegate = expr =>
+      {
+        if (predicate (expr))
+          matchingNodes.Add (expr);
+        return expr;
+      };
 
-      return visitor.MatchingNodes;
+      new DelegateBasedExpressionVisitor (collectingDelegate).Visit (expression);
+
+      return matchingNodes.AsReadOnly();
     }
 
     public static ReadOnlyCollectionDecorator<T> Collect<T> (this Expression expression, Predicate<T> predicate = null)

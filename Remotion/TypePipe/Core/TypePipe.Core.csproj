@@ -79,7 +79,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecorator.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ExpandingExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
@@ -94,8 +94,7 @@
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Expressions\CollectingExpressionVisitor.cs" />
-    <Compile Include="Expressions\ContainsExpressionVisitor.cs" />
+    <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />
     <Compile Include="Expressions\NewDelegateExpression.cs" />
@@ -116,6 +115,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
+    <Compile Include="ICacheKey.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
@@ -292,9 +292,9 @@
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
-    <Compile Include="TypeAssembly\ITypeAssemblyParticipant.cs" />
+    <Compile Include="IParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeAssembly\TypeAssembler.cs" />
+    <Compile Include="TypeAssembler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

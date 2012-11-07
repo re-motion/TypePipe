@@ -50,33 +50,33 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="AbstractTypeTest.cs" />
-    <Compile Include="AddFieldTest.cs" />
-    <Compile Include="AddInterfaceTest.cs" />
-    <Compile Include="AddMethodTest.cs" />
-    <Compile Include="TypeInitializationTest.cs" />
-    <Compile Include="CopyMethodBodyTest.cs" />
-    <Compile Include="DelegateInstantiationTest.cs" />
-    <Compile Include="GetCustomAttributesTest.cs" />
-    <Compile Include="LambdaExpressionTest.cs" />
-    <Compile Include="MutableTypeObjectMother.cs" />
-    <Compile Include="TypePipeCustomAttributeDataTest.cs" />
-    <Compile Include="ExplicitOverridesTest.cs" />
-    <Compile Include="ModifyBaseMethodTest.cs" />
+    <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
+    <Compile Include="TypeAssembly\AddFieldTest.cs" />
+    <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
+    <Compile Include="TypeAssembly\AddMethodTest.cs" />
+    <Compile Include="TypeAssembly\TypeInitializationTest.cs" />
+    <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />
+    <Compile Include="TypeAssembly\DelegateInstantiationTest.cs" />
+    <Compile Include="MutableReflection\GetCustomAttributesTest.cs" />
+    <Compile Include="TypeAssembly\LambdaExpressionTest.cs" />
+    <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
+    <Compile Include="MutableReflection\TypePipeCustomAttributeDataTest.cs" />
+    <Compile Include="TypeAssembly\ExplicitOverridesTest.cs" />
+    <Compile Include="TypeAssembly\ModifyBaseMethodTest.cs" />
     <Compile Include="ParticipantStub.cs" />
-    <Compile Include="ReflectionWorkaroundsTest.cs" />
-    <Compile Include="ShadowingTest.cs" />
-    <Compile Include="ExpressionHelper.cs" />
-    <Compile Include="ImplicitOverridesTest.cs" />
-    <Compile Include="KeepConstructorsTest.cs" />
-    <Compile Include="ModifyConstructorTest.cs" />
-    <Compile Include="ModifyGenericMethodTest.cs" />
-    <Compile Include="ModifyGenericTypeTest.cs" />
-    <Compile Include="ModifyMethodTest.cs" />
-    <Compile Include="SetupFixture.cs" />
-    <Compile Include="AddConstructorTest.cs" />
-    <Compile Include="ReferenceMutableMembersTest.cs" />
-    <Compile Include="TypeAssemblerIntegrationTestBase.cs" />
+    <Compile Include="TypeAssembly\ReflectionWorkaroundsTest.cs" />
+    <Compile Include="TypeAssembly\ShadowingTest.cs" />
+    <Compile Include="TypeAssembly\ExpressionHelper.cs" />
+    <Compile Include="TypeAssembly\ImplicitOverridesTest.cs" />
+    <Compile Include="TypeAssembly\KeepConstructorsTest.cs" />
+    <Compile Include="TypeAssembly\ModifyConstructorTest.cs" />
+    <Compile Include="TypeAssembly\ModifyGenericMethodTest.cs" />
+    <Compile Include="TypeAssembly\ModifyGenericTypeTest.cs" />
+    <Compile Include="TypeAssembly\ModifyMethodTest.cs" />
+    <Compile Include="TypeAssembly\SetupFixture.cs" />
+    <Compile Include="TypeAssembly\AddConstructorTest.cs" />
+    <Compile Include="TypeAssembly\ReferenceMutableMembersTest.cs" />
+    <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +101,7 @@
       <Name>TypePipe.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

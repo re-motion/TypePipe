@@ -61,6 +61,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContextObjectMother.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitorTest.cs" />
@@ -68,8 +69,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecoratorTest.cs" />
-    <Compile Include="Expressions\CollectingExpressionVisitorTest.cs" />
-    <Compile Include="Expressions\ContainsExpressionVisitorTest.cs" />
+    <Compile Include="Expressions\DelegateBasedExpressionVisitorTest.cs" />
+    <Compile Include="Expressions\ExpressionExtensionsTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
     <Compile Include="Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="Expressions\NewDelegateExpressionTest.cs" />

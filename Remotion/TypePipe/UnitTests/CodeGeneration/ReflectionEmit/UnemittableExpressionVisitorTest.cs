@@ -107,18 +107,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void VisitLambda_StaticClosure ()
     {
-      var body = ExpressionTreeObjectMother.GetSomeExpression();
-      var parameter = Expression.Parameter (typeof (int));      
+      var body = Expression.Constant ("original body");
+      var parameter = Expression.Parameter (typeof (int));
       var expression = Expression.Lambda<Action<int>> (body, parameter);
-      var fakeStaticClosure = ExpressionTreeObjectMother.GetSomeExpression();
+      var fakeStaticClosure = Expression.Constant ("fake body");
       _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeStaticClosure);
 
       var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
 
-      Assert.That (result, Is.InstanceOf<LambdaExpression>());
-      var lambdaExpression = ((LambdaExpression) result);
-      Assert.That (lambdaExpression.Parameters, Is.EqualTo (new[] { parameter }));
-      Assert.That (lambdaExpression.Body, Is.SameAs (fakeStaticClosure));
+      Assert.That (result, Is.SameAs (expression));
     }
 
     [Test]

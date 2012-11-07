@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -32,6 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMethodTrampolineProvider _methodTrampolineProvider;
+    private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
+        new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
     private readonly DeferredActionManager _postDeclarationsActionManager;
 
     [CLSCompliant (false)]
@@ -81,6 +85,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IMethodTrampolineProvider MethodTrampolineProvider
     {
       get { return _methodTrampolineProvider; }
+    }
+
+    public IDictionary<MethodInfo, MethodInfo> TrampolineMethods
+    {
+      get { return _trampolineMethods; }
     }
 
     public DeferredActionManager PostDeclarationsActionManager

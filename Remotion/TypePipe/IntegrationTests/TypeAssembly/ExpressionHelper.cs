@@ -14,34 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using Remotion.TypePipe;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
+using Microsoft.Scripting.Ast;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.TypeAssembly
 {
-  public class ParticipantStub : IParticipant
+  public static class ExpressionHelper
   {
-    private readonly Action<MutableType> _typeModification;
-
-    public ParticipantStub (Action<MutableType> typeModification)
+    public static BinaryExpression StringConcat (Expression left, Expression right)
     {
-      ArgumentUtility.CheckNotNull ("typeModification", typeModification);
-
-      _typeModification = typeModification;
-    }
-
-    public ICacheKey GetCacheKey (Type type)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ModifyType (MutableType mutableType)
-    {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      _typeModification (mutableType);
+      var concatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
+      return Expression.Add (left, right, concatMethod);
     }
   }
 }

@@ -15,33 +15,25 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe;
-using Remotion.TypePipe.MutableReflection;
+using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  public class ParticipantStub : IParticipant
+  /// <summary>
+  /// Prepares method (and constructor) bodies so that code can be generated for them by replacing all nodes not
+  /// understood by <see cref="LambdaCompiler"/> and <see cref="ILGeneratingTypePipeExpressionVisitor"/>.
+  /// </summary>
+  public class ExpressionPreparer : IExpressionPreparer
   {
-    private readonly Action<MutableType> _typeModification;
-
-    public ParticipantStub (Action<MutableType> typeModification)
+    public Expression PrepareBody (MemberEmitterContext context, Expression body)
     {
-      ArgumentUtility.CheckNotNull ("typeModification", typeModification);
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("body", body);
 
-      _typeModification = typeModification;
-    }
-
-    public ICacheKey GetCacheKey (Type type)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ModifyType (MutableType mutableType)
-    {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      _typeModification (mutableType);
+      return new UnemittableExpressionVisitor (context).Visit (body);
     }
   }
 }

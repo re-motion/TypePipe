@@ -474,6 +474,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Accept_ModificationHandler_WithTypeInitializations ()
+    {
+      var expression = Expression.Constant (7);
+      _mutableType.AddTypeInitialization (expression);
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
+      handlerMock.Expect (mock => mock.HandleTypeInitializations (_mutableType.TypeInitializations));
+
+      _mutableType.Accept (handlerMock);
+
+      handlerMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void Accept_ModificationHandler_WithAddedAndUnmodifiedExistingMembers ()
     {
       Assert.That (_mutableType.GetInterfaces(), Has.Length.EqualTo (1));
@@ -493,7 +506,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var unmodfiedMethod = _mutableType.ExistingMutableMethods.Single(m => m.Name == "VirtualMethod");
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
 
-      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler> ();
+      handlerMock.Stub (stub => stub.HandleTypeInitializations (_mutableType.TypeInitializations));
 
       handlerMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
 
@@ -510,32 +524,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Accept_ModificationHandler_WithTypeInitializations ()
-    {
-      var expression = Expression.Constant (7);
-      _mutableType.AddTypeInitialization (expression);
-
-      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
-      handlerMock.Expect (mock => mock.HandleAddedConstructor (Arg<MutableConstructorInfo>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var constructor = ((MutableConstructorInfo) mi.Arguments[0]);
-                Assert.That (constructor.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Static));
-                Assert.That (constructor.GetParameters(), Is.Empty);
-                Assert.That (constructor.Body, Is.InstanceOf<BlockExpression>());
-
-                var blockExpression = (BlockExpression) constructor.Body;
-                Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
-                Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { expression }));
-              });
-
-      _mutableType.Accept (handlerMock);
-
-      handlerMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void Accept_ModificationHandler_WithModifiedConstructors ()
     {
       Assert.That (_mutableType.ExistingMutableConstructors, Is.Not.Empty);
@@ -545,7 +533,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var modifiedAddedConstructorInfo = AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create());
       MutableConstructorInfoTestHelper.ModifyConstructor (modifiedAddedConstructorInfo);
 
-      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler> ();
+      handlerMock.Stub (stub => stub.HandleTypeInitializations (_mutableType.TypeInitializations));
+
       handlerMock.Expect (mock => mock.HandleModifiedConstructor (modifiedExistingConstructorInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (modifiedAddedConstructorInfo));
 
@@ -564,7 +554,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var modifiedAddedMethodInfo = AddMethod (_mutableType, "ModifiedAddedMethod");
       MutableMethodInfoTestHelper.ModifyMethod (modifiedAddedMethodInfo);
 
-      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
+      var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler> ();
+      handlerMock.Stub (stub => stub.HandleTypeInitializations (_mutableType.TypeInitializations));
+
       handlerMock.Expect (mock => mock.HandleModifiedMethod (modifiedExistingMethodInfo));
       handlerMock.Expect (mock => mock.HandleAddedMethod (modifiedAddedMethodInfo));
 

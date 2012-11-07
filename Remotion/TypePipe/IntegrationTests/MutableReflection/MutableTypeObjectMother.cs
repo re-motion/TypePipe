@@ -14,34 +14,22 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using Remotion.TypePipe;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
-namespace TypePipe.IntegrationTests
+namespace TypePipe.IntegrationTests.MutableReflection
 {
-  public class ParticipantStub : IParticipant
+  public static class MutableTypeObjectMother
   {
-    private readonly Action<MutableType> _typeModification;
-
-    public ParticipantStub (Action<MutableType> typeModification)
+    public static MutableType CreateForExisting (Type underlyingType)
     {
-      ArgumentUtility.CheckNotNull ("typeModification", typeModification);
+      var underlyingTypeDescriptor = UnderlyingTypeDescriptor.Create (underlyingType);
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
+      var relatedMethodFinder = new RelatedMethodFinder ();
+      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      _typeModification = typeModification;
-    }
-
-    public ICacheKey GetCacheKey (Type type)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ModifyType (MutableType mutableType)
-    {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      _typeModification (mutableType);
+      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
     }
   }
 }

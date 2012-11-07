@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly List<Expression> _typeInitializations = new List<Expression>();
     private readonly ReadOnlyCollection<Type> _existingInterfaces;
-    private readonly List<Type> _addedInterfaces = new List<Type> ();
+    private readonly List<Type> _addedInterfaces = new List<Type>();
 
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
@@ -302,11 +302,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("handler", handler);
 
-      if (_typeInitializations.Count > 0)
-      {
-        var typeInitializer = CreateTypeInitializer();
-        handler.HandleAddedConstructor (typeInitializer);
-      }
+      handler.HandleTypeInitializations (_typeInitializations.AsReadOnly());
 
       foreach (var ifc in AddedInterfaces)
         handler.HandleAddedInterface (ifc);
@@ -424,16 +420,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
-    }
-
-    private MutableConstructorInfo CreateTypeInitializer ()
-    {
-      var attributes = MethodAttributes.Private | MethodAttributes.Static;
-      var parameters = Enumerable.Empty<UnderlyingParameterInfoDescriptor>();
-      var body = Expression.Block (typeof (void), _typeInitializations);
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameters, body);
-
-      return new MutableConstructorInfo (this, descriptor);
     }
   } 
 }
