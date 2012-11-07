@@ -43,6 +43,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -50,6 +53,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="CachingTest.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
