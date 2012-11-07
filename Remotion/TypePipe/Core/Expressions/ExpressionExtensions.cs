@@ -37,6 +37,14 @@ namespace Remotion.TypePipe.Expressions
       return new ReplacingExpressionVisitor (replacements).Visit (expression);
     }
 
+    public static Expression Replace (this Expression expression, Func<Expression, Expression> replacingExpressionDelegate)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("replacingExpressionDelegate", replacingExpressionDelegate);
+
+      return new DelegateBasedExpressionVisitor (replacingExpressionDelegate).Visit (expression);
+    }
+
     public static bool Contains (this Expression expression, Predicate<Expression> predicate)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
