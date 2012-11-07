@@ -14,28 +14,29 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.UnitTests.Expressions
+namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
   /// A visitor that implements <see cref="Visit"/> by using the provided <see cref="Func{T,TResult}"/> delegate.
   /// </summary>
   public class DelegateBasedExpressionVisitor : ExpressionVisitor
   {
-    private readonly Func<Expression, Expression> _expressionDelegate;
+    private readonly Func<Expression, Expression> _replacingExpressionDelegate;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DelegateBasedExpressionVisitor" /> class.
     /// </summary>
-    /// <param name="expressionDelegate">The expression delegate.</param>
-    public DelegateBasedExpressionVisitor (Func<Expression, Expression> expressionDelegate)
+    /// <param name="replacingExpressionDelegate">The expression delegate.</param>
+    public DelegateBasedExpressionVisitor (Func<Expression, Expression> replacingExpressionDelegate)
     {
-      ArgumentUtility.CheckNotNull ("expressionDelegate", expressionDelegate);
+      ArgumentUtility.CheckNotNull ("replacingExpressionDelegate", replacingExpressionDelegate);
 
-      _expressionDelegate = expressionDelegate;
+      _replacingExpressionDelegate = replacingExpressionDelegate;
     }
 
     public override Expression Visit (Expression node)
@@ -43,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       ArgumentUtility.CheckNotNull ("node", node);
 
       var newNode = base.Visit (node);
-      return _expressionDelegate (newNode);
+      return _replacingExpressionDelegate (newNode);
     }
   }
 }

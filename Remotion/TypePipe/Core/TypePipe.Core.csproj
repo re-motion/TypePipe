@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="Expressions\CollectingExpressionVisitor.cs" />
     <Compile Include="Expressions\ContainsExpressionVisitor.cs" />
+    <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />
     <Compile Include="Expressions\NewDelegateExpression.cs" />
