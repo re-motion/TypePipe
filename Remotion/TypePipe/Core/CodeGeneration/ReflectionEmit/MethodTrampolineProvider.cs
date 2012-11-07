@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -33,8 +32,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class MethodTrampolineProvider : IMethodTrampolineProvider
   {
     private readonly IMemberEmitter _memberEmitter;
-    private readonly Dictionary<MethodInfo, MethodInfo> _trampolineDictionary =
-        new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
 
     public MethodTrampolineProvider (IMemberEmitter memberEmitter)
     {
@@ -54,11 +51,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("method", method);
 
       MethodInfo trampoline;
-      if (!_trampolineDictionary.TryGetValue (method, out trampoline))
+      if (!context.TrampolineMethods.TryGetValue (method, out trampoline))
       {
         var name = string.Format ("{0}.{1}_NonVirtualCallTrampoline", method.DeclaringType.FullName, method.Name);
         trampoline = CreateNonVirtualCallTrampoline (context, method, name);
-        _trampolineDictionary.Add (method, trampoline);
+        context.TrampolineMethods.Add (method, trampoline);
       }
 
       return trampoline;

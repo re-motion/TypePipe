@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method2 = typeof (DomainType).GetMethod ("ToString");
-      Assert.That (method1.ReflectedType, Is.Not.SameAs (method2.ReflectedType));
+      Assert.That (method1, Is.Not.SameAs (method2));
       _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Once();
 
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);

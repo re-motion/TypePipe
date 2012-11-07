@@ -61,6 +61,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContextObjectMother.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitorTest.cs" />
