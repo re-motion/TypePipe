@@ -82,14 +82,19 @@ namespace TypePipe.IntegrationTests.TypeAssembly
           mutableType =>
           {
             var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
-            method.SetBody (ctx => Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), ctx.Parameters[0])));
+            var variable = Expression.Variable (typeof (int));
+            method.SetBody (
+                ctx => Expression.Block (
+                    new[] { variable },
+                    Expression.Assign (variable, Expression.Constant (2)),
+                    Expression.Lambda (Expression.Add (variable, Expression.Add (Expression.Field (ctx.This, "Field"), ctx.Parameters[0])))));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var lambda = instance.ReturnLambda (7);
       var result = lambda();
 
-      Assert.That (result, Is.EqualTo (8));
+      Assert.That (result, Is.EqualTo (10));
     }
 
     [Test]
