@@ -111,7 +111,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderAdapter.cs" />
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
-    <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
+    <Compile Include="Expressions\ReplacementExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
