@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
+using Microsoft.Scripting.Ast;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -23,6 +25,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableTypeModificationHandler
   {
+    void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions);
     void HandleAddedInterface (Type addedInterface);
 
     void HandleAddedField (MutableFieldInfo field);

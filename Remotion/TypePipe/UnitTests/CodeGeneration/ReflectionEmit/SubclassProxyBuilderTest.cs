@@ -15,14 +15,18 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -75,6 +79,40 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
       Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
+    }
+
+    [Test]
+    public void HandleTypeInitializations ()
+    {
+      var expressions = new[] { ExpressionTreeObjectMother.GetSomeExpression() }.ToList().AsReadOnly();
+
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (Arg.Is (_context), Arg<MutableConstructorInfo>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                var ctor = (MutableConstructorInfo) mi.Arguments[1];
+                Assert.That (ctor.Name, Is.EqualTo (".cctor"));
+                Assert.That (ctor.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Static));
+                Assert.That (ctor.GetParameters(), Is.Empty);
+                Assert.That (ctor.Body, Is.InstanceOf<BlockExpression>());
+                var blockExpression = (BlockExpression) ctor.Body;
+                Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
+                Assert.That (blockExpression.Expressions, Is.EqualTo (expressions));
+              });
+
+      _builder.HandleTypeInitializations (expressions);
+
+      _memberEmitterMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void HandleTypeInitializations_Empty ()
+    {
+      var expressions = new ReadOnlyCollection<Expression> (new Expression[0]);
+
+      _builder.HandleTypeInitializations (expressions);
+
+      _memberEmitterMock.AssertWasNotCalled (x => x.AddConstructor (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableConstructorInfo>.Is.Anything));
     }
 
     [Test]

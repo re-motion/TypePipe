@@ -15,7 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
@@ -65,6 +69,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public MemberEmitterContext MemberEmitterContext
     {
       get { return _context; }
+    }
+
+    public void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
+    {
+      ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
+
+      if (initializationExpressions.Count == 0)
+        return;
+
+      var attributes = MethodAttributes.Private | MethodAttributes.Static;
+      var parameters = Enumerable.Empty<UnderlyingParameterInfoDescriptor>();
+      var body = Expression.Block (typeof (void), initializationExpressions);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameters, body);
+      var typeInitializer = new MutableConstructorInfo (_context.MutableType, descriptor);
+
+      HandleAddedConstructor (typeInitializer);
     }
 
     public void HandleAddedInterface (Type addedInterface)
