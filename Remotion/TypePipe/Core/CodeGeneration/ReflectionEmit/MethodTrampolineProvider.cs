@@ -15,9 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -31,6 +33,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class MethodTrampolineProvider : IMethodTrampolineProvider
   {
     private readonly IMemberEmitter _memberEmitter;
+    private readonly Dictionary<MethodInfo, MethodInfo> _trampolineDictionary =
+        new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
 
     public MethodTrampolineProvider (IMemberEmitter memberEmitter)
     {
@@ -49,18 +53,35 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
 
-      var name = string.Format ("{0}.{1}_NonVirtualCallTrampoline", method.DeclaringType.FullName, method.Name);
-      return context.MutableType.AddedMethods.SingleOrDefault (m => m.Name == name) ?? CreateNonVirtualCallTrampoline (context, method, name);
+      MethodInfo trampoline;
+      if (!_trampolineDictionary.TryGetValue (method, out trampoline))
+      {
+        var name = string.Format ("{0}.{1}_NonVirtualCallTrampoline", method.DeclaringType.FullName, method.Name);
+        trampoline = CreateNonVirtualCallTrampoline (context, method, name);
+        _trampolineDictionary.Add (method, trampoline);
+      }
+
+      return trampoline;
     }
 
     private MethodInfo CreateNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method, string trampolineName)
     {
-      var trampoline = context.MutableType.AddMethod (
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method);
+      var parameterExpressions = parameterDescriptors.Select (p => p.Expression).Cast<Expression>();
+      var body = Expression.Call (new ThisExpression (context.MutableType), new NonVirtualCallMethodInfoAdapter (method), parameterExpressions);
+      
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (
           trampolineName,
           MethodAttributes.Private,
           method.ReturnType,
-          ParameterDeclaration.CreateForEquivalentSignature (method),
-          ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
+          parameterDescriptors,
+          baseMethod: null,
+          isGenericMethod: false,
+          isGenericMethodDefinition: false,
+          containsGenericParameters: false,
+          body: body);
+
+      var trampoline = new MutableMethodInfo (context.MutableType, descriptor);
 
       _memberEmitter.AddMethod (context, trampoline, trampoline.Attributes);
 

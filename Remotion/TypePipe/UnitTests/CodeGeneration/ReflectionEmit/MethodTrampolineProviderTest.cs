@@ -85,6 +85,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                                };
       Assert.That (parameters, Is.EqualTo (expectedParameters));
 
+      Assert.That (result.GetBaseDefinition(), Is.SameAs (result));
+      Assert.That (result.IsGenericMethod, Is.False);
+      Assert.That (result.IsGenericMethodDefinition, Is.False);
+      Assert.That (result.ContainsGenericParameters, Is.False);
+
       Assert.That (mutableMethod.Body, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = ((MethodCallExpression) mutableMethod.Body);
       Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_mutableType));
@@ -100,18 +105,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (method1.ReflectedType, Is.Not.SameAs (method2.ReflectedType));
       _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Once();
 
-      Assert.That (_mutableType.AddedMethods, Is.Empty);
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
-      Assert.That (_mutableType.AddedMethods, Has.Count.EqualTo (1));
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);
-      Assert.That (_mutableType.AddedMethods, Has.Count.EqualTo (1));
-
       Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
+    public void GetNonVirtualCallTrampoline_CreatesDifferentTrampolineForOverloads ()
+    {
+      var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Def());
+      var method2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Def (7));
+
+      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Twice();
+
+      var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
+      var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);
+
+      Assert.That (result1, Is.Not.SameAs (result2));
+      Assert.That (result1.GetParameters(), Is.Empty);
+      Assert.That (result2.GetParameters(), Has.Length.EqualTo (1));
     }
 
     class DomainType
     {
-      public virtual string Abc (out int i, double d) { i = 7; return ""; }
+      public string Abc (out int i, double d) { i = 7; return ""; }
+
+      public void Def () { }
+      public void Def (int i) { }
     }
   }
 }
