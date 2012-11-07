@@ -28,10 +28,18 @@ namespace TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class TypeInitializationTest : TypeAssemblerIntegrationTestBase
   {
+    public override void TearDown ()
+    {
+      base.TearDown();
+
+      DomainType.StaticField = null;
+    }
+
     [Test]
-    public void Standard ()
+    public void ExistingField ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.StaticField);
+      Assert.That (DomainType.StaticField, Is.Null);
 
       var type = AssembleType<DomainType> (
           mutableType =>
@@ -44,9 +52,38 @@ namespace TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableType.TypeInitializations, Is.EqualTo (new[] { initializationExpression }));
           });
 
-      Assert.That (DomainType.StaticField, Is.Null);
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
       Assert.That (DomainType.StaticField, Is.EqualTo ("abc"));
+    }
+
+    [Test]
+    public void AddedField ()
+    {
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var field = mutableType.AddField ("s_field", typeof (string), FieldAttributes.Public | FieldAttributes.Static);
+            var initializationExpression = Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc"));
+            mutableType.AddTypeInitialization (initializationExpression);
+          });
+
+      RuntimeHelpers.RunClassConstructor (type.TypeHandle);
+      var fieldValue = type.GetField ("s_field").GetValue (null);
+      Assert.That (fieldValue, Is.EqualTo ("abc"));
+    }
+
+    [Test]
+    public void MultipleParticipants ()
+    {
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.StaticField);
+      var fieldExpr = Expression.Field (null, field);
+
+      var type = AssembleType<DomainType> (
+          mt => mt.AddTypeInitialization (Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("abc")))),
+          mt => mt.AddTypeInitialization (Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("def")))));
+
+      RuntimeHelpers.RunClassConstructor (type.TypeHandle);
+      Assert.That (DomainType.StaticField, Is.EqualTo ("abcdef"));
     }
 
     [Test]
