@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
 
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations);
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations).ConvertToCollection();
+      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations);
 
       var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
