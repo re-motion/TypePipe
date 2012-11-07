@@ -26,15 +26,15 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Provides functionality for assembling a type by orchestrating <see cref="ITypePipeParticipant"/> instances and an instance of 
+  /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
   /// <see cref="ITypeModifier"/>.
   /// </summary>
   public class TypeAssembler
   {
-    private readonly ReadOnlyCollection<ITypePipeParticipant> _participants;
+    private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly ITypeModifier _typeModifier;
 
-    public TypeAssembler (IEnumerable<ITypePipeParticipant> participants, ITypeModifier typeModifier)
+    public TypeAssembler (IEnumerable<IParticipant> participants, ITypeModifier typeModifier)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("typeModifier", typeModifier);
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe
       _typeModifier = typeModifier;
     }
 
-    public ReadOnlyCollection<ITypePipeParticipant> Participants
+    public ReadOnlyCollection<IParticipant> Participants
     {
       get { return _participants; }
     }

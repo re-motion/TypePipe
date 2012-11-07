@@ -292,7 +292,7 @@
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
-    <Compile Include="ITypePipeParticipant.cs" />
+    <Compile Include="IParticipant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembler.cs" />
   </ItemGroup>

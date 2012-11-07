@@ -21,7 +21,7 @@ using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
-  public class ParticipantStub : ITypePipeParticipant
+  public class ParticipantStub : IParticipant
   {
     private readonly Action<MutableType> _typeModification;
 

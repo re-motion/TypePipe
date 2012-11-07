@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void Initialization ()
     {
-      var participants = new[] { MockRepository.GenerateStub<ITypePipeParticipant>() };
+      var participants = new[] { MockRepository.GenerateStub<IParticipant>() };
       var codeGenerator = MockRepository.GenerateStub<ITypeModifier>();
 
       var typeAssembler = new TypeAssembler (participants.AsOneTime(), codeGenerator);
@@ -45,8 +45,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void AssemblyType ()
     {
       var mockRepository = new MockRepository();
-      var participantMock1 = mockRepository.StrictMock<ITypePipeParticipant>();
-      var participantMock2 = mockRepository.StrictMock<ITypePipeParticipant>();
+      var participantMock1 = mockRepository.StrictMock<IParticipant>();
+      var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var participants = new[] { participantMock1, participantMock2 };
 
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();

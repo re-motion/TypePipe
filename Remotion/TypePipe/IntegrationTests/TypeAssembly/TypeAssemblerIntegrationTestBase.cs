@@ -134,7 +134,7 @@ namespace TypePipe.IntegrationTests.TypeAssembly
     private Type AssembleType (Type originalType, string testName, Action<MutableType>[] participantActions)
     {
       var participants = participantActions.Select (a => new ParticipantStub (a)).AsOneTime();
-      var typeAssembler = new TypeAssembler (participants.Cast<ITypePipeParticipant>(), CreateReflectionEmitTypeModifier (testName));
+      var typeAssembler = new TypeAssembler (participants.Cast<IParticipant>(), CreateReflectionEmitTypeModifier (testName));
       var assembledType = typeAssembler.AssembleType (originalType);
 
       return assembledType;
