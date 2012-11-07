@@ -26,17 +26,17 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public class DelegateBasedExpressionVisitor : ExpressionVisitor
   {
-    private readonly Func<Expression, Expression> _replacingExpressionDelegate;
+    private readonly Func<Expression, Expression> _expressionVisitorDelegate;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DelegateBasedExpressionVisitor" /> class.
     /// </summary>
-    /// <param name="replacingExpressionDelegate">The expression delegate.</param>
-    public DelegateBasedExpressionVisitor (Func<Expression, Expression> replacingExpressionDelegate)
+    /// <param name="expressionVisitorDelegate">The expression delegate.</param>
+    public DelegateBasedExpressionVisitor (Func<Expression, Expression> expressionVisitorDelegate)
     {
-      ArgumentUtility.CheckNotNull ("replacingExpressionDelegate", replacingExpressionDelegate);
+      ArgumentUtility.CheckNotNull ("expressionVisitorDelegate", expressionVisitorDelegate);
 
-      _replacingExpressionDelegate = replacingExpressionDelegate;
+      _expressionVisitorDelegate = expressionVisitorDelegate;
     }
 
     public override Expression Visit (Expression node)
@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.Expressions
       ArgumentUtility.CheckNotNull ("node", node);
 
       var newNode = base.Visit (node);
-      return _replacingExpressionDelegate (newNode);
+      return _expressionVisitorDelegate (newNode);
     }
   }
 }

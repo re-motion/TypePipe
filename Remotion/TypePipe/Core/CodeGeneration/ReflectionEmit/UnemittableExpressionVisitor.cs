@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var body = Visit (node.Body);
 
       var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
-      Func<Expression, Expression> lambdaFixer = expr =>
+      Func<Expression, Expression> lambdaPreparer = expr =>
       {
         if (expr is ThisExpression)
           return thisClosureVariable;
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return expr;
       };
 
-      var newBody = body.Replace (lambdaFixer);
+      var newBody = body.InlinedVisit (lambdaPreparer);
       if (newBody == body)
         return node;
 
