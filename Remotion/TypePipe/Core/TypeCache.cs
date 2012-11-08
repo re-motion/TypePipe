@@ -15,23 +15,30 @@
 // under the License.
 // 
 
-using System.Runtime.CompilerServices;
+using System;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.UnitTests
+namespace Remotion.TypePipe
 {
-  public class IdentityCacheKey : CacheKey
+  /// <summary>
+  /// Retrieves the generated type for the requested type from the cache or delegates to the contained <see cref="ITypeAssembler"/> instance.
+  /// </summary>
+  public class TypeCache : ITypeCache
   {
-    public override bool Equals (object other)
-    {
-      ArgumentUtility.CheckNotNull ("other", other);
+    private readonly ITypeAssembler _typeAssembler;
 
-      return this == other;
+    public TypeCache (ITypeAssembler typeAssembler)
+    {
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+
+      _typeAssembler = typeAssembler;
     }
 
-    public override int GetHashCode ()
+    public Type GetOrGenerate (Type requestedType)
     {
-      return RuntimeHelpers.GetHashCode (this);
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return null;
     }
   }
 }

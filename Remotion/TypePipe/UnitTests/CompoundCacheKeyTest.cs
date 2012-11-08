@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests
     {
       var key1 = CreateCompoundCacheKey (_type, "a", "b");
       var key2 = CreateCompoundCacheKey (_type, "a", "c");
-      var key3 = CreateCompoundCacheKey (_type, "b", "a");
+      var key3 = CreateCompoundCacheKey (_type, "b", "a"); // Order matters!
 
       Assert.That (key1, Is.Not.EqualTo (key2));
       Assert.That (key1, Is.Not.EqualTo (key3));

@@ -87,7 +87,6 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
-    <Compile Include="IdentityCacheKey.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />
@@ -159,6 +158,7 @@
     <Compile Include="PipelineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
+    <Compile Include="TypeCacheTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

@@ -25,8 +25,9 @@ namespace Remotion.TypePipe.UnitTests
   [TestFixture]
   public class PipelineTest
   {
-    private Type _requestedType;
-    private Type _generatedType;
+    private readonly Type _requestedType = typeof (RequestedType);
+    private readonly Type _generatedType = typeof (GeneratedType);
+
     private ITypeCache _typeCacheMock;
 
     private Pipeline _pipeline;
@@ -34,8 +35,6 @@ namespace Remotion.TypePipe.UnitTests
     [SetUp]
     public void SetUp ()
     {
-      _requestedType = typeof (RequestedType);
-      _generatedType = typeof (GeneratedType);
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _typeCacheMock.Expect (mock => mock.GetOrGenerate (_requestedType)).Return (_generatedType).Repeat.Any();
 

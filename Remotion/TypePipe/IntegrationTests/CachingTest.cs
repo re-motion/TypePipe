@@ -26,20 +26,13 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class CachingTest
   {
-    private Type _type1;
-    private Type _type2;
-
-    [SetUp]
-    public void SetUp ()
-    {
-      _type1 = typeof (DomainType1);
-      _type2 = typeof (DomainType2);
-    }
+    private readonly Type _type1 = typeof (DomainType1);
+    private readonly Type _type2 = typeof (DomainType2);
 
     [Test]
     public void SameType_EqualCacheKey ()
     {
-      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), t => new DummyCacheKey ("b"));
+      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), t => new ContentCacheKey ("b"));
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -50,7 +43,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void SameType_NullCacheKeyProvider ()
     {
-      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), null);
+      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), null);
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -62,8 +55,8 @@ namespace TypePipe.IntegrationTests
     public void SameType_NonEqualCacheKey ()
     {
       var count = 1;
-      Func<Type, CacheKey> cacheKeyProviders = t => new DummyCacheKey ("b" + count++);
-      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), cacheKeyProviders);
+      Func<Type, CacheKey> cacheKeyProviders = t => new ContentCacheKey ("b" + count++);
+      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), cacheKeyProviders);
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -74,7 +67,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void DifferentTypes_EqualCacheKey ()
     {
-      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), t => new DummyCacheKey ("b"));
+      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), t => new ContentCacheKey ("b"));
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type2);
@@ -106,19 +99,19 @@ namespace TypePipe.IntegrationTests
       return PipelineObjectMother.CreatePipeline ( /*participantStubs*/);
     }
 
-    private class DummyCacheKey : CacheKey
+    private class ContentCacheKey : CacheKey
     {
       private readonly string _backingString;
 
-      public DummyCacheKey (string backingString)
+      public ContentCacheKey (string backingString)
       {
         _backingString = backingString;
       }
 
       public override bool Equals (object other)
       {
-        Assertion.IsTrue (other is DummyCacheKey);
-        return _backingString.Equals (((DummyCacheKey) other)._backingString);
+        Assertion.IsTrue (other is ContentCacheKey);
+        return _backingString.Equals (((ContentCacheKey) other)._backingString);
       }
 
       public override int GetHashCode ()

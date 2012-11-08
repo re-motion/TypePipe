@@ -31,7 +31,7 @@ namespace Remotion.TypePipe
   /// Can also calculate a <see cref="CompoundCacheKey"/> that contains the individual <see cref="CacheKey"/>s from the 
   /// <see cref="ICacheKeyProvider"/>s which in turn are retrieved from the participants.
   /// </summary>
-  public class TypeAssembler
+  public class TypeAssembler : ITypeAssembler
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly ITypeModifier _typeModifier;
