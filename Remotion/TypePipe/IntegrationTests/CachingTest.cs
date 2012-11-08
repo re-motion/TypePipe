@@ -26,45 +26,58 @@ namespace TypePipe.IntegrationTests
   [TestFixture]
   public class CachingTest
   {
-    private Type _type;
+    private Type _type1;
+    private Type _type2;
 
     [SetUp]
     public void SetUp ()
     {
-      _type = typeof (object);
+      _type1 = typeof (DomainType1);
+      _type2 = typeof (DomainType2);
     }
 
     [Test]
-    public void CachesGeneratedType_EqualKey ()
+    public void SameType_EqualCacheKey ()
     {
       var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), t => new DummyCacheKey ("b"));
 
-      var instance1 = pipeline.CreateInstance (_type);
-      var instance2 = pipeline.CreateInstance (_type);
+      var instance1 = pipeline.CreateInstance (_type1);
+      var instance2 = pipeline.CreateInstance (_type1);
 
       Assert.That (instance1.GetType(), Is.SameAs (instance2.GetType()));
     }
 
     [Test]
-    public void CachesGeneratedType_NullCacheKeyProvider ()
+    public void SameType_NullCacheKeyProvider ()
     {
-      var pipeline = CreatePipeline (t => new DummyCacheKey("a"), null);
+      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), null);
 
-      var instance1 = pipeline.CreateInstance (_type);
-      var instance2 = pipeline.CreateInstance (_type);
+      var instance1 = pipeline.CreateInstance (_type1);
+      var instance2 = pipeline.CreateInstance (_type1);
 
       Assert.That (instance1.GetType(), Is.SameAs (instance2.GetType()));
     }
 
     [Test]
-    public void DoesReuseType_NonEqualKey ()
+    public void SameType_NonEqualCacheKey ()
     {
       var count = 1;
       Func<Type, CacheKey> cacheKeyProviders = t => new DummyCacheKey ("b" + count++);
-      var pipeline = CreatePipeline (t => new DummyCacheKey("a"), cacheKeyProviders);
+      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), cacheKeyProviders);
 
-      var instance1 = pipeline.CreateInstance (_type);
-      var instance2 = pipeline.CreateInstance (_type);
+      var instance1 = pipeline.CreateInstance (_type1);
+      var instance2 = pipeline.CreateInstance (_type1);
+
+      Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
+    }
+
+    [Test]
+    public void DifferentTypes_EqualCacheKey ()
+    {
+      var pipeline = CreatePipeline (t => new DummyCacheKey ("a"), t => new DummyCacheKey ("b"));
+
+      var instance1 = pipeline.CreateInstance (_type1);
+      var instance2 = pipeline.CreateInstance (_type2);
 
       Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
     }
@@ -114,5 +127,8 @@ namespace TypePipe.IntegrationTests
         return _backingString.GetHashCode();
       }
     }
+
+    public class DomainType1 {}
+    public class DomainType2 {}
   }
 }
