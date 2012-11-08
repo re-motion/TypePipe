@@ -28,6 +28,8 @@ namespace Remotion.TypePipe
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
   /// <see cref="ITypeModifier"/>.
+  /// Can also calculate a <see cref="CompoundCacheKey"/> that contains the individual <see cref="CacheKey"/>s from the 
+  /// <see cref="ICacheKeyProvider"/>s which in turn are retrieved from the participants.
   /// </summary>
   public class TypeAssembler
   {
