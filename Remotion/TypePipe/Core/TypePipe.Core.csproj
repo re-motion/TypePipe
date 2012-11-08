@@ -118,6 +118,7 @@
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
     <Compile Include="CacheKey.cs" />
     <Compile Include="ICacheKeyProvider.cs" />
+    <Compile Include="ITypeCache.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
