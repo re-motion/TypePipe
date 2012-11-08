@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.UnitTests
       _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType1)).Return (_generatedType1);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType1)).Return (key2);
 
-      var result1 = _cache.GetOrGenerate (_requestedType1);
-      var result2 = _cache.GetOrGenerate (_requestedType1);
+      var result1 = _cache.GetOrCreate (_requestedType1);
+      var result2 = _cache.GetOrCreate (_requestedType1);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result1, Is.SameAs (result2));
@@ -69,8 +69,8 @@ namespace Remotion.TypePipe.UnitTests
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType1)).Return (key2);
       _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType1)).Return (_generatedType2);
 
-      var result1 = _cache.GetOrGenerate (_requestedType1);
-      var result2 = _cache.GetOrGenerate (_requestedType1);
+      var result1 = _cache.GetOrCreate (_requestedType1);
+      var result2 = _cache.GetOrCreate (_requestedType1);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result1, Is.Not.SameAs (result2));
@@ -88,8 +88,8 @@ namespace Remotion.TypePipe.UnitTests
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType2)).Return (key2);
       _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType2)).Return (_generatedType2);
 
-      var result1 = _cache.GetOrGenerate (_requestedType1);
-      var result2 = _cache.GetOrGenerate (_requestedType1);
+      var result1 = _cache.GetOrCreate (_requestedType1);
+      var result2 = _cache.GetOrCreate (_requestedType1);
 
       _typeAssemblerMock.VerifyAllExpectations ();
       Assert.That (result1, Is.Not.SameAs (result2));

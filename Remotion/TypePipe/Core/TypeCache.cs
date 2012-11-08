@@ -34,7 +34,7 @@ namespace Remotion.TypePipe
       _typeAssembler = typeAssembler;
     }
 
-    public Type GetOrGenerate (Type requestedType)
+    public Type GetOrCreate (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 

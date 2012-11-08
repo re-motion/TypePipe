@@ -24,6 +24,6 @@ namespace Remotion.TypePipe
   /// </summary>
   public interface ITypeCache
   {
-    Type GetOrGenerate (Type requestedType);
+    Type GetOrCreate (Type requestedType);
   }
 }

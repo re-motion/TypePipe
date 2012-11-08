@@ -28,7 +28,7 @@ namespace Remotion.TypePipe
   /// </summary>
   /// <remarks>
   /// This interface must be implemented if the generated types cannot be cached unconditionally.
-  /// If the generated types can be cached unconditionally <see cref="IParticipant.GetCacheKeyProvider"/> should return <see langword="null"/>.
+  /// If the generated types can be cached unconditionally <see cref="IParticipant.PartialCacheKeyProvider"/> should return <see langword="null"/>.
   /// </remarks>
   public interface ICacheKeyProvider
   {

@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       var participantWithCacheProviderStub = MockRepository.GenerateStub<IParticipant>();
       var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      participantWithCacheProviderStub.Stub (stub => stub.GetCacheKeyProvider()).Return (cachKeyProviderStub);
+      participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { MockRepository.GenerateStub<IParticipant>(), participantWithCacheProviderStub };
       var typeModifier = MockRepository.GenerateStub<ITypeModifier>();
@@ -60,8 +60,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       using (mockRepository.Ordered())
       {
-        participantMock1.Expect (mock => mock.GetCacheKeyProvider());
-        participantMock2.Expect (mock => mock.GetCacheKeyProvider());
+        participantMock1.Expect (mock => mock.PartialCacheKeyProvider);
+        participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         participantMock1
             .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == requestedType)))
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
       var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
 
-      participantMock.Expect (mock => mock.GetCacheKeyProvider()).Return (cacheKeyProviderMock);
+      participantMock.Expect (mock => mock.PartialCacheKeyProvider).Return (cacheKeyProviderMock);
       cacheKeyProviderMock.Expect (mock => mock.GetCacheKey (requestedType)).Return (cacheKey);
 
       return participantMock;

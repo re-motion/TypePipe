@@ -45,7 +45,7 @@ namespace Remotion.TypePipe
 
       _participants = participants.ToList().AsReadOnly();
       _typeModifier = typeModifier;
-      _cacheKeyProviders = _participants.Select (p => p.GetCacheKeyProvider()).Where (ckp => ckp != null).ToArray();
+      _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
 
     public ReadOnlyCollection<IParticipant> Participants

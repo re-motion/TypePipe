@@ -32,14 +32,14 @@ namespace Remotion.TypePipe
   /// In addition, it contains all modifications applied by preceding participants in the pipeline.
   /// </para>
   /// <para>
-  /// A participant must also provide an instance of <see cref="ICacheKeyProvider"/> if generated types cannot be cached unconditionally, i.e.,
-  /// the modifications depend solely on the requested type.
-  /// If generated types can be cached unconditionally, the participant should return <see langword="null"/> from <see cref="GetCacheKeyProvider"/>.
+  /// A participant must also provide a <see cref="ICacheKeyProvider"/> if generated types cannot be cached unconditionally, i.e.,
+  /// the modifications depend not solely on the requested type.
+  /// If generated types can be cached unconditionally, <see cref="PartialCacheKeyProvider"/> should return <see langword="null"/>.
   /// </para>
   /// </remarks>
   public interface IParticipant
   {
-    ICacheKeyProvider GetCacheKeyProvider ();
+    ICacheKeyProvider PartialCacheKeyProvider { get; }
 
     void ModifyType (MutableType mutableType);
   }

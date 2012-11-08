@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using Remotion.Utilities;
 
@@ -73,7 +74,8 @@ namespace Remotion.TypePipe
     public bool Equals (CompoundCacheKey other)
     {
       ArgumentUtility.CheckNotNull ("other", other);
-      Assertion.IsTrue (_cacheKeys.Length == other._cacheKeys.Length);
+      // Use Debug.Assert because it will be compiled away.
+      Debug.Assert (_cacheKeys.Length == other._cacheKeys.Length);
 
       if (_requestedType != other._requestedType)
         return false;
