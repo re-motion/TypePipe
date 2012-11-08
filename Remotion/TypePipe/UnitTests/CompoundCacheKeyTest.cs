@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests
 
     private CompoundCacheKey CreateCompoundCacheKey (Type requestedType, params string[] cacheKeyContents)
     {
-      var cacheKeys = cacheKeyContents.Select (k => new DummyCacheKey (k)).Cast<CacheKey>().ToArray();
+      var cacheKeys = cacheKeyContents.Select (k => new ContentCacheKey (k)).Cast<CacheKey>().ToArray();
       return new CompoundCacheKey (requestedType, cacheKeys);
     }
 

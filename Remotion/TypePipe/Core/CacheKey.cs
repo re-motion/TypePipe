@@ -24,6 +24,11 @@ namespace Remotion.TypePipe
   /// It should include the <see cref="IParticipant"/> configuation and other data that might influence the modifications specified by a participant.
   /// However, implementations should not encode the requested type itself, as this is already handled by the pipeline.
   /// </summary>
+  /// <remarks>
+  /// Implementation notes:
+  /// <see cref="Equals"/> and <see cref="GetHashCode"/> must return the same result for invocations with the same input.
+  /// This can be easily achieved by making the implementation immutable.
+  /// </remarks>
   public abstract class CacheKey
   {
     public abstract override bool Equals (object other);

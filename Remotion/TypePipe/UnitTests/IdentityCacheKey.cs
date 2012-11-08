@@ -15,29 +15,23 @@
 // under the License.
 // 
 
-using System;
+using System.Runtime.CompilerServices;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests
 {
-  public class DummyCacheKey : CacheKey
+  public class IdentityCacheKey : CacheKey
   {
-    private readonly string _backingString;
-
-    public DummyCacheKey (string backingString)
-    {
-      _backingString = backingString;
-    }
-
     public override bool Equals (object other)
     {
-      Assertion.IsTrue (other is DummyCacheKey);
-      return _backingString.Equals (((DummyCacheKey) other)._backingString);
+      ArgumentUtility.CheckNotNull ("other", other);
+
+      return this == other;
     }
 
     public override int GetHashCode ()
     {
-      return _backingString.GetHashCode();
+      return RuntimeHelpers.GetHashCode (this);
     }
   }
 }

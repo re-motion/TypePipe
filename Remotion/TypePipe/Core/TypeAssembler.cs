@@ -33,6 +33,8 @@ namespace Remotion.TypePipe
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly ITypeModifier _typeModifier;
+    // Array for performance reasons.
+    private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
     public TypeAssembler (IEnumerable<IParticipant> participants, ITypeModifier typeModifier)
     {
@@ -41,6 +43,7 @@ namespace Remotion.TypePipe
 
       _participants = participants.ToList().AsReadOnly();
       _typeModifier = typeModifier;
+      _cacheKeyProviders = _participants.Select (p => p.GetCacheKeyProvider()).Where (ckp => ckp != null).ToArray();
     }
 
     public ReadOnlyCollection<IParticipant> Participants
@@ -53,6 +56,11 @@ namespace Remotion.TypePipe
       get { return _typeModifier; }
     }
 
+    public ReadOnlyCollection<ICacheKeyProvider> CacheKeyProviders
+    {
+      get { return _cacheKeyProviders.ToList().AsReadOnly(); }
+    }
+
     public Type AssembleType (Type requestedType)
     {
       var mutableType = CreateMutableType (requestedType);
@@ -61,6 +69,18 @@ namespace Remotion.TypePipe
         participant.ModifyType (mutableType);
 
       return _typeModifier.ApplyModifications (mutableType);
+    }
+
+    public CompoundCacheKey GetCompoundCacheKey (Type requestedType)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      // No LINQ for performance reasons.
+      var cacheKeys = new CacheKey[_cacheKeyProviders.Length];
+      for (int i = 0; i < cacheKeys.Length; ++i)
+        cacheKeys[i] = _cacheKeyProviders[i].GetCacheKey (requestedType);
+
+      return new CompoundCacheKey (requestedType, cacheKeys);
     }
 
     private MutableType CreateMutableType (Type requestedType)

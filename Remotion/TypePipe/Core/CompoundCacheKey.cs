@@ -16,20 +16,26 @@
 // 
 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// A compound cache key consisting of the requested type and the individual cache keys provided by the <see cref="IParticipant"/> via the
-  /// <see cref="ICacheKeyProvider"/> interface.
+  /// A compound cache key consisting of the requested type and the individual <see cref="CacheKey"/> provided by the <see cref="IParticipant"/>
+  /// via the <see cref="ICacheKeyProvider"/> interface.
   /// This class is an implementation detail of the pipeline caching facilities.
   /// </summary>
   /// <remarks>
   /// Note that this class makes the following assumptions.
   /// <list type="bullet">
-  ///   <item>The length of the <see cref="_cacheKeys"/> array is assumed to be equal when comparing instances.</item>
+  ///   <item>
+  ///     No defensive copy is created for the <see cref="CacheKey"/> array passed to the <see cref="CompoundCacheKey"/> constructor.
+  ///     The array must not be modified after it is passed to <see cref="CompoundCacheKey(Type, CacheKey[])"/>.
+  ///   </item>
   ///   <item>The hash code is pre-computed, therefore the individual cache keys must be immutable.</item>
+  ///   <item>The length of the <see cref="_cacheKeys"/> array is assumed to be equal when comparing instances.</item>
   /// </list>
   /// </remarks>
   public class CompoundCacheKey : IEquatable<CompoundCacheKey>
@@ -41,9 +47,10 @@ namespace Remotion.TypePipe
     public CompoundCacheKey (Type requestedType, CacheKey[] cacheKeys)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNullOrEmpty ("cacheKeys", cacheKeys);
+      ArgumentUtility.CheckNotNull ("cacheKeys", cacheKeys);
 
       _requestedType = requestedType;
+      // No defensive copy for performance reasons.
       _cacheKeys = cacheKeys;
 
       // ReSharper disable CoVariantArrayConversion
@@ -52,7 +59,17 @@ namespace Remotion.TypePipe
       _preComputedHashCode = EqualityUtility.GetRotatedHashCode (_requestedType, hashCodePart);
     }
 
-    // ReSharper disable LoopCanBeConvertedToQuery (reason: performance)
+    public Type RequestedType
+    {
+      get { return _requestedType; }
+    }
+
+    public ReadOnlyCollection<CacheKey> CacheKeys
+    {
+      get { return _cacheKeys.ToList().AsReadOnly(); }
+    }
+
+    // ReSharper disable LoopCanBeConvertedToQuery (No LINQ for performance reasons.)
     public bool Equals (CompoundCacheKey other)
     {
       ArgumentUtility.CheckNotNull ("other", other);
