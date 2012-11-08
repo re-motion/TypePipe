@@ -69,6 +69,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecoratorTest.cs" />
+    <Compile Include="CompoundCacheKeyTest.cs" />
+    <Compile Include="DummyCacheKey.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitorTest.cs" />
     <Compile Include="Expressions\ExpressionExtensionsTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
