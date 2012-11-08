@@ -67,7 +67,6 @@
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataTest.cs" />
     <Compile Include="TypeAssembly\ExplicitOverridesTest.cs" />
     <Compile Include="TypeAssembly\ModifyBaseMethodTest.cs" />
-    <Compile Include="ParticipantStub.cs" />
     <Compile Include="TypeAssembly\ReflectionWorkaroundsTest.cs" />
     <Compile Include="TypeAssembly\ShadowingTest.cs" />
     <Compile Include="TypeAssembly\ExpressionHelper.cs" />

@@ -33,6 +33,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using Remotion.Development.UnitTesting.Enumerables;
+using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests.TypeAssembly
 {
@@ -133,11 +134,19 @@ namespace TypePipe.IntegrationTests.TypeAssembly
 
     private Type AssembleType (Type originalType, string testName, Action<MutableType>[] participantActions)
     {
-      var participants = participantActions.Select (a => new ParticipantStub (a)).AsOneTime();
-      var typeAssembler = new TypeAssembler (participants.Cast<IParticipant>(), CreateReflectionEmitTypeModifier (testName));
+      var participants = participantActions.Select (CreateParticipant).AsOneTime();
+      var typeAssembler = new TypeAssembler (participants, CreateReflectionEmitTypeModifier (testName));
       var assembledType = typeAssembler.AssembleType (originalType);
 
       return assembledType;
+    }
+
+    private IParticipant CreateParticipant (Action<MutableType> typeModification)
+    {
+      var participantStub = MockRepository.GenerateStub<IParticipant>();
+      participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
+
+      return participantStub;
     }
 
     private ITypeModifier CreateReflectionEmitTypeModifier (string testName)
