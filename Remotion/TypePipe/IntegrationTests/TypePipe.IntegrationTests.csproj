@@ -54,6 +54,8 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CachingTest.cs" />
+    <Compile Include="ObjectCreationTest.cs" />
+    <Compile Include="PipelineObjectMother.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />

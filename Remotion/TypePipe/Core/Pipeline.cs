@@ -16,14 +16,40 @@
 // 
 
 using System;
+using Remotion.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe
 {
   public class Pipeline
   {
+    public T CreateInstance<T> ()
+        where T : class
+    {
+      return (T) CreateInstance (typeof (T));
+    }
+
+    public T CreateInstance<T> (ParamList constructorArguments)
+        where T : class
+    {
+      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
+
+      return (T) CreateInstance (typeof (T), constructorArguments);
+    }
+
     public object CreateInstance (Type requestedType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return CreateInstance (requestedType, ParamList.Empty);
+    }
+
+    public object CreateInstance (Type requestedType, ParamList constructorArguments)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
+
+      throw new NotImplementedException("TODO 5163");
     }
   }
 }

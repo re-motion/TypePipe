@@ -95,7 +95,7 @@ namespace TypePipe.IntegrationTests
       //      return stub;
       //    });
 
-      //var participants = cacheKeyProviderStubs.Select (
+      //var participantStubs = cacheKeyProviderStubs.Select (
       //    cacheKeyProvider =>
       //    {
       //      var stub = MockRepository.GenerateStub<IParticipant>();
@@ -103,8 +103,7 @@ namespace TypePipe.IntegrationTests
       //      return stub;
       //    });
 
-      return null;
-      //return new Pipeline (participants);
+      return PipelineObjectMother.CreatePipeline ( /*participantStubs*/);
     }
 
     private class DummyCacheKey : CacheKey
