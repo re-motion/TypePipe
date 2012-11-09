@@ -23,19 +23,19 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
-    protected Pipeline CreateObjectFactory (params IParticipant[] participants)
+    protected ObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
       return CreateObjectFactory (participants, 1);
     }
 
-    protected Pipeline CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
+    protected ObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       var typeModifier = CreateReflectionEmitTypeModifier (testName);
       var typeAssembler = new TypeAssembler (participants, typeModifier);
       var typeCache = new TypeCache (typeAssembler);
 
-      return new Pipeline (typeCache);
+      return new ObjectFactory (typeCache);
     }
   }
 }

@@ -23,14 +23,14 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests
 {
   [TestFixture]
-  public class PipelineTest
+  public class ObjectFactoryTest
   {
     private readonly Type _requestedType = typeof (RequestedType);
     private readonly Type _generatedType = typeof (GeneratedType);
 
     private ITypeCache _typeCacheMock;
 
-    private Pipeline _pipeline;
+    private ObjectFactory _factory;
 
     [SetUp]
     public void SetUp ()
@@ -38,14 +38,14 @@ namespace Remotion.TypePipe.UnitTests
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _typeCacheMock.Expect (mock => mock.GetOrCreate (_requestedType)).Return (_generatedType).Repeat.Any();
 
-      _pipeline = new Pipeline (_typeCacheMock);
+      _factory = new ObjectFactory (_typeCacheMock);
     }
 
     [Test]
     public void CreateInstance_NoConstructorArguments ()
     {
-      var instance1 = (GeneratedType) _pipeline.CreateInstance (_requestedType);
-      var instance2 = (GeneratedType) _pipeline.CreateInstance<RequestedType>();
+      var instance1 = (GeneratedType) _factory.CreateInstance (_requestedType);
+      var instance2 = (GeneratedType) _factory.CreateInstance<RequestedType>();
 
       Assert.That (instance1.String, Is.EqualTo ("default .ctor"));
       Assert.That (instance2.String, Is.EqualTo ("default .ctor"));
@@ -54,8 +54,8 @@ namespace Remotion.TypePipe.UnitTests
     [Test]
     public void CreateInstance_ConstructorArguments ()
     {
-      var instance1 = (GeneratedType) _pipeline.CreateInstance (_requestedType, ParamList.Create ("abc"));
-      var instance2 = (GeneratedType) _pipeline.CreateInstance<RequestedType> (ParamList.Create ("def"));
+      var instance1 = (GeneratedType) _factory.CreateInstance (_requestedType, ParamList.Create ("abc"));
+      var instance2 = (GeneratedType) _factory.CreateInstance<RequestedType> (ParamList.Create ("def"));
 
       Assert.That (instance1.String, Is.EqualTo ("abc"));
       Assert.That (instance2.String, Is.EqualTo ("def"));
