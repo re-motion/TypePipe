@@ -56,7 +56,7 @@ namespace Remotion.TypePipe
 
       var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType);
 
-      // Avoid creating the lambda closure for performance reasons.
+      // Avoid creation of lambda closure for performance reasons.
       IConstructorLookupInfo constructorLookup;
       if (_constructors.TryGetValue (cacheKey, out constructorLookup))
         return constructorLookup;
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe
 
     private Type GetOrCreateType (Type requestedType, object[] cacheKey)
     {
-      // Avoid creating the lambda closure for performance reasons.
+      // Avoid creation of lambda closure for performance reasons.
       Type generatedType;
       if (_types.TryGetValue (cacheKey, out generatedType))
         return generatedType;
