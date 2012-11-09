@@ -16,14 +16,15 @@
 // 
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe;
+using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5163")]
   [TestFixture]
-  public class CachingTest
+  public class CachingTest : ObjectFactoryIntegrationTestBase
   {
     private readonly Type _type1 = typeof (DomainType1);
     private readonly Type _type2 = typeof (DomainType2);
@@ -31,7 +32,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void SameType_EqualCacheKey ()
     {
-      var pipeline = CreatePipeline (t => "a", t => "b");
+      var pipeline = CreateObjectFactory (t => "a", t => "b");
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -42,7 +43,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void SameType_NullCacheKeyProvider ()
     {
-      var pipeline = CreatePipeline (t => "a", null);
+      var pipeline = CreateObjectFactory (t => "a", null);
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -54,7 +55,7 @@ namespace TypePipe.IntegrationTests
     public void SameType_NonEqualCacheKey ()
     {
       var count = 1;
-      var pipeline = CreatePipeline (t => "a", t => "b" + count++);
+      var pipeline = CreateObjectFactory (t => "a", t => "b" + count++);
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -65,36 +66,36 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void DifferentTypes_EqualCacheKey ()
     {
-      var pipeline = CreatePipeline (t => "a", t => "b");
+      var factory = CreateObjectFactory (t => "a", t => "b");
 
-      var instance1 = pipeline.CreateInstance (_type1);
-      var instance2 = pipeline.CreateInstance (_type2);
+      var instance1 = factory.CreateInstance (_type1);
+      var instance2 = factory.CreateInstance (_type2);
 
       Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
     }
 
-    private Pipeline CreatePipeline (params Func<Type, object>[] cacheKeyProviders)
+    private Pipeline CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
     {
-      //var cacheKeyProviderStubs = cacheKeyProviders.Select (
-      //    providerFunc =>
-      //    {
-      //      if (providerFunc == null)
-      //        return null;
+      var cacheKeyProviderStubs = cacheKeyProviders.Select (
+          providerFunc =>
+          {
+            if (providerFunc == null)
+              return null;
 
-      //      var stub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      //      stub.Stub (x => x.GetCacheKey (Arg<Type>.Is.Anything)).Do (providerFunc);
-      //      return stub;
-      //    });
+            var stub = MockRepository.GenerateStub<ICacheKeyProvider>();
+            stub.Stub (x => x.GetCacheKey (Arg<Type>.Is.Anything)).Do (providerFunc);
+            return stub;
+          });
 
-      //var participantStubs = cacheKeyProviderStubs.Select (
-      //    cacheKeyProvider =>
-      //    {
-      //      var stub = MockRepository.GenerateStub<IParticipant>();
-      //      stub.Stub (x => x.GetCacheKeyProvider()).Return (cacheKeyProvider);
-      //      return stub;
-      //    });
+      var participantStubs = cacheKeyProviderStubs.Select (
+          cacheKeyProvider =>
+          {
+            var stub = MockRepository.GenerateStub<IParticipant>();
+            stub.Stub (x => x.PartialCacheKeyProvider).Return (cacheKeyProvider);
+            return stub;
+          });
 
-      return PipelineObjectMother.CreatePipeline ( /*participantStubs*/);
+      return CreateObjectFactory (participantStubs, stackFramesToSkip: 1);
     }
 
     public class DomainType1 {}

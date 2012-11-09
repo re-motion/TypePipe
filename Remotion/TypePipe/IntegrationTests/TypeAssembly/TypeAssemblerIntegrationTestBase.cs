@@ -14,94 +14,39 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Diagnostics;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.Utilities;
-using Remotion.Development.UnitTesting.Enumerables;
 using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests.TypeAssembly
 {
-  public abstract class TypeAssemblerIntegrationTestBase
+  public abstract class TypeAssemblerIntegrationTestBase : IntegrationTestBase
   {
     private const BindingFlags c_allDeclared =
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
-    private AssemblyBuilder _assemblyBuilder;
-    private bool _shouldDeleteGeneratedFiles;
-    private string _generatedFileName;
-
-    [SetUp]
-    public virtual void SetUp ()
-    {
-      _shouldDeleteGeneratedFiles = true;
-      _assemblyBuilder = null;
-      _generatedFileName = null;
-    }
-
-    [TearDown]
-    public virtual void TearDown ()
-    {
-      if (_assemblyBuilder == null)
-        return;
-
-      Assertion.IsNotNull (_generatedFileName);
-      var assemblyPath = Path.Combine (GeneratedFileDirectory, _generatedFileName);
-
-      try
-      {
-        _assemblyBuilder.Save (_generatedFileName);
-
-        PEVerifier.CreateDefault ().VerifyPEFile (assemblyPath);
-
-        if (_shouldDeleteGeneratedFiles)
-        {
-          File.Delete (assemblyPath);
-          File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
-        }
-      }
-      catch
-      {
-        if (TestContext.CurrentContext.Result.Status != TestStatus.Failed)
-          throw;
-        
-        // Else: Swallow exception if test already had failed state in order to avoid overwriting any exceptions.
-      }
-    }
-
-    private string GeneratedFileDirectory
-    {
-      get { return SetupFixture.GeneratedFileDirectory; }
-    }
-
-    protected void SkipDeletion ()
-    {
-      _shouldDeleteGeneratedFiles = false;
-    }
-
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
-      return AssembleType (typeof (T), GetNameForThisTest (1), participantActions);
+      return AssembleType (typeof (T), participantActions, 1);
     }
 
-    protected Type AssembleType (Type originalType, params Action<MutableType>[] participantActions)
+    protected Type AssembleType (Type requestedType, params Action<MutableType>[] participantActions)
     {
-      return AssembleType (originalType, GetNameForThisTest (1), participantActions);
+      return AssembleType (requestedType, participantActions, 1);
+    }
+
+    protected Type AssembleType (Type requestedType, IEnumerable<Action<MutableType>> participantActions, int stackFramesToSkip)
+    {
+      var testName = GetNameForThisTest (stackFramesToSkip + 1);
+      return AssembleType (testName, requestedType, participantActions);
     }
 
     protected MethodInfo GetDeclaredMethod (Type type, string name)
@@ -132,11 +77,12 @@ namespace TypePipe.IntegrationTests.TypeAssembly
           bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
     }
 
-    private Type AssembleType (Type originalType, string testName, Action<MutableType>[] participantActions)
+    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<MutableType>> participantActions)
     {
       var participants = participantActions.Select (CreateParticipant).AsOneTime();
-      var typeAssembler = new TypeAssembler (participants, CreateReflectionEmitTypeModifier (testName));
-      var assembledType = typeAssembler.AssembleType (originalType);
+      var typeModifier = CreateReflectionEmitTypeModifier (testName);
+      var typeAssembler = new TypeAssembler (participants, typeModifier);
+      var assembledType = typeAssembler.AssembleType (requestedType);
 
       return assembledType;
     }
@@ -147,28 +93,6 @@ namespace TypePipe.IntegrationTests.TypeAssembly
       participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
 
       return participantStub;
-    }
-
-    private ITypeModifier CreateReflectionEmitTypeModifier (string testName)
-    {
-      var assemblyName = new AssemblyName (testName);
-      _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
-      _generatedFileName = assemblyName.Name + ".dll";
-      
-      var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
-      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
-      var decoratedModuleBuilderAdapter = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
-      var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator ();
-      var handlerFactory = new SubclassProxyBuilderFactory (decoratedModuleBuilderAdapter, debugInfoGenerator);
-
-      return new TypeModifier (handlerFactory);
-    }
-
-    private string GetNameForThisTest (int stackFramesToSkip)
-    {
-      var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
-      var method = stackFrame.GetMethod ();
-      return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
   }
 }

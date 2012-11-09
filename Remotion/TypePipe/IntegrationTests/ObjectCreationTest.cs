@@ -22,21 +22,20 @@ using Remotion.Reflection;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5163")]
   [TestFixture]
-  public class ObjectCreationTest
+  public class ObjectCreationTest : ObjectFactoryIntegrationTestBase
   {
     [Test]
     public void ConstructorArguments ()
     {
-      var pipeline = PipelineObjectMother.CreatePipeline();
+      var pipeline = CreateObjectFactory();
 
       var instance = pipeline.CreateInstance<DomainType>();
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
 
       var obj = new object();
       instance = pipeline.CreateInstance<DomainType> (ParamList.Create (obj));
-      Assert.That (instance.String, Is.SameAs (obj));
+      Assert.That (instance.Obj, Is.SameAs (obj));
 
       instance = pipeline.CreateInstance<DomainType> (ParamList.Create ("abc"));
       Assert.That (instance.String, Is.EqualTo ("abc"));
@@ -48,11 +47,12 @@ namespace TypePipe.IntegrationTests
       instance = pipeline.CreateInstance<DomainType> (ParamList.Create (new[] { 'a', 'b', 'c' }));
       Assert.That (instance.CharArray, Is.EqualTo (new[] { 'a', 'b', 'c' }));
 
-      var ctorArguments = ParamList.Create<string, int> (null, 7);
-      instance = pipeline.CreateInstance<DomainType> (ctorArguments);
-      Assert.That (instance.String, Is.EqualTo ("out/ref parameters"));
-      Assert.That (ctorArguments.GetParameterValues()[0], Is.EqualTo ("out"));
-      Assert.That (ctorArguments.GetParameterValues()[1], Is.EqualTo (8));
+      // TODO 5173: out parameters 
+      //var ctorArguments = ParamList.Create<string, int> (null, 7);
+      //instance = pipeline.CreateInstance<DomainType> (ctorArguments);
+      //Assert.That (instance.String, Is.EqualTo ("out/ref parameters"));
+      //Assert.That (ctorArguments.GetParameterValues()[0], Is.EqualTo ("out"));
+      //Assert.That (ctorArguments.GetParameterValues()[1], Is.EqualTo (8));
     }
 
     public class DomainType

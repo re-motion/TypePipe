@@ -55,11 +55,12 @@
     </Compile>
     <Compile Include="CachingTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
-    <Compile Include="PipelineObjectMother.cs" />
+    <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
+    <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeInitializationTest.cs" />
     <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />
     <Compile Include="TypeAssembly\DelegateInstantiationTest.cs" />
@@ -78,10 +79,10 @@
     <Compile Include="TypeAssembly\ModifyGenericMethodTest.cs" />
     <Compile Include="TypeAssembly\ModifyGenericTypeTest.cs" />
     <Compile Include="TypeAssembly\ModifyMethodTest.cs" />
-    <Compile Include="TypeAssembly\SetupFixture.cs" />
+    <Compile Include="SetupFixture.cs" />
     <Compile Include="TypeAssembly\AddConstructorTest.cs" />
     <Compile Include="TypeAssembly\ReferenceMutableMembersTest.cs" />
-    <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
+    <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

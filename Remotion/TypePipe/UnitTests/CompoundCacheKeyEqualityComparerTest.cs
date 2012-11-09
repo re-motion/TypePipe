@@ -36,8 +36,8 @@ namespace Remotion.TypePipe.UnitTests
     {
       var key1 = new object[] { 1, 2 };
       var key2 = new object[] { 1, 2 };
-      var key3 = new object[] { 1, null };
-      var key4 = new object[] { 1, null };
+      var key3 = new object[] { 1, null, 3 };
+      var key4 = new object[] { 1, null, 3 };
 
       Assert.That (_comparer.Equals (key1, key2), Is.True);
       Assert.That (_comparer.Equals (key3, key4), Is.True);

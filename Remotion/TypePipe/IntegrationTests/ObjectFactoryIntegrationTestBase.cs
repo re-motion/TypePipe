@@ -16,19 +16,26 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.TypePipe;
-using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
-  public static class PipelineObjectMother
+  public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
-    public static Pipeline CreatePipeline (params IParticipant[] participants)
+    protected Pipeline CreateObjectFactory (params IParticipant[] participants)
     {
-      ArgumentUtility.CheckNotNull ("participants", participants);
+      return CreateObjectFactory (participants, 1);
+    }
 
+    protected Pipeline CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
+    {
+      var testName = GetNameForThisTest (stackFramesToSkip + 1);
+      var typeModifier = CreateReflectionEmitTypeModifier (testName);
+      var typeAssembler = new TypeAssembler (participants, typeModifier);
+      var typeCache = new TypeCache (typeAssembler);
 
-      throw new NotImplementedException();
+      return new Pipeline (typeCache);
     }
   }
 }
