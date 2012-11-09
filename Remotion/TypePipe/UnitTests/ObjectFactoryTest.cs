@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests
     public void SetUp ()
     {
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
-      _typeCacheMock.Expect (mock => mock.GetOrCreate (_requestedType)).Return (_generatedType).Repeat.Any();
+      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (_generatedType).Repeat.Any();
 
       _factory = new ObjectFactory (_typeCacheMock);
     }

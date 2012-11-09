@@ -60,7 +60,7 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
 
-      var generatedType = _typeCache.GetOrCreate (requestedType);
+      var generatedType = _typeCache.GetOrCreateType (requestedType);
       var constructorLookupInfo = new ConstructorLookupInfo (generatedType);
 
       return constructorArguments.InvokeConstructor (constructorLookupInfo);

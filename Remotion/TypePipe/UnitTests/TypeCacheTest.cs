@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void GetOrGenerate_EqualCompoundKey ()
+    public void GetOrCreateType_EqualCompoundKey ()
     {
       var key1 = CreateCompoundCacheKey ("a", "b");
       var key2 = CreateCompoundCacheKey ("a", "b");
@@ -52,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests
       _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType1);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType)).Return (key2);
 
-      var result1 = _cache.GetOrCreate (_requestedType);
-      var result2 = _cache.GetOrCreate (_requestedType);
+      var result1 = _cache.GetOrCreateType (_requestedType);
+      var result2 = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result1, Is.SameAs (result2));
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void GetOrGenerate_NonEqualCompoundKey ()
+    public void GetOrCreateType_NonEqualCompoundKey ()
     {
       var key1 = CreateCompoundCacheKey ("a", "b");
       var key2 = CreateCompoundCacheKey ("a", "c");
@@ -70,13 +70,49 @@ namespace Remotion.TypePipe.UnitTests
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType)).Return (key2);
       _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType2);
 
-      var result1 = _cache.GetOrCreate (_requestedType);
-      var result2 = _cache.GetOrCreate (_requestedType);
+      var result1 = _cache.GetOrCreateType (_requestedType);
+      var result2 = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result1, Is.Not.SameAs (result2));
       Assert.That (result1, Is.SameAs (_generatedType1));
       Assert.That (result2, Is.SameAs (_generatedType2));
+    }
+
+    [Test]
+    public void GetOrCreateConstructorLookup_EqualCompoundKey ()
+    {
+      var key1 = CreateCompoundCacheKey ("a", "b");
+      var key2 = CreateCompoundCacheKey ("a", "b");
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType)).Return (key1).Repeat.Once ();
+      _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType1);
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType)).Return (key2);
+
+      var result1 = _cache.GetOrCreateConstructorLookup (_requestedType);
+      var result2 = _cache.GetOrCreateConstructorLookup (_requestedType);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (result1, Is.SameAs (result2));
+      Assert.That (result1.DefiningType, Is.SameAs (_generatedType1));
+    }
+
+    [Test]
+    public void GetOrCreateConstructorLookup_NonEqualCompoundKey ()
+    {
+      var key1 = CreateCompoundCacheKey ("a", "b");
+      var key2 = CreateCompoundCacheKey ("a", "c");
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType)).Return (key1).Repeat.Once ();
+      _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType1);
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType)).Return (key2);
+      _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType2);
+
+      var result1 = _cache.GetOrCreateConstructorLookup (_requestedType);
+      var result2 = _cache.GetOrCreateConstructorLookup (_requestedType);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (result1, Is.Not.SameAs (result2));
+      Assert.That (result1.DefiningType, Is.SameAs (_generatedType1));
+      Assert.That (result2.DefiningType, Is.SameAs (_generatedType2));
     }
 
     private object[] CreateCompoundCacheKey (params object[] cacheKeyParts)

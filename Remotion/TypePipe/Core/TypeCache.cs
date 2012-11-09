@@ -17,16 +17,21 @@
 
 using System;
 using Remotion.Collections;
+using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Retrieves the generated type for the requested type from the cache or delegates to the contained <see cref="ITypeAssembler"/> instance.
+  /// Retrieves the generated type or its constructors for the requested type from the cache or delegates to the contained
+  /// <see cref="ITypeAssembler"/> instance.
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    private readonly ICache<object[], Type> _cache = CacheFactory.CreateWithLocking<object[], Type> (new CompoundCacheKeyEqualityComparer());
+    private readonly ICache<object[], Type> _types = CacheFactory.CreateWithLocking<object[], Type> (new CompoundCacheKeyEqualityComparer());
+    private readonly ICache<object[], IConstructorLookupInfo> _constructors =
+        CacheFactory.CreateWithLocking<object[], IConstructorLookupInfo> (new CompoundCacheKeyEqualityComparer());
+
     private readonly ITypeAssembler _typeAssembler;
 
     public TypeCache (ITypeAssembler typeAssembler)
@@ -36,18 +41,37 @@ namespace Remotion.TypePipe
       _typeAssembler = typeAssembler;
     }
 
-    public Type GetOrCreate (Type requestedType)
+    public Type GetOrCreateType (Type requestedType)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType);
+
+      return GetOrCreateType (requestedType, cacheKey);
+    }
+
+    public IConstructorLookupInfo GetOrCreateConstructorLookup (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType);
 
       // Avoid creating the lambda closure for performance reasons.
+      IConstructorLookupInfo constructorLookup;
+      if (_constructors.TryGetValue (cacheKey, out constructorLookup))
+        return constructorLookup;
+
+      return _constructors.GetOrCreateValue (cacheKey, _ => new ConstructorLookupInfo (GetOrCreateType (requestedType, cacheKey)));
+    }
+
+    private Type GetOrCreateType (Type requestedType, object[] cacheKey)
+    {
+      // Avoid creating the lambda closure for performance reasons.
       Type generatedType;
-      if (_cache.TryGetValue (cacheKey, out generatedType))
+      if (_types.TryGetValue (cacheKey, out generatedType))
         return generatedType;
 
-      return _cache.GetOrCreateValue (cacheKey, _ => _typeAssembler.AssembleType (requestedType));
+      return _types.GetOrCreateValue (cacheKey, _ => _typeAssembler.AssembleType (requestedType));
     }
   }
 }
