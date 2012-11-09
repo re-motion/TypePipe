@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
@@ -25,6 +26,7 @@ namespace Remotion.TypePipe
   /// </summary>
   public class TypeCache : ITypeCache
   {
+    private readonly ICache<object[], Type> _cache = CacheFactory.CreateWithLocking<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly ITypeAssembler _typeAssembler;
 
     public TypeCache (ITypeAssembler typeAssembler)
@@ -38,7 +40,14 @@ namespace Remotion.TypePipe
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return null;
+      var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType);
+
+      // Avoid creating the lambda closure for performance reasons.
+      Type generatedType;
+      if (_cache.TryGetValue (cacheKey, out generatedType))
+        return generatedType;
+
+      return _cache.GetOrCreateValue (cacheKey, _ => _typeAssembler.AssembleType (requestedType));
     }
   }
 }
