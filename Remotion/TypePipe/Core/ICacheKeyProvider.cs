@@ -32,6 +32,13 @@ namespace Remotion.TypePipe
   /// </remarks>
   public interface ICacheKeyProvider
   {
+    /// <summary>
+    /// Gets a cache key used to identify the generated type for the provided requested type.
+    /// It should include the <see cref="IParticipant"/> configuation and other data that might influence the modifications specified by a 
+    /// participant. However, implementations should not encode the requested type itself, as this is already handled by the pipeline.
+    /// </summary>
+    /// <param name="requestedType">The requested type.</param>
+    /// <returns>A cache key.</returns>
     object GetCacheKey (Type requestedType);
   }
 }
