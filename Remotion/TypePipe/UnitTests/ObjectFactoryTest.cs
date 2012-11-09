@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests
       Assert.That (instance2.String, Is.EqualTo ("def"));
     }
 
-    [Ignore("TODO 5163")]
+    [Ignore ("TODO 5172")]
     [Test]
     public void CreateInstance_NonPublicConstructor ()
     {
