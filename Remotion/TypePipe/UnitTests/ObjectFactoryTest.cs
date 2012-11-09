@@ -65,6 +65,11 @@ namespace Remotion.TypePipe.UnitTests
     [Test]
     public void CreateInstance_NonPublicConstructor ()
     {
+      var instance1 = (GeneratedType) _factory.CreateInstance (_requestedType, ParamList.Create (7));
+      var instance2 = (GeneratedType) _factory.CreateInstance<RequestedType> (ParamList.Create (8));
+
+      Assert.That (instance1.String, Is.EqualTo (7));
+      Assert.That (instance2.String, Is.EqualTo (8));
     }
 
     private class RequestedType { }
@@ -73,6 +78,7 @@ namespace Remotion.TypePipe.UnitTests
       public readonly string String;
       public GeneratedType () { String = "default .ctor"; }
       public GeneratedType (string s) { String = s; }
+      protected GeneratedType (int i) { String = "" + i; }
     }
   }
 }
