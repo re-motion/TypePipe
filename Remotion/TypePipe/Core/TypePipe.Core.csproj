@@ -92,6 +92,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
     <Compile Include="CompoundCacheKey.cs" />
+    <Compile Include="CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
       <SubType>Code</SubType>
     </Compile>
