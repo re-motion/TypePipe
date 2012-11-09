@@ -22,6 +22,13 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe
 {
+  /// <summary>
+  /// Compares compound cache keys, i.e., compares object arrays.
+  /// This class is an implementation detail of <see cref="TypeCache"/>.
+  /// </summary>
+  /// <remarks>
+  /// Note that the length of the object arrays is assumed to be equal.
+  /// </remarks>
   public class CompoundCacheKeyEqualityComparer : IEqualityComparer<object[]>
   {
     public bool Equals (object[] x, object[] y)

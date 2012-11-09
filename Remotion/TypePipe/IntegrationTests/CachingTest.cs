@@ -18,7 +18,6 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe;
-using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
 {
@@ -32,7 +31,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void SameType_EqualCacheKey ()
     {
-      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), t => new ContentCacheKey ("b"));
+      var pipeline = CreatePipeline (t => "a", t => "b");
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -43,7 +42,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void SameType_NullCacheKeyProvider ()
     {
-      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), null);
+      var pipeline = CreatePipeline (t => "a", null);
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -55,8 +54,7 @@ namespace TypePipe.IntegrationTests
     public void SameType_NonEqualCacheKey ()
     {
       var count = 1;
-      Func<Type, CacheKey> cacheKeyProviders = t => new ContentCacheKey ("b" + count++);
-      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), cacheKeyProviders);
+      var pipeline = CreatePipeline (t => "a", t => "b" + count++);
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type1);
@@ -67,7 +65,7 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void DifferentTypes_EqualCacheKey ()
     {
-      var pipeline = CreatePipeline (t => new ContentCacheKey ("a"), t => new ContentCacheKey ("b"));
+      var pipeline = CreatePipeline (t => "a", t => "b");
 
       var instance1 = pipeline.CreateInstance (_type1);
       var instance2 = pipeline.CreateInstance (_type2);
@@ -75,7 +73,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
     }
 
-    private Pipeline CreatePipeline (params Func<Type, CacheKey>[] cacheKeyProviders)
+    private Pipeline CreatePipeline (params Func<Type, object>[] cacheKeyProviders)
     {
       //var cacheKeyProviderStubs = cacheKeyProviders.Select (
       //    providerFunc =>
@@ -97,27 +95,6 @@ namespace TypePipe.IntegrationTests
       //    });
 
       return PipelineObjectMother.CreatePipeline ( /*participantStubs*/);
-    }
-
-    private class ContentCacheKey : CacheKey
-    {
-      private readonly string _backingString;
-
-      public ContentCacheKey (string backingString)
-      {
-        _backingString = backingString;
-      }
-
-      public override bool Equals (object other)
-      {
-        Assertion.IsTrue (other is ContentCacheKey);
-        return _backingString.Equals (((ContentCacheKey) other)._backingString);
-      }
-
-      public override int GetHashCode ()
-      {
-        return _backingString.GetHashCode();
-      }
     }
 
     public class DomainType1 {}

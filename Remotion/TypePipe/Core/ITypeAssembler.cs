@@ -19,7 +19,7 @@ using System;
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Generates types for requested types and computes <see cref="CompoundCacheKey"/>s to enabled efficient caching of generated types.
+  /// Generates types for requested types and computes compound cache keys to enabled efficient caching of generated types.
   /// </summary>
   public interface ITypeAssembler
   {

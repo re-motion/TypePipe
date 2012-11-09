@@ -28,8 +28,8 @@ namespace Remotion.TypePipe
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
   /// <see cref="ITypeModifier"/>.
-  /// Can also calculate a <see cref="CompoundCacheKey"/> that contains the individual <see cref="CacheKey"/>s from the 
-  /// <see cref="ICacheKeyProvider"/>s which in turn are retrieved from the participants.
+  /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
+  /// <see cref="ICacheKeyProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
   public class TypeAssembler : ITypeAssembler
   {
@@ -73,6 +73,12 @@ namespace Remotion.TypePipe
       return _typeModifier.ApplyModifications (mutableType);
     }
 
+    /// <summary>
+    /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s and the requested type.
+    /// The return value of this method is an object array for performance reasons.
+    /// </summary>
+    /// <param name="requestedType">The requested type.</param>
+    /// <returns>The compound cache key.</returns>
     public object[] GetCompoundCacheKey (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
