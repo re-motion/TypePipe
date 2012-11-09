@@ -89,16 +89,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void GetCompoundCacheKey ()
     {
       var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
-      var cacheKey1 = new ContentCacheKey ("1");
-      var cacheKey2 = new ContentCacheKey ("2");
-      var participantMock1 = CreateCacheKeyReturningParticipantMock (requestedType, cacheKey1);
-      var participantMock2 = CreateCacheKeyReturningParticipantMock (requestedType, cacheKey2);
+      var participantMock1 = CreateCacheKeyReturningParticipantMock (requestedType, 1);
+      var participantMock2 = CreateCacheKeyReturningParticipantMock (requestedType, "2");
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.GetCompoundCacheKey (requestedType);
 
-      Assert.That (result.RequestedType, Is.SameAs (requestedType));
-      Assert.That (result.CacheKeys, Is.EqualTo (new[] { cacheKey1, cacheKey2 }));
+      Assert.That (result, Is.EqualTo (new object[] { requestedType, 1, "2" }));
     }
 
     private TypeAssembler CreateTypeAssembler (ITypeModifier typeModifier = null, params IParticipant[] participants)
@@ -106,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       return new TypeAssembler (participants, typeModifier ?? MockRepository.GenerateStub<ITypeModifier>());
     }
 
-    private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, CacheKey cacheKey)
+    private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)
     {
       var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
       var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ICacheKeyProvider>();

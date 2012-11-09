@@ -73,16 +73,18 @@ namespace Remotion.TypePipe
       return _typeModifier.ApplyModifications (mutableType);
     }
 
-    public CompoundCacheKey GetCompoundCacheKey (Type requestedType)
+    public object[] GetCompoundCacheKey (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       // No LINQ for performance reasons.
-      var cacheKeys = new CacheKey[_cacheKeyProviders.Length];
-      for (int i = 0; i < cacheKeys.Length; ++i)
-        cacheKeys[i] = _cacheKeyProviders[i].GetCacheKey (requestedType);
+      var cacheKeys = new object[_cacheKeyProviders.Length + 1];
+      cacheKeys[0] = requestedType;
 
-      return new CompoundCacheKey (requestedType, cacheKeys);
+      for (int i = 1; i < cacheKeys.Length; ++i)
+        cacheKeys[i] = _cacheKeyProviders[i - 1].GetCacheKey (requestedType);
+
+      return cacheKeys;
     }
 
     private MutableType CreateMutableType (Type requestedType)

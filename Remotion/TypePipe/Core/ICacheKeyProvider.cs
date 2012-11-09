@@ -32,6 +32,6 @@ namespace Remotion.TypePipe
   /// </remarks>
   public interface ICacheKeyProvider
   {
-    CacheKey GetCacheKey (Type requestedType);
+    object GetCacheKey (Type requestedType);
   }
 }

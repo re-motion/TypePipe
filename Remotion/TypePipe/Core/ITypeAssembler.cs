@@ -24,6 +24,6 @@ namespace Remotion.TypePipe
   public interface ITypeAssembler
   {
     Type AssembleType (Type requestedType);
-    CompoundCacheKey GetCompoundCacheKey (Type requestedType);
+    object[] GetCompoundCacheKey (Type requestedType);
   }
 }
