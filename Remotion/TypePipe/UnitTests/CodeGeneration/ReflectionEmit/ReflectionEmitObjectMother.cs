@@ -14,12 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   public static class ReflectionEmitObjectMother
   {
