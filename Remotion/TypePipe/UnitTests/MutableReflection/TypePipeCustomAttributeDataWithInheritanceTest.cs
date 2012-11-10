@@ -104,10 +104,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       [Inheritable, NonInheritable]
       public virtual int Property { get; set; }
 
-#pragma warning disable 0067
       [Inheritable, NonInheritable]
       public virtual event EventHandler Event;
-#pragma warning restore 0067
 
       [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
       public virtual void AttributesOnBaseAndDerived () { }
@@ -120,9 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public override void Method () { }
       public override int Property { get; set; }
-#pragma warning disable 0067
       public override event EventHandler Event;
-#pragma warning restore 0067
 
       [Inheritable, NonInheritable]
       public void MethodOnDomainType () { }
