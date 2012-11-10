@@ -19,7 +19,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
@@ -93,9 +92,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock2 = CreateCacheKeyReturningParticipantMock (requestedType, "2");
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.GetCompoundCacheKey (requestedType);
+      var result = typeAssembler.GetCompoundCacheKey (requestedType, 3);
 
-      Assert.That (result, Is.EqualTo (new object[] { requestedType, 1, "2" }));
+      Assert.That (result, Is.EqualTo (new object[] { null, null, null, requestedType, 1, "2" }));
     }
 
     private TypeAssembler CreateTypeAssembler (ITypeModifier typeModifier = null, params IParticipant[] participants)

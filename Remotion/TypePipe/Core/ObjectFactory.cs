@@ -36,34 +36,36 @@ namespace Remotion.TypePipe
       _typeCache = typeCache;
     }
 
-    public T CreateInstance<T> () where T : class
+    public T CreateInstance<T> (bool allowNonPublicConstructor = false)
+        where T : class
     {
-      return (T) CreateInstance (typeof (T));
+      return (T) CreateInstance (typeof (T), allowNonPublicConstructor);
     }
 
-    public T CreateInstance<T> (ParamList constructorArguments) where T : class
+    public T CreateInstance<T> (ParamList constructorArguments, bool allowNonPublicConstructor = false)
+        where T : class
     {
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
 
-      return (T) CreateInstance (typeof (T), constructorArguments);
+      return (T) CreateInstance (typeof (T), constructorArguments, allowNonPublicConstructor);
     }
 
-    public object CreateInstance (Type requestedType)
+    public object CreateInstance (Type requestedType, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return CreateInstance (requestedType, ParamList.Empty);
+      return CreateInstance (requestedType, ParamList.Empty, allowNonPublicConstructor);
     }
 
-    public object CreateInstance (Type requestedType, ParamList constructorArguments)
+    public object CreateInstance (Type requestedType, ParamList constructorArguments, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
 
-      var generatedType = _typeCache.GetOrCreateType (requestedType);
-      var constructorLookupInfo = new ConstructorLookupInfo (generatedType);
+      var constructorCall = _typeCache.GetOrCreateConstructorCall (
+          requestedType, constructorArguments.GetParameterTypes(), allowNonPublicConstructor, constructorArguments.FuncType);
 
-      return constructorArguments.InvokeConstructor (constructorLookupInfo);
+      return constructorArguments.InvokeFunc (constructorCall);
     }
   }
 }

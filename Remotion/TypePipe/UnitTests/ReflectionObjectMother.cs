@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.UnitTests
     private static readonly Type[] s_types = EnsureNoNulls (new[] { typeof (DateTime), typeof (string) });
     private static readonly Type[] s_otherTypes = EnsureNoNulls (new[] { typeof (Random), typeof (int) });
     private static readonly Type[] s_unsealedTypes = EnsureNoNulls (new[] { typeof (object), typeof (List<int>) });
+    private static readonly Type[] s_delegateTypes = EnsureNoNulls (new[] { typeof (EventHandler), typeof (Action<,,>) });
     private static readonly Type[] s_interfaceTypes = EnsureNoNulls (new[] { typeof (IDisposable), typeof (IServiceProvider) });
     private static readonly Type[] s_otherInterfaceTypes = EnsureNoNulls (new[] { typeof (IComparable), typeof (ICloneable) });
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
@@ -60,6 +61,11 @@ namespace Remotion.TypePipe.UnitTests
     public static Type GetSomeSubclassableType ()
     {
       return GetRandomElement (s_unsealedTypes);
+    }
+
+    public static Type GetSomeDelegateType ()
+    {
+      return GetRandomElement (s_delegateTypes);
     }
 
     public static Type GetSomeInterfaceType ()

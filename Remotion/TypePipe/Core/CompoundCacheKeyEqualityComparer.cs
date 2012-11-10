@@ -54,9 +54,9 @@ namespace Remotion.TypePipe
       return true;
     }
 
-    public int GetHashCode (object[] obj)
+    public int GetHashCode (object[] compoundKey)
     {
-      return EqualityUtility.GetRotatedHashCode (obj);
+      return EqualityUtility.GetRotatedHashCode (compoundKey);
     }
   }
 }

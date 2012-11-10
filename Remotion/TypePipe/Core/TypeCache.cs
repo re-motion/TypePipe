@@ -16,8 +16,7 @@
 // 
 
 using System;
-using Remotion.Collections;
-using Remotion.Reflection;
+using System.Collections.Generic;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
@@ -28,50 +27,80 @@ namespace Remotion.TypePipe
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    private readonly ICache<object[], Type> _types = CacheFactory.CreateWithLocking<object[], Type> (new CompoundCacheKeyEqualityComparer());
-    private readonly ICache<object[], IConstructorLookupInfo> _constructors =
-        CacheFactory.CreateWithLocking<object[], IConstructorLookupInfo> (new CompoundCacheKeyEqualityComparer());
+    private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
+    private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
 
     private readonly ITypeAssembler _typeAssembler;
+    private readonly IDelegateFactory _delegateFactory;
 
-    public TypeCache (ITypeAssembler typeAssembler)
+    public TypeCache (ITypeAssembler typeAssembler, IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _typeAssembler = typeAssembler;
+      _delegateFactory = delegateFactory;
     }
 
     public Type GetOrCreateType (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType);
+      var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType, freeSlotsAtStart: 0);
 
       return GetOrCreateType (requestedType, cacheKey);
     }
 
-    public IConstructorLookupInfo GetOrCreateConstructorLookup (Type requestedType)
+    public Delegate GetOrCreateConstructorCall (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type delegateType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType);
+      const int additionalCacheKeyElements = 2;
+      var key = _typeAssembler.GetCompoundCacheKey (requestedType, freeSlotsAtStart: additionalCacheKeyElements);
+      key[0] = delegateType;
+      key[1] = allowNonPublic;
 
-      // Avoid creation of lambda closure for performance reasons.
-      IConstructorLookupInfo constructorLookup;
-      if (_constructors.TryGetValue (cacheKey, out constructorLookup))
-        return constructorLookup;
+      // No locking!
+      //if (_constructorCalls.TryGetValue (key, out constructorCall))
+      //  return constructorCall;
 
-      return _constructors.GetOrCreateValue (cacheKey, _ => new ConstructorLookupInfo (GetOrCreateType (requestedType, cacheKey)));
+      Delegate constructorCall;
+      lock (_constructorCalls)
+      {
+        if (!_constructorCalls.TryGetValue (key, out constructorCall))
+        {
+          // TODO: better option than copying the array?
+          int typeKeyLength = key.Length - additionalCacheKeyElements;
+          var typeKey = new object[typeKeyLength];
+          Array.Copy (key, additionalCacheKeyElements, typeKey, 0, typeKeyLength);
+          var generatedType = GetOrCreateType (requestedType, typeKey);
+
+          constructorCall = _delegateFactory.CreateConstructorCall (generatedType, parameterTypes, allowNonPublic, delegateType);
+          _constructorCalls.Add (key, constructorCall);
+        }
+      }
+      return constructorCall;
     }
 
-    private Type GetOrCreateType (Type requestedType, object[] cacheKey)
+    private Type GetOrCreateType (Type requestedType, object[] key)
     {
-      // Avoid creation of lambda closure for performance reasons.
-      Type generatedType;
-      if (_types.TryGetValue (cacheKey, out generatedType))
-        return generatedType;
+      // No locking!
+      //if (_types.TryGetValue (key, out generatedType))
+      //  return generatedType;
 
-      return _types.GetOrCreateValue (cacheKey, _ => _typeAssembler.AssembleType (requestedType));
+      Type generatedType;
+      lock (_types)
+      {
+        if (!_types.TryGetValue (key, out generatedType))
+        {
+          generatedType = _typeAssembler.AssembleType (requestedType);
+          _types.Add (key, generatedType);
+        }
+      }
+
+      return generatedType;
     }
   }
 }

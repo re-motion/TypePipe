@@ -24,6 +24,14 @@ namespace Remotion.TypePipe
   public interface ITypeAssembler
   {
     Type AssembleType (Type requestedType);
-    object[] GetCompoundCacheKey (Type requestedType);
+
+    /// <summary>
+    /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s and the
+    /// <paramref name="requestedType"/>. The return value of this method is an object array for performance reasons.
+    /// </summary>
+    /// <param name="requestedType">The requested type.</param>
+    /// <param name="freeSlotsAtStart">Number of slots beginning at the start of the array which are reserved for use by the caller.</param>
+    /// <returns>The compound cache key.</returns>
+    object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart);
   }
 }

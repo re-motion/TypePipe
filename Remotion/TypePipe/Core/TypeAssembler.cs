@@ -73,24 +73,19 @@ namespace Remotion.TypePipe
       return _typeModifier.ApplyModifications (mutableType);
     }
 
-    /// <summary>
-    /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s and the requested type.
-    /// The return value of this method is an object array for performance reasons.
-    /// </summary>
-    /// <param name="requestedType">The requested type.</param>
-    /// <returns>The compound cache key.</returns>
-    public object[] GetCompoundCacheKey (Type requestedType)
+    public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       // No LINQ for performance reasons.
-      var cacheKeys = new object[_cacheKeyProviders.Length + 1];
-      cacheKeys[0] = requestedType;
+      var offset = freeSlotsAtStart + 1;
+      var compoundKey = new object[_cacheKeyProviders.Length + offset];
+      compoundKey[freeSlotsAtStart] = requestedType;
 
-      for (int i = 1; i < cacheKeys.Length; ++i)
-        cacheKeys[i] = _cacheKeyProviders[i - 1].GetCacheKey (requestedType);
+      for (int i = 0; i < _cacheKeyProviders.Length; ++i)
+        compoundKey[i + offset] = _cacheKeyProviders[i].GetCacheKey (requestedType);
 
-      return cacheKeys;
+      return compoundKey;
     }
 
     private MutableType CreateMutableType (Type requestedType)

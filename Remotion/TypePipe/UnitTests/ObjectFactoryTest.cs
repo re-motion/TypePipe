@@ -25,9 +25,8 @@ namespace Remotion.TypePipe.UnitTests
   [TestFixture]
   public class ObjectFactoryTest
   {
-    private readonly Type _requestedType = typeof (RequestedType);
-    private readonly Type _generatedType = typeof (GeneratedType);
-
+    private Type _requestedType;
+    
     private ITypeCache _typeCacheMock;
 
     private ObjectFactory _factory;
@@ -36,49 +35,55 @@ namespace Remotion.TypePipe.UnitTests
     public void SetUp ()
     {
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (_generatedType).Repeat.Any();
 
       _factory = new ObjectFactory (_typeCacheMock);
+
+      _requestedType = ReflectionObjectMother.GetSomeType();
     }
 
     [Test]
     public void CreateInstance_NoConstructorArguments ()
     {
-      var instance1 = (GeneratedType) _factory.CreateInstance (_requestedType);
-      var instance2 = (GeneratedType) _factory.CreateInstance<RequestedType>();
+      _typeCacheMock
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, false, typeof (Func<object>)))
+          .Return (new Func<object> (() => "default .ctor"));
 
-      Assert.That (instance1.String, Is.EqualTo ("default .ctor"));
-      Assert.That (instance2.String, Is.EqualTo ("default .ctor"));
+      var result = _factory.CreateInstance (_requestedType);
+
+      Assert.That (result, Is.EqualTo ("default .ctor"));
     }
 
     [Test]
     public void CreateInstance_ConstructorArguments ()
     {
-      var instance1 = (GeneratedType) _factory.CreateInstance (_requestedType, ParamList.Create ("abc"));
-      var instance2 = (GeneratedType) _factory.CreateInstance<RequestedType> (ParamList.Create ("def"));
+      _typeCacheMock
+          .Expect (
+              mock =>
+              mock.GetOrCreateConstructorCall (_requestedType, new[] { typeof (string), typeof (int) }, false, typeof (Func<string, int, object>)))
+          .Return (
+              new Func<string, int, object> (
+                  (s, i) =>
+                  {
+                    Assert.That (s, Is.EqualTo ("abc"));
+                    Assert.That (i, Is.EqualTo (7));
+                    return "abc, 7";
+                  }));
 
-      Assert.That (instance1.String, Is.EqualTo ("abc"));
-      Assert.That (instance2.String, Is.EqualTo ("def"));
+      var result = _factory.CreateInstance (_requestedType, ParamList.Create ("abc", 7));
+
+      Assert.That (result, Is.EqualTo ("abc, 7"));
     }
 
-    [Ignore ("TODO 5172")]
     [Test]
     public void CreateInstance_NonPublicConstructor ()
     {
-      var instance1 = (GeneratedType) _factory.CreateInstance (_requestedType, ParamList.Create (7));
-      var instance2 = (GeneratedType) _factory.CreateInstance<RequestedType> (ParamList.Create (8));
+      _typeCacheMock
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, allowNonPublic: true, delegateType: typeof (Func<object>)))
+          .Return (new Func<object> (() => "non-public .ctor"));
 
-      Assert.That (instance1.String, Is.EqualTo (7));
-      Assert.That (instance2.String, Is.EqualTo (8));
-    }
+      var result = _factory.CreateInstance (_requestedType, allowNonPublicConstructor: true);
 
-    private class RequestedType { }
-    private class GeneratedType : RequestedType
-    {
-      public readonly string String;
-      public GeneratedType () { String = "default .ctor"; }
-      public GeneratedType (string s) { String = s; }
-      protected GeneratedType (int i) { String = "" + i; }
+      Assert.That (result, Is.EqualTo ("non-public .ctor"));
     }
   }
 }
