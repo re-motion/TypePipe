@@ -55,7 +55,7 @@ namespace Remotion.TypePipe
       return GetOrCreateType (requestedType, cacheKey);
     }
 
-    public Delegate GetOrCreateConstructorCall (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type delegateType)
+    public Delegate GetOrCreateConstructorCall (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type delegateType, Type delegateReturnType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe
           var generatedType = GetOrCreateType (requestedType, typeKey);
           var constructor = _constructorProvider.GetConstructor (generatedType, parameterTypes, allowNonPublic, requestedType, parameterTypes);
 
-          constructorCall = _constructorProvider.CreateConstructorCall (constructor, delegateType);
+          constructorCall = _constructorProvider.CreateConstructorCall (constructor, delegateType, delegateReturnType);
           _constructorCalls.Add (key, constructorCall);
         }
       }

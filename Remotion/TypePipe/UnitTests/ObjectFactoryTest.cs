@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests
     public void CreateInstance_NoConstructorArguments ()
     {
       _typeCacheMock
-          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, false, typeof (Func<object>)))
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, false, typeof (Func<object>), typeof (object)))
           .Return (new Func<object> (() => "default .ctor"));
 
       var result = _factory.CreateInstance (_requestedType);
@@ -56,10 +56,10 @@ namespace Remotion.TypePipe.UnitTests
     [Test]
     public void CreateInstance_ConstructorArguments ()
     {
+      var arguments = ParamList.Create ("abc", 7);
       _typeCacheMock
           .Expect (
-              mock =>
-              mock.GetOrCreateConstructorCall (_requestedType, new[] { typeof (string), typeof (int) }, false, typeof (Func<string, int, object>)))
+              mock => mock.GetOrCreateConstructorCall (_requestedType, arguments.GetParameterTypes (), false, arguments.FuncType, typeof (object)))
           .Return (
               new Func<string, int, object> (
                   (s, i) =>
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests
                     return "abc, 7";
                   }));
 
-      var result = _factory.CreateInstance (_requestedType, ParamList.Create ("abc", 7));
+      var result = _factory.CreateInstance (_requestedType, arguments);
 
       Assert.That (result, Is.EqualTo ("abc, 7"));
     }
@@ -77,11 +77,12 @@ namespace Remotion.TypePipe.UnitTests
     [Test]
     public void CreateInstance_NonPublicConstructor ()
     {
+      const bool allowNonPublic = true;
       _typeCacheMock
-          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, allowNonPublic: true, delegateType: typeof (Func<object>)))
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, allowNonPublic, typeof (Func<object>), typeof (object)))
           .Return (new Func<object> (() => "non-public .ctor"));
 
-      var result = _factory.CreateInstance (_requestedType, allowNonPublicConstructor: true);
+      var result = _factory.CreateInstance (_requestedType, allowNonPublic);
 
       Assert.That (result, Is.EqualTo ("non-public .ctor"));
     }

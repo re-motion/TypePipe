@@ -55,7 +55,7 @@ namespace Remotion.Reflection
       return constructor;
     }
 
-    public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType)
+    public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType, Type returnType)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
@@ -64,7 +64,9 @@ namespace Remotion.Reflection
       // ReSharper disable CoVariantArrayConversion
       var constructorCall = Expression.New (constructor, parameters);
       // ReSharper restore CoVariantArrayConversion
-      var lambda = Expression.Lambda (delegateType, constructorCall, parameters);
+      Assertion.IsNotNull (constructor.DeclaringType);
+      var boxedConstructorCall = Expression.Convert (constructorCall, returnType);
+      var lambda = Expression.Lambda (delegateType, boxedConstructorCall, parameters);
 
       return lambda.Compile();
     }

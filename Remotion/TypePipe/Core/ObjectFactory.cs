@@ -62,8 +62,9 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
 
+      // Note that constructorArguments.FuncType returns a delegate of type Func<..., object>.
       var constructorCall = _typeCache.GetOrCreateConstructorCall (
-          requestedType, constructorArguments.GetParameterTypes(), allowNonPublicConstructor, constructorArguments.FuncType);
+          requestedType, constructorArguments.GetParameterTypes(), allowNonPublicConstructor, constructorArguments.FuncType, typeof (object));
 
       return constructorArguments.InvokeFunc (constructorCall);
     }

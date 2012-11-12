@@ -31,6 +31,6 @@ namespace Remotion.Reflection
     ConstructorInfo GetConstructor (
         Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes);
 
-    Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType);
+    Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType, Type returnType);
   }
 }

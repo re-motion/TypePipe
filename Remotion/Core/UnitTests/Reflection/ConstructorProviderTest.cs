@@ -88,7 +88,9 @@ namespace Remotion.UnitTests.Reflection
     {
       var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new GeneratedType ("", 7));
 
-      var result = (Func<string, int, GeneratedType>) _provider.CreateConstructorCall (constructor, typeof (Func<string, int, GeneratedType>));
+      var result =
+          (Func<string, int, GeneratedType>)
+          _provider.CreateConstructorCall (constructor, typeof (Func<string, int, GeneratedType>), typeof (GeneratedType));
 
       var instance = result ("abc", 7);
       Assert.That (instance.String, Is.EqualTo ("abc"));
@@ -100,9 +102,23 @@ namespace Remotion.UnitTests.Reflection
     {
       var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new GeneratedValueType ("", 7));
 
-      var result = (Func<string, int, GeneratedValueType>) _provider.CreateConstructorCall (constructor, typeof (Func<string, int, GeneratedValueType>));
+      var result =
+          (Func<string, int, GeneratedValueType>)
+          _provider.CreateConstructorCall (constructor, typeof (Func<string, int, GeneratedValueType>), typeof (GeneratedValueType));
 
       var instance = result ("abc", 7);
+      Assert.That (instance.String, Is.EqualTo ("abc"));
+      Assert.That (instance.Int, Is.EqualTo (7));
+    }
+
+    [Test]
+    public void CreateConstructorCall_ValueType_Boxing ()
+    {
+      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new GeneratedValueType ("", 7));
+
+      var result = (Func<string, int, object>) _provider.CreateConstructorCall (constructor, typeof (Func<string, int, object>), typeof (object));
+
+      var instance = (GeneratedValueType) result ("abc", 7);
       Assert.That (instance.String, Is.EqualTo ("abc"));
       Assert.That (instance.Int, Is.EqualTo (7));
     }
