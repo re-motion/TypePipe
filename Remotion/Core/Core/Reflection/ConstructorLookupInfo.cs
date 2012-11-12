@@ -15,7 +15,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Collections;
@@ -27,6 +26,8 @@ namespace Remotion.Reflection
   public class ConstructorLookupInfo: MemberLookupInfo, IConstructorLookupInfo
   {
     private static readonly ICache<object, Delegate> s_delegateCache = CacheFactory.CreateWithLocking<object, Delegate>();
+
+    private readonly IConstructorProvider _constructorProvider = new ConstructorProvider();
     private readonly Type _definingType;
 
     public ConstructorLookupInfo (Type definingType, BindingFlags bindingFlags)
@@ -101,37 +102,7 @@ namespace Remotion.Reflection
         return CreateValueTypeDefaultDelegate (_definingType, delegateType, returnType);
 
       ConstructorInfo ctor = GetConstructor(parameterTypes);
-      return CreateDelegate (ctor, delegateType, returnType);
-    }
-
-    protected Delegate CreateDelegate (ConstructorInfo ctor, Type delegateType, Type returnType)
-    {
-      ArgumentUtility.CheckNotNull ("ctor", ctor);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
-
-      ParameterInfo[] parameters = ctor.GetParameters ();
-      Type constructedType = ctor.DeclaringType;
-      Assertion.IsNotNull (constructedType);
-      
-      var parameterTypes = parameters.Select (p => p.ParameterType).ToArray();
-      var method = new DynamicMethod ("ConstructorWrapper", returnType, parameterTypes, constructedType);
-      ILGenerator ilgen = method.GetILGenerator ();
-
-      for (int i = 0; i < parameters.Length; ++i)
-        ilgen.Emit (OpCodes.Ldarg, i);
-      ilgen.Emit (OpCodes.Newobj, ctor);
-      if (constructedType.IsValueType && !returnType.IsValueType)
-        ilgen.Emit (OpCodes.Box, constructedType);
-      ilgen.Emit (OpCodes.Ret);
-
-      try
-      {
-        return method.CreateDelegate (delegateType);
-      }
-      catch (ArgumentException ex)
-      {
-        throw new ArgumentException ("Parameters of constructor and delegate type do not match.", ex);
-      }
+      return _constructorProvider.CreateConstructorCall (ctor, delegateType, returnType);
     }
 
     protected virtual ConstructorInfo GetConstructor (Type[] parameterTypes)
