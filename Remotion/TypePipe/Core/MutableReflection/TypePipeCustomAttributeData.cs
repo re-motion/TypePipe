@@ -102,6 +102,13 @@ namespace Remotion.TypePipe.MutableReflection
       return ExtractCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
     }
 
+    public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Assembly assembly)
+    {
+      ArgumentUtility.CheckNotNull ("assembly", assembly);
+
+      return ExtractCustomAttributes (CustomAttributeData.GetCustomAttributes, assembly);
+    }
+
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
         Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider,
         Func<T, T> baseMemberProvider,

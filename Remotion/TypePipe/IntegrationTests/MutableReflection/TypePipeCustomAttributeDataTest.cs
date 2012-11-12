@@ -22,6 +22,9 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using TypePipe.IntegrationTests.MutableReflection;
+
+[assembly: TypePipeCustomAttributeDataTest.AbcAttribute ("ctorArg")]
 
 namespace TypePipe.IntegrationTests.MutableReflection
 {
@@ -68,6 +71,16 @@ namespace TypePipe.IntegrationTests.MutableReflection
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (eventRemoveParameter), CustomAttributeData.GetCustomAttributes (eventRemoveParameter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (genericType), CustomAttributeData.GetCustomAttributes (genericType));
+    }
+
+    [Test]
+    public void StandardReflection_Assembly ()
+    {
+      var assembly = Assembly.GetAssembly (typeof (TypePipeCustomAttributeDataTest));
+      var result1 = TypePipeCustomAttributeData.GetCustomAttributes (assembly).Single (x => x.Constructor.DeclaringType == typeof (AbcAttribute));
+      var result2 = CustomAttributeData.GetCustomAttributes (assembly).Single (x => x.Constructor.DeclaringType == typeof (AbcAttribute));
+
+      Assert.That (result1.ConstructorArguments.Single(), Is.EqualTo (result2.ConstructorArguments.Single().Value));
     }
 
     [Test]
