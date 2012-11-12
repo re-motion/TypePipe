@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
@@ -27,6 +28,8 @@ namespace Remotion.TypePipe
   /// </summary>
   public class TypeCache : ITypeCache
   {
+    private readonly object _typesLock = new object();
+    private readonly object _constructorCallsLock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
 
@@ -62,36 +65,25 @@ namespace Remotion.TypePipe
       key[0] = delegateType;
       key[1] = allowNonPublic;
 
-      // No locking!
-      //if (_constructorCalls.TryGetValue (key, out constructorCall))
-      //  return constructorCall;
-
       Delegate constructorCall;
-      lock (_constructorCalls)
+      lock (_constructorCallsLock)
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
-          // TODO: better option than copying the array?
-          int typeKeyLength = key.Length - additionalCacheKeyElements;
-          var typeKey = new object[typeKeyLength];
-          Array.Copy (key, additionalCacheKeyElements, typeKey, 0, typeKeyLength);
+          var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
           var generatedType = GetOrCreateType (requestedType, typeKey);
-
           constructorCall = _delegateFactory.CreateConstructorCall (generatedType, parameterTypes, allowNonPublic, delegateType);
           _constructorCalls.Add (key, constructorCall);
         }
       }
+
       return constructorCall;
     }
 
     private Type GetOrCreateType (Type requestedType, object[] key)
     {
-      // No locking!
-      //if (_types.TryGetValue (key, out generatedType))
-      //  return generatedType;
-
       Type generatedType;
-      lock (_types)
+      lock (_typesLock)
       {
         if (!_types.TryGetValue (key, out generatedType))
         {
