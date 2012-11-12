@@ -21,6 +21,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
+using Remotion.Reflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests

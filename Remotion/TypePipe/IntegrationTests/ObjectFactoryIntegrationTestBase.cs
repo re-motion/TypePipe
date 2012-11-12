@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using Remotion.Reflection;
 using Remotion.TypePipe;
 
 namespace TypePipe.IntegrationTests
