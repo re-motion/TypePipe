@@ -94,6 +94,18 @@ namespace Remotion.TypePipe.UnitTests
       Assert.That (instance.Int, Is.EqualTo (7));
     }
 
+    [Test]
+    public void CreateConstructorCall_ValueType ()
+    {
+      var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new GeneratedValueType ("", 7));
+
+      var result = (Func<string, int, GeneratedValueType>) _provider.CreateConstructorCall (constructor, typeof (Func<string, int, GeneratedValueType>));
+
+      var instance = result ("abc", 7);
+      Assert.That (instance.String, Is.EqualTo ("abc"));
+      Assert.That (instance.Int, Is.EqualTo (7));
+    }
+
     class RequestedType { }
 
     class GeneratedType
@@ -103,6 +115,14 @@ namespace Remotion.TypePipe.UnitTests
 
       public GeneratedType (string s1, int i2) { String = s1; Int = i2; }
       internal GeneratedType () { String = "non-public .ctor"; }
+    }
+
+    struct GeneratedValueType
+    {
+      public readonly string String;
+      public readonly int Int;
+
+      public GeneratedValueType (string s1, int i2) { String = s1; Int = i2; }
     }
   }
 }
