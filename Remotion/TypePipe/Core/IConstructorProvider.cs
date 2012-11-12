@@ -16,14 +16,21 @@
 // 
 
 using System;
+using System.Reflection;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Creates delegates to enable the efficient invocation of constructors.
+  /// Retrieves constructors of generated types and creates delegates to enable their efficient invocation.
   /// </summary>
-  public interface IDelegateFactory
+  /// <remarks>
+  /// The <see cref="GetConstructor"/> method includes the original type and signature to allow building useful exception messages.
+  /// </remarks>
+  public interface IConstructorProvider
   {
-    Delegate CreateConstructorCall (Type declaringType, Type[] parameterTypes, bool allowNonPublic, Type delegateType);
+    ConstructorInfo GetConstructor (
+        Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes);
+
+    Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType);
   }
 }

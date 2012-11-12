@@ -34,15 +34,15 @@ namespace Remotion.TypePipe
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly IDelegateFactory _delegateFactory;
+    private readonly IConstructorProvider _constructorProvider;
 
-    public TypeCache (ITypeAssembler typeAssembler, IDelegateFactory delegateFactory)
+    public TypeCache (ITypeAssembler typeAssembler, IConstructorProvider constructorProvider)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
+      ArgumentUtility.CheckNotNull ("constructorProvider", constructorProvider);
 
       _typeAssembler = typeAssembler;
-      _delegateFactory = delegateFactory;
+      _constructorProvider = constructorProvider;
     }
 
     public Type GetOrCreateType (Type requestedType)
@@ -72,7 +72,9 @@ namespace Remotion.TypePipe
         {
           var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
           var generatedType = GetOrCreateType (requestedType, typeKey);
-          constructorCall = _delegateFactory.CreateConstructorCall (generatedType, parameterTypes, allowNonPublic, delegateType);
+          var constructor = _constructorProvider.GetConstructor (generatedType, parameterTypes, allowNonPublic, requestedType, parameterTypes);
+
+          constructorCall = _constructorProvider.CreateConstructorCall (constructor, delegateType);
           _constructorCalls.Add (key, constructorCall);
         }
       }

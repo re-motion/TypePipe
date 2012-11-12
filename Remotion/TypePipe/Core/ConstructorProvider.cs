@@ -18,22 +18,47 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Remotion.Text;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Uses <see cref="LambdaExpression"/> to create delegates enabling the efficient invocation of constructors.
+  /// Retrieves constructors and creates uses <see cref="LambdaExpression"/> to create delegates enabling their efficient invocation.
   /// </summary>
-  public class DelegateFactory : IDelegateFactory
+  public class ConstructorProvider : IConstructorProvider
   {
-    public Delegate CreateConstructorCall (Type declaringType, Type[] parameterTypes, bool allowNonPublic, Type delegateType)
+    public ConstructorInfo GetConstructor (
+        Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var constructor = generatedType.GetConstructor (bindingFlags, null, generatedParamterTypes, null);
+
+      if (constructor == null)
+      {
+        var message = string.Format (
+            "Type {0} does not contain a constructor with the following signature: ({1}).",
+            originalType.FullName,
+            SeparatedStringBuilder.Build (", ", originalParameterTypes, pt => pt.Name));
+        throw new MissingMethodException (message);
+      }
+
+      if (!constructor.IsPublic && !allowNonPublic)
+      {
+        var message = string.Format (
+            "Type {0} contains a constructor with the required signature, but it is not public (and the allowNonPublic flag is not set).",
+            originalType.FullName);
+        throw new MissingMethodException (message);
+      }
+
+      return constructor;
+    }
+
+    public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType)
+    {
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      var constructor = GetConstructor (declaringType, parameterTypes, allowNonPublic);
       var parameters = constructor.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name)).ToArray();
       // ReSharper disable CoVariantArrayConversion
       var constructorCall = Expression.New (constructor, parameters);
@@ -41,17 +66,6 @@ namespace Remotion.TypePipe
       var lambda = Expression.Lambda (delegateType, constructorCall, parameters);
 
       return lambda.Compile();
-    }
-
-    private ConstructorInfo GetConstructor (Type declaringType, Type[] parameterTypes, bool allowNonPublic)
-    {
-      var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      if (allowNonPublic)
-        bindingFlags |= BindingFlags.NonPublic;
-
-      return declaringType.GetConstructor (bindingFlags, null, parameterTypes, null);
-
-      // TODO 5172: Constructor not found!
     }
   }
 }
