@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests
     public void CreateInstance_NoConstructorArguments ()
     {
       _typeCacheMock
-          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, false, typeof (Func<object>), typeof (object)))
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), false))
           .Return (new Func<object> (() => "default .ctor"));
 
       var result = _factory.CreateInstance (_requestedType);
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests
       var arguments = ParamList.Create ("abc", 7);
       _typeCacheMock
           .Expect (
-              mock => mock.GetOrCreateConstructorCall (_requestedType, arguments.GetParameterTypes (), false, arguments.FuncType, typeof (object)))
+              mock => mock.GetOrCreateConstructorCall (_requestedType, arguments.FuncType, false))
           .Return (
               new Func<string, int, object> (
                   (s, i) =>
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests
     {
       const bool allowNonPublic = true;
       _typeCacheMock
-          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, Type.EmptyTypes, allowNonPublic, typeof (Func<object>), typeof (object)))
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), allowNonPublic))
           .Return (new Func<object> (() => "non-public .ctor"));
 
       var result = _factory.CreateInstance (_requestedType, allowNonPublic);

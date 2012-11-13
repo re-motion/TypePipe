@@ -59,10 +59,9 @@ namespace Remotion.TypePipe
     }
 
     // TODO 5172: Remove parameterTypes and delegateReturnType parameters, can be extracted from delegateType
-    public Delegate GetOrCreateConstructorCall (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type delegateType, Type delegateReturnType)
+    public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       const int additionalCacheKeyElements = 2;
@@ -77,9 +76,10 @@ namespace Remotion.TypePipe
         {
           var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
           var generatedType = GetOrCreateType (requestedType, typeKey);
-          var constructor = _constructorFinder.GetConstructor (generatedType, parameterTypes, allowNonPublic, requestedType, parameterTypes);
+          var ctorSignature = _constructorDelegateFactory.GetSignature (delegateType);
+          var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
 
-          constructorCall = _constructorDelegateFactory.CreateConstructorCall (constructor, delegateType, delegateReturnType);
+          constructorCall = _constructorDelegateFactory.CreateConstructorCall (constructor, delegateType, ctorSignature.Item2);
           _constructorCalls.Add (key, constructorCall);
         }
       }

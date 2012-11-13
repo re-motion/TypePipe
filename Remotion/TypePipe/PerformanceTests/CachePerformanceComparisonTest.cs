@@ -54,7 +54,7 @@ namespace TypePipe.PerformanceTests
 
       Func<Type> typeCache = () => typeCacheAsInterface.GetOrCreateType (typeof (DomainType));
       Func<Delegate> constructorDelegateCache =
-          () => typeCacheAsInterface.GetOrCreateConstructorCall (typeof (DomainType), Type.EmptyTypes, true, typeof (Func<object>), typeof (object));
+          () => typeCacheAsInterface.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);
 
       TimeThis ("TypePipe_Types", typeCache);
       TimeThis ("TypePipe_ConstructorDelegates", constructorDelegateCache);

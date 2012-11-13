@@ -25,6 +25,6 @@ namespace Remotion.TypePipe
   public interface ITypeCache
   {
     Type GetOrCreateType (Type requestedType);
-    Delegate GetOrCreateConstructorCall (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type delegateType, Type delegateReturnType);
+    Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
   }
 }
