@@ -15,8 +15,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Remotion.Collections;
 using Remotion.Utilities;
@@ -25,6 +23,8 @@ namespace Remotion.Reflection
 {
   public class MemberLookupInfo
   {
+    protected readonly DelegateFactory DelegateFactory = new DelegateFactory();
+
     private readonly string _memberName;
     private readonly BindingFlags _bindingFlags;
     private readonly Binder _binder;
@@ -87,10 +87,7 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom("delegateType", delegateType, typeof (Delegate));
 
-      MethodInfo invokeMethod = delegateType.GetMethod ("Invoke");
-      Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method."); // according to the CLI specs, each delegate type must define this method
-
-      return Tuple.Create (invokeMethod.GetParameters ().Select (par => par.ParameterType).ToArray (), invokeMethod.ReturnType);
+      return DelegateFactory.GetSignature (delegateType);
     }
   }
 }
