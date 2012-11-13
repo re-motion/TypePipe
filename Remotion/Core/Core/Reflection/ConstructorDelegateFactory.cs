@@ -54,5 +54,18 @@ namespace Remotion.Reflection
 
       return lambda.Compile();
     }
+
+    public Delegate CreateDefaultConstructorCall (Type constructedType, Type delegateType)
+    {
+      ArgumentUtility.CheckNotNull ("constructedType", constructedType);
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+
+      var constructorCall = Expression.New (constructedType);
+      var returnType = GetSignature (delegateType).Item2;
+      var boxedConstructorCall = Expression.Convert (constructorCall, returnType);
+      var lambda = Expression.Lambda (delegateType, boxedConstructorCall);
+
+      return lambda.Compile();
+    }
   }
 }

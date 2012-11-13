@@ -17,6 +17,7 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
@@ -84,11 +85,38 @@ namespace Remotion.UnitTests.Reflection
       Assert.That (instance.Int, Is.EqualTo (7));
     }
 
+    [Test]
+    public void CreateDefaultConstructorCall ()
+    {
+      var result = (Func<DomainType>) _factory.CreateDefaultConstructorCall (typeof (DomainType), typeof (Func<DomainType>));
+
+      var instance = result();
+      Assert.That (instance.String, Is.EqualTo ("defaultCtor"));
+    }
+
+    [Test]
+    public void CreateDefaultConstructorCall_ValueType ()
+    {
+      var result = (Func<DomainValueType>) _factory.CreateDefaultConstructorCall (typeof (DomainValueType), typeof (Func<DomainValueType>));
+
+      Assert.That (() => result(), Throws.Nothing);
+    }
+
+    [Test]
+    public void CreateDefaultConstructorCall_ValueType_Boxing ()
+    {
+      var result = (Func<object>) _factory.CreateDefaultConstructorCall (typeof (DomainValueType), typeof (Func<object>));
+
+      var instance = result();
+      Assert.That (instance, Is.Not.Null);
+    }
+
     class DomainType
     {
       public readonly string String;
       public readonly int Int;
 
+      public DomainType () { String = "defaultCtor"; }
       public DomainType (string s1, int i2) { String = s1; Int = i2; }
     }
 
