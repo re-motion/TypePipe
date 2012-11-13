@@ -79,7 +79,7 @@ namespace Remotion.TypePipe
           var ctorSignature = _constructorDelegateFactory.GetSignature (delegateType);
           var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
 
-          constructorCall = _constructorDelegateFactory.CreateConstructorCall (constructor, delegateType, ctorSignature.Item2);
+          constructorCall = _constructorDelegateFactory.CreateConstructorCall (constructor, delegateType);
           _constructorCalls.Add (key, constructorCall);
         }
       }

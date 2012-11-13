@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType1, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
           .Return (_fakeConstructor);
-      _constructorDelegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType, _fakeSignature.Item2)).Return (_delegate2);
+      _constructorDelegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType2, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
           .Return (_fakeConstructor);
-      _constructorDelegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType, _fakeSignature.Item2)).Return (_delegate2);
+      _constructorDelegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 

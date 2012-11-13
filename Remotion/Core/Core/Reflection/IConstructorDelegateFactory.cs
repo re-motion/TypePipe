@@ -29,7 +29,7 @@ namespace Remotion.Reflection
     Tuple<Type[], Type> GetSignature (Type delegateType);
 
     // TODO 5172: Remove returnType, can be extracted from delegateType
-    Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType, Type returnType);
+    Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType);
 
     // TODO 5172: Add, use from ConstructorLookupInfo
     // Delegate CreateDefaultConstructorCall (Type constructedType, Type delegateType);

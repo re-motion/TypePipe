@@ -51,7 +51,7 @@ namespace Remotion.UnitTests.Reflection
 
       var result =
           (Func<string, int, DomainType>)
-          _factory.CreateConstructorCall (constructor, typeof (Func<string, int, DomainType>), typeof (DomainType));
+          _factory.CreateConstructorCall (constructor, typeof (Func<string, int, DomainType>));
 
       var instance = result ("abc", 7);
       Assert.That (instance.String, Is.EqualTo ("abc"));
@@ -65,7 +65,7 @@ namespace Remotion.UnitTests.Reflection
 
       var result =
           (Func<string, int, DomainValueType>)
-          _factory.CreateConstructorCall (constructor, typeof (Func<string, int, DomainValueType>), typeof (DomainValueType));
+          _factory.CreateConstructorCall (constructor, typeof (Func<string, int, DomainValueType>));
 
       var instance = result ("abc", 7);
       Assert.That (instance.String, Is.EqualTo ("abc"));
@@ -77,7 +77,7 @@ namespace Remotion.UnitTests.Reflection
     {
       var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7));
 
-      var result = (Func<string, int, object>) _factory.CreateConstructorCall (constructor, typeof (Func<string, int, object>), typeof (object));
+      var result = (Func<string, int, object>) _factory.CreateConstructorCall (constructor, typeof (Func<string, int, object>));
 
       var instance = (DomainValueType) result ("abc", 7);
       Assert.That (instance.String, Is.EqualTo ("abc"));

@@ -40,16 +40,15 @@ namespace Remotion.Reflection
       return Tuple.Create (invokeMethod.GetParameters().Select (p => p.ParameterType).ToArray(), invokeMethod.ReturnType);
     }
 
-    public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType, Type returnType)
+    public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       var parameters = constructor.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name)).ToArray();
-      // ReSharper disable CoVariantArrayConversion
-      var constructorCall = Expression.New (constructor, parameters);
-      // ReSharper restore CoVariantArrayConversion
+      var constructorCall = Expression.New (constructor, parameters.Cast<Expression>());
       Assertion.IsNotNull (constructor.DeclaringType);
+      var returnType = GetSignature (delegateType).Item2;
       var boxedConstructorCall = Expression.Convert (constructorCall, returnType);
       var lambda = Expression.Lambda (delegateType, boxedConstructorCall, parameters);
 

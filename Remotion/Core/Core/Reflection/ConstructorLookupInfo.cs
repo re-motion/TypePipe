@@ -102,7 +102,7 @@ namespace Remotion.Reflection
         return CreateValueTypeDefaultDelegate (_definingType, delegateType, returnType);
 
       ConstructorInfo ctor = GetConstructor(parameterTypes);
-      return _constructorDelegateFactory.CreateConstructorCall (ctor, delegateType, returnType);
+      return _constructorDelegateFactory.CreateConstructorCall (ctor, delegateType);
     }
 
     protected virtual ConstructorInfo GetConstructor (Type[] parameterTypes)
