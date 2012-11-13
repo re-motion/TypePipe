@@ -74,6 +74,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
     {
       ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
+      EnsureNotBuilt();
 
       if (initializationExpressions.Count == 0)
         return;

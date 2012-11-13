@@ -328,6 +328,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.Stub (mock => mock.CreateType ());
       _builder.Build ();
 
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleTypeInitializations (new Expression[0].ToList().AsReadOnly()));
+
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
