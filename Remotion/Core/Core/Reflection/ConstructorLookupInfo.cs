@@ -27,7 +27,7 @@ namespace Remotion.Reflection
   {
     private static readonly ICache<object, Delegate> s_delegateCache = CacheFactory.CreateWithLocking<object, Delegate>();
 
-    private readonly IConstructorDelegateFactory _constructorDelegateFactory = new ConstructorDelegateFactory();
+    private readonly DelegateFactory _delegateFactory = new DelegateFactory();
     private readonly Type _definingType;
 
     public ConstructorLookupInfo (Type definingType, BindingFlags bindingFlags)
@@ -102,7 +102,7 @@ namespace Remotion.Reflection
         return CreateValueTypeDefaultDelegate (_definingType, delegateType, returnType);
 
       ConstructorInfo ctor = GetConstructor(parameterTypes);
-      return _constructorDelegateFactory.CreateConstructorCall (ctor, delegateType);
+      return _delegateFactory.CreateConstructorCall (ctor, delegateType);
     }
 
     protected virtual ConstructorInfo GetConstructor (Type[] parameterTypes)

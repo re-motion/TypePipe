@@ -34,8 +34,9 @@ namespace TypePipe.IntegrationTests
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       var typeModifier = CreateReflectionEmitTypeModifier (testName);
       var typeAssembler = new TypeAssembler (participants, typeModifier);
-      var delegateFactory = new ConstructorDelegateFactory();
-      var typeCache = new TypeCache (typeAssembler, TODO, delegateFactory);
+      var constructorFinder = new ConstructorFinder();
+      var delegateFactory = new DelegateFactory();
+      var typeCache = new TypeCache (typeAssembler, constructorFinder, delegateFactory);
 
       return new ObjectFactory (typeCache);
     }

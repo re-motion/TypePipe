@@ -22,9 +22,9 @@ using Remotion.Collections;
 namespace Remotion.Reflection
 {
   /// <summary>
-  /// Extracts constructor signatures from delegate types and delegates for their efficient invocation.
+  /// Extracts signatures from delegate types and delegates for their efficient invocation.
   /// </summary>
-  public interface IConstructorDelegateFactory
+  public interface IDelegateFactory
   {
     Tuple<Type[], Type> GetSignature (Type delegateType);
 

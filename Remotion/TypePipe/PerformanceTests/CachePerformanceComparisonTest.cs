@@ -48,7 +48,7 @@ namespace TypePipe.PerformanceTests
       typeModifierStub.Stub (stub => stub.ApplyModifications (Arg<MutableType>.Is.Anything)).Return (typeof (DomainType));
       var constructorFinder = new ConstructorFinder();
       var typeAssembler = new TypeAssembler (new[] { restoreParticipantStub, remixParticipantStub }, typeModifierStub);
-      var constructorProvider = new ConstructorDelegateFactory();
+      var constructorProvider = new DelegateFactory();
 
       ITypeCache typeCacheAsInterface = new TypeCache (typeAssembler, constructorFinder, constructorProvider);
 

@@ -17,21 +17,20 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
-  public class ConstructorDelegateFactoryTest
+  public class DelegateFactoryTest
   {
-    private ConstructorDelegateFactory _factory;
+    private DelegateFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
-      _factory = new ConstructorDelegateFactory();
+      _factory = new DelegateFactory();
     }
 
     [Test]

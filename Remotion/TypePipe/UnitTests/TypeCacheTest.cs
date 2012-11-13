@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests
 
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorFinder _constructorFinderMock;
-    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
+    private IDelegateFactory _delegateFactoryMock;
     
     private TypeCache _cache;
 
@@ -55,9 +55,9 @@ namespace Remotion.TypePipe.UnitTests
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
-      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
+      _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorFinderMock, _constructorDelegateFactoryMock);
+      _cache = new TypeCache (_typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock);
 
       _types = (Dictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (Dictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
@@ -115,11 +115,11 @@ namespace Remotion.TypePipe.UnitTests
       _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
       _types.Add (new object[] { "type key" }, _generatedType1);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2)).Return (new object[] { null, null, "type key" });
-      _constructorDelegateFactoryMock.Expect (mock => mock.GetSignature (_delegateType)).Return (_fakeSignature);
+      _delegateFactoryMock.Expect (mock => mock.GetSignature (_delegateType)).Return (_fakeSignature);
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType1, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
           .Return (_fakeConstructor);
-      _constructorDelegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
+      _delegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
@@ -134,12 +134,12 @@ namespace Remotion.TypePipe.UnitTests
       _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
       _types.Add (new object[] { "type key" }, _generatedType1);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2)).Return (new object[] { null, null, "other type key" });
-      _constructorDelegateFactoryMock.Expect (mock => mock.GetSignature (_delegateType)).Return (_fakeSignature);
+      _delegateFactoryMock.Expect (mock => mock.GetSignature (_delegateType)).Return (_fakeSignature);
       _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType2);
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType2, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
           .Return (_fakeConstructor);
-      _constructorDelegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
+      _delegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 

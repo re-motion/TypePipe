@@ -36,17 +36,17 @@ namespace Remotion.TypePipe
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
-    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
+    private readonly IDelegateFactory _delegateFactory;
 
-    public TypeCache (ITypeAssembler typeAssembler, IConstructorFinder constructorFinder, IConstructorDelegateFactory constructorDelegateFactory)
+    public TypeCache (ITypeAssembler typeAssembler, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
-      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
-      _constructorDelegateFactory = constructorDelegateFactory;
+      _delegateFactory = delegateFactory;
     }
 
     public Type GetOrCreateType (Type requestedType)
@@ -75,10 +75,10 @@ namespace Remotion.TypePipe
         {
           var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
           var generatedType = GetOrCreateType (requestedType, typeKey);
-          var ctorSignature = _constructorDelegateFactory.GetSignature (delegateType);
+          var ctorSignature = _delegateFactory.GetSignature (delegateType);
           var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
 
-          constructorCall = _constructorDelegateFactory.CreateConstructorCall (constructor, delegateType);
+          constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
           _constructorCalls.Add (key, constructorCall);
         }
       }

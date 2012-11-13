@@ -25,10 +25,9 @@ using Remotion.Utilities;
 namespace Remotion.Reflection
 {
   /// <summary>
-  /// Extracts constructor signatures from delegate types and uses <see cref="LambdaExpression"/> to create delegates enabling their efficient 
-  /// invocation.
+  /// Extracts signatures from delegate types and uses <see cref="LambdaExpression"/> to create delegates enabling their efficient invocation.
   /// </summary>
-  public class ConstructorDelegateFactory : IConstructorDelegateFactory
+  public class DelegateFactory : IDelegateFactory
   {
     public Tuple<Type[], Type> GetSignature (Type delegateType)
     {
