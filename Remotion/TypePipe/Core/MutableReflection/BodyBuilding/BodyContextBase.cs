@@ -23,6 +23,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -98,7 +99,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var baseTypeMethods = baseType.GetMethods (bindingFlags);
-      var argumentTypes = arguments.Select (a => a.Type).ToArray ();
+      var argumentsCollection = arguments.ConvertToCollection();
+      var argumentTypes = argumentsCollection.Select (a => a.Type).ToArray();
       var baseMethodInfo = _memberSelector.SelectSingleMethod (
           baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, null);
 
@@ -108,7 +110,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new ArgumentException (message, "baseMethod");
       }
 
-      return GetBaseCall (baseMethodInfo, arguments);
+      return GetBaseCall (baseMethodInfo, argumentsCollection);
     }
 
     public MethodCallExpression GetBaseCall (MethodInfo baseMethod, params Expression[] arguments)

@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
           .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _mutableType, arguments.Types, null))
           .Return (fakeBaseMethod);
 
-      var result = _instanceContext.GetBaseCall ("Method", arguments.Expressions);
+      var result = _instanceContext.GetBaseCall ("Method", arguments.Expressions.AsOneTime());
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
       var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
 
-      var result = _instanceContext.GetBaseCall (method, arguments);
+      var result = _instanceContext.GetBaseCall (method, arguments.AsOneTime());
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
