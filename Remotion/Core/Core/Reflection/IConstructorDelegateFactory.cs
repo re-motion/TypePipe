@@ -25,6 +25,8 @@ namespace Remotion.Reflection
   /// </summary>
   public interface IConstructorDelegateFactory
   {
+
+
     // TODO 5172: Move these to interface IConstructorDelegateFactory, add GetSignature method (from ConstructorLookupInfo)
 
     // TODO 5172: Remove returnType, can be extracted from delegateType

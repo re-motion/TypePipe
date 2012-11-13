@@ -34,6 +34,17 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    public void GetSignature ()
+    {
+      var delegateType = typeof (Func<int, string, IDisposable>);
+
+      var result = _factory.GetSignature(delegateType);
+
+      Assert.That (result.Item1, Is.EqualTo (new[] { typeof (int), typeof (string) }));
+      Assert.That (result.Item2, Is.EqualTo (typeof(IDisposable)));
+    }
+
+    [Test]
     public void CreateConstructorCall ()
     {
       var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("", 7));

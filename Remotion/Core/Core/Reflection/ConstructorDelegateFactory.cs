@@ -19,7 +19,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Remotion.Text;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -30,6 +30,16 @@ namespace Remotion.Reflection
   /// </summary>
   public class ConstructorDelegateFactory : IConstructorDelegateFactory
   {
+    public Tuple<Type[], Type> GetSignature (Type delegateType)
+    {
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+
+      var invokeMethod = delegateType.GetMethod ("Invoke");
+      Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method.");
+
+      return Tuple.Create (invokeMethod.GetParameters().Select (p => p.ParameterType).ToArray(), invokeMethod.ReturnType);
+    }
+
     public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType, Type returnType)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
