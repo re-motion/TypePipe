@@ -35,15 +35,18 @@ namespace Remotion.TypePipe
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly IConstructorProvider _constructorProvider;
+    private readonly IConstructorFinder _constructorFinder;
+    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
 
-    public TypeCache (ITypeAssembler typeAssembler, IConstructorProvider constructorProvider)
+    public TypeCache (ITypeAssembler typeAssembler, IConstructorFinder constructorFinder, IConstructorDelegateFactory constructorDelegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("constructorProvider", constructorProvider);
+      ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
+      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
 
       _typeAssembler = typeAssembler;
-      _constructorProvider = constructorProvider;
+      _constructorFinder = constructorFinder;
+      _constructorDelegateFactory = constructorDelegateFactory;
     }
 
     public Type GetOrCreateType (Type requestedType)
@@ -74,9 +77,9 @@ namespace Remotion.TypePipe
         {
           var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
           var generatedType = GetOrCreateType (requestedType, typeKey);
-          var constructor = _constructorProvider.GetConstructor (generatedType, parameterTypes, allowNonPublic, requestedType, parameterTypes);
+          var constructor = _constructorFinder.GetConstructor (generatedType, parameterTypes, allowNonPublic, requestedType, parameterTypes);
 
-          constructorCall = _constructorProvider.CreateConstructorCall (constructor, delegateType, delegateReturnType);
+          constructorCall = _constructorDelegateFactory.CreateConstructorCall (constructor, delegateType, delegateReturnType);
           _constructorCalls.Add (key, constructorCall);
         }
       }

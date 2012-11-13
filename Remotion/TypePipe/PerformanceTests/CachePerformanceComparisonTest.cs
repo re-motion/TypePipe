@@ -46,10 +46,11 @@ namespace TypePipe.PerformanceTests
 
       var typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
       typeModifierStub.Stub (stub => stub.ApplyModifications (Arg<MutableType>.Is.Anything)).Return (typeof (DomainType));
+      var constructorFinder = new ConstructorFinder();
       var typeAssembler = new TypeAssembler (new[] { restoreParticipantStub, remixParticipantStub }, typeModifierStub);
-      var constructorProvider = new ConstructorProvider();
+      var constructorProvider = new ConstructorDelegateFactory();
 
-      ITypeCache typeCacheAsInterface = new TypeCache (typeAssembler, constructorProvider);
+      ITypeCache typeCacheAsInterface = new TypeCache (typeAssembler, constructorFinder, constructorProvider);
 
       Func<Type> typeCache = () => typeCacheAsInterface.GetOrCreateType (typeof (DomainType));
       Func<Delegate> constructorDelegateCache =

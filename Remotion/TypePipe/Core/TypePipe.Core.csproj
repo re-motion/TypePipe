@@ -92,6 +92,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
     <Compile Include="CompoundCacheKeyEqualityComparer.cs" />
+    <Compile Include="ConstructorFinder.cs" />
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -117,6 +118,7 @@
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
     <Compile Include="ICacheKeyProvider.cs" />
+    <Compile Include="IConstructorFinder.cs" />
     <Compile Include="ITypeAssembler.cs" />
     <Compile Include="ITypeCache.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />

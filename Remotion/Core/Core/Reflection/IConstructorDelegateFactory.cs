@@ -21,17 +21,10 @@ using System.Reflection;
 namespace Remotion.Reflection
 {
   /// <summary>
-  /// Retrieves constructors of generated types and creates delegates to enable their efficient invocation.
+  /// Extracts constructor signatures from delegate types and delegates for their efficient invocation.
   /// </summary>
-  /// <remarks>
-  /// The <see cref="GetConstructor"/> method includes the original type and signature to allow building useful exception messages.
-  /// </remarks>
-  public interface IConstructorProvider
+  public interface IConstructorDelegateFactory
   {
-    // TODO 5172: Move this to TypePipe specific IConstructorFinder interface
-    ConstructorInfo GetConstructor (
-        Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes);
-
     // TODO 5172: Move these to interface IConstructorDelegateFactory, add GetSignature method (from ConstructorLookupInfo)
 
     // TODO 5172: Remove returnType, can be extracted from delegateType
