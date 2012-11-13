@@ -47,12 +47,7 @@ namespace Remotion.Reflection
 
       var parameters = constructor.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name)).ToArray();
       var constructorCall = Expression.New (constructor, parameters.Cast<Expression>());
-      Assertion.IsNotNull (constructor.DeclaringType);
-      var returnType = GetSignature (delegateType).Item2;
-      var boxedConstructorCall = Expression.Convert (constructorCall, returnType);
-      var lambda = Expression.Lambda (delegateType, boxedConstructorCall, parameters);
-
-      return lambda.Compile();
+      return CreateConvertedDelegate(delegateType, constructorCall, parameters);
     }
 
     public Delegate CreateDefaultConstructorCall (Type constructedType, Type delegateType)
@@ -61,9 +56,14 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       var constructorCall = Expression.New (constructedType);
+      return CreateConvertedDelegate (delegateType, constructorCall);
+    }
+
+    private Delegate CreateConvertedDelegate (Type delegateType, NewExpression constructorCall, ParameterExpression[] parameters = null)
+    {
       var returnType = GetSignature (delegateType).Item2;
       var boxedConstructorCall = Expression.Convert (constructorCall, returnType);
-      var lambda = Expression.Lambda (delegateType, boxedConstructorCall);
+      var lambda = Expression.Lambda (delegateType, boxedConstructorCall, parameters);
 
       return lambda.Compile();
     }
