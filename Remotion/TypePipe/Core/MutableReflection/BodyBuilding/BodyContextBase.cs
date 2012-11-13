@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get { return _declaringType; }
     }
 
-    public Expression This
+    public ThisExpression This
     {
       get
       {
