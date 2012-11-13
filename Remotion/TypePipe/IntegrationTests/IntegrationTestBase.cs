@@ -18,14 +18,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
 
 namespace TypePipe.IntegrationTests
@@ -84,19 +82,17 @@ namespace TypePipe.IntegrationTests
       _shouldDeleteGeneratedFiles = false;
     }
 
-    protected ITypeModifier CreateReflectionEmitTypeModifier (string testName)
+    protected ITypeModifier CreateReflectionEmitTypeModifier (string assemblyName)
     {
-      var assemblyName = new AssemblyName (testName);
-      _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
-      _generatedFileName = assemblyName.Name + ".dll";
-      
-      var moduleBuilder = _assemblyBuilder.DefineDynamicModule (_generatedFileName, true);
-      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
-      var decoratedModuleBuilderAdapter = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
-      var debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator ();
-      var handlerFactory = new SubclassProxyBuilderFactory (decoratedModuleBuilderAdapter, debugInfoGenerator);
+      var moduleAndAssembly = DefaultReflectionEmitBackendFactory.CreateModuleBuilder (
+          assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
 
-      return new TypeModifier (handlerFactory);
+      _assemblyBuilder = moduleAndAssembly.Item2;
+      _generatedFileName = assemblyName + ".dll";
+
+      var subclassProxyBuilderFactory = new SubclassProxyBuilderFactory (moduleAndAssembly.Item1, DebugInfoGenerator.CreatePdbGenerator());
+
+      return new TypeModifier (subclassProxyBuilderFactory);
     }
 
     protected string GetNameForThisTest (int stackFramesToSkip)

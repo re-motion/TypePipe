@@ -15,28 +15,24 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
+  /// <summary>
+  /// A class that solely exists for the default service locator configuration, i.e., we need a class that the 
+  /// <see cref="ConcreteImplementationAttribute"/> on <see cref="ISubclassProxyBuilderFactory"/> can point to.
+  /// This is needed because the <see cref="SubclassProxyBuilder"/> constructor contains arguments that cannot be configured using the
+  /// <see cref="ConcreteImplementationAttribute"/>.
+  /// </summary>
   public class DefaultSubclassProxyBuilderFactory : SubclassProxyBuilderFactory
   {
-    private static IModuleBuilder CreateModuleBuidler ()
-    {
-      var assemblyName = new AssemblyName ("TypePipe_GeneratedAssembly");
-      var assembly = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
-      var moduleBuilder = assembly.DefineDynamicModule (assemblyName.Name + ".dll", emitSymbolInfo: true);
-      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
-      var uniqueNameModuleBuilderDecorator = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
-
-      return uniqueNameModuleBuilderDecorator;
-    }
-
     public DefaultSubclassProxyBuilderFactory ()
-      : base(CreateModuleBuidler(), DebugInfoGenerator.CreatePdbGenerator())
+        : base (
+            DefaultReflectionEmitBackendFactory.CreateModuleBuilder ("TypePipe_GeneratedAssembly", AssemblyBuilderAccess.Run).Item1,
+            DebugInfoGenerator.CreatePdbGenerator())
     {
     }
   }
