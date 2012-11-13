@@ -46,13 +46,6 @@ namespace TypePipe.IntegrationTests
 
       instance = pipeline.CreateInstance<DomainType> (ParamList.Create (new[] { 'a', 'b', 'c' }));
       Assert.That (instance.CharArray, Is.EqualTo (new[] { 'a', 'b', 'c' }));
-
-      // TODO 5173: out parameters 
-      //var ctorArguments = ParamList.Create<string, int> (null, 7);
-      //instance = pipeline.CreateInstance<DomainType> (ctorArguments);
-      //Assert.That (instance.String, Is.EqualTo ("out/ref parameters"));
-      //Assert.That (ctorArguments.GetParameterValues()[0], Is.EqualTo ("out"));
-      //Assert.That (ctorArguments.GetParameterValues()[1], Is.EqualTo (8));
     }
 
     public class DomainType
@@ -67,13 +60,6 @@ namespace TypePipe.IntegrationTests
       public DomainType (string @string) { String = @string; }
       public DomainType (IEnumerable<char> enumerable) { Enumerable = enumerable; }
       public DomainType (char[] charArray) { CharArray = charArray; }
-
-      public DomainType (out string outString, ref int refInteger)
-      {
-        String = "out/ref parameters";
-        outString = "out";
-        refInteger++;
-      }
     }
   }
 }
