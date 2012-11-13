@@ -28,9 +28,16 @@ namespace Remotion.Reflection
   /// </remarks>
   public interface IConstructorProvider
   {
+    // TODO 5172: Move this to TypePipe specific IConstructorFinder interface
     ConstructorInfo GetConstructor (
         Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes);
 
+    // TODO 5172: Move these to interface IConstructorDelegateFactory, add GetSignature method (from ConstructorLookupInfo)
+
+    // TODO 5172: Remove returnType, can be extracted from delegateType
     Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType, Type returnType);
+
+    // TODO 5172: Add, use from ConstructorLookupInfo
+    // Delegate CreateDefaultConstructorCall (Type constructedType, Type delegateType);
   }
 }

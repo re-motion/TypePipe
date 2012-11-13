@@ -55,6 +55,7 @@ namespace Remotion.TypePipe
       return GetOrCreateType (requestedType, cacheKey);
     }
 
+    // TODO 5172: Remove parameterTypes and delegateReturnType parameters, can be extracted from delegateType
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type delegateType, Type delegateReturnType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
