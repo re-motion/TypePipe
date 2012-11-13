@@ -15,12 +15,14 @@
 // under the License.
 // 
 using System;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
   /// Generates types for requested types and computes compound cache keys to enabled efficient caching of generated types.
   /// </summary>
+  [ConcreteImplementation (typeof (TypeAssembler))]
   public interface ITypeAssembler
   {
     Type AssembleType (Type requestedType);

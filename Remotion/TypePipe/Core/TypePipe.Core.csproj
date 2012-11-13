@@ -120,6 +120,7 @@
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
     <Compile Include="ICacheKeyProvider.cs" />
     <Compile Include="IConstructorFinder.cs" />
+    <Compile Include="IObjectFactory.cs" />
     <Compile Include="ITypeAssembler.cs" />
     <Compile Include="ITypeCache.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />

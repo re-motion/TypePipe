@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -22,6 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
   /// </summary>
+  [ConcreteImplementation (typeof (DefaultSubclassProxyBuilderFactory))]
   public interface ISubclassProxyBuilderFactory
   {
     ISubclassProxyBuilder CreateBuilder (MutableType mutableType);

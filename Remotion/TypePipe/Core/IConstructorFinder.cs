@@ -17,12 +17,14 @@
 
 using System;
 using System.Reflection;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
   /// Searches for a constructor and buildes a useful exception message if it cannot be found.
   /// </summary>
+  [ConcreteImplementation (typeof (ConstructorFinder))]
   public interface IConstructorFinder
   {
     ConstructorInfo GetConstructor (

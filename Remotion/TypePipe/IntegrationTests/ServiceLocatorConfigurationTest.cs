@@ -14,19 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration
+using NUnit.Framework;
+using Remotion.ServiceLocation;
+using Remotion.TypePipe;
+
+namespace TypePipe.IntegrationTests
 {
-  /// <summary>
-  /// Defines an interface for code generation components which perform the modifications recorded by an <see cref="MutableType"/>.
-  /// </summary>
-  [ConcreteImplementation (typeof (TypeModifier))]
-  public interface ITypeModifier
+  public class ServiceLocatorConfigurationTest
   {
-    Type ApplyModifications (MutableType mutableTpe);
+    [Test]
+    public void Resolution ()
+    {
+      Assert.That (() => SafeServiceLocator.Current.GetInstance<IObjectFactory>(), Throws.Nothing);
+      var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      Assert.That (factory, Is.Not.Null);
+
+      var instance = factory.CreateInstance<DomainType>();
+      Assert.That (instance, Is.Not.Null);
+      Assert.That (instance.GetType().Module.Name, Is.EqualTo ("<In Memory Module>"));
+    }
+
+    public class DomainType { }
   }
 }

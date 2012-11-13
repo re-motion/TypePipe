@@ -18,12 +18,14 @@
 using System;
 using System.Reflection;
 using Remotion.Collections;
+using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
 {
   /// <summary>
   /// Extracts signatures from delegate types and delegates for their efficient invocation.
   /// </summary>
+  [ConcreteImplementation (typeof (DelegateFactory))]
   public interface IDelegateFactory
   {
     Tuple<Type[], Type> GetSignature (Type delegateType);
