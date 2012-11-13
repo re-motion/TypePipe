@@ -74,7 +74,7 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
     }
 
-    private ObjectFactory CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
+    private IObjectFactory CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
     {
       var cacheKeyProviderStubs = cacheKeyProviders.Select (
           providerFunc =>

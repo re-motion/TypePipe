@@ -26,11 +26,10 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void Resolution ()
     {
-      Assert.That (() => SafeServiceLocator.Current.GetInstance<IObjectFactory>(), Throws.Nothing);
-      var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
-      Assert.That (factory, Is.Not.Null);
+      var objectFactory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      Assert.That (objectFactory, Is.Not.Null);
 
-      var instance = factory.CreateInstance<DomainType>();
+      var instance = objectFactory.CreateInstance<DomainType>();
       Assert.That (instance, Is.Not.Null);
       Assert.That (instance.GetType().Module.Name, Is.EqualTo ("<In Memory Module>"));
     }

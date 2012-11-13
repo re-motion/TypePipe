@@ -24,12 +24,12 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
-    protected ObjectFactory CreateObjectFactory (params IParticipant[] participants)
+    protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
       return CreateObjectFactory (participants, 1);
     }
 
-    protected ObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
+    protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       var typeModifier = CreateReflectionEmitTypeModifier (testName);
