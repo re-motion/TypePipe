@@ -28,6 +28,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   {
     private readonly ModuleBuilder _moduleBuilder;
 
+    public string ScopeName
+    {
+      get { return _moduleBuilder.ScopeName; }
+    }
+
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);

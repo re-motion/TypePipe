@@ -62,6 +62,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IFieldBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodOnTypeInstantiation.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\DefaultSubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />

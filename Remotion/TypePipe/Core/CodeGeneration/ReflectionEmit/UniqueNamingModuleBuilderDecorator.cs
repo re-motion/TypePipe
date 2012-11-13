@@ -30,6 +30,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private int _counter;
 
+    [CLSCompliant(false)]
+    public IModuleBuilder InnerModuleBuilder
+    {
+      get { return _innerModuleBuilder; }
+    }
+
     [CLSCompliant (false)]
     public UniqueNamingModuleBuilderDecorator (IModuleBuilder innerModuleBuilder)
     {
