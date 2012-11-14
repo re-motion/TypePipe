@@ -14,20 +14,17 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System.Collections.Generic;
-using Microsoft.Scripting.Ast;
+using System;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Provides access to expressions needed for building the bodies of added constructors. 
-  /// <seealso cref="MutableType.AddConstructor"/>
+  /// Provides access to expressions needed for building the initialization bodies.
   /// </summary>
-  public class ConstructorBodyCreationContext : ConstructorBodyContextBase
+  public class InitializationBodyContext : BodyContextBase
   {
-    public ConstructorBodyCreationContext (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-      : base (declaringType, parameterExpressions, memberSelector)
+    public InitializationBodyContext (MutableType declaringType, bool isStatic, IMemberSelector memberSelector)
+        : base (declaringType, isStatic, memberSelector)
     {
     }
   }

@@ -22,7 +22,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Provides access to parameters and custom expression for building the bodies of modified constructors. 
-  /// See also <see cref="MutableConstructorInfo.SetBody"/>.
+  /// <seealso cref="MutableConstructorInfo.SetBody"/>
   /// </summary>
   public class ConstructorBodyModificationContext : ConstructorBodyContextBase
   {

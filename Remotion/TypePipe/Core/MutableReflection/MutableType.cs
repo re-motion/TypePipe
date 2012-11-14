@@ -38,12 +38,15 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableMember
   {
+    private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     private readonly List<Expression> _typeInitializations = new List<Expression>();
+    private readonly List<Expression> _instanceInitializations = new List<Expression>();
+
     private readonly ReadOnlyCollection<Type> _existingInterfaces;
     private readonly List<Type> _addedInterfaces = new List<Type>();
 
@@ -71,6 +74,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
+      _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
       _mutableMemberFactory = mutableMemberFactory;
 
@@ -99,6 +103,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<Expression> TypeInitializations
     {
       get { return _typeInitializations.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollection<Expression> InstanceInitializations
+    {
+      get { return _instanceInitializations.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -168,6 +177,7 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
+    // TODO 5184: provider
     public void AddTypeInitialization (Expression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
@@ -175,9 +185,14 @@ namespace Remotion.TypePipe.MutableReflection
       _typeInitializations.Add (expression);
     }
 
-    public void AddObjectInitialization (Func<BodyContextBase, Expression> bodyProvider)
+    public void AddInstanceInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
+
+      var context = new InitializationBodyContext (this, false, _memberSelector);
+      var initialization = BodyProviderUtility.GetNonNullBody (initializationProvider, context);
+
+      _instanceInitializations.Add (initialization);
     }
 
     public void AddInterface (Type interfaceType)

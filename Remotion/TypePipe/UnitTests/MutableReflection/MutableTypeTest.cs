@@ -65,6 +65,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.FullName, Is.EqualTo (_descriptor.FullName));
 
       Assert.That (_mutableType.TypeInitializations, Is.Empty);
+      Assert.That (_mutableType.InstanceInitializations, Is.Empty);
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
       Assert.That (_mutableType.AddedFields, Is.Empty);
       Assert.That (_mutableType.AddedConstructors, Is.Empty);
@@ -221,6 +222,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddTypeInitialization (expression);
 
       Assert.That (_mutableType.TypeInitializations, Is.EqualTo (new[] { expression }));
+    }
+
+    //[Test]
+    //public void AddTypeInitialization_NullBody ()
+    //{
+    //  Assert.That (
+    //      () => _mutableType.AddTypeInitialization (ctx => null),
+    //      Throws.InvalidOperationException.With.Message.EqualTo ("Body provider must return non-null body."));
+    //}
+
+    [Test]
+    public void AddInstanceInitialization ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeExpression();
+
+      _mutableType.AddInstanceInitialization (
+          ctx =>
+          {
+            Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
+            Assert.That (ctx.IsStatic, Is.False);
+            Assert.That (ctx.This.Type, Is.SameAs (_mutableType));
+
+            return expression;
+          });
+
+      Assert.That (_mutableType.InstanceInitializations, Is.EqualTo (new[] { expression }));
+    }
+
+    [Test]
+    public void AddInstanceInitialization_NullBody ()
+    {
+      Assert.That (
+          () => _mutableType.AddInstanceInitialization (ctx => null),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Body provider must return non-null body."));
     }
 
     [Test]

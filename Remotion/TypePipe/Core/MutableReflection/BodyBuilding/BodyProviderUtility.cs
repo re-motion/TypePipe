@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
@@ -25,6 +26,20 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public static class BodyProviderUtility
   {
+    public static Expression GetNonNullBody<TContext> (Func<TContext, Expression> bodyProvider, TContext context)
+        where TContext : BodyContextBase
+    {
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull ("context", context);
+
+      var body = bodyProvider (context);
+
+      if (body == null)
+        throw new InvalidOperationException ("Body provider must return non-null body.");
+
+      return body;
+    }
+
     public static Expression GetTypedBody<TContext> (Type expectedType, Func<TContext, Expression> bodyProvider, TContext context)
         where TContext : BodyContextBase
     {
@@ -32,9 +47,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
       ArgumentUtility.CheckNotNull ("context", context);
 
-      var body = bodyProvider (context);
-      if (body == null)
-        throw new InvalidOperationException ("Body provider must return non-null body.");
+      var body = GetNonNullBody (bodyProvider, context);
 
       return ExpressionTypeUtility.EnsureCorrectType (body, expectedType);
     }

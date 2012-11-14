@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
   /// Provides access to parameters and custom expression for building the bodies of modified methods. 
-  /// See also <see cref="MutableMethodInfo.SetBody"/>.
+  /// <seealso cref="MutableMethodInfo.SetBody"/>
   /// </summary>
   public class MethodBodyModificationContext : MethodBodyContextBase
   {

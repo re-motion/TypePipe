@@ -70,7 +70,7 @@ namespace TypePipe.IntegrationTests
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.String);
       var participant = CreateParticipant (
-          mutableType => mutableType.AddObjectInitialization (
+          mutableType => mutableType.AddInstanceInitialization (
               ctx =>
               {
                 var fieldExpr = Expression.Field (ctx.This, field);

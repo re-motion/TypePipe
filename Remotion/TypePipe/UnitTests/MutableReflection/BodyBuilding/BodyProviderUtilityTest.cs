@@ -40,6 +40,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
+    public void GetNonNullBody ()
+    {
+      var body = ExpressionTreeObjectMother.GetSomeExpression();
+      var bodyProvider = CreateBodyProvider (body);
+
+      var result = BodyProviderUtility.GetNonNullBody (bodyProvider, _context);
+
+      Assert.That (result, Is.SameAs (body));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
+    public void GetNonNullBody_ThrowsForNull ()
+    {
+      var bodyProvider = CreateBodyProvider (returnedBody: null);
+
+      BodyProviderUtility.GetNonNullBody (bodyProvider, _context);
+    }
+
+    [Test]
     public void GetTypedBody_VoidConversion ()
     {
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
@@ -64,20 +84,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
     public void GetTypedBody_ThrowsForNullBody ()
     {
-      Func<BodyContextBase, Expression> bodyProvider = c => null;
+      var bodyProvider = CreateBodyProvider (returnedBody: null);
 
       BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
     }
 
-    private Func<BodyContextBase, Expression> CreateBodyProvider (Expression body)
+    private Func<BodyContextBase, Expression> CreateBodyProvider (Expression returnedBody)
     {
-      return c =>
+      return ctx =>
       {
-        Assert.That (c, Is.EqualTo (_context));
-        return body;
+        Assert.That (ctx, Is.EqualTo (_context));
+        return returnedBody;
       };
     }
   }

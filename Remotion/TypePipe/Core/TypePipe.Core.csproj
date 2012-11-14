@@ -126,6 +126,7 @@
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\InitializationBodyContext.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\IMutableMemberFactory.cs" />
