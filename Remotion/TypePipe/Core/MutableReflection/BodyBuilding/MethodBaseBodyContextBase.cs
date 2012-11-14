@@ -16,44 +16,32 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Base class for method body context classes.
+  /// Base class for method and constructor body context classes.
   /// </summary>
-  public abstract class MethodBodyContextBase : MethodBaseBodyContextBase
+  public abstract class MethodBaseBodyContextBase : BodyContextBase
   {
-    private readonly MethodInfo _baseMethod;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameters;
 
-    protected MethodBodyContextBase (
-        MutableType declaringType,
-        IEnumerable<ParameterExpression> parameterExpressions,
-        bool isStatic,
-        MethodInfo baseMethod,
-        IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, memberSelector)
+    protected MethodBaseBodyContextBase (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
+        : base (declaringType, isStatic, memberSelector)
     {
-      // Base method may be null
-      _baseMethod = baseMethod;
+      ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
+
+      _parameters = parameterExpressions.ToList().AsReadOnly();
     }
 
-    public bool HasBaseMethod
+    public ReadOnlyCollection<ParameterExpression> Parameters
     {
-      get { return _baseMethod != null; }
-    }
-
-    public MethodInfo BaseMethod
-    {
-      get
-      {
-        if (!HasBaseMethod)
-          throw new NotSupportedException ("This method does not override another method.");
-
-        return _baseMethod;
-      }
+      get { return _parameters; }
     }
   }
 }

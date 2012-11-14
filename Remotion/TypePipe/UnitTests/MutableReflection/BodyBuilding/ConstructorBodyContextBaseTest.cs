@@ -18,7 +18,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -31,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class ConstructorBodyContextBaseTest
   {
-    private MutableType _mutableType;
+    private MutableType _declaringType;
     private ParameterExpression[] _parameters;
     private IMemberSelector _memberSelectorMock;
 
@@ -40,11 +39,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ClassWithConstructor));
+      _declaringType = MutableTypeObjectMother.CreateForExisting (typeof (ClassWithConstructor));
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _context = new TestableConstructorBodyContextBase (_mutableType, _parameters.AsOneTime(), _memberSelectorMock);
+      _context = new TestableConstructorBodyContextBase (_declaringType, _parameters.AsOneTime(), _memberSelectorMock);
     }
 
     [Test]
@@ -65,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>());
       var thisExpression = (ThisExpression) methodCallExpression.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
+      Assert.That (thisExpression.Type, Is.SameAs (_declaringType));
 
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;

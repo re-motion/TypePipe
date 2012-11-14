@@ -15,8 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -35,35 +33,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class BodyContextBaseTest
   {
-    private ReadOnlyCollection<ParameterExpression> _emptyParameters;
-    private MutableType _mutableType;
-    private IMemberSelector _memberSelector;
+    private MutableType _declaringType;
+    private IMemberSelector _memberSelectorMock;
+
     private BodyContextBase _staticContext;
     private BodyContextBase _instanceContext;
 
     [SetUp]
     public void SetUp ()
     {
-      _emptyParameters = new List<ParameterExpression> ().AsReadOnly ();
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
-      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
+      _declaringType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _staticContext = new TestableBodyContextBase (_mutableType, _emptyParameters, true, _memberSelector);
-      _instanceContext = new TestableBodyContextBase (_mutableType, _emptyParameters, false, _memberSelector);
+      _staticContext = new TestableBodyContextBase (_declaringType, true, _memberSelectorMock);
+      _instanceContext = new TestableBodyContextBase (_declaringType, false, _memberSelectorMock);
     }
 
     [Test]
     public void Initialization ()
     {
-      var parameter1 = Expression.Parameter (ReflectionObjectMother.GetSomeType ());
-      var parameter2 = Expression.Parameter (ReflectionObjectMother.GetSomeType ());
-      var parameters = new List<ParameterExpression> { parameter1, parameter2 }.AsReadOnly ();
-
       var isStatic = BooleanObjectMother.GetRandomBoolean();
-      var context = new TestableBodyContextBase (_mutableType, parameters.AsOneTime(), isStatic, _memberSelector);
+      var context = new TestableBodyContextBase (_declaringType, isStatic, _memberSelectorMock);
 
-      Assert.That (context.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
+      Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (context.IsStatic, Is.EqualTo (isStatic));
     }
 
@@ -71,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void This ()
     {
       Assert.That (_instanceContext.This, Is.TypeOf<ThisExpression>());
-      Assert.That (_instanceContext.This.Type, Is.SameAs (_mutableType));
+      Assert.That (_instanceContext.This.Type, Is.SameAs (_declaringType));
     }
 
     [Test]
@@ -87,15 +79,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
       var arguments = new ArgumentTestHelper (7);
       var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
-      _memberSelector
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _mutableType, arguments.Types, null))
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _declaringType, arguments.Types, null))
           .Return (fakeBaseMethod);
 
       var result = _instanceContext.GetBaseCall ("Method", arguments.Expressions.AsOneTime());
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
+      Assert.That (thisExpression.Type, Is.SameAs (_declaringType));
 
       Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
@@ -109,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetBaseCall_Name_Params_NoBaseType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (object));
-      var context = new TestableBodyContextBase (mutableType, _emptyParameters, false, _memberSelector);
+      var context = new TestableBodyContextBase (mutableType, false, _memberSelectorMock);
 
       context.GetBaseCall ("DoesNotExist");
     }
@@ -123,8 +115,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
       var arguments = new ArgumentTestHelper (7);
-      _memberSelector
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _mutableType, arguments.Types, null))
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _declaringType, arguments.Types, null))
           .Return (null);
 
       _instanceContext.GetBaseCall ("Foo", arguments.Expressions);
@@ -143,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetBaseCall_Name_Params_DisallowedVisibility ()
     {
       var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
-      _memberSelector
+      _memberSelectorMock
           .Expect (mock => mock.SelectSingleMethod<MethodInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
           .Return (internalMethod);
 
@@ -160,7 +152,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
+      Assert.That (thisExpression.Type, Is.SameAs (_declaringType));
 
       CheckBaseCallMethodInfo (method, result);
 
@@ -251,7 +243,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetCopiedMethodBody_Enumerable ()
     {
       var methodToCopy = MutableMethodInfoObjectMother.Create (
-          declaringType: _mutableType,
+          declaringType: _declaringType,
           returnType: typeof (int),
           parameterDeclarations: new[] { new ParameterDeclaration (typeof (int), "i") });
       methodToCopy.SetBody (ctx => ctx.Parameters[0]);
@@ -284,7 +276,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedParameter.Local
-// ReSharper disable ClassNeverInstantiated.Local
     private class DomainTypeBase { }
 
     private class DomainType : DomainTypeBase
@@ -308,7 +299,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       public void UnrelatedMethod (int i) { }
     }
-// ReSharper restore ClassNeverInstantiated.Local
 // ReSharper restore UnusedParameter.Local
 // ReSharper restore UnusedMember.Local
   }

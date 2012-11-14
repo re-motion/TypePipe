@@ -96,9 +96,11 @@
     <Compile Include="MutableReflection\BodyBuilding\ExpressionTypeUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContextTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />

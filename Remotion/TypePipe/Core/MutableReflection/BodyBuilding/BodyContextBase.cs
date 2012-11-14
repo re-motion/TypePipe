@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -28,24 +27,20 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Common base class for method and constructor body context classes.
+  /// Common base class for body context classes.
   /// </summary>
   public abstract class BodyContextBase
   {
     private readonly MutableType _declaringType;
-    private readonly ReadOnlyCollection<ParameterExpression> _parameters;
     private readonly bool _isStatic;
     private readonly IMemberSelector _memberSelector;
 
-    protected BodyContextBase (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
+    protected BodyContextBase (MutableType declaringType, bool isStatic, IMemberSelector memberSelector)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _declaringType = declaringType;
-      _parameters = parameterExpressions.ToList().AsReadOnly();
       _isStatic = isStatic;
       _memberSelector = memberSelector;
     }
@@ -64,11 +59,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
         return new ThisExpression (_declaringType);
       }
-    }
-
-    public ReadOnlyCollection<ParameterExpression> Parameters
-    {
-      get { return _parameters; }
     }
 
     public bool IsStatic

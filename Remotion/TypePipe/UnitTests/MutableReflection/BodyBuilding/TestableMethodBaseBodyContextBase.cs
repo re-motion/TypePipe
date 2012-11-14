@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,15 +16,18 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
-  public class TestableBodyContextBase : BodyContextBase
+  public class TestableMethodBaseBodyContextBase : MethodBaseBodyContextBase
   {
-    public TestableBodyContextBase (MutableType declaringType, bool isStatic, IMemberSelector memberSelector)
-        : base (declaringType, isStatic, memberSelector)
+    public TestableMethodBaseBodyContextBase (
+        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
+        : base (declaringType, parameterExpressions, isStatic, memberSelector)
     {
     }
   }
