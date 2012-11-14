@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return AdjustForOverride (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
+      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
     }
 
     public static MethodAttributes GetAttributesForImplicitOverride (MethodInfo overriddenMethod)
@@ -45,15 +45,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return AdjustForOverride (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
+      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
     }
 
-    private static MethodAttributes AdjustForOverride (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
+    private static MethodAttributes ChangeVtableLayout (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
     {
-      return originalAttributes
-          .Unset (MethodAttributes.Abstract)
-          .Unset (MethodAttributes.VtableLayoutMask)
-          .Set (vtableLayout);
+      return (originalAttributes & ~MethodAttributes.VtableLayoutMask) | vtableLayout;
     }
   }
 }
