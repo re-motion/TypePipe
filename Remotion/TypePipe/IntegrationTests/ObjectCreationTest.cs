@@ -26,7 +26,7 @@ namespace TypePipe.IntegrationTests
   public class ObjectCreationTest : ObjectFactoryIntegrationTestBase
   {
     [Test]
-    public void ConstructorArguments ()
+    public void ConstructorArguments_Generic ()
     {
       var pipeline = CreateObjectFactory();
 
@@ -48,7 +48,29 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance.CharArray, Is.EqualTo (new[] { 'a', 'b', 'c' }));
     }
 
-    // TODO Review: Add integration test for non-generic overload
+    [Test]
+    public void NonGeneric ()
+    {
+      var pipeline = CreateObjectFactory();
+
+      var instance = (DomainType) pipeline.CreateInstance (typeof (DomainType));
+      Assert.That (instance.String, Is.EqualTo ("default .ctor"));
+
+      instance = (DomainType) pipeline.CreateInstance (typeof (DomainType), ParamList.Create ("abc"));
+      Assert.That (instance.String, Is.EqualTo ("abc"));
+    }
+
+    [Test]
+    public void AllowNonPublic ()
+    {
+      var pipeline = CreateObjectFactory();
+
+      var instance1 = pipeline.CreateInstance<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
+      var instance2 = (DomainType) pipeline.CreateInstance (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);
+
+      Assert.That (instance1.String, Is.EqualTo ("7"));
+      Assert.That (instance2.String, Is.EqualTo ("8"));
+    }
 
     public class DomainType
     {
@@ -63,7 +85,7 @@ namespace TypePipe.IntegrationTests
       public DomainType (IEnumerable<char> enumerable) { Enumerable = enumerable; }
       public DomainType (char[] charArray) { CharArray = charArray; }
 
-      // TODO Review: Test protected ctor
+      protected DomainType (int i) { String = "" + i; }
     }
   }
 }
