@@ -181,20 +181,14 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (this, true, _memberSelector);
-      var initialization = BodyProviderUtility.GetNonNullBody (initializationProvider, context);
-
-      _typeInitializations.Add (initialization);
+      AddInitialization (_typeInitializations, initializationProvider, isStatic: true);
     }
 
     public void AddInstanceInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (this, false, _memberSelector);
-      var initialization = BodyProviderUtility.GetNonNullBody (initializationProvider, context);
-
-      _instanceInitializations.Add (initialization);
+      AddInitialization (_instanceInitializations, initializationProvider, isStatic: false);
     }
 
     public void AddInterface (Type interfaceType)
@@ -403,6 +397,15 @@ namespace Remotion.TypePipe.MutableReflection
             "Type initializers (static constructors) cannot be modified via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
         throw new NotSupportedException (message);
       }
+    }
+
+    private void AddInitialization (
+        List<Expression> initializations, Func<InitializationBodyContext, Expression> initializationProvider, bool isStatic)
+    {
+      var context = new InitializationBodyContext (this, isStatic, _memberSelector);
+      var initialization = BodyProviderUtility.GetNonNullBody (initializationProvider, context);
+
+      initializations.Add (initialization);
     }
 
     private TMutableMember GetMutableMemberOrThrow<TMember, TMutableMember> (
