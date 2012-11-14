@@ -66,6 +66,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitBackendFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifierTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />

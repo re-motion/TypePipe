@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.Caching
       Debug.Assert (y != null);
       Debug.Assert (x.Length == y.Length);
 
+      // ReSharper disable LoopCanBeConvertedToQuery // No LINQ for performance reasons.
       for (int i = 0; i < x.Length; ++i)
       {
         if (!object.Equals (x[i], y[i]))
