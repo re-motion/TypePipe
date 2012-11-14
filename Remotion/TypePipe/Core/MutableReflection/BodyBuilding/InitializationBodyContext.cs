@@ -19,7 +19,7 @@ using System;
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Provides access to expressions needed for building the initialization bodies.
+  /// Provides access to expressions needed for building initializations.
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
