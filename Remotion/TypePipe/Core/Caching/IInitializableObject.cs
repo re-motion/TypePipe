@@ -17,6 +17,7 @@
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
+  /// <b>DO NOT USE THIS INTERFACE</b>; it is an infastructure interface.
   /// If a generated type implements this interface, the pipeline will invoke the <see cref="Initialize"/> method when creating instances of it.
   /// Note that the <see cref="Initialize"/> is called exactly once, independently of which API was used to retrieve the instance.
   /// </summary>
