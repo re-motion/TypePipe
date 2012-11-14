@@ -17,8 +17,9 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.TypePipe.Caching;
 
-namespace Remotion.TypePipe.UnitTests
+namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
   public class CompoundCacheKeyEqualityComparerTest

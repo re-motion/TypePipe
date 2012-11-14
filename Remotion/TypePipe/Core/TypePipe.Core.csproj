@@ -93,8 +93,8 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
-    <Compile Include="CompoundCacheKeyEqualityComparer.cs" />
-    <Compile Include="ConstructorFinder.cs" />
+    <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
+    <Compile Include="Caching\ConstructorFinder.cs" />
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -119,11 +119,11 @@
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
     <Compile Include="Expressions\TypePipeExpressionBase.cs" />
     <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
-    <Compile Include="ICacheKeyProvider.cs" />
-    <Compile Include="IConstructorFinder.cs" />
+    <Compile Include="Caching\ICacheKeyProvider.cs" />
+    <Compile Include="Caching\IConstructorFinder.cs" />
     <Compile Include="IObjectFactory.cs" />
-    <Compile Include="ITypeAssembler.cs" />
-    <Compile Include="ITypeCache.cs" />
+    <Compile Include="Caching\ITypeAssembler.cs" />
+    <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
@@ -303,8 +303,8 @@
     <Compile Include="IParticipant.cs" />
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeAssembler.cs" />
-    <Compile Include="TypeCache.cs" />
+    <Compile Include="Caching\TypeAssembler.cs" />
+    <Compile Include="Caching\TypeCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

@@ -23,6 +23,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Rhino.Mocks;

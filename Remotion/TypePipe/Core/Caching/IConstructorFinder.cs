@@ -19,7 +19,7 @@ using System;
 using System.Reflection;
 using Remotion.ServiceLocation;
 
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Searches for a constructor and buildes a useful exception message if it cannot be found.

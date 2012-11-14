@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe

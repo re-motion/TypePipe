@@ -20,9 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Remotion.Utilities;
 
-// TODO Review: Move caching classes to separate namespace
-
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Compares compound cache keys, i.e., compares object arrays.

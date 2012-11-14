@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Remotion.Reflection;
 using Remotion.TypePipe;
+using Remotion.TypePipe.Caching;
 
 namespace TypePipe.IntegrationTests
 {

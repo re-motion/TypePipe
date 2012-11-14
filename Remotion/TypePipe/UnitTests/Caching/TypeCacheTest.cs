@@ -23,9 +23,10 @@ using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests
+namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
   public class TypeCacheTest

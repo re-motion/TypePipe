@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe;
+using Remotion.TypePipe.Caching;
 using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests

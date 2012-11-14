@@ -14,10 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Remotion.ServiceLocation;
 
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Generates types for requested types and computes compound cache keys to enabled efficient caching of generated types.

@@ -18,7 +18,7 @@
 using System;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// This interface provides a cache key for a <see cref="IParticipant"/> depending on the requested type.

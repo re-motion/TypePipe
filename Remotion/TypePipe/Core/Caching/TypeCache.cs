@@ -21,7 +21,7 @@ using System.Linq;
 using Remotion.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Retrieves the generated type or its constructors for the requested type from the cache or delegates to the contained

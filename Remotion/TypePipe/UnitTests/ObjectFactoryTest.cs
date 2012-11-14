@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests

@@ -23,7 +23,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
