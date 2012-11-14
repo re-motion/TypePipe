@@ -47,7 +47,12 @@ namespace TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableType.TypeInitializations, Is.Empty);
 
             var initializationExpression = Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc"));
-            mutableType.AddTypeInitialization (initializationExpression);
+            mutableType.AddTypeInitialization (
+                ctx =>
+                {
+                  Assert.That (ctx.IsStatic, Is.True);
+                  return initializationExpression;
+                });
 
             Assert.That (mutableType.TypeInitializations, Is.EqualTo (new[] { initializationExpression }));
           });
@@ -64,7 +69,7 @@ namespace TypePipe.IntegrationTests.TypeAssembly
           {
             var field = mutableType.AddField ("s_field", typeof (string), FieldAttributes.Public | FieldAttributes.Static);
             var initializationExpression = Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc"));
-            mutableType.AddTypeInitialization (initializationExpression);
+            mutableType.AddTypeInitialization (ctx => initializationExpression);
           });
 
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
@@ -79,8 +84,8 @@ namespace TypePipe.IntegrationTests.TypeAssembly
       var fieldExpr = Expression.Field (null, field);
 
       var type = AssembleType<DomainType> (
-          mt => mt.AddTypeInitialization (Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("abc")))),
-          mt => mt.AddTypeInitialization (Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("def")))));
+          mt => mt.AddTypeInitialization (ctx => Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("abc")))),
+          mt => mt.AddTypeInitialization (ctx => Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("def")))));
 
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
       Assert.That (DomainType.StaticField, Is.EqualTo ("abcdef"));

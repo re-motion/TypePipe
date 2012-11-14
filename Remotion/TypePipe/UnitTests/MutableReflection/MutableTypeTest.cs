@@ -219,18 +219,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var expression = ExpressionTreeObjectMother.GetSomeExpression();
 
-      _mutableType.AddTypeInitialization (expression);
+      _mutableType.AddTypeInitialization (
+          ctx =>
+          {
+            Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
+            Assert.That (ctx.IsStatic, Is.True);
+
+            return expression;
+          });
 
       Assert.That (_mutableType.TypeInitializations, Is.EqualTo (new[] { expression }));
     }
 
-    //[Test]
-    //public void AddTypeInitialization_NullBody ()
-    //{
-    //  Assert.That (
-    //      () => _mutableType.AddTypeInitialization (ctx => null),
-    //      Throws.InvalidOperationException.With.Message.EqualTo ("Body provider must return non-null body."));
-    //}
+    [Test]
+    public void AddTypeInitialization_NullBody ()
+    {
+      Assert.That (
+          () => _mutableType.AddTypeInitialization (ctx => null),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Body provider must return non-null body."));
+    }
 
     [Test]
     public void AddInstanceInitialization ()
@@ -511,8 +518,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_ModificationHandler_WithTypeInitializations ()
     {
-      var expression = Expression.Constant (7);
-      _mutableType.AddTypeInitialization (expression);
+      _mutableType.AddTypeInitialization (ctx => Expression.Constant (7));
+      Assert.That (_mutableType.TypeInitializations, Is.Not.Empty);
+
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
       handlerMock.Expect (mock => mock.HandleTypeInitializations (_mutableType.TypeInitializations));
 

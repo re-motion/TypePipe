@@ -177,12 +177,14 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
-    // TODO 5184: provider
-    public void AddTypeInitialization (Expression expression)
+    public void AddTypeInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      _typeInitializations.Add (expression);
+      var context = new InitializationBodyContext (this, true, _memberSelector);
+      var initialization = BodyProviderUtility.GetNonNullBody (initializationProvider, context);
+
+      _typeInitializations.Add (initialization);
     }
 
     public void AddInstanceInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
