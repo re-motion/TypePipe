@@ -324,7 +324,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("handler", handler);
 
-      handler.HandleTypeInitializations (_typeInitializations.AsReadOnly());
+      handler.HandleTypeInitializations (TypeInitializations);
+      handler.HandleInstanceInitializations (InstanceInitializations);
 
       foreach (var ifc in AddedInterfaces)
         handler.HandleAddedInterface (ifc);

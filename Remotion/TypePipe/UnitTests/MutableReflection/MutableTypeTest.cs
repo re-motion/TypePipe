@@ -516,13 +516,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Accept_ModificationHandler_WithTypeInitializations ()
+    public void Accept_ModificationHandler_WithInitializations ()
     {
-      _mutableType.AddTypeInitialization (ctx => Expression.Constant (7));
+      _mutableType.AddTypeInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
+      _mutableType.AddInstanceInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
       Assert.That (_mutableType.TypeInitializations, Is.Not.Empty);
+      Assert.That (_mutableType.InstanceInitializations, Is.Not.Empty);
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
       handlerMock.Expect (mock => mock.HandleTypeInitializations (_mutableType.TypeInitializations));
+      handlerMock.Expect (mock => mock.HandleInstanceInitializations (_mutableType.InstanceInitializations));
 
       _mutableType.Accept (handlerMock);
 
@@ -550,6 +553,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedMethod = AddMethod (_mutableType, "AddedMethod");
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler> ();
+      handlerMock.Stub (stub => stub.HandleInstanceInitializations (_mutableType.InstanceInitializations));
       handlerMock.Stub (stub => stub.HandleTypeInitializations (_mutableType.TypeInitializations));
 
       handlerMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
@@ -578,6 +582,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler> ();
       handlerMock.Stub (stub => stub.HandleTypeInitializations (_mutableType.TypeInitializations));
+      handlerMock.Stub (stub => stub.HandleInstanceInitializations (_mutableType.InstanceInitializations));
 
       handlerMock.Expect (mock => mock.HandleModifiedConstructor (modifiedExistingConstructorInfo));
       handlerMock.Expect (mock => mock.HandleAddedConstructor (modifiedAddedConstructorInfo));
@@ -599,6 +604,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler> ();
       handlerMock.Stub (stub => stub.HandleTypeInitializations (_mutableType.TypeInitializations));
+      handlerMock.Stub (stub => stub.HandleInstanceInitializations (_mutableType.InstanceInitializations));
 
       handlerMock.Expect (mock => mock.HandleModifiedMethod (modifiedExistingMethodInfo));
       handlerMock.Expect (mock => mock.HandleAddedMethod (modifiedAddedMethodInfo));

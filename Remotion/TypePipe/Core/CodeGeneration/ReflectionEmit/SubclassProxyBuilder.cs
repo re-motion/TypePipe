@@ -88,6 +88,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       HandleAddedConstructor (typeInitializer);
     }
 
+    public void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
+    {
+      throw new NotImplementedException();
+    }
+
     public void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
