@@ -70,12 +70,21 @@ namespace TypePipe.IntegrationTests
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.String);
       var participant = CreateParticipant (
-          mutableType => mutableType.AddInstanceInitialization (
-              ctx =>
-              {
-                var fieldExpr = Expression.Field (ctx.This, field);
-                return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
-              }));
+          mutableType =>
+          {
+            Assert.That (mutableType.InstanceInitializations, Is.Empty);
+
+            mutableType.AddInstanceInitialization (
+                ctx =>
+                {
+                  Assert.That (ctx.IsStatic, Is.False);
+
+                  var fieldExpr = Expression.Field (ctx.This, field);
+                  return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
+                });
+
+            Assert.That (mutableType.InstanceInitializations, Is.Not.Empty);
+          });
 
       return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1);
     }
