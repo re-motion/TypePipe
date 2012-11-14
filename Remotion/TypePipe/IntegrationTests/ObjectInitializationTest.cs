@@ -38,9 +38,9 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void GetInstance ()
+    public void CreateObject ()
     {
-      var instance = _factory.CreateInstance<DomainType>();
+      var instance = _factory.CreateObject<DomainType>();
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
       Assert.That (instance.CtorCalled, Is.True);
@@ -57,13 +57,10 @@ namespace TypePipe.IntegrationTests
 
     public class DomainType
     {
-      public DomainType ()
-      {
-        CtorCalled = true;
-      }
-
-      public bool CtorCalled;
       public string String;
+      public bool CtorCalled;
+
+      public DomainType () { CtorCalled = true; }
     }
 
     private IObjectFactory CreateObjectFactory ()

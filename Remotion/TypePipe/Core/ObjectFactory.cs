@@ -36,13 +36,13 @@ namespace Remotion.TypePipe
       _typeCache = typeCache;
     }
 
-    public T CreateInstance<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
-      return (T) CreateInstance (typeof (T), constructorArguments, allowNonPublicConstructor);
+      return (T) CreateObject (typeof (T), constructorArguments, allowNonPublicConstructor);
     }
 
-    public object CreateInstance (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    public object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 

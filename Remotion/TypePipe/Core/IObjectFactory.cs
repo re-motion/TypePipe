@@ -27,12 +27,10 @@ namespace Remotion.TypePipe
   [ConcreteImplementation (typeof (ObjectFactory))]
   public interface IObjectFactory
   {
-    T CreateInstance<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
-        where T : class;
-    object CreateInstance (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
+    object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
-    Type GetAssembledType<T> ()
-        where T : class;
+    Type GetAssembledType<T> () where T : class;
     Type GetAssembledType (Type requestedType);
 
     object GetUninitializedObject (Type requestedType);

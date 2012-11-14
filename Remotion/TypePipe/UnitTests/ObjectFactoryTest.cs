@@ -43,19 +43,19 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void CreateInstance_NoConstructorArguments ()
+    public void CreateObject_NoConstructorArguments ()
     {
       _typeCacheMock
           .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), false))
           .Return (new Func<object> (() => "default .ctor"));
 
-      var result = _factory.CreateInstance (_requestedType);
+      var result = _factory.CreateObject (_requestedType);
 
       Assert.That (result, Is.EqualTo ("default .ctor"));
     }
 
     [Test]
-    public void CreateInstance_ConstructorArguments ()
+    public void CreateObject_ConstructorArguments ()
     {
       var arguments = ParamList.Create ("abc", 7);
       _typeCacheMock
@@ -70,35 +70,50 @@ namespace Remotion.TypePipe.UnitTests
                     return "abc, 7";
                   }));
 
-      var result = _factory.CreateInstance (_requestedType, arguments);
+      var result = _factory.CreateObject (_requestedType, arguments);
 
       Assert.That (result, Is.EqualTo ("abc, 7"));
     }
 
     [Test]
-    public void CreateInstance_NonPublicConstructor ()
+    public void CreateObject_NonPublicConstructor ()
     {
       const bool allowNonPublic = true;
       _typeCacheMock
           .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), allowNonPublic))
           .Return (new Func<object> (() => "non-public .ctor"));
 
-      var result = _factory.CreateInstance (_requestedType, allowNonPublicConstructor: allowNonPublic);
+      var result = _factory.CreateObject (_requestedType, allowNonPublicConstructor: allowNonPublic);
 
       Assert.That (result, Is.EqualTo ("non-public .ctor"));
     }
 
     [Test]
-    public void CreateInstance_Generic ()
+    public void CreateObject_Generic ()
     {
       var assembledInstance = new AssembledType();
       _typeCacheMock
           .Expect (mock => mock.GetOrCreateConstructorCall (typeof (RequestedType), ParamList.Empty.FuncType, false))
           .Return (new Func<object> (() => assembledInstance));
 
-      var result = _factory.CreateInstance<RequestedType>();
+      var result = _factory.CreateObject<RequestedType>();
 
       Assert.That (result, Is.SameAs (assembledInstance));
+    }
+
+    [Ignore("TODO 5187")]
+    [Test]
+    public void CreateObject_Initializable ()
+    {
+      var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
+      _typeCacheMock
+          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, ParamList.Empty.FuncType, false))
+          .Return (new Func<object> (() => initializableObjectMock));
+
+      var result = _factory.CreateObject (_requestedType);
+
+      initializableObjectMock.AssertWasCalled (mock => mock.Initialize(), mo => mo.Repeat.Once());
+      Assert.That (result, Is.SameAs (initializableObjectMock));
     }
 
     [Test]
@@ -125,7 +140,31 @@ namespace Remotion.TypePipe.UnitTests
       Assert.That (result, Is.SameAs (fakeAssembledType));
     }
 
+    [Ignore ("TODO 5187")]
+    [Test]
+    public void GetUninitializedObject ()
+    {
+      var assembledType = typeof (IInitializableObject);
+      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
+
+      var result = (InitializeableType) _factory.GetUninitializedObject (_requestedType);
+
+      Assert.That (result.GetType(), Is.SameAs (assembledType));
+      Assert.That (result.CtorCalled, Is.False);
+      Assert.That (result.String, Is.EqualTo ("initialized"));
+    }
+
     class RequestedType { }
     class AssembledType : RequestedType { }
+
+    class InitializeableType : IInitializableObject
+    {
+      public bool CtorCalled;
+      public string String;
+
+      public InitializeableType () { CtorCalled = true; }
+
+      public void Initialize () { String = String + "initialized"; }
+    }
   }
 }

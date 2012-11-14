@@ -21,7 +21,7 @@ namespace Remotion.TypePipe.Caching
   /// If a generated type implements this interface, the pipeline will invoke the <see cref="Initialize"/> method when creating instances of it.
   /// Note that the <see cref="Initialize"/> is called exactly once, independently of which API was used to retrieve the instance.
   /// </summary>
-  /// <seealso cref="IObjectFactory.CreateInstance"/>
+  /// <seealso cref="IObjectFactory.CreateObject"/>
   /// <seealso cref="IObjectFactory.GetUninitializedObject"/>
   public interface IInitializableObject
   {

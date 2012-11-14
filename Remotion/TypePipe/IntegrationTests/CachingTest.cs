@@ -35,8 +35,8 @@ namespace TypePipe.IntegrationTests
     {
       var pipeline = CreateObjectFactory (t => "a", t => "b");
 
-      var instance1 = pipeline.CreateInstance (_type1);
-      var instance2 = pipeline.CreateInstance (_type1);
+      var instance1 = pipeline.CreateObject (_type1);
+      var instance2 = pipeline.CreateObject (_type1);
 
       Assert.That (instance1.GetType(), Is.SameAs (instance2.GetType()));
     }
@@ -46,8 +46,8 @@ namespace TypePipe.IntegrationTests
     {
       var pipeline = CreateObjectFactory (t => "a", null);
 
-      var instance1 = pipeline.CreateInstance (_type1);
-      var instance2 = pipeline.CreateInstance (_type1);
+      var instance1 = pipeline.CreateObject (_type1);
+      var instance2 = pipeline.CreateObject (_type1);
 
       Assert.That (instance1.GetType(), Is.SameAs (instance2.GetType()));
     }
@@ -58,8 +58,8 @@ namespace TypePipe.IntegrationTests
       var count = 1;
       var pipeline = CreateObjectFactory (t => "a", t => "b" + count++);
 
-      var instance1 = pipeline.CreateInstance (_type1);
-      var instance2 = pipeline.CreateInstance (_type1);
+      var instance1 = pipeline.CreateObject (_type1);
+      var instance2 = pipeline.CreateObject (_type1);
 
       Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
     }
@@ -69,8 +69,8 @@ namespace TypePipe.IntegrationTests
     {
       var factory = CreateObjectFactory (t => "a", t => "b");
 
-      var instance1 = factory.CreateInstance (_type1);
-      var instance2 = factory.CreateInstance (_type2);
+      var instance1 = factory.CreateObject (_type1);
+      var instance2 = factory.CreateObject (_type2);
 
       Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
     }
