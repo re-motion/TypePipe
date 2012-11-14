@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests
           .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), allowNonPublic))
           .Return (new Func<object> (() => "non-public .ctor"));
 
-      var result = _factory.CreateInstance (_requestedType, allowNonPublic);
+      var result = _factory.CreateInstance (_requestedType, allowNonPublicConstructor: allowNonPublic);
 
       Assert.That (result, Is.EqualTo ("non-public .ctor"));
     }

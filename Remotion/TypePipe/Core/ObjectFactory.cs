@@ -21,7 +21,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe
 {
-  /// <inheritdoc />
+  /// <summary>
+  /// Implements <see cref="IObjectFactory"/> to act as a main entry point into the pipeline for generating types and instantiating them.
+  /// </summary>
   public class ObjectFactory : IObjectFactory
   {
     private readonly ITypeCache _typeCache;
@@ -33,32 +35,17 @@ namespace Remotion.TypePipe
       _typeCache = typeCache;
     }
 
-    public T CreateInstance<T> (bool allowNonPublicConstructor = false)
+    public T CreateInstance<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
-      return (T) CreateInstance (typeof (T), allowNonPublicConstructor);
-    }
-
-    public T CreateInstance<T> (ParamList constructorArguments, bool allowNonPublicConstructor = false)
-        where T : class
-    {
-      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
-
       return (T) CreateInstance (typeof (T), constructorArguments, allowNonPublicConstructor);
     }
 
-    public object CreateInstance (Type requestedType, bool allowNonPublicConstructor = false)
+    public object CreateInstance (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return CreateInstance (requestedType, ParamList.Empty, allowNonPublicConstructor);
-    }
-
-    public object CreateInstance (Type requestedType, ParamList constructorArguments, bool allowNonPublicConstructor = false)
-    {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
-
+      constructorArguments = constructorArguments ?? ParamList.Empty;
       var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
 
       return constructorArguments.InvokeFunc (constructorCall);
