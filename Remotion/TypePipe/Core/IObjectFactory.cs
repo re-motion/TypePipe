@@ -36,6 +36,5 @@ namespace Remotion.TypePipe
         where T : class;
 
     Type GetAssembledType (Type requestedType);
-    // TODO Review: Add method to get assembled Type
   }
 }

@@ -26,25 +26,29 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void Resolution ()
     {
-      var objectFactory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
-      Assert.That (objectFactory, Is.Not.Null);
+      var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      Assert.That (factory, Is.Not.Null);
 
-      var instance = objectFactory.CreateInstance<DomainType>();
-      Assert.That (instance, Is.Not.Null);
-      Assert.That (instance.GetType().Module.Name, Is.EqualTo ("<In Memory Module>"));
-
+      var type = factory.GetAssembledType<DomainType>();
+      Assert.That (type, Is.Not.Null);
+      Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
+      Assert.That (type.Module.ScopeName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+\.dll"));
     }
 
-    // TODO Review: Check that IObjectFactory is not registered as a singleton, that two instances with the same underlying type have different 
-    // types, and the types are in assemblies of different names.
     [Test]
-    [Ignore]
     public void Resolution_InstanceScope ()
     {
       var factory1 = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
       var factory2 = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
 
       Assert.That (factory1, Is.Not.SameAs (factory2));
+
+      var type1 = factory1.GetAssembledType<DomainType>();
+      var type2 = factory2.GetAssembledType<DomainType>();
+
+      Assert.That (type1, Is.Not.EqualTo (type2));
+      Assert.That (type1.Assembly.GetName().Name, Is.Not.EqualTo (type2.Assembly.GetName().Name));
+      Assert.That (type1.Module.ScopeName, Is.Not.EqualTo (type2.Module.ScopeName));
     }
 
     public class DomainType { }
