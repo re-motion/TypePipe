@@ -19,7 +19,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -41,7 +40,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString ());
       Assert.That (
-          method.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+          method.Attributes,
+          Is.EqualTo (MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.Abstract));
 
       var result = MethodOverrideUtility.GetAttributesForExplicitOverride (method);
 
@@ -54,18 +54,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtecterOrInternalMethod());
       Assert.That (
           method.Attributes,
-          Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+          Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig| MethodAttributes.Abstract));
 
       var result = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
 
       Assert.That (result, Is.EqualTo (MethodAttributes.Family | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
     }
 
-    private class DomainType
+    private abstract class DomainType
     {
-      protected internal virtual void ProtecterOrInternalMethod () { }
+      protected internal abstract void ProtecterOrInternalMethod ();
 
-      public override string ToString () { return ""; }
+      public abstract override string ToString ();
     }
   }
 }
