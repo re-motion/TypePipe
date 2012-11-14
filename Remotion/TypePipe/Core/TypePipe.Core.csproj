@@ -51,6 +51,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="Caching\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorOnTypeInstantiation.cs" />
