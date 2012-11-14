@@ -15,9 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -29,12 +30,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class DefaultSubclassProxyBuilderFactory : SubclassProxyBuilderFactory
   {
-    // TODO Review: Simplify test to only check assembly name.
-    // TODO Review: Use static counter and interlocked increment to generate unique assembly names.
+    private static int s_counter;
+
+    private static IModuleBuilder CreateModuleBuilder ()
+    {
+      var uniqueCounterValue = Interlocked.Increment (ref s_counter);
+      var assemblyName = "TypePipe_GeneratedAssembly_" + uniqueCounterValue;
+
+      return ReflectionEmitBackendFactory.CreateModuleBuilder (assemblyName).Item1;
+    }
+
     public DefaultSubclassProxyBuilderFactory ()
-        : base (
-            ReflectionEmitBackendFactory.CreateModuleBuilder ("TypePipe_GeneratedAssembly", AssemblyBuilderAccess.Run).Item1,
-            DebugInfoGenerator.CreatePdbGenerator())
+        : base (CreateModuleBuilder(), DebugInfoGenerator.CreatePdbGenerator())
     {
     }
   }

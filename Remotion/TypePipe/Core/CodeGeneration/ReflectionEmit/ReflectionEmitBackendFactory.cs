@@ -32,14 +32,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// real Reflection.Emit <see cref="ModuleBuilder"/>.
     /// The <see cref="AssemblyBuilder"/> created in this process is also returned as the second item of the <see cref="Tuple{T1,T2}"/>.
     /// </summary>
+    /// <remarks> The module will be created with <see cref="AssemblyBuilderAccess.RunAndSave"/> and the <c>emitSymbolInfo</c> flag set to
+    /// <see langword="true"/>.
+    /// </remarks>
     /// <param name="assemblyName">The assembly name (without '.dll').</param>
-    /// <param name="assemblyBuilderAccess">The assembly access flags.</param>
     /// <param name="assemblyDirectory">The name of the directory where the assembly is potentially saved.</param>
     /// <returns>The created module and assembly builder.</returns>
     [CLSCompliant (false)]
     // TODO Review: Remove assemblyBuilderAccess, make RunAndSave by default.
-    public static Tuple<IModuleBuilder, AssemblyBuilder> CreateModuleBuilder (
-        string assemblyName, AssemblyBuilderAccess assemblyBuilderAccess, string assemblyDirectory = null)
+    public static Tuple<IModuleBuilder, AssemblyBuilder> CreateModuleBuilder (string assemblyName, string assemblyDirectory = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
 
@@ -47,7 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Check assemblyName, assemblyDirectory, module name, concrete wiring of module builder.
       // Check assemblyBuilderAccess, emitSymbolInfo by trying to save/check whether PDB is generated.
       var name = new AssemblyName (assemblyName);
-      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (name, assemblyBuilderAccess, assemblyDirectory);
+      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (name, AssemblyBuilderAccess.RunAndSave, assemblyDirectory);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (name + ".dll", emitSymbolInfo: true);
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
       var uniqueNameModuleBuilderDecorator = (IModuleBuilder) new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);

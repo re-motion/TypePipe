@@ -29,13 +29,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var factory = new DefaultSubclassProxyBuilderFactory();
 
-      Assert.That (factory.ModuleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
-      var moduleBuilderDecorator = (UniqueNamingModuleBuilderDecorator) factory.ModuleBuilder;
-      Assert.That (moduleBuilderDecorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
-      var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilderDecorator.InnerModuleBuilder;
-      Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo ("TypePipe_GeneratedAssembly.dll"));
+      var moduleNamePattern = @"TypePipe_GeneratedAssembly_\d+\.dll"; // e.g. TypePipe_GeneratedAssembly_7.dll
+      var moduleName = GetModuleName (factory);
+      Assert.That (moduleName, Is.StringMatching (moduleNamePattern));
 
       Assert.That (factory.DebugInfoGenerator.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+    }
+
+    [Test]
+    public void Initialization_DifferentModuleName ()
+    {
+      var factory1 = new DefaultSubclassProxyBuilderFactory();
+      var factory2 = new DefaultSubclassProxyBuilderFactory();
+
+      Assert.That (GetModuleName (factory1), Is.Not.EqualTo (GetModuleName (factory2)));
+    }
+
+    private string GetModuleName (DefaultSubclassProxyBuilderFactory factory)
+    {
+      var moduleBuilderDecorator = (UniqueNamingModuleBuilderDecorator) factory.ModuleBuilder;
+      var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilderDecorator.InnerModuleBuilder;
+
+      return moduleBuilderAdapter.ScopeName;
     }
   }
 }

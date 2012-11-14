@@ -84,7 +84,7 @@ namespace TypePipe.IntegrationTests
 
     protected ITypeModifier CreateReflectionEmitTypeModifier (string assemblyName)
     {
-      var moduleAndAssembly = ReflectionEmitBackendFactory.CreateModuleBuilder (assemblyName, AssemblyBuilderAccess.RunAndSave, GeneratedFileDirectory);
+      var moduleAndAssembly = ReflectionEmitBackendFactory.CreateModuleBuilder (assemblyName, GeneratedFileDirectory);
 
       _assemblyBuilder = moduleAndAssembly.Item2;
       _generatedFileName = assemblyName + ".dll";
