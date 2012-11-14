@@ -64,5 +64,12 @@ namespace Remotion.TypePipe
 
       return _typeCache.GetOrCreateType (requestedType);
     }
+
+    public object GetUninitializedObject (Type requestedType)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return null;
+    }
   }
 }

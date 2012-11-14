@@ -91,13 +91,5 @@ namespace TypePipe.IntegrationTests.TypeAssembly
 
       return assembledType;
     }
-
-    private IParticipant CreateParticipant (Action<MutableType> typeModification)
-    {
-      var participantStub = MockRepository.GenerateStub<IParticipant>();
-      participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
-
-      return participantStub;
-    }
   }
 }

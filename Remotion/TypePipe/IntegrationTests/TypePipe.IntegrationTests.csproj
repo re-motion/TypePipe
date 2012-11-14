@@ -61,6 +61,7 @@
     <Compile Include="CachingTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
+    <Compile Include="ObjectInitializationTest.cs" />
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />

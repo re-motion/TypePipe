@@ -175,6 +175,11 @@ namespace Remotion.TypePipe.MutableReflection
       _typeInitializations.Add (expression);
     }
 
+    public void AddObjectInitialization (Func<BodyContextBase, Expression> bodyProvider)
+    {
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+    }
+
     public void AddInterface (Type interfaceType)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);

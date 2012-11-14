@@ -29,12 +29,12 @@ namespace Remotion.TypePipe
   {
     T CreateInstance<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class;
-
     object CreateInstance (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     Type GetAssembledType<T> ()
         where T : class;
-
     Type GetAssembledType (Type requestedType);
+
+    object GetUninitializedObject (Type requestedType);
   }
 }

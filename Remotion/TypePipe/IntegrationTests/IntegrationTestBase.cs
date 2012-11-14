@@ -22,9 +22,12 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests
 {
@@ -60,7 +63,7 @@ namespace TypePipe.IntegrationTests
       {
         _assemblyBuilder.Save (_generatedFileName);
 
-        PEVerifier.CreateDefault ().VerifyPEFile (assemblyPath);
+        PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
 
         if (_shouldDeleteGeneratedFiles)
         {
@@ -72,7 +75,7 @@ namespace TypePipe.IntegrationTests
       {
         if (TestContext.CurrentContext.Result.Status != TestStatus.Failed)
           throw;
-        
+
         // Else: Swallow exception if test already had failed state in order to avoid overwriting any exceptions.
       }
     }
@@ -80,6 +83,24 @@ namespace TypePipe.IntegrationTests
     protected void SkipDeletion ()
     {
       _shouldDeleteGeneratedFiles = false;
+    }
+
+    protected IParticipant CreateParticipant (Action<MutableType> typeModification)
+    {
+      var participantStub = MockRepository.GenerateStub<IParticipant>();
+      participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
+
+      return participantStub;
+    }
+
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    protected string GetNameForThisTest (int stackFramesToSkip)
+    {
+      var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
+      var method = stackFrame.GetMethod();
+      Assertion.IsFalse (method.DeclaringType.Name.EndsWith ("TestBase"));
+
+      return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
     protected ITypeModifier CreateReflectionEmitTypeModifier (string assemblyName)
@@ -92,16 +113,6 @@ namespace TypePipe.IntegrationTests
       var subclassProxyBuilderFactory = new SubclassProxyBuilderFactory (moduleAndAssembly.Item1, DebugInfoGenerator.CreatePdbGenerator());
 
       return new TypeModifier (subclassProxyBuilderFactory);
-    }
-
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    protected string GetNameForThisTest (int stackFramesToSkip)
-    {
-      var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
-      var method = stackFrame.GetMethod();
-      Assertion.IsFalse (method.DeclaringType.Name.EndsWith ("TestBase"));
-
-      return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
   }
 }
