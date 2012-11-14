@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using Remotion.Collections;
 using Remotion.Text;
 using Remotion.Utilities;
@@ -95,12 +94,12 @@ namespace Remotion.Reflection
 
       var delegateSignature = GetSignature (delegateType);
       var parameterTypes = delegateSignature.Item1;
-      var returnType = delegateSignature.Item2;
 
+      // Value types do not have default constructors.
       if (_definingType.IsValueType && parameterTypes.Length == 0)
-        return CreateValueTypeDefaultDelegate (_definingType, delegateType, returnType);
+        return DelegateFactory.CreateDefaultConstructorCall (_definingType, delegateType);
 
-      ConstructorInfo ctor = GetConstructor(parameterTypes);
+      ConstructorInfo ctor = GetConstructor (parameterTypes);
       return DelegateFactory.CreateConstructorCall (ctor, delegateType);
     }
 
@@ -114,25 +113,6 @@ namespace Remotion.Reflection
         throw new MissingMethodException (message);
       }
       return ctor;
-    }
-
-    /// <summary>
-    /// Since value types do not have default constructors, an activation with zero parameters must create the object with the initobj IL opcode.
-    /// </summary>
-    private Delegate CreateValueTypeDefaultDelegate (Type type, Type delegateType, Type returnType)
-    {
-      var method = new DynamicMethod ("ConstructorWrapper", returnType, Type.EmptyTypes, type);
-      ILGenerator ilgen = method.GetILGenerator ();
-
-      var localBuilder = ilgen.DeclareLocal (type);
-      ilgen.Emit (OpCodes.Ldloca_S, localBuilder);     // load address of local variable
-      ilgen.Emit (OpCodes.Initobj, type);   // initialize that object with default value
-      ilgen.Emit (OpCodes.Ldloc_0);         // load local variable value
-      if (!returnType.IsValueType)
-        ilgen.Emit (OpCodes.Box, type);       // box it, if required
-      ilgen.Emit (OpCodes.Ret);             // and return it
-
-      return method.CreateDelegate (delegateType);
     }
 
     private void CheckNotAbstract ()
