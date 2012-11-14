@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
-      var factory = new ReflectionEmitBackendFactory.DefaultSubclassProxyBuilderFactory();
+      var factory = new DefaultSubclassProxyBuilderFactory();
 
       Assert.That (factory.ModuleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
       var moduleBuilderDecorator = (UniqueNamingModuleBuilderDecorator) factory.ModuleBuilder;

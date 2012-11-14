@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
   /// </summary>
-  [ConcreteImplementation (typeof (ReflectionEmitBackendFactory.DefaultSubclassProxyBuilderFactory))]
+  [ConcreteImplementation (typeof (DefaultSubclassProxyBuilderFactory))]
   public interface ISubclassProxyBuilderFactory
   {
     ISubclassProxyBuilder CreateBuilder (MutableType mutableType);

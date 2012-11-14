@@ -18,9 +18,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Remotion.Collections;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
 
@@ -55,25 +53,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var uniqueNameModuleBuilderDecorator = (IModuleBuilder) new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
 
       return Tuple.Create (uniqueNameModuleBuilderDecorator, assemblyBuilder);
-    }
-
-    // TODO Review: Move to outer scope.
-    /// <summary>
-    /// A class that solely exists for the default service locator configuration, i.e., we need a class that the 
-    /// <see cref="ConcreteImplementationAttribute"/> on <see cref="ISubclassProxyBuilderFactory"/> can point to.
-    /// This is needed because the <see cref="SubclassProxyBuilder"/> constructor contains arguments that cannot be configured using the
-    /// <see cref="ConcreteImplementationAttribute"/>.
-    /// </summary>
-    public class DefaultSubclassProxyBuilderFactory : SubclassProxyBuilderFactory
-    {
-      // TODO Review: Simplify test to only check assembly name.
-      // TODO Review: Use static counter and interlocked increment to generate unique assembly names.
-      public DefaultSubclassProxyBuilderFactory ()
-          : base (
-              CreateModuleBuilder ("TypePipe_GeneratedAssembly", AssemblyBuilderAccess.Run).Item1,
-              DebugInfoGenerator.CreatePdbGenerator())
-      {
-      }
     }
   }
 }
