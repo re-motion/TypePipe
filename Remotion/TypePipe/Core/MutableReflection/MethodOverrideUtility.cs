@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private static MethodAttributes ChangeVtableLayout (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
     {
-      return (originalAttributes & ~MethodAttributes.VtableLayoutMask) | vtableLayout;
+      return originalAttributes.Unset (MethodAttributes.VtableLayoutMask).Set (vtableLayout);
     }
   }
 }
