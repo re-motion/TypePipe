@@ -18,13 +18,15 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using Remotion.Collections;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  public static class DefaultReflectionEmitBackendFactory
+  public static class ReflectionEmitBackendFactory
   {
     /// <summary>
     /// Creates a standard <see cref="IModuleBuilder"/>, decorated with <see cref="UniqueNamingModuleBuilderDecorator"/> and backed by a
@@ -48,6 +50,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var uniqueNameModuleBuilderDecorator = (IModuleBuilder) new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
 
       return Tuple.Create (uniqueNameModuleBuilderDecorator, assemblyBuilder);
-    } 
+    }
+
+    /// <summary>
+    /// A class that solely exists for the default service locator configuration, i.e., we need a class that the 
+    /// <see cref="ConcreteImplementationAttribute"/> on <see cref="ISubclassProxyBuilderFactory"/> can point to.
+    /// This is needed because the <see cref="SubclassProxyBuilder"/> constructor contains arguments that cannot be configured using the
+    /// <see cref="ConcreteImplementationAttribute"/>.
+    /// </summary>
+    public class DefaultSubclassProxyBuilderFactory : SubclassProxyBuilderFactory
+    {
+      public DefaultSubclassProxyBuilderFactory ()
+          : base (
+              CreateModuleBuilder ("TypePipe_GeneratedAssembly", AssemblyBuilderAccess.Run).Item1,
+              DebugInfoGenerator.CreatePdbGenerator())
+      {
+      }
+    }
   }
 }
