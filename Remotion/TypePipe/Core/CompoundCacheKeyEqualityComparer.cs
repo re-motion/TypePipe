@@ -35,23 +35,14 @@ namespace Remotion.TypePipe
   {
     public bool Equals (object[] x, object[] y)
     {
-      // TODO Review: Debug.Assert that args are not null
-
       // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (x != null);
+      Debug.Assert (y != null);
       Debug.Assert (x.Length == y.Length);
 
       for (int i = 0; i < x.Length; ++i)
       {
-        object key1 = x[i];
-        object key2 = y[i];
-
-        if (key1 == key2)
-          continue;
-
-        if (key1 == null)
-          return false;
-
-        if (!key1.Equals (key2))
+        if (!object.Equals (x[i], y[i]))
           return false;
       }
 
@@ -60,7 +51,8 @@ namespace Remotion.TypePipe
 
     public int GetHashCode (object[] compoundKey)
     {
-      // TODO Review: Debug.Assert that args are not null
+      Debug.Assert (compoundKey != null);
+
       return EqualityUtility.GetRotatedHashCode (compoundKey);
     }
   }
