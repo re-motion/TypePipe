@@ -33,6 +33,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
   {
+    public static readonly UnderlyingParameterInfoDescriptor[] EmptyParameters = new UnderlyingParameterInfoDescriptor[0];
+
     public static ReadOnlyCollection<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);

@@ -30,6 +30,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class UnderlyingParameterInfoDescriptorTest
   {
     [Test]
+    public void EmptyParameters ()
+    {
+      Assert.That (UnderlyingParameterInfoDescriptor.EmptyParameters, Is.Empty);
+    }
+
+    [Test]
     public void Create_ForNew ()
     {
       var type = ReflectionObjectMother.GetSomeType();

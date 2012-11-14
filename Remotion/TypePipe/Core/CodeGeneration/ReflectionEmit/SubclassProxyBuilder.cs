@@ -16,10 +16,10 @@
 // 
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return;
 
       var attributes = MethodAttributes.Private | MethodAttributes.Static;
-      var parameters = Enumerable.Empty<UnderlyingParameterInfoDescriptor>();
+      var parameters = UnderlyingParameterInfoDescriptor.EmptyParameters;
       var body = Expression.Block (typeof (void), initializationExpressions);
       var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameters, body);
       var typeInitializer = new MutableConstructorInfo (_context.MutableType, descriptor);
@@ -90,7 +90,24 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
+      EnsureNotBuilt();
+
+      if (initializationExpressions.Count == 0)
+        return;
+
+      HandleAddedInterface (typeof (IInitializableObject));
+
+      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
+      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
+      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
+      var returnType = typeof (void);
+      var parameters = UnderlyingParameterInfoDescriptor.EmptyParameters;
+      var body = Expression.Block (returnType, initializationExpressions);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameters, null, false, false, false, body);
+      var initializeMethod = new MutableMethodInfo (_context.MutableType, descriptor);
+
+      HandleAddedMethod (initializeMethod);
     }
 
     public void HandleAddedInterface (Type addedInterface)

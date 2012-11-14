@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -23,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -91,10 +91,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               mi =>
               {
                 var ctor = (MutableConstructorInfo) mi.Arguments[1];
+                Assert.That (ctor.DeclaringType, Is.SameAs (_mutableType));
                 Assert.That (ctor.Name, Is.EqualTo (".cctor"));
                 Assert.That (ctor.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Static));
                 Assert.That (ctor.GetParameters(), Is.Empty);
                 Assert.That (ctor.Body, Is.InstanceOf<BlockExpression>());
+
                 var blockExpression = (BlockExpression) ctor.Body;
                 Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
                 Assert.That (blockExpression.Expressions, Is.EqualTo (expressions));
@@ -102,17 +104,61 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _builder.HandleTypeInitializations (expressions);
 
-      _memberEmitterMock.VerifyAllExpectations ();
+      _memberEmitterMock.VerifyAllExpectations();
     }
 
     [Test]
     public void HandleTypeInitializations_Empty ()
     {
-      var expressions = new ReadOnlyCollection<Expression> (new Expression[0]);
+      var expressions = new Expression[0].ToList().AsReadOnly();
 
       _builder.HandleTypeInitializations (expressions);
 
-      _memberEmitterMock.AssertWasNotCalled (x => x.AddConstructor (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableConstructorInfo>.Is.Anything));
+      _memberEmitterMock.AssertWasNotCalled (
+          mock => mock.AddConstructor (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableConstructorInfo>.Is.Anything));
+    }
+
+    [Test]
+    public void HandleInstanceInitializations ()
+    {
+      var expressions = new[] { ExpressionTreeObjectMother.GetSomeExpression() }.ToList().AsReadOnly();
+      var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+
+      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (typeof (IInitializableObject)));
+      _memberEmitterMock
+          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything, Arg.Is (methodAttributes)))
+          .WhenCalled (
+              mi =>
+              {
+                var method = (MutableMethodInfo) mi.Arguments[1];
+                Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
+                Assert.That (method.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject_Initialize"));
+                Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
+                Assert.That (method.ReturnType, Is.SameAs (typeof (void)));
+                Assert.That (method.GetParameters(), Is.Empty);
+                Assert.That (method.Body, Is.InstanceOf<BlockExpression>());
+
+                var blockExpression = (BlockExpression) method.Body;
+                Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
+                Assert.That (blockExpression.Expressions, Is.EqualTo (expressions));
+              });
+
+      _builder.HandleInstanceInitializations (expressions);
+
+      _typeBuilderMock.VerifyAllExpectations();
+      _memberEmitterMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void HandleInstanceInitializations_Empty ()
+    {
+      var expressions = new Expression[0].ToList().AsReadOnly();
+
+      _builder.HandleInstanceInitializations (expressions);
+
+      _typeBuilderMock.AssertWasNotCalled (mock => mock.AddInterfaceImplementation (Arg<Type>.Is.Anything));
+      _memberEmitterMock.AssertWasNotCalled (
+          mock => mock.AddMethod (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableMethodInfo>.Is.Anything, Arg<MethodAttributes>.Is.Anything));
     }
 
     [Test]
@@ -329,6 +375,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder.Build ();
 
       CheckThrowsForOperationAfterBuild (() => _builder.HandleTypeInitializations (new Expression[0].ToList().AsReadOnly()));
+      CheckThrowsForOperationAfterBuild (() => _builder.HandleInstanceInitializations (new Expression[0].ToList().AsReadOnly()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType()));
 
