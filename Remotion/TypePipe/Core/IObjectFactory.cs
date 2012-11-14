@@ -32,6 +32,10 @@ namespace Remotion.TypePipe
 
     object CreateInstance (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
+    Type GetAssembledType<T> ()
+        where T : class;
+
+    Type GetAssembledType (Type requestedType);
     // TODO Review: Add method to get assembled Type
   }
 }

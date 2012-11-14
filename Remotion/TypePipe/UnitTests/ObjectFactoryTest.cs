@@ -87,5 +87,45 @@ namespace Remotion.TypePipe.UnitTests
 
       Assert.That (result, Is.EqualTo ("non-public .ctor"));
     }
+
+    [Test]
+    public void CreateInstance_Generic ()
+    {
+      var assembledInstance = new AssembledType();
+      _typeCacheMock
+          .Expect (mock => mock.GetOrCreateConstructorCall (typeof (RequestedType), ParamList.Empty.FuncType, false))
+          .Return (new Func<object> (() => assembledInstance));
+
+      var result = _factory.CreateInstance<RequestedType>();
+
+      Assert.That (result, Is.SameAs (assembledInstance));
+    }
+
+    [Test]
+    public void GetAssembledType ()
+    {
+      var fakeAssembledType = ReflectionObjectMother.GetSomeDifferentType();
+      _typeCacheMock.Expect (x => x.GetOrCreateType (_requestedType)).Return (fakeAssembledType);
+
+      var result = _factory.GetAssembledType (_requestedType);
+
+      _typeCacheMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeAssembledType));
+    }
+
+    [Test]
+    public void GetAssembledType_Generic ()
+    {
+      var fakeAssembledType = ReflectionObjectMother.GetSomeDifferentType();
+      _typeCacheMock.Expect (x => x.GetOrCreateType (typeof (RequestedType))).Return (fakeAssembledType);
+
+      var result = _factory.GetAssembledType<RequestedType>();
+
+      _typeCacheMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeAssembledType));
+    }
+
+    class RequestedType { }
+    class AssembledType : RequestedType { }
   }
 }

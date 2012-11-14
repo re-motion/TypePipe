@@ -51,5 +51,18 @@ namespace Remotion.TypePipe
 
       return constructorArguments.InvokeFunc (constructorCall);
     }
+
+    public Type GetAssembledType<T> ()
+      where T : class
+    {
+      return GetAssembledType (typeof (T));
+    }
+
+    public Type GetAssembledType (Type requestedType)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return _typeCache.GetOrCreateType (requestedType);
+    }
   }
 }

@@ -33,8 +33,18 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance, Is.Not.Null);
       Assert.That (instance.GetType().Module.Name, Is.EqualTo ("<In Memory Module>"));
 
-      // TODO Review: Check that IObjectFactory is not registered as a singleton, that two instances with the same underlying type have different 
-      // types, and the types are in assemblies of different names.
+    }
+
+    // TODO Review: Check that IObjectFactory is not registered as a singleton, that two instances with the same underlying type have different 
+    // types, and the types are in assemblies of different names.
+    [Test]
+    [Ignore]
+    public void Resolution_InstanceScope ()
+    {
+      var factory1 = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      var factory2 = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+
+      Assert.That (factory1, Is.Not.SameAs (factory2));
     }
 
     public class DomainType { }
