@@ -94,6 +94,7 @@ namespace TypePipe.IntegrationTests
       return new TypeModifier (subclassProxyBuilderFactory);
     }
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected string GetNameForThisTest (int stackFramesToSkip)
     {
       var stackFrame = new StackFrame (stackFramesToSkip + 1, false);

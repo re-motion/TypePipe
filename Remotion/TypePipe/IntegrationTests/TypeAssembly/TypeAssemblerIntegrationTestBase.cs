@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -33,16 +34,19 @@ namespace TypePipe.IntegrationTests.TypeAssembly
     private const BindingFlags c_allDeclared =
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
       return AssembleType (typeof (T), participantActions, 1);
     }
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType (Type requestedType, params Action<MutableType>[] participantActions)
     {
       return AssembleType (requestedType, participantActions, 1);
     }
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType (Type requestedType, IEnumerable<Action<MutableType>> participantActions, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);

@@ -32,6 +32,9 @@ namespace TypePipe.IntegrationTests
       var instance = objectFactory.CreateInstance<DomainType>();
       Assert.That (instance, Is.Not.Null);
       Assert.That (instance.GetType().Module.Name, Is.EqualTo ("<In Memory Module>"));
+
+      // TODO Review: Check that IObjectFactory is not registered as a singleton, that two instances with the same underlying type have different 
+      // types, and the types are in assemblies of different names.
     }
 
     public class DomainType { }

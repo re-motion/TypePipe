@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Remotion.Reflection;
 using Remotion.TypePipe;
 
@@ -24,11 +25,13 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
       return CreateObjectFactory (participants, 1);
     }
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);

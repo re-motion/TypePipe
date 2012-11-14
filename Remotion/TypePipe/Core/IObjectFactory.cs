@@ -27,13 +27,17 @@ namespace Remotion.TypePipe
   [ConcreteImplementation (typeof (ObjectFactory))]
   public interface IObjectFactory
   {
+    // TODO Review: Make constructorArgument parameter optional, with default value null.
     T CreateInstance<T> (bool allowNonPublicConstructor = false)
         where T : class;
 
     T CreateInstance<T> (ParamList constructorArguments, bool allowNonPublicConstructor = false)
         where T : class;
 
+    // TODO Review: Make constructorArgument parameter optional, with default value null.
     object CreateInstance (Type requestedType, bool allowNonPublicConstructor = false);
     object CreateInstance (Type requestedType, ParamList constructorArguments, bool allowNonPublicConstructor = false);
+
+    // TODO Review: Add method to get assembled Type
   }
 }

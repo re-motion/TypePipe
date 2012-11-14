@@ -48,6 +48,8 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance.CharArray, Is.EqualTo (new[] { 'a', 'b', 'c' }));
     }
 
+    // TODO Review: Add integration test for non-generic overload
+
     public class DomainType
     {
       public readonly object Obj;      
@@ -60,6 +62,8 @@ namespace TypePipe.IntegrationTests
       public DomainType (string @string) { String = @string; }
       public DomainType (IEnumerable<char> enumerable) { Enumerable = enumerable; }
       public DomainType (char[] charArray) { CharArray = charArray; }
+
+      // TODO Review: Test protected ctor
     }
   }
 }

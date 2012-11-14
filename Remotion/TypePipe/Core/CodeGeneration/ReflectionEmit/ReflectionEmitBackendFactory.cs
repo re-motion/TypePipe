@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   public static class ReflectionEmitBackendFactory
   {
+    // TODO Review: Unit test.
     /// <summary>
     /// Creates a standard <see cref="IModuleBuilder"/>, decorated with <see cref="UniqueNamingModuleBuilderDecorator"/> and backed by a
     /// real Reflection.Emit <see cref="ModuleBuilder"/>.
@@ -38,11 +39,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// <param name="assemblyDirectory">The name of the directory where the assembly is potentially saved.</param>
     /// <returns>The created module and assembly builder.</returns>
     [CLSCompliant (false)]
+    // TODO Review: Remove assemblyBuilderAccess, make RunAndSave by default.
     public static Tuple<IModuleBuilder, AssemblyBuilder> CreateModuleBuilder (
         string assemblyName, AssemblyBuilderAccess assemblyBuilderAccess, string assemblyDirectory = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
 
+      // TODO Review: Refactor existing DefaultSubclassProxyBuilderFactoryTest into two tests - one for this method. 
+      // Check assemblyName, assemblyDirectory, module name, concrete wiring of module builder.
+      // Check assemblyBuilderAccess, emitSymbolInfo by trying to save/check whether PDB is generated.
       var name = new AssemblyName (assemblyName);
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (name, assemblyBuilderAccess, assemblyDirectory);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (name + ".dll", emitSymbolInfo: true);
@@ -52,6 +57,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return Tuple.Create (uniqueNameModuleBuilderDecorator, assemblyBuilder);
     }
 
+    // TODO Review: Move to outer scope.
     /// <summary>
     /// A class that solely exists for the default service locator configuration, i.e., we need a class that the 
     /// <see cref="ConcreteImplementationAttribute"/> on <see cref="ISubclassProxyBuilderFactory"/> can point to.
@@ -60,6 +66,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// </summary>
     public class DefaultSubclassProxyBuilderFactory : SubclassProxyBuilderFactory
     {
+      // TODO Review: Simplify test to only check assembly name.
+      // TODO Review: Use static counter and interlocked increment to generate unique assembly names.
       public DefaultSubclassProxyBuilderFactory ()
           : base (
               CreateModuleBuilder ("TypePipe_GeneratedAssembly", AssemblyBuilderAccess.Run).Item1,
