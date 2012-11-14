@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Remotion.Utilities;
 
+// TODO Review: Move caching classes to separate namespace
+
 namespace Remotion.TypePipe
 {
   /// <summary>
@@ -33,6 +35,8 @@ namespace Remotion.TypePipe
   {
     public bool Equals (object[] x, object[] y)
     {
+      // TODO Review: Debug.Assert that args are not null
+
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (x.Length == y.Length);
 
@@ -56,6 +60,7 @@ namespace Remotion.TypePipe
 
     public int GetHashCode (object[] compoundKey)
     {
+      // TODO Review: Debug.Assert that args are not null
       return EqualityUtility.GetRotatedHashCode (compoundKey);
     }
   }
