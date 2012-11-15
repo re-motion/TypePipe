@@ -50,13 +50,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _name = "Method";
-      _attributes = MethodAttributes.HasSecurity;
-      _returnType = ReflectionObjectMother.GetSomeType ();
+      _attributes = (MethodAttributes) 7;
+      _returnType = ReflectionObjectMother.GetSomeType();
       _parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
-      _baseMethod = ReflectionObjectMother.GetSomeMethod ();
-      _isGenMethod = BooleanObjectMother.GetRandomBoolean ();
-      _isGenMethodDef = BooleanObjectMother.GetRandomBoolean ();
-      _containsGenParams = BooleanObjectMother.GetRandomBoolean ();
+      _baseMethod = ReflectionObjectMother.GetSomeMethod();
+      _isGenMethod = BooleanObjectMother.GetRandomBoolean();
+      _isGenMethodDef = BooleanObjectMother.GetRandomBoolean();
+      _containsGenParams = BooleanObjectMother.GetRandomBoolean();
       _body = ExpressionTreeObjectMother.GetSomeExpression (_returnType);
 
       _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
@@ -92,10 +92,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForNew_NullBaseMethod ()
     {
-      MethodInfo baseMethod = null;
-
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          _name, _attributes, _returnType, _parameterDescriptors, baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, _body);
+          _name, _attributes, _returnType, _parameterDescriptors, null, _isGenMethod, _isGenMethodDef, _containsGenParams, _body);
 
       Assert.That (descriptor.BaseMethod, Is.Null);
     }
@@ -104,10 +102,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForNew_NullBody ()
     {
       var attributes = MethodAttributes.Abstract;
-      Expression body = null;
 
       var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
+          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
 
       Assert.That (descriptor.Body, Is.Null);
     }
@@ -129,12 +126,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForNew_ThrowsForNonAbstractNullBody ()
     {
       var attributes = MethodAttributes.HasSecurity;
-      Expression body = null;
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
-
-      Assert.That (descriptor.Body, Is.Null);
+      UnderlyingMethodInfoDescriptor.Create (
+          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
     }
 
     [Test]
@@ -172,7 +166,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new { Type = typeof (string), Name = "s", Attributes = ParameterAttributes.None },
               new { Type = typeof (int).MakeByRefType(), Name = "i", Attributes = ParameterAttributes.Out },
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
-              new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
+              new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out }
           };
       var actualParameterDescriptors = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDescriptors, Is.EqualTo (expectedParameterDescriptors));
@@ -218,7 +212,65 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateEquivalent ()
     {
-      
+      int v;
+      var equivalentMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
+      var body = ExpressionTreeObjectMother.GetSomeExpression (equivalentMethod.ReturnType);
+
+      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, _attributes, body);
+
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+      Assert.That (descriptor.Name, Is.EqualTo (_name));
+      Assert.That (descriptor.Attributes, Is.EqualTo (_attributes));
+      Assert.That (descriptor.ReturnType, Is.SameAs (equivalentMethod.ReturnType));
+
+      var expectedParameterDescriptors =
+          new[]
+          {
+              new { Type = typeof (string), Name = "s", Attributes = ParameterAttributes.None },
+              new { Type = typeof (int).MakeByRefType(), Name = "i", Attributes = ParameterAttributes.Out },
+              new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
+              new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out }
+          };
+      var actualParameterDescriptors = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      Assert.That (actualParameterDescriptors, Is.EqualTo (expectedParameterDescriptors));
+      Assert.That (descriptor.BaseMethod, Is.Null);
+      Assert.That (descriptor.IsGenericMethod, Is.False);
+      Assert.That (descriptor.IsGenericMethodDefinition, Is.False);
+      Assert.That (descriptor.ContainsGenericParameters, Is.False);
+      Assert.That (descriptor.CustomAttributeDataProvider.Invoke(), Is.Empty);
+      Assert.That (descriptor.Body, Is.SameAs (body));
+    }
+
+    [Test]
+    public void CreateEquivalent_NullBody ()
+    {
+      var equivalentMethod = ReflectionObjectMother.GetSomeMethod ();
+      var attributes = MethodAttributes.Abstract;
+
+      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, attributes, body: null);
+
+      Assert.That (descriptor.Body, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Non-abstract method must have a body.\r\nParameter name: body")]
+    public void CreateEquivalent_ThrowsForNonAbstractNullBody ()
+    {
+      var equivalentMethod = ReflectionObjectMother.GetSomeMethod();
+      var attributes = MethodAttributes.HasSecurity;
+
+      UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, attributes, body: null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The body's return type must be assignable to the method return type.\r\nParameter name: body")]
+    public void CreateEquivalent_ThrowsForInvalidBodyReturnType ()
+    {
+      var equivalentMethod = ReflectionObjectMother.GetSomeMethod();
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (IDisposable));
+
+      UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, _attributes, body);
     }
     
     class DomainType
@@ -236,7 +288,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       protected internal string ProtectedInternalMethod () { return null; }
 
       // Some method that has a different root definition
-      public override string ToString () { return null; }
+      public override string ToString () { return ""; }
     }
 
     class AbcAttribute : Attribute { }

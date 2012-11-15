@@ -48,12 +48,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
       // baseMethod may be null
       // body may be null
-
-      if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
-        throw new ArgumentException ("Non-abstract method must have a body.", "body");
-
-      if (body != null && !returnType.IsAssignableFrom (body.Type))
-        throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
+      CheckMethodData (attributes, returnType, body);
 
       var readonlyParameterDescriptors = parameterDescriptors.ToList().AsReadOnly();
       return new UnderlyingMethodInfoDescriptor (
@@ -95,6 +90,38 @@ namespace Remotion.TypePipe.MutableReflection
           underlyingMethod.ContainsGenericParameters,
           customAttributeDataProvider,
           body);
+    }
+
+    public static UnderlyingMethodInfoDescriptor CreateEquivalent (
+        MethodInfo equivalentMethod, string name, MethodAttributes attributes, Expression body)
+    {
+      ArgumentUtility.CheckNotNull ("equivalentMethod", equivalentMethod);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // body may be null
+      CheckMethodData (attributes, equivalentMethod.ReturnType, body);
+
+      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (equivalentMethod);
+      return new UnderlyingMethodInfoDescriptor (
+          null,
+          name,
+          attributes,
+          equivalentMethod.ReturnType,
+          parameterDeclarations,
+          baseMethod: null,
+          isGenericMethod: false,
+          isGenericMethodDefinition: false,
+          containsGenericParameters: false,
+          customAttributeDataProvider: EmptyCustomAttributeDataProvider,
+          body: body);
+    }
+
+    private static void CheckMethodData (MethodAttributes attributes, Type returnType, Expression body)
+    {
+      if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
+        throw new ArgumentException ("Non-abstract method must have a body.", "body");
+
+      if (body != null && !returnType.IsAssignableFrom (body.Type))
+        throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
     }
 
     private readonly Type _returnType;

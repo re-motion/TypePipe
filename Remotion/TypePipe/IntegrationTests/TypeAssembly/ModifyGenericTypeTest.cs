@@ -65,7 +65,7 @@ namespace TypePipe.IntegrationTests.TypeAssembly
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
-        + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: originalType")]
+        + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: underlyingType")]
     public void OpenGenericType_Throws ()
     {
       AssembleType (typeof (DomainType<>));
