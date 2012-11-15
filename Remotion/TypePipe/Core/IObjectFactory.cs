@@ -30,8 +30,6 @@ namespace Remotion.TypePipe
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
     object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
-    // TODO Review: Remove.
-    Type GetAssembledType<T> () where T : class;
     // TODO Review: Warn that PrepareAssembledTypeInstance must be called before using an instance of the returned type.
     Type GetAssembledType (Type requestedType);
 

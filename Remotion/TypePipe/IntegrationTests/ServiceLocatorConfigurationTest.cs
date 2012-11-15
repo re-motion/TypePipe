@@ -29,7 +29,7 @@ namespace TypePipe.IntegrationTests
       var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
       Assert.That (factory, Is.Not.Null);
 
-      var type = factory.GetAssembledType<DomainType>();
+      var type = factory.GetAssembledType (typeof (DomainType));
       Assert.That (type, Is.Not.Null);
       Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
       Assert.That (type.Module.ScopeName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+\.dll"));
@@ -43,8 +43,8 @@ namespace TypePipe.IntegrationTests
 
       Assert.That (factory1, Is.Not.SameAs (factory2));
 
-      var type1 = factory1.GetAssembledType<DomainType>();
-      var type2 = factory2.GetAssembledType<DomainType>();
+      var type1 = factory1.GetAssembledType (typeof (DomainType));
+      var type2 = factory2.GetAssembledType (typeof (DomainType));
 
       Assert.That (type1, Is.Not.EqualTo (type2));
       Assert.That (type1.Assembly.GetName().Name, Is.Not.EqualTo (type2.Assembly.GetName().Name));

@@ -128,18 +128,6 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void GetAssembledType_Generic ()
-    {
-      var fakeAssembledType = ReflectionObjectMother.GetSomeDifferentType();
-      _typeCacheMock.Expect (x => x.GetOrCreateType (typeof (RequestedType))).Return (fakeAssembledType);
-
-      var result = _factory.GetAssembledType<RequestedType>();
-
-      _typeCacheMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeAssembledType));
-    }
-
-    [Test]
     public void GetUninitializedObject ()
     {
       var assembledType = typeof (AssembledType);

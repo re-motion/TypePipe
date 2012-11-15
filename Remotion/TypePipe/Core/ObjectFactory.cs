@@ -54,12 +54,6 @@ namespace Remotion.TypePipe
       return SafeInitialize (instance);
     }
 
-    public Type GetAssembledType<T> ()
-        where T : class
-    {
-      return GetAssembledType (typeof (T));
-    }
-
     public Type GetAssembledType (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
