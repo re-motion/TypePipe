@@ -27,42 +27,42 @@ namespace Remotion.TypePipe.MutableReflection
   /// Defines the characteristics of a type.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="MutableType"/> to represent the original type, before any mutations.
+  /// This is used by <see cref="MutableType"/> to represent a type, before any mutations.
   /// </remarks>
   public class UnderlyingTypeDescriptor : UnderlyingInfoDescriptorBase<Type>
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
 
-    public static UnderlyingTypeDescriptor Create (Type originalType)
+    public static UnderlyingTypeDescriptor Create (Type underlyingType)
     {
-      ArgumentUtility.CheckNotNull ("originalType", originalType);
+      ArgumentUtility.CheckNotNull ("underlyingType", underlyingType);
 
-      if (originalType is MutableType)
-        throw new ArgumentException ("Original type must not be another mutable type.", "originalType");
+      if (underlyingType is MutableType)
+        throw new ArgumentException ("Original type must not be another mutable type.", "underlyingType");
 
       // TODO 4695
-      if (CanNotBeSubclassed (originalType))
+      if (CanNotBeSubclassed (underlyingType))
       {
         throw new ArgumentException (
             "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
             + "a generic parameter, contain generic parameters and must have an accessible constructor.",
-            "originalType");
+            "underlyingType");
       }
 
       return new UnderlyingTypeDescriptor (
-          originalType,
-          originalType.DeclaringType,
-          originalType.BaseType,
-          originalType.Name,
-          originalType.Namespace,
-          originalType.FullName,
-          originalType.Attributes,
-          GetCustomAttributeProvider (originalType),
-          Array.AsReadOnly (originalType.GetInterfaces()),
-          originalType.GetFields (c_allMembers).ToList().AsReadOnly(),
-          originalType.GetConstructors (c_allInstanceMembers).ToList().AsReadOnly(),
-          originalType.GetMethods (c_allMembers).Where (m => !m.IsGenericMethod).ToList().AsReadOnly());
+          underlyingType,
+          underlyingType.DeclaringType,
+          underlyingType.BaseType,
+          underlyingType.Name,
+          underlyingType.Namespace,
+          underlyingType.FullName,
+          underlyingType.Attributes,
+          GetCustomAttributeProvider (underlyingType),
+          Array.AsReadOnly (underlyingType.GetInterfaces()),
+          underlyingType.GetFields (c_allMembers).ToList().AsReadOnly(),
+          underlyingType.GetConstructors (c_allInstanceMembers).ToList().AsReadOnly(),
+          underlyingType.GetMethods (c_allMembers).Where (m => !m.IsGenericMethod).ToList().AsReadOnly());
     }
 
     private static bool CanNotBeSubclassed (Type type)
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyCollection<MethodInfo> _methods;
 
     private UnderlyingTypeDescriptor (
-        Type underlyingSystemType,
+        Type underlyingType,
         Type declaringType,
         Type baseType,
         string name,
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.MutableReflection
         ReadOnlyCollection<FieldInfo> fields,
         ReadOnlyCollection<ConstructorInfo> constructors,
         ReadOnlyCollection<MethodInfo> methods)
-        : base (underlyingSystemType, name, customAttributeDataProvider)
+        : base (underlyingType, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (fullName);
       Assertion.IsNotNull (interfaces);

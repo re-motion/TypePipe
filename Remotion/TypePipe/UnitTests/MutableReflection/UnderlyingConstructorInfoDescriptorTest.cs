@@ -71,13 +71,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       int v;
-      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
+      var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (underlyingCtor);
 
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (originalCtor));
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingCtor));
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
-      Assert.That (descriptor.Attributes, Is.EqualTo (originalCtor.Attributes));
+      Assert.That (descriptor.Attributes, Is.EqualTo (underlyingCtor.Attributes));
 
       var expectedParamterDecls =
           new[]
@@ -97,17 +97,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
-      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalCtor));
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (underlyingCtor));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
     }
 
     [Test]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
-      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
-      Assert.That (originalCtor.IsFamilyOrAssembly, Is.True);
+      var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
+      Assert.That (underlyingCtor.IsFamilyOrAssembly, Is.True);
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalCtor);
+      var descriptor = UnderlyingConstructorInfoDescriptor.Create (underlyingCtor);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));

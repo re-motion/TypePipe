@@ -153,18 +153,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Create_ForExisting ()
     {
       int v;
-      var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
+      var underlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
 
       var fakeBaseMethod = ReflectionObjectMother.GetSomeMethod();
-      _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (originalMethod)).Return (fakeBaseMethod);
+      _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (underlyingMethod)).Return (fakeBaseMethod);
       
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (originalMethod));
-      Assert.That (descriptor.Name, Is.EqualTo (originalMethod.Name));
-      Assert.That (descriptor.Attributes, Is.EqualTo (originalMethod.Attributes));
-      Assert.That (descriptor.ReturnType, Is.SameAs (originalMethod.ReturnType));
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingMethod));
+      Assert.That (descriptor.Name, Is.EqualTo (underlyingMethod.Name));
+      Assert.That (descriptor.Attributes, Is.EqualTo (underlyingMethod.Attributes));
+      Assert.That (descriptor.ReturnType, Is.SameAs (underlyingMethod.ReturnType));
 
       var expectedParameterDescriptors =
           new[]
@@ -184,19 +184,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (descriptor.Body, Is.TypeOf<OriginalBodyExpression> ());
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
-      Assert.That (originalBodyExpression.Type, Is.SameAs (originalMethod.ReturnType));
-      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (originalMethod));
+      Assert.That (originalBodyExpression.Type, Is.SameAs (underlyingMethod.ReturnType));
+      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (underlyingMethod));
       Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
     }
 
     [Test]
     public void Create_ForExisting_ChangesVisibilityProtectedOrInternalToProtected ()
     {
-      var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
-      Assert.That (originalMethod.IsFamilyOrAssembly, Is.True);
+      var underlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
+      Assert.That (underlyingMethod.IsFamilyOrAssembly, Is.True);
       _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
@@ -205,14 +205,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting_AbstractMethodResultsInNullBody ()
     {
-      var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.Method());
-      Assert.That (originalMethod.IsAbstract, Is.True);
+      var underlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.Method());
+      Assert.That (underlyingMethod.IsAbstract, Is.True);
       _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinderMock);
+      var descriptor = UnderlyingMethodInfoDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       Assert.That (descriptor.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
       Assert.That (descriptor.Body, Is.Null);
+    }
+
+    [Test]
+    public void CreateEquivalent ()
+    {
+      
     }
     
     class DomainType

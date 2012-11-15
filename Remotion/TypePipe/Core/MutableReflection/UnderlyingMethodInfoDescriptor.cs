@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Defines the characteristics of a method.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="MutableMethodInfo"/> to represent the original method, before any mutations.
+  /// This is used by <see cref="MutableMethodInfo"/> to represent a method, before any mutations.
   /// </remarks>
   public class UnderlyingMethodInfoDescriptor : UnderlyingMethodBaseDescriptor<MethodInfo>
   {

@@ -55,12 +55,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public FieldInfo UnderlyingSystemFieldInfo
     {
-      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemFieldInfo ?? this; }
+      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public bool IsNew
     {
-      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemFieldInfo == null; }
+      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified

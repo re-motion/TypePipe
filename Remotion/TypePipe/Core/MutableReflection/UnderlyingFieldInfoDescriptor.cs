@@ -37,39 +37,32 @@ namespace Remotion.TypePipe.MutableReflection
       return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes, EmptyCustomAttributeDataProvider);
     }
 
-    public static UnderlyingFieldInfoDescriptor Create (FieldInfo originalField)
+    public static UnderlyingFieldInfoDescriptor Create (FieldInfo underlyingField)
     {
-      ArgumentUtility.CheckNotNull ("originalField", originalField);
+      ArgumentUtility.CheckNotNull ("underlyingField", underlyingField);
 
-      var customAttributeDataProvider = GetCustomAttributeProvider (originalField);
+      var customAttributeDataProvider = GetCustomAttributeProvider (underlyingField);
 
       return new UnderlyingFieldInfoDescriptor (
-          originalField, originalField.FieldType, originalField.Name, originalField.Attributes, customAttributeDataProvider);
+          underlyingField, underlyingField.FieldType, underlyingField.Name, underlyingField.Attributes, customAttributeDataProvider);
     }
 
-    private readonly FieldInfo _underlyingSystemFieldInfo;
     private readonly FieldAttributes _attributes;
     private readonly Type _type;
 
     private UnderlyingFieldInfoDescriptor (
-        FieldInfo underlyingSystemFieldInfo,
+        FieldInfo underlyingField,
         Type fieldType,
         string name,
         FieldAttributes attributes,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
-      : base (underlyingSystemFieldInfo, name, customAttributeDataProvider)
+      : base (underlyingField, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (fieldType);
       Assertion.IsNotNull (name);
 
-      _underlyingSystemFieldInfo = underlyingSystemFieldInfo;
       _type = fieldType;
       _attributes = attributes;
-    }
-
-    public FieldInfo UnderlyingSystemFieldInfo
-    {
-      get { return _underlyingSystemFieldInfo; }
     }
 
     public Type Type

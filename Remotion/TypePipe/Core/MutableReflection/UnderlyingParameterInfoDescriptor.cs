@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Defines the characteristics of a parameter.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="MutableParameterInfo"/> to represent the original parameter, before any mutations.
+  /// This is used by <see cref="MutableParameterInfo"/> to represent a parameter, before any mutations.
   /// </remarks>
   public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
   {

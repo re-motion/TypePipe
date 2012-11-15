@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Defines the characteristics of a constructor.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="MutableConstructorInfo"/> to represent the original constructor, before any mutations.
+  /// This is used by <see cref="MutableConstructorInfo"/> to represent a constructor, before any mutations.
   /// </remarks>
   public class UnderlyingConstructorInfoDescriptor : UnderlyingMethodBaseDescriptor<ConstructorInfo>
   {

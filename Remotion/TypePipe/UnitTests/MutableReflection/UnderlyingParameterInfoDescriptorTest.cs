@@ -54,14 +54,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       string s;
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
-      var originalParameter = method.GetParameters().Last();
+      var underlyingParameter = method.GetParameters().Last();
 
       var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
 
       var type = typeof (string);
       CheckDescriptor (
           descriptor,
-          originalParameter,
+          underlyingParameter,
           type.MakeByRefType(),
           "parameterName",
           1,
@@ -105,11 +105,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
 
-      var originalParameter = method.GetParameters().Last();
+      var underlyingParameter = method.GetParameters().Last();
       var type = typeof (string);
       CheckDescriptor (
           descriptor,
-          originalParameter,
+          underlyingParameter,
           type.MakeByRefType(),
           "parameterName",
           1,
