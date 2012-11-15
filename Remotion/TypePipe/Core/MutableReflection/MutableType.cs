@@ -175,6 +175,15 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
+    /// <summary>
+    /// Adds static initialization code to the type.
+    /// </summary>
+    /// <remarks>
+    /// The added initializations are guaranteed to be executed exactly once sometime before the statically-initilized members are accessed.
+    /// The exact time when the initialization code runs is not defined.
+    /// </remarks>
+    /// <param name="initializationProvider">A provider returning a type initialization.</param>
+    /// <seealso cref="TypeInitializations"/>
     public void AddTypeInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
@@ -183,6 +192,14 @@ namespace Remotion.TypePipe.MutableReflection
       _typeInitializations.Add (initialization);
     }
 
+    /// <summary>
+    /// Adds instance initialization code.
+    /// </summary>
+    /// <remarks>
+    /// The added initializations are only executed when instances of the type are created via <see cref="IObjectFactory"/>.
+    /// </remarks>
+    /// <param name="initializationProvider">A provider returning an instance initialization.</param>
+    /// <seealso cref="InstanceInitializations"/>
     public void AddInstanceInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
