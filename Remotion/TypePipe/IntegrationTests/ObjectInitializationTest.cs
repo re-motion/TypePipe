@@ -55,6 +55,21 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance.CtorCalled, Is.False);
     }
 
+    [Test]
+    public void GetAssembledType_PrepareAssembledTypeInstance ()
+    {
+      var type = _factory.GetAssembledType (typeof (DomainType));
+      var instance = (DomainType) Activator.CreateInstance (type);
+
+      Assert.That (instance.String, Is.Null);
+      Assert.That (instance.CtorCalled, Is.True);
+
+      _factory.PrepareAssembledTypeInstance (instance);
+      Assert.That (instance.String, Is.EqualTo ("initialized"));
+      _factory.PrepareAssembledTypeInstance (instance);
+      Assert.That (instance.String, Is.EqualTo ("initializedinitialized"));
+    }
+
     public class DomainType
     {
       public readonly bool CtorCalled;
@@ -77,7 +92,7 @@ namespace TypePipe.IntegrationTests
                   Assert.That (ctx.IsStatic, Is.False);
 
                   var fieldExpr = Expression.Field (ctx.This, field);
-                  return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
+                  return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized ")));
                 });
 
             Assert.That (mutableType.InstanceInitializations, Is.Not.Empty);
