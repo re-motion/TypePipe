@@ -128,6 +128,22 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
+    public void PrepareAssembledTypeInstance ()
+    {
+      Assert.That (() => _factory.PrepareAssembledTypeInstance (new object()), Throws.Nothing);
+    }
+
+    [Test]
+    public void PrepareAssembledTypeInstance_Initializable ()
+    {
+      var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
+
+      _factory.PrepareAssembledTypeInstance (initializableObjectMock);
+
+      initializableObjectMock.AssertWasCalled (mock => mock.Initialize());
+    }
+
+    [Test]
     public void GetUninitializedObject ()
     {
       var assembledType = typeof (AssembledType);

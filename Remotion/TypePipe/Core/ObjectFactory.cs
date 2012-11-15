@@ -50,8 +50,9 @@ namespace Remotion.TypePipe
       constructorArguments = constructorArguments ?? ParamList.Empty;
       var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
       var instance = constructorArguments.InvokeFunc (constructorCall);
+      PrepareAssembledTypeInstance (instance);
 
-      return SafeInitialize (instance);
+      return instance;
     }
 
     public Type GetAssembledType (Type requestedType)
@@ -61,23 +62,24 @@ namespace Remotion.TypePipe
       return _typeCache.GetOrCreateType (requestedType);
     }
 
+    public void PrepareAssembledTypeInstance (object instance)
+    {
+      ArgumentUtility.CheckNotNull ("instance", instance);
+
+      var initializableInstance = instance as IInitializableObject;
+      if (initializableInstance != null)
+        initializableInstance.Initialize();
+    }
+
     public object GetUninitializedObject (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       var assembledType = GetAssembledType (requestedType);
-      var uninitializedObject = FormatterServices.GetUninitializedObject (assembledType);
+      var instance = FormatterServices.GetUninitializedObject (assembledType);
+      PrepareAssembledTypeInstance (instance);
 
-      return SafeInitialize (uninitializedObject);
-    }
-
-    private object SafeInitialize (object uninitializedObject)
-    {
-      var initializableObject = uninitializedObject as IInitializableObject;
-      if (initializableObject != null)
-        initializableObject.Initialize();
-
-      return uninitializedObject;
+      return instance;
     }
   }
 }
