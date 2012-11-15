@@ -18,7 +18,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {

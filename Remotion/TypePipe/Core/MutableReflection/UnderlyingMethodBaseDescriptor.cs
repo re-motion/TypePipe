@@ -51,13 +51,13 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly Expression _body;
 
     protected UnderlyingMethodBaseDescriptor (
-        TMethodBase underlyingSystemMethodMember,
+        TMethodBase underlyingMethodBase,
         string name,
         MethodAttributes attributes,
         ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodMember, name, customAttributeDataProvider)
+        : base (underlyingMethodBase, name, customAttributeDataProvider)
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
       Assertion.IsNotNull (parameterDescriptors);

@@ -29,8 +29,10 @@ namespace Remotion.TypePipe.MutableReflection
   public abstract class UnderlyingInfoDescriptorBase<TInfo>
       where TInfo: class
   {
+// ReSharper disable StaticFieldInGenericType
     protected static readonly Func<ReadOnlyCollection<ICustomAttributeData>> EmptyCustomAttributeDataProvider =
         () => new ICustomAttributeData[0].ToList().AsReadOnly();
+// ReSharper restore StaticFieldInGenericType
 
     protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
@@ -51,13 +53,13 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
     protected UnderlyingInfoDescriptorBase (
-        TInfo underlyingSystemInfo, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+        TInfo underlyingInfo, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
     {
-      Assertion.IsTrue (underlyingSystemInfo == null || underlyingSystemInfo is MemberInfo || underlyingSystemInfo is ParameterInfo);
+      Assertion.IsTrue (underlyingInfo == null || underlyingInfo is MemberInfo || underlyingInfo is ParameterInfo);
       Assertion.IsNotNull (name);
       Assertion.IsNotNull (customAttributeDataProvider);
 
-      _underlyingSystemInfo = underlyingSystemInfo;
+      _underlyingSystemInfo = underlyingInfo;
       _name = name;
       _customAttributeDataProvider = customAttributeDataProvider;
     }

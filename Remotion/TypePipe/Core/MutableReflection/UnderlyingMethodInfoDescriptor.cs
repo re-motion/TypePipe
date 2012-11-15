@@ -70,29 +70,29 @@ namespace Remotion.TypePipe.MutableReflection
           body);
     }
 
-    public static UnderlyingMethodInfoDescriptor Create (MethodInfo originalMethod, IRelatedMethodFinder relatedMethodFinder)
+    public static UnderlyingMethodInfoDescriptor Create (MethodInfo underlyingMethod, IRelatedMethodFinder relatedMethodFinder)
     {
-      ArgumentUtility.CheckNotNull ("originalMethod", originalMethod);
+      ArgumentUtility.CheckNotNull ("underlyingMethod", underlyingMethod);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
-      var attributes = originalMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (originalMethod);
-      var baseMethod = relatedMethodFinder.GetBaseMethod (originalMethod);
-      var customAttributeDataProvider = GetCustomAttributeProvider (originalMethod);
-      var body = originalMethod.IsAbstract ? null : CreateOriginalBodyExpression (originalMethod, originalMethod.ReturnType, parameterDeclarations);
+      var attributes = underlyingMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
+      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (underlyingMethod);
+      var baseMethod = relatedMethodFinder.GetBaseMethod (underlyingMethod);
+      var customAttributeDataProvider = GetCustomAttributeProvider (underlyingMethod);
+      var body = underlyingMethod.IsAbstract ? null : CreateOriginalBodyExpression (underlyingMethod, underlyingMethod.ReturnType, parameterDeclarations);
 
       return new UnderlyingMethodInfoDescriptor (
-          originalMethod,
-          originalMethod.Name,
+          underlyingMethod,
+          underlyingMethod.Name,
           attributes,
-          originalMethod.ReturnType,
+          underlyingMethod.ReturnType,
           parameterDeclarations,
           baseMethod,
-          originalMethod.IsGenericMethod,
-          originalMethod.IsGenericMethodDefinition,
-          originalMethod.ContainsGenericParameters,
+          underlyingMethod.IsGenericMethod,
+          underlyingMethod.IsGenericMethodDefinition,
+          underlyingMethod.ContainsGenericParameters,
           customAttributeDataProvider,
           body);
     }
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly bool _containsGenericParameters;
 
     private UnderlyingMethodInfoDescriptor (
-        MethodInfo underlyingSystemMethodInfo,
+        MethodInfo underlyingMethod,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.MutableReflection
         bool containsGenericParameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodInfo, name, attributes, parameterDescriptors, customAttributeDataProvider, body)
+        : base (underlyingMethod, name, attributes, parameterDescriptors, customAttributeDataProvider, body)
     {
       Assertion.IsNotNull (returnType);
       Assertion.IsNotNull (customAttributeDataProvider);
