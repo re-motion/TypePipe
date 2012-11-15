@@ -217,52 +217,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddTypeInitialization ()
     {
-      var expression = ExpressionTreeObjectMother.GetSomeExpression();
+      Func<InitializationBodyContext, Expression> initializationProvider = ctx => null;
 
-      _mutableType.AddTypeInitialization (
-          ctx =>
-          {
-            Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
-            Assert.That (ctx.IsStatic, Is.True);
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateInitialization (_mutableType, true, initializationProvider)).Return (fakeExpression);
 
-            return expression;
-          });
+      _mutableType.AddTypeInitialization (initializationProvider);
 
-      Assert.That (_mutableType.TypeInitializations, Is.EqualTo (new[] { expression }));
-    }
-
-    [Test]
-    public void AddTypeInitialization_NullBody ()
-    {
-      Assert.That (
-          () => _mutableType.AddTypeInitialization (ctx => null),
-          Throws.InvalidOperationException.With.Message.EqualTo ("Body provider must return non-null body."));
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (_mutableType.TypeInitializations, Is.EqualTo (new[] { fakeExpression }));
     }
 
     [Test]
     public void AddInstanceInitialization ()
     {
-      var expression = ExpressionTreeObjectMother.GetSomeExpression();
+      Func<InitializationBodyContext, Expression> initializationProvider = ctx => null;
 
-      _mutableType.AddInstanceInitialization (
-          ctx =>
-          {
-            Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
-            Assert.That (ctx.IsStatic, Is.False);
-            Assert.That (ctx.This.Type, Is.SameAs (_mutableType));
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateInitialization (_mutableType, false, initializationProvider)).Return (fakeExpression);
 
-            return expression;
-          });
+      _mutableType.AddInstanceInitialization (initializationProvider);
 
-      Assert.That (_mutableType.InstanceInitializations, Is.EqualTo (new[] { expression }));
-    }
-
-    [Test]
-    public void AddInstanceInitialization_NullBody ()
-    {
-      Assert.That (
-          () => _mutableType.AddInstanceInitialization (ctx => null),
-          Throws.InvalidOperationException.With.Message.EqualTo ("Body provider must return non-null body."));
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (_mutableType.InstanceInitializations, Is.EqualTo (new[] { fakeExpression }));
     }
 
     [Test]
@@ -518,14 +495,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Accept_ModificationHandler_WithInitializations ()
     {
-      _mutableType.AddTypeInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
-      _mutableType.AddInstanceInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
-      Assert.That (_mutableType.TypeInitializations, Is.Not.Empty);
-      Assert.That (_mutableType.InstanceInitializations, Is.Not.Empty);
+      var typeInitialization = AddInitialization (_mutableType, isStatic: true);
+      var instanceInitialization = AddInitialization (_mutableType, isStatic: false);
 
       var handlerMock = MockRepository.GenerateStrictMock<IMutableTypeModificationHandler>();
-      handlerMock.Expect (mock => mock.HandleTypeInitializations (_mutableType.TypeInitializations));
-      handlerMock.Expect (mock => mock.HandleInstanceInitializations (_mutableType.InstanceInitializations));
+      handlerMock.Expect (mock => mock.HandleTypeInitializations (new[] { typeInitialization }.ToList().AsReadOnly()));
+      handlerMock.Expect (mock => mock.HandleInstanceInitializations (new[] { instanceInitialization }.ToList().AsReadOnly()));
 
       _mutableType.Accept (handlerMock);
 
@@ -819,12 +794,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
     }
 
+    private Expression AddInitialization (MutableType mutableType, bool isStatic)
+    {
+      Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
+
+      var fakeInitialization = ExpressionTreeObjectMother.GetSomeExpression();
+      _mutableMemberFactoryMock
+          .Stub (stub => stub.CreateInitialization (null, false, null)).IgnoreArguments()
+          .Return (fakeInitialization).Repeat.Once();
+
+      if (isStatic)
+        mutableType.AddTypeInitialization (ctx => null);
+      else
+        mutableType.AddInstanceInitialization (ctx => null);
+
+      return fakeInitialization;
+    }
+
     private MutableFieldInfo AddField (MutableType mutableType, string name)
     {
       Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeField = MutableFieldInfoObjectMother.Create (mutableType, name: name);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableField (null, "", null, 0)).IgnoreArguments().Return (fakeField);
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableField (null, "", null, 0)).IgnoreArguments().Return (fakeField).Repeat.Once();
 
       return mutableType.AddField ("x", typeof (int));
     }
@@ -834,7 +826,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeCtor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (mutableType, parameterDeclarations);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor);
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor).Repeat.Once();
 
       return mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => null);
     }
@@ -845,9 +837,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var fakeMethod = MutableMethodInfoObjectMother.Create (mutableType, name, parameterDeclarations: parameterDeclarations);
       _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateMutableMethod (null, "", 0, null, null, null))
-          .IgnoreArguments()
-          .Return (fakeMethod);
+          .Stub (stub => stub.CreateMutableMethod (null, "", 0, null, null, null)).IgnoreArguments()
+          .Return (fakeMethod)
+          .Repeat.Once();
 
       return mutableType.AddMethod ("x", 0, typeof (int), ParameterDeclaration.EmptyParameters, null);
     }

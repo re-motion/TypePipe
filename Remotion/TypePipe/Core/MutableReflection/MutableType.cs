@@ -38,7 +38,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableMember
   {
-    private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
@@ -74,7 +73,6 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
-      _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
       _mutableMemberFactory = mutableMemberFactory;
 
@@ -181,14 +179,16 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      AddInitialization (_typeInitializations, initializationProvider, isStatic: true);
+      var initialization = _mutableMemberFactory.CreateInitialization (this, true, initializationProvider);
+      _typeInitializations.Add (initialization);
     }
 
     public void AddInstanceInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      AddInitialization (_instanceInitializations, initializationProvider, isStatic: false);
+      var initialization = _mutableMemberFactory.CreateInitialization (this, false, initializationProvider);
+      _instanceInitializations.Add (initialization);
     }
 
     public void AddInterface (Type interfaceType)
@@ -396,15 +396,6 @@ namespace Remotion.TypePipe.MutableReflection
             "Type initializers (static constructors) cannot be modified via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
         throw new NotSupportedException (message);
       }
-    }
-
-    private void AddInitialization (
-        List<Expression> initializations, Func<InitializationBodyContext, Expression> initializationProvider, bool isStatic)
-    {
-      var context = new InitializationBodyContext (this, isStatic, _memberSelector);
-      var initialization = BodyProviderUtility.GetNonNullBody (initializationProvider, context);
-
-      initializations.Add (initialization);
     }
 
     private TMutableMember GetMutableMemberOrThrow<TMember, TMutableMember> (
