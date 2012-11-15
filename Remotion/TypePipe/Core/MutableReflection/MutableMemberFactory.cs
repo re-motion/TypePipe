@@ -42,6 +42,16 @@ namespace Remotion.TypePipe.MutableReflection
       _relatedMethodFinder = relatedMethodFinder;
     }
 
+    public Expression CreateInitialization (
+        MutableType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider)
+    {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
+
+      var context = new InitializationBodyContext (declaringType, isStatic, _memberSelector);
+      return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
+    }
+
     public MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);

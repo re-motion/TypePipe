@@ -258,8 +258,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       // bodyProvider is null for abstract methods
 
-      var method = _mutableMemberFactory.CreateMutableMethod (
-          this, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _mutableMemberFactory.CreateMutableMethod (this, name, attributes, returnType, parameterDeclarations, bodyProvider);
       _methods.Add (method);
 
       return method;

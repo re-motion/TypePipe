@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -26,10 +27,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// Serves as a factory for mutable members.
   /// </summary>
   /// <remarks>
-  /// This class is an implementation detail of <see cref="MutableType"/>.
+  /// This interface is an implementation detail of <see cref="MutableType"/>.
   /// </remarks>
   public interface IMutableMemberFactory
   {
+    Expression CreateInitialization (MutableType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider);
+
     MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
 
     MutableConstructorInfo CreateMutableConstructor (

@@ -55,6 +55,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CreateInitialization ()
+    {
+      var isStatic = BooleanObjectMother.GetRandomBoolean();
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+
+      var result = _mutableMemberFactory.CreateInitialization (
+          _mutableType,
+          isStatic,
+          ctx =>
+          {
+            Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
+            Assert.That (ctx.IsStatic, Is.EqualTo (isStatic));
+
+            return fakeExpression;
+          });
+
+      Assert.That (result, Is.SameAs (fakeExpression));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
+    public void CreateInitialization_NullBody ()
+    {
+      _mutableMemberFactory.CreateInitialization (_mutableType, false, ctx => null);
+    }
+
+    [Test]
     public void CreateMutableField ()
     {
       var field = _mutableMemberFactory.CreateMutableField (_mutableType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
