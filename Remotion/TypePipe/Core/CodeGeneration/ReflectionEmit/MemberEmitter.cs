@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
-      DefineParameters (methodBuilder, method.GetParameters ());
+      DefineParameters (methodBuilder, method.GetParameters());
 
       if (!method.IsAbstract)
       {

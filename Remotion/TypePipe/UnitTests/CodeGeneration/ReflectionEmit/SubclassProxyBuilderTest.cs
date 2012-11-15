@@ -141,6 +141,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                 var blockExpression = (BlockExpression) method.Body;
                 Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
                 Assert.That (blockExpression.Expressions, Is.EqualTo (expressions));
+
+                // Setup dependent expectation.
+                var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
+                _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (method, interfaceMethod));
               });
 
       _builder.HandleInstanceInitializations (expressions);
