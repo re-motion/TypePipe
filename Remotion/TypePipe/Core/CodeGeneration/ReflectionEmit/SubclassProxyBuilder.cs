@@ -107,10 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var initializeMethod = new MutableMethodInfo (_context.MutableType, descriptor);
 
       HandleAddedMethod (initializeMethod);
-
-      // Manually add explicit override because we cannot use MutableMethodInfo.AddExplicitBaseDefinition().
-      var emittableMethod = _context.EmittableOperandProvider.GetEmittableMethod (initializeMethod);
-      _context.TypeBuilder.DefineMethodOverride (emittableMethod, interfaceMethod);
+      _memberEmitter.AddMethodOverride (_context, interfaceMethod, initializeMethod);
     }
 
     public void HandleAddedInterface (Type addedInterface)

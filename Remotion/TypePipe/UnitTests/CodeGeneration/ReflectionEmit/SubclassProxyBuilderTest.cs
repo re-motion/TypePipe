@@ -123,6 +123,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var expressions = new[] { ExpressionTreeObjectMother.GetSomeExpression() }.ToList().AsReadOnly();
       var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+      MutableMethodInfo method = null;
 
       _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (typeof (IInitializableObject)));
       _memberEmitterMock
@@ -130,7 +131,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .WhenCalled (
               mi =>
               {
-                var method = (MutableMethodInfo) mi.Arguments[1];
+                method = (MutableMethodInfo) mi.Arguments[1];
                 Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
                 Assert.That (method.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject_Initialize"));
                 Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
@@ -141,13 +142,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                 var blockExpression = (BlockExpression) method.Body;
                 Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
                 Assert.That (blockExpression.Expressions, Is.EqualTo (expressions));
-
-                // Setup dependent expectations.
-                var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-                var fakeEmittableMethod = ReflectionObjectMother.GetSomeMethod();
-                _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (method)).Return (fakeEmittableMethod);
-                _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeEmittableMethod, interfaceMethod));
               });
+
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
+      _memberEmitterMock
+          .Expect (mock => mock.AddMethodOverride (Arg.Is (_context), Arg.Is (interfaceMethod), Arg<MutableMethodInfo>.Matches (m => m == method)));
 
       _builder.HandleInstanceInitializations (expressions);
 
