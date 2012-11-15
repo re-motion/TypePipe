@@ -92,7 +92,7 @@ namespace TypePipe.IntegrationTests
                   Assert.That (ctx.IsStatic, Is.False);
 
                   var fieldExpr = Expression.Field (ctx.This, field);
-                  return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized ")));
+                  return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
                 });
 
             Assert.That (mutableType.InstanceInitializations, Is.Not.Empty);
