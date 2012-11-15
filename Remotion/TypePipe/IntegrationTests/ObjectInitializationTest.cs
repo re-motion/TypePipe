@@ -25,7 +25,6 @@ using TypePipe.IntegrationTests.TypeAssembly;
 
 namespace TypePipe.IntegrationTests
 {
-  [Ignore("TODO 5187")]
   [TestFixture]
   public class ObjectInitializationTest : ObjectFactoryIntegrationTestBase
   {
