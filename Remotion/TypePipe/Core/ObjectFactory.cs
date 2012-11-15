@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
@@ -48,12 +49,13 @@ namespace Remotion.TypePipe
 
       constructorArguments = constructorArguments ?? ParamList.Empty;
       var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
+      var instance = constructorArguments.InvokeFunc (constructorCall);
 
-      return constructorArguments.InvokeFunc (constructorCall);
+      return SafeInitialize (instance);
     }
 
     public Type GetAssembledType<T> ()
-      where T : class
+        where T : class
     {
       return GetAssembledType (typeof (T));
     }
@@ -69,7 +71,19 @@ namespace Remotion.TypePipe
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return null;
+      var assembledType = GetAssembledType (requestedType);
+      var uninitializedObject = FormatterServices.GetUninitializedObject (assembledType);
+
+      return SafeInitialize (uninitializedObject);
+    }
+
+    private object SafeInitialize (object uninitializedObject)
+    {
+      var initializableObject = uninitializedObject as IInitializableObject;
+      if (initializableObject != null)
+        initializableObject.Initialize();
+
+      return uninitializedObject;
     }
   }
 }

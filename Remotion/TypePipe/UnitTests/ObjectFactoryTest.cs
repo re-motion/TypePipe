@@ -101,7 +101,6 @@ namespace Remotion.TypePipe.UnitTests
       Assert.That (result, Is.SameAs (assembledInstance));
     }
 
-    [Ignore("TODO 5187")]
     [Test]
     public void CreateObject_Initializable ()
     {
@@ -140,31 +139,41 @@ namespace Remotion.TypePipe.UnitTests
       Assert.That (result, Is.SameAs (fakeAssembledType));
     }
 
-    [Ignore ("TODO 5187")]
     [Test]
     public void GetUninitializedObject ()
     {
-      var assembledType = typeof (IInitializableObject);
+      var assembledType = typeof (AssembledType);
       _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
 
-      var result = (InitializeableType) _factory.GetUninitializedObject (_requestedType);
+      var result = (AssembledType) _factory.GetUninitializedObject (_requestedType);
+
+      Assert.That (result.GetType(), Is.SameAs (assembledType));
+    }
+
+    [Test]
+    public void GetUninitializedObject_Initializable ()
+    {
+      var assembledType = typeof (InitializableType);
+      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
+
+      var result = (InitializableType) _factory.GetUninitializedObject (_requestedType);
 
       Assert.That (result.GetType(), Is.SameAs (assembledType));
       Assert.That (result.CtorCalled, Is.False);
-      Assert.That (result.String, Is.EqualTo ("initialized"));
+      Assert.That (result.InitializeCalled, Is.True);
     }
 
     class RequestedType { }
     class AssembledType : RequestedType { }
 
-    class InitializeableType : IInitializableObject
+    class InitializableType : IInitializableObject
     {
-      public bool CtorCalled;
-      public string String;
+      public readonly bool CtorCalled;
+      public bool InitializeCalled;
 
-      public InitializeableType () { CtorCalled = true; }
+      public InitializableType () { CtorCalled = true; }
 
-      public void Initialize () { String = String + "initialized"; }
+      public void Initialize () { InitializeCalled = true; }
     }
   }
 }
