@@ -115,7 +115,9 @@ namespace Remotion.TypePipe.MutableReflection
           body: body);
     }
 
+// ReSharper disable UnusedParameter.Local
     private static void CheckMethodData (MethodAttributes attributes, Type returnType, Expression body)
+// ReSharper restore UnusedParameter.Local
     {
       if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
         throw new ArgumentException ("Non-abstract method must have a body.", "body");

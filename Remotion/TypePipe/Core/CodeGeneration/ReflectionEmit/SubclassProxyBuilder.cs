@@ -101,10 +101,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
       var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
       var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
-      var returnType = typeof (void);
-      var parameters = UnderlyingParameterInfoDescriptor.EmptyParameters;
-      var body = Expression.Block (returnType, initializationExpressions);
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (name, attributes, returnType, parameters, null, false, false, false, body);
+      var body = Expression.Block (interfaceMethod.ReturnType, initializationExpressions);
+
+      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body);
       var initializeMethod = new MutableMethodInfo (_context.MutableType, descriptor);
 
       HandleAddedMethod (initializeMethod);
