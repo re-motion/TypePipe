@@ -35,10 +35,12 @@ namespace Remotion.TypePipe.Caching
     /// <summary>
     /// Gets a cache key used to identify the generated type for the provided requested type.
     /// It should include the <see cref="IParticipant"/> configuation and other data that might influence the modifications specified by a 
-    /// participant. However, implementations should not encode the requested type itself, as this is already handled by the pipeline.
+    /// participant. Implementations should not encode the requested type itself, as this is already handled by the pipeline.
     /// </summary>
     /// <param name="requestedType">The requested type.</param>
-    /// <returns>A cache key, or null if no specific caching information is required for the <paramref name="requestedType"/>..</returns>
+    /// <returns>
+    /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
+    /// </returns>
     object GetCacheKey (Type requestedType);
   }
 }

@@ -32,16 +32,26 @@ namespace Remotion.TypePipe
   /// The <see cref="MutableType"/> is a representation of the type to be generated for the requested type.
   /// In addition, it contains all modifications applied by preceding participants in the pipeline.
   /// </para>
-  /// <para>
-  /// A participant must also provide a <see cref="ICacheKeyProvider"/> if generated types cannot be cached unconditionally, i.e.,
-  /// the modifications depend not solely on the requested type.
-  /// If generated types can be cached unconditionally, <see cref="PartialCacheKeyProvider"/> should return <see langword="null"/>.
-  /// </para>
   /// </remarks>
   public interface IParticipant
   {
+    /// <summary>
+    /// A participant must provide a <see cref="ICacheKeyProvider"/> if generated types cannot be cached unconditionally, i.e.,
+    /// the modifications depend not solely on the requested type.
+    /// If generated types can be cached unconditionally, <see cref="PartialCacheKeyProvider"/> should return <see langword="null"/>.
+    /// </summary>
+    /// <value>
+    /// The partial cache key provider, or <see langword="null"/>.
+    /// </value>
     ICacheKeyProvider PartialCacheKeyProvider { get; }
 
+    /// <summary>
+    /// This method allows framework authors to specify their code generation needs.
+    /// The provided <see cref="MutableType"/> instance represents the type to be generated for the requested type, plus the modifications applied
+    /// by preceding participants.
+    /// Its mutating members (e.g. <see cref="MutableType.AddMethod"/>) can be used to specify the needed modifications.
+    /// </summary>
+    /// <param name="mutableType">The mutable type.</param>
     void ModifyType (MutableType mutableType);
   }
 }
