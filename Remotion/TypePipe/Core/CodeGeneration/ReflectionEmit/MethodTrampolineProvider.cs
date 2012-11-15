@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -63,22 +62,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private MethodInfo CreateNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method, string trampolineName)
     {
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method);
-      var parameterExpressions = parameterDescriptors.Select (p => p.Expression).Cast<Expression>();
-      var body = Expression.Call (new ThisExpression (context.MutableType), new NonVirtualCallMethodInfoAdapter (method), parameterExpressions);
-      
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
-          trampolineName,
-          MethodAttributes.Private,
-          method.ReturnType,
-          parameterDescriptors,
-          baseMethod: null,
-          isGenericMethod: false,
-          isGenericMethodDefinition: false,
-          containsGenericParameters: false,
-          body: body);
+      var attributes = MethodAttributes.Private | MethodAttributes.Abstract; // Temporarily abstract.
+      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (method, trampolineName, attributes, body: null);
 
       var trampoline = new MutableMethodInfo (context.MutableType, descriptor);
+      trampoline.SetBody (ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
 
       _memberEmitter.AddMethod (context, trampoline, trampoline.Attributes);
 

@@ -126,6 +126,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result2.GetParameters(), Has.Length.EqualTo (1));
     }
 
+    // ReSharper disable UnusedParameter.Local
     class DomainType
     {
       public string Abc (out int i, double d) { i = 7; return ""; }
