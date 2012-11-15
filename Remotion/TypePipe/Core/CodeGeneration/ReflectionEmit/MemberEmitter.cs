@@ -114,8 +114,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
       }
 
-      var explicitOverrideAction = CreateExplicitOverrideBuildAction (context.TypeBuilder, context.EmittableOperandProvider, method);
+      var explicitOverrideAction = CreateExplicitOverrideBuildAction (context, method);
       context.PostDeclarationsActionManager.AddAction (explicitOverrideAction);
+    }
+
+    public void AddMethodOverride (MemberEmitterContext context, MethodInfo overriddenMethod, MutableMethodInfo overridingMethod)
+    {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      ArgumentUtility.CheckNotNull ("overridingMethod", overridingMethod);
+
+      var emittableOverriddenMethod = context.EmittableOperandProvider.GetEmittableMethod (overriddenMethod);
+      var emittableOverridingMethod = context.EmittableOperandProvider.GetEmittableMethod (overridingMethod);
+
+      context.TypeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
     }
 
     private Type[] GetParameterTypes (MethodBase methodBase)
@@ -144,17 +156,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       };
     }
 
-    private Action CreateExplicitOverrideBuildAction (
-        ITypeBuilder typeBuilder, IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo overridingMethod)
+    private Action CreateExplicitOverrideBuildAction (MemberEmitterContext context, MutableMethodInfo overridingMethod)
     {
       return () =>
       {
-        var emittableOverridingMethod = emittableOperandProvider.GetEmittableMethod (overridingMethod);
         foreach (var overriddenMethod in overridingMethod.AddedExplicitBaseDefinitions)
-        {
-          var emittableOverriddenMethod = emittableOperandProvider.GetEmittableMethod (overriddenMethod);
-          typeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
-        }
+          AddMethodOverride (context, overriddenMethod, overridingMethod);
       };
     }
   }

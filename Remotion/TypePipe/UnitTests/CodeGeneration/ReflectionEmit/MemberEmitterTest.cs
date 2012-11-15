@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new[] { property },
               new object[] { 7 },
               new[] { field },
-              new[] { "test" }));
+              new object[] { "test" }));
 
       _emitter.AddField (_context, addedField);
 
@@ -210,7 +210,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (actions, Has.Length.EqualTo (2));
 
       CheckBodyBuildAction (actions[0], methodBuilderMock, addedMethod);
-      CheckExplicitOverrideAction (actions[1], addedMethod, overriddenMethod);
+      CheckExplicitOverrideAction (actions[1], overriddenMethod, addedMethod);
     }
 
     [Test]
@@ -239,6 +239,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       // Executing the action has no side effect (strict mocks; empty override build action).
       _emittableOperandProviderMock.Stub (mock => mock.GetEmittableMethod (addedMethod));
       actions[0].Invoke();
+    }
+
+    [Test]
+    public void AddMethodOverride ()
+    {
+      var overriddenMethod = ReflectionObjectMother.GetSomeMethod();
+      var overridingMethod = MutableMethodInfoObjectMother.Create();
+
+      var fakeOverriddenMethod = ReflectionObjectMother.GetSomeMethod();
+      var fakeOverridingMethod = ReflectionObjectMother.GetSomeMethod();
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overriddenMethod)).Return (fakeOverriddenMethod);
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overridingMethod)).Return (fakeOverridingMethod);
+      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeOverridingMethod, fakeOverriddenMethod));
+
+      _emitter.AddMethodOverride (_context, overriddenMethod, overridingMethod);
+
+      _emittableOperandProviderMock.VerifyAllExpectations();
+      _typeBuilderMock.VerifyAllExpectations();
     }
 
     private void CheckCustomAttributeBuilder (
@@ -284,17 +302,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.VerifyAllExpectations ();
     }
 
-    private void CheckExplicitOverrideAction (Action testedAction, MutableMethodInfo overridingMethod, MethodInfo overriddenMethod)
+    private void CheckExplicitOverrideAction (Action testedAction, MethodInfo overriddenMethod, MutableMethodInfo overridingMethod)
     {
-      _emittableOperandProviderMock.BackToRecord ();
-      _typeBuilderMock.BackToRecord ();
+      _emittableOperandProviderMock.BackToRecord();
+      _typeBuilderMock.BackToRecord();
 
-      var emittableFakeMethod1 = ReflectionObjectMother.GetSomeMethod ();
-      var emittableFakeMethod2 = ReflectionObjectMother.GetSomeMethod ();
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overridingMethod)).Return (emittableFakeMethod1);
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overriddenMethod)).Return (emittableFakeMethod2);
+      var fakeOverriddenMethod = ReflectionObjectMother.GetSomeMethod();
+      var fakeOverridingMethod = ReflectionObjectMother.GetSomeMethod();
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overriddenMethod)).Return (fakeOverriddenMethod);
+      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overridingMethod)).Return (fakeOverridingMethod);
 
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (emittableFakeMethod1, emittableFakeMethod2));
+      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeOverridingMethod, fakeOverriddenMethod));
 
       _emittableOperandProviderMock.Replay ();
       _typeBuilderMock.Replay ();
