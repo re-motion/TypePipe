@@ -171,7 +171,9 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (method.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
+// ReSharper disable CheckForReferenceEqualityInstead.1
       if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
+// ReSharper restore CheckForReferenceEqualityInstead.1
       {
         var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
         throw new ArgumentException (message, "method");

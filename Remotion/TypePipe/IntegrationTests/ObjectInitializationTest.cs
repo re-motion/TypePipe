@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -57,8 +58,8 @@ namespace TypePipe.IntegrationTests
 
     public class DomainType
     {
-      public string String;
-      public bool CtorCalled;
+      public readonly bool CtorCalled;
+      [UsedImplicitly] public string String;
 
       public DomainType () { CtorCalled = true; }
     }

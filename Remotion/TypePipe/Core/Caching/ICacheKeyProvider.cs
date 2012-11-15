@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.Caching
     /// participant. However, implementations should not encode the requested type itself, as this is already handled by the pipeline.
     /// </summary>
     /// <param name="requestedType">The requested type.</param>
-    /// <returns>A cache key.</returns>
+    /// <returns>A cache key, or null if no specific caching information is required for the <paramref name="requestedType"/>..</returns>
     object GetCacheKey (Type requestedType);
   }
 }
