@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.ServiceLocation;
 
@@ -30,13 +31,36 @@ namespace Remotion.TypePipe
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
     object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
-    // TODO Review: Warn that PrepareAssembledTypeInstance must be called before using an instance of the returned type.
+    /// <summary>
+    /// Gets the assembled type for the requested type.
+    /// For an instance that is created directly from the returned type, <see cref="PrepareAssembledTypeInstance"/> must be called before usage.
+    /// This ensures that the instance is usable as intended by the participants.
+    /// </summary>
+    /// <param name="requestedType">The requested type.</param>
+    /// <returns>The generated type for the requested type.</returns>
+    /// <seealso cref="PrepareAssembledTypeInstance"/>
     Type GetAssembledType (Type requestedType);
 
-    // TODO: document: Prepares an instance created externally from an assembled type for use. This API should only be used in combination with 
-    // GetAssembledType.
+    /// <summary>
+    /// Prepares an externally created instance of an assembled type for use, i.e., an instance that was not created through <see cref="IObjectFactory"/>.
+    /// </summary>
+    /// <remarks>
+    /// This API should only be used in combination with <see cref="GetAssembledType"/>.
+    /// Prefer using <see cref="CreateObject"/> or <see cref="GetUninitializedObject"/>, if possible.
+    /// </remarks>
+    /// <param name="instance">The assembled type instance which should be prepared.</param>
+    /// <seealso cref="GetAssembledType"/>
     void PrepareAssembledTypeInstance (object instance);
 
+    /// <summary>
+    /// Creates an instance of the assembled type for the requested type, without invoking any constructor of the assembled type.
+    /// However, the instance is prepared as intended by the participants, therefore <see cref="PrepareAssembledTypeInstance"/> should not be called.
+    /// </summary>
+    /// <remarks>
+    /// This API is a simple wrapper around <see cref="FormatterServices.GetUninitializedObject"/>.
+    /// </remarks>
+    /// <param name="requestedType">The requested type.</param>
+    /// <returns>A constructed instance of the requested type for which no constructor has run.</returns>
     object GetUninitializedObject (Type requestedType);
   }
 }
