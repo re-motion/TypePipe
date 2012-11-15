@@ -40,11 +40,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _constructorBuilder = constructorBuilder;
     }
 
-    public ConstructorBuilder ConstructorBuilder
-    {
-      get { return _constructorBuilder; }
-    }
-
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);

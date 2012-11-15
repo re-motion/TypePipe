@@ -40,11 +40,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _methodBuilder = methodBuilder;
     }
 
-    public MethodBuilder MethodBuilder
-    {
-      get { return _methodBuilder; }
-    }
-
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
@@ -55,6 +50,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("strParamName", strParamName);
+
       _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
     }
 
@@ -66,23 +63,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       var builderForLambdaCompiler = new MethodBuilderForLambdaCompiler (_methodBuilder, ilGeneratorFactory, true);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);
-    }
-
-    [CLSCompliant (false)]
-    public void Emit (IILGenerator ilGenerator, OpCode opCode)
-    {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
-
-      ilGenerator.Emit (opCode, _methodBuilder);
-    }
-
-    [CLSCompliant (false)]
-    public void EmitCall (IILGenerator ilGenerator, OpCode opCode, Type[] optionalParameterTypes)
-    {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
-      // optionalParameterTypes may be null
-
-      ilGenerator.EmitCall (opCode, _methodBuilder, optionalParameterTypes);
     }
   }
 }

@@ -34,11 +34,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _fieldBuilder = fieldBuilder;
     }
 
-    public FieldBuilder FieldBuilder
-    {
-      get { return _fieldBuilder; }
-    }
-
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
