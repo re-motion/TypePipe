@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new ArgumentException ("Field with equal signature already exists.", "name");
 
-      var descriptor = UnderlyingFieldInfoDescriptor.Create (type, name, attributes);
+      var descriptor = FieldDescriptor.Create (type, name, attributes);
       var field = new MutableFieldInfo (declaringType, descriptor);
 
       return field;
@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException (message);
       }
 
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations);
+      var parameterDescriptors = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
       var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors, body);
+      var descriptor = ConstructorDescriptor.Create (attributes, parameterDescriptors, body);
       var constructor = new MutableConstructorInfo (declaringType, descriptor);
 
       return constructor;
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations);
+      var parameterDescriptors = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
 
       var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
@@ -157,7 +157,7 @@ namespace Remotion.TypePipe.MutableReflection
       var context = new MethodBodyCreationContext (declaringType, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+      var descriptor = MethodDescriptor.Create (
           name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
       var method = new MutableMethodInfo (declaringType, descriptor);
 

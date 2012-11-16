@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingFieldInfoDescriptorTest
+  public class FieldDescriptorTest
   {
     [Test]
     public void Create_ForNew ()
@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = FieldAttributes.Static | FieldAttributes.Family;
       var fieldType = ReflectionObjectMother.GetSomeType();
 
-      var descriptor = UnderlyingFieldInfoDescriptor.Create (fieldType, name, attributes);
+      var descriptor = FieldDescriptor.Create (fieldType, name, attributes);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
@@ -45,9 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForExisting ()
     {
-      var underlyingField = NormalizingMemberInfoFromExpressionUtility.GetField ((UnderlyingFieldInfoDescriptorTest obj) => obj._testField);
+      var underlyingField = NormalizingMemberInfoFromExpressionUtility.GetField ((FieldDescriptorTest obj) => obj._testField);
 
-      var descriptor = UnderlyingFieldInfoDescriptor.Create (underlyingField);
+      var descriptor = FieldDescriptor.Create (underlyingField);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingField));
       Assert.That (descriptor.Name, Is.EqualTo ("_testField"));

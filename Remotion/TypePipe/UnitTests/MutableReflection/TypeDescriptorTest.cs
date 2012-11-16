@@ -26,7 +26,7 @@ using System.Collections.Generic;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingTypeDescriptorTest
+  public class TypeDescriptorTest
   {
     [Test]
     public void Create_ForExisting ()
@@ -39,10 +39,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var genericMethod = typeof (DomainType).GetMethod ("GenericMethod");
       var nonGenericMethods = allMethods.Except (new[] { genericMethod });
 
-      var descriptor = UnderlyingTypeDescriptor.Create (underlyingType);
+      var descriptor = TypeDescriptor.Create (underlyingType);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (typeof (DomainType)));
-      Assert.That (descriptor.DeclaringType, Is.EqualTo (typeof (UnderlyingTypeDescriptorTest)));
+      Assert.That (descriptor.DeclaringType, Is.EqualTo (typeof (TypeDescriptorTest)));
       Assert.That (descriptor.BaseType, Is.EqualTo (typeof (DomainType).BaseType));
       Assert.That (descriptor.Name, Is.EqualTo (underlyingType.Name));
       Assert.That (descriptor.Namespace, Is.EqualTo (underlyingType.Namespace));
@@ -97,9 +97,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => Create (typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
     }
 
-    private UnderlyingTypeDescriptor Create (Type underlyingType)
+    private TypeDescriptor Create (Type underlyingType)
     {
-      return UnderlyingTypeDescriptor.Create (underlyingType);
+      return TypeDescriptor.Create (underlyingType);
     }
 
     [Abc, Def]

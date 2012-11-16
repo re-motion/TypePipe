@@ -29,20 +29,20 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableParameterInfo : ParameterInfo, ITypePipeCustomAttributeProvider
   {
     private readonly MemberInfo _member;
-    private readonly UnderlyingParameterInfoDescriptor _underlyingParameterInfoDescriptor;
+    private readonly ParameterDescriptor _parameterDescriptor;
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
-    public MutableParameterInfo (MemberInfo member, UnderlyingParameterInfoDescriptor underlyingParameterInfoDescriptor)
+    public MutableParameterInfo (MemberInfo member, ParameterDescriptor parameterDescriptor)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      ArgumentUtility.CheckNotNull ("underlyingParameterInfoDescriptor", underlyingParameterInfoDescriptor);
+      ArgumentUtility.CheckNotNull ("parameterDescriptor", parameterDescriptor);
 
       _member = member;
-      _underlyingParameterInfoDescriptor = underlyingParameterInfoDescriptor;
+      _parameterDescriptor = parameterDescriptor;
 
       _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingParameterInfoDescriptor.CustomAttributeDataProvider);
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (parameterDescriptor.CustomAttributeDataProvider);
     }
 
     public override MemberInfo Member
@@ -52,27 +52,27 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override int Position
     {
-      get { return _underlyingParameterInfoDescriptor.Position; }
+      get { return _parameterDescriptor.Position; }
     }
 
     public ParameterInfo UnderlyingSystemParameterInfo
     {
-      get { return _underlyingParameterInfoDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _parameterDescriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public override Type ParameterType
     {
-      get { return _underlyingParameterInfoDescriptor.Type; }
+      get { return _parameterDescriptor.Type; }
     }
 
     public override string Name
     {
-      get { return _underlyingParameterInfoDescriptor.Name; }
+      get { return _parameterDescriptor.Name; }
     }
 
     public override ParameterAttributes Attributes
     {
-      get { return _underlyingParameterInfoDescriptor.Attributes; }
+      get { return _parameterDescriptor.Attributes; }
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

@@ -28,16 +28,16 @@ using Remotion.TypePipe.UnitTests.Expressions;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingConstructorInfoDescriptorTest
+  public class ConstructorDescriptorTest
   {
     [Test]
     public void Create_ForNew ()
     {
       var attributes = MethodAttributes.Abstract;
-      var parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      var parameterDescriptors = ParameterDescriptorObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameterDescriptors.AsOneTime(), body);
+      var descriptor = ConstructorDescriptor.Create (attributes, parameterDescriptors.AsOneTime(), body);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = MethodAttributes.Static;
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, UnderlyingParameterInfoDescriptorObjectMother.Empty, body);
+      var descriptor = ConstructorDescriptor.Create (attributes, ParameterDescriptorObjectMother.Empty, body);
 
       Assert.That (descriptor.Name, Is.EqualTo (".cctor"));
     }
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var nonVoidBody = ExpressionTreeObjectMother.GetSomeExpression(typeof(object));
 
-      UnderlyingConstructorInfoDescriptor.Create (0, new UnderlyingParameterInfoDescriptor[0], nonVoidBody);
+      ConstructorDescriptor.Create (0, new ParameterDescriptor[0], nonVoidBody);
     }
 
     [Test]
@@ -73,7 +73,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       int v;
       var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (underlyingCtor);
+      var descriptor = ConstructorDescriptor.Create (underlyingCtor);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingCtor));
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
       Assert.That (underlyingCtor.IsFamilyOrAssembly, Is.True);
 
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (underlyingCtor);
+      var descriptor = ConstructorDescriptor.Create (underlyingCtor);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));

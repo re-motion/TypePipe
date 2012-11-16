@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableType _declaringType;
     
     private MutableConstructorInfo _mutableCtor;
-    private UnderlyingConstructorInfoDescriptor _descriptor;
+    private ConstructorDescriptor _descriptor;
 
     private bool _randomInherit;
     private MutableConstructorInfo _domainTypeDefaultCtor;
@@ -44,8 +44,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create();
 
-      var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
-      _descriptor = UnderlyingConstructorInfoDescriptorObjectMother.Create (parameterDescriptors: parameters);
+      var parameters = ParameterDescriptorObjectMother.CreateMultiple (2);
+      _descriptor = ConstructorDescriptorObjectMother.Create (parameterDescriptors: parameters);
       _mutableCtor = Create (_descriptor);
 
       _randomInherit = BooleanObjectMother.GetRandomBoolean();
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemConstructorInfo ()
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
+      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var ctor = Create (descriptor);
@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemConstructorInfo_ForNull ()
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+      var descriptor = ConstructorDescriptorObjectMother.CreateForNew ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var ctorInfo = Create (descriptor);
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNewConstructor_True ()
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew ();
+      var descriptor = ConstructorDescriptorObjectMother.CreateForNew ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var ctorInfo = Create (descriptor);
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNewConstructor_False ()
     {
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting ();
+      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var ctorInfo = Create (descriptor);
@@ -140,8 +140,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      var constructor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: 0));
-      var typeInitializer = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
+      var constructor = Create (ConstructorDescriptorObjectMother.CreateForNew (attributes: 0));
+      var typeInitializer = Create (ConstructorDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
 
       Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ParameterExpressions ()
     {
-      var parameterDeclarations = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      var parameterDeclarations = ParameterDescriptorObjectMother.CreateMultiple (2);
       var ctorInfo = CreateWithParameters (parameterDeclarations);
 
       Assert.That (ctorInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
@@ -159,12 +159,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CanSetBody ()
     {
-      var newInaccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Assembly));
-      var newAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Family));
+      var newInaccessibleCtor = Create (ConstructorDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Assembly));
+      var newAccessibleCtor = Create (ConstructorDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Family));
 
-      var existingInaccesibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
+      var existingInaccesibleCtor = Create (ConstructorDescriptorObjectMother.CreateForExisting (
           NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7))));
-      var existingAccessibleCtor = Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (
+      var existingAccessibleCtor = Create (ConstructorDescriptorObjectMother.CreateForExisting (
           NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ())));
       Assert.That (existingInaccesibleCtor.IsPublic, Is.False);
 
@@ -201,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetBody_NonSettableCtor ()
     {
       var inaccessibleCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (inaccessibleCtor);
+      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting (inaccessibleCtor);
       var mutableCtor = Create (descriptor);
 
       Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
@@ -217,8 +217,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToString_WithParameters ()
     {
       var ctorInfo = CreateWithParameters (
-          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
-          UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
+          ParameterDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
+          ParameterDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
 
       Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
@@ -236,7 +236,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var parameters = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      var parameters = ParameterDescriptorObjectMother.CreateMultiple (2);
       var ctorInfo = CreateWithParameters (parameters);
 
       var result = ctorInfo.GetParameters();
@@ -254,7 +254,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_ReturnsSameParameterInfoInstances()
     {
-      var ctorInfo = CreateWithParameters (UnderlyingParameterInfoDescriptorObjectMother.CreateForNew());
+      var ctorInfo = CreateWithParameters (ParameterDescriptorObjectMother.CreateForNew());
 
       var result1 = ctorInfo.GetParameters().Single();
       var result2 = ctorInfo.GetParameters().Single();
@@ -265,7 +265,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters_DoesNotAllowModificationOfInternalList ()
     {
-      var ctorInfo = CreateWithParameters (UnderlyingParameterInfoDescriptorObjectMother.CreateForNew ());
+      var ctorInfo = CreateWithParameters (ParameterDescriptorObjectMother.CreateForNew ());
 
       var parameters = ctorInfo.GetParameters ();
       Assert.That (parameters[0], Is.Not.Null);
@@ -309,14 +309,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
-    private MutableConstructorInfo Create (UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
+    private MutableConstructorInfo Create (ConstructorDescriptor constructorDescriptor)
     {
-      return new MutableConstructorInfo (_declaringType, underlyingConstructorInfoDescriptor);
+      return new MutableConstructorInfo (_declaringType, constructorDescriptor);
     }
 
-    private MutableConstructorInfo CreateWithParameters (params UnderlyingParameterInfoDescriptor[] parameterDescriptors)
+    private MutableConstructorInfo CreateWithParameters (params ParameterDescriptor[] parameterDescriptors)
     {
-      return Create (UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors));
+      return Create (ConstructorDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors));
     }
 
     class DomainType

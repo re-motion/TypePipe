@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableParameterInfoTest
   {
     private MemberInfo _declaringMember;
-    private UnderlyingParameterInfoDescriptor _descriptor;
+    private ParameterDescriptor _descriptor;
     private MutableParameterInfo _mutableParameter;
 
     private MutableParameterInfo _mutableParameterWithAttribute;
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _declaringMember = ReflectionObjectMother.GetSomeMember();
-      _descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew();
+      _descriptor = ParameterDescriptorObjectMother.CreateForNew();
       _mutableParameter = new MutableParameterInfo (_declaringMember, _descriptor);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemParameterInfo ()
     {
-      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForExisting();
+      var descriptor = ParameterDescriptorObjectMother.CreateForExisting();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var mutableParameter = Create (descriptor);
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemParameterInfo_ForNull ()
     {
-      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew ();
+      var descriptor = ParameterDescriptorObjectMother.CreateForNew ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var mutableParameter = Create (descriptor);
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableParameterWithAttribute.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
-    private MutableParameterInfo Create (UnderlyingParameterInfoDescriptor descriptor)
+    private MutableParameterInfo Create (ParameterDescriptor descriptor)
     {
       return new MutableParameterInfo (ReflectionObjectMother.GetSomeMember (), descriptor);
     }

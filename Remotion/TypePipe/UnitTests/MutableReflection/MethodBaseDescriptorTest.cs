@@ -23,16 +23,16 @@ using Remotion.Development.UnitTesting.Enumerables;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingMethodBaseDescriptorTest
+  public class MethodBaseDescriptorTest
   {
     [Test]
     public void CreateOriginalBodyExpression ()
     {
       var methodBase = ReflectionObjectMother.GetSomeMethod();
       var returnType = ReflectionObjectMother.GetSomeType();
-      var parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      var parameterDescriptors = ParameterDescriptorObjectMother.CreateMultiple (2);
 
-      var result = TestableUnderlyingMethodBaseDescriptor<MethodBase>.CreateOriginalBodyExpression (
+      var result = TestableMethodBaseDescriptor<MethodBase>.CreateOriginalBodyExpression (
           methodBase, returnType, parameterDescriptors.AsOneTime());
 
       Assert.That (result, Is.TypeOf<OriginalBodyExpression>());

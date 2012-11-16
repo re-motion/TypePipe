@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private MutableType _declaringType;
 
-    private UnderlyingMethodInfoDescriptor _descriptor;
+    private MethodDescriptor _descriptor;
     private MutableMethodInfo _mutableMethod;
 
     private MutableMethodInfo _newNonVirtualMethod;
@@ -50,23 +50,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create (UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainType)));
+      _declaringType = MutableTypeObjectMother.Create (TypeDescriptorObjectMother.Create (typeof (DomainType)));
 
-      _descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      _descriptor = MethodDescriptorObjectMother.CreateForNew ();
       _mutableMethod = Create (_descriptor);
 
-      _newNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
-      _newFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual | MethodAttributes.Final));
-      _newVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
+      _newNonVirtualMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: 0));
+      _newFinalMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual | MethodAttributes.Final));
+      _newVirtualMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
 
       var nonVirtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
-      _existingNonVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
+      _existingNonVirtualMethod = Create (MethodDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
 
       var finalUnderlyingMethod = typeof (DomainType).GetMethod ("FinalMethod");
-      _existingFinalMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
+      _existingFinalMethod = Create (MethodDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
 
       var virtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
-      _existingVirtualMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
+      _existingVirtualMethod = Create (MethodDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
 
       _randomInherit = BooleanObjectMother.GetRandomBoolean ();
       var attributeUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AttributeMethod());
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemMethodInfo ()
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
+      var descriptor = MethodDescriptorObjectMother.CreateForExisting ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var methodInfo = Create (descriptor);
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemMethodInfo_ForNull ()
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      var descriptor = MethodDescriptorObjectMother.CreateForNew ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var methodInfo = Create (descriptor);
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNewMethod_True ()
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ();
+      var descriptor = MethodDescriptorObjectMother.CreateForNew ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
 
       var methodInfo = Create (descriptor);
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNewMethod_False ()
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting ();
+      var descriptor = MethodDescriptorObjectMother.CreateForExisting ();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
 
       var methodInfo = Create (descriptor);
@@ -160,8 +160,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      var instanceMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: 0));
-      var staticMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
+      var instanceMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: 0));
+      var staticMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void BaseMethod ()
     {
       var baseMethod = ReflectionObjectMother.GetSomeMethod();
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
 
       Assert.That (mutableMethod.BaseMethod, Is.SameAs (baseMethod));
     }
@@ -191,7 +191,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var rootDefinition = baseMethod.GetBaseDefinition ();
       Assert.That (rootDefinition, Is.Not.EqualTo (baseMethod));
 
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
 
       Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (rootDefinition));
     }
@@ -199,7 +199,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetBaseDefinition_NoBaseMethod ()
     {
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (baseMethod: null));
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: null));
 
       Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (mutableMethod));
     }
@@ -208,7 +208,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsGenericMethod ()
     {
       var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
-      var method = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (isGenericMethod: isGenericMethod));
+      var method = Create (MethodDescriptorObjectMother.CreateForNew (isGenericMethod: isGenericMethod));
 
       Assert.That (method.IsGenericMethod, Is.EqualTo (isGenericMethod));
     }
@@ -217,7 +217,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsGenericMethodDefinition ()
     {
       var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean ();
-      var method = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (isGenericMethodDefinition: isGenericMethodDefinition));
+      var method = Create (MethodDescriptorObjectMother.CreateForNew (isGenericMethodDefinition: isGenericMethodDefinition));
 
       Assert.That (method.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
     }
@@ -226,7 +226,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ContainsGenericParameters ()
     {
       var containsGenericParameters = BooleanObjectMother.GetRandomBoolean ();
-      var method = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (containsGenericParameters: containsGenericParameters));
+      var method = Create (MethodDescriptorObjectMother.CreateForNew (containsGenericParameters: containsGenericParameters));
 
       Assert.That (method.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
     }
@@ -235,7 +235,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ParameterExpressions ()
     {
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      var descriptor = MethodDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
       var method = Create (descriptor);
 
       Assert.That (method.ParameterExpressions, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
@@ -390,7 +390,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = typeof (object);
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMetod = ReflectionObjectMother.GetSomeMethod();
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew ("Method", attribtes, returnType, parameterDeclarations, baseMetod);
+      var descriptor = MethodDescriptorObjectMother.CreateForNew ("Method", attribtes, returnType, parameterDeclarations, baseMetod);
       var mutableMethod = Create (descriptor);
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
@@ -415,7 +415,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody_Static ()
     {
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
       {
         Assert.That (ctx.IsStatic, Is.True);
@@ -428,7 +428,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody_ImplementsAbstractMethod ()
     {
-      var mutableMethod = Create (UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null));
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Abstract, body: null));
       Assert.That (mutableMethod.IsAbstract, Is.True);
 
       mutableMethod.SetBody (
@@ -447,7 +447,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetBody_CannotSetBody ()
     {
       var nonVirtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
+      var descriptor = MethodDescriptorObjectMother.CreateForExisting (nonVirtualMethod);
       var mutableMethod = Create (descriptor);
 
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx => null;
@@ -577,14 +577,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
     }
 
-    private MutableMethodInfo Create (UnderlyingMethodInfoDescriptor descriptor)
+    private MutableMethodInfo Create (MethodDescriptor descriptor)
     {
       return new MutableMethodInfo (_declaringType, descriptor);
     }
 
     private MutableMethodInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      var descriptor = MethodDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
       return new MutableMethodInfo (_declaringType, descriptor);
     }
 

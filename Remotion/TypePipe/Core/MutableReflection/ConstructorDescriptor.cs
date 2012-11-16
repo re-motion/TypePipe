@@ -30,10 +30,10 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableConstructorInfo"/> to represent a constructor, before any mutations.
   /// </remarks>
-  public class UnderlyingConstructorInfoDescriptor : UnderlyingMethodBaseDescriptor<ConstructorInfo>
+  public class ConstructorDescriptor : MethodBaseDescriptor<ConstructorInfo>
   {
-    public static UnderlyingConstructorInfoDescriptor Create (
-        MethodAttributes attributes, IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors, Expression body)
+    public static ConstructorDescriptor Create (
+        MethodAttributes attributes, IEnumerable<ParameterDescriptor> parameterDescriptors, Expression body)
     {
       ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
       ArgumentUtility.CheckNotNull ("body", body);
@@ -43,21 +43,21 @@ namespace Remotion.TypePipe.MutableReflection
 
       var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
 
-      return new UnderlyingConstructorInfoDescriptor (null, attributes, readonlyParameterDeclarations, EmptyCustomAttributeDataProvider, body);
+      return new ConstructorDescriptor (null, attributes, readonlyParameterDeclarations, EmptyCustomAttributeDataProvider, body);
     }
 
-    public static UnderlyingConstructorInfoDescriptor Create (ConstructorInfo underlyingConstructor)
+    public static ConstructorDescriptor Create (ConstructorInfo underlyingConstructor)
     {
       ArgumentUtility.CheckNotNull ("underlyingConstructor", underlyingConstructor);
 
       // TODO 4695
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = underlyingConstructor.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDescriptors = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (underlyingConstructor);
+      var parameterDescriptors = ParameterDescriptor.CreateFromMethodBase (underlyingConstructor);
       var customAttributeDataProvider = GetCustomAttributeProvider (underlyingConstructor);
       var body = CreateOriginalBodyExpression (underlyingConstructor, typeof (void), parameterDescriptors);
 
-      return new UnderlyingConstructorInfoDescriptor (underlyingConstructor, attributes, parameterDescriptors, customAttributeDataProvider, body);
+      return new ConstructorDescriptor (underlyingConstructor, attributes, parameterDescriptors, customAttributeDataProvider, body);
     }
 
     private static string GetConstructorName (MethodAttributes attributes)
@@ -65,10 +65,10 @@ namespace Remotion.TypePipe.MutableReflection
       return attributes.IsSet (MethodAttributes.Static) ? ConstructorInfo.TypeConstructorName : ConstructorInfo.ConstructorName;
     }
 
-    private UnderlyingConstructorInfoDescriptor (
+    private ConstructorDescriptor (
         ConstructorInfo underlyingConstructor,
         MethodAttributes attributes,
-        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
         : base (underlyingConstructor, GetConstructorName (attributes), attributes, parameterDescriptors, customAttributeDataProvider, body)

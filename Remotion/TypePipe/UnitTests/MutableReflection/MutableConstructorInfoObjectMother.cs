@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       underlyingConstructor = underlyingConstructor ?? ReflectionObjectMother.GetSomeConstructor();
       var declaringType = MutableTypeObjectMother.CreateForExisting (underlyingConstructor.DeclaringType);
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForExisting (underlyingConstructor);
+      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting (underlyingConstructor);
 
       return new MutableConstructorInfo (declaringType, descriptor);
     }
@@ -56,8 +56,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null)
     {
       declaringType = declaringType ?? MutableTypeObjectMother.Create();
-      var parameterDescriptors = parameterDeclarations != null ? UnderlyingParameterInfoDescriptor.CreateFromDeclarations (parameterDeclarations) : null;
-      var descriptor = UnderlyingConstructorInfoDescriptorObjectMother.CreateForNew (attributes, parameterDescriptors, body);
+      var parameterDescriptors = parameterDeclarations != null ? ParameterDescriptor.CreateFromDeclarations (parameterDeclarations) : null;
+      var descriptor = ConstructorDescriptorObjectMother.CreateForNew (attributes, parameterDescriptors, body);
 
       return new MutableConstructorInfo (declaringType, descriptor);
     }

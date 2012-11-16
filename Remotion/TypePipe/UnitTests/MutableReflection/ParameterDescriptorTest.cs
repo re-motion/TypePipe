@@ -27,12 +27,12 @@ using Remotion.Development.UnitTesting.Enumerables;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingParameterInfoDescriptorTest
+  public class ParameterDescriptorTest
   {
     [Test]
     public void EmptyParameters ()
     {
-      Assert.That (UnderlyingParameterInfoDescriptor.EmptyParameters, Is.Empty);
+      Assert.That (ParameterDescriptor.EmptyParameters, Is.Empty);
     }
 
     [Test]
@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = ParameterAttributes.Optional | ParameterAttributes.In;
       var declaration = new ParameterDeclaration (type, name, attributes);
 
-      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (new[] { declaration }.AsOneTime()).Single();
+      var descriptor = ParameterDescriptor.CreateFromDeclarations (new[] { declaration }.AsOneTime()).Single();
 
       CheckDescriptor (descriptor, null, type, name, position, attributes, type, false, Type.EmptyTypes);
     }
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
       var underlyingParameter = method.GetParameters().Last();
 
-      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
+      var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
 
       var type = typeof (string);
       CheckDescriptor (
@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       string s;
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
 
-      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
+      var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
 
       var result1 = descriptor.Expression;
       var result2 = descriptor.Expression;
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var declaration = ParameterDeclarationObjectMother.Create();
 
-      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromDeclarations (new[] { declaration }).Single();
+      var descriptor = ParameterDescriptor.CreateFromDeclarations (new[] { declaration }).Single();
 
       var type = declaration.Type;
       Assert.That (type.IsByRef, Is.False);
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       string s;
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
 
-      var descriptor = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (method).Last();
+      var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
 
       var underlyingParameter = method.GetParameters().Last();
       var type = typeof (string);
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           expectedCustomAttributeTypes: new[] { typeof (AbcAttribute), typeof (DefAttribute) });
     }
 
-    private static void CheckDescriptor (UnderlyingParameterInfoDescriptor descriptor, ParameterInfo expectedParameterInfo, Type expectedType, string expectedName, int expectedPosition, ParameterAttributes expectedAttributes, Type expectedExpressionType, bool expectedIsByRef, Type[] expectedCustomAttributeTypes)
+    private static void CheckDescriptor (ParameterDescriptor descriptor, ParameterInfo expectedParameterInfo, Type expectedType, string expectedName, int expectedPosition, ParameterAttributes expectedAttributes, Type expectedExpressionType, bool expectedIsByRef, Type[] expectedCustomAttributeTypes)
     {
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (expectedParameterInfo));
       Assert.That (descriptor.Type, Is.SameAs (expectedType));

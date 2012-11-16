@@ -29,12 +29,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableType"/> to represent a type, before any mutations.
   /// </remarks>
-  public class UnderlyingTypeDescriptor : UnderlyingInfoDescriptorBase<Type>
+  public class TypeDescriptor : DescriptorBase<Type>
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
 
-    public static UnderlyingTypeDescriptor Create (Type underlyingType)
+    public static TypeDescriptor Create (Type underlyingType)
     {
       ArgumentUtility.CheckNotNull ("underlyingType", underlyingType);
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
             "underlyingType");
       }
 
-      return new UnderlyingTypeDescriptor (
+      return new TypeDescriptor (
           underlyingType,
           underlyingType.DeclaringType,
           underlyingType.BaseType,
@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
     private readonly ReadOnlyCollection<MethodInfo> _methods;
 
-    private UnderlyingTypeDescriptor (
+    private TypeDescriptor (
         Type underlyingType,
         Type declaringType,
         Type baseType,

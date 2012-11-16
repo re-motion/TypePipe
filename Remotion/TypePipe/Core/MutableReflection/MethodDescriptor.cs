@@ -30,13 +30,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableMethodInfo"/> to represent a method, before any mutations.
   /// </remarks>
-  public class UnderlyingMethodInfoDescriptor : UnderlyingMethodBaseDescriptor<MethodInfo>
+  public class MethodDescriptor : MethodBaseDescriptor<MethodInfo>
   {
-    public static UnderlyingMethodInfoDescriptor Create (
+    public static MethodDescriptor Create (
         string name,
         MethodAttributes attributes,
         Type returnType,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        IEnumerable<ParameterDescriptor> parameterDescriptors,
         MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
       CheckMethodData (attributes, returnType, body);
 
       var readonlyParameterDescriptors = parameterDescriptors.ToList().AsReadOnly();
-      return new UnderlyingMethodInfoDescriptor (
+      return new MethodDescriptor (
           null,
           name,
           attributes,
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection
           body);
     }
 
-    public static UnderlyingMethodInfoDescriptor Create (MethodInfo underlyingMethod, IRelatedMethodFinder relatedMethodFinder)
+    public static MethodDescriptor Create (MethodInfo underlyingMethod, IRelatedMethodFinder relatedMethodFinder)
     {
       ArgumentUtility.CheckNotNull ("underlyingMethod", underlyingMethod);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
@@ -73,12 +73,12 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = underlyingMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (underlyingMethod);
+      var parameterDeclarations = ParameterDescriptor.CreateFromMethodBase (underlyingMethod);
       var baseMethod = relatedMethodFinder.GetBaseMethod (underlyingMethod);
       var customAttributeDataProvider = GetCustomAttributeProvider (underlyingMethod);
       var body = underlyingMethod.IsAbstract ? null : CreateOriginalBodyExpression (underlyingMethod, underlyingMethod.ReturnType, parameterDeclarations);
 
-      return new UnderlyingMethodInfoDescriptor (
+      return new MethodDescriptor (
           underlyingMethod,
           underlyingMethod.Name,
           attributes,
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
           body);
     }
 
-    public static UnderlyingMethodInfoDescriptor CreateEquivalent (
+    public static MethodDescriptor CreateEquivalent (
         MethodInfo equivalentMethod, string name, MethodAttributes attributes, Expression body)
     {
       ArgumentUtility.CheckNotNull ("equivalentMethod", equivalentMethod);
@@ -100,8 +100,8 @@ namespace Remotion.TypePipe.MutableReflection
       // body may be null
       CheckMethodData (attributes, equivalentMethod.ReturnType, body);
 
-      var parameterDeclarations = UnderlyingParameterInfoDescriptor.CreateFromMethodBase (equivalentMethod);
-      return new UnderlyingMethodInfoDescriptor (
+      var parameterDeclarations = ParameterDescriptor.CreateFromMethodBase (equivalentMethod);
+      return new MethodDescriptor (
           null,
           name,
           attributes,
@@ -132,12 +132,12 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly bool _isGenericMethodDefinition;
     private readonly bool _containsGenericParameters;
 
-    private UnderlyingMethodInfoDescriptor (
+    private MethodDescriptor (
         MethodInfo underlyingMethod,
         string name,
         MethodAttributes attributes,
         Type returnType,
-        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
         MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,

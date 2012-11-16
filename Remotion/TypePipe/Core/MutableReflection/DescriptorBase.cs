@@ -25,8 +25,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Serves as a base for all descriptor classes.
   /// </summary>
-  /// <typeparam name="TInfo">The type of the member.</typeparam>
-  public abstract class UnderlyingInfoDescriptorBase<TInfo>
+  /// <typeparam name="TInfo">The type of the member (or <see cref="ParameterInfo"/> which is not derived from <see cref="MemberInfo"/>).</typeparam>
+  public abstract class DescriptorBase<TInfo>
       where TInfo: class
   {
 // ReSharper disable StaticFieldInGenericType
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _name;
     private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
-    protected UnderlyingInfoDescriptorBase (
+    protected DescriptorBase (
         TInfo underlyingInfo, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
     {
       Assertion.IsTrue (underlyingInfo == null || underlyingInfo is MemberInfo || underlyingInfo is ParameterInfo);

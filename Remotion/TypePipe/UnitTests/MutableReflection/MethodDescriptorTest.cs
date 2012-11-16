@@ -32,12 +32,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingMethodInfoDescriptorTest
+  public class MethodDescriptorTest
   {
     private string _name;
     private MethodAttributes _attributes;
     private Type _returnType;
-    private UnderlyingParameterInfoDescriptor[] _parameterDescriptors;
+    private ParameterDescriptor[] _parameterDescriptors;
     private MethodInfo _baseMethod;
     private bool _isGenMethod;
     private bool _isGenMethodDef;
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _name = "Method";
       _attributes = (MethodAttributes) 7;
       _returnType = ReflectionObjectMother.GetSomeType();
-      _parameterDescriptors = UnderlyingParameterInfoDescriptorObjectMother.CreateMultiple (2);
+      _parameterDescriptors = ParameterDescriptorObjectMother.CreateMultiple (2);
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
       _isGenMethod = BooleanObjectMother.GetRandomBoolean();
       _isGenMethodDef = BooleanObjectMother.GetRandomBoolean();
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForNew ()
     {
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+      var descriptor = MethodDescriptor.Create (
           _name,
           _attributes,
           _returnType,
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Create_ForNew_NullBaseMethod ()
     {
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+      var descriptor = MethodDescriptor.Create (
           _name, _attributes, _returnType, _parameterDescriptors, null, _isGenMethod, _isGenMethodDef, _containsGenParams, _body);
 
       Assert.That (descriptor.BaseMethod, Is.Null);
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var attributes = MethodAttributes.Abstract;
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (
+      var descriptor = MethodDescriptor.Create (
           _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
 
       Assert.That (descriptor.Body, Is.Null);
@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
 
       Assert.That (
-          () => UnderlyingMethodInfoDescriptor.Create (
+          () => MethodDescriptor.Create (
               _name, _attributes, returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body),
           Throws.Nothing);
     }
@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var attributes = MethodAttributes.HasSecurity;
 
-      UnderlyingMethodInfoDescriptor.Create (
+      MethodDescriptor.Create (
           _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
     }
 
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = typeof (int);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
 
-      UnderlyingMethodInfoDescriptor.Create (
+      MethodDescriptor.Create (
           _name, _attributes, returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
     }
     
@@ -152,7 +152,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeBaseMethod = ReflectionObjectMother.GetSomeMethod();
       _relatedMethodFinderMock.Expect (mock => mock.GetBaseMethod (underlyingMethod)).Return (fakeBaseMethod);
       
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
+      var descriptor = MethodDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingMethod));
@@ -190,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (underlyingMethod.IsFamilyOrAssembly, Is.True);
       _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
+      var descriptor = MethodDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
@@ -203,7 +203,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (underlyingMethod.IsAbstract, Is.True);
       _relatedMethodFinderMock.Stub (stub => stub.GetBaseMethod (Arg<MethodInfo>.Is.Anything));
 
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
+      var descriptor = MethodDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       Assert.That (descriptor.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
       Assert.That (descriptor.Body, Is.Null);
@@ -216,7 +216,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var equivalentMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ("string", out v, 1.0, null));
       var body = ExpressionTreeObjectMother.GetSomeExpression (equivalentMethod.ReturnType);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, _attributes, body);
+      var descriptor = MethodDescriptor.CreateEquivalent (equivalentMethod, _name, _attributes, body);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (_name));
@@ -247,7 +247,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var equivalentMethod = ReflectionObjectMother.GetSomeMethod ();
       var attributes = MethodAttributes.Abstract;
 
-      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, attributes, body: null);
+      var descriptor = MethodDescriptor.CreateEquivalent (equivalentMethod, _name, attributes, body: null);
 
       Assert.That (descriptor.Body, Is.Null);
     }
@@ -259,7 +259,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var equivalentMethod = ReflectionObjectMother.GetSomeMethod();
       var attributes = MethodAttributes.HasSecurity;
 
-      UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, attributes, body: null);
+      MethodDescriptor.CreateEquivalent (equivalentMethod, _name, attributes, body: null);
     }
 
     [Test]
@@ -270,7 +270,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var equivalentMethod = ReflectionObjectMother.GetSomeMethod();
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (IDisposable));
 
-      UnderlyingMethodInfoDescriptor.CreateEquivalent (equivalentMethod, _name, _attributes, body);
+      MethodDescriptor.CreateEquivalent (equivalentMethod, _name, _attributes, body);
     }
     
     class DomainType

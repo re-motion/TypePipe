@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mockRepository = new MockRepository();
       var handlerFactoryMock = mockRepository.StrictMock<ISubclassProxyBuilderFactory>();
 
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create();
+      var descriptor = TypeDescriptorObjectMother.Create();
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);

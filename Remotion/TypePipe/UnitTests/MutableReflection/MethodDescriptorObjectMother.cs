@@ -24,14 +24,14 @@ using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class UnderlyingMethodInfoDescriptorObjectMother
+  public static class MethodDescriptorObjectMother
   {
     private class UnspecifiedType
     {
       public void UnspecifiedMethod() { }
     }
 
-    public static UnderlyingMethodInfoDescriptor CreateForNew (
+    public static MethodDescriptor CreateForNew (
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
         Type returnType = null,
@@ -50,11 +50,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
 
-      return UnderlyingMethodInfoDescriptor.Create (
+      return MethodDescriptor.Create (
           name,
           attributes,
           returnType,
-          UnderlyingParameterInfoDescriptor.CreateFromDeclarations(parameterDeclarations),
+          ParameterDescriptor.CreateFromDeclarations(parameterDeclarations),
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,
@@ -62,11 +62,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           body);
     }
 
-    public static UnderlyingMethodInfoDescriptor CreateForExisting (
+    public static MethodDescriptor CreateForExisting (
         MethodInfo originalMethodInfo = null,
         RelatedMethodFinder relatedMethodFinder = null)
     {
-      return UnderlyingMethodInfoDescriptor.Create (
+      return MethodDescriptor.Create (
           originalMethodInfo ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod()),
           relatedMethodFinder ?? new RelatedMethodFinder());
     }

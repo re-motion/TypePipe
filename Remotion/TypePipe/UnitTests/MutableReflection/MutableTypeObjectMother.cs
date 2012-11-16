@@ -22,24 +22,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableTypeObjectMother
   {
     public static MutableType Create (
-        UnderlyingTypeDescriptor underlyingTypeDescriptor = null,
+        TypeDescriptor typeDescriptor = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
-      underlyingTypeDescriptor = underlyingTypeDescriptor ?? UnderlyingTypeDescriptorObjectMother.Create();
+      typeDescriptor = typeDescriptor ?? TypeDescriptorObjectMother.Create();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
+      return new MutableType (typeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
     }
 
     public static MutableType CreateForExisting (
         Type underlyingType = null, IMemberSelector memberSelector = null, IRelatedMethodFinder relatedMethodFinder = null)
     {
       underlyingType = underlyingType ?? typeof (UnspecifiedType);
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (underlyingType);
+      var descriptor = TypeDescriptorObjectMother.Create (underlyingType);
       return Create (descriptor, memberSelector, relatedMethodFinder);
     }
 

@@ -32,20 +32,20 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableFieldInfo : FieldInfo, IMutableMember
   {
     private readonly MutableType _declaringType;
-    private readonly UnderlyingFieldInfoDescriptor _underlyingFieldInfoDescriptor;
+    private readonly FieldDescriptor _fieldDescriptor;
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
-    public MutableFieldInfo (MutableType declaringType, UnderlyingFieldInfoDescriptor underlyingFieldInfoDescriptor)
+    public MutableFieldInfo (MutableType declaringType, FieldDescriptor fieldDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("underlyingFieldInfoDescriptor", underlyingFieldInfoDescriptor);
+      ArgumentUtility.CheckNotNull ("fieldDescriptor", fieldDescriptor);
 
       _declaringType = declaringType;
-      _underlyingFieldInfoDescriptor = underlyingFieldInfoDescriptor;
+      _fieldDescriptor = fieldDescriptor;
 
       _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingFieldInfoDescriptor.CustomAttributeDataProvider);
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (fieldDescriptor.CustomAttributeDataProvider);
     }
 
     public override Type DeclaringType
@@ -55,12 +55,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public FieldInfo UnderlyingSystemFieldInfo
     {
-      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _fieldDescriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public bool IsNew
     {
-      get { return _underlyingFieldInfoDescriptor.UnderlyingSystemInfo == null; }
+      get { return _fieldDescriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified
@@ -70,17 +70,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type FieldType
     {
-      get { return _underlyingFieldInfoDescriptor.Type; }
+      get { return _fieldDescriptor.Type; }
     }
 
     public override string Name
     {
-      get { return _underlyingFieldInfoDescriptor.Name; }
+      get { return _fieldDescriptor.Name; }
     }
 
     public override FieldAttributes Attributes
     {
-      get { return _underlyingFieldInfoDescriptor.Attributes; }
+      get { return _fieldDescriptor.Attributes; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations

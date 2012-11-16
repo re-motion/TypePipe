@@ -21,7 +21,7 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class TestableUnderlyingInfoDescriptorBase<T> : UnderlyingInfoDescriptorBase<T>
+  public class TestableDescriptorBase<T> : DescriptorBase<T>
     where T : class 
   {
     public static Func<ReadOnlyCollection<ICustomAttributeData>> GetEmptyProviderField ()
@@ -31,15 +31,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
-      return UnderlyingInfoDescriptorBase<T>.GetCustomAttributeProvider (member);
+      return DescriptorBase<T>.GetCustomAttributeProvider (member);
     }
 
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (ParameterInfo parameter)
     {
-      return UnderlyingInfoDescriptorBase<T>.GetCustomAttributeProvider (parameter);
+      return DescriptorBase<T>.GetCustomAttributeProvider (parameter);
     }
 
-    public TestableUnderlyingInfoDescriptorBase (
+    public TestableDescriptorBase (
         T underlyingSystemMember, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
         : base (underlyingSystemMember, name, customAttributeDataProvider)
     {

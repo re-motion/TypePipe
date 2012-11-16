@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
-    private readonly UnderlyingMethodInfoDescriptor _underlyingMethodInfoDescriptor;
+    private readonly MethodDescriptor _methodDescriptor;
 
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
@@ -46,23 +46,23 @@ namespace Remotion.TypePipe.MutableReflection
     private MethodAttributes _attributes;
     private Expression _body;
 
-    public MutableMethodInfo (MutableType declaringType, UnderlyingMethodInfoDescriptor underlyingMethodInfoDescriptor)
+    public MutableMethodInfo (MutableType declaringType, MethodDescriptor methodDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("underlyingMethodInfoDescriptor", underlyingMethodInfoDescriptor);
+      ArgumentUtility.CheckNotNull ("methodDescriptor", methodDescriptor);
 
       _declaringType = declaringType;
-      _underlyingMethodInfoDescriptor = underlyingMethodInfoDescriptor;
+      _methodDescriptor = methodDescriptor;
 
-      _parameters = _underlyingMethodInfoDescriptor.ParameterDescriptors
+      _parameters = _methodDescriptor.ParameterDescriptors
           .Select (pd => new MutableParameterInfo (this, pd))
           .ToList().AsReadOnly();
 
       _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingMethodInfoDescriptor.CustomAttributeDataProvider);
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (methodDescriptor.CustomAttributeDataProvider);
 
-      _attributes = _underlyingMethodInfoDescriptor.Attributes;
-      _body = _underlyingMethodInfoDescriptor.Body;
+      _attributes = _methodDescriptor.Attributes;
+      _body = _methodDescriptor.Body;
     }
 
     public override Type DeclaringType
@@ -72,22 +72,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MethodInfo UnderlyingSystemMethodInfo
     {
-      get { return _underlyingMethodInfoDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _methodDescriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public bool IsNew
     {
-      get { return _underlyingMethodInfoDescriptor.UnderlyingSystemInfo == null; }
+      get { return _methodDescriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified
     {
-      get { return _body != _underlyingMethodInfoDescriptor.Body || _addedExplicitBaseDefinitions.Count > 0; }
+      get { return _body != _methodDescriptor.Body || _addedExplicitBaseDefinitions.Count > 0; }
     }
 
     public override string Name
     {
-      get { return _underlyingMethodInfoDescriptor.Name; }
+      get { return _methodDescriptor.Name; }
     }
 
     public override MethodAttributes Attributes
@@ -102,12 +102,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type ReturnType
     {
-      get { return _underlyingMethodInfoDescriptor.ReturnType; }
+      get { return _methodDescriptor.ReturnType; }
     }
 
     public MethodInfo BaseMethod
     {
-      get { return _underlyingMethodInfoDescriptor.BaseMethod; }
+      get { return _methodDescriptor.BaseMethod; }
     }
 
     /// <summary>
@@ -120,22 +120,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override bool IsGenericMethod
     {
-      get { return _underlyingMethodInfoDescriptor.IsGenericMethod; }
+      get { return _methodDescriptor.IsGenericMethod; }
     }
 
     public override bool IsGenericMethodDefinition
     {
-      get { return _underlyingMethodInfoDescriptor.IsGenericMethodDefinition; }
+      get { return _methodDescriptor.IsGenericMethodDefinition; }
     }
 
     public override bool ContainsGenericParameters
     {
-      get { return _underlyingMethodInfoDescriptor.ContainsGenericParameters; }
+      get { return _methodDescriptor.ContainsGenericParameters; }
     }
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _underlyingMethodInfoDescriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _methodDescriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public Expression Body

@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.Caching
 
     private MutableType CreateMutableType (Type requestedType)
     {
-      var underlyingTypeDescriptor = UnderlyingTypeDescriptor.Create (requestedType);
+      var underlyingTypeDescriptor = TypeDescriptor.Create (requestedType);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);

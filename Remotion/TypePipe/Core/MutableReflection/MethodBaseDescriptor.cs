@@ -30,13 +30,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   /// <typeparam name="TMethodBase">The concrete type of method (<see cref="MethodInfo"/> or <see cref="ConstructorInfo"/>).</typeparam>
   /// <remarks>
-  /// This is used as a base class for <see cref="UnderlyingMethodInfoDescriptor"/> and <see cref="UnderlyingConstructorInfoDescriptor"/>.
+  /// This is used as a base class for <see cref="MethodDescriptor"/> and <see cref="ConstructorDescriptor"/>.
   /// </remarks>
-  public abstract class UnderlyingMethodBaseDescriptor<TMethodBase> : UnderlyingInfoDescriptorBase<TMethodBase>
+  public abstract class MethodBaseDescriptor<TMethodBase> : DescriptorBase<TMethodBase>
       where TMethodBase : MethodBase
   {
     protected static Expression CreateOriginalBodyExpression (
-        MethodBase methodBase, Type returnType, IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors)
+        MethodBase methodBase, Type returnType, IEnumerable<ParameterDescriptor> parameterDescriptors)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
@@ -47,14 +47,14 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     private readonly MethodAttributes _attributes;
-    private readonly ReadOnlyCollection<UnderlyingParameterInfoDescriptor> _parameterDescriptors;
+    private readonly ReadOnlyCollection<ParameterDescriptor> _parameterDescriptors;
     private readonly Expression _body;
 
-    protected UnderlyingMethodBaseDescriptor (
+    protected MethodBaseDescriptor (
         TMethodBase underlyingMethodBase,
         string name,
         MethodAttributes attributes,
-        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
         : base (underlyingMethodBase, name, customAttributeDataProvider)
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributes; }
     }
 
-    public ReadOnlyCollection<UnderlyingParameterInfoDescriptor> ParameterDescriptors
+    public ReadOnlyCollection<ParameterDescriptor> ParameterDescriptors
     {
       get { return _parameterDescriptors; }
     }

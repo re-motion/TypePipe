@@ -35,29 +35,29 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
-    private readonly UnderlyingConstructorInfoDescriptor _underlyingConstructorInfoDescriptor;
+    private readonly ConstructorDescriptor _constructorDescriptor;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     // TODO 5057 (Use Lazy<T>)
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     private Expression _body;
 
-    public MutableConstructorInfo (MutableType declaringType, UnderlyingConstructorInfoDescriptor underlyingConstructorInfoDescriptor)
+    public MutableConstructorInfo (MutableType declaringType, ConstructorDescriptor constructorDescriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("underlyingConstructorInfoDescriptor", underlyingConstructorInfoDescriptor);
+      ArgumentUtility.CheckNotNull ("constructorDescriptor", constructorDescriptor);
 
       _declaringType = declaringType;
-      _underlyingConstructorInfoDescriptor = underlyingConstructorInfoDescriptor;
+      _constructorDescriptor = constructorDescriptor;
 
-      _parameters = _underlyingConstructorInfoDescriptor.ParameterDescriptors
+      _parameters = _constructorDescriptor.ParameterDescriptors
           .Select (pd => new MutableParameterInfo (this, pd))
           .ToList().AsReadOnly();
 
       _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (
-          underlyingConstructorInfoDescriptor.CustomAttributeDataProvider);
+          constructorDescriptor.CustomAttributeDataProvider);
 
-      _body = _underlyingConstructorInfoDescriptor.Body;
+      _body = _constructorDescriptor.Body;
     }
 
     public override Type DeclaringType
@@ -67,27 +67,27 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ConstructorInfo UnderlyingSystemConstructorInfo
     {
-      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _constructorDescriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public bool IsNew
     {
-      get { return _underlyingConstructorInfoDescriptor.UnderlyingSystemInfo == null; }
+      get { return _constructorDescriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified
     {
-      get { return _body != _underlyingConstructorInfoDescriptor.Body; }
+      get { return _body != _constructorDescriptor.Body; }
     }
 
     public override string Name
     {
-      get { return _underlyingConstructorInfoDescriptor.Name; }
+      get { return _constructorDescriptor.Name; }
     }
 
     public override MethodAttributes Attributes
     {
-      get { return _underlyingConstructorInfoDescriptor.Attributes; }
+      get { return _constructorDescriptor.Attributes; }
     }
 
     public override CallingConventions CallingConvention
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _underlyingConstructorInfoDescriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _constructorDescriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public Expression Body

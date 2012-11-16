@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private MethodInfo CreateNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method, string trampolineName)
     {
       var attributes = MethodAttributes.Private | MethodAttributes.Abstract; // Temporarily abstract.
-      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (method, trampolineName, attributes, body: null);
+      var descriptor = MethodDescriptor.CreateEquivalent (method, trampolineName, attributes, body: null);
 
       var trampoline = new MutableMethodInfo (context.MutableType, descriptor);
       trampoline.SetBody (ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));

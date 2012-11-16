@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       member = member ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.M());
       parameterType = parameterType ?? typeof (UnspecifiedType);
 
-      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForNew (parameterType, name, attributes);
+      var descriptor = ParameterDescriptorObjectMother.CreateForNew (parameterType, name, attributes);
 
       return new MutableParameterInfo (member, descriptor);
     }
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.M2 (""));
       originalParameter = originalParameter ?? method.GetParameters().Single();
-      var descriptor = UnderlyingParameterInfoDescriptorObjectMother.CreateForExisting (originalParameter);
+      var descriptor = ParameterDescriptorObjectMother.CreateForExisting (originalParameter);
       member = member ?? method;
 
       return new MutableParameterInfo (member, descriptor);

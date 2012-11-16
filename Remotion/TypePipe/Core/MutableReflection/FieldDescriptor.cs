@@ -27,30 +27,30 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableFieldInfo"/> to represent the original field, before any mutations.
   /// </remarks>
-  public class UnderlyingFieldInfoDescriptor : UnderlyingInfoDescriptorBase<FieldInfo>
+  public class FieldDescriptor : DescriptorBase<FieldInfo>
   {
-    public static UnderlyingFieldInfoDescriptor Create (Type fieldType, string name, FieldAttributes attributes)
+    public static FieldDescriptor Create (Type fieldType, string name, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("fieldType", fieldType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return new UnderlyingFieldInfoDescriptor (null, fieldType, name, attributes, EmptyCustomAttributeDataProvider);
+      return new FieldDescriptor (null, fieldType, name, attributes, EmptyCustomAttributeDataProvider);
     }
 
-    public static UnderlyingFieldInfoDescriptor Create (FieldInfo underlyingField)
+    public static FieldDescriptor Create (FieldInfo underlyingField)
     {
       ArgumentUtility.CheckNotNull ("underlyingField", underlyingField);
 
       var customAttributeDataProvider = GetCustomAttributeProvider (underlyingField);
 
-      return new UnderlyingFieldInfoDescriptor (
+      return new FieldDescriptor (
           underlyingField, underlyingField.FieldType, underlyingField.Name, underlyingField.Attributes, customAttributeDataProvider);
     }
 
     private readonly FieldAttributes _attributes;
     private readonly Type _type;
 
-    private UnderlyingFieldInfoDescriptor (
+    private FieldDescriptor (
         FieldInfo underlyingField,
         Type fieldType,
         string name,

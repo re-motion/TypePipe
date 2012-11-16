@@ -23,19 +23,19 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public class TestableUnderlyingMethodBaseDescriptor<TMethodBase> : UnderlyingMethodBaseDescriptor<TMethodBase> where TMethodBase : MethodBase
+  public class TestableMethodBaseDescriptor<TMethodBase> : MethodBaseDescriptor<TMethodBase> where TMethodBase : MethodBase
   {
     public static new Expression CreateOriginalBodyExpression (
-        MethodBase methodBase, Type returnType, IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors)
+        MethodBase methodBase, Type returnType, IEnumerable<ParameterDescriptor> parameterDescriptors)
     {
-      return UnderlyingMethodBaseDescriptor<TMethodBase>.CreateOriginalBodyExpression (methodBase, returnType, parameterDescriptors);
+      return MethodBaseDescriptor<TMethodBase>.CreateOriginalBodyExpression (methodBase, returnType, parameterDescriptors);
     }
 
-    public TestableUnderlyingMethodBaseDescriptor (
+    public TestableMethodBaseDescriptor (
         TMethodBase underlyingSystemMethodBase,
         string name,
         MethodAttributes attributes,
-        ReadOnlyCollection<UnderlyingParameterInfoDescriptor> parameterDescriptors,
+        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
         : base (underlyingSystemMethodBase, name, attributes, parameterDescriptors, customAttributeDataProvider, body)

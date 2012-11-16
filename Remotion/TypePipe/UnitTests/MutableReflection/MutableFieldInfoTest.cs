@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var declaringType = MutableTypeObjectMother.Create();
-      var descriptor = UnderlyingFieldInfoDescriptor.Create (ReflectionObjectMother.GetSomeType (), "_fieldName", FieldAttributes.InitOnly);
+      var descriptor = FieldDescriptor.Create (ReflectionObjectMother.GetSomeType (), "_fieldName", FieldAttributes.InitOnly);
 
       var fieldInfo = new MutableFieldInfo (declaringType, descriptor);
 

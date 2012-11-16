@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
-    private UnderlyingTypeDescriptor _descriptor;
+    private TypeDescriptor _descriptor;
     private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
     private IMutableMemberFactory _mutableMemberFactoryMock;
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (DomainType));
+      _descriptor = TypeDescriptorObjectMother.Create (typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
       // Use a dynamic mock because constructor passes on _relatedMethodFinderMock to UnderlyingTypeDescriptor, which calls methods on the mock.
@@ -626,7 +626,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
-      var descriptor = UnderlyingTypeDescriptorObjectMother.Create (typeof (AbstractType));
+      var descriptor = TypeDescriptorObjectMother.Create (typeof (AbstractType));
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       var mutableType = MutableTypeObjectMother.Create (descriptor, memberSelectorMock);
 

@@ -24,7 +24,7 @@ namespace TypePipe.IntegrationTests.MutableReflection
   {
     public static MutableType CreateForExisting (Type underlyingType)
     {
-      var underlyingTypeDescriptor = UnderlyingTypeDescriptor.Create (underlyingType);
+      var underlyingTypeDescriptor = TypeDescriptor.Create (underlyingType);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
       var relatedMethodFinder = new RelatedMethodFinder ();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);

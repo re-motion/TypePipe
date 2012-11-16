@@ -56,20 +56,20 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly TypeAttributes _originalAttributes;
 
     public MutableType (
-        UnderlyingTypeDescriptor underlyingTypeDescriptor,
+        TypeDescriptor typeDescriptor,
         IMemberSelector memberSelector,
         IRelatedMethodFinder relatedMethodFinder,
         IMutableMemberFactory mutableMemberFactory)
         : base (
             memberSelector,
-            underlyingTypeDescriptor.UnderlyingSystemInfo,
-            underlyingTypeDescriptor.DeclaringType,
-            underlyingTypeDescriptor.BaseType,
-            underlyingTypeDescriptor.Name,
-            underlyingTypeDescriptor.Namespace,
-            underlyingTypeDescriptor.FullName)
+            typeDescriptor.UnderlyingSystemInfo,
+            typeDescriptor.DeclaringType,
+            typeDescriptor.BaseType,
+            typeDescriptor.Name,
+            typeDescriptor.Namespace,
+            typeDescriptor.FullName)
     {
-      ArgumentUtility.CheckNotNull ("underlyingTypeDescriptor", underlyingTypeDescriptor);
+      ArgumentUtility.CheckNotNull ("typeDescriptor", typeDescriptor);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
@@ -77,15 +77,15 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableMemberFactory = mutableMemberFactory;
 
       _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (underlyingTypeDescriptor.CustomAttributeDataProvider);
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (typeDescriptor.CustomAttributeDataProvider);
 
-      _originalAttributes = underlyingTypeDescriptor.Attributes;
-      _existingInterfaces = underlyingTypeDescriptor.Interfaces;
+      _originalAttributes = typeDescriptor.Attributes;
+      _existingInterfaces = typeDescriptor.Interfaces;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, underlyingTypeDescriptor.Fields, CreateExistingMutableField);
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, typeDescriptor.Fields, CreateExistingMutableField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-          this, underlyingTypeDescriptor.Constructors, CreateExistingMutableConstructor);
-      _methods = new MutableTypeMethodCollection (this, underlyingTypeDescriptor.Methods, CreateExistingMutableMethod);
+          this, typeDescriptor.Constructors, CreateExistingMutableConstructor);
+      _methods = new MutableTypeMethodCollection (this, typeDescriptor.Methods, CreateExistingMutableMethod);
     }
 
     public bool IsNew
@@ -439,19 +439,19 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
     {
-      var descriptor = UnderlyingFieldInfoDescriptor.Create (originalField);
+      var descriptor = FieldDescriptor.Create (originalField);
       return new MutableFieldInfo (this, descriptor);
     }
 
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (originalConstructor);
+      var descriptor = ConstructorDescriptor.Create (originalConstructor);
       return new MutableConstructorInfo (this, descriptor);
     }
 
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
-      var descriptor = UnderlyingMethodInfoDescriptor.Create (originalMethod, _relatedMethodFinder);
+      var descriptor = MethodDescriptor.Create (originalMethod, _relatedMethodFinder);
       return new MutableMethodInfo (this, descriptor);
     }
   } 

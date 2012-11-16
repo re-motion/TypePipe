@@ -26,7 +26,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class UnderlyingInfoDescriptorBaseTest
+  public class DescriptorBaseTest
   {
     [Test]
     public void Initialization ()
@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var member = ReflectionObjectMother.GetSomeMember();
       Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider = () => null;
 
-      var descriptor = new TestableUnderlyingInfoDescriptorBase<MemberInfo> (member, "memberName or parameterName", customAttributeDataProvider);
+      var descriptor = new TestableDescriptorBase<MemberInfo> (member, "memberName or parameterName", customAttributeDataProvider);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (member));
       Assert.That (descriptor.Name, Is.EqualTo ("memberName or parameterName"));
@@ -44,16 +44,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void EmptyCustomAttributeProvider ()
     {
-      var fieldContent = TestableUnderlyingInfoDescriptorBase<object>.GetEmptyProviderField();
+      var fieldContent = TestableDescriptorBase<object>.GetEmptyProviderField();
       Assert.That (fieldContent.Invoke(), Is.Empty);
     }
 
     [Test]
     public void GetCustomAttributeProvider_MemberInfo ()
     {
-      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((UnderlyingInfoDescriptorBaseTest obj) => obj.Method (null));
+      var member = NormalizingMemberInfoFromExpressionUtility.GetMember ((DescriptorBaseTest obj) => obj.Method (null));
 
-      var result = TestableUnderlyingInfoDescriptorBase<Dev.T>.GetCustomAttributeProvider (member);
+      var result = TestableDescriptorBase<Dev.T>.GetCustomAttributeProvider (member);
 
       CheckSingleCustomAttributeProviderResult (result, "member", "xxx", 7);
     }
@@ -61,10 +61,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetCustomAttributeProvider_ParameterInfo ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnderlyingInfoDescriptorBaseTest obj) => obj.Method (null));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DescriptorBaseTest obj) => obj.Method (null));
       var parameter = method.GetParameters().Single();
 
-      var result = TestableUnderlyingInfoDescriptorBase<Dev.T>.GetCustomAttributeProvider (parameter);
+      var result = TestableDescriptorBase<Dev.T>.GetCustomAttributeProvider (parameter);
 
       CheckSingleCustomAttributeProviderResult (result, "parameter", "yyy", 8);
     }
@@ -90,9 +90,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Abc("member", Field = 7, Property = "xxx")]
-    public void Method ([Abc ("parameter", Field = 8, Property = "yyy")]object parameter)
-    {
-    }
+    public void Method ([Abc ("parameter", Field = 8, Property = "yyy")]object parameter) { }
 
     public class AbcAttribute : Attribute
     {

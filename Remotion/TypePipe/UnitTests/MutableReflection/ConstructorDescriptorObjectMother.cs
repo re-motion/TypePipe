@@ -22,31 +22,31 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class UnderlyingConstructorInfoDescriptorObjectMother
+  public static class ConstructorDescriptorObjectMother
   {
-    public static UnderlyingConstructorInfoDescriptor Create (
+    public static ConstructorDescriptor Create (
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDescriptor> parameterDescriptors = null,
         Expression body = null)
     {
       return CreateForNew (attributes, parameterDescriptors, body);
     }
 
-    public static UnderlyingConstructorInfoDescriptor CreateForNew (
+    public static ConstructorDescriptor CreateForNew (
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
-        IEnumerable<UnderlyingParameterInfoDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDescriptor> parameterDescriptors = null,
         Expression body = null)
     {
-      return UnderlyingConstructorInfoDescriptor.Create (
-          attributes, parameterDescriptors ?? new UnderlyingParameterInfoDescriptor[0], body ?? Expression.Empty ());
+      return ConstructorDescriptor.Create (
+          attributes, parameterDescriptors ?? new ParameterDescriptor[0], body ?? Expression.Empty ());
     }
 
-    public static UnderlyingConstructorInfoDescriptor CreateForExisting (
+    public static ConstructorDescriptor CreateForExisting (
         ConstructorInfo originalConstructorInfo = null)
     {
-      return UnderlyingConstructorInfoDescriptor.Create (originalConstructorInfo ?? ReflectionObjectMother.GetSomeDefaultConstructor());
+      return ConstructorDescriptor.Create (originalConstructorInfo ?? ReflectionObjectMother.GetSomeDefaultConstructor());
     }
   }
 }

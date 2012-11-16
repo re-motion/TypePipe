@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          UnderlyingFieldInfoDescriptor.Create (
+          FieldDescriptor.Create (
               fieldType ?? typeof (UnspecifiedType),
               name,
               attributes));
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          UnderlyingFieldInfoDescriptor.Create (fieldInfo));
+          FieldDescriptor.Create (fieldInfo));
     }
   }
 }

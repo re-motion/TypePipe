@@ -80,9 +80,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return;
 
       var attributes = MethodAttributes.Private | MethodAttributes.Static;
-      var parameters = UnderlyingParameterInfoDescriptor.EmptyParameters;
+      var parameters = ParameterDescriptor.EmptyParameters;
       var body = Expression.Block (typeof (void), initializationExpressions);
-      var descriptor = UnderlyingConstructorInfoDescriptor.Create (attributes, parameters, body);
+      var descriptor = ConstructorDescriptor.Create (attributes, parameters, body);
       var typeInitializer = new MutableConstructorInfo (_context.MutableType, descriptor);
 
       HandleAddedConstructor (typeInitializer);
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
       var body = Expression.Block (interfaceMethod.ReturnType, initializationExpressions);
 
-      var descriptor = UnderlyingMethodInfoDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body);
+      var descriptor = MethodDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body);
       var initializeMethod = new MutableMethodInfo (_context.MutableType, descriptor);
 
       HandleAddedMethod (initializeMethod);

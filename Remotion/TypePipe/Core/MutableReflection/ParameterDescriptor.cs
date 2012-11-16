@@ -31,27 +31,27 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This is used by <see cref="MutableParameterInfo"/> to represent a parameter, before any mutations.
   /// </remarks>
-  public class UnderlyingParameterInfoDescriptor : UnderlyingInfoDescriptorBase<ParameterInfo>
+  public class ParameterDescriptor : DescriptorBase<ParameterInfo>
   {
-    public static readonly UnderlyingParameterInfoDescriptor[] EmptyParameters = new UnderlyingParameterInfoDescriptor[0];
+    public static readonly ParameterDescriptor[] EmptyParameters = new ParameterDescriptor[0];
 
-    public static ReadOnlyCollection<UnderlyingParameterInfoDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public static ReadOnlyCollection<ParameterDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
 
       return parameterDeclarations.Select (Create).ToList().AsReadOnly();
     }
 
-    public static ReadOnlyCollection<UnderlyingParameterInfoDescriptor> CreateFromMethodBase (MethodBase methodBase)
+    public static ReadOnlyCollection<ParameterDescriptor> CreateFromMethodBase (MethodBase methodBase)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
 
       return methodBase.GetParameters().Select (Create).ToList().AsReadOnly();
     }
 
-    private static UnderlyingParameterInfoDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
+    private static ParameterDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
     {
-      return new UnderlyingParameterInfoDescriptor (
+      return new ParameterDescriptor (
           null,
           parameterDeclaration.Type,
           position,
@@ -60,9 +60,9 @@ namespace Remotion.TypePipe.MutableReflection
           EmptyCustomAttributeDataProvider);
     }
 
-    private static UnderlyingParameterInfoDescriptor Create (ParameterInfo originalParameter)
+    private static ParameterDescriptor Create (ParameterInfo originalParameter)
     {
-      return new UnderlyingParameterInfoDescriptor (
+      return new ParameterDescriptor (
           originalParameter,
           originalParameter.ParameterType,
           originalParameter.Position,
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ParameterAttributes _attributes;
     private readonly ParameterExpression _expression;
 
-    private UnderlyingParameterInfoDescriptor (
+    private ParameterDescriptor (
         ParameterInfo underlyingSystemMember,
         Type type,
         int position,

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       underlyingMethod = underlyingMethod
                          ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod (out i, 0.7));
       var declaringType = MutableTypeObjectMother.CreateForExisting (underlyingMethod.DeclaringType);
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForExisting (underlyingMethod);
+      var descriptor = MethodDescriptorObjectMother.CreateForExisting (underlyingMethod);
 
       return new MutableMethodInfo (declaringType, descriptor);
     }
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      var descriptor = UnderlyingMethodInfoDescriptorObjectMother.CreateForNew (
+      var descriptor = MethodDescriptorObjectMother.CreateForNew (
           name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
 
       return new MutableMethodInfo (
