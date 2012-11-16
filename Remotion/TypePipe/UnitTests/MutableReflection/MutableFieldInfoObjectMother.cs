@@ -16,25 +16,17 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableFieldInfoObjectMother
   {
-    private class UnspecifiedType
-    {
-      internal static readonly UnspecifiedType UnspecifiedField = Dev<UnspecifiedType>.Null;
-    }
-
     public static MutableFieldInfo Create (
         MutableType declaringType = null,
         Type fieldType = null,
         string name = "_newField",
-        FieldAttributes attributes = FieldAttributes.Private)
+        FieldAttributes attributes = FieldAttributes.FieldAccessMask)
     {
       return CreateForNew (declaringType, fieldType, name, attributes);
     }
@@ -43,23 +35,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MutableType declaringType = null,
         Type fieldType = null,
         string name = "_newField",
-        FieldAttributes attributes = FieldAttributes.Private)
+        FieldAttributes attributes = FieldAttributes.FieldAccessMask)
     {
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          FieldDescriptor.Create (
-              fieldType ?? typeof (UnspecifiedType),
-              name,
-              attributes));
+          FieldDescriptorObjectMother.Create (name, fieldType, attributes));
     }
 
-    public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo originalField = null)
+    public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo underlyingField = null)
     {
-      var fieldInfo = originalField ?? NormalizingMemberInfoFromExpressionUtility.GetField (() => UnspecifiedType.UnspecifiedField);
-
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          FieldDescriptor.Create (fieldInfo));
+          FieldDescriptorObjectMother.CreateForExisting (underlyingField));
     }
   }
 }

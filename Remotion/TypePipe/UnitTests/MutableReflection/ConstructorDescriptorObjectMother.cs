@@ -43,10 +43,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           attributes, parameterDescriptors ?? new ParameterDescriptor[0], body ?? Expression.Empty ());
     }
 
-    public static ConstructorDescriptor CreateForExisting (
-        ConstructorInfo originalConstructorInfo = null)
+    public static ConstructorDescriptor CreateForExisting (ConstructorInfo underlyingConstructor = null)
     {
-      return ConstructorDescriptor.Create (originalConstructorInfo ?? ReflectionObjectMother.GetSomeDefaultConstructor());
+      return ConstructorDescriptor.Create (underlyingConstructor ?? ReflectionObjectMother.GetSomeDefaultConstructor());
     }
   }
 }

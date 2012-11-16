@@ -7,9 +7,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private class UnspecifiedType { }
 
-    public static TypeDescriptor Create (Type originalType = null)
+    public static TypeDescriptor Create (Type underlyingType = null)
     {
-      return TypeDescriptor.Create (originalType ?? typeof (UnspecifiedType));
+      return TypeDescriptor.Create (underlyingType ?? typeof (UnspecifiedType));
     }
   }
 }

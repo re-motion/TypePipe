@@ -34,8 +34,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      return CreateForNew (
-          declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
+      return CreateForNew (declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
+    }
+
+    public static MutableMethodInfo CreateForNew (
+        MutableType declaringType = null,
+        string name = "UnspecifiedMethod",
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
+        Type returnType = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        MethodInfo baseMethod = null,
+        Expression body = null)
+    {
+      var descriptor = MethodDescriptorObjectMother.CreateForNew (
+          name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
+
+      return new MutableMethodInfo (
+          declaringType ?? MutableTypeObjectMother.Create(),
+          descriptor);
     }
 
     public static MutableMethodInfo CreateForExisting (MethodInfo underlyingMethod = null)
@@ -54,23 +70,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = CreateForExisting (underlyingMethod ?? ReflectionObjectMother.GetSomeModifiableMethod());
       MutableMethodInfoTestHelper.ModifyMethod (method);
       return method;
-    }
-
-    public static MutableMethodInfo CreateForNew (
-        MutableType declaringType = null,
-        string name = "UnspecifiedMethod",
-        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
-        Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
-        MethodInfo baseMethod = null,
-        Expression body = null)
-    {
-      var descriptor = MethodDescriptorObjectMother.CreateForNew (
-          name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
-
-      return new MutableMethodInfo (
-          declaringType ?? MutableTypeObjectMother.Create(),
-          descriptor);
     }
 
     private class UnspecifiedType

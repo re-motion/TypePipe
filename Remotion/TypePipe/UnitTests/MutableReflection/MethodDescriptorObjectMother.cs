@@ -26,11 +26,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MethodDescriptorObjectMother
   {
-    private class UnspecifiedType
-    {
-      public void UnspecifiedMethod() { }
-    }
-
     public static MethodDescriptor CreateForNew (
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
@@ -62,13 +57,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           body);
     }
 
-    public static MethodDescriptor CreateForExisting (
-        MethodInfo originalMethodInfo = null,
-        RelatedMethodFinder relatedMethodFinder = null)
+    public static MethodDescriptor CreateForExisting (MethodInfo underlyingMethod = null, RelatedMethodFinder relatedMethodFinder = null)
     {
       return MethodDescriptor.Create (
-          originalMethodInfo ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod()),
+          underlyingMethod ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod()),
           relatedMethodFinder ?? new RelatedMethodFinder());
+    }
+
+    private class UnspecifiedType
+    {
+      public void UnspecifiedMethod () { }
     }
   }
 }

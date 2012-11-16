@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = FieldAttributes.Static | FieldAttributes.Family;
       var fieldType = ReflectionObjectMother.GetSomeType();
 
-      var descriptor = FieldDescriptor.Create (fieldType, name, attributes);
+      var descriptor = FieldDescriptor.Create (name, fieldType, attributes);
 
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));

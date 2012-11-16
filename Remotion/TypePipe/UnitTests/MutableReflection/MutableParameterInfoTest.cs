@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
       var parameter = method.GetParameters().Single();
-      _mutableParameterWithAttribute = MutableParameterInfoObjectMother.CreateForExisting (originalParameter: parameter);
+      _mutableParameterWithAttribute = MutableParameterInfoObjectMother.CreateForExisting (underlyingParameter: parameter);
       _randomInherit = BooleanObjectMother.GetRandomBoolean ();
     }
 

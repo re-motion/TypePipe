@@ -33,13 +33,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return ParameterDescriptor.CreateFromDeclarations (new[] { parameterDeclartion }).Single();
     }
 
-    public static ParameterDescriptor CreateForExisting (ParameterInfo parameter = null)
+    public static ParameterDescriptor CreateForExisting (ParameterInfo underlyingParameter = null)
     {
       string s;
-      parameter = parameter
-                  ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.Method (out s)).GetParameters().Single();
+      underlyingParameter = underlyingParameter
+        ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.Method (out s)).GetParameters().Single();
 
-      return ParameterDescriptor.CreateFromMethodBase ((MethodBase) parameter.Member).Single (p => p.UnderlyingSystemInfo == parameter);
+      return ParameterDescriptor.CreateFromMethodBase ((MethodBase) underlyingParameter.Member)
+                                .Single (p => p.UnderlyingSystemInfo == underlyingParameter);
     }
 
     public static ParameterDescriptor[] CreateMultiple (int count)

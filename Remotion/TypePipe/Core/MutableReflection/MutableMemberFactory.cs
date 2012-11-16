@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new ArgumentException ("Field with equal signature already exists.", "name");
 
-      var descriptor = FieldDescriptor.Create (type, name, attributes);
+      var descriptor = FieldDescriptor.Create (name, type, attributes);
       var field = new MutableFieldInfo (declaringType, descriptor);
 
       return field;

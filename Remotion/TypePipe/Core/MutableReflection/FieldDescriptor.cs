@@ -29,12 +29,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class FieldDescriptor : DescriptorBase<FieldInfo>
   {
-    public static FieldDescriptor Create (Type fieldType, string name, FieldAttributes attributes)
+    public static FieldDescriptor Create (string name, Type type, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("fieldType", fieldType);
+      ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return new FieldDescriptor (null, fieldType, name, attributes, EmptyCustomAttributeDataProvider);
+      return new FieldDescriptor (null, type, name, attributes, EmptyCustomAttributeDataProvider);
     }
 
     public static FieldDescriptor Create (FieldInfo underlyingField)

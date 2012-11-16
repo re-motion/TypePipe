@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _field = MutableFieldInfoObjectMother.Create ();
 
       var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
-      _fieldWithAttribute = MutableFieldInfoObjectMother.CreateForExisting (originalField: field);
+      _fieldWithAttribute = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: field);
       _randomInherit = BooleanObjectMother.GetRandomBoolean ();
     }
 
@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var declaringType = MutableTypeObjectMother.Create();
-      var descriptor = FieldDescriptor.Create (ReflectionObjectMother.GetSomeType (), "_fieldName", FieldAttributes.InitOnly);
+      var descriptor = FieldDescriptorObjectMother.Create();
 
       var fieldInfo = new MutableFieldInfo (declaringType, descriptor);
 
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void UnderlyingSystemFieldInfo()
     {
       var originalField = ReflectionObjectMother.GetSomeField();
-      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (originalField: originalField);
+      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: originalField);
 
       Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.SameAs (originalField));
     }

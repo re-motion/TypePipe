@@ -55,11 +55,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableParameterInfo (member, descriptor);
     }
 
-    public static MutableParameterInfo CreateForExisting (MemberInfo member = null, ParameterInfo originalParameter = null)
+    public static MutableParameterInfo CreateForExisting (MemberInfo member = null, ParameterInfo underlyingParameter = null)
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.M2 (""));
-      originalParameter = originalParameter ?? method.GetParameters().Single();
-      var descriptor = ParameterDescriptorObjectMother.CreateForExisting (originalParameter);
+      underlyingParameter = underlyingParameter ?? method.GetParameters().Single();
+      var descriptor = ParameterDescriptorObjectMother.CreateForExisting (underlyingParameter);
       member = member ?? method;
 
       return new MutableParameterInfo (member, descriptor);

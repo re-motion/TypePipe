@@ -102,6 +102,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\FieldDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\RelatedEventFinderTest.cs" />
