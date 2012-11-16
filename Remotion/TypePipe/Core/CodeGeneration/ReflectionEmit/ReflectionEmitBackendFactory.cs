@@ -35,7 +35,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// <see langword="true"/>.
     /// </remarks>
     /// <param name="assemblyName">The assembly name (without '.dll').</param>
-    /// <param name="assemblyDirectory">The name of the directory where the assembly is potentially saved.</param>
+    /// <param name="assemblyDirectory">The directory in which the assembly will be saved when <see cref="AssemblyBuilder.Save(string)"/> is called
+    /// on the returned <see cref="AssemblyBuilder"/>.</param>
     /// <returns>The created module and assembly builder.</returns>
     [CLSCompliant (false)]
     public static Tuple<IModuleBuilder, AssemblyBuilder> CreateModuleBuilder (string assemblyName, string assemblyDirectory = null)

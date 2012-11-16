@@ -19,34 +19,51 @@ using System.IO;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class ReflectionEmitBackendFactoryTest
   {
+    private const string c_assemblyName = "TestAssembly";
+    private const string c_assemblyFileName = c_assemblyName + ".dll";
+    private const string c_pdbFileName = c_assemblyName + ".dll";
+
+    [TearDown]
+    public void TearDown ()
+    {
+      var directory = Path.GetTempPath();
+      FileUtility.DeleteAndWaitForCompletion (Path.Combine (directory, c_assemblyFileName));
+      FileUtility.DeleteAndWaitForCompletion (Path.Combine (directory, c_pdbFileName));
+    }
+
     [Test]
     public void CreateModuleBuilder ()
     {
       var directory = Path.GetTempPath();
-      var assemblyName = "TestAssembly";
-      var assemblyFileName = assemblyName + ".dll";
-      var tuple = ReflectionEmitBackendFactory.CreateModuleBuilder (assemblyName, directory);
+      var tuple = ReflectionEmitBackendFactory.CreateModuleBuilder (c_assemblyName, directory);
 
       var moduleBuilder = tuple.Item1;
       var assemblyBuilder = tuple.Item2;
 
-      Assert.That (assemblyBuilder.GetName().Name, Is.EqualTo (assemblyName));
+      Assert.That (assemblyBuilder.GetName().Name, Is.EqualTo (c_assemblyName));
 
       Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
       var uniqueNamingModuleBuilderDecorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
       Assert.That (uniqueNamingModuleBuilderDecorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var moduleBuilderAdapter = (ModuleBuilderAdapter) uniqueNamingModuleBuilderDecorator.InnerModuleBuilder;
-      Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (assemblyFileName));
+      Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (c_assemblyFileName));
 
-      assemblyBuilder.Save (assemblyFileName);
-      Assert.That (File.Exists (Path.Combine (directory, assemblyFileName)), Is.True);
-      Assert.That (File.Exists (Path.Combine (directory, assemblyName + ".pdb")), Is.True);
+      var assemblyPath = Path.Combine (directory, c_assemblyFileName);
+      var pdbPath = Path.Combine (directory, c_pdbFileName);
+      Assert.That (File.Exists (assemblyPath), Is.False);
+      Assert.That (File.Exists (pdbPath), Is.False);
+
+      assemblyBuilder.Save (c_assemblyFileName);
+
+      Assert.That (File.Exists (assemblyPath), Is.True);
+      Assert.That (File.Exists (pdbPath), Is.True);
     }
   }
 }
