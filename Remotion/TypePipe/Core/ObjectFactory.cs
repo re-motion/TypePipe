@@ -19,6 +19,7 @@ using System;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
@@ -35,6 +36,11 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 
       _typeCache = typeCache;
+    }
+
+    public ICodeGenerator CodeGenerator
+    {
+      get { throw new NotImplementedException(); }
     }
 
     public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
