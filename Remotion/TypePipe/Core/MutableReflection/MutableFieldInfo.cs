@@ -32,20 +32,19 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableFieldInfo : FieldInfo, IMutableMember
   {
     private readonly MutableType _declaringType;
-    private readonly FieldDescriptor _fieldDescriptor;
+    private readonly FieldDescriptor _descriptor;
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
-    public MutableFieldInfo (MutableType declaringType, FieldDescriptor fieldDescriptor)
+    public MutableFieldInfo (MutableType declaringType, FieldDescriptor descriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("fieldDescriptor", fieldDescriptor);
+      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
 
       _declaringType = declaringType;
-      _fieldDescriptor = fieldDescriptor;
+      _descriptor = descriptor;
 
-      _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (fieldDescriptor.CustomAttributeDataProvider);
+      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
     }
 
     public override Type DeclaringType
@@ -55,12 +54,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public FieldInfo UnderlyingSystemFieldInfo
     {
-      get { return _fieldDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _descriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public bool IsNew
     {
-      get { return _fieldDescriptor.UnderlyingSystemInfo == null; }
+      get { return _descriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified
@@ -70,17 +69,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type FieldType
     {
-      get { return _fieldDescriptor.Type; }
+      get { return _descriptor.Type; }
     }
 
     public override string Name
     {
-      get { return _fieldDescriptor.Name; }
+      get { return _descriptor.Name; }
     }
 
     public override FieldAttributes Attributes
     {
-      get { return _fieldDescriptor.Attributes; }
+      get { return _descriptor.Attributes; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations

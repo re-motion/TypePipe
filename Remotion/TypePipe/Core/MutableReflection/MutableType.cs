@@ -56,20 +56,20 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly TypeAttributes _originalAttributes;
 
     public MutableType (
-        TypeDescriptor typeDescriptor,
+        TypeDescriptor descriptor,
         IMemberSelector memberSelector,
         IRelatedMethodFinder relatedMethodFinder,
         IMutableMemberFactory mutableMemberFactory)
         : base (
             memberSelector,
-            typeDescriptor.UnderlyingSystemInfo,
-            typeDescriptor.DeclaringType,
-            typeDescriptor.BaseType,
-            typeDescriptor.Name,
-            typeDescriptor.Namespace,
-            typeDescriptor.FullName)
+            descriptor.UnderlyingSystemInfo,
+            descriptor.DeclaringType,
+            descriptor.BaseType,
+            descriptor.Name,
+            descriptor.Namespace,
+            descriptor.FullName)
     {
-      ArgumentUtility.CheckNotNull ("typeDescriptor", typeDescriptor);
+      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
@@ -77,15 +77,15 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableMemberFactory = mutableMemberFactory;
 
       _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (typeDescriptor.CustomAttributeDataProvider);
+          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
 
-      _originalAttributes = typeDescriptor.Attributes;
-      _existingInterfaces = typeDescriptor.Interfaces;
+      _originalAttributes = descriptor.Attributes;
+      _existingInterfaces = descriptor.Interfaces;
 
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, typeDescriptor.Fields, CreateExistingMutableField);
+      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, descriptor.Fields, CreateExistingMutableField);
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-          this, typeDescriptor.Constructors, CreateExistingMutableConstructor);
-      _methods = new MutableTypeMethodCollection (this, typeDescriptor.Methods, CreateExistingMutableMethod);
+          this, descriptor.Constructors, CreateExistingMutableConstructor);
+      _methods = new MutableTypeMethodCollection (this, descriptor.Methods, CreateExistingMutableMethod);
     }
 
     public bool IsNew

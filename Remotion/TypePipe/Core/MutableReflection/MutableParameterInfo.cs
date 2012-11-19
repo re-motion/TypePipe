@@ -29,20 +29,19 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableParameterInfo : ParameterInfo, ITypePipeCustomAttributeProvider
   {
     private readonly MemberInfo _member;
-    private readonly ParameterDescriptor _parameterDescriptor;
+    private readonly ParameterDescriptor _descriptor;
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
-    public MutableParameterInfo (MemberInfo member, ParameterDescriptor parameterDescriptor)
+    public MutableParameterInfo (MemberInfo member, ParameterDescriptor descriptor)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      ArgumentUtility.CheckNotNull ("parameterDescriptor", parameterDescriptor);
+      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
 
       _member = member;
-      _parameterDescriptor = parameterDescriptor;
+      _descriptor = descriptor;
 
-      _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (parameterDescriptor.CustomAttributeDataProvider);
+      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
     }
 
     public override MemberInfo Member
@@ -52,27 +51,27 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override int Position
     {
-      get { return _parameterDescriptor.Position; }
+      get { return _descriptor.Position; }
     }
 
     public ParameterInfo UnderlyingSystemParameterInfo
     {
-      get { return _parameterDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _descriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public override Type ParameterType
     {
-      get { return _parameterDescriptor.Type; }
+      get { return _descriptor.Type; }
     }
 
     public override string Name
     {
-      get { return _parameterDescriptor.Name; }
+      get { return _descriptor.Name; }
     }
 
     public override ParameterAttributes Attributes
     {
-      get { return _parameterDescriptor.Attributes; }
+      get { return _descriptor.Attributes; }
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

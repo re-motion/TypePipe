@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
-    private readonly MethodDescriptor _methodDescriptor;
+    private readonly MethodDescriptor _descriptor;
 
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
@@ -46,23 +46,20 @@ namespace Remotion.TypePipe.MutableReflection
     private MethodAttributes _attributes;
     private Expression _body;
 
-    public MutableMethodInfo (MutableType declaringType, MethodDescriptor methodDescriptor)
+    public MutableMethodInfo (MutableType declaringType, MethodDescriptor descriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("methodDescriptor", methodDescriptor);
+      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
 
       _declaringType = declaringType;
-      _methodDescriptor = methodDescriptor;
+      _descriptor = descriptor;
 
-      _parameters = _methodDescriptor.ParameterDescriptors
-          .Select (pd => new MutableParameterInfo (this, pd))
-          .ToList().AsReadOnly();
+      _parameters = _descriptor.ParameterDescriptors.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
 
-      _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (methodDescriptor.CustomAttributeDataProvider);
+      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
 
-      _attributes = _methodDescriptor.Attributes;
-      _body = _methodDescriptor.Body;
+      _attributes = _descriptor.Attributes;
+      _body = _descriptor.Body;
     }
 
     public override Type DeclaringType
@@ -72,22 +69,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MethodInfo UnderlyingSystemMethodInfo
     {
-      get { return _methodDescriptor.UnderlyingSystemInfo ?? this; }
+      get { return _descriptor.UnderlyingSystemInfo ?? this; }
     }
 
     public bool IsNew
     {
-      get { return _methodDescriptor.UnderlyingSystemInfo == null; }
+      get { return _descriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified
     {
-      get { return _body != _methodDescriptor.Body || _addedExplicitBaseDefinitions.Count > 0; }
+      get { return _body != _descriptor.Body || _addedExplicitBaseDefinitions.Count > 0; }
     }
 
     public override string Name
     {
-      get { return _methodDescriptor.Name; }
+      get { return _descriptor.Name; }
     }
 
     public override MethodAttributes Attributes
@@ -102,12 +99,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type ReturnType
     {
-      get { return _methodDescriptor.ReturnType; }
+      get { return _descriptor.ReturnType; }
     }
 
     public MethodInfo BaseMethod
     {
-      get { return _methodDescriptor.BaseMethod; }
+      get { return _descriptor.BaseMethod; }
     }
 
     /// <summary>
@@ -120,22 +117,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override bool IsGenericMethod
     {
-      get { return _methodDescriptor.IsGenericMethod; }
+      get { return _descriptor.IsGenericMethod; }
     }
 
     public override bool IsGenericMethodDefinition
     {
-      get { return _methodDescriptor.IsGenericMethodDefinition; }
+      get { return _descriptor.IsGenericMethodDefinition; }
     }
 
     public override bool ContainsGenericParameters
     {
-      get { return _methodDescriptor.ContainsGenericParameters; }
+      get { return _descriptor.ContainsGenericParameters; }
     }
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _methodDescriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public Expression Body
