@@ -41,9 +41,6 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void CreateObject ()
     {
-
-      SkipDeletion();
-
       var instance = _factory.CreateObject<DomainType>();
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
@@ -65,8 +62,8 @@ namespace TypePipe.IntegrationTests
       var type = _factory.GetAssembledType (typeof (DomainType));
       var instance = (DomainType) Activator.CreateInstance (type);
 
-      Assert.That (instance.CtorCalled, Is.True);
       Assert.That (instance.String, Is.EqualTo ("initialized"));
+      Assert.That (instance.CtorCalled, Is.True);
     }
 
     [Test]

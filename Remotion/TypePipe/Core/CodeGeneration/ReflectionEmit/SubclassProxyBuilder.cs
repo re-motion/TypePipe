@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly IMemberEmitter _memberEmitter;
 
-    private readonly DeferredActionManager _postDeclarationsActions = new DeferredActionManager();
     private readonly MemberEmitterContext _context;
 
     private bool _hasBeenBuilt = false;
@@ -56,8 +55,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
       _memberEmitter = memberEmitter;
+
+      var hasInstanceInitializations = mutableType.InstanceInitializations.Count != 0;
       _context = new MemberEmitterContext (
-          mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider, _postDeclarationsActions);
+          mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider, hasInstanceInitializations);
     }
 
     [CLSCompliant (false)]
@@ -204,7 +205,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       _hasBeenBuilt = true;
 
-      _postDeclarationsActions.ExecuteAllActions();
+      _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
     }

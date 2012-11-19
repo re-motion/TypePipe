@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 
@@ -35,13 +36,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
+      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
       Assert.That (_context.TrampolineMethods, Is.Empty);
+      Assert.That (_context.ConstructorRunCounter, Is.Null);
+      Assert.That (_context.InitializationMethod, Is.Null);
     }
 
     [Test]
     public void TrampolineMethods_MemberInfoEqualityComparer ()
     {
-      var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString ());
+      var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method2 = typeof (MemberEmitterContextTest).GetMethod ("ToString");
       Assert.That (method1, Is.Not.SameAs (method2));
 

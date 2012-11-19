@@ -44,8 +44,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       using (mockRepository.Ordered())
       {
         handlerFactoryMock.Expect (mock => mock.CreateBuilder (mutableTypePartialMock)).Return (builderMock);
-        mutableTypePartialMock.Expect (mock => mock.Accept ((IMutableTypeModificationHandler) builderMock));
         mutableTypePartialMock.Expect (mock => mock.Accept ((IMutableTypeUnmodifiedMutableMemberHandler) builderMock));
+        mutableTypePartialMock.Expect (mock => mock.Accept ((IMutableTypeModificationHandler) builderMock));
         builderMock.Expect (mock => mock.Build()).Return (fakeType);
       }
 

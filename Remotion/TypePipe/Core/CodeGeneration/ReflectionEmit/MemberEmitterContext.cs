@@ -34,9 +34,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMethodTrampolineProvider _methodTrampolineProvider;
+    private readonly bool _hasInstanceInitializations;
+    private readonly DeferredActionManager _postDeclarationsActionManager = new DeferredActionManager();
+
     private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
         new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
-    private readonly DeferredActionManager _postDeclarationsActionManager;
 
     [CLSCompliant (false)]
     public MemberEmitterContext (
@@ -45,20 +47,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
         IMethodTrampolineProvider methodTrampolineProvider,
-        DeferredActionManager postDeclarationsActionManager)
+        bool hasInstanceInitializations)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
-      ArgumentUtility.CheckNotNull ("postDeclarationsActionManager", postDeclarationsActionManager);
 
       _mutableType = mutableType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
       _methodTrampolineProvider = methodTrampolineProvider;
-      _postDeclarationsActionManager = postDeclarationsActionManager;
+      _hasInstanceInitializations = hasInstanceInitializations;
     }
 
     public MutableType MutableType
@@ -95,6 +96,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public DeferredActionManager PostDeclarationsActionManager
     {
       get { return _postDeclarationsActionManager; }
+    }
+
+    public bool HasInstanceInitializations
+    {
+      get { return _hasInstanceInitializations; }
     }
 
     public MutableFieldInfo ConstructorRunCounter { get; set; }

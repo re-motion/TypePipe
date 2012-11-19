@@ -73,6 +73,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
       Assert.That (_context.MethodTrampolineProvider, Is.SameAs (_methodTrampolineProvider));
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
+      Assert.That (_context.HasInstanceInitializations, Is.False);
     }
 
     [Test]
@@ -80,6 +81,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
       Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
+    }
+
+    [Test]
+    public void Initialization_HasInstanceInitilizations ()
+    {
+      _mutableType.AddInstanceInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
+      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
+      Assert.That (handler.MemberEmitterContext.HasInstanceInitializations, Is.True);
     }
 
     [Test]
@@ -169,8 +178,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder.HandleInstanceInitializations (expressions);
 
       _typeBuilderMock.AssertWasNotCalled (mock => mock.AddInterfaceImplementation (Arg<Type>.Is.Anything));
-      _memberEmitterMock.AssertWasNotCalled (
-          mock => mock.AddMethod (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableMethodInfo>.Is.Anything, Arg<MethodAttributes>.Is.Anything));
+      _memberEmitterMock.AssertWasNotCalled (mock => mock.AddField (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableFieldInfo>.Is.Anything));
     }
 
     [Test]

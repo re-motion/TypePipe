@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         DebugInfoGenerator debugInfoGenerator = null,
         IEmittableOperandProvider emittableOperandProvider = null,
         IMethodTrampolineProvider methodTrampolineProvider = null,
-        DeferredActionManager postDeclarationsActionManager = null)
+        bool hasInstanceInitializations = false)
     {
       return new MemberEmitterContext (
           mutableType ?? MutableTypeObjectMother.CreateForExisting(),
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
           emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>(),
           methodTrampolineProvider ?? MockRepository.GenerateStub<IMethodTrampolineProvider>(),
-          postDeclarationsActionManager ?? new DeferredActionManager());
+          hasInstanceInitializations);
     }
   }
 }

@@ -42,7 +42,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private ITypeBuilder _typeBuilderMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
-    private DeferredActionManager _postDeclarationsManager;
 
     private MemberEmitterContext _context;
 
@@ -58,12 +57,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _postDeclarationsManager = new DeferredActionManager();
 
       _context = MemberEmitterContextObjectMother.GetSomeContext (
-          typeBuilder: _typeBuilderMock,
-          emittableOperandProvider: _emittableOperandProviderMock,
-          postDeclarationsActionManager: _postDeclarationsManager);
+          typeBuilder: _typeBuilderMock, emittableOperandProvider: _emittableOperandProviderMock);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
@@ -146,15 +142,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
-      Assert.That (_postDeclarationsManager.Actions, Is.Empty);
+      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
       _emitter.AddConstructor (_context, ctor);
 
       _typeBuilderMock.VerifyAllExpectations ();
       constructorBuilderMock.VerifyAllExpectations ();
 
-      Assert.That (_postDeclarationsManager.Actions.Count(), Is.EqualTo (1));
-      CheckBodyBuildAction (_postDeclarationsManager.Actions.Single(), constructorBuilderMock, ctor);
+      Assert.That (_context.PostDeclarationsActionManager.Actions.Count(), Is.EqualTo (1));
+      CheckBodyBuildAction (_context.PostDeclarationsActionManager.Actions.Single(), constructorBuilderMock, ctor);
     }
 
     [Test]
@@ -200,13 +196,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
       methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
 
-      Assert.That (_postDeclarationsManager.Actions, Is.Empty);
+      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
       _emitter.AddMethod (_context, addedMethod, expectedAttributes);
 
       _typeBuilderMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
-      var actions = _postDeclarationsManager.Actions.ToArray();
+      var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
 
       CheckBodyBuildAction (actions[0], methodBuilderMock, addedMethod);
@@ -233,7 +229,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _typeBuilderMock.VerifyAllExpectations();
       methodBuilderMock.VerifyAllExpectations();
-      var actions = _postDeclarationsManager.Actions.ToArray();
+      var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (1));
 
       // Executing the action has no side effect (strict mocks; empty override build action).
