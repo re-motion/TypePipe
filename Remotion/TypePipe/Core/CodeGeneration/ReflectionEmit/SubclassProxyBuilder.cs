@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
@@ -107,10 +108,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
       var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
-      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod);
-      var descriptor = MethodDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body: null);
+      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
+      var body = Expression.Block (interfaceMethod.ReturnType, initializationExpressions);
+      var descriptor = MethodDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body);
       _context.InitializationMethod = new MutableMethodInfo (_context.MutableType, descriptor);
-      _context.InitializationMethod.SetBody (ctx => Expression.Block (interfaceMethod.ReturnType, initializationExpressions));
       HandleAddedMethod (_context.InitializationMethod);
 
       _memberEmitter.AddMethodOverride (_context, interfaceMethod, _context.InitializationMethod);
@@ -233,26 +234,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return constructor;
 
       Assertion.IsNotNull (_context.InitializationMethod);
-      var originalCtorBody = constructor.Body;
-      var descriptor = ConstructorDescriptor.Create (constructor);
-      constructor = new MutableConstructorInfo (_context.MutableType, descriptor);
-      constructor.SetBody (
-          ctx =>
-          {
-            var counter = Expression.Field (ctx.This, _context.ConstructorRunCounter);
-            var constantExpression = Expression.Constant (1);
+      var thisExpr = new ThisExpression (_context.MutableType);
+      var counter = Expression.Field (thisExpr, _context.ConstructorRunCounter);
+      var constantExpression = Expression.Constant (1);
 
-            // Using *IncrementAssign and *DecrementAssign emits stloc.0, which is un-verifiable code.
-            return Expression.Block (
-                Expression.Assign (counter, Expression.Add (counter, constantExpression)),
-                originalCtorBody,
-                Expression.Assign (counter, Expression.Subtract (counter, constantExpression)),
-                Expression.IfThen (
-                    Expression.Equal (counter, Expression.Constant (0)),
-                    Expression.Call (ctx.This, _context.InitializationMethod)));
-          });
+      // Using *IncrementAssign and *DecrementAssign results in un-verifiable code (emits stloc.0).
+      var body = Expression.Block (
+          Expression.Assign (counter, Expression.Add (counter, constantExpression)),
+          constructor.Body,
+          Expression.Assign (counter, Expression.Subtract (counter, constantExpression)),
+          Expression.IfThen (
+              Expression.Equal (counter, Expression.Constant (0)),
+              Expression.Call (thisExpr, _context.InitializationMethod)));
+      var descriptor = ConstructorDescriptor.CreateEquivalent (constructor, body);
 
-      return constructor;
+      return new MutableConstructorInfo (_context.MutableType, descriptor);
     }
   }
 }

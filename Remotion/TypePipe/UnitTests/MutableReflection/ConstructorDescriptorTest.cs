@@ -87,8 +87,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
               new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
           };
-      var actualParameterDecls = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
-      Assert.That (actualParameterDecls, Is.EqualTo (expectedParamterDecls));
+      var actualParameters = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      Assert.That (actualParameters, Is.EqualTo (expectedParamterDecls));
 
       Assert.That (
           descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Type),
@@ -111,6 +111,42 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var visibility = descriptor.Attributes & MethodAttributes.MemberAccessMask;
       Assert.That (visibility, Is.EqualTo (MethodAttributes.Family));
+    }
+
+    [Test]
+    public void CreateEquivalent ()
+    {
+      int v;
+      var equivalentCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("string", out v, 1.0, null));
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+
+      var descriptor = ConstructorDescriptor.CreateEquivalent (equivalentCtor, body);
+
+      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+      Assert.That (descriptor.Name, Is.EqualTo (equivalentCtor.Name));
+      Assert.That (descriptor.Attributes, Is.EqualTo (equivalentCtor.Attributes));
+
+      var expectedParameters =
+          new[]
+          {
+              new { Type = typeof (string), Name = "s", Attributes = ParameterAttributes.None },
+              new { Type = typeof (int).MakeByRefType(), Name = "i", Attributes = ParameterAttributes.Out },
+              new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
+              new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
+          };
+      var actualParameterDecls = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      Assert.That (actualParameterDecls, Is.EqualTo (expectedParameters));
+
+      Assert.That (descriptor.CustomAttributeDataProvider.Invoke().Select (ad => ad.Type), Is.Empty);
+      Assert.That (descriptor.Body, Is.SameAs (body));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Constructor bodies must have void return type.\r\nParameter name: body")]
+    public void CreateEquivalent_NonVoidBody ()
+    {
+      var someExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      ConstructorDescriptor.CreateEquivalent (ReflectionObjectMother.GetSomeConstructor(), someExpression);
     }
 
     private class DomainType

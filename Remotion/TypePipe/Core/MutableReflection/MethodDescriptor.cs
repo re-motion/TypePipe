@@ -92,8 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
           body);
     }
 
-    public static MethodDescriptor CreateEquivalent (
-        MethodInfo equivalentMethod, string name, MethodAttributes attributes, Expression body)
+    public static MethodDescriptor CreateEquivalent (MethodInfo equivalentMethod, string name, MethodAttributes attributes, Expression body)
     {
       ArgumentUtility.CheckNotNull ("equivalentMethod", equivalentMethod);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
