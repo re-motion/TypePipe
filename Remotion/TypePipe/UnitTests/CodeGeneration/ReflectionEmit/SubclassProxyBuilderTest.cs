@@ -216,39 +216,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleAddedConstructor_IncrementCtorRunCounter ()
-    {
-      _context.ConstructorRunCounter = MutableFieldInfoObjectMother.Create (declaringType: _mutableType, type: typeof (int));
-      _context.InitializationMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType);
-      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      var addedCtor = MutableConstructorInfoObjectMother.CreateForNew (
-          parameterDeclarations: ParameterDeclarationObjectMother.CreateMultiple (2), body: body);
-      MutableConstructorInfo ctor = null;
-
-      _memberEmitterMock
-          .Expect (mock => mock.AddConstructor (Arg.Is (_context), Arg<MutableConstructorInfo>.Is.Anything))
-          .WhenCalled (mi => ctor = (MutableConstructorInfo) mi.Arguments[1]);
-
-      _builder.HandleAddedConstructor (addedCtor);
-
-      _memberEmitterMock.VerifyAllExpectations();
-      Assert.That (ctor, Is.Not.SameAs (addedCtor));
-      Assert.That (ctor.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (ctor.Attributes, Is.EqualTo (addedCtor.Attributes));
-      Assert.That (ctor.GetParameters().Select (p => p.ParameterType), Is.EqualTo (addedCtor.GetParameters().Select (p => p.ParameterType)));
-      Assert.That (ctor.GetParameters().Select (p => p.Name), Is.EqualTo (addedCtor.GetParameters().Select (p => p.Name)));
-
-      var expectedBody = Expression.Block (
-          Expression.PreIncrementAssign (Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter)),
-          body,
-          Expression.PreDecrementAssign (Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter)),
-          Expression.IfThen (
-              Expression.Equal (Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter), Expression.Constant (0)),
-              Expression.Call (new ThisExpression (_mutableType), _context.InitializationMethod)));
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
-    }
-
-    [Test]
     public void HandleAddedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a new constructor.\r\nParameter name: constructor";
@@ -285,6 +252,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder.HandleModifiedConstructor (modifiedCtor);
 
       _memberEmitterMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void HandleModifiedConstructor_WireInstanceInitialization ()
+    {
+      var constructor = MutableConstructorInfoObjectMother.CreateForExistingAndModify();
+      CheckHandleConstructorWithInstanceInitialization (constructor, _builder.HandleModifiedConstructor);
     }
 
     [Test]
@@ -365,6 +339,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleUnmodifiedConstructor_WireInstanceInitialization ()
+    {
+      var constructor = MutableConstructorInfoObjectMother.CreateForExisting();
+      CheckHandleConstructorWithInstanceInitialization (constructor, _builder.HandleUnmodifiedConstructor);
+    }
+
+    [Test]
     public void HandleUnmodifiedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a unmodified existing constructor.\r\nParameter name: constructor";
@@ -441,6 +422,39 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void CheckThrowsForOperationAfterBuild (Action action)
     {
       Assert.That (() => action(), Throws.InvalidOperationException.With.Message.EqualTo ("Subclass proxy has already been built."));
+    }
+
+    private void CheckHandleConstructorWithInstanceInitialization (MutableConstructorInfo constructor, Action<MutableConstructorInfo> builderAction)
+    {
+      _context.ConstructorRunCounter = MutableFieldInfoObjectMother.Create (declaringType: _mutableType, type: typeof (int));
+      _context.InitializationMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType);
+      MutableConstructorInfo ctor = null;
+
+      _memberEmitterMock
+          .Expect (mock => mock.AddConstructor (Arg.Is (_context), Arg<MutableConstructorInfo>.Is.Anything))
+          .WhenCalled (mi => ctor = (MutableConstructorInfo) mi.Arguments[1]);
+
+      builderAction (constructor);
+
+      _memberEmitterMock.VerifyAllExpectations ();
+      Assert.That (ctor, Is.Not.SameAs (constructor));
+      Assert.That (ctor.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (ctor.Attributes, Is.EqualTo (constructor.Attributes));
+      Assert.That (ctor.GetParameters ().Select (p => p.ParameterType), Is.EqualTo (constructor.GetParameters ().Select (p => p.ParameterType)));
+      Assert.That (ctor.GetParameters ().Select (p => p.Name), Is.EqualTo (constructor.GetParameters().Select (p => p.Name)));
+
+      var expectedBody = Expression.Block (
+          Expression.Assign (
+              Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter),
+              Expression.Add (Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter), Expression.Constant (1))),
+          constructor.Body,
+          Expression.Assign (
+              Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter),
+              Expression.Subtract (Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter), Expression.Constant (1))),
+          Expression.IfThen (
+              Expression.Equal (Expression.Field (new ThisExpression (_mutableType), _context.ConstructorRunCounter), Expression.Constant (0)),
+              Expression.Call (new ThisExpression (_mutableType), _context.InitializationMethod)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
     }
 
     private void CheckThrowsForInvalidArguments (Action<MutableFieldInfo> testedAction, string exceptionMessage, bool isNew, bool isModified)

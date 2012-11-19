@@ -138,22 +138,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
-      if (_context.ConstructorRunCounter != null)
-      {
-        Assertion.IsNotNull (_context.InitializationMethod);
-        var originalCtorBody = constructor.Body;
-        var descriptor = ConstructorDescriptor.Create (constructor);
-        constructor = new MutableConstructorInfo (_context.MutableType, descriptor);
-        WireConstructorWithInitialization (constructor, _context.ConstructorRunCounter, _context.InitializationMethod, originalCtorBody);
-      }
-
-      _memberEmitter.AddConstructor (_context, constructor);
+      _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
     }
 
     public void HandleAddedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt ();
+      EnsureNotBuilt();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
       _memberEmitter.AddMethod (_context, method, method.Attributes);
@@ -162,16 +153,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void HandleModifiedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt ();
+      EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
-      _memberEmitter.AddConstructor (_context, constructor);
+      _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
     }
 
     public void HandleModifiedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt ();
+      EnsureNotBuilt();
       CheckMemberState (method, "method", isNew: false, isModified: true);
 
       // Modified methods are added as implicit method overrides for the underlying method.
@@ -196,7 +187,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
           // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-        _memberEmitter.AddConstructor (_context, constructor);
+        _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
     }
 
     public void HandleUnmodifiedMethod (MutableMethodInfo method)
@@ -235,21 +226,32 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private void WireConstructorWithInitialization (
-        MutableConstructorInfo constructor, FieldInfo ctorRunCounter, MethodInfo initializationMethod, Expression originalCtorBody)
+    private MutableConstructorInfo WireConstructorWithInitialization (MutableConstructorInfo constructor)
     {
+      if (_context.ConstructorRunCounter == null)
+        return constructor;
+
+      Assertion.IsNotNull (_context.InitializationMethod);
+      var originalCtorBody = constructor.Body;
+      var descriptor = ConstructorDescriptor.Create (constructor);
+      constructor = new MutableConstructorInfo (_context.MutableType, descriptor);
       constructor.SetBody (
           ctx =>
           {
-            var counter = Expression.Field (ctx.This, ctorRunCounter);
+            var counter = Expression.Field (ctx.This, _context.ConstructorRunCounter);
+            var constantExpression = Expression.Constant (1);
+
+            // Using *IncrementAssign and *DecrementAssign emits stloc.0, which is un-verifiable code.
             return Expression.Block (
-                Expression.PreIncrementAssign (counter),
+                Expression.Assign (counter, Expression.Add (counter, constantExpression)),
                 originalCtorBody,
-                Expression.PreDecrementAssign (counter),
+                Expression.Assign (counter, Expression.Subtract (counter, constantExpression)),
                 Expression.IfThen (
                     Expression.Equal (counter, Expression.Constant (0)),
-                    Expression.Call (ctx.This, initializationMethod)));
+                    Expression.Call (ctx.This, _context.InitializationMethod)));
           });
+
+      return constructor;
     }
   }
 }

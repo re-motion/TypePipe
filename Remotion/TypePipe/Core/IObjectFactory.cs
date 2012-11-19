@@ -42,17 +42,6 @@ namespace Remotion.TypePipe
     Type GetAssembledType (Type requestedType);
 
     /// <summary>
-    /// Prepares an externally created instance of an assembled type for use, i.e., an instance that was not created through <see cref="IObjectFactory"/>.
-    /// </summary>
-    /// <remarks>
-    /// This API should only be used in combination with <see cref="GetAssembledType"/>.
-    /// Prefer using <see cref="CreateObject"/> or <see cref="GetUninitializedObject"/>, if possible.
-    /// </remarks>
-    /// <param name="instance">The assembled type instance which should be prepared.</param>
-    /// <seealso cref="GetAssembledType"/>
-    void PrepareAssembledTypeInstance (object instance);
-
-    /// <summary>
     /// Creates an instance of the assembled type for the requested type, without invoking any constructor of the assembled type.
     /// However, the instance is prepared as intended by the participants, therefore <see cref="PrepareAssembledTypeInstance"/> should not be called.
     /// </summary>
@@ -62,5 +51,16 @@ namespace Remotion.TypePipe
     /// <param name="requestedType">The requested type.</param>
     /// <returns>A constructed instance of the requested type for which no constructor has run.</returns>
     object GetUninitializedObject (Type requestedType);
+
+    /// <summary>
+    /// Prepares an externally created instance of an assembled type for use, i.e., an instance that was not created through <see cref="IObjectFactory"/>.
+    /// </summary>
+    /// <remarks>
+    /// This API should only be used in combination with <see cref="GetAssembledType"/>.
+    /// Prefer using <see cref="CreateObject"/> or <see cref="GetUninitializedObject"/>, if possible.
+    /// </remarks>
+    /// <param name="instance">The assembled type instance which should be prepared.</param>
+    /// <seealso cref="GetAssembledType"/>
+    void PrepareAssembledTypeInstance (object instance);
   }
 }

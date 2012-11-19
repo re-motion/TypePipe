@@ -50,7 +50,6 @@ namespace Remotion.TypePipe
       constructorArguments = constructorArguments ?? ParamList.Empty;
       var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
       var instance = constructorArguments.InvokeFunc (constructorCall);
-      PrepareAssembledTypeInstance (instance);
 
       return instance;
     }
@@ -62,15 +61,6 @@ namespace Remotion.TypePipe
       return _typeCache.GetOrCreateType (requestedType);
     }
 
-    public void PrepareAssembledTypeInstance (object instance)
-    {
-      ArgumentUtility.CheckNotNull ("instance", instance);
-
-      var initializableInstance = instance as IInitializableObject;
-      if (initializableInstance != null)
-        initializableInstance.Initialize();
-    }
-
     public object GetUninitializedObject (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
@@ -80,6 +70,15 @@ namespace Remotion.TypePipe
       PrepareAssembledTypeInstance (instance);
 
       return instance;
+    }
+
+    public void PrepareAssembledTypeInstance (object instance)
+    {
+      ArgumentUtility.CheckNotNull ("instance", instance);
+
+      var initializableInstance = instance as IInitializableObject;
+      if (initializableInstance != null)
+        initializableInstance.Initialize();
     }
   }
 }

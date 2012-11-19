@@ -102,20 +102,6 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void CreateObject_Initializable ()
-    {
-      var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
-      _typeCacheMock
-          .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, ParamList.Empty.FuncType, false))
-          .Return (new Func<object> (() => initializableObjectMock));
-
-      var result = _factory.CreateObject (_requestedType);
-
-      initializableObjectMock.AssertWasCalled (mock => mock.Initialize(), mo => mo.Repeat.Once());
-      Assert.That (result, Is.SameAs (initializableObjectMock));
-    }
-
-    [Test]
     public void GetAssembledType ()
     {
       var fakeAssembledType = ReflectionObjectMother.GetSomeDifferentType();
@@ -125,6 +111,31 @@ namespace Remotion.TypePipe.UnitTests
 
       _typeCacheMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeAssembledType));
+    }
+
+    [Test]
+    public void GetUninitializedObject ()
+    {
+      var assembledType = typeof (TypeWithCtor);
+      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
+
+      var result = (TypeWithCtor) _factory.GetUninitializedObject (_requestedType);
+
+      Assert.That (result.GetType(), Is.SameAs (assembledType));
+      Assert.That (result.CtorCalled, Is.False);
+    }
+
+    [Test]
+    public void GetUninitializedObject_Initializable ()
+    {
+      var assembledType = typeof (InitializableType);
+      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
+
+      var result = (InitializableType) _factory.GetUninitializedObject (_requestedType);
+
+      Assert.That (result.GetType(), Is.SameAs (assembledType));
+      Assert.That (result.CtorCalled, Is.False);
+      Assert.That (result.InitializeCalled, Is.True);
     }
 
     [Test]
@@ -143,40 +154,18 @@ namespace Remotion.TypePipe.UnitTests
       initializableObjectMock.AssertWasCalled (mock => mock.Initialize());
     }
 
-    [Test]
-    public void GetUninitializedObject ()
-    {
-      var assembledType = typeof (AssembledType);
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
-
-      var result = (AssembledType) _factory.GetUninitializedObject (_requestedType);
-
-      Assert.That (result.GetType(), Is.SameAs (assembledType));
-    }
-
-    [Test]
-    public void GetUninitializedObject_Initializable ()
-    {
-      var assembledType = typeof (InitializableType);
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
-
-      var result = (InitializableType) _factory.GetUninitializedObject (_requestedType);
-
-      Assert.That (result.GetType(), Is.SameAs (assembledType));
-      Assert.That (result.CtorCalled, Is.False);
-      Assert.That (result.InitializeCalled, Is.True);
-    }
-
     class RequestedType { }
     class AssembledType : RequestedType { }
 
-    class InitializableType : IInitializableObject
+    class TypeWithCtor
     {
       public readonly bool CtorCalled;
+      public TypeWithCtor () { CtorCalled = true; }
+    }
+
+    class InitializableType : TypeWithCtor, IInitializableObject
+    {
       public bool InitializeCalled;
-
-      public InitializableType () { CtorCalled = true; }
-
       public void Initialize () { InitializeCalled = true; }
     }
   }

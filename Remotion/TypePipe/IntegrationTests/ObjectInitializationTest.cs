@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -40,6 +41,9 @@ namespace TypePipe.IntegrationTests
     [Test]
     public void CreateObject ()
     {
+
+      SkipDeletion();
+
       var instance = _factory.CreateObject<DomainType>();
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
@@ -56,13 +60,23 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void GetAssembledType_PrepareAssembledTypeInstance ()
+    public void GetAssembledType_CallWiredCtor ()
     {
       var type = _factory.GetAssembledType (typeof (DomainType));
       var instance = (DomainType) Activator.CreateInstance (type);
 
-      Assert.That (instance.String, Is.Null);
       Assert.That (instance.CtorCalled, Is.True);
+      Assert.That (instance.String, Is.EqualTo ("initialized"));
+    }
+
+    [Test]
+    public void GetAssembledType_PrepareAssembledTypeInstance ()
+    {
+      var type = _factory.GetAssembledType (typeof (DomainType));
+      var instance = (DomainType) FormatterServices.GetUninitializedObject (type);
+
+      Assert.That (instance.CtorCalled, Is.False);
+      Assert.That (instance.String, Is.Null);
 
       _factory.PrepareAssembledTypeInstance (instance);
       Assert.That (instance.String, Is.EqualTo ("initialized"));
