@@ -96,5 +96,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       get { return _postDeclarationsActionManager; }
     }
+
+    public MutableFieldInfo ConstructorRunCounter { get; set; }
+    public MutableMethodInfo InitializationMethod { get; set; }
   }
 }

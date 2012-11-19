@@ -39,8 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IEnumerable<ParameterDescriptor> parameterDescriptors = null,
         Expression body = null)
     {
-      return ConstructorDescriptor.Create (
-          attributes, parameterDescriptors ?? new ParameterDescriptor[0], body ?? Expression.Empty ());
+      return ConstructorDescriptor.Create (attributes, parameterDescriptors ?? new ParameterDescriptor[0], body ?? Expression.Empty());
     }
 
     public static ConstructorDescriptor CreateForExisting (ConstructorInfo underlyingConstructor = null)

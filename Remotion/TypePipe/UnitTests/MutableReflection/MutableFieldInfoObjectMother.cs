@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -23,23 +24,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableFieldInfoObjectMother
   {
     public static MutableFieldInfo Create (
-        MutableType declaringType = null,
-        Type fieldType = null,
-        string name = "_newField",
-        FieldAttributes attributes = FieldAttributes.FieldAccessMask)
+        MutableType declaringType = null, string name = "_newField", Type type = null, FieldAttributes attributes = FieldAttributes.FieldAccessMask)
     {
-      return CreateForNew (declaringType, fieldType, name, attributes);
+      return CreateForNew (declaringType: declaringType, name: name, field: type, attributes: attributes);
     }
 
     public static MutableFieldInfo CreateForNew (
-        MutableType declaringType = null,
-        Type fieldType = null,
-        string name = "_newField",
-        FieldAttributes attributes = FieldAttributes.FieldAccessMask)
+        MutableType declaringType = null, string name = "_newField", Type field = null, FieldAttributes attributes = FieldAttributes.FieldAccessMask)
     {
       return new MutableFieldInfo (
           declaringType ?? MutableTypeObjectMother.Create(),
-          FieldDescriptorObjectMother.Create (name, fieldType, attributes));
+          FieldDescriptorObjectMother.Create (name, field, attributes));
     }
 
     public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo underlyingField = null)

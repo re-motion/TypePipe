@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      var field = MutableFieldInfoObjectMother.Create (fieldType: typeof (MutableFieldInfoTest), name: "_field");
+      var field = MutableFieldInfoObjectMother.Create (name: "_field", type: typeof (MutableFieldInfoTest));
 
       Assert.That (field.ToString (), Is.EqualTo ("MutableFieldInfoTest _field"));
     }
