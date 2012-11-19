@@ -141,7 +141,7 @@ namespace Remotion.TypePipe.UnitTests
     [Test]
     public void PrepareAssembledTypeInstance ()
     {
-      Assert.That (() => _factory.PrepareAssembledTypeInstance (new object()), Throws.Nothing);
+      Assert.That (() => _factory.PrepareExternalUninitializedObject (new object()), Throws.Nothing);
     }
 
     [Test]
@@ -149,7 +149,7 @@ namespace Remotion.TypePipe.UnitTests
     {
       var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
 
-      _factory.PrepareAssembledTypeInstance (initializableObjectMock);
+      _factory.PrepareExternalUninitializedObject (initializableObjectMock);
 
       initializableObjectMock.AssertWasCalled (mock => mock.Initialize());
     }

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -196,7 +197,10 @@ namespace Remotion.TypePipe.MutableReflection
     /// Adds instance initialization code.
     /// </summary>
     /// <remarks>
-    /// The added initializations are only executed when instances of the type are created via <see cref="IObjectFactory"/>.
+    /// The added initializations are not executed when instances of the type are created directly through the
+    /// <see cref="FormatterServices.GetUninitializedObject"/> API, which creates an object of a type without invoking any constructor.
+    /// If possible, use <see cref="IObjectFactory.GetUninitializedObject"/> on <see cref="IObjectFactory"/> which is a simple wrapper but also
+    /// executes the specified instance initializations.
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>
     /// <seealso cref="InstanceInitializations"/>

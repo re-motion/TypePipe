@@ -67,12 +67,12 @@ namespace Remotion.TypePipe
 
       var assembledType = GetAssembledType (requestedType);
       var instance = FormatterServices.GetUninitializedObject (assembledType);
-      PrepareAssembledTypeInstance (instance);
+      PrepareExternalUninitializedObject (instance);
 
       return instance;
     }
 
-    public void PrepareAssembledTypeInstance (object instance)
+    public void PrepareExternalUninitializedObject (object instance)
     {
       ArgumentUtility.CheckNotNull ("instance", instance);
 

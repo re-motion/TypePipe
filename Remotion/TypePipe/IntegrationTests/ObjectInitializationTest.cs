@@ -75,9 +75,9 @@ namespace TypePipe.IntegrationTests
       Assert.That (instance.CtorCalled, Is.False);
       Assert.That (instance.String, Is.Null);
 
-      _factory.PrepareAssembledTypeInstance (instance);
+      _factory.PrepareExternalUninitializedObject (instance);
       Assert.That (instance.String, Is.EqualTo ("initialized"));
-      _factory.PrepareAssembledTypeInstance (instance);
+      _factory.PrepareExternalUninitializedObject (instance);
       Assert.That (instance.String, Is.EqualTo ("initializedinitialized"));
     }
 
