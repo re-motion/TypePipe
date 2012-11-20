@@ -25,6 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration
 
     void SetAssemblyName (string assemblyName);
 
-    string FlushToDisk ();
+    string FlushCodeToDisk ();
   }
 }

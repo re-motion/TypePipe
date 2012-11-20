@@ -47,38 +47,62 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void FlushToDisk ()
+    public void FlushGeneratedCode ()
     {
-      _factory.CodeGenerator.SetAssemblyName ("TestAssembly");
-      var assembledType = _factory.GetAssembledType (typeof (RequestedType));
-      _assemblyPath1 = _factory.CodeGenerator.FlushToDisk();
-      
+      var assembledType1 = _factory.GetAssembledType (typeof (RequestedType));
+      Flush (_factory, out _assemblyPath1);
+
+      var assembledType2 = _factory.GetAssembledType (typeof (object));
+      Flush (_factory, out _assemblyPath2);
+
+      CheckSavedAssembly (_assemblyPath1, assembledType1);
+      CheckSavedAssembly (_assemblyPath2, assembledType2);
+    }
+
+    [Test]
+    public void UniqueStandardNaming ()
+    {
+      var assemblyName = _factory.CodeGenerator.AssemblyName;
+      Assert.That (assemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
+
+      Flush (_factory, out _assemblyPath1);
+
+      Assert.That (_factory.CodeGenerator.AssemblyName, Is.Not.EqualTo (assemblyName));
+    }
+
+    [Test]
+    public void CustomName ()
+    {
+      _factory.CodeGenerator.SetAssemblyName ("Abc");
+      Assert.That (_factory.CodeGenerator.AssemblyName, Is.EqualTo ("Abc"));
+
+      Flush (_factory, out _assemblyPath1);
+
+      Assert.That (_assemblyPath1, Is.StringEnding ("Abc.dll"));
       Assert.That (File.Exists (_assemblyPath1), Is.True);
-      var assembly = Assembly.LoadFrom (_assemblyPath1);
-      Assert.That (() => assembly.GetType (assembledType.FullName, true), Throws.Nothing);
     }
 
     [Test]
     public void SetName_AfterFlush ()
     {
-      _factory.CodeGenerator.SetAssemblyName ("TestAssembly");
-      _factory.GetAssembledType (typeof (RequestedType));
-      _assemblyPath1 = _factory.CodeGenerator.FlushToDisk ();
+      _factory.CodeGenerator.SetAssemblyName ("Abc");
+      Flush (_factory, out _assemblyPath1);
 
-      Assert.That (() => _factory.CodeGenerator.SetAssemblyName ("TestAssembly2"), Throws.Nothing);
-      Assert.That (() => _assemblyPath2 = _factory.CodeGenerator.FlushToDisk (), Throws.Nothing);
+      _factory.CodeGenerator.SetAssemblyName ("Xyz");
+
+      Assert.That (_factory.CodeGenerator.AssemblyName, Is.EqualTo ("Xyz"));
     }
 
-    [Test]
-    public void FlushToDisk_UniqueNaming ()
+    private void Flush (IObjectFactory factory, out string assemblyPath)
     {
-      var assemblyName = _factory.CodeGenerator.AssemblyName;
-      Assert.That (assemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+\.dll"));
+      assemblyPath = factory.CodeGenerator.FlushCodeToDisk();
+    }
 
-      _factory.GetAssembledType (typeof (RequestedType));
-      _assemblyPath1 = _factory.CodeGenerator.FlushToDisk ();
-
-      Assert.That (_factory.CodeGenerator.AssemblyName, Is.Not.EqualTo (assemblyName));
+    private void CheckSavedAssembly (string assemblyPath, Type assembledType)
+    {
+      Assert.That (File.Exists (assemblyPath), Is.True);
+      var assembly = Assembly.LoadFrom (assemblyPath);
+      Assert.That (assembly.GetExportedTypes (), Is.EqualTo (new[] { assembledType }));
     }
 
     class RequestedType { }
