@@ -239,6 +239,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       Assertion.IsNotNull (_context.InitializationMethod);
 
+      // We cannot protect the decrement with try-finally because the this pointer must be initialized before entering a try block.
+      // Using *IncrementAssign and *DecrementAssign results in un-verifiable code (emits stloc.0).
       constructor.SetBody (
           ctx =>
           {
