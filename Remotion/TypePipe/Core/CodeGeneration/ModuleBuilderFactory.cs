@@ -16,23 +16,16 @@
 // 
 
 using System;
-using System.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  /// <summary>
-  /// Instances of this interface represent the code generator user by the pipeline.
-  /// </summary>
-  [CLSCompliant (false)]
-  public interface ICodeGenerator
+  public class ModuleBuilderFactory : IModuleBuilderFactory
   {
-    string AssemblyName { get; }
-
-    void SetAssemblyName (string assemblyName);
-
-    ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
-
-    string FlushCodeToDisk ();
+    [CLSCompliant (false)]
+    public IModuleBuilder CreateModuleBuilder (string assemblyName)
+    {
+      return null;
+    }
   }
 }

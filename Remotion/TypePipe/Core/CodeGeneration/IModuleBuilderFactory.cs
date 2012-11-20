@@ -14,25 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  /// <summary>
-  /// Instances of this interface represent the code generator user by the pipeline.
-  /// </summary>
   [CLSCompliant (false)]
-  public interface ICodeGenerator
+  public interface IModuleBuilderFactory
   {
-    string AssemblyName { get; }
-
-    void SetAssemblyName (string assemblyName);
-
-    ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
-
-    string FlushCodeToDisk ();
+    IModuleBuilder CreateModuleBuilder (string assemblyName);
   }
 }

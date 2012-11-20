@@ -54,5 +54,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var name = string.Format ("{0}_Proxy{1}", suggestedName, _counter);
       return _innerModuleBuilder.DefineType (name, attr, parent);
     }
+
+    public string SaveToDisk ()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

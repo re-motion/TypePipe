@@ -52,6 +52,9 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
+    <Compile Include="CodeGeneration\IModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />

@@ -38,6 +38,7 @@ namespace Remotion.TypePipe
       _typeCache = typeCache;
     }
 
+    [CLSCompliant (false)]
     public ICodeGenerator CodeGenerator
     {
       get { throw new NotImplementedException(); }

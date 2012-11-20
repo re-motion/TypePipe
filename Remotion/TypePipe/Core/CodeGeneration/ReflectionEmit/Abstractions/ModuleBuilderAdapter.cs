@@ -49,5 +49,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       var typeBuilder = _moduleBuilder.DefineType (name, attr, parent);
       return new TypeBuilderAdapter (typeBuilder);
     }
+
+    public string SaveToDisk ()
+    {
+      throw new NotImplementedException();
+    }
   }
 }
