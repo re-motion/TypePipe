@@ -56,9 +56,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _memberEmitter = memberEmitter;
 
-      var hasInstanceInitializations = mutableType.InstanceInitializations.Count != 0;
-      _context = new MemberEmitterContext (
-          mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider, hasInstanceInitializations);
+      _context = new MemberEmitterContext (mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider);
     }
 
     [CLSCompliant (false)]
@@ -87,33 +85,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var typeInitializer = new MutableConstructorInfo (_context.MutableType, descriptor);
 
       HandleAddedConstructor (typeInitializer);
-    }
-
-    public void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
-    {
-      ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
-      Assertion.IsNull (_context.ConstructorRunCounter);
-      Assertion.IsNull (_context.InitializationMethod);
-      EnsureNotBuilt();
-
-      if (initializationExpressions.Count == 0)
-        return;
-
-      var type = _context.MutableType;
-
-      type.AddInterface (typeof (IInitializableObject));
-      var counter = type.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
-
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
-      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (interfaceMethod);
-      var initMethod = type.AddMethod (
-          name, attributes, interfaceMethod.ReturnType, parameters, ctx => Expression.Block (interfaceMethod.ReturnType, initializationExpressions));
-      initMethod.AddExplicitBaseDefinition (interfaceMethod);
-
-      _context.ConstructorRunCounter = counter;
-      _context.InitializationMethod = initMethod;
     }
 
     public void HandleAddedInterface (Type addedInterface)
@@ -234,10 +205,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void WireConstructorWithInitialization (MutableConstructorInfo constructor)
     {
-      if (!_context.HasInstanceInitializations)
+      if (_context.MutableType.InstanceInitializations.Count == 0)
         return;
 
-      Assertion.IsNotNull (_context.InitializationMethod);
+      if (_context.ConstructorRunCounter == null)
+        CreateInstanceInitializationMembers (_context);
 
       // We cannot protect the decrement with try-finally because the this pointer must be initialized before entering a try block.
       // Using *IncrementAssign and *DecrementAssign results in un-verifiable code (emits stloc.0).
@@ -255,6 +227,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                     Expression.Equal (counter, Expression.Constant (0)),
                     Expression.Call (ctx.This, _context.InitializationMethod)));
           });
+    }
+
+    private static void CreateInstanceInitializationMembers (MemberEmitterContext context)
+    {
+      Assertion.IsNull (context.ConstructorRunCounter);
+      Assertion.IsNull (context.InitializationMethod);
+
+      var type = context.MutableType;
+
+      type.AddInterface (typeof (IInitializableObject));
+      var counter = type.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+
+      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
+      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
+      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
+      var parameters = ParameterDeclaration.CreateForEquivalentSignature (interfaceMethod);
+      var body = Expression.Block (interfaceMethod.ReturnType, context.MutableType.InstanceInitializations);
+      var initMethod = type.AddMethod (name, attributes, interfaceMethod.ReturnType, parameters, ctx => body);
+      initMethod.AddExplicitBaseDefinition (interfaceMethod);
+
+      context.ConstructorRunCounter = counter;
+      context.InitializationMethod = initMethod;
     }
   }
 }

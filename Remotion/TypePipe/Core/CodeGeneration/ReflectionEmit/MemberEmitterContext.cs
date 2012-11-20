@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMethodTrampolineProvider _methodTrampolineProvider;
-    private readonly bool _hasInstanceInitializations;
     private readonly DeferredActionManager _postDeclarationsActionManager = new DeferredActionManager();
 
     private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
@@ -46,8 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
-        IMethodTrampolineProvider methodTrampolineProvider,
-        bool hasInstanceInitializations)
+        IMethodTrampolineProvider methodTrampolineProvider)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
@@ -59,7 +57,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
       _methodTrampolineProvider = methodTrampolineProvider;
-      _hasInstanceInitializations = hasInstanceInitializations;
     }
 
     public MutableType MutableType
@@ -96,11 +93,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public DeferredActionManager PostDeclarationsActionManager
     {
       get { return _postDeclarationsActionManager; }
-    }
-
-    public bool HasInstanceInitializations
-    {
-      get { return _hasInstanceInitializations; }
     }
 
     public MutableFieldInfo ConstructorRunCounter { get; set; }

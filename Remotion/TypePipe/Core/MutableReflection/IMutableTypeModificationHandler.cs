@@ -26,7 +26,6 @@ namespace Remotion.TypePipe.MutableReflection
   public interface IMutableTypeModificationHandler
   {
     void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions);
-    void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions);
 
     void HandleAddedInterface (Type addedInterface);
 

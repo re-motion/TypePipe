@@ -31,16 +31,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         ITypeBuilder typeBuilder = null,
         DebugInfoGenerator debugInfoGenerator = null,
         IEmittableOperandProvider emittableOperandProvider = null,
-        IMethodTrampolineProvider methodTrampolineProvider = null,
-        bool hasInstanceInitializations = false)
+        IMethodTrampolineProvider methodTrampolineProvider = null)
     {
       return new MemberEmitterContext (
           mutableType ?? MutableTypeObjectMother.CreateForExisting(),
           typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
           emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>(),
-          methodTrampolineProvider ?? MockRepository.GenerateStub<IMethodTrampolineProvider>(),
-          hasInstanceInitializations);
+          methodTrampolineProvider ?? MockRepository.GenerateStub<IMethodTrampolineProvider>());
     }
   }
 }

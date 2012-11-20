@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var builder = _builderFactory.CreateBuilder (mutableType);
 
-      mutableType.Accept ((IMutableTypeModificationHandler) builder);
       mutableType.Accept ((IMutableTypeUnmodifiedMutableMemberHandler) builder);
+      mutableType.Accept ((IMutableTypeModificationHandler) builder);
       
       return builder.Build();
     }

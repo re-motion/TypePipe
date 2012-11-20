@@ -33,18 +33,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return CreateForNew (declaringType, attributes, parameterDeclarations, body);
     }
 
-    public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null)
+    public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
     {
       underlyingConstructor = underlyingConstructor ?? ReflectionObjectMother.GetSomeConstructor();
-      var declaringType = MutableTypeObjectMother.CreateForExisting (underlyingConstructor.DeclaringType);
+      declaringType = declaringType ??  MutableTypeObjectMother.CreateForExisting (underlyingConstructor.DeclaringType);
       var descriptor = ConstructorDescriptorObjectMother.CreateForExisting (underlyingConstructor);
 
       return new MutableConstructorInfo (declaringType, descriptor);
     }
 
-    public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo underlyingConstructor = null)
+    public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
     {
-      var ctor = CreateForExisting (underlyingConstructor);
+      var ctor = CreateForExisting (underlyingConstructor, declaringType);
       MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
       return ctor;
     }
