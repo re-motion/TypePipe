@@ -21,7 +21,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
@@ -100,21 +99,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (initializationExpressions.Count == 0)
         return;
 
-      HandleAddedInterface (typeof (IInitializableObject));
+      var type = _context.MutableType;
 
-      var fieldDescriptor = FieldDescriptor.Create ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
-      _context.ConstructorRunCounter = new MutableFieldInfo (_context.MutableType, fieldDescriptor);
-      HandleAddedField (_context.ConstructorRunCounter);
+      type.AddInterface (typeof (IInitializableObject));
+      var counter = type.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
 
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
       var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
       var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
-      var body = Expression.Block (interfaceMethod.ReturnType, initializationExpressions);
-      var descriptor = MethodDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body);
-      _context.InitializationMethod = new MutableMethodInfo (_context.MutableType, descriptor);
-      HandleAddedMethod (_context.InitializationMethod);
+      var parameters = ParameterDeclaration.CreateForEquivalentSignature (interfaceMethod);
+      var initMethod = type.AddMethod (
+          name, attributes, interfaceMethod.ReturnType, parameters, ctx => Expression.Block (interfaceMethod.ReturnType, initializationExpressions));
+      initMethod.AddExplicitBaseDefinition (interfaceMethod);
 
-      _memberEmitter.AddMethodOverride (_context, interfaceMethod, _context.InitializationMethod);
+      _context.ConstructorRunCounter = counter;
+      _context.InitializationMethod = initMethod;
     }
 
     public void HandleAddedInterface (Type addedInterface)
@@ -140,7 +139,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
-      _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
+      WireConstructorWithInitialization (constructor);
+      _memberEmitter.AddConstructor (_context, constructor);
     }
 
     public void HandleAddedMethod (MutableMethodInfo method)
@@ -158,7 +158,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
-      _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
+      WireConstructorWithInitialization (constructor);
+      _memberEmitter.AddConstructor (_context, constructor);
     }
 
     public void HandleModifiedMethod (MutableMethodInfo method)
@@ -187,9 +188,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
 
-      if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
-          // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-        _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
+      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
+        return;
+
+      WireConstructorWithInitialization (constructor);
+      _memberEmitter.AddConstructor (_context, constructor);
     }
 
     public void HandleUnmodifiedMethod (MutableMethodInfo method)
@@ -228,27 +232,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private MutableConstructorInfo WireConstructorWithInitialization (MutableConstructorInfo constructor)
+    private void WireConstructorWithInitialization (MutableConstructorInfo constructor)
     {
-      if (_context.ConstructorRunCounter == null)
-        return constructor;
+      if (!_context.HasInstanceInitializations)
+        return;
 
       Assertion.IsNotNull (_context.InitializationMethod);
-      var thisExpr = new ThisExpression (_context.MutableType);
-      var counter = Expression.Field (thisExpr, _context.ConstructorRunCounter);
-      var constantExpression = Expression.Constant (1);
 
-      // Using *IncrementAssign and *DecrementAssign results in un-verifiable code (emits stloc.0).
-      var body = Expression.Block (
-          Expression.Assign (counter, Expression.Add (counter, constantExpression)),
-          constructor.Body,
-          Expression.Assign (counter, Expression.Subtract (counter, constantExpression)),
-          Expression.IfThen (
-              Expression.Equal (counter, Expression.Constant (0)),
-              Expression.Call (thisExpr, _context.InitializationMethod)));
-      var descriptor = ConstructorDescriptor.CreateEquivalent (constructor, body);
+      constructor.SetBody (
+          ctx =>
+          {
+            var counter = Expression.Field (ctx.This, _context.ConstructorRunCounter);
+            var one = Expression.Constant (1);
 
-      return new MutableConstructorInfo (_context.MutableType, descriptor);
+            return Expression.Block (
+                Expression.Assign (counter, Expression.Add (counter, one)),
+                constructor.Body,
+                Expression.Assign (counter, Expression.Subtract (counter, one)),
+                Expression.IfThen (
+                    Expression.Equal (counter, Expression.Constant (0)),
+                    Expression.Call (ctx.This, _context.InitializationMethod)));
+          });
     }
   }
 }

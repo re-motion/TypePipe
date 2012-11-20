@@ -118,18 +118,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.PostDeclarationsActionManager.AddAction (explicitOverrideAction);
     }
 
-    public void AddMethodOverride (MemberEmitterContext context, MethodInfo overriddenMethod, MutableMethodInfo overridingMethod)
-    {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
-      ArgumentUtility.CheckNotNull ("overridingMethod", overridingMethod);
-
-      var emittableOverriddenMethod = context.EmittableOperandProvider.GetEmittableMethod (overriddenMethod);
-      var emittableOverridingMethod = context.EmittableOperandProvider.GetEmittableMethod (overridingMethod);
-
-      context.TypeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
-    }
-
     private Type[] GetParameterTypes (MethodBase methodBase)
     {
       return methodBase.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
@@ -160,8 +148,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       return () =>
       {
+        var emittableOverridingMethod = context.EmittableOperandProvider.GetEmittableMethod (overridingMethod);
+
         foreach (var overriddenMethod in overridingMethod.AddedExplicitBaseDefinitions)
-          AddMethodOverride (context, overriddenMethod, overridingMethod);
+        {
+          var emittableOverriddenMethod = context.EmittableOperandProvider.GetEmittableMethod (overriddenMethod);
+          context.TypeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
+        }
       };
     }
   }

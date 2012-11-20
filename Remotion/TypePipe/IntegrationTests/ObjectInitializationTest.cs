@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe;
 using TypePipe.IntegrationTests.TypeAssembly;
@@ -116,6 +117,7 @@ namespace TypePipe.IntegrationTests
       public DomainType () { CtorCalled = true; }
       public DomainType (int i)
       {
+        Dev.Null = i;
         CtorCalled = true;
         throw new Exception();
       }

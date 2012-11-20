@@ -237,24 +237,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       actions[0].Invoke();
     }
 
-    [Test]
-    public void AddMethodOverride ()
-    {
-      var overriddenMethod = ReflectionObjectMother.GetSomeMethod();
-      var overridingMethod = MutableMethodInfoObjectMother.Create();
-
-      var fakeOverriddenMethod = ReflectionObjectMother.GetSomeMethod();
-      var fakeOverridingMethod = ReflectionObjectMother.GetSomeMethod();
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overriddenMethod)).Return (fakeOverriddenMethod);
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overridingMethod)).Return (fakeOverridingMethod);
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeOverridingMethod, fakeOverriddenMethod));
-
-      _emitter.AddMethodOverride (_context, overriddenMethod, overridingMethod);
-
-      _emittableOperandProviderMock.VerifyAllExpectations();
-      _typeBuilderMock.VerifyAllExpectations();
-    }
-
     private void CheckCustomAttributeBuilder (
         CustomAttributeBuilder builder,
         ConstructorInfo expectedCtor,

@@ -48,7 +48,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
       // baseMethod may be null
       // body may be null
-      CheckMethodData (attributes, returnType, body);
+
+      if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
+        throw new ArgumentException ("Non-abstract method must have a body.", "body");
+
+      if (body != null && !returnType.IsAssignableFrom (body.Type))
+        throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
 
       var readonlyParameterDescriptors = parameterDescriptors.ToList().AsReadOnly();
       return new MethodDescriptor (
@@ -90,39 +95,6 @@ namespace Remotion.TypePipe.MutableReflection
           underlyingMethod.ContainsGenericParameters,
           customAttributeDataProvider,
           body);
-    }
-
-    public static MethodDescriptor CreateEquivalent (MethodInfo equivalentMethod, string name, MethodAttributes attributes, Expression body)
-    {
-      ArgumentUtility.CheckNotNull ("equivalentMethod", equivalentMethod);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // body may be null
-      CheckMethodData (attributes, equivalentMethod.ReturnType, body);
-
-      var parameterDeclarations = ParameterDescriptor.CreateFromMethodBase (equivalentMethod);
-      return new MethodDescriptor (
-          null,
-          name,
-          attributes,
-          equivalentMethod.ReturnType,
-          parameterDeclarations,
-          baseMethod: null,
-          isGenericMethod: false,
-          isGenericMethodDefinition: false,
-          containsGenericParameters: false,
-          customAttributeDataProvider: EmptyCustomAttributeDataProvider,
-          body: body);
-    }
-
-// ReSharper disable UnusedParameter.Local
-    private static void CheckMethodData (MethodAttributes attributes, Type returnType, Expression body)
-// ReSharper restore UnusedParameter.Local
-    {
-      if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
-        throw new ArgumentException ("Non-abstract method must have a body.", "body");
-
-      if (body != null && !returnType.IsAssignableFrom (body.Type))
-        throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
     }
 
     private readonly Type _returnType;
