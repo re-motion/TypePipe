@@ -16,16 +16,13 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe;
 using TypePipe.IntegrationTests.TypeAssembly;
-using Remotion.FunctionalProgramming;
 
 namespace TypePipe.IntegrationTests
 {
@@ -45,31 +42,6 @@ namespace TypePipe.IntegrationTests
     public void CreateObject ()
     {
       var instance = _factory.CreateObject<DomainType>();
-
-      Assert.That (instance.String, Is.EqualTo ("initialized"));
-      Assert.That (instance.CtorCalled, Is.True);
-    }
-
-    [Ignore]
-    [Test]
-    public void CreateObject_GuardsAgainstExceptions ()
-    {
-      SkipDeletion();
-
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      var additionalParticipant = CreateParticipant (
-          mutableType =>
-          {
-            var ctor = mutableType.GetMutableConstructor (constructor);
-            ctor.SetBody (
-                ctx =>
-                Expression.TryCatch (
-                    ctx.GetConstructorCall (Expression.Constant (7)),
-                    Expression.Catch (typeof (Exception), Expression.Empty())));
-          });
-      var factory = CreateObjectFactory (additionalParticipant);
-
-      var instance = factory.CreateObject<DomainType>();
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
       Assert.That (instance.CtorCalled, Is.True);
@@ -115,15 +87,9 @@ namespace TypePipe.IntegrationTests
       [UsedImplicitly] public string String;
 
       public DomainType () { CtorCalled = true; }
-      public DomainType (int i)
-      {
-        Dev.Null = i;
-        CtorCalled = true;
-        throw new Exception();
-      }
     }
 
-    private IObjectFactory CreateObjectFactory (IParticipant additionalParticipant = null)
+    private IObjectFactory CreateObjectFactory ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.String);
       var participant = CreateParticipant (
@@ -143,11 +109,7 @@ namespace TypePipe.IntegrationTests
             Assert.That (mutableType.InstanceInitializations, Is.Not.Empty);
           });
 
-      IEnumerable<IParticipant> participants = new[] { participant };
-      if (additionalParticipant != null)
-        participants = participants.Concat (additionalParticipant);
-
-      return CreateObjectFactory (participants, stackFramesToSkip: 1);
+      return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1);
     }
   }
 }
