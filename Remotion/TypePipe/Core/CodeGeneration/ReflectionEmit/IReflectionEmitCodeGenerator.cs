@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public interface IReflectionEmitCodeGenerator : ICodeGenerator
   {
     ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
+
     DebugInfoGenerator CreateDebugInfoGenerator ();
   }
 }

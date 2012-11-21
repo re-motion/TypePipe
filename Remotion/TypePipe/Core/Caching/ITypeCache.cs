@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -27,6 +28,8 @@ namespace Remotion.TypePipe.Caching
   [ConcreteImplementation (typeof (TypeCache))]
   public interface ITypeCache
   {
+    ICodeGenerator CodeGenerator { get; }
+
     Type GetOrCreateType (Type requestedType);
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
   }

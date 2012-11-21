@@ -37,6 +37,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _codeGenerator = codeGenerator;
     }
 
+    public ICodeGenerator CodeGenerator
+    {
+      get { return _codeGenerator; }
+    }
+
     public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
     {
       var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;

@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Caching
@@ -70,6 +71,15 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var returnType = ReflectionObjectMother.GetSomeType();
       _fakeSignature = Tuple.Create (parameterTypes, returnType);
       _fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
+    }
+
+    [Test]
+    public void CodeGenerator ()
+    {
+      var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
+      _typeAssemblerMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+
+      Assert.That (_cache.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
 
     [Test]

@@ -38,10 +38,9 @@ namespace Remotion.TypePipe
       _typeCache = typeCache;
     }
 
-    [CLSCompliant (false)]
     public ICodeGenerator CodeGenerator
     {
-      get { throw new NotImplementedException(); }
+      get { return _typeCache.CodeGenerator; }
     }
 
     public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)

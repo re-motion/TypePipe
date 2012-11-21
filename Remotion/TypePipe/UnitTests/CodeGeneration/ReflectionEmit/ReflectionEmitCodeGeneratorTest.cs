@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class ReflectionEmitCodeGeneratorTest
   {
-    private const string c_assemblyNamePattern = @"TypePipe_GeneratedAssembly_\d+\.dll";
+    private const string c_assemblyNamePattern = @"TypePipe_GeneratedAssembly_\d+";
 
     private IModuleBuilderFactory _moduleBuilderFactoryMock;
 
@@ -49,7 +49,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
-      Assert.That (_generator.CurrentModuleBuilder, Is.Null);
       Assert.That (_generator.AssemblyDirectory, Is.Null);
       Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
     }
@@ -99,23 +98,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void FlushCodeToDisk ()
     {
-      _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return ("Abc");
+      DefineSomeType();
+      var fakeAssemblyPath = "fake path";
+      _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
-      DefineSomeType ();
 
       var result = _generator.FlushCodeToDisk();
 
       _moduleBuilderMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo ("Abc"));
+      Assert.That (result, Is.EqualTo (fakeAssemblyPath));
       Assert.That (_generator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
-      Assert.That (_generator.CurrentModuleBuilder, Is.Null);
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot flush to disk if no type was defined.")]
-    public void FlushCodeToDisk_ThrowsForNullCurrentModuleBuilder ()
+    public void FlushCodeToDisk_NoTypeDefined ()
     {
-      _generator.FlushCodeToDisk();
+      Assert.That (_generator.FlushCodeToDisk(), Is.Null);
     }
 
     [Test]
@@ -126,9 +124,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var type = ReflectionObjectMother.GetSomeType();
       var otherType = ReflectionObjectMother.GetSomeDifferentType();
 
-      _moduleBuilderFactoryMock
-          .Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null))
-          .Return (_moduleBuilderMock);
+      _moduleBuilderFactoryMock.Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null)).Return (_moduleBuilderMock);
       _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes, type)).Return (_fakeTypeBuilder);
       _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0, otherType)).Return (_fakeTypeBuilder);
 
@@ -138,7 +134,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderFactoryMock.VerifyAllExpectations();
       _moduleBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_fakeTypeBuilder));
-      Assert.That (_generator.CurrentModuleBuilder, Is.SameAs (_moduleBuilderMock));
     }
 
     [Test]
@@ -152,15 +147,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void DefineSomeType ()
     {
-      Assert.That (_generator.CurrentModuleBuilder, Is.Null);
       _moduleBuilderFactoryMock
           .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory))
           .Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
 
       _generator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
-
-      Assert.That (_generator.CurrentModuleBuilder, Is.Not.Null);
     }
   }
 }

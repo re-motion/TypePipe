@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -26,6 +27,8 @@ namespace Remotion.TypePipe.Caching
   [ConcreteImplementation (typeof (TypeAssembler))]
   public interface ITypeAssembler
   {
+    ICodeGenerator CodeGenerator { get; }
+
     Type AssembleType (Type requestedType);
 
     /// <summary>

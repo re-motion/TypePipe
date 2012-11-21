@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
-    private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}.dll";
+    private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
 
     private static int s_counter;
 
@@ -49,12 +49,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
 
       _moduleBuilderFactory = moduleBuilderFactory;
-    }
-
-    [CLSCompliant (false)]
-    public IModuleBuilder CurrentModuleBuilder
-    {
-      get { return _currentModuleBuilder; }
     }
 
     public string AssemblyDirectory
@@ -92,21 +86,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _assemblyName = assemblyName;
     }
 
-    private void EnsureNoCurrentModuleBuilder (string propertyDescription)
-    {
-      if (_currentModuleBuilder != null)
-      {
-        var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
-        var message = string.Format (
-            "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
-        throw new InvalidOperationException (message);
-      }
-    }
-
     public string FlushCodeToDisk ()
     {
       if (_currentModuleBuilder == null)
-        throw new InvalidOperationException ("Cannot flush to disk if no type was defined.");
+        return null;
 
       var assemblyPath = _currentModuleBuilder.SaveToDisk();
 
@@ -131,6 +114,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public DebugInfoGenerator CreateDebugInfoGenerator ()
     {
       return DebugInfoGenerator.CreatePdbGenerator();
+    }
+
+    private void EnsureNoCurrentModuleBuilder (string propertyDescription)
+    {
+      if (_currentModuleBuilder != null)
+      {
+        var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
+        var message = string.Format (
+            "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
+        throw new InvalidOperationException (message);
+      }
     }
   }
 }

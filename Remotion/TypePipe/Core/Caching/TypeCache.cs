@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -47,6 +48,11 @@ namespace Remotion.TypePipe.Caching
       _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
+    }
+
+    public ICodeGenerator CodeGenerator
+    {
+      get { return _typeAssembler.CodeGenerator; }
     }
 
     public Type GetOrCreateType (Type requestedType)
