@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -125,6 +126,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory);
 
       return _currentModuleBuilder.DefineType (name, attributes, parent);
+    }
+
+    public DebugInfoGenerator CreateDebugInfoGenerator ()
+    {
+      return DebugInfoGenerator.CreatePdbGenerator();
     }
   }
 }

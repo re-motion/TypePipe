@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -28,5 +29,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public interface IReflectionEmitCodeGenerator : ICodeGenerator
   {
     ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
+    DebugInfoGenerator CreateDebugInfoGenerator ();
   }
 }

@@ -141,6 +141,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_generator.CurrentModuleBuilder, Is.SameAs (_moduleBuilderMock));
     }
 
+    [Test]
+    public void CreateDebugInfoGenerator ()
+    {
+      var result = _generator.CreateDebugInfoGenerator();
+
+      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (_generator.CreateDebugInfoGenerator(), Is.Not.SameAs (result));
+    }
+
     private void DefineSomeType ()
     {
       Assert.That (_generator.CurrentModuleBuilder, Is.Null);
