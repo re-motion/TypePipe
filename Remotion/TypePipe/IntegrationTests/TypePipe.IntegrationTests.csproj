@@ -59,7 +59,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CachingTest.cs" />
-    <Compile Include="CodeGeneratorTest.cs" />
+    <Compile Include="FlushGeneratedCodeTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
