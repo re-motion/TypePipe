@@ -46,7 +46,7 @@ namespace TypePipe.IntegrationTests
     public void SetUp ()
     {
       s_generatedFileDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "GeneratedAssemblies");
-      _copiedFileNames = new HashSet<string> ();
+      _copiedFileNames = new HashSet<string>();
       
       PrepareOutputDirectory ();
     }
