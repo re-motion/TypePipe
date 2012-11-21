@@ -384,6 +384,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var initExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _mutableType.AddInstanceInitialization (ctx => initExpression);
+
+      var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+      MutableFieldInfo counter = null;
+      MutableMethodInfo method = null;
+      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (typeof (IInitializableObject)));
+      _memberEmitterMock
+          .Expect (mock => mock.AddField (Arg.Is (_context), Arg<MutableFieldInfo>.Is.Anything))
+          .WhenCalled (mi => counter = (MutableFieldInfo) mi.Arguments[1]);
+      _memberEmitterMock
+          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything, Arg.Is (methodAttributes)))
+          .WhenCalled (mi => method = (MutableMethodInfo) mi.Arguments[1]);
       _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor1));
 
       Assert.That (_context.ConstructorRunCounter, Is.Null);
@@ -392,10 +403,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       builderAction (_builder, constructor1);
 
-      var counter = _context.ConstructorRunCounter;
-      var method = _context.InitializationMethod;
-      Assert.That (counter, Is.Not.Null);
-      Assert.That (method, Is.Not.Null);
+      Assert.That (_context.ConstructorRunCounter, Is.Not.Null.And.SameAs (counter));
+      Assert.That (_context.InitializationMethod, Is.Not.Null.And.SameAs (method));
 
       // Interface added.
       Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IInitializableObject) }));
@@ -409,7 +418,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { method }));
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (method.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject_Initialize"));
-      var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
       Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
       Assert.That (method.ReturnType, Is.SameAs (typeof (void)));
       Assert.That (method.GetParameters(), Is.Empty);

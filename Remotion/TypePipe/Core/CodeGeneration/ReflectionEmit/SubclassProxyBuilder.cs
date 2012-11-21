@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           });
     }
 
-    private static void CreateInstanceInitializationMembers (MemberEmitterContext context)
+    private void CreateInstanceInitializationMembers (MemberEmitterContext context)
     {
       Assertion.IsNull (context.ConstructorRunCounter);
       Assertion.IsNull (context.InitializationMethod);
@@ -237,7 +237,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var type = context.MutableType;
 
       type.AddInterface (typeof (IInitializableObject));
+      context.TypeBuilder.AddInterfaceImplementation (typeof (IInitializableObject));
+
       var counter = type.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+      _memberEmitter.AddField (context, counter);
 
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
       var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
@@ -246,6 +249,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var body = Expression.Block (interfaceMethod.ReturnType, context.MutableType.InstanceInitializations);
       var initMethod = type.AddMethod (name, attributes, interfaceMethod.ReturnType, parameters, ctx => body);
       initMethod.AddExplicitBaseDefinition (interfaceMethod);
+      _memberEmitter.AddMethod (context, initMethod, initMethod.Attributes);
 
       context.ConstructorRunCounter = counter;
       context.InitializationMethod = initMethod;
