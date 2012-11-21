@@ -35,6 +35,7 @@ namespace TypePipe.IntegrationTests
   {
     private List<string> _generatedAssemblyPaths;
     private bool _shouldDeleteGeneratedFiles;
+    private bool _shouldPeVerify;
 
     private ICodeGenerator _codeGenerator;
 
@@ -43,20 +44,20 @@ namespace TypePipe.IntegrationTests
     {
       _generatedAssemblyPaths = new List<string>();
       _shouldDeleteGeneratedFiles = true;
+      _shouldPeVerify = true;
     }
 
     [TearDown]
     public virtual void TearDown ()
     {
-      FlushCodeToDisk();
+      FlushAndTrackFilesForCleanup();
 
       try
       {
-        var peverify = PEVerifier.CreateDefault();
-
         foreach (var assemblyPath in _generatedAssemblyPaths)
         {
-          peverify.VerifyPEFile (assemblyPath);
+          if (_shouldPeVerify)
+            PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
 
           if (_shouldDeleteGeneratedFiles)
           {
@@ -77,6 +78,11 @@ namespace TypePipe.IntegrationTests
     protected void SkipDeletion ()
     {
       _shouldDeleteGeneratedFiles = false;
+    }
+
+    protected void SkipPeVerification ()
+    {
+      _shouldPeVerify = false;
     }
 
     protected IParticipant CreateParticipant (Action<MutableType> typeModification)
@@ -108,15 +114,17 @@ namespace TypePipe.IntegrationTests
       return typeModifier;
     }
 
-    protected void FlushCodeToDisk ()
+    protected string FlushAndTrackFilesForCleanup ()
     {
       Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateReflectionEmitTypeModifier");
 
       var assemblyPath = _codeGenerator.FlushCodeToDisk();
       if (assemblyPath == null)
-        return;
+        return null;
 
       _generatedAssemblyPaths.Add (assemblyPath);
+
+      return assemblyPath;
     }
   }
 }

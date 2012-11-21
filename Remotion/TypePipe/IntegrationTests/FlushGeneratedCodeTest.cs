@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,32 +24,22 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.Utilities;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 
 namespace TypePipe.IntegrationTests
 {
   [TestFixture]
-  public class FlushGeneratedCodeTest
+  public class FlushGeneratedCodeTest : ObjectFactoryIntegrationTestBase
   {
     private IObjectFactory _objectFactory;
     private ICodeGenerator _codeGenerator;
 
-    private List<string> _filesToDelete;
-
-    [SetUp]
-    public void SetUp ()
+    public override void SetUp ()
     {
-      _objectFactory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      base.SetUp();
+
+      _objectFactory = CreateObjectFactory();
       _codeGenerator = _objectFactory.CodeGenerator;
-
-      _filesToDelete = new List<string>();
-    }
-
-    [TearDown]
-    public void TearDown ()
-    {
-      foreach (var assemblyPath in _filesToDelete)
-        FileUtility.DeleteAndWaitForCompletion (assemblyPath);
     }
 
     [Test]
@@ -81,19 +70,30 @@ namespace TypePipe.IntegrationTests
     }
 
     [Test]
-    public void UniqueStandardNaming ()
+    public void StandardNameAndDirectory_Initial ()
     {
-      var assemblyName = _codeGenerator.AssemblyName;
-      Assert.That (assemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
+      // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
+      var codeGenerator = SafeServiceLocator.Current.GetInstance<IReflectionEmitCodeGenerator>();
+      Assert.That (codeGenerator.AssemblyDirectory, Is.Null);
+      Assert.That (codeGenerator.AssemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
+    }
+
+    [Test]
+    public void StandardNameAndDirectory_Unique ()
+    {
+      var oldAssemblyName = _codeGenerator.AssemblyName;
 
       RequestTypeAndFlush();
 
-      Assert.That (_codeGenerator.AssemblyName, Is.Not.EqualTo (assemblyName));
+      Assert.That (_codeGenerator.AssemblyName, Is.Not.EqualTo (oldAssemblyName));
     }
 
     [Test]
     public void CustomNameAndDirectory ()
     {
+      // The assembly will be saved in a directory that lacks the needed references for peverify.
+      SkipPeVerification();
+
       var directory = Path.GetTempPath();
       _codeGenerator.SetAssemblyDirectory (directory);
       _codeGenerator.SetAssemblyName ("Abc");
@@ -140,15 +140,11 @@ namespace TypePipe.IntegrationTests
 
     private string Flush ()
     {
-      var assemblyPath = _codeGenerator.FlushCodeToDisk();
+      var assemblyPath = FlushAndTrackFilesForCleanup();
       Assert.That (assemblyPath, Is.Not.Null);
-      var pdbPath = Path.ChangeExtension (assemblyPath, "pdb");
 
       Assert.That (File.Exists (assemblyPath), Is.True);
-      Assert.That (File.Exists (pdbPath), Is.True);
-
-      _filesToDelete.Add (assemblyPath);
-      _filesToDelete.Add (pdbPath);
+      Assert.That (File.Exists (Path.ChangeExtension (assemblyPath, "pdb")), Is.True);
 
       return assemblyPath;
     }
