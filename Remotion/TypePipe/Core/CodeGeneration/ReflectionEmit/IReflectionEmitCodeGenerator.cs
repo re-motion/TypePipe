@@ -18,6 +18,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -25,6 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Extends the <see cref="ICodeGenerator"/> interface with Reflection.Emit-specifc operations.
   /// </summary>
+  [ConcreteImplementation (typeof (ReflectionEmitCodeGenerator))]
   [CLSCompliant (false)]
   public interface IReflectionEmitCodeGenerator : ICodeGenerator
   {

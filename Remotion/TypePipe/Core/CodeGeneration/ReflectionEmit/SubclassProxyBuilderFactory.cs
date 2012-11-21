@@ -16,8 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -29,27 +27,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class SubclassProxyBuilderFactory : ISubclassProxyBuilderFactory
   {
-    private readonly IModuleBuilder _moduleBuilder;
-    private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly IReflectionEmitCodeGenerator _codeGenerator;
 
-    [CLSCompliant (false)]
-    public SubclassProxyBuilderFactory (IModuleBuilder moduleBuilder, DebugInfoGenerator debugInfoGeneratorOrNull)
+    [CLSCompliant(false)]
+    public SubclassProxyBuilderFactory (IReflectionEmitCodeGenerator codeGenerator)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
-      _moduleBuilder = moduleBuilder;
-      _debugInfoGenerator = debugInfoGeneratorOrNull;
-    }
-
-    [CLSCompliant (false)]
-    public IModuleBuilder ModuleBuilder
-    {
-      get { return _moduleBuilder; }
-    }
-
-    public DebugInfoGenerator DebugInfoGenerator
-    {
-      get { return _debugInfoGenerator; }
+      _codeGenerator = codeGenerator;
     }
 
     public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
@@ -58,18 +43,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (mutableType.IsAbstract)
         typeAttributes |= TypeAttributes.Abstract;
 
-      var typeBuilder = _moduleBuilder.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
+      var typeBuilder = _codeGenerator.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
+      var debugInfoGenerator = _codeGenerator.CreateDebugInfoGenerator();
 
-      var emittableOperandProvider = new EmittableOperandProvider ();
+      var emittableOperandProvider = new EmittableOperandProvider();
       typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
 
-      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory (), emittableOperandProvider);
+      var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpressionPreparer(), ilGeneratorFactory);
 
       var methodTrampolineProvider = new MethodTrampolineProvider (memberEmitter);
 
       return new SubclassProxyBuilder (
-          mutableType, typeBuilder, _debugInfoGenerator, emittableOperandProvider, methodTrampolineProvider, memberEmitter);
+          mutableType, typeBuilder, debugInfoGenerator, emittableOperandProvider, methodTrampolineProvider, memberEmitter);
     }
   }
 }

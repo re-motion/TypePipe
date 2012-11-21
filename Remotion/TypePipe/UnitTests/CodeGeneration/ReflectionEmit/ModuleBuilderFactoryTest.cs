@@ -26,13 +26,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class ModuleBuilderFactoryTest
   {
-    private const string c_assemblyName = "TestAssembly";
-    private const string c_assemblyFileName = c_assemblyName + ".dll";
-    private const string c_pdbFileName = c_assemblyName + ".dll";
+    private const string c_assemblyName = "MyAssembly";
+    private const string c_assemblyFileName = "MyAssembly.dll";
+    private const string c_pdbFileName = "MyAssembly.pdb";
 
     private ModuleBuilderFactory _factory;
 
-    private string _tempDirectory;
+    private string _someDirectory;
     private string _currentDirectory;
 
     [SetUp]
@@ -40,15 +40,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _factory = new ModuleBuilderFactory();
 
-      _tempDirectory = Path.GetTempPath();
+      _someDirectory = Path.GetTempPath();
       _currentDirectory = Environment.CurrentDirectory;
     }
 
     [TearDown]
     public void TearDown ()
     {
-      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_tempDirectory, c_assemblyFileName));
-      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_tempDirectory, c_pdbFileName));
+      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_someDirectory, c_assemblyFileName));
+      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_someDirectory, c_pdbFileName));
       FileUtility.DeleteAndWaitForCompletion (Path.Combine (_currentDirectory, c_assemblyFileName));
       FileUtility.DeleteAndWaitForCompletion (Path.Combine (_currentDirectory, c_pdbFileName));
     }
@@ -56,39 +56,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder ()
     {
-      var directory = Path.GetTempPath();
-      var module = (ModuleBuilderAdapter) _factory.CreateModuleBuilder (c_assemblyName, directory);
+      var result = _factory.CreateModuleBuilder (c_assemblyName, _someDirectory);
 
-      Assert.That (module.AssemblyName, Is.EqualTo (c_assemblyName));
-      Assert.That (module.ScopeName, Is.EqualTo (c_assemblyFileName));
-
-      var assemblyPath = Path.Combine (directory, c_assemblyFileName);
-      var pdbPath = Path.Combine (directory, c_pdbFileName);
-      Assert.That (File.Exists (assemblyPath), Is.False);
-      Assert.That (File.Exists (pdbPath), Is.False);
-
-      var result = module.SaveToDisk();
-
-      Assert.That (File.Exists (assemblyPath), Is.True);
-      Assert.That (File.Exists (pdbPath), Is.True);
-      Assert.That (result, Is.EqualTo (assemblyPath));
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _someDirectory);
     }
 
     [Test]
     public void CreateModuleBuilder_NullAssemblyDirectory ()
     {
-      var module = (ModuleBuilderAdapter) _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null);
+      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null);
 
-      Assert.That (module.AssemblyName, Is.EqualTo (c_assemblyName));
-      Assert.That (module.ScopeName, Is.EqualTo (c_assemblyFileName));
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory);
+    }
 
-      var directory = Environment.CurrentDirectory;
-      var assemblyPath = Path.Combine (directory, c_assemblyFileName);
-      var pdbPath = Path.Combine (directory, c_pdbFileName);
+    private static void CheckDecoratedAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory)
+    {
+      Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator> ());
+      var decorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
+
+      Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter> ());
+      var adapter = (ModuleBuilderAdapter) decorator.InnerModuleBuilder;
+      Assert.That (adapter.AssemblyName, Is.EqualTo (c_assemblyName));
+      Assert.That (adapter.ScopeName, Is.EqualTo (c_assemblyFileName));
+
+      var assemblyPath = Path.Combine (assemblyDirectory, c_assemblyFileName);
+      var pdbPath = Path.Combine (assemblyDirectory, c_pdbFileName);
       Assert.That (File.Exists (assemblyPath), Is.False);
       Assert.That (File.Exists (pdbPath), Is.False);
 
-      var result = module.SaveToDisk();
+      var result = adapter.SaveToDisk ();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (pdbPath), Is.True);

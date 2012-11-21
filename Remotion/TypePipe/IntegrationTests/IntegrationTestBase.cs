@@ -22,6 +22,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -103,14 +104,15 @@ namespace TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
+    // TODO 5203, use default setup
     protected ITypeModifier CreateReflectionEmitTypeModifier (string assemblyName)
     {
-      var moduleAndAssembly = ReflectionEmitBackendFactory.CreateModuleBuilder (assemblyName, GeneratedFileDirectory);
+      var codeGenerator = SafeServiceLocator.Current.GetInstance<IReflectionEmitCodeGenerator>();
 
-      _assemblyBuilder = moduleAndAssembly.Item2;
-      _generatedFileName = assemblyName + ".dll";
+      codeGenerator.SetAssemblyDirectory (GeneratedFileDirectory);
+      codeGenerator.SetAssemblyName (assemblyName);
 
-      var subclassProxyBuilderFactory = new SubclassProxyBuilderFactory (moduleAndAssembly.Item1, DebugInfoGenerator.CreatePdbGenerator());
+      var subclassProxyBuilderFactory = new SubclassProxyBuilderFactory (codeGenerator);
 
       return new TypeModifier (subclassProxyBuilderFactory);
     }

@@ -28,25 +28,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class SubclassProxyBuilderFactoryTest
   {
-    private IModuleBuilder _moduleBuilderMock;
-    private DebugInfoGenerator _debugInfoGeneratorStub;
+    private IReflectionEmitCodeGenerator _codeGeneratorMock;
 
-    private SubclassProxyBuilderFactory _builderFactory;
+    private SubclassProxyBuilderFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
-      _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
-      _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator> ();
+      _codeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
 
-      _builderFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, _debugInfoGeneratorStub);
-    }
-
-    [Test]
-    public void Initialization_NullDebugInfoGenerator ()
-    {
-      var handlerFactory = new SubclassProxyBuilderFactory (_moduleBuilderMock, null);
-      Assert.That (handlerFactory.DebugInfoGenerator, Is.Null);
+      _factory = new SubclassProxyBuilderFactory (_codeGeneratorMock);
     }
 
     [Test]
@@ -55,18 +46,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var originalType = ReflectionObjectMother.GetSomeSubclassableType();
       var mutableType = MutableTypeObjectMother.CreateForExisting (originalType);
 
-      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder> ();
+      var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _moduleBuilderMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderMock);
-      
+      _codeGeneratorMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderMock);
+      var fakeDebugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
+      _codeGeneratorMock.Expect (mock => mock.CreateDebugInfoGenerator()).Return (fakeDebugInfoGenerator);
+
       EmittableOperandProvider emittableOperandProvider = null;
       typeBuilderMock
           .Expect (mock => mock.RegisterWith (Arg<EmittableOperandProvider>.Is.TypeOf, Arg.Is (mutableType)))
           .WhenCalled (mi => emittableOperandProvider = ((EmittableOperandProvider) mi.Arguments[0]));
 
-      var result = _builderFactory.CreateBuilder (mutableType);
+      var result = _factory.CreateBuilder (mutableType);
 
-      _moduleBuilderMock.VerifyAllExpectations();
+      _codeGeneratorMock.VerifyAllExpectations();
       typeBuilderMock.VerifyAllExpectations();
 
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
@@ -75,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var context = builder.MemberEmitterContext;
       Assert.That (context.MutableType, Is.SameAs (mutableType));
       Assert.That (context.TypeBuilder, Is.SameAs (typeBuilderMock));
-      Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
+      Assert.That (context.DebugInfoGenerator, Is.SameAs (fakeDebugInfoGenerator));
       Assert.That (context.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
       Assert.That (context.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider>());
       Assert.That (context.PostDeclarationsActionManager.Actions, Is.Empty);
@@ -87,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (memberEmitter.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) memberEmitter.ILGeneratorFactory;
 
-      Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory> ());
+      Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
       Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
 
       var methodTrampolineProvider = (MethodTrampolineProvider) context.MethodTrampolineProvider;
@@ -97,20 +90,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateBuilder_AbstractType ()
     {
-      var originalType = typeof (AbstractType);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (originalType);
+      var underlyingType = typeof (AbstractType);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
 
-      var typeBuilderFake = MockRepository.GenerateStub<ITypeBuilder> ();
       var attributes = TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit;
-      _moduleBuilderMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderFake);
+      _codeGeneratorMock.Stub (stub => stub.DefineType (underlyingType.FullName, attributes, underlyingType));
+      _codeGeneratorMock.Stub (stub => stub.CreateDebugInfoGenerator()).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
 
-      _builderFactory.CreateBuilder (mutableType);
+      _factory.CreateBuilder (mutableType);
 
-      _moduleBuilderMock.VerifyAllExpectations ();
+      _codeGeneratorMock.VerifyAllExpectations();
     }
 
-    abstract class AbstractType
+    private abstract class AbstractType
     {
+      // Abstract method is needed, otherwise the mutable type is concrete right away.
       public abstract void Method ();
     }
   }
