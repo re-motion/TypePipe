@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public string SaveToDisk ()
     {
-      throw new NotImplementedException();
+      return _innerModuleBuilder.SaveToDisk();
     }
   }
 }
