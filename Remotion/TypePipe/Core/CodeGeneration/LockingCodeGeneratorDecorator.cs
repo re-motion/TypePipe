@@ -36,6 +36,15 @@ namespace Remotion.TypePipe.CodeGeneration
       _lock = lockObject;
     }
 
+    public string AssemblyDirectory
+    {
+      get
+      {
+        lock (_lock)
+          return _innerCodeGenerator.AssemblyDirectory;
+      }
+    }
+
     public string AssemblyName
     {
       get
@@ -43,6 +52,12 @@ namespace Remotion.TypePipe.CodeGeneration
         lock (_lock)
           return _innerCodeGenerator.AssemblyName;
       }
+    }
+
+    public void SetAssemblyDirectory (string assemblyDirectory)
+    {
+      lock (_lock)
+        _innerCodeGenerator.SetAssemblyDirectory (assemblyDirectory);
     }
 
     public void SetAssemblyName (string assemblyName)

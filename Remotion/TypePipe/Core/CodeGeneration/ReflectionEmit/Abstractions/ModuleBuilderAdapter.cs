@@ -27,17 +27,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class ModuleBuilderAdapter : IModuleBuilder
   {
     private readonly ModuleBuilder _moduleBuilder;
+    private readonly AssemblyBuilder _assemblyBuilder;
 
     public string ScopeName
     {
       get { return _moduleBuilder.ScopeName; }
     }
 
+    public string AssemblyName
+    {
+      get { return _assemblyBuilder.GetName().Name; }
+    }
+
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
 
       _moduleBuilder = moduleBuilder;
+      _assemblyBuilder = (AssemblyBuilder) moduleBuilder.Assembly;
     }
 
     [CLSCompliant (false)]
@@ -52,7 +60,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public string SaveToDisk ()
     {
-      throw new NotImplementedException();
+      var assemblyFileName = AssemblyName + ".dll";
+      _assemblyBuilder.Save (assemblyFileName);
+
+      // This is the absolute path to the module, which is also the assembly file path.
+      return _moduleBuilder.FullyQualifiedName;
     }
   }
 }

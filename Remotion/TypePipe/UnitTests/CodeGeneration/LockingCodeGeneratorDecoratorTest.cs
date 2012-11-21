@@ -41,9 +41,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
+    public void AssemblyDirectory ()
+    {
+      ExpectSynchronizedDelegation (cg => cg.AssemblyDirectory, "xyz");
+    }
+
+    [Test]
     public void AssemblyName ()
     {
       ExpectSynchronizedDelegation (cg => cg.AssemblyName, "abc");
+    }
+
+    [Test]
+    public void SetAssemblyDirectory ()
+    {
+      ExpectSynchronizedDelegation (cg => cg.SetAssemblyDirectory ("klm"));
     }
 
     [Test]

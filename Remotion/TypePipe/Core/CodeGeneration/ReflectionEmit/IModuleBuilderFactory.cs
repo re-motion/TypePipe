@@ -18,14 +18,21 @@
 using System;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  public class ModuleBuilderFactory : IModuleBuilderFactory
+  /// <summary>
+  /// Implementations of this interface create instances of <see cref="IModuleBuilder"/>.
+  /// </summary>
+  [CLSCompliant (false)]
+  public interface IModuleBuilderFactory
   {
-    [CLSCompliant (false)]
-    public IModuleBuilder CreateModuleBuilder (string assemblyName)
-    {
-      return null;
-    }
+    /// <summary>
+    /// Creates a module builder.
+    /// </summary>
+    /// <param name="assemblyName">The assembly name (without the file ending '.dll').</param>
+    /// <param name="assemblyDirectory">The directory in which the assembly will be saved when <see cref="IModuleBuilder.SaveToDisk"/> is called
+    /// on the returned <see cref="IModuleBuilder"/>.</param>
+    /// <returns>The created module builder.</returns>
+    IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectory);
   }
 }

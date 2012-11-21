@@ -52,9 +52,9 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
-    <Compile Include="CodeGeneration\IModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecorator.cs" />
-    <Compile Include="CodeGeneration\ModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
     <Compile Include="CodeGeneration\ITypeModifier.cs" />

@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
 
     private IModuleBuilder _currentModuleBuilder;
+    private string _assemblyDirectory;
     private string _assemblyName;
 
     [CLSCompliant (false)]
@@ -55,6 +56,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _currentModuleBuilder; }
     }
 
+    public string AssemblyDirectory
+    {
+      get { return _assemblyDirectory; }
+    }
+
     public string AssemblyName
     {
       get
@@ -69,18 +75,31 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
+    public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
+    {
+      // assemblyDirectory may be null.
+      EnsureNoCurrentModuleBuilder ("assembly directory");
+
+      _assemblyDirectory = assemblyDirectoryOrNull;
+    }
+
     public void SetAssemblyName (string assemblyName)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
+      EnsureNoCurrentModuleBuilder ("assembly name");
 
+      _assemblyName = assemblyName;
+    }
+
+    private void EnsureNoCurrentModuleBuilder (string propertyDescription)
+    {
       if (_currentModuleBuilder != null)
       {
         var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
-        var message = string.Format ("Cannot set assembly name after a type has been defined (use {0}() to start a new assembly).", flushMethod.Name);
+        var message = string.Format (
+            "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
         throw new InvalidOperationException (message);
       }
-
-      _assemblyName = assemblyName;
     }
 
     public string FlushCodeToDisk ()
@@ -103,7 +122,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("parent", parent);
 
       if (_currentModuleBuilder == null)
-        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName);
+        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory);
 
       return _currentModuleBuilder.DefineType (name, attributes, parent);
     }

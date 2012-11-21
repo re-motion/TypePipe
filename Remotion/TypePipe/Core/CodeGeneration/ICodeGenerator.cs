@@ -24,8 +24,10 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public interface ICodeGenerator
   {
+    string AssemblyDirectory { get; }
     string AssemblyName { get; }
 
+    void SetAssemblyDirectory (string assemblyDirectory);
     void SetAssemblyName (string assemblyName);
 
     string FlushCodeToDisk ();
