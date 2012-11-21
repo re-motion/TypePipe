@@ -25,13 +25,13 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class CodeGeneratorTest
+  public class ReflectionEmitCodeGeneratorTest
   {
     private const string c_assemblyNamePattern = @"TypePipe_GeneratedAssembly_\d+\.dll";
 
     private IModuleBuilderFactory _moduleBuilderFactoryMock;
 
-    private CodeGenerator _codeGenerator;
+    private ReflectionEmitCodeGenerator _generator;
 
     private IModuleBuilder _moduleBuilderMock;
     private ITypeBuilder _fakeTypeBuilder;
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _moduleBuilderFactoryMock = MockRepository.GenerateStrictMock<IModuleBuilderFactory>();
 
-      _codeGenerator = new CodeGenerator(_moduleBuilderFactoryMock);
+      _generator = new ReflectionEmitCodeGenerator(_moduleBuilderFactoryMock);
 
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder> ();
@@ -50,15 +50,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
-      Assert.That (_codeGenerator.CurrentModuleBuilder, Is.Null);
-      Assert.That (_codeGenerator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
+      Assert.That (_generator.CurrentModuleBuilder, Is.Null);
+      Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
     }
 
     [Test]
     public void SetAssemblyName ()
     {
-      _codeGenerator.SetAssemblyName ("ABC");
-      Assert.That (_codeGenerator.AssemblyName, Is.EqualTo ("ABC"));
+      _generator.SetAssemblyName ("ABC");
+      Assert.That (_generator.AssemblyName, Is.EqualTo ("ABC"));
     }
 
     [Test]
@@ -67,29 +67,29 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetAssemblyName_ThrowsExistingCurrentModuleBuilder ()
     {
       DefineSomeType();
-      _codeGenerator.SetAssemblyName ("ABC");
+      _generator.SetAssemblyName ("ABC");
     }
 
     [Test]
     public void FlushCodeToDisk ()
     {
       _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return ("ABC");
-      var previousAssemblyName = _codeGenerator.AssemblyName;
+      var previousAssemblyName = _generator.AssemblyName;
       DefineSomeType ();
 
-      var result = _codeGenerator.FlushCodeToDisk();
+      var result = _generator.FlushCodeToDisk();
 
       _moduleBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo ("ABC"));
-      Assert.That (_codeGenerator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
-      Assert.That (_codeGenerator.CurrentModuleBuilder, Is.Null);
+      Assert.That (_generator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
+      Assert.That (_generator.CurrentModuleBuilder, Is.Null);
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot flush to disk if no type was defined.")]
     public void FlushCodeToDisk_ThrowsForNullCurrentModuleBuilder ()
     {
-      _codeGenerator.FlushCodeToDisk();
+      _generator.FlushCodeToDisk();
     }
 
     [Test]
@@ -100,24 +100,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var type = ReflectionObjectMother.GetSomeType();
       var otherType = ReflectionObjectMother.GetSomeDifferentType();
 
-      _moduleBuilderFactoryMock.Expect (mock => mock.CreateModuleBuilder (_codeGenerator.AssemblyName)).Return (_moduleBuilderMock);
+      _moduleBuilderFactoryMock.Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName)).Return (_moduleBuilderMock);
       _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes, type)).Return (_fakeTypeBuilder);
       _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0, otherType)).Return (_fakeTypeBuilder);
 
-      var result = _codeGenerator.DefineType (name, attributes, type);
-      _codeGenerator.DefineType ("OtherType", 0, otherType);
+      var result = _generator.DefineType (name, attributes, type);
+      _generator.DefineType ("OtherType", 0, otherType);
 
       _moduleBuilderFactoryMock.VerifyAllExpectations();
       _moduleBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_fakeTypeBuilder));
-      Assert.That (_codeGenerator.CurrentModuleBuilder, Is.SameAs (_moduleBuilderMock));
+      Assert.That (_generator.CurrentModuleBuilder, Is.SameAs (_moduleBuilderMock));
     }
 
     private void DefineSomeType ()
     {
-      _moduleBuilderFactoryMock.Stub (stub => stub.CreateModuleBuilder (_codeGenerator.AssemblyName)).Return (_moduleBuilderMock);
+      _moduleBuilderFactoryMock.Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName)).Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
-      _codeGenerator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
+      _generator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
     }
   }
 }

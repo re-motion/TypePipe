@@ -55,7 +55,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="CodeGeneration\ReflectionEmit\CodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DefaultSubclassProxyBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />

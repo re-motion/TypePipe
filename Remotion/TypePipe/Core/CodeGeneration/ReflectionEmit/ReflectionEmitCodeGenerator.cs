@@ -22,7 +22,10 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  public class CodeGenerator : ICodeGenerator
+  /// <summary>
+  /// This class represents the Reflection.Emit-based <see cref="ICodeGenerator"/> of the pipeline.
+  /// </summary>
+  public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}.dll";
 
@@ -32,7 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private string _assemblyName;
 
     [CLSCompliant (false)]
-    public CodeGenerator (IModuleBuilderFactory moduleBuilderFactory)
+    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
 

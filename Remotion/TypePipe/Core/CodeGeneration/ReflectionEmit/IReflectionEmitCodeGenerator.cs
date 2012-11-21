@@ -16,18 +16,17 @@
 // 
 
 using System;
+using System.Reflection;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Instances of this interface represent the code generator user by the pipeline.
+  /// Extends the <see cref="ICodeGenerator"/> interface with Reflection.Emit-specifc operations.
   /// </summary>
-  public interface ICodeGenerator
+  [CLSCompliant (false)]
+  public interface IReflectionEmitCodeGenerator : ICodeGenerator
   {
-    string AssemblyName { get; }
-
-    void SetAssemblyName (string assemblyName);
-
-    string FlushCodeToDisk ();
+    ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
   }
 }
