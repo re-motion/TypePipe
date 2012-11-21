@@ -17,21 +17,28 @@
 
 using System;
 using System.Reflection;
+using System.Threading;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// This class represents the Reflection.Emit-based <see cref="ICodeGenerator"/> of the pipeline.
+  /// The Reflection.Emit-based <see cref="ICodeGenerator"/> of the pipeline.
   /// </summary>
+  /// <remarks>
+  /// This class is not thread-safe. Thread-safety will be enforced by the <see cref="TypeCache"/>.
+  /// </remarks>
   public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}.dll";
 
+    private static int s_counter;
+
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
 
-    private int _counter;
+    private IModuleBuilder _currentModuleBuilder;
     private string _assemblyName;
 
     [CLSCompliant (false)]
@@ -43,18 +50,30 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public IModuleBuilder CurrentModuleBuilder { get; private set; }
+    public IModuleBuilder CurrentModuleBuilder
+    {
+      get { return _currentModuleBuilder; }
+    }
 
     public string AssemblyName
     {
-      get { return _assemblyName = _assemblyName ?? string.Format (c_assemblyNamePattern, ++_counter); }
+      get
+      {
+        if (_assemblyName == null)
+        {
+          var uniqueCounterValue = Interlocked.Increment (ref s_counter);
+          _assemblyName = string.Format (c_assemblyNamePattern, uniqueCounterValue);
+        }
+
+        return _assemblyName;
+      }
     }
 
     public void SetAssemblyName (string assemblyName)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
 
-      if (CurrentModuleBuilder != null)
+      if (_currentModuleBuilder != null)
       {
         var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
         var message = string.Format ("Cannot set assembly name after a type has been defined (use {0}() to start a new assembly).", flushMethod.Name);
@@ -66,12 +85,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public string FlushCodeToDisk ()
     {
-      if (CurrentModuleBuilder == null)
+      if (_currentModuleBuilder == null)
         throw new InvalidOperationException ("Cannot flush to disk if no type was defined.");
 
-      var assemblyPath = CurrentModuleBuilder.SaveToDisk();
+      var assemblyPath = _currentModuleBuilder.SaveToDisk();
+
+      _currentModuleBuilder = null;
       _assemblyName = null;
-      CurrentModuleBuilder = null;
 
       return assemblyPath;
     }
@@ -82,10 +102,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("parent", parent);
 
-      if (CurrentModuleBuilder == null)
-        CurrentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName);
+      if (_currentModuleBuilder == null)
+        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName);
 
-      return CurrentModuleBuilder.DefineType (name, attributes, parent);
+      return _currentModuleBuilder.DefineType (name, attributes, parent);
     }
   }
 }

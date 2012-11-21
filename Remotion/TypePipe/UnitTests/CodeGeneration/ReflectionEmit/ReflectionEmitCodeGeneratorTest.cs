@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _moduleBuilderFactoryMock = MockRepository.GenerateStrictMock<IModuleBuilderFactory>();
 
-      _generator = new ReflectionEmitCodeGenerator(_moduleBuilderFactoryMock);
+      _generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock);
 
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder> ();
@@ -52,6 +52,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (_generator.CurrentModuleBuilder, Is.Null);
       Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
+    }
+
+    [Test]
+    public void AssemblyName_Unique ()
+    {
+      var generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock);
+      Assert.That (generator.AssemblyName, Is.Not.EqualTo (_generator.AssemblyName));
     }
 
     [Test]
