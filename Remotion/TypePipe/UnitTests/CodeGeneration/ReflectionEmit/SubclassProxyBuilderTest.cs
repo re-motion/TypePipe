@@ -88,7 +88,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var expressions = new[] { ExpressionTreeObjectMother.GetSomeExpression() }.ToList().AsReadOnly();
 
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (Arg.Is (_context), Arg<MutableConstructorInfo>.Is.Anything))
+      _memberEmitterMock
+          .Expect (mock => mock.AddConstructor (Arg.Is (_context), Arg<MutableConstructorInfo>.Is.Anything))
           .WhenCalled (
               mi =>
               {
@@ -121,6 +122,57 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void HandleInstanceInitializations ()
+    {
+      var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
+      _mutableType.AddInstanceInitialization (ctx => initExpression);
+
+      var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+
+      var result = _builder.HandleInstanceInitializations (new[] { initExpression }.ToList().AsReadOnly());
+
+      var counter = result.Item1;
+      var initMethod = (MutableMethodInfo) result.Item2;
+
+      // Interface added.
+      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IInitializableObject) }));
+
+      // Field added.
+      Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
+      Assert.That (counter.Name, Is.EqualTo ("_<TypePipe-generated>_ctorRunCounter"));
+      Assert.That (counter.FieldType, Is.SameAs (typeof (int)));
+
+      // Initialization method added.
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { initMethod }));
+      Assert.That (initMethod.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (initMethod.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject_Initialize"));
+      Assert.That (initMethod.Attributes, Is.EqualTo (methodAttributes));
+      Assert.That (initMethod.ReturnType, Is.SameAs (typeof (void)));
+      Assert.That (initMethod.GetParameters (), Is.Empty);
+      Assert.That (initMethod.Body.Type, Is.SameAs (typeof (void)));
+      Assert.That (initMethod.Body, Is.InstanceOf<BlockExpression> ());
+      var blockExpression = (BlockExpression) initMethod.Body;
+      Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { initExpression }));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize ());
+      Assert.That (initMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
+    }
+
+    [Test]
+    public void HandleInstanceInitializations_Empty ()
+    {
+      var expressions = new Expression[0].ToList().AsReadOnly();
+
+      var result = _builder.HandleInstanceInitializations (expressions);
+
+      Assert.That (result, Is.Null);
+
+      _typeBuilderMock.AssertWasNotCalled (mock => mock.AddInterfaceImplementation (Arg<Type>.Is.Anything));
+      _memberEmitterMock.AssertWasNotCalled (mock => mock.AddField (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableFieldInfo>.Is.Anything));
+      _memberEmitterMock.AssertWasNotCalled (
+          mock => mock.AddMethod (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableMethodInfo>.Is.Anything, Arg<MethodAttributes>.Is.Anything));
+    }
+
+    [Test]
     public void HandleAddedInterface ()
     {
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
@@ -146,7 +198,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void HandleAddedField_Throws ()
     {
       var message = "The supplied field must be a new field.\r\nParameter name: field";
-      // Modifying existing fields is not supported (TODO 4695)
+      // Modifying existing fields is not supported (null 4695)
       //CheckThrowsForInvalidArguments (_builder.HandleAddedField, message, isNew: false, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleAddedField, message, isNew: false, isModified: false);
     }
@@ -154,28 +206,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleAddedConstructor ()
     {
-      var addedCtor = MutableConstructorInfoObjectMother.CreateForNew ();
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, addedCtor));
-
-      _builder.HandleAddedConstructor (addedCtor);
-
-      _memberEmitterMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void HandleAddedConstructor_WireInstanceInitialization ()
-    {
-      var constructor1 = MutableConstructorInfoObjectMother.CreateForNew (_mutableType);
-      var constructor2 = MutableConstructorInfoObjectMother.CreateForNew (_mutableType);
-      CheckHandleConstructorWithInstanceInitialization (constructor1, constructor2, (builder, ctor) => builder.HandleAddedConstructor (ctor));
+      var addedConstructor = MutableConstructorInfoObjectMother.CreateForNew (_mutableType);
+      CheckHandleConstructor (addedConstructor, _builder.HandleAddedConstructor);
     }
 
     [Test]
     public void HandleAddedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a new constructor.\r\nParameter name: constructor";
-      CheckThrowsForInvalidArguments (_builder.HandleAddedConstructor, message, isNew: false, isModified: true);
-      CheckThrowsForInvalidArguments (_builder.HandleAddedConstructor, message, isNew: false, isModified: false);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleAddedConstructor (constructor, null), message, isNew: false, isModified: true);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleAddedConstructor (constructor, null), message, isNew: false, isModified: false);
     }
 
     [Test]
@@ -200,30 +240,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedConstructor ()
     {
-      var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      var modifiedCtor = MutableConstructorInfoObjectMother.CreateForExistingAndModify (underlyingCtor);
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, modifiedCtor));
-
-      _builder.HandleModifiedConstructor (modifiedCtor);
-
-      _memberEmitterMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void HandleModifiedConstructor_WireInstanceInitialization ()
-    {
-      var constructor1 = MutableConstructorInfoObjectMother.CreateForExistingAndModify (declaringType: _mutableType);
-      var constructor2 = MutableConstructorInfoObjectMother.CreateForExistingAndModify (declaringType: _mutableType);
-      CheckHandleConstructorWithInstanceInitialization (constructor1, constructor2, (builder, ctor) => builder.HandleModifiedConstructor (ctor));
+      var modifiedConstructor = MutableConstructorInfoObjectMother.CreateForExistingAndModify (declaringType: _mutableType);
+      CheckHandleConstructor (modifiedConstructor, _builder.HandleModifiedConstructor);
     }
 
     [Test]
     public void HandleModifiedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a modified existing constructor.\r\nParameter name: constructor";
-      CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: true, isModified: true);
-      CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: true, isModified: false);
-      CheckThrowsForInvalidArguments (_builder.HandleModifiedConstructor, message, isNew: false, isModified: false);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleModifiedConstructor (constructor, null), message, isNew: true, isModified: true);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleModifiedConstructor (constructor, null), message, isNew: true, isModified: false);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleModifiedConstructor (constructor, null), message, isNew: false, isModified: false);
     }
 
     [Test]
@@ -266,20 +293,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var message = "The supplied field must be a unmodified existing field.\r\nParameter name: field";
       CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedField, message, isNew: true, isModified: true);
       CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedField, message, isNew: true, isModified: false);
-      // Modifying existing fields is not supported (TODO 4695)
+      // Modifying existing fields is not supported (null 4695)
       //CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedField, message, isNew: false, isModified: true);
     }
 
     [Test]
     public void HandleUnmodifiedConstructor ()
     {
-      var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (underlyingCtor);
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, unmodifiedCtor));
-
-      _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
-
-      _memberEmitterMock.VerifyAllExpectations();
+      var unmodifiedConstructor = MutableConstructorInfoObjectMother.CreateForExisting (declaringType: _mutableType);
+      CheckHandleConstructor (unmodifiedConstructor, _builder.HandleUnmodifiedConstructor);
     }
 
     [Test]
@@ -289,27 +311,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (internalCtor.IsAssembly, Is.True);
       var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (internalCtor);
 
-      _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
+      _builder.HandleUnmodifiedConstructor (unmodifiedCtor, null);
 
       _memberEmitterMock.AssertWasNotCalled (
         mock => mock.AddConstructor (Arg<MemberEmitterContext>.Is.Anything, Arg<MutableConstructorInfo>.Is.Anything));
     }
 
     [Test]
-    public void HandleUnmodifiedConstructor_WireInstanceInitialization ()
-    {
-      var constructor1 = MutableConstructorInfoObjectMother.CreateForExisting (declaringType: _mutableType);
-      var constructor2 = MutableConstructorInfoObjectMother.CreateForExisting (declaringType: _mutableType);
-      CheckHandleConstructorWithInstanceInitialization (constructor1, constructor2, (builder, ctor) => builder.HandleUnmodifiedConstructor (ctor));
-    }
-
-    [Test]
     public void HandleUnmodifiedConstructor_Throws ()
     {
       var message = "The supplied constructor must be a unmodified existing constructor.\r\nParameter name: constructor";
-      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNew: true, isModified: true);
-      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNew: true, isModified: false);
-      CheckThrowsForInvalidArguments (_builder.HandleUnmodifiedConstructor, message, isNew: false, isModified: true);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleUnmodifiedConstructor (constructor, null), message, isNew: true, isModified: true);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleUnmodifiedConstructor (constructor, null), message, isNew: true, isModified: false);
+      CheckThrowsForInvalidArguments (constructor => _builder.HandleUnmodifiedConstructor (constructor, null), message, isNew: false, isModified: true);
     }
 
     [Test]
@@ -352,7 +366,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var mockRepository = _typeBuilderMock.GetMockRepository();
       var builderPartialMock = mockRepository.PartialMock<SubclassProxyBuilder> (
-          null, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderMock, _memberEmitterMock);
+          mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderMock, _memberEmitterMock);
 
       bool buildActionCalled = false;
       builderPartialMock.MemberEmitterContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
@@ -360,20 +374,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       using (mockRepository.Ordered())
       {
+        var fakeInitializationMembers = Tuple.Create<FieldInfo, MethodInfo> (null, null);
         builderPartialMock.Expect (mock => mock.HandleTypeInitializations (new[] { typeInitialization }.ToList().AsReadOnly()));
-        builderPartialMock.Expect (mock => mock.HandleInstanceInitializations (new[] { instanceInitialization }.ToList().AsReadOnly()));
+        builderPartialMock.Expect (mock => mock.HandleInstanceInitializations (new[] { instanceInitialization }.ToList().AsReadOnly()))
+                          .Return (fakeInitializationMembers);
 
         builderPartialMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
 
         builderPartialMock.Expect (mock => mock.HandleAddedField (addedMembers.Item1));
-        builderPartialMock.Expect (mock => mock.HandleAddedConstructor (addedMembers.Item2));
+        builderPartialMock.Expect (mock => mock.HandleAddedConstructor (addedMembers.Item2, fakeInitializationMembers));
         builderPartialMock.Expect (mock => mock.HandleAddedMethod (addedMembers.Item3));
 
-        builderPartialMock.Expect (mock => mock.HandleModifiedConstructor (modifiedMembers.Item2));
+        builderPartialMock.Expect (mock => mock.HandleModifiedConstructor (modifiedMembers.Item2, fakeInitializationMembers));
         builderPartialMock.Expect (mock => mock.HandleModifiedMethod (modifiedMembers.Item3));
 
         builderPartialMock.Expect (mock => mock.HandleUnmodifiedField (unmodifiedMembers.Item1));
-        builderPartialMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodifiedMembers.Item2));
+        builderPartialMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodifiedMembers.Item2, fakeInitializationMembers));
         builderPartialMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodifiedMembers.Item3))
                           .WhenCalled (x => Assert.That (buildActionCalled, Is.False));
 
@@ -422,78 +438,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return Tuple.Create (field, constructor, method);
     }
 
-    private void CheckHandleConstructorWithInstanceInitialization (
-        MutableConstructorInfo constructor1, MutableConstructorInfo constructor2, Action<SubclassProxyBuilder, MutableConstructorInfo> builderAction)
+    private void CheckHandleConstructor (MutableConstructorInfo constructor, Action<MutableConstructorInfo, Tuple<FieldInfo, MethodInfo>> action)
     {
-      var initExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _mutableType.AddInstanceInitialization (ctx => initExpression);
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor));
+      var oldBody = constructor.Body;
 
-      var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
-      MutableFieldInfo counter = null;
-      MutableMethodInfo method = null;
-      _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (typeof (IInitializableObject)));
-      _memberEmitterMock
-          .Expect (mock => mock.AddField (Arg.Is (_context), Arg<MutableFieldInfo>.Is.Anything))
-          .WhenCalled (mi => counter = (MutableFieldInfo) mi.Arguments[1]);
-      _memberEmitterMock
-          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything, Arg.Is (methodAttributes)))
-          .WhenCalled (mi => method = (MutableMethodInfo) mi.Arguments[1]);
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor1));
+      action (constructor, null);
 
-      Assert.That (_context.ConstructorRunCounter, Is.Null);
-      Assert.That (_context.InitializationMethod, Is.Null);
-      var oldBody = constructor1.Body;
+      _memberEmitterMock.VerifyAllExpectations ();
+      Assert.That (constructor.Body, Is.SameAs (oldBody));
 
-      builderAction (_builder, constructor1);
+      var counter = MutableFieldInfoObjectMother.Create (_mutableType, type: typeof (int));
+      var initMethod = MutableMethodInfoObjectMother.Create (_mutableType);
+      var initializationMembers = Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
 
-      Assert.That (_context.ConstructorRunCounter, Is.Not.Null.And.SameAs (counter));
-      Assert.That (_context.InitializationMethod, Is.Not.Null.And.SameAs (method));
+      _memberEmitterMock.BackToRecord();
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor));
+      _memberEmitterMock.Replay();
+      oldBody = constructor.Body;
 
-      // Interface added.
-      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IInitializableObject) }));
-
-      // Field added.
-      Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
-      Assert.That (counter.Name, Is.EqualTo ("_<TypePipe-generated>_ctorRunCounter"));
-      Assert.That (counter.FieldType, Is.SameAs (typeof (int)));
-
-      // Initialization method added.
-      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { method }));
-      Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (method.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject_Initialize"));
-      Assert.That (method.Attributes, Is.EqualTo (methodAttributes));
-      Assert.That (method.ReturnType, Is.SameAs (typeof (void)));
-      Assert.That (method.GetParameters(), Is.Empty);
-      Assert.That (method.Body.Type, Is.SameAs (typeof (void)));
-      Assert.That (method.Body, Is.InstanceOf<BlockExpression>());
-      var blockExpression = (BlockExpression) method.Body;
-      Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { initExpression }));
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      Assert.That (method.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
-
-      // Changed constructor body.
-      CheckConstructorBodyWithInitialization (constructor1, counter, oldBody, method);
-
-      // Call a second time, does not add new members.
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor2));
-      oldBody = constructor2.Body;
-
-      builderAction (_builder, constructor2);
+      action (constructor, initializationMembers);
 
       _memberEmitterMock.VerifyAllExpectations();
-      Assert.That (_context.ConstructorRunCounter, Is.SameAs (counter));
-      Assert.That (_context.InitializationMethod, Is.SameAs (method));
-
-      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IInitializableObject) }));
-      Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
-      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { method }));
-
-      CheckConstructorBodyWithInitialization (constructor2, counter, oldBody, method);
-    }
-
-    private void CheckConstructorBodyWithInitialization (
-        MutableConstructorInfo constructor, MutableFieldInfo counter, Expression oldBody, MutableMethodInfo method)
-    {
       Assert.That (constructor.Body, Is.Not.SameAs (oldBody));
 
       var expectedBody = Expression.Block (
@@ -506,7 +472,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               Expression.Subtract (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (1))),
           Expression.IfThen (
               Expression.Equal (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (0)),
-              Expression.Call (new ThisExpression (_mutableType), method)));
+              Expression.Call (new ThisExpression (_mutableType), initMethod)));
 
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, constructor.Body);
     }
@@ -552,9 +518,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public class CustomAttribute : Attribute
     {
-// ReSharper disable UnassignedField.Global
       public string Field;
-// ReSharper restore UnassignedField.Global
 
       public CustomAttribute (string ctorArgument)
       {
@@ -569,6 +533,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       public int Property { get; set; }
     }
 
+    // ReSharper disable UnusedParameter.Local
     public class DomainType
     {
       public DomainType () { }

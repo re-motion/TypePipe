@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
+using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -47,7 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IMethodTrampolineProvider methodTrampolineProvider,
         IMemberEmitter memberEmitter)
     {
-      //ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
@@ -82,12 +83,29 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var descriptor = ConstructorDescriptor.Create (attributes, parameters, body);
       var typeInitializer = new MutableConstructorInfo (_context.MutableType, descriptor);
 
-      HandleAddedConstructor (typeInitializer);
+      HandleAddedConstructor (typeInitializer, initializationMembersOrNull: null);
     }
 
-    public virtual void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
+    public virtual Tuple<FieldInfo, MethodInfo> HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
     {
       ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
+
+      if (initializationExpressions.Count == 0)
+        return null;
+
+      _context.MutableType.AddInterface (typeof (IInitializableObject));
+
+      var counter = _context.MutableType.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+
+      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
+      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
+      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
+      var parameters = ParameterDeclaration.CreateForEquivalentSignature (interfaceMethod);
+      var body = Expression.Block (interfaceMethod.ReturnType, _context.MutableType.InstanceInitializations);
+      var initMethod = _context.MutableType.AddMethod (name, attributes, interfaceMethod.ReturnType, parameters, ctx => body);
+      initMethod.AddExplicitBaseDefinition (interfaceMethod);
+
+      return Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
     }
 
     public virtual void HandleAddedInterface (Type addedInterface)
@@ -105,12 +123,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddField (_context, field);
     }
 
-    public virtual void HandleAddedConstructor (MutableConstructorInfo constructor)
+    public virtual void HandleAddedConstructor (
+        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
-      WireConstructorWithInitialization (constructor);
+      WireConstructorWithInitialization (constructor, initializationMembersOrNull);
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
@@ -122,12 +141,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddMethod (_context, method, method.Attributes);
     }
 
-    public virtual void HandleModifiedConstructor (MutableConstructorInfo constructor)
+    public virtual void HandleModifiedConstructor (
+        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
-      WireConstructorWithInitialization (constructor);
+      WireConstructorWithInitialization (constructor, initializationMembersOrNull);
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
@@ -149,7 +169,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
     }
 
-    public virtual void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
+    public virtual void HandleUnmodifiedConstructor (
+        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
@@ -158,7 +179,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         return;
 
-      WireConstructorWithInitialization (constructor);
+      WireConstructorWithInitialization (constructor, initializationMembersOrNull);
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
@@ -175,7 +196,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
       HandleTypeInitializations (mutableType.TypeInitializations);
-      HandleInstanceInitializations (mutableType.InstanceInitializations);
+      var initializationMembers = HandleInstanceInitializations (mutableType.InstanceInitializations);
 
       foreach (var ifc in mutableType.AddedInterfaces)
         HandleAddedInterface (ifc);
@@ -183,20 +204,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       foreach (var field in mutableType.AddedFields)
         HandleAddedField (field);
       foreach (var constructor in mutableType.AddedConstructors)
-        HandleAddedConstructor (constructor);
+        HandleAddedConstructor (constructor, initializationMembers);
       foreach (var method in mutableType.AddedMethods)
         HandleAddedMethod (method);
 
       Assertion.IsFalse (mutableType.ExistingMutableFields.Any(c => c.IsModified));
       foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => c.IsModified))
-        HandleModifiedConstructor (constructor);
+        HandleModifiedConstructor (constructor, initializationMembers);
       foreach (var method in mutableType.ExistingMutableMethods.Where (m => m.IsModified))
         HandleModifiedMethod (method);
 
       foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
         HandleUnmodifiedField (field);
       foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
-        HandleUnmodifiedConstructor (constructor);
+        HandleUnmodifiedConstructor (constructor, initializationMembers);
       foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
         HandleUnmodifiedMethod (method);
 
@@ -216,20 +237,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private void WireConstructorWithInitialization (MutableConstructorInfo constructor)
+    private void WireConstructorWithInitialization (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
-      if (_context.MutableType.InstanceInitializations.Count == 0)
+      if (initializationMembers == null)
         return;
-
-      if (_context.ConstructorRunCounter == null)
-        CreateInstanceInitializationMembers (_context);
 
       // We cannot protect the decrement with try-finally because the this pointer must be initialized before entering a try block.
       // Using *IncrementAssign and *DecrementAssign results in un-verifiable code (emits stloc.0).
       constructor.SetBody (
           ctx =>
           {
-            var counter = Expression.Field (ctx.This, _context.ConstructorRunCounter);
+            var counter = Expression.Field (ctx.This, initializationMembers.Item1);
             var one = Expression.Constant (1);
 
             return Expression.Block (
@@ -238,34 +256,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                 Expression.Assign (counter, Expression.Subtract (counter, one)),
                 Expression.IfThen (
                     Expression.Equal (counter, Expression.Constant (0)),
-                    Expression.Call (ctx.This, _context.InitializationMethod)));
+                    Expression.Call (ctx.This, initializationMembers.Item2)));
           });
-    }
-
-    private void CreateInstanceInitializationMembers (MemberEmitterContext context)
-    {
-      Assertion.IsNull (context.ConstructorRunCounter);
-      Assertion.IsNull (context.InitializationMethod);
-
-      var type = context.MutableType;
-
-      type.AddInterface (typeof (IInitializableObject));
-      context.TypeBuilder.AddInterfaceImplementation (typeof (IInitializableObject));
-
-      var counter = type.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
-      _memberEmitter.AddField (context, counter);
-
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
-      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (interfaceMethod);
-      var body = Expression.Block (interfaceMethod.ReturnType, context.MutableType.InstanceInitializations);
-      var initMethod = type.AddMethod (name, attributes, interfaceMethod.ReturnType, parameters, ctx => body);
-      initMethod.AddExplicitBaseDefinition (interfaceMethod);
-      _memberEmitter.AddMethod (context, initMethod, initMethod.Attributes);
-
-      context.ConstructorRunCounter = counter;
-      context.InitializationMethod = initMethod;
     }
   }
 }

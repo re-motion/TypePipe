@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IEmittableOperandProvider emittableOperandProvider,
         IMethodTrampolineProvider methodTrampolineProvider)
     {
-      //ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
@@ -94,8 +94,5 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       get { return _postDeclarationsActionManager; }
     }
-
-    public MutableFieldInfo ConstructorRunCounter { get; set; }
-    public MutableMethodInfo InitializationMethod { get; set; }
   }
 }

@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;

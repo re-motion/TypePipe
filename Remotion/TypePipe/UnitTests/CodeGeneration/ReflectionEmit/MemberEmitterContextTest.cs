@@ -16,7 +16,6 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 
@@ -38,8 +37,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
       Assert.That (_context.TrampolineMethods, Is.Empty);
-      Assert.That (_context.ConstructorRunCounter, Is.Null);
-      Assert.That (_context.InitializationMethod, Is.Null);
     }
 
     [Test]
