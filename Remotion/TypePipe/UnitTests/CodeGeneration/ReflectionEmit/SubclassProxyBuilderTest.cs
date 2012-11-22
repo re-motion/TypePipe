@@ -392,49 +392,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.SameAs (fakeType));
     }
 
-    [Test]
-    public void Build3 ()
-    {
-      bool buildActionCalled = false;
-      _context.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
-
-      var fakeType = ReflectionObjectMother.GetSomeType();
-      _typeBuilderMock
-          .Expect (mock => mock.CreateType())
-          .Return (fakeType)
-          .WhenCalled (mi => Assert.That (buildActionCalled, Is.True));
-
-      var result = _builder.Build ();
-
-      _typeBuilderMock.VerifyAllExpectations();
-      Assert.That (buildActionCalled, Is.True);
-      Assert.That (result, Is.SameAs (fakeType));
-    }
-
-    [Test]
-    public void Build_DisablesOperations ()
-    {
-      _typeBuilderMock.Stub (mock => mock.CreateType ());
-      _builder.Build ();
-
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleTypeInitializations (new Expression[0].ToList().AsReadOnly()));
-
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedInterface (ReflectionObjectMother.GetSomeInterfaceType()));
-
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedField (MutableFieldInfoObjectMother.Create ()));
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedConstructor (MutableConstructorInfoObjectMother.CreateForNew()));
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleAddedMethod (MutableMethodInfoObjectMother.CreateForNew()));
-
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedConstructor (MutableConstructorInfoObjectMother.CreateForExistingAndModify()));
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleModifiedMethod (MutableMethodInfoObjectMother.CreateForNew ()));
-
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedField (MutableFieldInfoObjectMother.CreateForExisting()));
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedConstructor (MutableConstructorInfoObjectMother.CreateForExisting()));
-      CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
-
-      CheckThrowsForOperationAfterBuild (() => _builder.Build());
-    }
-
     private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetAddedMembers (MutableType mutableType)
     {
       var field = mutableType.AddField ("_field", typeof (int));
@@ -463,11 +420,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           mutableType.GetOrAddMutableMethod (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeForBuild obj) => obj.UnmodifiedMethod ()));
 
       return Tuple.Create (field, constructor, method);
-    }
-
-    private void CheckThrowsForOperationAfterBuild (Action action)
-    {
-      Assert.That (() => action(), Throws.InvalidOperationException.With.Message.EqualTo ("Subclass proxy has already been built."));
     }
 
     private void CheckHandleConstructorWithInstanceInitialization (

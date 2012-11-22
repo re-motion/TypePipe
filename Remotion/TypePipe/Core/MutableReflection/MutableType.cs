@@ -323,40 +323,6 @@ namespace Remotion.TypePipe.MutableReflection
       return mutableMethod;
     }
 
-    public virtual void Accept (IMutableTypeUnmodifiedMutableMemberHandler handler)
-    {
-      ArgumentUtility.CheckNotNull ("handler", handler);
-
-      foreach (var field in ExistingMutableFields.Where (f => !f.IsModified))
-        handler.HandleUnmodifiedField (field);
-      foreach (var ctor in ExistingMutableConstructors.Where (c => !c.IsModified))
-        handler.HandleUnmodifiedConstructor (ctor);
-      foreach (var method in ExistingMutableMethods.Where (m => !m.IsModified))
-        handler.HandleUnmodifiedMethod (method);
-    }
-
-    public virtual void Accept (IMutableTypeModificationHandler handler)
-    {
-      ArgumentUtility.CheckNotNull ("handler", handler);
-
-      handler.HandleTypeInitializations (TypeInitializations);
-
-      foreach (var ifc in AddedInterfaces)
-        handler.HandleAddedInterface (ifc);
-
-      foreach (var field in _fields.AddedMembers)
-        handler.HandleAddedField (field);
-      foreach (var ctor in _constructors.AddedMembers)
-        handler.HandleAddedConstructor (ctor);
-      foreach (var method in _methods.AddedMembers)
-        handler.HandleAddedMethod (method);
-
-      foreach (var ctor in ExistingMutableConstructors.Where (c => c.IsModified))
-        handler.HandleModifiedConstructor (ctor);
-      foreach (var method in ExistingMutableMethods.Where (m => m.IsModified))
-        handler.HandleModifiedMethod (method);
-    }
-
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeDatas.Value;

@@ -30,15 +30,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Implements <see cref="ISubclassProxyBuilder"/> by building a subclass proxy using <see cref="ITypeBuilder"/> and related interfaces.
-  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="Build()"/> method.
+  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="Build"/> method.
   /// </summary>
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
     private readonly IMemberEmitter _memberEmitter;
 
     private readonly MemberEmitterContext _context;
-
-    private bool _hasBeenBuilt = false;
 
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
@@ -74,7 +72,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
     {
       ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
-      EnsureNotBuilt();
 
       if (initializationExpressions.Count == 0)
         return;
@@ -96,7 +93,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
-      EnsureNotBuilt ();
 
       _context.TypeBuilder.AddInterfaceImplementation (addedInterface);
     }
@@ -104,7 +100,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleAddedField (MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
-      EnsureNotBuilt ();
       CheckMemberState (field, "field", isNew: true, isModified: null);
 
       _memberEmitter.AddField (_context, field);
@@ -113,7 +108,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleAddedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
 
       WireConstructorWithInitialization (constructor);
@@ -123,7 +117,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleAddedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt();
       CheckMemberState (method, "method", isNew: true, isModified: null);
 
       _memberEmitter.AddMethod (_context, method, method.Attributes);
@@ -132,7 +125,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleModifiedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
 
       WireConstructorWithInitialization (constructor);
@@ -142,7 +134,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleModifiedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt();
       CheckMemberState (method, "method", isNew: false, isModified: true);
 
       // Modified methods are added as implicit method overrides for the underlying method.
@@ -153,7 +144,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleUnmodifiedField (MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
-      EnsureNotBuilt();
       CheckMemberState (field, "field", isNew: false, isModified: false);
 
       _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
@@ -162,7 +152,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt ();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
 
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
@@ -176,7 +165,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public virtual void HandleUnmodifiedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt();
       CheckMemberState (method, "method", isNew: false, isModified: false);
 
       _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
@@ -215,22 +203,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
-    }
-
-    public Type Build ()
-    {
-      EnsureNotBuilt();
-      _hasBeenBuilt = true;
-
-      _context.PostDeclarationsActionManager.ExecuteAllActions();
-
-      return _context.TypeBuilder.CreateType();
-    }
-
-    private void EnsureNotBuilt ()
-    {
-      if (_hasBeenBuilt)
-        throw new InvalidOperationException ("Subclass proxy has already been built.");
     }
 
     private void CheckMemberState (IMutableMember member, string memberType, bool isNew, bool? isModified)
