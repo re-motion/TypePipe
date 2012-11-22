@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.Caching
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
+    private readonly ICodeGenerator _codeGenerator;
 
     public TypeCache (ITypeAssembler typeAssembler, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
     {
@@ -47,11 +48,12 @@ namespace Remotion.TypePipe.Caching
       _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
+      _codeGenerator = new LockingCodeGeneratorDecorator (_typeAssembler.CodeGenerator, _lock);
     }
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _typeAssembler.CodeGenerator; }
+      get { return _codeGenerator; }
     }
 
     public Type GetOrCreateType (Type requestedType)
@@ -78,7 +80,7 @@ namespace Remotion.TypePipe.Caching
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
-          var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
+          var typeKey = key.Skip (additionalCacheKeyElements).ToArray ();
           var generatedType = GetOrCreateType (requestedType, typeKey);
           var ctorSignature = _delegateFactory.GetSignature (delegateType);
           var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);

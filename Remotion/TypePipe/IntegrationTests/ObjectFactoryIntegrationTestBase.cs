@@ -36,7 +36,7 @@ namespace TypePipe.IntegrationTests
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
-      var typeModifier = CreateReflectionEmitTypeModifier (testName);
+      var typeModifier = CreateTypeModifier (testName);
       var typeAssembler = new TypeAssembler (participants, typeModifier);
       var constructorFinder = new ConstructorFinder();
       var delegateFactory = new DelegateFactory();

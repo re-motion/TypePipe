@@ -103,7 +103,7 @@ namespace TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected ITypeModifier CreateReflectionEmitTypeModifier (string assemblyName)
+    protected ITypeModifier CreateTypeModifier (string assemblyName)
     {
       var typeModifier = SafeServiceLocator.Current.GetInstance<ITypeModifier>();
 
