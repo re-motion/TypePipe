@@ -24,7 +24,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 
 namespace TypePipe.IntegrationTests
 {
@@ -63,9 +62,8 @@ namespace TypePipe.IntegrationTests
     {
       Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
 
-      // TODO Review: Specify the same type twice
-      RequestTypeAndFlush();
-      RequestType();
+      RequestTypeAndFlush (typeof (RequestedType));
+      RequestType (typeof (RequestedType));
 
       Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
     }
@@ -74,12 +72,14 @@ namespace TypePipe.IntegrationTests
     public void StandardNameAndDirectory_Initial ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
-      // TODO Review: Get code generator via IObjectFactory
-      var codeGenerator = SafeServiceLocator.Current.GetInstance<IReflectionEmitCodeGenerator>();
-      Assert.That (codeGenerator.AssemblyDirectory, Is.Null);
+      var objectFactory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      var codeGenerator = objectFactory.CodeGenerator;
+
+      Assert.That (codeGenerator.AssemblyDirectory, Is.Null); // Current directory.
       Assert.That (codeGenerator.AssemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
 
-      // TODO Review: Check that "null" means "current directory"
+      var assemblyPath = RequestTypeAndFlush();
+      Assert.That (assemblyPath, Is.StringStarting (Environment.CurrentDirectory));
     }
 
     [Test]
@@ -136,9 +136,9 @@ namespace TypePipe.IntegrationTests
       return _objectFactory.GetAssembledType (requestedType);
     }
 
-    private string RequestTypeAndFlush ()
+    private string RequestTypeAndFlush (Type requestedType = null)
     {
-      RequestType();
+      RequestType (requestedType);
       return Flush();
     }
 
