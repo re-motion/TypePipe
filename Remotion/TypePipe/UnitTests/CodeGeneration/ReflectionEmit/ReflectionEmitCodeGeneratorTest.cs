@@ -61,6 +61,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void DebugInfoGenerator ()
+    {
+      var result = _generator.DebugInfoGenerator;
+
+      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (result));
+    }
+
+    [Test]
     public void SetAssemblyDirectory ()
     {
       _generator.SetAssemblyDirectory ("Abc");
@@ -134,15 +143,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderFactoryMock.VerifyAllExpectations();
       _moduleBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_fakeTypeBuilder));
-    }
-
-    [Test]
-    public void CreateDebugInfoGenerator ()
-    {
-      var result = _generator.CreateDebugInfoGenerator();
-
-      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
-      Assert.That (_generator.CreateDebugInfoGenerator(), Is.Not.SameAs (result));
     }
 
     private void DefineSomeType ()

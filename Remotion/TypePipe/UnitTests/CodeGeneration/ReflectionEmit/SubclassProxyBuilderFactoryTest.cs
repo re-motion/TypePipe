@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
       _codeGeneratorMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderMock);
       var fakeDebugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
-      _codeGeneratorMock.Expect (mock => mock.CreateDebugInfoGenerator()).Return (fakeDebugInfoGenerator);
+      _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (fakeDebugInfoGenerator);
 
       EmittableOperandProvider emittableOperandProvider = null;
       typeBuilderMock
@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var attributes = TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit;
       _codeGeneratorMock.Stub (stub => stub.DefineType (underlyingType.FullName, attributes, underlyingType));
-      _codeGeneratorMock.Stub (stub => stub.CreateDebugInfoGenerator()).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
+      _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
 
       _factory.CreateBuilder (mutableType);
 

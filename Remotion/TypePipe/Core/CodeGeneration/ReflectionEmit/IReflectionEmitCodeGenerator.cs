@@ -30,8 +30,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   [CLSCompliant (false)]
   public interface IReflectionEmitCodeGenerator : ICodeGenerator
   {
-    ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
+    DebugInfoGenerator DebugInfoGenerator { get; }
 
-    DebugInfoGenerator CreateDebugInfoGenerator ();
+    ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
   }
 }

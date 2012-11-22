@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
+    private readonly DebugInfoGenerator _debugInfoGenerator;
 
     private IModuleBuilder _currentModuleBuilder;
     private string _assemblyDirectory;
@@ -49,6 +50,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
 
       _moduleBuilderFactory = moduleBuilderFactory;
+      _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
     }
 
     public string AssemblyDirectory
@@ -68,6 +70,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         return _assemblyName;
       }
+    }
+
+    public DebugInfoGenerator DebugInfoGenerator
+    {
+      get { return _debugInfoGenerator; }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
@@ -109,11 +116,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory);
 
       return _currentModuleBuilder.DefineType (name, attributes, parent);
-    }
-
-    public DebugInfoGenerator CreateDebugInfoGenerator ()
-    {
-      return DebugInfoGenerator.CreatePdbGenerator();
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)
