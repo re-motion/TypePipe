@@ -79,6 +79,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (context.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider>());
       Assert.That (context.PostDeclarationsActionManager.Actions, Is.Empty);
 
+      Assert.That (builder.InitializationBuilder, Is.TypeOf<InitializationBuilder> ());
       Assert.That (builder.MemberEmitter, Is.TypeOf<MemberEmitter>());
       var memberEmitter = (MemberEmitter) builder.MemberEmitter;
 
