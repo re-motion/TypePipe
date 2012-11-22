@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface ISubclassProxyBuilder : IMutableTypeModificationHandler, IMutableTypeUnmodifiedMutableMemberHandler
   {
+    Type Build (MutableType mutableType);
     Type Build ();
   }
 }

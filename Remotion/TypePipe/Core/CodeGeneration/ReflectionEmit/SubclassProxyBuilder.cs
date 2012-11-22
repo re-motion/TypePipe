@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Implements <see cref="ISubclassProxyBuilder"/> by building a subclass proxy using <see cref="ITypeBuilder"/> and related interfaces.
-  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="Build"/> method.
+  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="Build()"/> method.
   /// </summary>
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
@@ -48,7 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IMethodTrampolineProvider methodTrampolineProvider,
         IMemberEmitter memberEmitter)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      //ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
@@ -70,7 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _context; }
     }
 
-    public void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
+    public virtual void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
     {
       ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
       EnsureNotBuilt();
@@ -87,7 +88,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       HandleAddedConstructor (typeInitializer);
     }
 
-    public void HandleAddedInterface (Type addedInterface)
+    public virtual void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
+    {
+      ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
+    }
+
+    public virtual void HandleAddedInterface (Type addedInterface)
     {
       ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
       EnsureNotBuilt ();
@@ -95,7 +101,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _context.TypeBuilder.AddInterfaceImplementation (addedInterface);
     }
 
-    public void HandleAddedField (MutableFieldInfo field)
+    public virtual void HandleAddedField (MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
       EnsureNotBuilt ();
@@ -104,7 +110,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddField (_context, field);
     }
 
-    public void HandleAddedConstructor (MutableConstructorInfo constructor)
+    public virtual void HandleAddedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt();
@@ -114,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
-    public void HandleAddedMethod (MutableMethodInfo method)
+    public virtual void HandleAddedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt();
@@ -123,7 +129,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddMethod (_context, method, method.Attributes);
     }
 
-    public void HandleModifiedConstructor (MutableConstructorInfo constructor)
+    public virtual void HandleModifiedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       EnsureNotBuilt();
@@ -133,7 +139,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
-    public void HandleModifiedMethod (MutableMethodInfo method)
+    public virtual void HandleModifiedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt();
@@ -144,7 +150,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddMethod (_context, method, attributes);
     }
 
-    public void HandleUnmodifiedField (MutableFieldInfo field)
+    public virtual void HandleUnmodifiedField (MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
       EnsureNotBuilt();
@@ -153,10 +159,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
     }
 
-    public void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
+    public virtual void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt();
+      EnsureNotBuilt ();
       CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
 
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
@@ -167,13 +173,48 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
-    public void HandleUnmodifiedMethod (MutableMethodInfo method)
+    public virtual void HandleUnmodifiedMethod (MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
       EnsureNotBuilt();
       CheckMemberState (method, "method", isNew: false, isModified: false);
 
       _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
+    }
+
+    public Type Build (MutableType mutableType)
+    {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+
+      HandleTypeInitializations (mutableType.TypeInitializations);
+      HandleInstanceInitializations (mutableType.InstanceInitializations);
+
+      foreach (var ifc in mutableType.AddedInterfaces)
+        HandleAddedInterface (ifc);
+
+      foreach (var field in mutableType.AddedFields)
+        HandleAddedField (field);
+      foreach (var constructor in mutableType.AddedConstructors)
+        HandleAddedConstructor (constructor);
+      foreach (var method in mutableType.AddedMethods)
+        HandleAddedMethod (method);
+
+      Assertion.IsFalse (mutableType.ExistingMutableFields.Any(c => c.IsModified));
+      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => c.IsModified))
+        HandleModifiedConstructor (constructor);
+      foreach (var method in mutableType.ExistingMutableMethods.Where (m => m.IsModified))
+        HandleModifiedMethod (method);
+
+      foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
+        HandleUnmodifiedField (field);
+      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
+        HandleUnmodifiedConstructor (constructor);
+      foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
+        HandleUnmodifiedMethod (method);
+
+      _context.PostDeclarationsActionManager.ExecuteAllActions();
+
+      return _context.TypeBuilder.CreateType();
     }
 
     public Type Build ()

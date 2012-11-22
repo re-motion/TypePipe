@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -40,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _typeBuilderMock;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
-    private IMethodTrampolineProvider _methodTrampolineProvider;
+    private IMethodTrampolineProvider _methodTrampolineProviderMock;
     private IMemberEmitter _memberEmitterMock;
 
     private SubclassProxyBuilder _builder;
@@ -54,10 +55,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _debugInfoGeneratorStub = MockRepository.GenerateStub<DebugInfoGenerator>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
+      _methodTrampolineProviderMock = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
       _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
 
-      _builder = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
+      _builder = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderMock, _memberEmitterMock);
 
       _context = _builder.MemberEmitterContext;
     }
@@ -71,14 +72,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
-      Assert.That (_context.MethodTrampolineProvider, Is.SameAs (_methodTrampolineProvider));
+      Assert.That (_context.MethodTrampolineProvider, Is.SameAs (_methodTrampolineProviderMock));
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
     }
 
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProvider, _memberEmitterMock);
+      var handler = new SubclassProxyBuilder (_mutableType, _typeBuilderMock, null, _emittableOperandProviderMock, _methodTrampolineProviderMock, _memberEmitterMock);
       Assert.That (handler.MemberEmitterContext.DebugInfoGenerator, Is.Null);
     }
 
@@ -199,8 +200,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedConstructor ()
     {
-      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
-      var modifiedCtor = MutableConstructorInfoObjectMother.CreateForExistingAndModify (originalCtor);
+      var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      var modifiedCtor = MutableConstructorInfoObjectMother.CreateForExistingAndModify (underlyingCtor);
       _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, modifiedCtor));
 
       _builder.HandleModifiedConstructor (modifiedCtor);
@@ -228,15 +229,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleModifiedMethod ()
     {
-      var originalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method (7, out Dev<double>.Dummy));
-      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (underlyingMethod: originalMethod);
+      var underlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.Method());
+      var modifiedMethod = MutableMethodInfoObjectMother.CreateForExistingAndModify (underlyingMethod: underlyingMethod);
 
-      var expectedAttributes = MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
+      var expectedAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
       _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMethod, expectedAttributes));
 
       _builder.HandleModifiedMethod (modifiedMethod);
 
-      _memberEmitterMock.VerifyAllExpectations ();
+      _memberEmitterMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -272,8 +273,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedConstructor ()
     {
-      var originalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<double>.Dummy));
-      var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (originalCtor);
+      var underlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (underlyingCtor);
       _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, unmodifiedCtor));
 
       _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
@@ -284,7 +285,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void HandleUnmodifiedConstructor_IgnoresCtorsThatAreNotVisibleFromSubclass ()
     {
-      var internalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ());
+      var internalCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0));
+      Assert.That (internalCtor.IsAssembly, Is.True);
       var unmodifiedCtor = MutableConstructorInfoObjectMother.CreateForExisting (internalCtor);
 
       _builder.HandleUnmodifiedConstructor (unmodifiedCtor);
@@ -334,6 +336,65 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Build ()
     {
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainTypeForBuild));
+
+      var typeInitialization = ExpressionTreeObjectMother.GetSomeExpression ();
+      var instanceInitialization = ExpressionTreeObjectMother.GetSomeExpression();
+      mutableType.AddTypeInitialization (ctx => typeInitialization);
+      mutableType.AddInstanceInitialization (ctx => instanceInitialization);
+
+      var addedInterface = typeof (IDisposable);
+      mutableType.AddInterface (addedInterface);
+
+      var addedMembers = GetAddedMembers (mutableType);
+      var modifiedMembers = GetModifiedMembers (mutableType);
+      var unmodifiedMembers = GetUnmodifiedMembers (mutableType);
+
+      var mockRepository = _typeBuilderMock.GetMockRepository();
+      var builderPartialMock = mockRepository.PartialMock<SubclassProxyBuilder> (
+          null, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderMock, _memberEmitterMock);
+
+      bool buildActionCalled = false;
+      builderPartialMock.MemberEmitterContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
+      var fakeType = ReflectionObjectMother.GetSomeType();
+
+      using (mockRepository.Ordered())
+      {
+        builderPartialMock.Expect (mock => mock.HandleTypeInitializations (new[] { typeInitialization }.ToList().AsReadOnly()));
+        builderPartialMock.Expect (mock => mock.HandleInstanceInitializations (new[] { instanceInitialization }.ToList().AsReadOnly()));
+
+        builderPartialMock.Expect (mock => mock.HandleAddedInterface (addedInterface));
+
+        builderPartialMock.Expect (mock => mock.HandleAddedField (addedMembers.Item1));
+        builderPartialMock.Expect (mock => mock.HandleAddedConstructor (addedMembers.Item2));
+        builderPartialMock.Expect (mock => mock.HandleAddedMethod (addedMembers.Item3));
+
+        builderPartialMock.Expect (mock => mock.HandleModifiedConstructor (modifiedMembers.Item2));
+        builderPartialMock.Expect (mock => mock.HandleModifiedMethod (modifiedMembers.Item3));
+
+        builderPartialMock.Expect (mock => mock.HandleUnmodifiedField (unmodifiedMembers.Item1));
+        builderPartialMock.Expect (mock => mock.HandleUnmodifiedConstructor (unmodifiedMembers.Item2));
+        builderPartialMock.Expect (mock => mock.HandleUnmodifiedMethod (unmodifiedMembers.Item3))
+                          .WhenCalled (x => Assert.That (buildActionCalled, Is.False));
+
+        // PostDeclarationsActionManager.ExecuteAllActions() cannot setup expectations.
+
+        _typeBuilderMock
+            .Expect (mock => mock.CreateType ())
+            .Return (fakeType)
+            .WhenCalled (mi => Assert.That (buildActionCalled, Is.True));
+      }
+      mockRepository.ReplayAll();
+
+      var result = builderPartialMock.Build (mutableType);
+
+      mockRepository.VerifyAll();
+      Assert.That (result, Is.SameAs (fakeType));
+    }
+
+    [Test]
+    public void Build3 ()
+    {
       bool buildActionCalled = false;
       _context.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
 
@@ -372,6 +433,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckThrowsForOperationAfterBuild (() => _builder.HandleUnmodifiedMethod (MutableMethodInfoObjectMother.CreateForExisting()));
 
       CheckThrowsForOperationAfterBuild (() => _builder.Build());
+    }
+
+    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetAddedMembers (MutableType mutableType)
+    {
+      var field = mutableType.AddField ("_field", typeof (int));
+      var constructor = mutableType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
+      var method = mutableType.AddMethod (
+          "Method", MethodAttributes.Family, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
+
+      return Tuple.Create (field, constructor, method);
+    }
+
+    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetModifiedMembers (MutableType mutableType)
+    {
+      var constructor = mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainTypeForBuild (0)));
+      constructor.SetBody (ctx => Expression.Empty ());
+      var method = mutableType.GetOrAddMutableMethod (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeForBuild obj) => obj.ModifiedMethod ()));
+      method.SetBody (ctx => Expression.Empty ());
+
+      return Tuple.Create ((MutableFieldInfo) null, constructor, method);
+    }
+
+    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetUnmodifiedMembers (MutableType mutableType)
+    {
+      var field = mutableType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainTypeForBuild obj) => obj.UnmodifiedField));
+      var constructor = mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainTypeForBuild ("")));
+      var method =
+          mutableType.GetOrAddMutableMethod (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeForBuild obj) => obj.UnmodifiedMethod ()));
+
+      return Tuple.Create (field, constructor, method);
     }
 
     private void CheckThrowsForOperationAfterBuild (Action action)
@@ -528,20 +619,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public class DomainType
     {
-      public DomainType (int i, out double d)
-      {
-        Dev.Null = i;
-        d = Dev<double>.Null;
-      }
+      public DomainType () { }
+      internal DomainType (int i) { }
 
-      internal DomainType() { }
+      public virtual void Method() { }
+    }
 
-      protected internal virtual string Method (int i, out double d)
-      {
-        Dev.Null = i;
-        d = Dev<double>.Null;
-        return "";
-      }
+    public class DomainTypeForBuild
+    {
+      public string UnmodifiedField;
+
+      public DomainTypeForBuild (int modified) { }
+      public DomainTypeForBuild (string unmodified) { }
+
+      public virtual void ModifiedMethod () { }
+      public void UnmodifiedMethod () { }
     }
   }
 }
