@@ -368,7 +368,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var builderPartialMock = mockRepository.PartialMock<SubclassProxyBuilder> (
           mutableType, _typeBuilderMock, _debugInfoGeneratorStub, _emittableOperandProviderMock, _methodTrampolineProviderMock, _memberEmitterMock);
 
-      bool buildActionCalled = false;
+      var buildActionCalled = false;
       builderPartialMock.MemberEmitterContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
       var fakeType = ReflectionObjectMother.GetSomeType();
 

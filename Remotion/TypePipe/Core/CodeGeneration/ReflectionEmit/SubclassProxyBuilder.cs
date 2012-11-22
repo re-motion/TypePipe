@@ -70,6 +70,41 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _context; }
     }
 
+    public Type Build (MutableType mutableType)
+    {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+
+      HandleTypeInitializations (mutableType.TypeInitializations);
+      var initializationMembers = HandleInstanceInitializations (mutableType.InstanceInitializations);
+
+      foreach (var ifc in mutableType.AddedInterfaces)
+        HandleAddedInterface (ifc);
+
+      foreach (var field in mutableType.AddedFields)
+        HandleAddedField (field);
+      foreach (var constructor in mutableType.AddedConstructors)
+        HandleAddedConstructor (constructor, initializationMembers);
+      foreach (var method in mutableType.AddedMethods)
+        HandleAddedMethod (method);
+
+      Assertion.IsFalse (mutableType.ExistingMutableFields.Any (c => c.IsModified));
+      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => c.IsModified))
+        HandleModifiedConstructor (constructor, initializationMembers);
+      foreach (var method in mutableType.ExistingMutableMethods.Where (m => m.IsModified))
+        HandleModifiedMethod (method);
+
+      foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
+        HandleUnmodifiedField (field);
+      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
+        HandleUnmodifiedConstructor (constructor, initializationMembers);
+      foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
+        HandleUnmodifiedMethod (method);
+
+      _context.PostDeclarationsActionManager.ExecuteAllActions();
+
+      return _context.TypeBuilder.CreateType ();
+    }
+
     public virtual void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
     {
       ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
@@ -123,8 +158,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddField (_context, field);
     }
 
-    public virtual void HandleAddedConstructor (
-        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
+    public virtual void HandleAddedConstructor (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
@@ -141,8 +175,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddMethod (_context, method, method.Attributes);
     }
 
-    public virtual void HandleModifiedConstructor (
-        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
+    public virtual void HandleModifiedConstructor (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembersOrNull)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
       CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
@@ -189,41 +222,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       CheckMemberState (method, "method", isNew: false, isModified: false);
 
       _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
-    }
-
-    public Type Build (MutableType mutableType)
-    {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      HandleTypeInitializations (mutableType.TypeInitializations);
-      var initializationMembers = HandleInstanceInitializations (mutableType.InstanceInitializations);
-
-      foreach (var ifc in mutableType.AddedInterfaces)
-        HandleAddedInterface (ifc);
-
-      foreach (var field in mutableType.AddedFields)
-        HandleAddedField (field);
-      foreach (var constructor in mutableType.AddedConstructors)
-        HandleAddedConstructor (constructor, initializationMembers);
-      foreach (var method in mutableType.AddedMethods)
-        HandleAddedMethod (method);
-
-      Assertion.IsFalse (mutableType.ExistingMutableFields.Any(c => c.IsModified));
-      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => c.IsModified))
-        HandleModifiedConstructor (constructor, initializationMembers);
-      foreach (var method in mutableType.ExistingMutableMethods.Where (m => m.IsModified))
-        HandleModifiedMethod (method);
-
-      foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
-        HandleUnmodifiedField (field);
-      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
-        HandleUnmodifiedConstructor (constructor, initializationMembers);
-      foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
-        HandleUnmodifiedMethod (method);
-
-      _context.PostDeclarationsActionManager.ExecuteAllActions();
-
-      return _context.TypeBuilder.CreateType();
     }
 
     private void CheckMemberState (IMutableMember member, string memberType, bool isNew, bool? isModified)
