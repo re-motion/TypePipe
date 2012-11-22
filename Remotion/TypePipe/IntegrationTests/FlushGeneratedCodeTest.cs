@@ -63,6 +63,7 @@ namespace TypePipe.IntegrationTests
     {
       Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
 
+      // TODO Review: Specify the same type twice
       RequestTypeAndFlush();
       RequestType();
 
@@ -73,13 +74,16 @@ namespace TypePipe.IntegrationTests
     public void StandardNameAndDirectory_Initial ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
+      // TODO Review: Get code generator via IObjectFactory
       var codeGenerator = SafeServiceLocator.Current.GetInstance<IReflectionEmitCodeGenerator>();
       Assert.That (codeGenerator.AssemblyDirectory, Is.Null);
       Assert.That (codeGenerator.AssemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
+
+      // TODO Review: Check that "null" means "current directory"
     }
 
     [Test]
-    public void StandardNameAndDirectory_Unique ()
+    public void StandardName_IsUnique ()
     {
       var oldAssemblyName = _codeGenerator.AssemblyName;
 

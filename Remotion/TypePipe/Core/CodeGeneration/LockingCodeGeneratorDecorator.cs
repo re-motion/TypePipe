@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("lockObject", lockObject);
 
       _innerCodeGenerator = innerCodeGenerator;
+      // TODO Review: Rename _lock to _lockObject
       _lock = lockObject;
     }
 

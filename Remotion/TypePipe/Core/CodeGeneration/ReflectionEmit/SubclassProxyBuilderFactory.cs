@@ -49,6 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         typeAttributes |= TypeAttributes.Abstract;
 
       var typeBuilder = _codeGenerator.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
+      // TODO Review: Change to GetDebugInfoGenerator, should be the same generator for a single module builder
       var debugInfoGenerator = _codeGenerator.CreateDebugInfoGenerator();
 
       var emittableOperandProvider = new EmittableOperandProvider();

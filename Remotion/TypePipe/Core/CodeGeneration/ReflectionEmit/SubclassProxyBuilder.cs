@@ -70,6 +70,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _context; }
     }
 
+    // TODO Review: Move HandleTypeInitializations, HandleInstanceInitializations, and WireConstructorWithInitialization to a separate object.
+    // TODO Review: Then remove checks and inline the Handle methods.
+
     public Type Build (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);

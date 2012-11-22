@@ -20,12 +20,15 @@ using System;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Instances of this interface represent the code generator user by the pipeline.
+  /// Instances of this interface represent the code generator used by the pipeline.
   /// </summary>
   public interface ICodeGenerator
   {
     string AssemblyDirectory { get; }
     string AssemblyName { get; }
+
+    // TODO Review: Document that these members cannot be called if code has already been generated.
+    // TODO Review: Document that user is responsible to give unique assembly names when calling SetAssemblyName.
 
     void SetAssemblyDirectory (string assemblyDirectory);
     void SetAssemblyName (string assemblyName);
@@ -33,7 +36,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <summary>
     /// Saves all types that have been generated since the last call to this method into a new assembly on disk.
     /// The file name of the assembly consists of <see cref="AssemblyName"/> plus the file ending <c>.dll</c>.
-    /// The assembly is written to the directory donated by <see cref="AssemblyDirectory"/>.
+    /// The assembly is written to the directory defined by <see cref="AssemblyDirectory"/>.
     /// If <see cref="AssemblyDirectory"/> is <see langword="null"/> the assembly is saved in the current working directory.
     /// </summary>
     /// <remarks>

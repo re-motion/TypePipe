@@ -40,6 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var name = new AssemblyName (assemblyName);
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (name, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (name + ".dll", emitSymbolInfo: true);
+      // TODO Review: Pass in module file name
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
       var uniqueNamingModuleBuilder = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
 

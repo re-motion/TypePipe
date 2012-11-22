@@ -70,6 +70,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       ExpectSynchronizedDelegation (cg => cg.FlushCodeToDisk(), "ghi");
     }
 
+    // TODO Review: Extract into utility inside Remotion.Development.UnitTesting, use utility in tests for LockingCodeGeneratorDecorator, TypeCache, LockingCacheDecorator, and LockingDataStoreDecorator
+
     private void ExpectSynchronizedDelegation<TResult> (Func<ICodeGenerator, TResult> action, TResult fakeResult)
     {
       _innerCodeGeneratorMock
