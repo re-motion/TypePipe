@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class InitializationBuilder : IInitializationBuilder
   {
-    public MutableConstructorInfo HandleTypeInitializations (MutableType mutableType)
+    public MutableConstructorInfo CreateTypeInitializer (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return typeInitializer;
     }
 
-    public Tuple<FieldInfo, MethodInfo> HandleInstanceInitializations (MutableType mutableType)
+    public Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 

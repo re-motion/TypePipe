@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -27,7 +26,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -47,12 +45,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleTypeInitializations ()
+    public void CreateTypeInitializer ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeExpression();
       _mutableType.AddTypeInitialization (ctx => expression);
 
-      var result = _builder.HandleTypeInitializations (_mutableType);
+      var result = _builder.CreateTypeInitializer (_mutableType);
 
       Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (result.Name, Is.EqualTo (".cctor"));
@@ -66,20 +64,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleTypeInitializations_Empty ()
+    public void CreateTypeInitializer_Empty ()
     {
-      var result = _builder.HandleTypeInitializations (_mutableType);
+      var result = _builder.CreateTypeInitializer (_mutableType);
 
       Assert.That (result, Is.Null);
     }
 
     [Test]
-    public void HandleInstanceInitializations ()
+    public void CreateInstanceInitializationMembers ()
     {
       var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
       _mutableType.AddInstanceInitialization (ctx => initExpression);
 
-      var result = _builder.HandleInstanceInitializations (_mutableType);
+      var result = _builder.CreateInstanceInitializationMembers (_mutableType);
 
       var counter = result.Item1;
       var initMethod = (MutableMethodInfo) result.Item2;
@@ -109,9 +107,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void HandleInstanceInitializations_Empty ()
+    public void CreateInstanceInitializationMembers_Empty ()
     {
-      var result = _builder.HandleInstanceInitializations (_mutableType);
+      var result = _builder.CreateInstanceInitializationMembers (_mutableType);
 
       Assert.That (result, Is.Null);
       Assert.That (_mutableType.AddedInterfaces, Is.Empty);
