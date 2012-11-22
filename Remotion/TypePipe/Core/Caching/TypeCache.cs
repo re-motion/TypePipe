@@ -30,8 +30,7 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    private readonly object _typesLock = new object();
-    private readonly object _constructorCallsLock = new object();
+    private readonly object _lock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
 
@@ -75,7 +74,7 @@ namespace Remotion.TypePipe.Caching
       key[1] = allowNonPublic;
 
       Delegate constructorCall;
-      lock (_constructorCallsLock)
+      lock (_lock)
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
@@ -95,7 +94,7 @@ namespace Remotion.TypePipe.Caching
     private Type GetOrCreateType (Type requestedType, object[] key)
     {
       Type generatedType;
-      lock (_typesLock)
+      lock (_lock)
       {
         if (!_types.TryGetValue (key, out generatedType))
         {
