@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration
   public class LockingCodeGeneratorDecorator : ICodeGenerator
   {
     private readonly ICodeGenerator _innerCodeGenerator;
-    private readonly object _lock;
+    private readonly object _lockObject;
 
     public LockingCodeGeneratorDecorator (ICodeGenerator innerCodeGenerator, object lockObject)
     {
@@ -33,15 +33,14 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("lockObject", lockObject);
 
       _innerCodeGenerator = innerCodeGenerator;
-      // TODO Review: Rename _lock to _lockObject
-      _lock = lockObject;
+      _lockObject = lockObject;
     }
 
     public string AssemblyDirectory
     {
       get
       {
-        lock (_lock)
+        lock (_lockObject)
           return _innerCodeGenerator.AssemblyDirectory;
       }
     }
@@ -50,26 +49,26 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       get
       {
-        lock (_lock)
+        lock (_lockObject)
           return _innerCodeGenerator.AssemblyName;
       }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
-      lock (_lock)
+      lock (_lockObject)
         _innerCodeGenerator.SetAssemblyDirectory (assemblyDirectory);
     }
 
     public void SetAssemblyName (string assemblyName)
     {
-      lock (_lock)
+      lock (_lockObject)
         _innerCodeGenerator.SetAssemblyName (assemblyName);
     }
 
     public string FlushCodeToDisk ()
     {
-      lock (_lock)
+      lock (_lockObject)
         return _innerCodeGenerator.FlushCodeToDisk();
     }
   }

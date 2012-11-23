@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       Assert.That (result, Is.TypeOf<LockingCodeGeneratorDecorator>());
 
-      var lockObject = PrivateInvoke.GetNonPublicField (result, "_lock");
+      var lockObject = PrivateInvoke.GetNonPublicField (result, "_lockObject");
       var innerCodeGenerator = PrivateInvoke.GetNonPublicField (result, "_innerCodeGenerator");
 
       Assert.That (lockObject, Is.SameAs (_lockObject));
