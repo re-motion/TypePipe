@@ -37,11 +37,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
       // assemblyDirectory may be null.
 
-      var name = new AssemblyName (assemblyName);
-      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (name, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
-      var moduleBuilder = assemblyBuilder.DefineDynamicModule (name + ".dll", emitSymbolInfo: true);
-      // TODO Review: Pass in module file name
-      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
+      var assemName = new AssemblyName (assemblyName);
+      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
+      var moduleName = assemblyName + ".dll";
+      var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
+      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
       var uniqueNamingModuleBuilder = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
 
       return uniqueNamingModuleBuilder;
