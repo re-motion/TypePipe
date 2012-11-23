@@ -30,6 +30,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
@@ -45,6 +51,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\remotion.snk">
+      <Link>remotion.snk</Link>
+    </None>
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
