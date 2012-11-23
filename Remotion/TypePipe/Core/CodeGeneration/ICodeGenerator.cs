@@ -27,10 +27,27 @@ namespace Remotion.TypePipe.CodeGeneration
     string AssemblyDirectory { get; }
     string AssemblyName { get; }
 
-    // TODO Review: Document that these members cannot be called if code has already been generated.
-    // TODO Review: Document that user is responsible to give unique assembly names when calling SetAssemblyName.
-
+    /// <summary>
+    /// Sets the directory in that assemblies will be saved, when <see cref="FlushCodeToDisk"/> is called.
+    /// If <see langword="null"/> is specified, the assemblies are saved to the current working directory.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// If the pipeline already generated a type (because it was requested) into the new assembly, the assembly directory cannot be changed.
+    /// </exception>
+    /// <param name="assemblyDirectory">The assembly directory, or <see langword="null"/>.</param>
     void SetAssemblyDirectory (string assemblyDirectory);
+
+    /// <summary>
+    /// Sets the name for the next assembly.
+    /// When using this API, the user is responsible for providing unique assembly names.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// If the pipeline already generated a type (because it was requested) into the new assembly, the assembly name cannot be changed.
+    /// </exception>
+    /// <remarks>
+    /// Note that the provided value is overwritten after every call to <see cref="FlushCodeToDisk"/> to ensure uniqueness.
+    /// </remarks>
+    /// <param name="assemblyName">The assembly name (without <c>.dll</c>).</param>
     void SetAssemblyName (string assemblyName);
 
     /// <summary>
@@ -42,6 +59,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <remarks>
     /// If no new types have been generated since the last call to <see cref="FlushCodeToDisk"/>, this method does nothing
     /// and returns <see langword="null"/>.
+    /// This method also generates a new unique name for the next assembly.
     /// </remarks>
     /// <returns>The absolute path to the saved assembly file, or <see langword="null"/> if no assembly was saved.</returns>
     string FlushCodeToDisk ();
