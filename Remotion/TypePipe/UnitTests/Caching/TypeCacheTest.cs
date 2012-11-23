@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _types.Add (new object[] { "key" }, _generatedType1);
       _typeAssemblerMock
           .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 0))
-          //.WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
+          .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
           .Return (new object[] { "other key" });
       _typeAssemblerMock
           .Expect (mock => mock.AssembleType (_requestedType))
@@ -147,7 +147,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _types.Add (new object[] { "type key" }, _generatedType1);
       _typeAssemblerMock
           .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2))
-          //.WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
+          .WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
           .Return (new object[] { null, null, "type key" });
       _delegateFactoryMock
           .Expect (mock => mock.GetSignature (_delegateType))
@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _types.Add (new object[] { "type key" }, _generatedType1);
       _typeAssemblerMock
           .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2))
-          //.WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
+          .WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
           .Return (new object[] { null, null, "other type key" });
       _delegateFactoryMock
           .Expect (mock => mock.GetSignature (_delegateType))
