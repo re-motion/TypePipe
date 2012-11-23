@@ -22,11 +22,9 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
-using Remotion.TypePipe;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Rhino.Mocks;
 
 namespace TypePipe.IntegrationTests.TypeAssembly
 {
@@ -85,7 +83,7 @@ namespace TypePipe.IntegrationTests.TypeAssembly
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<MutableType>> participantActions)
     {
       var participants = participantActions.Select (CreateParticipant).AsOneTime();
-      var typeModifier = CreateReflectionEmitTypeModifier (testName);
+      var typeModifier = CreateTypeModifier (testName);
       var typeAssembler = new TypeAssembler (participants, typeModifier);
       var assembledType = typeAssembler.AssembleType (requestedType);
 

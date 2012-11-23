@@ -39,11 +39,18 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       var typeAssembler = new TypeAssembler (participants.AsOneTime(), typeModifier);
 
-      Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
-      // Make sure that participants are iterated only once
-      Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
-      Assert.That (typeAssembler.TypeModifier, Is.SameAs (typeModifier));
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
+    }
+
+    [Test]
+    public void CodeGenerator ()
+    {
+      var typeModifierMock = MockRepository.GenerateStrictMock<ITypeModifier>();
+      var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
+      typeModifierMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+      var typeAssembler = CreateTypeAssembler (typeModifierMock);
+
+      Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
 
     [Test]
@@ -67,11 +74,11 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == requestedType)))
             .WhenCalled (mi => mutableType = (MutableType) mi.Arguments[0]);
         participantMock2
-            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt == mutableType)))
+            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
             .WhenCalled (mi => Assert.That (mi.Arguments[0], Is.SameAs (mutableType)));
 
         typeModifierMock
-            .Expect (mock => mock.ApplyModifications (Arg<MutableType>.Matches (mt => mt == mutableType)))
+            .Expect (mock => mock.ApplyModifications (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
             .Return (fakeResult);
       }
       mockRepository.ReplayAll();

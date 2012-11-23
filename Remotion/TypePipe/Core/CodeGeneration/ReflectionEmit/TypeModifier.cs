@@ -37,16 +37,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _builderFactory = builderFactory;
     }
 
+    public ICodeGenerator CodeGenerator
+    {
+      get { return _builderFactory.CodeGenerator; }
+    }
+
     public Type ApplyModifications (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
       var builder = _builderFactory.CreateBuilder (mutableType);
 
-      mutableType.Accept ((IMutableTypeUnmodifiedMutableMemberHandler) builder);
-      mutableType.Accept ((IMutableTypeModificationHandler) builder);
-      
-      return builder.Build();
+      return builder.Build (mutableType);
     }
   }
 }

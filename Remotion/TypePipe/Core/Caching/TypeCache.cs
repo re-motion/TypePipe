@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -29,14 +30,14 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    private readonly object _typesLock = new object();
-    private readonly object _constructorCallsLock = new object();
+    private readonly object _lock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
+    private readonly ICodeGenerator _codeGenerator;
 
     public TypeCache (ITypeAssembler typeAssembler, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
     {
@@ -47,6 +48,12 @@ namespace Remotion.TypePipe.Caching
       _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
+      _codeGenerator = new LockingCodeGeneratorDecorator (_typeAssembler.CodeGenerator, _lock);
+    }
+
+    public ICodeGenerator CodeGenerator
+    {
+      get { return _codeGenerator; }
     }
 
     public Type GetOrCreateType (Type requestedType)
@@ -69,11 +76,11 @@ namespace Remotion.TypePipe.Caching
       key[1] = allowNonPublic;
 
       Delegate constructorCall;
-      lock (_constructorCallsLock)
+      lock (_lock)
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
-          var typeKey = key.Skip (additionalCacheKeyElements).ToArray();
+          var typeKey = key.Skip (additionalCacheKeyElements).ToArray ();
           var generatedType = GetOrCreateType (requestedType, typeKey);
           var ctorSignature = _delegateFactory.GetSignature (delegateType);
           var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
@@ -89,7 +96,7 @@ namespace Remotion.TypePipe.Caching
     private Type GetOrCreateType (Type requestedType, object[] key)
     {
       Type generatedType;
-      lock (_typesLock)
+      lock (_lock)
       {
         if (!_types.TryGetValue (key, out generatedType))
         {

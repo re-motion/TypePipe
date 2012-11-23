@@ -19,6 +19,7 @@ using System;
 using NUnit.Framework;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests
@@ -40,6 +41,15 @@ namespace Remotion.TypePipe.UnitTests
       _factory = new ObjectFactory (_typeCacheMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
+    }
+
+    [Test]
+    public void CodeGenerator ()
+    {
+      var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
+      _typeCacheMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+
+      Assert.That (_factory.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
 
     [Test]

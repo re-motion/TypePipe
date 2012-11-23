@@ -36,7 +36,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
       ArgumentUtility.CheckNotNull ("body", body);
-      CheckMethodBody(body);
+
+      if (body.Type != typeof (void))
+        throw new ArgumentException ("Constructor bodies must have void return type.", "body");
 
       var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
 
@@ -55,23 +57,6 @@ namespace Remotion.TypePipe.MutableReflection
       var body = CreateOriginalBodyExpression (underlyingConstructor, typeof (void), parameterDescriptors);
 
       return new ConstructorDescriptor (underlyingConstructor, attributes, parameterDescriptors, customAttributeDataProvider, body);
-    }
-
-    public static ConstructorDescriptor CreateEquivalent (ConstructorInfo equivalentConstructor, Expression body)
-    {
-      ArgumentUtility.CheckNotNull ("equivalentConstructor", equivalentConstructor);
-      ArgumentUtility.CheckNotNull ("body", body);
-      CheckMethodBody (body);
-
-      var parameterDescriptors = ParameterDescriptor.CreateFromMethodBase (equivalentConstructor);
-
-      return new ConstructorDescriptor (null, equivalentConstructor.Attributes, parameterDescriptors, EmptyCustomAttributeDataProvider, body);
-    }
-
-    private static void CheckMethodBody (Expression body)
-    {
-      if (body.Type != typeof (void))
-        throw new ArgumentException ("Constructor bodies must have void return type.", "body");
     }
 
     private static string GetConstructorName (MethodAttributes attributes)

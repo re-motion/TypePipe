@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,15 +14,22 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-namespace Remotion.TypePipe.MutableReflection
+using System;
+using System.Reflection;
+using Remotion.Collections;
+using Remotion.TypePipe.MutableReflection;
+
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for classes that handle unmodfied mutable members of a <see cref="MutableType"/>.
+  /// Helps with building initializations for a mutable type.
   /// </summary>
-  public interface IMutableTypeUnmodifiedMutableMemberHandler
+  public interface IInitializationBuilder
   {
-    void HandleUnmodifiedField (MutableFieldInfo field);
-    void HandleUnmodifiedConstructor (MutableConstructorInfo constructor);
-    void HandleUnmodifiedMethod (MutableMethodInfo method);
+    MutableConstructorInfo CreateTypeInitializer (MutableType mutableType);
+    
+    Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType);
+
+    void WireConstructorWithInitialization (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers);
   }
 }

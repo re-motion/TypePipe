@@ -20,10 +20,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Caching
@@ -41,15 +43,17 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private Tuple<Type[], Type> _fakeSignature;
     private ConstructorInfo _fakeConstructor;
 
-
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorFinder _constructorFinderMock;
     private IDelegateFactory _delegateFactoryMock;
-    
+
     private TypeCache _cache;
 
+    private object _lockObject;
     private Dictionary<object[], Type> _types;
     private Dictionary<object[], Delegate> _constructorCalls;
+
+    private ICodeGenerator _fakeCodeGenerator;
 
     [SetUp]
     public void SetUp ()
@@ -58,8 +62,12 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
       _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
+      _fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
+      _typeAssemblerMock.Expect (mock => mock.CodeGenerator).Return (_fakeCodeGenerator);
+
       _cache = new TypeCache (_typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock);
 
+      _lockObject = PrivateInvoke.GetNonPublicField (_cache, "_lock");
       _types = (Dictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (Dictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
 
@@ -70,6 +78,22 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var returnType = ReflectionObjectMother.GetSomeType();
       _fakeSignature = Tuple.Create (parameterTypes, returnType);
       _fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
+    }
+
+    [Test]
+    public void CodeGenerator ()
+    {
+      var result = _cache.CodeGenerator;
+
+      Assert.That (result, Is.TypeOf<LockingCodeGeneratorDecorator>());
+
+      var lockObject = PrivateInvoke.GetNonPublicField (result, "_lockObject");
+      var innerCodeGenerator = PrivateInvoke.GetNonPublicField (result, "_innerCodeGenerator");
+
+      Assert.That (lockObject, Is.SameAs (_lockObject));
+      Assert.That (innerCodeGenerator, Is.SameAs (_fakeCodeGenerator));
+
+      Assert.That (_cache.CodeGenerator, Is.SameAs (result));
     }
 
     [Test]
@@ -88,8 +112,14 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void GetOrCreateType_CacheMiss ()
     {
       _types.Add (new object[] { "key" }, _generatedType1);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 0)).Return (new object[] { "other key" });
-      _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType2);
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 0))
+          .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
+          .Return (new object[] { "other key" });
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleType (_requestedType))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (_generatedType2);
 
       var result = _cache.GetOrCreateType (_requestedType);
 
@@ -115,12 +145,22 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
       _types.Add (new object[] { "type key" }, _generatedType1);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2)).Return (new object[] { null, null, "type key" });
-      _delegateFactoryMock.Expect (mock => mock.GetSignature (_delegateType)).Return (_fakeSignature);
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2))
+          .WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
+          .Return (new object[] { null, null, "type key" });
+      _delegateFactoryMock
+          .Expect (mock => mock.GetSignature (_delegateType))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (_fakeSignature);
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType1, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_fakeConstructor);
-      _delegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
+      _delegateFactoryMock
+          .Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
@@ -134,13 +174,26 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
       _types.Add (new object[] { "type key" }, _generatedType1);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2)).Return (new object[] { null, null, "other type key" });
-      _delegateFactoryMock.Expect (mock => mock.GetSignature (_delegateType)).Return (_fakeSignature);
-      _typeAssemblerMock.Expect (mock => mock.AssembleType (_requestedType)).Return (_generatedType2);
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2))
+          .WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
+          .Return (new object[] { null, null, "other type key" });
+      _delegateFactoryMock
+          .Expect (mock => mock.GetSignature (_delegateType))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (_fakeSignature);
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleType (_requestedType))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (_generatedType2);
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType2, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_fakeConstructor);
-      _delegateFactoryMock.Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType)).Return (_delegate2);
+      _delegateFactoryMock
+          .Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 

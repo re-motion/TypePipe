@@ -19,7 +19,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -42,13 +41,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var typeAttributes = TypeAttributes.SpecialName;
       var baseType = ReflectionObjectMother.GetSomeType();
-      var typeBuilderFake = MockRepository.GenerateStub<ITypeBuilder>();
-      _moduleBuilderMock.Expect (x => x.DefineType ("ClassName_Proxy1", typeAttributes, baseType)).Return (typeBuilderFake);
+      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
+      _moduleBuilderMock.Expect (x => x.DefineType ("ClassName_Proxy1", typeAttributes, baseType)).Return (fakeTypeBuilder);
 
       var result = _decorator.DefineType ("ClassName", typeAttributes, baseType);
 
       _moduleBuilderMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (typeBuilderFake));
+      Assert.That (result, Is.SameAs (fakeTypeBuilder));
     }
 
     [Test]
@@ -65,6 +64,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _decorator.DefineType ("OtherClassName", 0, baseType);
 
       _moduleBuilderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void SaveToDisk ()
+    {
+      var fakeResult = "abc";
+      _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeResult);
+
+      var result = _decorator.SaveToDisk();
+
+      _moduleBuilderMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult));
     }
   }
 }

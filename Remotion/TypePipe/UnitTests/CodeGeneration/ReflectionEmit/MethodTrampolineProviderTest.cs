@@ -65,6 +65,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _memberEmitterMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (mutableMethod));
+      Assert.That (_mutableType.AddedMethods, Has.Member (result));
 
       var name = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
       Assert.That (result.Name, Is.EqualTo (name));

@@ -27,6 +27,8 @@ namespace Remotion.TypePipe.CodeGeneration
   [ConcreteImplementation (typeof (TypeModifier))]
   public interface ITypeModifier
   {
+    ICodeGenerator CodeGenerator { get; }
+
     Type ApplyModifications (MutableType mutableTpe);
   }
 }

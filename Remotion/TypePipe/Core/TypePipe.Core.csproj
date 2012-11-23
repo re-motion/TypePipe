@@ -52,6 +52,12 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\LockingCodeGeneratorDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
     <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
@@ -64,8 +70,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IFieldBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodOnTypeInstantiation.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\DefaultSubclassProxyBuilderFactory.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitBackendFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
@@ -143,7 +148,6 @@
     <Compile Include="MutableReflection\ICustomAttributeData.cs" />
     <Compile Include="MutableReflection\ICustomAttributeNamedArgument.cs" />
     <Compile Include="MutableReflection\IMemberSelector.cs" />
-    <Compile Include="MutableReflection\IMutableTypeUnmodifiedMemberHandler.cs" />
     <Compile Include="MutableReflection\IRelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\ITypePipeCustomAttributeProvider.cs" />
     <Compile Include="MutableReflection\MemberSelector.cs" />
@@ -155,7 +159,6 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMutableMethodBase.cs" />
-    <Compile Include="MutableReflection\IMutableTypeModificationHandler.cs" />
     <Compile Include="MutableReflection\IMutableMember.cs" />
     <Compile Include="MutableReflection\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\IBindingFlagsEvaluator.cs" />

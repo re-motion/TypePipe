@@ -48,19 +48,14 @@ namespace Remotion.TypePipe.Caching
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
 
-    public ReadOnlyCollection<IParticipant> Participants
-    {
-      get { return _participants; }
-    }
-
-    public ITypeModifier TypeModifier
-    {
-      get { return _typeModifier; }
-    }
-
     public ReadOnlyCollection<ICacheKeyProvider> CacheKeyProviders
     {
       get { return _cacheKeyProviders.ToList().AsReadOnly(); }
+    }
+
+    public ICodeGenerator CodeGenerator
+    {
+      get { return _typeModifier.CodeGenerator; }
     }
 
     public Type AssembleType (Type requestedType)

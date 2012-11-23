@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,20 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
+  /// Implementations of this interface create instances of <see cref="IModuleBuilder"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (SubclassProxyBuilderFactory))]
-  public interface ISubclassProxyBuilderFactory
+  [ConcreteImplementation (typeof (ModuleBuilderFactory))]
+  [CLSCompliant (false)]
+  public interface IModuleBuilderFactory
   {
-    ICodeGenerator CodeGenerator { get; }
-
-    ISubclassProxyBuilder CreateBuilder (MutableType mutableType);
+    /// <summary>
+    /// Creates a module builder.
+    /// </summary>
+    /// <param name="assemblyName">The assembly name (without the file ending '.dll').</param>
+    /// <param name="assemblyDirectory">The directory in which the assembly will be saved when <see cref="IModuleBuilder.SaveToDisk"/> is called
+    /// on the returned <see cref="IModuleBuilder"/>.</param>
+    /// <returns>The created module builder.</returns>
+    IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectory);
   }
 }

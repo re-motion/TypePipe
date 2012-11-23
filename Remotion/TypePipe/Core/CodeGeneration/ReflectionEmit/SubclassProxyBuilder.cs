@@ -15,13 +15,11 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.Caching;
+using Remotion.Collections;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
@@ -35,31 +33,31 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
     private readonly IMemberEmitter _memberEmitter;
+    private readonly IInitializationBuilder _initializationBuilder;
 
     private readonly MemberEmitterContext _context;
 
-    private bool _hasBeenBuilt = false;
-
     [CLSCompliant (false)]
     public SubclassProxyBuilder (
+        IMemberEmitter memberEmitter,
+        IInitializationBuilder initializationBuilder,
         MutableType mutableType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
-        IMethodTrampolineProvider methodTrampolineProvider,
-        IMemberEmitter memberEmitter)
+        IMethodTrampolineProvider methodTrampolineProvider)
     {
+      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
+      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
 
       _memberEmitter = memberEmitter;
+      _initializationBuilder = initializationBuilder;
 
-      var hasInstanceInitializations = mutableType.InstanceInitializations.Count != 0;
-      _context = new MemberEmitterContext (
-          mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider, hasInstanceInitializations);
+      _context = new MemberEmitterContext (mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider);
     }
 
     [CLSCompliant (false)]
@@ -68,187 +66,72 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _memberEmitter; }
     }
 
+    public IInitializationBuilder InitializationBuilder
+    {
+      get { return _initializationBuilder; }
+    }
+
     public MemberEmitterContext MemberEmitterContext
     {
       get { return _context; }
     }
 
-    public void HandleTypeInitializations (ReadOnlyCollection<Expression> initializationExpressions)
+    public Type Build (MutableType mutableType)
     {
-      ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
-      EnsureNotBuilt();
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      if (initializationExpressions.Count == 0)
-        return;
+      var typeInitializer = _initializationBuilder.CreateTypeInitializer (mutableType);
+      if (typeInitializer != null)
+        _memberEmitter.AddConstructor (_context, typeInitializer);
 
-      var attributes = MethodAttributes.Private | MethodAttributes.Static;
-      var parameters = ParameterDescriptor.EmptyParameters;
-      var body = Expression.Block (typeof (void), initializationExpressions);
-      var descriptor = ConstructorDescriptor.Create (attributes, parameters, body);
-      var typeInitializer = new MutableConstructorInfo (_context.MutableType, descriptor);
+      var initializationMembers = _initializationBuilder.CreateInstanceInitializationMembers (mutableType);
 
-      HandleAddedConstructor (typeInitializer);
-    }
+      foreach (var ifc in mutableType.AddedInterfaces)
+        _context.TypeBuilder.AddInterfaceImplementation (ifc);
 
-    public void HandleInstanceInitializations (ReadOnlyCollection<Expression> initializationExpressions)
-    {
-      ArgumentUtility.CheckNotNull ("initializationExpressions", initializationExpressions);
-      Assertion.IsNull (_context.ConstructorRunCounter);
-      Assertion.IsNull (_context.InitializationMethod);
-      EnsureNotBuilt();
+      foreach (var field in mutableType.AddedFields)
+        _memberEmitter.AddField (_context, field);
+      foreach (var constructor in mutableType.AddedConstructors)
+        WireAndAddConstructor (constructor, initializationMembers);
+      foreach (var method in mutableType.AddedMethods)
+        _memberEmitter.AddMethod (_context, method, method.Attributes);
 
-      if (initializationExpressions.Count == 0)
-        return;
+      Assertion.IsFalse (mutableType.ExistingMutableFields.Any (c => c.IsModified));
+      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => c.IsModified))
+        WireAndAddConstructor (constructor, initializationMembers);
+      foreach (var method in mutableType.ExistingMutableMethods.Where (m => m.IsModified))
+        AddMethodAsImplicitOverride (method);
 
-      HandleAddedInterface (typeof (IInitializableObject));
-
-      var fieldDescriptor = FieldDescriptor.Create ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
-      _context.ConstructorRunCounter = new MutableFieldInfo (_context.MutableType, fieldDescriptor);
-      HandleAddedField (_context.ConstructorRunCounter);
-
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
-      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
-      var body = Expression.Block (interfaceMethod.ReturnType, initializationExpressions);
-      var descriptor = MethodDescriptor.CreateEquivalent (interfaceMethod, name, attributes, body);
-      _context.InitializationMethod = new MutableMethodInfo (_context.MutableType, descriptor);
-      HandleAddedMethod (_context.InitializationMethod);
-
-      _memberEmitter.AddMethodOverride (_context, interfaceMethod, _context.InitializationMethod);
-    }
-
-    public void HandleAddedInterface (Type addedInterface)
-    {
-      ArgumentUtility.CheckNotNull ("addedInterface", addedInterface);
-      EnsureNotBuilt ();
-
-      _context.TypeBuilder.AddInterfaceImplementation (addedInterface);
-    }
-
-    public void HandleAddedField (MutableFieldInfo field)
-    {
-      ArgumentUtility.CheckNotNull ("field", field);
-      EnsureNotBuilt ();
-      CheckMemberState (field, "field", isNew: true, isModified: null);
-
-      _memberEmitter.AddField (_context, field);
-    }
-
-    public void HandleAddedConstructor (MutableConstructorInfo constructor)
-    {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt();
-      CheckMemberState (constructor, "constructor", isNew: true, isModified: null);
-
-      _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
-    }
-
-    public void HandleAddedMethod (MutableMethodInfo method)
-    {
-      ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt();
-      CheckMemberState (method, "method", isNew: true, isModified: null);
-
-      _memberEmitter.AddMethod (_context, method, method.Attributes);
-    }
-
-    public void HandleModifiedConstructor (MutableConstructorInfo constructor)
-    {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt();
-      CheckMemberState (constructor, "constructor", isNew: false, isModified: true);
-
-      _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
-    }
-
-    public void HandleModifiedMethod (MutableMethodInfo method)
-    {
-      ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt();
-      CheckMemberState (method, "method", isNew: false, isModified: true);
-
-      // Modified methods are added as implicit method overrides for the underlying method.
-      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
-      _memberEmitter.AddMethod (_context, method, attributes);
-    }
-
-    public void HandleUnmodifiedField (MutableFieldInfo field)
-    {
-      ArgumentUtility.CheckNotNull ("field", field);
-      EnsureNotBuilt();
-      CheckMemberState (field, "field", isNew: false, isModified: false);
-
-      _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
-    }
-
-    public void HandleUnmodifiedConstructor (MutableConstructorInfo constructor)
-    {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      EnsureNotBuilt();
-      CheckMemberState (constructor, "constructor", isNew: false, isModified: false);
-
-      if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
-          // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-        _memberEmitter.AddConstructor (_context, WireConstructorWithInitialization (constructor));
-    }
-
-    public void HandleUnmodifiedMethod (MutableMethodInfo method)
-    {
-      ArgumentUtility.CheckNotNull ("method", method);
-      EnsureNotBuilt();
-      CheckMemberState (method, "method", isNew: false, isModified: false);
-
-      _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
-    }
-
-    public Type Build ()
-    {
-      EnsureNotBuilt();
-      _hasBeenBuilt = true;
+      foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
+        _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
+      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
+        AddConstructorIfVisibleFromSubclass (constructor, initializationMembers);
+      foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
+        _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
     }
 
-    private void EnsureNotBuilt ()
+    private void WireAndAddConstructor (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
-      if (_hasBeenBuilt)
-        throw new InvalidOperationException ("Subclass proxy has already been built.");
+      _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers);
+      _memberEmitter.AddConstructor (_context, constructor);
     }
 
-    private void CheckMemberState (IMutableMember member, string memberType, bool isNew, bool? isModified)
+    private void AddMethodAsImplicitOverride (MutableMethodInfo method)
     {
-      if (member.IsNew != isNew || (isModified.HasValue && member.IsModified != isModified.Value))
-      {
-        var modifiedOrUnmodifiedOrEmpty = isModified.HasValue ? (isModified.Value ? "modified " : "unmodified ") : "";
-        var newOrExisting = isNew ? "new" : "existing";
-        var message = string.Format ("The supplied {0} must be a {1}{2} {0}.", memberType, modifiedOrUnmodifiedOrEmpty, newOrExisting);
-        throw new ArgumentException (message, memberType);
-      }
+      // Modified methods are added as implicit method overrides for the underlying method.
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
+      _memberEmitter.AddMethod (_context, method, attributes);
     }
 
-    private MutableConstructorInfo WireConstructorWithInitialization (MutableConstructorInfo constructor)
+    private void AddConstructorIfVisibleFromSubclass (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
-      if (_context.ConstructorRunCounter == null)
-        return constructor;
-
-      Assertion.IsNotNull (_context.InitializationMethod);
-      var thisExpr = new ThisExpression (_context.MutableType);
-      var counter = Expression.Field (thisExpr, _context.ConstructorRunCounter);
-      var constantExpression = Expression.Constant (1);
-
-      // Using *IncrementAssign and *DecrementAssign results in un-verifiable code (emits stloc.0).
-      var body = Expression.Block (
-          Expression.Assign (counter, Expression.Add (counter, constantExpression)),
-          constructor.Body,
-          Expression.Assign (counter, Expression.Subtract (counter, constantExpression)),
-          Expression.IfThen (
-              Expression.Equal (counter, Expression.Constant (0)),
-              Expression.Call (thisExpr, _context.InitializationMethod)));
-      var descriptor = ConstructorDescriptor.CreateEquivalent (constructor, body);
-
-      return new MutableConstructorInfo (_context.MutableType, descriptor);
+      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
+      if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
+        WireAndAddConstructor (constructor, initializationMembers);
     }
   }
 }

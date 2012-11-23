@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,16 +14,24 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using Remotion.TypePipe.MutableReflection;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using Remotion.ServiceLocation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for classes building a subclass proxy.
+  /// Extends the <see cref="ICodeGenerator"/> interface with Reflection.Emit-specifc operations.
   /// </summary>
-  public interface ISubclassProxyBuilder
+  [ConcreteImplementation (typeof (ReflectionEmitCodeGenerator))]
+  [CLSCompliant (false)]
+  public interface IReflectionEmitCodeGenerator : ICodeGenerator
   {
-    Type Build (MutableType mutableType);
+    DebugInfoGenerator DebugInfoGenerator { get; }
+
+    ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
   }
 }

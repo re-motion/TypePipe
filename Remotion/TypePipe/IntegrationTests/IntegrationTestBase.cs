@@ -16,15 +16,15 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -33,42 +33,37 @@ namespace TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
-    private AssemblyBuilder _assemblyBuilder;
+    private List<string> _generatedAssemblyPaths;
     private bool _shouldDeleteGeneratedFiles;
-    private string _generatedFileName;
+    private bool _shouldPeVerify;
 
-    private string GeneratedFileDirectory
-    {
-      get { return SetupFixture.GeneratedFileDirectory; }
-    }
+    private ICodeGenerator _codeGenerator;
 
     [SetUp]
     public virtual void SetUp ()
     {
+      _generatedAssemblyPaths = new List<string>();
       _shouldDeleteGeneratedFiles = true;
-      _assemblyBuilder = null;
-      _generatedFileName = null;
+      _shouldPeVerify = true;
     }
 
     [TearDown]
     public virtual void TearDown ()
     {
-      if (_assemblyBuilder == null)
-        return;
-
-      Assertion.IsNotNull (_generatedFileName);
-      var assemblyPath = Path.Combine (GeneratedFileDirectory, _generatedFileName);
+      FlushAndTrackFilesForCleanup();
 
       try
       {
-        _assemblyBuilder.Save (_generatedFileName);
-
-        PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
-
-        if (_shouldDeleteGeneratedFiles)
+        foreach (var assemblyPath in _generatedAssemblyPaths)
         {
-          File.Delete (assemblyPath);
-          File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
+          if (_shouldPeVerify)
+            PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+
+          if (_shouldDeleteGeneratedFiles)
+          {
+            File.Delete (assemblyPath);
+            File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
+          }
         }
       }
       catch
@@ -83,6 +78,11 @@ namespace TypePipe.IntegrationTests
     protected void SkipDeletion ()
     {
       _shouldDeleteGeneratedFiles = false;
+    }
+
+    protected void SkipPeVerification ()
+    {
+      _shouldPeVerify = false;
     }
 
     protected IParticipant CreateParticipant (Action<MutableType> typeModification)
@@ -103,16 +103,28 @@ namespace TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected ITypeModifier CreateReflectionEmitTypeModifier (string assemblyName)
+    protected ITypeModifier CreateTypeModifier (string assemblyName)
     {
-      var moduleAndAssembly = ReflectionEmitBackendFactory.CreateModuleBuilder (assemblyName, GeneratedFileDirectory);
+      var typeModifier = SafeServiceLocator.Current.GetInstance<ITypeModifier>();
 
-      _assemblyBuilder = moduleAndAssembly.Item2;
-      _generatedFileName = assemblyName + ".dll";
+      _codeGenerator = typeModifier.CodeGenerator;
+      _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
+      _codeGenerator.SetAssemblyName (assemblyName);
 
-      var subclassProxyBuilderFactory = new SubclassProxyBuilderFactory (moduleAndAssembly.Item1, DebugInfoGenerator.CreatePdbGenerator());
+      return typeModifier;
+    }
 
-      return new TypeModifier (subclassProxyBuilderFactory);
+    protected string FlushAndTrackFilesForCleanup ()
+    {
+      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateReflectionEmitTypeModifier");
+
+      var assemblyPath = _codeGenerator.FlushCodeToDisk();
+      if (assemblyPath == null)
+        return null;
+
+      _generatedAssemblyPaths.Add (assemblyPath);
+
+      return assemblyPath;
     }
   }
 }
