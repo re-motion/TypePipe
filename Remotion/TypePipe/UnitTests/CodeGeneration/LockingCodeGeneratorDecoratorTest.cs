@@ -14,10 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Threading;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
+using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
@@ -26,82 +26,47 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   [TestFixture]
   public class LockingCodeGeneratorDecoratorTest
   {
-    private ICodeGenerator _innerCodeGeneratorMock;
-    private object _lockObject;
-
-    private LockingCodeGeneratorDecorator _decorator;
+    private LockingDecoratorTestHelper<ICodeGenerator> _helper;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerCodeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
-      _lockObject = new object();
+      var innerCodeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
+      var lockObject = new object();
 
-      _decorator = new LockingCodeGeneratorDecorator (_innerCodeGeneratorMock, _lockObject);
+      var decorator = new LockingCodeGeneratorDecorator (innerCodeGeneratorMock, lockObject);
+
+      _helper = new LockingDecoratorTestHelper<ICodeGenerator> (decorator, lockObject, innerCodeGeneratorMock);
     }
 
     [Test]
     public void AssemblyDirectory ()
     {
-      ExpectSynchronizedDelegation (cg => cg.AssemblyDirectory, "xyz");
+      _helper.ExpectSynchronizedDelegation (cg => cg.AssemblyDirectory, "xyz");
     }
 
     [Test]
     public void AssemblyName ()
     {
-      ExpectSynchronizedDelegation (cg => cg.AssemblyName, "abc");
+      _helper.ExpectSynchronizedDelegation (cg => cg.AssemblyName, "abc");
     }
 
     [Test]
     public void SetAssemblyDirectory ()
     {
-      ExpectSynchronizedDelegation (cg => cg.SetAssemblyDirectory ("klm"));
+      _helper.ExpectSynchronizedDelegation (cg => cg.SetAssemblyDirectory ("klm"));
     }
 
     [Test]
     public void SetAssemblyName ()
     {
-      ExpectSynchronizedDelegation (cg => cg.SetAssemblyName ("def"));
+      _helper.ExpectSynchronizedDelegation (cg => cg.SetAssemblyName ("def"));
     }
 
     [Test]
     public void FlushCodeToDisk ()
     {
-      ExpectSynchronizedDelegation (cg => cg.FlushCodeToDisk(), "ghi");
-    }
-
-    // TODO Review: Extract into utility inside Remotion.Development.UnitTesting, use utility in tests for LockingCodeGeneratorDecorator, TypeCache, LockingCacheDecorator, and LockingDataStoreDecorator
-
-    private void ExpectSynchronizedDelegation<TResult> (Func<ICodeGenerator, TResult> action, TResult fakeResult)
-    {
-      _innerCodeGeneratorMock
-          .Expect (mock => action (mock))
-          .Return (fakeResult)
-          .WhenCalled (mi => CheckLockIsHeld (_lockObject));
-
-      var actualResult = action (_decorator);
-
-      _innerCodeGeneratorMock.VerifyAllExpectations();
-      Assert.That (actualResult, Is.EqualTo (fakeResult));
-    }
-
-    private void ExpectSynchronizedDelegation (Action<ICodeGenerator> action)
-    {
-      _innerCodeGeneratorMock
-          .Expect (action)
-          .WhenCalled (mi => CheckLockIsHeld (_lockObject));
-
-      action (_decorator);
-
-      _innerCodeGeneratorMock.VerifyAllExpectations();
-    }
-
-    private void CheckLockIsHeld (object lockObject)
-    {
-      var lockAcquired = true;
-      ThreadRunner.Run (() => lockAcquired = Monitor.TryEnter (lockObject));
-
-      Assert.That (lockAcquired, Is.False, "Parallel thread should have been blocked.");
+      _helper.ExpectSynchronizedDelegation (cg => cg.FlushCodeToDisk(), "ghi");
     }
   }
 }

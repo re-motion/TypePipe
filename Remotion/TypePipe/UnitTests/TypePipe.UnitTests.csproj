@@ -185,6 +185,10 @@
       <Project>{B719A305-0493-4C72-88FE-9A2FC6964578}</Project>
       <Name>Development.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Development\RhinoMocks\Development.RhinoMocks.csproj">
+      <Project>{2177143e-345f-4faa-9958-1ae2b5eed242}</Project>
+      <Name>Development.RhinoMocks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\TypePipe.Core.csproj">
       <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>
       <Name>TypePipe.Core</Name>
