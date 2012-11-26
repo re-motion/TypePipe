@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("method", method);
       Assertion.IsNotNull (method.DeclaringType);
 
-      var baseDefinition = method.GetBaseDefinition ();
+      var baseDefinition = method.GetBaseDefinition();
       if (baseDefinition.DeclaringType.BaseType == null)
         return null;
 
