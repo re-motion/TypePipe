@@ -64,6 +64,7 @@
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
+    <Compile Include="SimpleSerializationTest.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
