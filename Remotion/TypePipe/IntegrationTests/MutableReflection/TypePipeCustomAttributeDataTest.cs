@@ -20,9 +20,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Rhino.Mocks;
 using TypePipe.IntegrationTests.MutableReflection;
+using Remotion.Development.UnitTesting.Enumerables;
 
 [assembly: TypePipeCustomAttributeDataTest.Abc ("assembly")]
 [module: TypePipeCustomAttributeDataTest.Abc ("module")]
@@ -32,6 +35,27 @@ namespace TypePipe.IntegrationTests.MutableReflection
   [TestFixture]
   public class TypePipeCustomAttributeDataTest
   {
+    [Test]
+    public void ExtensionPoint_ICustomAttributeDataRetriever ()
+    {
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleAttribute (""));
+      var attribute1 = new CustomAttributeDeclaration (ctor, new object[] { "" });
+      var attribute2 = new CustomAttributeDeclaration (ctor, new object[] { "" });
+
+      var customAttributeDataRetrieverMock = MockRepository.GenerateStrictMock<ICustomAttributeDataRetriever>();
+      customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (DomainType))).Return (new[] { attribute1 });
+      customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (object))).Return (new[] { attribute2 });
+
+      IEnumerable<ICustomAttributeData> result;
+      using (new ServiceLocatorScope (typeof (ICustomAttributeDataRetriever), () => customAttributeDataRetrieverMock))
+      {
+        result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType), inherit: true).ForceEnumeration();
+      }
+
+      customAttributeDataRetrieverMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (new[] { attribute1, attribute2 }));
+    }
+
     [Test]
     public void StandardReflection ()
     {

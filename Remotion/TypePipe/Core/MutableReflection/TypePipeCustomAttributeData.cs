@@ -34,12 +34,14 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public static class TypePipeCustomAttributeData
   {
-    private static readonly ICustomAttributeDataRetriever s_customAttributeDataRetriever =
-        SafeServiceLocator.Current.GetInstance<ICustomAttributeDataRetriever>();
-
     private static readonly IRelatedMethodFinder s_relatedMethodFinder = new RelatedMethodFinder();
     private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
     private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
+
+    private static ICustomAttributeDataRetriever CustomAttributeDataRetriever
+    {
+      get { return SafeServiceLocator.Current.GetInstance<ICustomAttributeDataRetriever>(); }
+    }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
@@ -57,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection
         case MemberTypes.Event:
           return GetCustomAttributes ((EventInfo) member, inherit);
         default:
-          return s_customAttributeDataRetriever.GetCustomAttributeData (member);
+          return CustomAttributeDataRetriever.GetCustomAttributeData (member);
       }
     }
 
@@ -65,76 +67,77 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetCustomAttributes (t => t.BaseType, type, inherit);
+      return GetCustomAttributes (type, inherit, t => t.BaseType, CustomAttributeDataRetriever);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (field);
+      return CustomAttributeDataRetriever.GetCustomAttributeData (field);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (constructor);
+      return CustomAttributeDataRetriever.GetCustomAttributeData (constructor);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MethodInfo method, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      return GetCustomAttributes (s_relatedMethodFinder.GetBaseMethod, method, inherit);
+      return GetCustomAttributes (method, inherit, s_relatedMethodFinder.GetBaseMethod, CustomAttributeDataRetriever);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (PropertyInfo property, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("property", property);
 
-      return GetCustomAttributes (s_relatedPropertyFinder.GetBaseProperty, property, inherit);
+      return GetCustomAttributes (property, inherit, s_relatedPropertyFinder.GetBaseProperty, CustomAttributeDataRetriever);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (EventInfo @event, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("event", @event);
 
-      return GetCustomAttributes (s_relatedEventFinder.GetBaseEvent, @event, inherit);
+      return GetCustomAttributes (@event, inherit, s_relatedEventFinder.GetBaseEvent, CustomAttributeDataRetriever);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
     {
       ArgumentUtility.CheckNotNull ("parameter", parameter);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (parameter);
+      return CustomAttributeDataRetriever.GetCustomAttributeData (parameter);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Assembly assembly)
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (assembly);
+      return CustomAttributeDataRetriever.GetCustomAttributeData (assembly);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Module module)
     {
       ArgumentUtility.CheckNotNull ("module", module);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (module);
+      return CustomAttributeDataRetriever.GetCustomAttributeData (module);
     }
 
-    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (Func<T, T> baseMemberProvider, T member, bool inherit)
+    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (
+        T member, bool inherit, Func<T, T> baseMemberProvider, ICustomAttributeDataRetriever attributeRetriever)
         where T : MemberInfo
     {
-      var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
+      var attributes = attributeRetriever.GetCustomAttributeData (member);
       if (!inherit)
         return attributes;
 
       var baseMember = baseMemberProvider (member); // Base member may be null, which is ok.
       var inheritedAttributes = baseMember
           .CreateSequence (baseMemberProvider)
-          .SelectMany (s_customAttributeDataRetriever.GetCustomAttributeData)
+          .SelectMany (attributeRetriever.GetCustomAttributeData)
           .Where (d => AttributeUtility.IsAttributeInherited (d.Type));
 
       var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
