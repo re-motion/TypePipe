@@ -36,16 +36,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
-      return () => CustomAttributeData.GetCustomAttributes (member)
-                       .Select (x => new CustomAttributeDataAdapter (x))
-                       .Cast<ICustomAttributeData>().ToList().AsReadOnly();
+      return () => TypePipeCustomAttributeData.GetCustomAttributes (member).ToList().AsReadOnly();
     }
 
     protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (ParameterInfo parameter)
     {
-      return () => CustomAttributeData.GetCustomAttributes (parameter)
-                       .Select (x => new CustomAttributeDataAdapter (x))
-                       .Cast<ICustomAttributeData>().ToList().AsReadOnly();
+      return () => TypePipeCustomAttributeData.GetCustomAttributes (parameter).ToList().AsReadOnly();
     }
 
     private readonly TInfo _underlyingSystemInfo;
