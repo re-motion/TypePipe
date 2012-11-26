@@ -71,6 +71,26 @@ namespace TypePipe.IntegrationTests
       CheckInstanceIsSerializableAndAddedFields (instance2, "abc def", 8, 1);
     }
 
+    [Test]
+    public void CannotSerialize ()
+    {
+      var factory = CreateObjectFactory();
+
+      // TODO: Apply this comment to implementation to the code that deals with the first case: TODO RM-4695
+      var message = "The underlying type implements ISerializable but GetObjectData cannot be overrided. "
+                    + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual";
+      Assert.That (
+          () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData)),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+      Assert.That (
+          () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideExplicitlyImplementedGetOjbectData)),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+      Assert.That (
+          () => factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor)),
+          Throws.TypeOf<NotSupportedException>()
+                .With.Message.EqualTo ("The underlying type implements ISerializable but no deserialization constructor was found."));
+    }
+
     private SerializableType CheckInstanceIsSerializable (SerializableType instance, string expectedStringFieldValue = "abc")
     {
       Assert.That (instance.GetType().IsSerializable, Is.True);
@@ -139,13 +159,28 @@ namespace TypePipe.IntegrationTests
     {
       public CustomSerializableType (SerializationInfo info, StreamingContext context)
       {
-        String = info.GetString ("String");
+        String = info.GetString ("key1");
       }
 
-      public void GetObjectData (SerializationInfo info, StreamingContext context)
+      public virtual void GetObjectData (SerializationInfo info, StreamingContext context)
       {
-        info.AddValue ("String", String);
+        info.AddValue ("key1", String);
       }
+    }
+
+    public class CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData : ISerializable
+    {
+      public void GetObjectData (SerializationInfo info, StreamingContext context) { }
+    }
+
+    public class CustomSerializableTypeCannotOverrideExplicitlyImplementedGetOjbectData : ISerializable
+    {
+      void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
+    }
+
+    public class CustomSerializableTypeWithoutDeserializationConstructor : ISerializable
+    {
+      public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
   }
 }
