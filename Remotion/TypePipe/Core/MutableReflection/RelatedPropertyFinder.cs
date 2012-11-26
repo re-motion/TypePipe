@@ -50,9 +50,9 @@ namespace Remotion.TypePipe.MutableReflection
       return SafeHasSameBaseDefinition (getter, baseCandidateGetter) || SafeHasSameBaseDefinition (setter, baseCandidateSetter);
     }
 
-    private bool SafeHasSameBaseDefinition(MethodInfo a, MethodInfo b)
+    private bool SafeHasSameBaseDefinition (MethodInfo a, MethodInfo b)
     {
-      return a != null && b != null && a.GetBaseDefinition () == b.GetBaseDefinition ();
+      return a != null && b != null && a.GetBaseDefinition() == b.GetBaseDefinition();
     }
   }
 }

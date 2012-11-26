@@ -29,7 +29,7 @@ namespace TypePipe.IntegrationTests.MutableReflection
   public class GetCustomAttributesTest
   {
     [Test]
-    [Domain("")]
+    [Domain ("")]
     public void GetCustomAttributes_AttributeInstantiation_NoFilter ()
     {
       var mutableMember = CreateMutableMember (MethodBase.GetCurrentMethod ());

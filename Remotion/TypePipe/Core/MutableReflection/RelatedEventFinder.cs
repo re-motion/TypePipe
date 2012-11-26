@@ -52,12 +52,12 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (baseCandidateAdder, "Events must always have an add method.");
       Assertion.IsNotNull (baseCandidateRemover, "Events must always have a remove method.");
 
-      return SafeHasSameBaseDefinition (adder, baseCandidateAdder) || SafeHasSameBaseDefinition (remover, baseCandidateRemover);
+      return HasSameBaseDefinition (adder, baseCandidateAdder) || HasSameBaseDefinition (remover, baseCandidateRemover);
     }
 
-    private bool SafeHasSameBaseDefinition(MethodInfo a, MethodInfo b)
+    private bool HasSameBaseDefinition (MethodInfo a, MethodInfo b)
     {
-      return a.GetBaseDefinition () == b.GetBaseDefinition ();
+      return a.GetBaseDefinition() == b.GetBaseDefinition();
     }
   }
 }

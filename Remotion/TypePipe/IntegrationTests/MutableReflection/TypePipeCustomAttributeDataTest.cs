@@ -24,7 +24,8 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using TypePipe.IntegrationTests.MutableReflection;
 
-[assembly: TypePipeCustomAttributeDataTest.AbcAttribute ("ctorArg")]
+[assembly: TypePipeCustomAttributeDataTest.Abc ("assembly")]
+[module: TypePipeCustomAttributeDataTest.Abc ("module")]
 
 namespace TypePipe.IntegrationTests.MutableReflection
 {
@@ -34,6 +35,8 @@ namespace TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void StandardReflection ()
     {
+      var assembly = GetType().Assembly;
+      var module = GetType().Module;
       var type = typeof (DomainType);
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.field);
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
@@ -53,6 +56,8 @@ namespace TypePipe.IntegrationTests.MutableReflection
       var nestedType = typeof (DomainType.NestedType);
       var genericType = typeof (DomainType.GenericType<>).GetGenericArguments().Single();
 
+      CheckAbcAttributeOnly (TypePipeCustomAttributeData.GetCustomAttributes (assembly), CustomAttributeData.GetCustomAttributes (assembly));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (module), CustomAttributeData.GetCustomAttributes (module));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (type), CustomAttributeData.GetCustomAttributes (type));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (ctor), CustomAttributeData.GetCustomAttributes (ctor));
@@ -71,16 +76,6 @@ namespace TypePipe.IntegrationTests.MutableReflection
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (eventRemoveParameter), CustomAttributeData.GetCustomAttributes (eventRemoveParameter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), CustomAttributeData.GetCustomAttributes (nestedType));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (genericType), CustomAttributeData.GetCustomAttributes (genericType));
-    }
-
-    [Test]
-    public void StandardReflection_Assembly ()
-    {
-      var assembly = Assembly.GetAssembly (typeof (TypePipeCustomAttributeDataTest));
-      var result1 = TypePipeCustomAttributeData.GetCustomAttributes (assembly).Single (x => x.Constructor.DeclaringType == typeof (AbcAttribute));
-      var result2 = CustomAttributeData.GetCustomAttributes (assembly).Single (x => x.Constructor.DeclaringType == typeof (AbcAttribute));
-
-      Assert.That (result1.ConstructorArguments.Single(), Is.EqualTo (result2.ConstructorArguments.Single().Value));
     }
 
     [Test]
@@ -194,6 +189,13 @@ namespace TypePipe.IntegrationTests.MutableReflection
       Assert.That (
           actualAbcAttribute.ConstructorArguments.Single(),
           Is.Not.Null.And.EqualTo (expectedAbcAttribute.ConstructorArguments.Single().Value));
+    }
+
+    private void CheckAbcAttributeOnly (IEnumerable<ICustomAttributeData> actualAttributes, IEnumerable<CustomAttributeData> expectedAttributes)
+    {
+      CheckAbcAttribute (
+          actualAttributes.Where (a => a.Type == typeof (AbcAttribute)),
+          expectedAttributes.Where (a => a.Constructor.DeclaringType == typeof (AbcAttribute)));
     }
 
     private IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member)
