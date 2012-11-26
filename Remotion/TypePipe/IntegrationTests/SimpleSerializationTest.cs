@@ -99,6 +99,7 @@ namespace TypePipe.IntegrationTests
       var memoryStream = new MemoryStream();
       var binaryFormatter = new BinaryFormatter();
 
+      FlushAndTrackFilesForCleanup();
       binaryFormatter.Serialize (memoryStream, instance);
       var deserializedInstance = (SerializableType) binaryFormatter.Deserialize (memoryStream);
 
