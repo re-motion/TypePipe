@@ -69,6 +69,7 @@
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
+    <Compile Include="TypeAssembly\InterfaceImplementationsTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeInitializationTest.cs" />
     <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />

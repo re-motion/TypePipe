@@ -29,9 +29,9 @@ namespace TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void MarkerInterface ()
     {
-      Assert.That (typeof (OriginalType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
+      Assert.That (typeof (DomainType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
 
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
+      var type = AssembleType<DomainType> (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
 
       Assert.That (type.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
     }
@@ -40,7 +40,7 @@ namespace TypePipe.IntegrationTests.TypeAssembly
     public void AddMethodAsExplicitInterfaceImplementation ()
     {
       var interfaceMethod = GetDeclaredMethod (typeof (IInterfaceWithMethod), "Method");
-      var type = AssembleType<OriginalType> (
+      var type = AssembleType<DomainType> (
           mutableType =>
           {
             mutableType.AddInterface (typeof (IInterfaceWithMethod));
@@ -60,7 +60,7 @@ namespace TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (mutableMethodInfo));
           });
 
-      var instance = (OriginalType) Activator.CreateInstance (type);
+      var instance = (DomainType) Activator.CreateInstance (type);
       Assert.That (instance, Is.AssignableTo<IInterfaceWithMethod>());
 
       var method = GetDeclaredMethod (type, "DifferentName");
@@ -74,17 +74,11 @@ namespace TypePipe.IntegrationTests.TypeAssembly
       Assert.That (((IInterfaceWithMethod) instance).Method (), Is.EqualTo ("explicitly implemented"));
     }
 
-    public class OriginalType : IOriginalInterface
-    {
-    }
+    public class DomainType : IOriginalInterface { }
 
-    public interface IOriginalInterface
-    {
-    }
+    public interface IOriginalInterface { }
 
-    public interface IMarkerInterface
-    {
-    }
+    public interface IMarkerInterface { }
 
     public interface IInterfaceWithMethod
     {
