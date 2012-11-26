@@ -21,7 +21,10 @@ using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO 5206 docs
+  /// <summary>
+  /// Retrieves <see cref="ICustomAttributeData"/> objects from implementations of <see cref="ICustomAttributeProvider"/>, that is
+  /// <see cref="MemberInfo"/>, <see cref="ParameterInfo"/>, <see cref="Assembly"/> and <see cref="Module"/>.
+  /// </summary>
   [ConcreteImplementation (typeof (CustomAttributeDataRetriever))]
   public interface ICustomAttributeDataRetriever
   {

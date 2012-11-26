@@ -22,7 +22,10 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO 5206 docs
+  /// <summary>
+  /// Implements <see cref="ICustomAttributeDataRetriever"/> for standard .NET reflection objects and mutable reflection objects
+  /// using <see cref="CustomAttributeData"/> and <see cref="ITypePipeCustomAttributeProvider"/> respectivly.
+  /// </summary>
   public class CustomAttributeDataRetriever : ICustomAttributeDataRetriever
   {
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member)
