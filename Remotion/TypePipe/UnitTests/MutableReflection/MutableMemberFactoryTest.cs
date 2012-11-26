@@ -410,10 +410,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableMethodOverride_ExistingOverride ()
+    public void GetOrCreateMutableMethodOverride_ExistingOverride ()
     {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString ());
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ToString ());
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ToString());
       Assert.That (method, Is.Not.EqualTo (baseDefinition));
 
       var fakeExistingOverride = MutableMethodInfoObjectMother.Create ();
@@ -430,7 +430,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableMethodOverride_BaseMethod_ImplicitOverride ()
+    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
@@ -449,7 +449,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableMethodOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
+    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
       var inputMethod = baseDefinition;
@@ -470,7 +470,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableMethodOverride_ShadowedBaseMethod_ExplicitOverride ()
+    public void GetOrCreateMutableMethodOverride_ShadowedBaseMethod_ExplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
@@ -490,26 +490,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateMutableMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
+    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
     {
-      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
       var mutableType = MutableTypeObjectMother.CreateForExisting (
           typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
       SetupExpectationsForGetOrAddMutableMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
 
-      var result = mutableType.GetOrAddMutableMethod (baseMethod);
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (mutableType, baseMethod, out _isNewlyCreated);
 
-      _relatedMethodFinderMock.VerifyAllExpectations ();
-
+      _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
       Assert.That (result.IsAbstract, Is.True);
+      Assert.That (_isNewlyCreated, Is.True);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: method")]
-    public void CreateMutableMethodOverride_InterfaceDeclaringType ()
+    public void GetOrCreateMutableMethodOverride_InterfaceDeclaringType ()
     {
       Assert.That (_mutableType.GetInterfaces (), Has.Member (typeof (IDomainInterface)));
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
@@ -519,7 +519,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
-    public void CreateMutableMethodOverride_UnrelatedDeclaringType ()
+    public void GetOrCreateMutableMethodOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
       _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
@@ -528,15 +528,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "A method declared in a base type must be virtual in order to be modified.")]
-    public void CreateMutableMethodOverride_NonVirtualMethod ()
+    public void GetOrCreateMutableMethodOverride_NonVirtualMethod ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod());
       _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void CreateMutableMethodOverride_FinalBaseMethod ()
+    public void GetOrCreateMutableMethodOverride_FinalBaseMethod ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
       var inputMethod = baseDefinition;

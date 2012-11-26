@@ -206,8 +206,7 @@ namespace Remotion.TypePipe.MutableReflection
                              : new Func<MethodBodyCreationContext, Expression> (
                                    ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
-      var addedOverride = CreateMutableMethod (
-          declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var addedOverride = CreateMutableMethod (declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
         addedOverride.AddExplicitBaseDefinition (baseDefinition);
 
