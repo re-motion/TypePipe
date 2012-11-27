@@ -7,8 +7,8 @@
     <ProjectGuid>{C138ADE5-F991-49A8-8BB3-B5F5381F60DA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TypePipe.PerformanceTests</RootNamespace>
-    <AssemblyName>TypePipe.PerformanceTests</AssemblyName>
+    <RootNamespace>Remotion.TypePipe.PerformanceTests</RootNamespace>
+    <AssemblyName>Remotion.TypePipe.PerformanceTests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
