@@ -330,10 +330,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Value cannot be null.\r\nParameter name: bodyProvider")]
+    [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
     public void CreateMutableMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
       _mutableMemberFactory.CreateMutableMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods cannot have a body.\r\nParameter name: bodyProvider")]
+    public void CreateMutableMethod_ThrowsIfAbstractAndBodyProvider ()
+    {
+      _mutableMemberFactory.CreateMutableMethod (
+          _mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, ctx => null);
     }
 
     [Test]
@@ -351,7 +359,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethod_ThrowsIfAbstractAndNotVirtual ()
     {
       _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+          _mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
     }
 
     [Test]
@@ -359,7 +367,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateMutableMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
       _mutableMemberFactory.CreateMutableMethod (
-          _mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, cx => Expression.Empty());
+          _mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
     }
 
     [Test]
