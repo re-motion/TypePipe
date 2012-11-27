@@ -72,6 +72,15 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
+    public void ExistingInterface_ExistingMethod_ExplicitReplacesImplicit ()
+    {
+      var implementationMethod = (MutableMethodInfo) _mutableType.GetMethod ("UnrelatedMethod");
+      implementationMethod.AddExplicitBaseDefinition (_existingInterfaceMethod);
+
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationMethod);
+    }
+
+    [Test]
     public void ExistingInterface_AddedMethod_Explicit ()
     {
       var implementationMethod = AddSimiliarMethod (_mutableType, _existingInterfaceMethod, methodName: "ExplicitImplementation");
