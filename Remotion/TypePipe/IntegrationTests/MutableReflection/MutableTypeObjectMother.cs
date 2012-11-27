@@ -25,11 +25,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public static MutableType CreateForExisting (Type underlyingType)
     {
       var underlyingTypeDescriptor = TypeDescriptor.Create (underlyingType);
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
-      var relatedMethodFinder = new RelatedMethodFinder ();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var relatedMethodFinder = new RelatedMethodFinder();
+      var interfaceMappingHelper = new InterfaceMappingHelper();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
+      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
     }
   }
 }

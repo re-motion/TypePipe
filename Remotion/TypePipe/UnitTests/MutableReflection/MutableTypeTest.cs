@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private TypeDescriptor _descriptor;
     private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
+    private IInterfaceMappingHelper _interfaceMappingHelperMock;
     private IMutableMemberFactory _mutableMemberFactoryMock;
 
     private MutableType _mutableType;
@@ -49,9 +50,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // If this changes and the UnderlyingTypeDescriptor logic becomes a problem, consider injecting an ExistingMutableMemberInfoFactory instead and 
       // stubbing that.
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
+      _interfaceMappingHelperMock = MockRepository.GenerateStrictMock<IInterfaceMappingHelper>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
-      _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock, _mutableMemberFactoryMock);
+      _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock, _interfaceMappingHelperMock, _mutableMemberFactoryMock);
     }
 
     [Test]
@@ -445,6 +447,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetInterfaceMap ()
+    {
+      var interfaceType = typeof (IDomainInterface);
+      var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
+      _interfaceMappingHelperMock
+          .Expect (mock => mock.ComputeMapping (GetAllMethods (_mutableType), _descriptor.InterfaceMappingProvider, interfaceType))
+          .Return (fakeResult);
+
+      var result = _mutableType.GetInterfaceMap (interfaceType);
+
+      _interfaceMappingHelperMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
+    }
+
+    [Test]
     public void GetAttributeFlagsImpl ()
     {
       var allMethods = GetAllMethods (_mutableType);
@@ -678,9 +695,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return (MutableTypeMemberCollection<FieldInfo, MutableFieldInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_fields");
     }
 
-    private MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> GetAllMethods (MutableType mutableType)
+    private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
     {
-      return (MutableTypeMemberCollection<MethodInfo, MutableMethodInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
+      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
     }
 
     private MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> GetAllConstructors (MutableType mutableType)

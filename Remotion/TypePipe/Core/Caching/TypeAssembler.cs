@@ -88,9 +88,10 @@ namespace Remotion.TypePipe.Caching
       var underlyingTypeDescriptor = TypeDescriptor.Create (requestedType);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
+      var interfaceMappingHelper = new InterfaceMappingHelper();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, mutableMemberFactory);
+      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
     }
   }
 }

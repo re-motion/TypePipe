@@ -142,7 +142,9 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataRetriever.cs" />
     <Compile Include="MutableReflection\ICustomAttributeDataRetriever.cs" />
+    <Compile Include="MutableReflection\IInterfaceMappingHelper.cs" />
     <Compile Include="MutableReflection\IMutableMemberFactory.cs" />
+    <Compile Include="MutableReflection\InterfaceMappingHelper.cs" />
     <Compile Include="MutableReflection\IRelatedEventFinder.cs" />
     <Compile Include="MutableReflection\IRelatedPropertyFinder.cs" />
     <Compile Include="MutableReflection\MutableMemberFactory.cs" />

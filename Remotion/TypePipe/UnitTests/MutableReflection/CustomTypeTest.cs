@@ -81,10 +81,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_Null ()
     {
-      Type declaringType = null;
-      Type baseType = null;
-
-      var customType = new TestableCustomType (_memberSelectorMock, _underlyingSystemType, declaringType, baseType, _name, _namespace, _fullName);
+      var customType = new TestableCustomType (
+          _memberSelectorMock, _underlyingSystemType, declaringType: null, baseType: null, name: _name, @namespace: _namespace, fullName: _fullName);
 
       Assert.That (customType.DeclaringType, Is.Null);
       Assert.That (customType.BaseType, Is.Null);
@@ -194,7 +192,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _customType.Interfaces = new[] { typeof (IDisposable), typeof (Idisposable) };
 
-      _customType.GetInterface ("IDisposable", true);
+      Dev.Null = _customType.GetInterface ("IDisposable", true);
     }
 
     [Test]
@@ -355,13 +353,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Dev.Null = _customType.IsContextful; // IsContextfulImpl()
       Dev.Null = _customType.IsMarshalByRef; // IsMarshalByRefImpl()
 
-      _customType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
-      _customType.GetEvents();
-      _customType.GetMember ("name", BindingFlags.Default);
-      _customType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
-      _customType.IsSubclassOf (null);
-      _customType.IsInstanceOfType (null);
-      _customType.IsAssignableFrom (null);
+      Dev.Null = _customType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
+      Dev.Null = _customType.GetEvents ();
+      Dev.Null = _customType.GetMember ("name", BindingFlags.Default);
+      Dev.Null = _customType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
+      Dev.Null = _customType.IsSubclassOf (null);
+      Dev.Null = _customType.IsInstanceOfType (null);
+      Dev.Null = _customType.IsAssignableFrom (null);
 
       _memberSelectorMock
           .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
@@ -386,18 +384,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       CheckThrowsNotSupported (() => Dev.Null = _customType.GenericParameterPosition, "Property", "GenericParameterPosition");
       CheckThrowsNotSupported (() => Dev.Null = _customType.TypeHandle, "Property", "TypeHandle");
 
-      CheckThrowsNotSupported (() => _customType.GetDefaultMembers (), "Method", "GetDefaultMembers");
-      CheckThrowsNotSupported (() => _customType.GetInterfaceMap (null), "Method", "GetInterfaceMap");
-      CheckThrowsNotSupported (() => _customType.InvokeMember (null, 0, null, null, null, null, null, null), "Method", "InvokeMember");
-      CheckThrowsNotSupported (() => _customType.MakePointerType (), "Method", "MakePointerType");
-      CheckThrowsNotSupported (() => _customType.MakeByRefType (), "Method", "MakeByRefType");
-      CheckThrowsNotSupported (() => _customType.MakeArrayType (), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => _customType.MakeArrayType (7), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => _customType.GetArrayRank (), "Method", "GetArrayRank");
-      CheckThrowsNotSupported (() => _customType.GetGenericParameterConstraints (), "Method", "GetGenericParameterConstraints");
-      CheckThrowsNotSupported (() => _customType.MakeGenericType (), "Method", "MakeGenericType");
-      CheckThrowsNotSupported (() => _customType.GetGenericArguments (), "Method", "GetGenericArguments");
-      CheckThrowsNotSupported (() => _customType.GetGenericTypeDefinition (), "Method", "GetGenericTypeDefinition");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GetDefaultMembers (), "Method", "GetDefaultMembers");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.InvokeMember (null, 0, null, null, null, null, null, null), "Method", "InvokeMember");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.MakePointerType (), "Method", "MakePointerType");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeByRefType (), "Method", "MakeByRefType");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeArrayType (), "Method", "MakeArrayType");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeArrayType (7), "Method", "MakeArrayType");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GetArrayRank (), "Method", "GetArrayRank");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GetGenericParameterConstraints (), "Method", "GetGenericParameterConstraints");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeGenericType (), "Method", "MakeGenericType");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GetGenericArguments (), "Method", "GetGenericArguments");
+      CheckThrowsNotSupported (() => Dev.Null = _customType.GetGenericTypeDefinition (), "Method", "GetGenericTypeDefinition");
     }
 
     private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)

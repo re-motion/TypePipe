@@ -40,7 +40,11 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : CustomType, IMutableMember
   {
     private readonly IRelatedMethodFinder _relatedMethodFinder;
+    private readonly IInterfaceMappingHelper _interfaceMappingHelper;
     private readonly IMutableMemberFactory _mutableMemberFactory;
+
+    private readonly TypeAttributes _attributes;
+    private readonly Func<Type, InterfaceMapping> _interfacMappingProvider;
 
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
@@ -54,12 +58,11 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMethodCollection _methods;
 
-    private readonly TypeAttributes _originalAttributes;
-
     public MutableType (
         TypeDescriptor descriptor,
         IMemberSelector memberSelector,
         IRelatedMethodFinder relatedMethodFinder,
+        IInterfaceMappingHelper interfaceMappingHelper,
         IMutableMemberFactory mutableMemberFactory)
         : base (
             memberSelector,
@@ -72,15 +75,18 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("descriptor", descriptor);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull ("interfaceMappingHelper", interfaceMappingHelper);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
       _relatedMethodFinder = relatedMethodFinder;
+      _interfaceMappingHelper = interfaceMappingHelper;
       _mutableMemberFactory = mutableMemberFactory;
 
-      _customAttributeDatas =
-          new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
+      _attributes = descriptor.Attributes;
+      _interfacMappingProvider = descriptor.InterfaceMappingProvider;
 
-      _originalAttributes = descriptor.Attributes;
+      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
+
       _existingInterfaces = descriptor.Interfaces;
 
       _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, descriptor.Fields, CreateExistingMutableField);
@@ -328,15 +334,20 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributeDatas.Value;
     }
 
+    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
+    {
+      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+
+      return _interfaceMappingHelper.ComputeMapping (_methods, _interfacMappingProvider, interfaceType);
+    }
+
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      var attributes = _originalAttributes & ~TypeAttributes.Abstract;
-
       var hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Any (m => m.IsAbstract);
       if (hasAbstractMethods)
-        attributes |= TypeAttributes.Abstract;
-      
-      return attributes;
+        return _attributes | TypeAttributes.Abstract;
+      else
+        return _attributes & ~TypeAttributes.Abstract;
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()

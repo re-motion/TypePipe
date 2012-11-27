@@ -70,6 +70,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
+    public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
 
     protected abstract override TypeAttributes GetAttributeFlagsImpl ();
     protected abstract IEnumerable<Type> GetAllInterfaces ();
@@ -323,11 +324,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override MemberInfo[] GetDefaultMembers ()
     {
       throw new NotSupportedException ("Method GetDefaultMembers is not supported.");
-    }
-
-    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotSupportedException ("Method GetInterfaceMap is not supported.");
     }
 
     public override object InvokeMember (string name, BindingFlags invokeAttr, Binder binderOrNull, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
