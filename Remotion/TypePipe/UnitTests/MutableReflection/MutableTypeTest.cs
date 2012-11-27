@@ -452,7 +452,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
       _interfaceMappingComputerMock
-          .Expect (mock => mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType))
+          .Expect (mock => mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType, GetAllMethods (_mutableType)))
           .Return (fakeResult);
 
       var result = _mutableType.GetInterfaceMap (interfaceType);

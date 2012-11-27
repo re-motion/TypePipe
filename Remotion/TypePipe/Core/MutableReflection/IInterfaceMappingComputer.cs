@@ -28,6 +28,10 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public interface IInterfaceMappingComputer
   {
-    InterfaceMapping ComputeMapping (MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType);
+    InterfaceMapping ComputeMapping (
+        MutableType mutableType,
+        Func<Type, InterfaceMapping> interfacMappingProvider,
+        Type interfaceType,
+        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider);
   }
 }

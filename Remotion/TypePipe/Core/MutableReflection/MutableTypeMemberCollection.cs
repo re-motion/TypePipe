@@ -33,9 +33,10 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
-  public class MutableTypeMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMemberInfo>
-      where TMemberInfo: MemberInfo
-      where TMutableMemberInfo: TMemberInfo
+  public class MutableTypeMemberCollection<TMemberInfo, TMutableMemberInfo>
+      : IEnumerable<TMemberInfo>, IMutableMemberProvider<TMemberInfo, TMutableMemberInfo>
+      where TMemberInfo : MemberInfo
+      where TMutableMemberInfo : TMemberInfo
   {
     private readonly MutableType _declaringType;
     private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingDeclaredMembers;

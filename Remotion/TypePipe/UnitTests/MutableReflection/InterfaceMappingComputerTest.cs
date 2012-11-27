@@ -20,6 +20,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -29,6 +30,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private InterfaceMappingComputer _computer;
 
+    private IMutableMemberProvider<MethodInfo, MutableMethodInfo> _mutableMethodProvider; 
+
     private MutableType _mutableType;
     private MethodInfo _existingInterfaceMethod;
     private MethodInfo _addedInterfaceMethod;
@@ -37,6 +40,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _computer = new InterfaceMappingComputer();
+
+      _mutableMethodProvider = MockRepository.GenerateStrictMock<IMutableMemberProvider<MethodInfo, MutableMethodInfo>>();
 
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
       _existingInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.Method1());
@@ -49,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var underlyingImplementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method1());
       var mappingProvider = CreateMappingProvider (_existingInterfaceMethod, underlyingImplementation);
 
-      var result = _computer.ComputeMapping (_mutableType, mappingProvider, typeof (IExistingInterface));
+      var result = _computer.ComputeMapping (_mutableType, mappingProvider, typeof (IExistingInterface), _mutableMethodProvider);
 
       var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "Method1");
       CheckInterfaceMapping (result, implementation);
@@ -60,8 +65,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
       implementation.AddExplicitBaseDefinition (_existingInterfaceMethod);
+      var mappingProvider = CreateMappingProvider (_existingInterfaceMethod);
 
-      var result = _computer.ComputeMapping (_mutableType, CreateMappingProvider (_existingInterfaceMethod), typeof (IExistingInterface));
+      var result = _computer.ComputeMapping (_mutableType, mappingProvider, typeof (IExistingInterface), _mutableMethodProvider);
 
       CheckInterfaceMapping (result, implementation);
     }
@@ -70,8 +76,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ComputeMapping_AddedInterface_Implicit ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
+      var mappingProvider = CreateMappingProvider (_addedInterfaceMethod);
 
-      var result = _computer.ComputeMapping (_mutableType, CreateMappingProvider (_addedInterfaceMethod), typeof (IAddedInterface));
+      var result = _computer.ComputeMapping (_mutableType, mappingProvider, typeof (IAddedInterface), _mutableMethodProvider);
 
       var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "Method2");
       CheckInterfaceMapping (result, implementation);
@@ -83,8 +90,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddInterface (typeof (IAddedInterface));
       var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
       implementation.AddExplicitBaseDefinition (_addedInterfaceMethod);
+      var mappingProvider = CreateMappingProvider (_addedInterfaceMethod);
 
-      var result = _computer.ComputeMapping (_mutableType, CreateMappingProvider (_addedInterfaceMethod), typeof (IAddedInterface));
+      var result = _computer.ComputeMapping (_mutableType, mappingProvider, typeof (IAddedInterface), _mutableMethodProvider);
 
       CheckInterfaceMapping (result, implementation);
     }

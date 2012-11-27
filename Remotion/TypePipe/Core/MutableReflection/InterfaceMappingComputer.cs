@@ -25,14 +25,19 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class InterfaceMappingComputer : IInterfaceMappingComputer
   {
-    public InterfaceMapping ComputeMapping (MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType)
+    public InterfaceMapping ComputeMapping (
+        MutableType mutableType,
+        Func<Type, InterfaceMapping> interfacMappingProvider,
+        Type interfaceType,
+        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull ("mutableMethodProvider", mutableMethodProvider);
+
 
       throw new NotImplementedException();
-
     }
   }
 }

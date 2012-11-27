@@ -144,6 +144,7 @@
     <Compile Include="MutableReflection\ICustomAttributeDataRetriever.cs" />
     <Compile Include="MutableReflection\IInterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\IMutableMemberFactory.cs" />
+    <Compile Include="MutableReflection\IMutableMemberProvider.cs" />
     <Compile Include="MutableReflection\InterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\IRelatedEventFinder.cs" />
     <Compile Include="MutableReflection\IRelatedPropertyFinder.cs" />
