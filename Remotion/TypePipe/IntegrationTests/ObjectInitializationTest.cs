@@ -21,10 +21,9 @@ using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe;
-using TypePipe.IntegrationTests.TypeAssembly;
+using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests
 {
   [TestFixture]
   public class ObjectInitializationTest : ObjectFactoryIntegrationTestBase

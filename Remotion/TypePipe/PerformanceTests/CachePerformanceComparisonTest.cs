@@ -23,14 +23,13 @@ using Remotion.Data.DomainObjects.Infrastructure;
 using Remotion.Data.DomainObjects.Mapping;
 using Remotion.Mixins;
 using Remotion.Reflection;
-using Remotion.TypePipe;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
-namespace TypePipe.PerformanceTests
+namespace Remotion.TypePipe.PerformanceTests
 {
   [Explicit ("Performance measurement for caching")]
   [TestFixture]

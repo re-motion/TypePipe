@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Reflection;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests
 {
   [TestFixture]
   public class ObjectCreationTest : ObjectFactoryIntegrationTestBase

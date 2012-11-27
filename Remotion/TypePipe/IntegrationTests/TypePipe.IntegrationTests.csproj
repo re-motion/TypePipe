@@ -8,8 +8,8 @@
     <ProjectGuid>{37304DD7-81D0-4110-B924-D974C04F067C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TypePipe.IntegrationTests</RootNamespace>
-    <AssemblyName>TypePipe.IntegrationTests</AssemblyName>
+    <RootNamespace>Remotion.TypePipe.IntegrationTests</RootNamespace>
+    <AssemblyName>Remotion.TypePipe.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -60,14 +60,17 @@
     </Compile>
     <Compile Include="CachingTest.cs" />
     <Compile Include="FlushGeneratedCodeTest.cs" />
+    <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
+    <Compile Include="SimpleSerializationTest.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
+    <Compile Include="TypeAssembly\InterfaceImplementationsTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeInitializationTest.cs" />
     <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />

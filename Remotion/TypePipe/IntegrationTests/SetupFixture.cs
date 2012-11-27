@@ -24,7 +24,7 @@ using NUnit.Framework;
 using System.Linq;
 using Remotion.Utilities;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests
 {
   [SetUpFixture]
   public class SetupFixture

@@ -24,7 +24,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests.TypeAssembly
+namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class CopyMethodBodyTest : TypeAssemblerIntegrationTestBase

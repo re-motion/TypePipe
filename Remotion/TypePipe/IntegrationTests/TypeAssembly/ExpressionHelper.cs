@@ -18,7 +18,7 @@
 using System;
 using Microsoft.Scripting.Ast;
 
-namespace TypePipe.IntegrationTests.TypeAssembly
+namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   public static class ExpressionHelper
   {

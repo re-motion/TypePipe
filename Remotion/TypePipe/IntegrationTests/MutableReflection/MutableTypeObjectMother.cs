@@ -18,7 +18,7 @@
 using System;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests.MutableReflection
+namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {

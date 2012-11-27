@@ -126,8 +126,10 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
-      if (!isAbstract)
-        ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      if (!isAbstract && bodyProvider == null)
+        throw new ArgumentNullException ("bodyProvider", "Non-abstract methods must have a body.");
+      if (isAbstract && bodyProvider != null)
+        throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
       CheckForInvalidAttributes ("method", invalidAttributes, attributes);
@@ -206,8 +208,7 @@ namespace Remotion.TypePipe.MutableReflection
                              : new Func<MethodBodyCreationContext, Expression> (
                                    ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
-      var addedOverride = CreateMutableMethod (
-          declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var addedOverride = CreateMutableMethod (declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
         addedOverride.AddExplicitBaseDefinition (baseDefinition);
 

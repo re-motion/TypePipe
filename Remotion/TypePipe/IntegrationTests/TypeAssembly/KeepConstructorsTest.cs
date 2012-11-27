@@ -22,7 +22,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 
-namespace TypePipe.IntegrationTests.TypeAssembly
+namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class KeepConstructorsTest : TypeAssemblerIntegrationTestBase
