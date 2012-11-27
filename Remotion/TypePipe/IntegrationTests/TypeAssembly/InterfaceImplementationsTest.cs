@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 
 namespace TypePipe.IntegrationTests.TypeAssembly
 {
+  [Ignore ("TODO 5229")]
   [TestFixture]
   public class InterfaceImplementationsTest : TypeAssemblerIntegrationTestBase
   {
