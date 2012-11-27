@@ -59,6 +59,7 @@ namespace Remotion.TypePipe.MutableReflection
           underlyingType.FullName,
           underlyingType.Attributes,
           GetCustomAttributeProvider (underlyingType),
+          underlyingType.GetInterfaceMap,
           Array.AsReadOnly (underlyingType.GetInterfaces()),
           underlyingType.GetFields (c_allMembers).ToList().AsReadOnly(),
           underlyingType.GetConstructors (c_allInstanceMembers).ToList().AsReadOnly(),
@@ -86,6 +87,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _fullName;
     private readonly TypeAttributes _attributes;
 
+    private Func<Type, InterfaceMapping> _interfaceMappingProvider;
+
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<FieldInfo> _fields;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
@@ -100,6 +103,7 @@ namespace Remotion.TypePipe.MutableReflection
         string fullName,
         TypeAttributes attributes,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
+        Func<Type, InterfaceMapping> interfaceMappingProvider,
         ReadOnlyCollection<Type> interfaces,
         ReadOnlyCollection<FieldInfo> fields,
         ReadOnlyCollection<ConstructorInfo> constructors,
@@ -107,6 +111,7 @@ namespace Remotion.TypePipe.MutableReflection
         : base (underlyingType, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (fullName);
+      Assertion.IsNotNull (interfaceMappingProvider);
       Assertion.IsNotNull (interfaces);
       Assertion.IsNotNull (fields);
       Assertion.IsNotNull (constructors);
@@ -117,6 +122,7 @@ namespace Remotion.TypePipe.MutableReflection
       _namespace = @namespace;
       _fullName = fullName;
       _attributes = attributes;
+      _interfaceMappingProvider = interfaceMappingProvider;
       _interfaces = interfaces;
       _fields = fields;
       _constructors = constructors;
@@ -146,6 +152,11 @@ namespace Remotion.TypePipe.MutableReflection
     public TypeAttributes Attributes
     {
       get { return _attributes; }
+    }
+
+    public Func<Type, InterfaceMapping> InterfaceMappingProvider
+    {
+      get { return _interfaceMappingProvider; }
     }
 
     public ReadOnlyCollection<Type> Interfaces

@@ -20,6 +20,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Collections.Generic;
 
@@ -48,13 +49,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (descriptor.Namespace, Is.EqualTo (underlyingType.Namespace));
       Assert.That (descriptor.FullName, Is.EqualTo (underlyingType.FullName));
       Assert.That (descriptor.Attributes, Is.EqualTo (typeof (DomainType).Attributes));
+
       Assert.That (descriptor.Interfaces, Is.EquivalentTo (new[] { typeof (IDisposable) }));
       Assert.That (descriptor.Fields, Is.EqualTo (allFields));
       Assert.That (descriptor.Constructors, Is.EqualTo (instanceConstructors));
       Assert.That (descriptor.Methods, Is.EqualTo (nonGenericMethods));
+
       Assert.That (
-          descriptor.CustomAttributeDataProvider.Invoke ().Select (ad => ad.Type),
+          descriptor.CustomAttributeDataProvider.Invoke().Select (ad => ad.Type),
           Is.EquivalentTo (new[] { typeof (AbcAttribute), typeof (DefAttribute) }));
+
+      var interfaceMap = descriptor.InterfaceMappingProvider (typeof (IDisposable));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
+      var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Dispose());
+      Assert.That (interfaceMap.InterfaceType, Is.SameAs (typeof (IDisposable)));
+      Assert.That (interfaceMap.TargetType, Is.SameAs (typeof (DomainType)));
+      Assert.That (interfaceMap.InterfaceMethods, Is.EqualTo (new[] { interfaceMethod }));
+      Assert.That (interfaceMap.TargetMethods, Is.EqualTo (new[] { implementation }));
     }
 
     [Test]
