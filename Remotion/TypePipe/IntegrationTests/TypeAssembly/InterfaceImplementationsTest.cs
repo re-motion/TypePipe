@@ -19,6 +19,8 @@ using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.Text;
+using System.Linq;
 
 namespace TypePipe.IntegrationTests.TypeAssembly
 {
@@ -73,27 +75,104 @@ namespace TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.OtherMethod(), Is.EqualTo ("DomainType.Method modified"));
     }
 
-    // TODO
-
-    public abstract class BaseType : IBaseInterface
+    [Test]
+    public void Override_Implicit ()
     {
-      public string BaseMethod ()
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.BaseMethod());
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            method.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.HasPreviousBody, Is.True);
+
+                  return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" implicitly overridden"));
+                });
+          });
+
+      var instance = (IOtherInterface) Activator.CreateInstance (type);
+
+      Assert.That (instance.OtherMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod implicitly overridden"));
+    }
+
+    [Test]
+    public void Override_Explicit_ShadowedBase ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.ShadowedBaseMethod());
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            method.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.HasPreviousBody, Is.True);
+
+                  return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" explicitly overridden"));
+                });
+          });
+
+      var instance = (IOtherInterface) Activator.CreateInstance (type);
+
+      Assert.That (instance.OtherMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod explicitly overridden"));
+    }
+
+    public abstract class DomainTypeBase : IBaseInterface
+    {
+      public virtual string BaseMethod ()
       {
         return "DomainTypeBase.BaseMethod";
       }
+
+      public virtual string ShadowedBaseMethod ()
+      {
+        return "DomainTypeBase.ShadowedBaseMethod";
+      }
     }
 
-    public class DomainType : IDomainInterface
+    [Test]
+    public void Spike ()
     {
-      public string Method ()
+      var interfaceMapping = typeof (DomainType).GetInterfaceMap (typeof (IBaseInterface));
+      Console.WriteLine (SeparatedStringBuilder.Build (", ", interfaceMapping.InterfaceMethods.Select ((mi, i) => new { InterfaceMethod = mi, ImplementingType = interfaceMapping .TargetMethods[i].DeclaringType })));
+      var interfaceMapping2 = typeof (DomainType2).GetInterfaceMap (typeof (IBaseInterface));
+      Console.WriteLine (SeparatedStringBuilder.Build (", ", interfaceMapping2.InterfaceMethods.Select ((mi, i) => new { InterfaceMethod = mi, ImplementingType = interfaceMapping2.TargetMethods[i].DeclaringType })));
+    }
+
+    public class DomainType : DomainTypeBase, IDomainInterface
+    {
+      public virtual string Method ()
       {
         return "DomainType.Method";
+      }
+
+      public new string ShadowedBaseMethod ()
+      {
+        return "DomainType.ShadowedBaseMethod";
+      }
+    }
+
+    public class DomainType2 : DomainTypeBase, IDomainInterface, IBaseInterface
+    {
+      public virtual string Method ()
+      {
+        return "DomainType.Method";
+      }
+
+      public new string ShadowedBaseMethod ()
+      {
+        return "DomainType.ShadowedBaseMethod";
       }
     }
 
     public interface IBaseInterface
     {
       string BaseMethod ();
+      string ShadowedBaseMethod ();
     }
 
     public interface IDomainInterface
