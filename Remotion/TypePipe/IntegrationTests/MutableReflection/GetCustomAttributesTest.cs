@@ -23,7 +23,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace TypePipe.IntegrationTests.MutableReflection
+namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
   public class GetCustomAttributesTest

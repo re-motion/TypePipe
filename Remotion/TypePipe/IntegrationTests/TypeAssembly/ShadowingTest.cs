@@ -21,7 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
-namespace TypePipe.IntegrationTests.TypeAssembly
+namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class ShadowingTest : TypeAssemblerIntegrationTestBase

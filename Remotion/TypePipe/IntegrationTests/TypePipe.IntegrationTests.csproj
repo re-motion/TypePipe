@@ -8,8 +8,8 @@
     <ProjectGuid>{37304DD7-81D0-4110-B924-D974C04F067C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TypePipe.IntegrationTests</RootNamespace>
-    <AssemblyName>TypePipe.IntegrationTests</AssemblyName>
+    <RootNamespace>Remotion.TypePipe.IntegrationTests</RootNamespace>
+    <AssemblyName>Remotion.TypePipe.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

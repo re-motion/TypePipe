@@ -22,7 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Text;
 using System.Linq;
 
-namespace TypePipe.IntegrationTests.TypeAssembly
+namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [Ignore ("TODO 5229")]
   [TestFixture]

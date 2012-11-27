@@ -22,10 +22,9 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests
 {
   [TestFixture]
   public class FlushGeneratedCodeTest : ObjectFactoryIntegrationTestBase

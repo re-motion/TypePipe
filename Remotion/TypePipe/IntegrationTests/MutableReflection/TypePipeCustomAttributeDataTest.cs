@@ -22,15 +22,15 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.IntegrationTests.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
-using TypePipe.IntegrationTests.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
 
 [assembly: TypePipeCustomAttributeDataTest.Abc ("assembly")]
 [module: TypePipeCustomAttributeDataTest.Abc ("module")]
 
-namespace TypePipe.IntegrationTests.MutableReflection
+namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
   public class TypePipeCustomAttributeDataTest

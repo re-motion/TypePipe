@@ -15,11 +15,11 @@
 // under the License.
 // 
 
+using System;
 using NUnit.Framework;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe;
 
-namespace TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests
 {
   public class ServiceLocatorConfigurationTest
   {
