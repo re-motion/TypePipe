@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// This interface is an implementation detail of <see cref="MutableType"/>.
   /// </remarks>
-  public interface IInterfaceMappingHelper
+  public interface IInterfaceMappingComputer
   {
-    InterfaceMapping ComputeMapping (MutableTypeMethodCollection mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType);
+    InterfaceMapping ComputeMapping (MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType);
   }
 }

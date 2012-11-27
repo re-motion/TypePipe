@@ -16,17 +16,23 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Implements <see cref="IInterfaceMappingHelper"/>.
+  /// Implements <see cref="IInterfaceMappingComputer"/>.
   /// </summary>
-  public class InterfaceMappingHelper : IInterfaceMappingHelper
+  public class InterfaceMappingComputer : IInterfaceMappingComputer
   {
-    public InterfaceMapping ComputeMapping (MutableTypeMethodCollection mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType)
+    public InterfaceMapping ComputeMapping (MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType)
     {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
+      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+
       throw new NotImplementedException();
+
     }
   }
 }

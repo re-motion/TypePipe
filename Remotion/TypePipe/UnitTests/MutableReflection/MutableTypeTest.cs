@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private TypeDescriptor _descriptor;
     private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
-    private IInterfaceMappingHelper _interfaceMappingHelperMock;
+    private IInterfaceMappingComputer _interfaceMappingComputerMock;
     private IMutableMemberFactory _mutableMemberFactoryMock;
 
     private MutableType _mutableType;
@@ -50,10 +50,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // If this changes and the UnderlyingTypeDescriptor logic becomes a problem, consider injecting an ExistingMutableMemberInfoFactory instead and 
       // stubbing that.
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
-      _interfaceMappingHelperMock = MockRepository.GenerateStrictMock<IInterfaceMappingHelper>();
+      _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
-      _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock, _interfaceMappingHelperMock, _mutableMemberFactoryMock);
+      _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
     }
 
     [Test]
@@ -451,13 +451,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _interfaceMappingHelperMock
-          .Expect (mock => mock.ComputeMapping (GetAllMethods (_mutableType), _descriptor.InterfaceMappingProvider, interfaceType))
+      _interfaceMappingComputerMock
+          .Expect (mock => mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType))
           .Return (fakeResult);
 
       var result = _mutableType.GetInterfaceMap (interfaceType);
 
-      _interfaceMappingHelperMock.VerifyAllExpectations();
+      _interfaceMappingComputerMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
     }
 

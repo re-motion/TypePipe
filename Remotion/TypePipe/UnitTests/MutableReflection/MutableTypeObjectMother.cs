@@ -25,16 +25,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         TypeDescriptor typeDescriptor = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
-        IInterfaceMappingHelper interfaceMappingHelper = null,
+        IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
       typeDescriptor = typeDescriptor ?? TypeDescriptorObjectMother.Create();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
-      interfaceMappingHelper = interfaceMappingHelper ?? new InterfaceMappingHelper();
+      interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (typeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
+      return new MutableType (typeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingComputer, mutableMemberFactory);
     }
 
     public static MutableType CreateForExisting (

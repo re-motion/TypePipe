@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableType : CustomType, IMutableMember
   {
     private readonly IRelatedMethodFinder _relatedMethodFinder;
-    private readonly IInterfaceMappingHelper _interfaceMappingHelper;
+    private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     private readonly TypeAttributes _attributes;
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
         TypeDescriptor descriptor,
         IMemberSelector memberSelector,
         IRelatedMethodFinder relatedMethodFinder,
-        IInterfaceMappingHelper interfaceMappingHelper,
+        IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
         : base (
             memberSelector,
@@ -75,11 +75,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("descriptor", descriptor);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
-      ArgumentUtility.CheckNotNull ("interfaceMappingHelper", interfaceMappingHelper);
+      ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
       _relatedMethodFinder = relatedMethodFinder;
-      _interfaceMappingHelper = interfaceMappingHelper;
+      _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
 
       _attributes = descriptor.Attributes;
@@ -338,7 +338,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
-      return _interfaceMappingHelper.ComputeMapping (_methods, _interfacMappingProvider, interfaceType);
+      return _interfaceMappingComputer.ComputeMapping (this, _interfacMappingProvider, interfaceType);
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()

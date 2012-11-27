@@ -106,6 +106,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\FieldDescriptorObjectMother.cs" />
+    <Compile Include="MutableReflection\InterfaceMappingHelperTest.cs" />
     <Compile Include="MutableReflection\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\RelatedEventFinderTest.cs" />
