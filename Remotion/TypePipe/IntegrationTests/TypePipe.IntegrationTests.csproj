@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="CachingTest.cs" />
     <Compile Include="FlushGeneratedCodeTest.cs" />
+    <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
