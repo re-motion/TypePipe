@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -81,19 +80,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Tuple.Create (_existingInterfaceMethod2, (MethodInfo) explicitImplementation, _fakeResult2, (MethodInfo) _fakeResult2));
     }
 
-    [Ignore("TODO")]
     [Test]
     public void ComputeMapping_AddedInterface ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
       var explicitImplementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
       explicitImplementation.AddExplicitBaseDefinition (_addedInterfaceMethod1);
-      var implicitImplementation2 = _mutableType.GetMethod ("Method2");
+      var implicitImplementation2 = _mutableType.GetMethod ("Method22");
 
       CallComputeMappingAndCheckResult (
           typeof (IAddedInterface),
-          Tuple.Create (_existingInterfaceMethod1, (MethodInfo) explicitImplementation, _fakeResult1, (MethodInfo) _fakeResult1),
-          Tuple.Create (_existingInterfaceMethod2, implicitImplementation2, _fakeResult2, (MethodInfo) _fakeResult2));
+          Tuple.Create (_addedInterfaceMethod1, (MethodInfo) explicitImplementation, _fakeResult1, (MethodInfo) _fakeResult1),
+          Tuple.Create (_addedInterfaceMethod2, implicitImplementation2, _fakeResult2, (MethodInfo) _fakeResult2));
     }
 
     // Tuple means: 1) interface method, 2) impl method, 3) mutable impl method, 4) expected result impl method
