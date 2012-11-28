@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private InterfaceMappingComputer _computer;
 
-    private IInterfaceMappingProvider _interfaceMappingProviderMock;
+    private IInterfaceMappingProvider _interfaceMapProviderMock;
     private IMutableMemberProvider<MethodInfo, MutableMethodInfo> _mutableMethodProviderMock;
 
     private MutableType _mutableType;
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
 
-      _interfaceMappingProviderMock = MockRepository.GenerateStrictMock<IInterfaceMappingProvider>();
+      _interfaceMapProviderMock = MockRepository.GenerateStrictMock<IInterfaceMappingProvider>();
       _mutableMethodProviderMock = MockRepository.GenerateStrictMock<IMutableMemberProvider<MethodInfo, MutableMethodInfo>>();
     }
 
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var explicitImplementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
       explicitImplementation.AddExplicitBaseDefinition (_existingInterfaceMethod2);
       var implicitImplementation1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method11());
-      _interfaceMappingProviderMock
+      _interfaceMapProviderMock
           .Expect (mock => mock.Get (typeof (IExistingInterface)))
           .Return (
               new InterfaceMapping
@@ -95,6 +95,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ComputeMapping_AddedInterface_NonPublicImplicitImplementation ()
+    {
+      _mutableType.AddInterface (typeof (IInterfaceWithVisibilityMethod));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInterfaceWithVisibilityMethod obj) => obj.VisibilityMethod());
+      var implementation = _mutableType.GetMethod ("VisibilityMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+      Assert.That (implementation.IsPublic, Is.False);
+
+      CallComputeMappingAndCheckResult (
+          typeof (IInterfaceWithVisibilityMethod),
+          Tuple.Create (interfaceMethod, implementation, _fakeResult1, (MethodInfo) _fakeResult1));
+    }
+
+    [Test]
     public void ComputeMapping_MutableMethodProviderReturnsNull ()
     {
       _mutableType.AddInterface (typeof (IAddedInterfaceWithOneMethod));
@@ -113,7 +126,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddInterface (typeof (IDisposable));
 
       var result = _computer.ComputeMapping (
-          _mutableType, _interfaceMappingProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: true);
+          _mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: true);
 
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
       Assert.That (result.InterfaceMethods, Is.EqualTo (new[] { interfaceMethod }));
@@ -126,7 +139,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _mutableType.AddInterface (typeof (IDisposable));
       _computer.ComputeMapping (
-          _mutableType, _interfaceMappingProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: false);
+          _mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: false);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type passed must be an interface.\r\nParameter name: interfaceType")]
+    public void ComputeMapping_NoInterfaceType ()
+    {
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (object), _mutableMethodProviderMock, false);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interface not found.\r\nParameter name: interfaceType")]
+    public void ComputeMapping_NotImplemented ()
+    {
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, false);
     }
 
     // Tuple means: 1) interface method, 2) impl method, 3) mutable impl method, 4) expected result impl method
@@ -139,9 +166,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         _mutableMethodProviderMock.Expect (mock => mock.GetMutableMember (e.Item2)).Return (e.Item3).Repeat.Once();
       }
 
-      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMappingProviderMock.Get, interfaceType, _mutableMethodProviderMock, false);
+      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, interfaceType, _mutableMethodProviderMock, false);
 
-      _interfaceMappingProviderMock.VerifyAllExpectations();
+      _interfaceMapProviderMock.VerifyAllExpectations();
       _mutableMethodProviderMock.VerifyAllExpectations();
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (_mutableType));
@@ -158,6 +185,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void Method12 () { }
       public void Method21 () { }
       public void Method22 () { }
+      internal void VisibilityMethod () { }
       public virtual void UnrelatedMethod () { }
     }
 
@@ -174,6 +202,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     interface IAddedInterfaceWithOneMethod
     {
       void Method21 ();
+    }
+    interface IInterfaceWithVisibilityMethod
+    {
+      void VisibilityMethod ();
     }
   }
 }

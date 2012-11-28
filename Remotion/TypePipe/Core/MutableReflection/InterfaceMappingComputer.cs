@@ -42,8 +42,11 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
       ArgumentUtility.CheckNotNull ("mutableMethodProvider", mutableMethodProvider);
-      Assertion.IsTrue (interfaceType.IsInterface);
-      Assertion.IsTrue (mutableType.GetInterfaces().Contains (interfaceType));
+
+      if (!interfaceType.IsInterface)
+        throw new ArgumentException ("Type passed must be an interface.", "interfaceType");
+      if (!mutableType.GetInterfaces().Contains (interfaceType))
+        throw new ArgumentException ("Interface not found.", "interfaceType");
 
       var remainingInterfaceMethods = new HashSet<MethodInfo> (interfaceType.GetMethods());
       var mapping = new Dictionary<MethodInfo, MethodInfo>();
@@ -79,10 +82,10 @@ namespace Remotion.TypePipe.MutableReflection
         bool allowPartialInterfaceMapping)
     {
       var remainingSignatures = remainingInterfaceMethods.ToDictionary (m => m, s_memberNameAndSignatureComparer);
-      var allPublicMethods = mutableType.GetMethods(); // Interface methods must be public.
+      var allMethods = mutableType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
       // Serach methods (including base methods) that implicitly implement the added interface.
-      foreach (var method in allPublicMethods)
+      foreach (var method in allMethods)
       {
         MethodInfo interfaceMethod;
         if (remainingSignatures.TryGetValue (method, out interfaceMethod))
