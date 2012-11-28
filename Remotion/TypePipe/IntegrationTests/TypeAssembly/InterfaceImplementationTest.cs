@@ -62,8 +62,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  Assert.That (ctx.HasPreviousBody, Is.True);
-
                   return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"));
                 });
           });
@@ -88,8 +86,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  Assert.That (ctx.HasPreviousBody, Is.True);
-
                   return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"));
                 });
           });
@@ -111,8 +107,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
-                  Assert.That (ctx.HasPreviousBody, Is.True);
-
                   return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" implicitly overridden"));
                 });
           });
@@ -134,8 +128,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  Assert.That (ctx.HasPreviousBody, Is.True);
-
                   return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" explicitly overridden"));
                 });
           });
