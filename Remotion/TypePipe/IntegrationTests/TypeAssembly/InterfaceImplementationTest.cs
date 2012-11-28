@@ -16,26 +16,25 @@
 // 
 
 using System;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Text;
-using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [Ignore ("TODO 5229")]
   [TestFixture]
-  public class InterfaceImplementationsTest : TypeAssemblerIntegrationTestBase
+  public class InterfaceImplementationTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void Implement ()
     {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IOtherInterface obj) => obj.OtherMethod());
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedMethod());
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            mutableType.AddInterface (typeof (IOtherInterface));
+            mutableType.AddInterface (typeof (IAddedInterface));
             var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
             method.SetBody (
                 ctx =>
@@ -47,13 +46,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IOtherInterface) Activator.CreateInstance (type);
+      var instance = (IAddedInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.OtherMethod(), Is.EqualTo ("implemented"));
+      Assert.That (instance.AddedMethod(), Is.EqualTo ("implemented"));
     }
 
     [Test]
-    public void Modify ()
+    public void Modify_Implicit ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
       var type = AssembleType<DomainType> (
@@ -70,9 +69,35 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IOtherInterface) Activator.CreateInstance (type);
+      var instance = (IAddedInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.OtherMethod(), Is.EqualTo ("DomainType.Method modified"));
+      Assert.That (instance.AddedMethod(), Is.EqualTo ("DomainType.Method modified"));
+    }
+
+    [Test]
+    public void Modify_Explicit ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var explicitImplementation = mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
+            explicitImplementation.AddExplicitBaseDefinition (interfaceMethod);
+
+            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            method.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  Assert.That (ctx.HasPreviousBody, Is.True);
+
+                  return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"));
+                });
+          });
+
+      var instance = (IAddedInterface) Activator.CreateInstance (type);
+
+      Assert.That (instance.AddedMethod (), Is.EqualTo ("DomainType.UnrelatedMethod modified"));
     }
 
     [Test]
@@ -93,9 +118,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IOtherInterface) Activator.CreateInstance (type);
+      var instance = (IAddedInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.OtherMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod implicitly overridden"));
+      Assert.That (instance.AddedMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod implicitly overridden"));
     }
 
     [Test]
@@ -116,9 +141,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IOtherInterface) Activator.CreateInstance (type);
+      var instance = (IAddedInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.OtherMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod explicitly overridden"));
+      Assert.That (instance.AddedMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod explicitly overridden"));
+    }
+
+    [Test]
+    public void Override_ExplicitImplementation ()
+    {
+      // TODO possible?
+      Assert.Fail();
     }
 
     public abstract class DomainTypeBase : IBaseInterface
@@ -134,15 +166,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       }
     }
 
-    [Test]
-    public void Spike ()
-    {
-      var interfaceMapping = typeof (DomainType).GetInterfaceMap (typeof (IBaseInterface));
-      Console.WriteLine (SeparatedStringBuilder.Build (", ", interfaceMapping.InterfaceMethods.Select ((mi, i) => new { InterfaceMethod = mi, ImplementingType = interfaceMapping .TargetMethods[i].DeclaringType })));
-      var interfaceMapping2 = typeof (DomainType2).GetInterfaceMap (typeof (IBaseInterface));
-      Console.WriteLine (SeparatedStringBuilder.Build (", ", interfaceMapping2.InterfaceMethods.Select ((mi, i) => new { InterfaceMethod = mi, ImplementingType = interfaceMapping2.TargetMethods[i].DeclaringType })));
-    }
-
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public virtual string Method ()
@@ -154,18 +177,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainType.ShadowedBaseMethod";
       }
-    }
 
-    public class DomainType2 : DomainTypeBase, IDomainInterface, IBaseInterface
-    {
-      public virtual string Method ()
+      public virtual string UnrelatedMethod ()
       {
-        return "DomainType.Method";
-      }
-
-      public new string ShadowedBaseMethod ()
-      {
-        return "DomainType.ShadowedBaseMethod";
+        return "DomainType.UnrelatedMethod";
       }
     }
 
@@ -180,9 +195,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       string Method ();
     }
 
-    public interface IOtherInterface
+    public interface IAddedInterface
     {
-      string OtherMethod ();
+      string AddedMethod ();
     }
   }
 }
