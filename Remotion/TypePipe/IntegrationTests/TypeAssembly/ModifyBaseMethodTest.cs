@@ -297,22 +297,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           });
     }
 
-    [Test]
-    public void InterfaceMethod_NotSupported ()
-    {
-      AssembleType<DomainType> (
-          mutableType =>
-          {
-            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<IInterface> (x => x.InterfaceMethod());
-            Assert.That (baseMethod.IsVirtual, Is.True);
-
-            Assert.That (
-                () => mutableType.GetOrAddMutableMethod (baseMethod),
-                Throws.ArgumentException.With.Message.EqualTo (
-                    "Method is declared by a type outside of this type's class hierarchy: 'IInterface'.\r\nParameter name: method"));
-          });
-    }
-
     private void CheckBodyOfAddedOverride (MethodInfo baseMethod, MutableMethodInfo mutableMethod)
     {
       Assert.That (mutableMethod.Body, Is.InstanceOf<MethodCallExpression>());
@@ -349,18 +333,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public override string BaseBaseMethodOverriddenInBase () { return "Base (overriding)"; }
     }
 
-    public class DomainType : DomainTypeBase, IInterface
+    public class DomainType : DomainTypeBase
     {
       public override string ExistingOverride () { return "DomainType"; }
 
       public new virtual string BaseMethodShadowedByModified () { return "DomainType (shadowing)"; }
-
-      public void InterfaceMethod () { }
-    }
-
-    public interface IInterface
-    {
-      void InterfaceMethod ();
     }
   }
 }
