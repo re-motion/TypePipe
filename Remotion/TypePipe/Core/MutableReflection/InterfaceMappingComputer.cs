@@ -14,9 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -35,9 +40,90 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
       ArgumentUtility.CheckNotNull ("mutableMethodProvider", mutableMethodProvider);
+      Assertion.IsTrue (interfaceType.IsInterface);
 
+      var remainingInterfaceMethods = new HashSet<MethodInfo> (interfaceType.GetMethods());
+      var mapping = new Dictionary<MethodInfo, MethodInfo>();
 
-      throw new NotImplementedException();
+      // Explicit overrides in mutable type.
+      foreach (var implementationMethod in mutableType.AllMutableMethods)
+      {
+        foreach (var explicitBaseDefinition in implementationMethod.AddedExplicitBaseDefinitions)
+        {
+          if (remainingInterfaceMethods.Remove (explicitBaseDefinition))
+            mapping.Add (explicitBaseDefinition, implementationMethod);
+
+          if (remainingInterfaceMethods.Count == 0)
+            return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
+        }
+      }
+
+      // TODO 5230: Adapt code when implementing MutableType.ReImplementInterface
+      var isAddedInterface = mutableType.AddedInterfaces.Contains (interfaceType);
+      return isAddedInterface
+                 ? CreateForAdded (mutableType, interfacMappingProvider, interfaceType, mutableMethodProvider, remainingInterfaceMethods, mapping)
+                 : CreateForExisting (mutableType, interfacMappingProvider, interfaceType, mutableMethodProvider, remainingInterfaceMethods, mapping);
+    }
+
+    private InterfaceMapping CreateForAdded (
+        MutableType mutableType,
+        Func<Type, InterfaceMapping> interfacMappingProvider,
+        Type interfaceType,
+        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
+        HashSet<MethodInfo> remainingInterfaceMethods,
+        Dictionary<MethodInfo, MethodInfo> mapping)
+    {
+      //var signatures = remainingInterfaceMethods.ToDictionary(m => new RelatedMethodFinder().)
+
+      return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
+    }
+
+    private InterfaceMapping CreateForExisting (
+        MutableType mutableType,
+        Func<Type, InterfaceMapping> interfacMappingProvider,
+        Type interfaceType,
+        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
+        HashSet<MethodInfo> remainingInterfaceMethods,
+        Dictionary<MethodInfo, MethodInfo> mapping)
+    {
+      var underlyingMapping = interfacMappingProvider (interfaceType);
+
+      // Interface map from underlying type.
+      for (int i = 0; i < underlyingMapping.InterfaceMethods.Length; i++)
+      {
+        var interfaceMethod = underlyingMapping.InterfaceMethods[i];
+        if (remainingInterfaceMethods.Remove (interfaceMethod))
+          mapping.Add (interfaceMethod, underlyingMapping.TargetMethods[i]);
+
+        if (remainingInterfaceMethods.Count == 0)
+          return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
+      }
+      throw new Exception ("Unreachable code");
+    }
+
+    private InterfaceMapping CreateInterfaceMapping (
+        Type interfaceType,
+        MutableType targetType,
+        Dictionary<MethodInfo, MethodInfo> interfaceMapping,
+        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider)
+    {
+      var mapping = new InterfaceMapping
+                    {
+                        InterfaceType = interfaceType,
+                        TargetType = targetType,
+                        InterfaceMethods = new MethodInfo[interfaceMapping.Count],
+                        TargetMethods = new MethodInfo[interfaceMapping.Count]
+                    };
+
+      int i = 0;
+      foreach (var entry in interfaceMapping)
+      {
+        mapping.InterfaceMethods[i] = entry.Key;
+        mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (entry.Value);
+        i++;
+      }
+
+      return mapping;
     }
   }
 }
