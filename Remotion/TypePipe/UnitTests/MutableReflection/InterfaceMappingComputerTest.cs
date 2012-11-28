@@ -108,11 +108,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The added interface 'IDisposable' is not fully implemented.")]
-    public void ComputeMapping_AddedInterface_NotFullyImplemented ()
+    public void ComputeMapping_AddedInterface_NotFullyImplemented_AllowPartial ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
-      _computer.ComputeMapping (_mutableType, _interfaceMappingProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock);
+
+      var result = _computer.ComputeMapping (
+          _mutableType, _interfaceMappingProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: true);
+
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
+      Assert.That (result.InterfaceMethods, Is.EqualTo (new[] { interfaceMethod }));
+      Assert.That (result.TargetMethods, Is.EqualTo (new MethodInfo[] { null }));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The added interface 'IDisposable' is not fully implemented.")]
+    public void ComputeMapping_AddedInterface_NotFullyImplemented_Throw ()
+    {
+      _mutableType.AddInterface (typeof (IDisposable));
+      _computer.ComputeMapping (
+          _mutableType, _interfaceMappingProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: false);
     }
 
     // Tuple means: 1) interface method, 2) impl method, 3) mutable impl method, 4) expected result impl method
@@ -125,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         _mutableMethodProviderMock.Expect (mock => mock.GetMutableMember (e.Item2)).Return (e.Item3).Repeat.Once();
       }
 
-      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMappingProviderMock.Get, interfaceType, _mutableMethodProviderMock);
+      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMappingProviderMock.Get, interfaceType, _mutableMethodProviderMock, false);
 
       _interfaceMappingProviderMock.VerifyAllExpectations();
       _mutableMethodProviderMock.VerifyAllExpectations();

@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO 5230: Adapt code when implementing MutableType.ReImplementInterface
       var isAddedInterface = mutableType.AddedInterfaces.Contains (interfaceType);
       return isAddedInterface
-                 ? CreateForAdded (mutableType, interfaceType, mutableMethodProvider, remainingInterfaceMethods, mapping)
+                 ? CreateForAdded (mutableType, interfaceType, mutableMethodProvider, remainingInterfaceMethods, mapping, allowPartialInterfaceMapping)
                  : CreateForExisting (mutableType, interfacMappingProvider, interfaceType, mutableMethodProvider, remainingInterfaceMethods, mapping);
     }
 
@@ -75,11 +75,12 @@ namespace Remotion.TypePipe.MutableReflection
         Type interfaceType,
         IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
         HashSet<MethodInfo> remainingInterfaceMethods,
-        Dictionary<MethodInfo, MethodInfo> mapping)
+        Dictionary<MethodInfo, MethodInfo> mapping,
+        bool allowPartialInterfaceMapping)
     {
       var remainingSignatures = remainingInterfaceMethods.ToDictionary (m => m, s_memberNameAndSignatureComparer);
       var allPublicMethods = mutableType.GetMethods(); // Interface methods must be public.
-      
+
       // Serach methods (including base methods) that implicitly implement the added interface.
       foreach (var method in allPublicMethods)
       {
@@ -92,6 +93,14 @@ namespace Remotion.TypePipe.MutableReflection
           if (remainingSignatures.Count == 0)
             return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
         }
+      }
+
+      if (allowPartialInterfaceMapping)
+      {
+        foreach (var remainingMethod in remainingSignatures.Keys.Cast<MethodInfo>())
+          mapping.Add (remainingMethod, null);
+
+        return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
       }
 
       var message = string.Format ("The added interface '{0}' is not fully implemented.", interfaceType.Name);
@@ -142,7 +151,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var entry in interfaceMap)
       {
         mapping.InterfaceMethods[i] = entry.Key;
-        mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (entry.Value) ?? entry.Value;
+        mapping.TargetMethods[i] = entry.Value == null ? null : mutableMethodProvider.GetMutableMember (entry.Value) ?? entry.Value;
         i++;
       }
 
