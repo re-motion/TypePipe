@@ -94,6 +94,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           Tuple.Create (_addedInterfaceMethod2, implicitImplementation2, _fakeResult2, (MethodInfo) _fakeResult2));
     }
 
+    [Test]
+    public void ComputeMapping_MutableMethodProviderReturnsNull ()
+    {
+      _mutableType.AddInterface (typeof (IAddedInterfaceWithOneMethod));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterfaceWithOneMethod obj) => obj.Method21());
+      var implementation = _mutableType.GetMethod ("Method21");
+
+      // MutableMethodProvider returns null for base methods.
+      CallComputeMappingAndCheckResult (
+          typeof (IAddedInterfaceWithOneMethod),
+          Tuple.Create (interfaceMethod, implementation, (MutableMethodInfo) null, implementation));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The added interface 'IDisposable' is not fully implemented.")]
+    public void ComputeMapping_AddedInterface_NotFullyImplemented ()
+    {
+      _mutableType.AddInterface (typeof (IDisposable));
+      _computer.ComputeMapping (_mutableType, _interfaceMappingProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock);
+    }
+
     // Tuple means: 1) interface method, 2) impl method, 3) mutable impl method, 4) expected result impl method
     private void CallComputeMappingAndCheckResult (
         Type interfaceType, params Tuple<MethodInfo, MethodInfo, MutableMethodInfo, MethodInfo>[] expectedMapping)
@@ -135,6 +156,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       void Method21 ();
       void Method22 ();
+    }
+    interface IAddedInterfaceWithOneMethod
+    {
+      void Method21 ();
     }
   }
 }

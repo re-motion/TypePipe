@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
       ArgumentUtility.CheckNotNull ("mutableMethodProvider", mutableMethodProvider);
       Assertion.IsTrue (interfaceType.IsInterface);
+      Assertion.IsTrue (mutableType.GetInterfaces().Contains (interfaceType));
 
       var remainingInterfaceMethods = new HashSet<MethodInfo> (interfaceType.GetMethods());
       var mapping = new Dictionary<MethodInfo, MethodInfo>();
@@ -92,7 +93,8 @@ namespace Remotion.TypePipe.MutableReflection
         }
       }
 
-      throw new Exception ("not fully impl");
+      var message = string.Format ("The added interface '{0}' is not fully implemented.", interfaceType.Name);
+      throw new InvalidOperationException (message);
     }
 
     private InterfaceMapping CreateForExisting (
@@ -117,6 +119,7 @@ namespace Remotion.TypePipe.MutableReflection
             return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
         }
       }
+
       throw new Exception ("Unreachable code");
     }
 
@@ -138,7 +141,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var entry in interfaceMap)
       {
         mapping.InterfaceMethods[i] = entry.Key;
-        mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (entry.Value);
+        mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (entry.Value) ?? entry.Value;
         i++;
       }
 
