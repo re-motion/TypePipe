@@ -474,7 +474,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType, GetAllMethods (_mutableType), allowPartial))
           .Return (fakeResult);
 
-      var result = _mutableType.GetInterfaceMap (interfaceType);
+      var result = _mutableType.GetInterfaceMap (interfaceType, allowPartial);
 
       _interfaceMappingComputerMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
