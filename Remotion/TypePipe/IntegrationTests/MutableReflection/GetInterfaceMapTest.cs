@@ -22,10 +22,10 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
-  [Ignore("TODO 5229")]
   [TestFixture]
   public class GetInterfaceMapTest
   {
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedDomainType));
       // Although we add a method that could be used as an implementation (no override!), the existing base implementation is returned.
       AddSimiliarMethod (mutableType, _existingInterfaceMethod);
-      var implementationMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingInterface());
+      var implementationMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedDomainType obj) => obj.MethodOnExistingInterface());
 
       CheckGetInterfaceMap (mutableType, _existingInterfaceMethod, implementationMethod, compareAsMutableMethods: false);
     }
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       Assert.That (mapping.InterfaceMethods, Has.Length.EqualTo (1));
-      Assert.That (mapping.InterfaceMethods, Is.EqualTo (new[] { expectedImplementationMethod }));
+      Assert.That (mapping.TargetMethods, Is.EqualTo (new[] { expectedImplementationMethod }));
     }
 
     private MutableMethodInfo AddSimiliarMethod (MutableType mutableType, MethodInfo template, string methodName = null)
@@ -165,14 +165,19 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     private MethodInfo GetExplicitImplementation (Type implementationType, MethodInfo interfaceMethod)
     {
-      var explicitMethodName = string.Format ("{0}.{1}", interfaceMethod.DeclaringType.FullName, interfaceMethod.Name);
-      return implementationType.GetMethod (explicitMethodName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+      var interfaceFullName = interfaceMethod.DeclaringType.FullName.Replace ('+', '.');
+      var explicitMethodName = string.Format ("{0}.{1}", interfaceFullName, interfaceMethod.Name);
+      var bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      var explicitImplementation = implementationType.GetMethod (explicitMethodName, bindingFlags);
+      Assertion.IsNotNull (explicitImplementation);
+
+      return explicitImplementation;
     }
 
     class DomainType : IExistingInterface
     {
       public void MethodOnExistingInterface () { }
-      public void UnrelatedMethod () { }
+      public virtual void UnrelatedMethod () { }
     }
 
     class DerivedDomainType : DomainType { }
