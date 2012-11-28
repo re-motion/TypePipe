@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.Utilities;
@@ -78,8 +77,9 @@ namespace Remotion.TypePipe.MutableReflection
         Dictionary<MethodInfo, MethodInfo> mapping)
     {
       var remainingSignatures = remainingInterfaceMethods.ToDictionary (m => m, s_memberNameAndSignatureComparer);
-      var allPublicMethods = mutableType.GetMethods();
-
+      var allPublicMethods = mutableType.GetMethods(); // Interface methods must be public.
+      
+      // Serach methods (including base methods) that implicitly implement the added interface.
       foreach (var method in allPublicMethods)
       {
         MethodInfo interfaceMethod;
