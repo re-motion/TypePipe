@@ -20,6 +20,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -452,7 +453,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
       _interfaceMappingComputerMock
-          .Expect (mock => mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType, GetAllMethods (_mutableType)))
+          .Expect (mock => mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType, GetAllMethods (_mutableType), false))
+          .Return (fakeResult);
+
+      var result = _mutableType.GetInterfaceMap (interfaceType);
+
+      _interfaceMappingComputerMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
+    }
+
+    [Test]
+    public void GetInterfaceMap_AllowPartialInterfaceMapping ()
+    {
+      var interfaceType = typeof (IDomainInterface);
+      var allowPartial = BooleanObjectMother.GetRandomBoolean();
+      var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
+      _interfaceMappingComputerMock
+          .Expect (
+              mock =>
+              mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, interfaceType, GetAllMethods (_mutableType), allowPartial))
           .Return (fakeResult);
 
       var result = _mutableType.GetInterfaceMap (interfaceType);

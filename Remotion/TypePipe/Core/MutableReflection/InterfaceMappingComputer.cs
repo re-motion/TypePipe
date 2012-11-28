@@ -35,7 +35,8 @@ namespace Remotion.TypePipe.MutableReflection
         MutableType mutableType,
         Func<Type, InterfaceMapping> interfacMappingProvider,
         Type interfaceType,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider)
+        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
+        bool allowPartialInterfaceMapping)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
