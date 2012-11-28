@@ -478,6 +478,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
+    {
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
+      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (
+          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
+      SetupExpectationsForGetOrAddMutableMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
+
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (mutableType, baseMethod, out _isNewlyCreated);
+
+      _relatedMethodFinderMock.VerifyAllExpectations();
+      Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
+      Assert.That (result.IsAbstract, Is.True);
+      Assert.That (_isNewlyCreated, Is.True);
+    }
+
+    [Test]
     public void GetOrCreateMutableMethodOverride_ShadowedBaseMethod_ExplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
@@ -498,30 +515,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
+    public void GetOrCreateMutableMethodOverride_InterfaceMethod_ExistingImplementation ()
     {
-      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
-      Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (
-          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
-      SetupExpectationsForGetOrAddMutableMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
 
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (mutableType, baseMethod, out _isNewlyCreated);
+      bool isNewlyCreated;
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
 
-      _relatedMethodFinderMock.VerifyAllExpectations();
-      Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
-      Assert.That (result.IsAbstract, Is.True);
-      Assert.That (_isNewlyCreated, Is.True);
+      var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "InterfaceMethod");
+      Assert.That (result, Is.SameAs (implementation));
+      Assert.That (isNewlyCreated, Is.False);
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's class hierarchy: 'IDomainInterface'.\r\nParameter name: method")]
-    public void GetOrCreateMutableMethodOverride_InterfaceDeclaringType ()
+    public void GetOrCreateMutableMethodOverride_InterfaceMethod_AddImplementation ()
     {
-      Assert.That (_mutableType.GetInterfaces (), Has.Member (typeof (IDomainInterface)));
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
+      _mutableType.AddInterface (typeof (IAddedInterface));
+
+      bool isNewlyCreated;
+      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
+
+      Assert.That (isNewlyCreated, Is.True);
+      CheckMethodData (
+          result,
+          "AddedInterfaceMethod",
+          MethodAttributes.Public,
+          MethodAttributes.NewSlot | MethodAttributes.Abstract,
+          expectedBaseMethod: null,
+          expectedAddedExplicitBaseDefinitions: new MethodInfo[0]);
+
+      Assert.That (result.GetBaseDefinition(), Is.SameAs (result));
+      Assert.That (result.IsAbstract, Is.True);
+    }
+
+    [Test]
+    public void GetOrCreateMutableMethodOverride_InterfaceMethod_OverrideImplementationInBase ()
+    {
     }
 
     [Test]
@@ -574,21 +604,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (_isNewlyCreated, Is.True);
 
-      Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
-      Assert.That (result.BaseMethod, Is.SameAs (expectedBaseMethod));
-      Assert.That (result.Name, Is.EqualTo (expectedOverrideMethodName));
-      var expectedAttributes = expectedOverrideVisibility | expectedVtableLayout | MethodAttributes.Virtual | MethodAttributes.HideBySig;
-      Assert.That (result.Attributes, Is.EqualTo (expectedAttributes));
-      Assert.That (result.ReturnType, Is.SameAs (typeof (void)));
-      var parameter = result.GetParameters ().Single ();
-      Assert.That (parameter.ParameterType, Is.SameAs (typeof (int)));
-      Assert.That (parameter.Name, Is.EqualTo ("parameterName"));
-
-      Assert.That (result.Body, Is.InstanceOf<MethodCallExpression> ());
+      CheckMethodData (
+        result, expectedOverrideMethodName, expectedOverrideVisibility, expectedVtableLayout, expectedBaseMethod, expectedAddedExplicitBaseDefinitions);
+      Assert.That (result.Body, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result.Body;
-      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
+      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
       var baceCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
       Assert.That (baceCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (baseMethod));
+    }
+
+    private static void CheckMethodData (
+        MutableMethodInfo result,
+        string expectedMethodName,
+        MethodAttributes expectedVisibility,
+        MethodAttributes expectedVtableLayout,
+        MethodInfo expectedBaseMethod,
+        IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions)
+    {
+      Assert.That (result.Name, Is.EqualTo (expectedMethodName));
+      var expectedAttributes = expectedVisibility | expectedVtableLayout | MethodAttributes.Virtual | MethodAttributes.HideBySig;
+      Assert.That (result.Attributes, Is.EqualTo (expectedAttributes));
+      Assert.That (result.ReturnType, Is.SameAs (typeof (void)));
+      var parameter = result.GetParameters().Single();
+      Assert.That (parameter.ParameterType, Is.SameAs (typeof (int)));
+      Assert.That (parameter.Name, Is.EqualTo ("parameterName"));
+      Assert.That (result.BaseMethod, Is.SameAs (expectedBaseMethod));
+      Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
     }
 
     private void SetupExpectationsForGetOrAddMutableMethod (
@@ -685,6 +726,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public interface IDomainInterface
     {
       void InterfaceMethod ();
+    }
+
+    public interface IAddedInterface
+    {
+      void AddedInterfaceMethod (int parameterName);
     }
 
     abstract class AbstractTypeWithOneMethod

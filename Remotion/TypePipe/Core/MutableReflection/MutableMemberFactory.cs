@@ -173,12 +173,29 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (method.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
-// ReSharper disable CheckForReferenceEqualityInstead.1
-      if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsSubclassOf (method.DeclaringType))
-// ReSharper restore CheckForReferenceEqualityInstead.1
+      if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsAssignableTo (method.DeclaringType))
       {
         var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
         throw new ArgumentException (message, "method");
+      }
+
+      if (method.DeclaringType.IsInterface)
+      {
+        var implementation = GetImplementationMethod (declaringType, method);
+        if (implementation is MutableMethodInfo)
+        {
+          isNewlyCreated = false;
+          return (MutableMethodInfo) implementation;
+        }
+
+        if (implementation == null)
+        {
+          isNewlyCreated = true;
+          var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
+          return CreateMutableMethod (declaringType, method.Name, method.Attributes, method.ReturnType, parameters, bodyProvider: null);
+        }
+
+        throw new Exception ("adsf");
       }
 
       if (!method.IsVirtual)
@@ -216,15 +233,11 @@ namespace Remotion.TypePipe.MutableReflection
       return addedOverride;
     }
 
-    private void CheckForInvalidAttributes (string memberKind, MethodAttributes[] invalidAttributes, MethodAttributes attributes)
+    private MethodInfo GetImplementationMethod (MutableType declaringType, MethodInfo interfaceMethod)
     {
-      var hasInvalidAttributes = invalidAttributes.Any (x => attributes.IsSet (x));
-      if (hasInvalidAttributes)
-      {
-        var invalidAttributeList = string.Join (", ", invalidAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
-        var message = string.Format ("The following MethodAttributes are not supported for {0}s: {1}.", memberKind, invalidAttributeList);
-        throw new ArgumentException (message, "attributes");
-      }
+      var interfaceMap = declaringType.GetInterfaceMap (interfaceMethod.DeclaringType, allowPartialInterfaceMapping: true);
+      var index = Array.IndexOf (interfaceMap.InterfaceMethods, interfaceMethod);
+      return interfaceMap.TargetMethods[index];
     }
 
     private void CheckNotFinalForOverride (MethodInfo overridenMethod)
@@ -234,6 +247,17 @@ namespace Remotion.TypePipe.MutableReflection
         Assertion.IsNotNull (overridenMethod.DeclaringType);
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
+      }
+    }
+
+    private void CheckForInvalidAttributes (string memberKind, MethodAttributes[] invalidAttributes, MethodAttributes attributes)
+    {
+      var hasInvalidAttributes = invalidAttributes.Any (x => attributes.IsSet (x));
+      if (hasInvalidAttributes)
+      {
+        var invalidAttributeList = string.Join (", ", invalidAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
+        var message = string.Format ("The following MethodAttributes are not supported for {0}s: {1}.", memberKind, invalidAttributeList);
+        throw new ArgumentException (message, "attributes");
       }
     }
   }
