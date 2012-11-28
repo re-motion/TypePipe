@@ -179,6 +179,9 @@ namespace Remotion.TypePipe.MutableReflection
         throw new ArgumentException (message, "method");
       }
 
+      if (!method.IsVirtual)
+        throw new NotSupportedException ("A method declared in a base type must be virtual in order to be modified.");
+
       if (method.DeclaringType.IsInterface)
       {
         var implementation = GetImplementationMethod (declaringType, method);
@@ -194,12 +197,9 @@ namespace Remotion.TypePipe.MutableReflection
           var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
           return CreateMutableMethod (declaringType, method.Name, method.Attributes, method.ReturnType, parameters, bodyProvider: null);
         }
-
-        throw new Exception ("adsf");
+        else
+          method = implementation;
       }
-
-      if (!method.IsVirtual)
-        throw new NotSupportedException ("A method declared in a base type must be virtual in order to be modified.");
 
       var baseDefinition = method.GetBaseDefinition();
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AllMutableMethods);

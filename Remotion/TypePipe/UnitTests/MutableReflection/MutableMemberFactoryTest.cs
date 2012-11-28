@@ -552,6 +552,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrCreateMutableMethodOverride_InterfaceMethod_OverrideImplementationInBase ()
     {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.BaseInterfaceMethod (7));
+      var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseInterfaceMethod (7));
+
+      CallAndCheckGetOrAddMutableMethod (
+          implementation,
+          interfaceMethod,
+          implementation,
+          false,
+          implementation,
+          new MethodInfo[0],
+          "BaseInterfaceMethod",
+          MethodAttributes.Public,
+          MethodAttributes.ReuseSlot);
     }
 
     [Test]
@@ -568,7 +581,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "A method declared in a base type must be virtual in order to be modified.")]
     public void GetOrCreateMutableMethodOverride_NonVirtualMethod ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingBaseMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualBaseMethod());
       _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
@@ -711,9 +724,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override void OverrideHierarchy (int parameterName) { }
     }
 
-    public class DomainTypeBase : C
+    public class DomainTypeBase : C, IBaseInterface
     {
-      public void ExistingBaseMethod () { }
+      public virtual void BaseInterfaceMethod (int parameterName) { }
+      public void NonVirtualBaseMethod () { }
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface
@@ -723,11 +737,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void InterfaceMethod () { }
     }
 
+    public interface IBaseInterface
+    {
+      void BaseInterfaceMethod (int parameterName);
+    }
     public interface IDomainInterface
     {
       void InterfaceMethod ();
     }
-
     public interface IAddedInterface
     {
       void AddedInterfaceMethod (int parameterName);
