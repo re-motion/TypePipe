@@ -23,7 +23,6 @@ using Remotion.Development.UnitTesting.Reflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore ("TODO 5229")]
   [TestFixture]
   public class InterfaceImplementationTest : TypeAssemblerIntegrationTestBase
   {
@@ -69,9 +68,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IAddedInterface) Activator.CreateInstance (type);
+      var instance = (IDomainInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.AddedMethod(), Is.EqualTo ("DomainType.Method modified"));
+      Assert.That (instance.Method(), Is.EqualTo ("DomainType.Method modified"));
     }
 
     [Test]
@@ -95,9 +94,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IAddedInterface) Activator.CreateInstance (type);
+      var instance = (IDomainInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.AddedMethod (), Is.EqualTo ("DomainType.UnrelatedMethod modified"));
+      Assert.That (instance.Method(), Is.EqualTo ("DomainType.UnrelatedMethod modified"));
     }
 
     [Test]
@@ -118,9 +117,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
           });
 
-      var instance = (IAddedInterface) Activator.CreateInstance (type);
+      var instance = (IBaseInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.AddedMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod implicitly overridden"));
+      Assert.That (instance.BaseMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod implicitly overridden"));
     }
 
     [Test]
@@ -134,19 +133,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             method.SetBody (
                 ctx =>
                 {
-                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.HasBaseMethod, Is.False);
                   Assert.That (ctx.HasPreviousBody, Is.True);
 
                   return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" explicitly overridden"));
                 });
           });
 
-      var instance = (IAddedInterface) Activator.CreateInstance (type);
+      var instance = (IBaseInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.AddedMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod explicitly overridden"));
+      Assert.That (instance.ShadowedBaseMethod(), Is.EqualTo ("DomainTypeBase.ShadowedBaseMethod explicitly overridden"));
     }
 
     [Test]
+    [Ignore ("TODO 5229")]
     public void Override_ExplicitImplementation ()
     {
       // TODO possible?
