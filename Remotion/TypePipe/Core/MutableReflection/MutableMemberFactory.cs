@@ -185,17 +185,17 @@ namespace Remotion.TypePipe.MutableReflection
       if (method.DeclaringType.IsInterface)
       {
         var implementation = GetImplementationMethod (declaringType, method);
-        if (implementation is MutableMethodInfo)
-        {
-          isNewlyCreated = false;
-          return (MutableMethodInfo) implementation;
-        }
-
         if (implementation == null)
         {
           isNewlyCreated = true;
           var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
           return CreateMutableMethod (declaringType, method.Name, method.Attributes, method.ReturnType, parameters, bodyProvider: null);
+        }
+
+        if (implementation is MutableMethodInfo)
+        {
+          isNewlyCreated = false;
+          return (MutableMethodInfo) implementation;
         }
         else
           method = implementation;
