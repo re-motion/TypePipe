@@ -379,7 +379,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
-      return _interfaceMappingComputer.ComputeMapping (this, _interfacMappingProvider, interfaceType, _methods, allowPartialInterfaceMapping);
+      return _interfaceMappingComputer.ComputeMapping (this, _interfacMappingProvider, _methods, interfaceType, allowPartialInterfaceMapping);
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
