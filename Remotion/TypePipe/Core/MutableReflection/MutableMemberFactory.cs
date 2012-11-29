@@ -187,21 +187,11 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (method.DeclaringType.IsInterface)
       {
-        var implementation = GetImplementationMethod (declaringType, method);
-        if (implementation == null)
-        {
-          isNewlyCreated = true;
-          var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
-          return CreateMutableMethod (declaringType, method.Name, method.Attributes, method.ReturnType, parameters, bodyProvider: null);
-        }
+        method = GetOrCreateImplementationMethod (declaringType, method, out isNewlyCreated);
+        if (method is MutableMethodInfo)
+          return (MutableMethodInfo) method;
 
-        if (implementation is MutableMethodInfo)
-        {
-          isNewlyCreated = false;
-          return (MutableMethodInfo) implementation;
-        }
-        else
-          method = implementation;
+        Assertion.IsTrue (method.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
       }
 
       var baseDefinition = method.GetBaseDefinition();
@@ -236,11 +226,22 @@ namespace Remotion.TypePipe.MutableReflection
       return addedOverride;
     }
 
-    private MethodInfo GetImplementationMethod (MutableType declaringType, MethodInfo interfaceMethod)
+    private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
     {
-      var interfaceMap = declaringType.GetInterfaceMap (interfaceMethod.DeclaringType, allowPartialInterfaceMapping: true);
-      var index = Array.IndexOf (interfaceMap.InterfaceMethods, interfaceMethod);
-      return interfaceMap.TargetMethods[index];
+      var interfaceMap = declaringType.GetInterfaceMap (method.DeclaringType, allowPartialInterfaceMapping: true);
+      var index = Array.IndexOf (interfaceMap.InterfaceMethods, method);
+      var implementation = interfaceMap.TargetMethods[index];
+      if (implementation == null)
+      {
+        isNewlyCreated = true;
+        var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
+        return CreateMutableMethod (declaringType, method.Name, method.Attributes, method.ReturnType, parameters, bodyProvider: null);
+      }
+      else
+      {
+        isNewlyCreated = false;
+        return implementation;
+      }
     }
 
     private void CheckNotFinalForOverride (MethodInfo overridenMethod)

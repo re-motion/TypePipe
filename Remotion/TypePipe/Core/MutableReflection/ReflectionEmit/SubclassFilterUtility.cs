@@ -20,7 +20,7 @@ using System.Reflection;
 namespace Remotion.TypePipe.MutableReflection.ReflectionEmit
 {
   /// <summary>
-  /// Determines if an member is visible from a dervied type.
+  /// Determines if a member is visible from a dervied type.
   /// </summary>
   // TODO 4695 : Remove this class and replace with code generation dependent strategy.
   public static class SubclassFilterUtility

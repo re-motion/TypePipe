@@ -27,7 +27,7 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class InterfaceMappingHelperTest
+  public class InterfaceMappingComputerTest
   {
     public interface IInterfaceMappingProvider
     {
@@ -171,9 +171,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (mapping.TargetType, Is.SameAs (_mutableType));
 
       // Order matters for "expectedMapping".
-      var comparableMapping = mapping.InterfaceMethods.Zip (mapping.TargetMethods).OrderBy (t => t.Item1.Name);
-      var expectedComparableMapping = expectedMapping.Select (t => Tuple.Create (t.Item1, t.Item4));
-      Assert.That (comparableMapping, Is.EqualTo (expectedComparableMapping));
+      var comparableMapping = mapping.InterfaceMethods.Zip (mapping.TargetMethods, (one, two) => new { InterfaceMethod = one, ImplementationMethod = two });
+      var expectedComparableMapping = expectedMapping.Select (t => new { InterfaceMethod = t.Item1, ImplementationMethod = t.Item4 });
+      Assert.That (comparableMapping, Is.EquivalentTo (expectedComparableMapping));
     }
 
     class DomainType : IExistingInterface

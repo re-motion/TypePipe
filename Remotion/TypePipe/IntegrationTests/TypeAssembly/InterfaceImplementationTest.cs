@@ -95,6 +95,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.Method(), Is.EqualTo ("DomainType.UnrelatedMethod modified"));
     }
 
+    // TODO Review: Add test where an existing explicit interface impl exists => should return non-modifiable MutableMethodInfo.
+    // TODO Review: Add test where an existing explicit interface impl exists on the base class  => should throw beacause method cannot be overridden.
+
     [Test]
     public void Override_Implicit ()
     {
@@ -137,11 +140,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.ShadowedBaseMethod(), Is.EqualTo ("DomainTypeBase.ShadowedBaseMethod explicitly overridden"));
     }
 
+    // TODO Review: Test that GetOrAddMutableMethod for an added interface method where an equivalent non-virtual already exists throws a sensible error.
+    // TODO Review: Add test where a private method resembling the interface method already exists, and GetOrAddMutableMethod cannot add an interface impl.
+
     [Test]
     [Ignore ("TODO 5229")]
     public void Override_ExplicitImplementation ()
     {
       // TODO possible?
+      // TODO Review: See above.
       Assert.Fail();
     }
 

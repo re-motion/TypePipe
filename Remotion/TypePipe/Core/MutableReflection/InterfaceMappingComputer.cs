@@ -26,7 +26,7 @@ using System.Linq;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Implements <see cref="IInterfaceMappingComputer"/>.
+  /// Implements <see cref="IInterfaceMappingComputer"/>, computing <see cref="InterfaceMapping"/> instances for a <see cref="MutableType"/>.
   /// </summary>
   public class InterfaceMappingComputer : IInterfaceMappingComputer
   {
@@ -79,13 +79,22 @@ namespace Remotion.TypePipe.MutableReflection
         Type interfaceType,
         IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
         HashSet<MethodInfo> remainingInterfaceMethods,
-        Dictionary<MethodInfo, MethodInfo> mapping,
+        Dictionary<MethodInfo, MethodInfo> mapping, // TODO Review: Dict<MethodInfo, MutableMethodInfo>, rename to explicitImplementations
         bool allowPartialInterfaceMapping)
     {
+      // TODO Review: Use Dictionary<anonymous tuple <string, MethodSignature>, MethodInfo>.
       var remainingSignatures = remainingInterfaceMethods.ToDictionary (m => m, s_memberNameAndSignatureComparer);
-      var allPublicMethods = mutableType.GetMethods(); // Only public methods may implement interfaces.
+      // Only public virtual methods may implicitly implement interfaces. (ECMA-335, 6th edition, II.12.2) 
+      var allPublicMethods = mutableType.GetMethods (); // TODO Review: virtual!
 
-      // Serach methods (including base methods) that implicitly implement the added interface.
+      // TODO Review: Consider this:
+      //var publicMethodsByNameAndSignature = allPublicMethods.ToDictionary (m => m, s_memberNameAndSignatureComparer);
+      // var interfaceMethods = ...ToArray();
+      // var targetMethods = interfaceMethods.Select (m => mapping.GetValueOrDefault (m) ?? publicMethodsByNameAndSignature[m]).ToArray(); <- Plus error detection
+
+      //// Combine mapping and remainingMapping, check for nulls if not allowed.
+
+      // Search methods (including base methods) that implicitly implement the added interface.
       foreach (var method in allPublicMethods)
       {
         MethodInfo interfaceMethod;
@@ -101,13 +110,13 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (allowPartialInterfaceMapping)
       {
-        // TODO 5229: Dict of type MemberInfo -> MethodInfo
         foreach (var remainingMethod in remainingSignatures.Keys.Cast<MethodInfo>())
           mapping.Add (remainingMethod, null);
 
         return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
       }
 
+      // TODO Review: Refactor so that the standard case returns at the end of the method, not the error case.
       var missingImplementations = SeparatedStringBuilder.Build (", ", remainingSignatures.Keys, m => m.Name);
       var message = string.Format (
           "The added interface '{0}' is not fully implemented. The following methods have no implementation: {1}",
@@ -122,9 +131,19 @@ namespace Remotion.TypePipe.MutableReflection
         Type interfaceType,
         IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
         HashSet<MethodInfo> remainingInterfaceMethods,
-        Dictionary<MethodInfo, MethodInfo> mapping)
+        Dictionary<MethodInfo, MethodInfo> mapping) // TODO Review: Dict<MethodInfo, MutableMethodInfo>, rename to explicitImplementations
     {
       var underlyingMapping = interfacMappingProvider (interfaceType);
+
+      // TODO Review:
+      //for (int i = 0; i < underlyingMapping.InterfaceMethods.Length; i++)
+      //{
+      //  var interfaceMethod = underlyingMapping.InterfaceMethods[i];
+      //  if (mapping.Contains (interfaceMethod))
+      //    underlyingMapping.TargetMethods[i] = mapping[interfaceMethod]; <- use GetValueOrDefault or TryGetValue
+      //}
+
+      //return underlyingMapping; <- rename to just 'mapping'
 
       // Interface map from underlying type.
       for (int i = 0; i < underlyingMapping.InterfaceMethods.Length; i++)

@@ -20,6 +20,7 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  // TODO Review: Move to Implementation namespace (also add UnderlyingDescriptors namespace).
   /// <summary>
   /// Creates <see cref="InterfaceMapping"/>s based on the provided data.
   /// </summary>

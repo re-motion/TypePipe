@@ -46,6 +46,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod ()
     {
+      // TODO Review: Use GetMethod and check that the interface map's impl method is the same as the method returned by GetMethod. (Remove comparedAsMutable... flag.)
       var implementationMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingInterface());
 
       CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationMethod);
@@ -75,8 +76,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void ExistingInterface_ExistingMethod_ExplicitReplacesImplicit ()
     {
       var implementationMethod = (MutableMethodInfo) _mutableType.GetMethod ("UnrelatedMethod");
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, _mutableType.GetMethod ("MethodOnExistingInterface"));
+      
       implementationMethod.AddExplicitBaseDefinition (_existingInterfaceMethod);
-
       CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationMethod);
     }
 
@@ -108,6 +110,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementationMethod);
     }
 
+    // TODO Review: Test where an existing method implements an added interface, then add a shadowing method, now this is the interface implementation.
+
     [Test]
     public void AddedInterface_ExistingMethod_Explicit ()
     {
@@ -130,17 +134,20 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: MethodOnAddedInterface")]
+        "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: MethodOnAddedInterface")] // TODO Review: quote method names, add a period.
     public void AddedInterface_NotImplemented ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
       _mutableType.GetInterfaceMap (typeof (IAddedInterface));
     }
 
+    // TODO Review: Test that static and non-virtual methods are not considered implicit implementations.
+
     private void CheckGetInterfaceMap (
         MutableType mutableType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod, bool compareAsMutableMethods = true)
     {
       var interfaceType = interfaceMethod.DeclaringType;
+      Assertion.IsNotNull (interfaceType);
       Assert.That (interfaceType.IsInterface, Is.True);
 
       if (compareAsMutableMethods && !(expectedImplementationMethod is MutableMethodInfo))
@@ -150,6 +157,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
+      // TODO Review: Use interfaces with more than one method, check that the indexes of both methods in the respective array are equal (and not -1).
       Assert.That (mapping.InterfaceMethods, Has.Length.EqualTo (1));
       Assert.That (mapping.TargetMethods, Is.EqualTo (new[] { expectedImplementationMethod }));
     }
