@@ -364,9 +364,17 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
-      return GetInterfaceMap (interfaceType, false);
+      return GetInterfaceMap (interfaceType, allowPartialInterfaceMapping: false);
     }
 
+    /// <summary>
+    /// Returns an interface mapping for the specified interface type. 
+    /// If <paramref name="allowPartialInterfaceMapping"/> is set to <c>true</c>, an interface mapping will be returned even if the interface is not
+    /// fully implemented. This may occur after calls to <see cref="AddInterface"/>.
+    /// </summary>
+    /// <param name="interfaceType">The <see cref="Type"/> of the interface of which to retrieve a mapping.</param>
+    /// <param name="allowPartialInterfaceMapping">Whether or not to allow partial interface mappings.</param>
+    /// <returns></returns>
     public InterfaceMapping GetInterfaceMap (Type interfaceType, bool allowPartialInterfaceMapping)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
