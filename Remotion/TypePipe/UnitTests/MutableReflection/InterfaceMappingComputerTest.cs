@@ -95,19 +95,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void ComputeMapping_AddedInterface_NonPublicImplicitImplementation ()
-    {
-      _mutableType.AddInterface (typeof (IInterfaceWithVisibilityMethod));
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInterfaceWithVisibilityMethod obj) => obj.VisibilityMethod());
-      var implementation = _mutableType.GetMethod ("VisibilityMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-      Assert.That (implementation.IsPublic, Is.False);
-
-      CallComputeMappingAndCheckResult (
-          typeof (IInterfaceWithVisibilityMethod),
-          Tuple.Create (interfaceMethod, implementation, _fakeResult1, (MethodInfo) _fakeResult1));
-    }
-
-    [Test]
     public void ComputeMapping_MutableMethodProviderReturnsNull ()
     {
       _mutableType.AddInterface (typeof (IAddedInterfaceWithOneMethod));
@@ -134,12 +121,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The added interface 'IDisposable' is not fully implemented.")]
-    public void ComputeMapping_AddedInterface_NotFullyImplemented_Throw ()
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: Dispose")]
+    public void ComputeMapping_AddedInterface_NotFullyImplemented ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, false);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "The added interface 'IInterfaceWithVisibilityMethod' is not fully implemented. The following methods have no implementation: VisibilityMethod")]
+    public void ComputeMapping_AddedInterface_NotFullyImplemented_NonPublicImplicitImplementation ()
+    {
+      _mutableType.AddInterface (typeof (IInterfaceWithVisibilityMethod));
       _computer.ComputeMapping (
-          _mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), _mutableMethodProviderMock, allowPartialInterfaceMapping: false);
+          _mutableType, _interfaceMapProviderMock.Get, typeof (IInterfaceWithVisibilityMethod), _mutableMethodProviderMock, false);
     }
 
     [Test]

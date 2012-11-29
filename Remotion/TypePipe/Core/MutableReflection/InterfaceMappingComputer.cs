@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.Text;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -82,10 +83,10 @@ namespace Remotion.TypePipe.MutableReflection
         bool allowPartialInterfaceMapping)
     {
       var remainingSignatures = remainingInterfaceMethods.ToDictionary (m => m, s_memberNameAndSignatureComparer);
-      var allMethods = mutableType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+      var allPublicMethods = mutableType.GetMethods(); // Only public methods may implement interfaces.
 
       // Serach methods (including base methods) that implicitly implement the added interface.
-      foreach (var method in allMethods)
+      foreach (var method in allPublicMethods)
       {
         MethodInfo interfaceMethod;
         if (remainingSignatures.TryGetValue (method, out interfaceMethod))
@@ -100,13 +101,18 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (allowPartialInterfaceMapping)
       {
+        // TODO 5229: Dict of type MemberInfo -> MethodInfo
         foreach (var remainingMethod in remainingSignatures.Keys.Cast<MethodInfo>())
           mapping.Add (remainingMethod, null);
 
         return CreateInterfaceMapping (interfaceType, mutableType, mapping, mutableMethodProvider);
       }
 
-      var message = string.Format ("The added interface '{0}' is not fully implemented.", interfaceType.Name);
+      var missingImplementations = SeparatedStringBuilder.Build (", ", remainingSignatures.Keys, m => m.Name);
+      var message = string.Format (
+          "The added interface '{0}' is not fully implemented. The following methods have no implementation: {1}",
+          interfaceType.Name,
+          missingImplementations);
       throw new InvalidOperationException (message);
     }
 
