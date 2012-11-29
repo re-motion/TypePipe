@@ -304,13 +304,39 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>. If the method
-    /// is declared on the modified type, it returns the corresponding <see cref="MutableMethodInfo"/> from the <see cref="ExistingMutableMethods"/>
-    /// collection. If it is declared on a base type, this method returns an override for it, creating one if necessary.
+    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>.
+    /// <para>
+    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="method"/> this method returns the following.
+    /// <list type="number">
+    ///   <item>
+    ///     Modified type
+    ///     <list type="bullet">
+    ///       <item>The corresponding <see cref="MutableMethodInfo"/> from the <see cref="ExistingMutableMethods"/> collection.</item>
+    ///     </list>
+    ///   </item>
+    ///   <item>
+    ///     Base type
+    ///     <list type="bullet">
+    ///       <item>An existing mutable override for the base method, or</item>
+    ///       <item>a newly created override (implicit or explicit if necessary).</item>
+    ///     </list>
+    ///   </item>
+    ///   <item>
+    ///     Interface type
+    ///     <list type="bullet">
+    ///       <item>An existing mutable implementation, or</item>
+    ///       <item>a newly created implementation, or</item>
+    ///       <item>an existing mutable override for a base implementation, or</item>
+    ///       <item>a newly created override for a base implementation (implicit or explicit if necessary).</item>
+    ///     </list>
+    ///   </item>
+    /// </list>
+    /// </para>
     /// </summary>
     /// <param name="method">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
     /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="method"/> or an override of the method.
+    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="method"/>, an override for a base method or an implementation for 
+    /// an interface method.
     /// </returns>
     public MutableMethodInfo GetOrAddMutableMethod (MethodInfo method)
     {
