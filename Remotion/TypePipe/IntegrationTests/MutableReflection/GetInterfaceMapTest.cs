@@ -129,7 +129,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The added interface 'IAddedInterface' is not fully implemented.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: MethodOnAddedInterface")]
     public void AddedInterface_NotImplemented ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
