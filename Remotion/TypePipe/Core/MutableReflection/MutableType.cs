@@ -305,7 +305,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     /// <summary>
     /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>.
-    /// <para>
+    /// </summary>
+    /// <remarks>
     /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="method"/> this method returns the following.
     /// <list type="number">
     ///   <item>
@@ -331,8 +332,7 @@ namespace Remotion.TypePipe.MutableReflection
     ///     </list>
     ///   </item>
     /// </list>
-    /// </para>
-    /// </summary>
+    /// </remarks>
     /// <param name="method">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
     /// <returns>
     /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="method"/>, an override for a base method or an implementation for 
