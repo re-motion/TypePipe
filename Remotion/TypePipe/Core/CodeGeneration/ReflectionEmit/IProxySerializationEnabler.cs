@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,23 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Reflection;
-using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Helps with building initializations for a mutable type.
+  /// Makes proxies serializable.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyBuilder"/>.</remarks>
-  public interface IInitializationBuilder
+  public interface IProxySerializationEnabler
   {
-    MutableConstructorInfo CreateTypeInitializer (MutableType mutableType);
-    
-    Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType);
-
-    void WireConstructorWithInitialization (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers);
+    void MakeSerializable (MutableType mutableType);
   }
 }

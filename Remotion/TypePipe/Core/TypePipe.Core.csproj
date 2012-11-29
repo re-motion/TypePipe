@@ -56,11 +56,13 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
     <Compile Include="CodeGeneration\ITypeModifier.cs" />

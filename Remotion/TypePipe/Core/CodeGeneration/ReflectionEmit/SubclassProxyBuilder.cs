@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
+    private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     private readonly MemberEmitterContext _context;
 
@@ -41,6 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public SubclassProxyBuilder (
         IMemberEmitter memberEmitter,
         IInitializationBuilder initializationBuilder,
+        IProxySerializationEnabler proxySerializationEnabler,
         MutableType mutableType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
@@ -49,6 +51,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
+      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
@@ -56,6 +59,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _memberEmitter = memberEmitter;
       _initializationBuilder = initializationBuilder;
+      _proxySerializationEnabler = proxySerializationEnabler;
 
       _context = new MemberEmitterContext (mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider, methodTrampolineProvider);
     }
@@ -69,6 +73,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IInitializationBuilder InitializationBuilder
     {
       get { return _initializationBuilder; }
+    }
+
+    public IProxySerializationEnabler ProxySerializationEnabler
+    {
+      get { return _proxySerializationEnabler; }
     }
 
     public MemberEmitterContext MemberEmitterContext
@@ -85,6 +94,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         _memberEmitter.AddConstructor (_context, typeInitializer);
 
       var initializationMembers = _initializationBuilder.CreateInstanceInitializationMembers (mutableType);
+
+      _proxySerializationEnabler.MakeSerializable (mutableType);
 
       foreach (var ifc in mutableType.AddedInterfaces)
         _context.TypeBuilder.AddInterfaceImplementation (ifc);
@@ -120,18 +131,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
-    private void AddMethodAsImplicitOverride (MutableMethodInfo method)
-    {
-      // Modified methods are added as implicit method overrides for the underlying method.
-      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
-      _memberEmitter.AddMethod (_context, method, attributes);
-    }
-
     private void AddConstructorIfVisibleFromSubclass (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
       if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         WireAndAddConstructor (constructor, initializationMembers);
+    }
+
+    private void AddMethodAsImplicitOverride (MutableMethodInfo method)
+    {
+      // Modified methods are added as implicit method overrides for the underlying method.
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
+      _memberEmitter.AddMethod (_context, method, attributes);
     }
   }
 }

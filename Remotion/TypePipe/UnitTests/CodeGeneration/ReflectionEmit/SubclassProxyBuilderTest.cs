@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private IMemberEmitter _memberEmitterMock;
     private IInitializationBuilder _initializationBuilderMock;
+    private IProxySerializationEnabler _proxySerializationEnablerMock;
 
     private MockRepository _mockRepository;
     private MutableType _mutableType;
@@ -52,7 +53,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter> ();
-      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder> ();
+      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder>();
+      _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
 
       _mockRepository = new MockRepository();
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
@@ -69,6 +71,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Initialization ()
     {
       Assert.That (_builder.MemberEmitter, Is.SameAs (_memberEmitterMock));
+      Assert.That (_builder.InitializationBuilder, Is.SameAs (_initializationBuilderMock));
+      Assert.That (_builder.ProxySerializationEnabler, Is.SameAs (_proxySerializationEnablerMock));
 
       Assert.That (_context.MutableType, Is.SameAs (_mutableType));
       Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
@@ -118,6 +122,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
         _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (_mutableType)).Return (fakeInitializationMembers);
 
+        _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType));
+
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
         _memberEmitterMock.Expect (mock => mock.AddField (_context, addedMembers.Item1));
@@ -163,6 +169,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _initializationBuilderMock.Expect (mock => mock.CreateTypeInitializer (mutableType)).Return (null);
       // No call to AddConstructor for because of null type initializer.
       _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (mutableType)).Return (null);
+      _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType));
       // Copied default constructor.
       _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (defaultCtor, null));
       _memberEmitterMock.Expect (mock => mock.AddConstructor (builder.MemberEmitterContext, defaultCtor));
@@ -179,6 +186,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return new SubclassProxyBuilder (
           _memberEmitterMock,
           _initializationBuilderMock,
+          _proxySerializationEnablerMock,
           mutableType,
           _typeBuilderMock,
           debugInfoGenerator,
@@ -216,6 +224,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return Tuple.Create (field, constructor, method);
     }
 
+    // ReSharper disable UnusedParameter.Local
     public class DomainType
     {
       internal DomainType (bool notVisibleFormSubclass) { }

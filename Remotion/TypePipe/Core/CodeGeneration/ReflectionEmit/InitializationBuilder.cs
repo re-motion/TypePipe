@@ -27,9 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Implements <see cref="IInitializationBuilder"/>.
   /// </summary>
-  /// <remarks>
-  /// This class is a implementation detail of <see cref="ISubclassProxyBuilder"/>.
-  /// </remarks>
   public class InitializationBuilder : IInitializationBuilder
   {
     public MutableConstructorInfo CreateTypeInitializer (MutableType mutableType)
