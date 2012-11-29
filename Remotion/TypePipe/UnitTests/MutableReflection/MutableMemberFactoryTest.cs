@@ -93,6 +93,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
+    public void CreateMutableField_VoidType ()
+    {
+      _mutableMemberFactory.CreateMutableField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
+    }
+
+    [Test]
     public void CreateMutableField_ThrowsIfAlreadyExist ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);

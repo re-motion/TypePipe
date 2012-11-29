@@ -55,8 +55,11 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      if (type == typeof (void))
+        throw new ArgumentException ("Field cannot be of type void.", "type");
 
       var signature = new FieldSignature (type);
       if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
