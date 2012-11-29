@@ -14,6 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
@@ -49,12 +51,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateBuilder ()
     {
-      var originalType = ReflectionObjectMother.GetSomeSubclassableType();
-      var mutableType = MutableTypeObjectMother.CreateForExisting (originalType);
+      var underlyingType = typeof (SubclassableType);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _codeGeneratorMock.Expect (mock => mock.DefineType (originalType.FullName, attributes, originalType)).Return (typeBuilderMock);
+      _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType)).Return (typeBuilderMock);
       var fakeDebugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
       _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (fakeDebugInfoGenerator);
 
@@ -99,9 +101,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var underlyingType = typeof (AbstractType);
       var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
+      Assert.That (mutableType.IsAbstract, Is.True);
 
-      var attributes = TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.BeforeFieldInit;
-      _codeGeneratorMock.Stub (stub => stub.DefineType (underlyingType.FullName, attributes, underlyingType));
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract;
+      _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType));
       _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
 
       _factory.CreateBuilder (mutableType);
@@ -109,10 +112,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _codeGeneratorMock.VerifyAllExpectations();
     }
 
-    private abstract class AbstractType
+    [Test]
+    public void CreateBuilder_SerializableType ()
+    {
+      var underlyingType = typeof (SerializableType);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
+      Assert.That (mutableType.IsSerializable, Is.True);
+
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Serializable;
+      _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType));
+      _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
+
+      _factory.CreateBuilder (mutableType);
+
+      _codeGeneratorMock.VerifyAllExpectations();
+    }
+
+    class SubclassableType { }
+
+    abstract class AbstractType
     {
       // Abstract method is needed, otherwise the mutable type is concrete right away.
       public abstract void Method ();
     }
+
+    [Serializable]
+    class SerializableType { }
   }
 }

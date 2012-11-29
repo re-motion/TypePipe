@@ -47,6 +47,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
       if (mutableType.IsAbstract)
         typeAttributes |= TypeAttributes.Abstract;
+      if (mutableType.IsSerializable)
+        typeAttributes |= TypeAttributes.Serializable;
 
       var typeBuilder = _codeGenerator.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
       var debugInfoGenerator = _codeGenerator.DebugInfoGenerator;
