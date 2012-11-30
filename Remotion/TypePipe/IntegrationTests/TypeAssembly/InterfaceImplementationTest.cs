@@ -72,23 +72,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void Modify_Explicit_Existing ()
-    {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExplicitlyImplemented obj) => obj.ExplicitlyImplemented());
-      var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
-            Assert.That (method.CanSetBody, Is.False);
-            Assert.That (method.BaseMethod, Is.Null);
-          });
-
-      var instance = (IExplicitlyImplemented) Activator.CreateInstance (type);
-
-      Assert.That (instance.ExplicitlyImplemented(), Is.EqualTo ("DomainType.ExplicitlyImplemented"));
-    }
-
-    [Test]
     public void Modify_Explicit_Added ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
@@ -112,7 +95,29 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.Method(), Is.EqualTo ("DomainType.UnrelatedMethod modified"));
     }
 
-    // TODO Review: Add test where an existing explicit interface impl exists on the base class  => should throw beacause method cannot be overridden.
+    [Test]
+    public void Modify_Explicit_Existing ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.ExplicitlyImplemented());
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+
+            Assert.That (method.CanSetBody, Is.False);
+            Assert.That (method.BaseMethod, Is.Null);
+          });
+    }
+
+    [Test]
+    public void Modify_Explicit_ExistingOnBase ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.ExplicitlyImplemented());
+      var message = "Cannot override final method 'DomainTypeBase.Remotion.TypePipe.IntegrationTests.TypeAssembly."
+                    + "InterfaceImplementationTest.IBaseInterface.ExplicitlyImplemented'.";
+      AssembleType<DomainType> (
+          mt => Assert.That (() => mt.GetOrAddMutableMethod (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
+    }
 
     [Test]
     public void Override_Implicit ()
@@ -170,19 +175,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainTypeBase.ShadowedBaseMethod";
       }
+
+      void IBaseInterface.ExplicitlyImplemented () { }
     }
 
-    public class DomainType : DomainTypeBase, IDomainInterface, IExplicitlyImplemented
+    public class DomainType : DomainTypeBase, IDomainInterface
     {
       public virtual string Method ()
       {
         return "DomainType.Method";
       }
 
-      string IExplicitlyImplemented.ExplicitlyImplemented ()
-      {
-        return "DomainType.ExplicitlyImplemented";
-      }
+      void IDomainInterface.ExplicitlyImplemented () { }
 
       public new string ShadowedBaseMethod ()
       {
@@ -199,18 +203,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       string BaseMethod ();
       string ShadowedBaseMethod ();
+      void ExplicitlyImplemented ();
     }
-
     public interface IDomainInterface
     {
       string Method ();
+      void ExplicitlyImplemented ();
     }
-
-    public interface IExplicitlyImplemented
-    {
-      string ExplicitlyImplemented ();
-    }
-
     public interface IAddedInterface
     {
       string AddedMethod ();
