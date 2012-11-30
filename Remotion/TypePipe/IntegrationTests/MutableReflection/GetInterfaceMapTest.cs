@@ -143,7 +143,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _mutableType.GetInterfaceMap (typeof (IAddedInterface));
     }
 
-    [Ignore ("TODO 5229")]
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: "
