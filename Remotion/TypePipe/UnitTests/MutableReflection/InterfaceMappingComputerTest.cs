@@ -105,32 +105,42 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ComputeMapping_AddedInterface_NotFullyImplemented_AllowPartial ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
-
-      var result = _computer.ComputeMapping (
-          _mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IDisposable), allowPartialInterfaceMapping: true);
-
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
-      Assert.That (result.InterfaceMethods, Is.EqualTo (new[] { interfaceMethod }));
-      Assert.That (result.TargetMethods, Is.EqualTo (new MethodInfo[] { null }));
+
+      CallComputeMappingAndCheckResult (typeof (IDisposable), Tuple.Create (interfaceMethod, (MethodInfo) null));
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: 'Dispose'.")]
-    public void ComputeMapping_AddedInterface_NotFullyImplemented ()
+    public void ComputeMapping_AddedInterface_NotFullyImplemented_Throws ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
       _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IDisposable), false);
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IInterfaceWithVisibilityMethod' is not fully implemented. The following methods have no implementation: 'VisibilityMethod'.")]
-    public void ComputeMapping_AddedInterface_NotFullyImplemented_NonPublicImplicitImplementation ()
+    public void ComputeMapping_AddedInterface_Candidates_AllowPartial ()
     {
-      _mutableType.AddInterface (typeof (IInterfaceWithVisibilityMethod));
+      _mutableType.AddInterface (typeof (IImplementationCandidates));
+      var interfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IImplementationCandidates obj) => obj.NonPublicMethod());
+      var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IImplementationCandidates obj) => obj.NonVirtualMethod());
+
+      CallComputeMappingAndCheckResult (
+          typeof (IImplementationCandidates),
+          Tuple.Create (interfaceMethod1, (MethodInfo) null),
+          Tuple.Create (interfaceMethod2, (MethodInfo) null));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: " +
+        "'NonPublicMethod', 'NonVirtualMethod'.")]
+    public void ComputeMapping_AddedInterface_Candidates_Throws ()
+    {
+      _mutableType.AddInterface (typeof (IImplementationCandidates));
       _computer.ComputeMapping (
-          _mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IInterfaceWithVisibilityMethod), false);
+          _mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IImplementationCandidates), false);
     }
 
     [Test]
@@ -150,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     // Tuple means: 1) interface method, 2) impl method, 3) expected mutable impl method
     private void CallComputeMappingAndCheckResult (Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
     {
-      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, interfaceType, false);
+      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, interfaceType, true);
 
       _interfaceMapProviderMock.VerifyAllExpectations();
       _mutableMethodProviderMock.VerifyAllExpectations();
@@ -165,10 +175,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void Method11 () { }
       public void Method12 () { }
       public void Method13 () { }
-      public void Method21 () { }
-      public void Method22 () { }
-      internal void VisibilityMethod () { }
+      public virtual void Method21 () { }
+      public virtual void Method22 () { }
       public virtual void UnrelatedMethod () { }
+
+      internal virtual void NonPublicMethod () { }
+      public void NonVirtualMethod () { }
     }
 
     interface IExistingInterface
@@ -182,9 +194,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       void Method21 ();
       void Method22 ();
     }
-    interface IInterfaceWithVisibilityMethod
+    interface IImplementationCandidates
     {
-      void VisibilityMethod ();
+      void NonPublicMethod ();
+      void NonVirtualMethod ();
     }
   }
 }
