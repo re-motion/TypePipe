@@ -20,6 +20,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.Utilities;
@@ -143,7 +144,37 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _mutableType.GetInterfaceMap (typeof (IAddedInterface));
     }
 
-    // TODO Review: Test that static and non-virtual methods are not considered implicit implementations.
+    [Ignore ("TODO 5229")]
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: "
+        + "'NonPublicMethod', 'NonVirtualMethod', 'StaticMethod'.")]
+    public void AddedInterface_NotImplemented_Candidates_Throws ()
+    {
+      _mutableType.AddInterface (typeof (IImplementationCandidates));
+      _mutableType.GetInterfaceMap (typeof (IImplementationCandidates));
+    }
+
+    [Ignore ("TODO 5229")]
+    [Test]
+    public void AddedInterface_NotImplemented_Candidates ()
+    {
+      var virtualPublicMethod = _mutableType.GetMethod ("VirtualPublicMethod");
+      var nonPublicMethod = _mutableType.GetMethod ("NonPublicMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+      var nonVirtualMethod = _mutableType.GetMethod ("NonVirtualMethod");
+      var staticMethod = _mutableType.GetMethod ("StaticMethod");
+
+      Assert.That (nonPublicMethod.IsPublic, Is.False);
+      Assert.That (nonVirtualMethod.IsVirtual, Is.False);
+      Assert.That (staticMethod.IsStatic, Is.True);
+      _mutableType.AddInterface (typeof (IImplementationCandidates));
+
+      var mapping = _mutableType.GetInterfaceMap (typeof (IImplementationCandidates), allowPartialInterfaceMapping: true);
+
+      var targetMethods = mapping.InterfaceMethods.Zip (mapping.TargetMethods).OrderBy (t => t.Item1.Name).Select (t => t.Item2);
+      var expectedTargetMethods = new[] { null, null, null, virtualPublicMethod };
+      Assert.That (targetMethods, Is.EqualTo (expectedTargetMethods));
+    }
 
     private void CheckGetInterfaceMap (MutableType mutableType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod)
     {
@@ -189,6 +220,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       public void MethodOnExistingInterface () { }
       public virtual void UnrelatedMethod () { }
+
+      public virtual void PublicVirtualMethod () { }
+      internal virtual void NonPublicMethod () { }
+      public void NonVirtualMethod () { }
+      public static void StaticMethod () { }
     }
 
     class OtherDomainType : IExistingInterface
@@ -208,6 +244,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     interface IAddedInterface
     {
       void MethodOnAddedInterface ();
+    }
+    interface IImplementationCandidates
+    {
+      void PublicVirtualMethod ();
+      void NonPublicMethod ();
+      void NonVirtualMethod ();
+      void StaticMethod ();
     }
   }
 }
