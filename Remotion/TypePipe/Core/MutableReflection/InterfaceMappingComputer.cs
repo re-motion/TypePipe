@@ -100,11 +100,11 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (targetMethods.Contains (null) && !allowPartialInterfaceMapping)
       {
-        var missingMethodNames = interfaceMethods.Zip (targetMethods).Where (t => t.Item2 == null).Select (t => t.Item1.Name);
+        var missingMethods = interfaceMethods.Zip (targetMethods).Where (t => t.Item2 == null).Select (t => t.Item1);
         var message = string.Format (
-            "The added interface '{0}' is not fully implemented. The following methods have no implementation: {1}",
+            "The added interface '{0}' is not fully implemented. The following methods have no implementation: {1}.",
             interfaceType.Name,
-            SeparatedStringBuilder.Build (", ", missingMethodNames));
+            SeparatedStringBuilder.Build (", ", missingMethods, m => "'" + m.Name + "'"));
         throw new InvalidOperationException (message);
       }
 

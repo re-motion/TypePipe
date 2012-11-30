@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   {
     private MutableType _mutableType;
 
+    private MethodInfo _existingBaseInterfaceMethod;
     private MethodInfo _existingInterfaceMethod;
     private MethodInfo _addedInterfaceMethod;
 
@@ -39,6 +40,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
 
+      _existingBaseInterfaceMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingBaseInterface obj) => obj.MethodOnExistingBaseInterface());
       _existingInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.MethodOnExistingInterface());
       _addedInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.MethodOnAddedInterface());
     }
@@ -46,49 +49,48 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod ()
     {
-      // TODO Review: Use GetMethod and check that the interface map's impl method is the same as the method returned by GetMethod. (Remove comparedAsMutable... flag.)
-      var implementationMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingInterface());
+      var implementation = _mutableType.ExistingMutableMethods.Single (m => m.Name == "MethodOnExistingInterface");
 
-      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
     public void ExistingInterface_AddedMethod ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedDomainType));
       // Although we add a method that could be used as an implementation (no override!), the existing base implementation is returned.
-      AddSimiliarMethod (mutableType, _existingInterfaceMethod);
-      var implementationMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedDomainType obj) => obj.MethodOnExistingInterface());
+      AddSimiliarMethod (_mutableType, _existingBaseInterfaceMethod);
+      var implementationOnBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingBaseInterface());
+      Assert.That (implementationOnBase.DeclaringType, Is.SameAs (typeof (DomainTypeBase)));
 
-      CheckGetInterfaceMap (mutableType, _existingInterfaceMethod, implementationMethod, compareAsMutableMethods: false);
+      CheckGetInterfaceMap (_mutableType, _existingBaseInterfaceMethod, implementationOnBase);
     }
 
     [Test]
     public void ExistingInterface_ExistingMethod_Explicit ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
-      var implementationMethod = GetExplicitImplementation (typeof (OtherDomainType), _existingInterfaceMethod);
+      var implementation = GetExplicitImplementation (mutableType, _existingInterfaceMethod);
 
-      CheckGetInterfaceMap (mutableType, _existingInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
     public void ExistingInterface_ExistingMethod_ExplicitReplacesImplicit ()
     {
-      var implementationMethod = (MutableMethodInfo) _mutableType.GetMethod ("UnrelatedMethod");
       CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, _mutableType.GetMethod ("MethodOnExistingInterface"));
-      
-      implementationMethod.AddExplicitBaseDefinition (_existingInterfaceMethod);
-      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationMethod);
+      var implementation = (MutableMethodInfo) _mutableType.GetMethod ("UnrelatedMethod");
+      implementation.AddExplicitBaseDefinition (_existingInterfaceMethod);
+
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
     public void ExistingInterface_AddedMethod_Explicit ()
     {
-      var implementationMethod = AddSimiliarMethod (_mutableType, _existingInterfaceMethod, methodName: "ExplicitImplementation");
-      implementationMethod.AddExplicitBaseDefinition (_existingInterfaceMethod);
+      var implementation = AddSimiliarMethod (_mutableType, _existingInterfaceMethod, methodName: "ExplicitImplementation");
+      implementation.AddExplicitBaseDefinition (_existingInterfaceMethod);
 
-      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
@@ -96,18 +98,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
       mutableType.AddInterface (typeof (IAddedInterface));
-      var implementationMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((OtherDomainType obj) => obj.MethodOnAddedInterface());
+      var implementation = mutableType.GetMethod ("MethodOnAddedInterface");
 
-      CheckGetInterfaceMap (mutableType, _addedInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (mutableType, _addedInterfaceMethod, implementation);
     }
 
     [Test]
     public void AddedInterface_AddedMethod ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
-      var implementationMethod = AddSimiliarMethod (_mutableType, _addedInterfaceMethod);
+      var implementation = AddSimiliarMethod (_mutableType, _addedInterfaceMethod);
 
-      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
     // TODO Review: Test where an existing method implements an added interface, then add a shadowing method, now this is the interface implementation.
@@ -116,25 +118,25 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void AddedInterface_ExistingMethod_Explicit ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
-      var implementationMethod = (MutableMethodInfo) _mutableType.GetMethod ("UnrelatedMethod");
-      implementationMethod.AddExplicitBaseDefinition (_addedInterfaceMethod);
+      var implementation = (MutableMethodInfo) _mutableType.GetMethod ("UnrelatedMethod");
+      implementation.AddExplicitBaseDefinition (_addedInterfaceMethod);
 
-      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
     [Test]
     public void AddedInterface_AddedMethod_Explicit ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
-      var implementationMethod = AddSimiliarMethod (_mutableType, _addedInterfaceMethod, methodName: "ExplicitImplementation");
-      implementationMethod.AddExplicitBaseDefinition (_addedInterfaceMethod);
+      var implementation = AddSimiliarMethod (_mutableType, _addedInterfaceMethod, methodName: "ExplicitImplementation");
+      implementation.AddExplicitBaseDefinition (_addedInterfaceMethod);
 
-      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementationMethod);
+      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: MethodOnAddedInterface")] // TODO Review: quote method names, add a period.
+        "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: 'MethodOnAddedInterface'.")]
     public void AddedInterface_NotImplemented ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
@@ -143,15 +145,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     // TODO Review: Test that static and non-virtual methods are not considered implicit implementations.
 
-    private void CheckGetInterfaceMap (
-        MutableType mutableType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod, bool compareAsMutableMethods = true)
+    private void CheckGetInterfaceMap (MutableType mutableType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod)
     {
       var interfaceType = interfaceMethod.DeclaringType;
       Assertion.IsNotNull (interfaceType);
       Assert.That (interfaceType.IsInterface, Is.True);
-
-      if (compareAsMutableMethods && !(expectedImplementationMethod is MutableMethodInfo))
-        expectedImplementationMethod = mutableType.AllMutableMethods.Single (m => m.UnderlyingSystemMethodInfo == expectedImplementationMethod);
 
       var mapping = mutableType.GetInterfaceMap (interfaceType);
 
@@ -183,13 +181,15 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       return explicitImplementation;
     }
 
-    class DomainType : IExistingInterface
+    class DomainTypeBase : IExistingBaseInterface
+    {
+      public void MethodOnExistingBaseInterface () { }
+    }
+    class DomainType : DomainTypeBase, IExistingInterface
     {
       public void MethodOnExistingInterface () { }
       public virtual void UnrelatedMethod () { }
     }
-
-    class DerivedDomainType : DomainType { }
 
     class OtherDomainType : IExistingInterface
     {
@@ -197,11 +197,14 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public void MethodOnAddedInterface () { }
     }
 
+    interface IExistingBaseInterface
+    {
+      void MethodOnExistingBaseInterface ();
+    }
     interface IExistingInterface
     {
       void MethodOnExistingInterface ();
     }
-
     interface IAddedInterface
     {
       void MethodOnAddedInterface ();

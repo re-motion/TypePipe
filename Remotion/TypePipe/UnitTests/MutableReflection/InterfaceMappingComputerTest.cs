@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: Dispose")]
+        "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: 'Dispose'.")]
     public void ComputeMapping_AddedInterface_NotFullyImplemented ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IInterfaceWithVisibilityMethod' is not fully implemented. The following methods have no implementation: VisibilityMethod")]
+        "The added interface 'IInterfaceWithVisibilityMethod' is not fully implemented. The following methods have no implementation: 'VisibilityMethod'.")]
     public void ComputeMapping_AddedInterface_NotFullyImplemented_NonPublicImplicitImplementation ()
     {
       _mutableType.AddInterface (typeof (IInterfaceWithVisibilityMethod));
