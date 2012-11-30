@@ -72,7 +72,24 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void Modify_Explicit ()
+    public void Modify_Explicit_Existing ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExplicitlyImplemented obj) => obj.ExplicitlyImplemented());
+      var type = AssembleType<DomainType> (
+          mutableType =>
+          {
+            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            Assert.That (method.CanSetBody, Is.False);
+            Assert.That (method.BaseMethod, Is.Null);
+          });
+
+      var instance = (IExplicitlyImplemented) Activator.CreateInstance (type);
+
+      Assert.That (instance.ExplicitlyImplemented(), Is.EqualTo ("DomainType.ExplicitlyImplemented"));
+    }
+
+    [Test]
+    public void Modify_Explicit_Added ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
       var type = AssembleType<DomainType> (
@@ -95,7 +112,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.Method(), Is.EqualTo ("DomainType.UnrelatedMethod modified"));
     }
 
-    // TODO Review: Add test where an existing explicit interface impl exists => should return non-modifiable MutableMethodInfo.
     // TODO Review: Add test where an existing explicit interface impl exists on the base class  => should throw beacause method cannot be overridden.
 
     [Test]
@@ -156,11 +172,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       }
     }
 
-    public class DomainType : DomainTypeBase, IDomainInterface
+    public class DomainType : DomainTypeBase, IDomainInterface, IExplicitlyImplemented
     {
       public virtual string Method ()
       {
         return "DomainType.Method";
+      }
+
+      string IExplicitlyImplemented.ExplicitlyImplemented ()
+      {
+        return "DomainType.ExplicitlyImplemented";
       }
 
       public new string ShadowedBaseMethod ()
@@ -183,6 +204,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public interface IDomainInterface
     {
       string Method ();
+    }
+
+    public interface IExplicitlyImplemented
+    {
+      string ExplicitlyImplemented ();
     }
 
     public interface IAddedInterface
