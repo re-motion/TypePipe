@@ -88,17 +88,12 @@ namespace Remotion.TypePipe.MutableReflection
         bool allowPartialInterfaceMapping)
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
-      var candidates = mutableType
-          .GetMethods().Where (m => m.IsVirtual)
-          //.OrderBy (m => CountInheritLevel (mutableType, m))
-          //.Cast<MemberInfo>().Distinct (s_memberNameAndSignatureComparer).Cast<MethodInfo>() // TODO 5057 (cleanup code when upgrading to 4.x)
-          .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
-
+      var candidates = mutableType.GetMethods().Where (m => m.IsVirtual).ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods().ToArray();
       var targetMethods = interfaceMethods
           .Select (
-              m =>
-              explicitImplementations.GetValueOrDefault (m) ?? candidates[new { m.Name, Signature = MethodSignature.Create (m) }].FirstOrDefault())
+              m => explicitImplementations.GetValueOrDefault (m)
+                   ?? GetMostDerivedOrDefault (candidates[new { m.Name, Signature = MethodSignature.Create (m) }]))
           .ToArray();
 
       if (targetMethods.Contains (null) && !allowPartialInterfaceMapping)
@@ -114,17 +109,17 @@ namespace Remotion.TypePipe.MutableReflection
       return CreateInterfaceMapping (interfaceType, mutableType, interfaceMethods, targetMethods);
     }
 
-    private object CountInheritLevel (Type type, MethodInfo method)
+    private MethodInfo GetMostDerivedOrDefault (IEnumerable<MethodInfo> candidates)
     {
-      int level = 0;
+      return candidates.FirstOrDefault();
+      //MethodInfo mostDerived = null;
+      //foreach (var method in candidates)
+      //{
+      //  if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
+      //    mostDerived = method;
+      //}
 
-      while (type != method.DeclaringType)
-      {
-        type = type.BaseType;
-        level++;
-      }
-
-      return level;
+      //return mostDerived;
     }
 
     private InterfaceMapping CreateForExisting (
