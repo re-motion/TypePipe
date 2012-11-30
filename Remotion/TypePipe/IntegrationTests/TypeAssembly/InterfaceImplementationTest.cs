@@ -26,7 +26,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class InterfaceImplementationTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TODO Review")]
     [Test]
     public void Implement ()
     {
@@ -143,15 +142,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     // TODO Review: Test that GetOrAddMutableMethod for an added interface method where an equivalent non-virtual already exists throws a sensible error.
     // TODO Review: Add test where a private method resembling the interface method already exists, and GetOrAddMutableMethod cannot add an interface impl.
-
-    [Test]
-    [Ignore ("TODO 5229")]
-    public void Override_ExplicitImplementation ()
-    {
-      // TODO possible?
-      // TODO Review: See above.
-      Assert.Fail();
-    }
 
     public abstract class DomainTypeBase : IBaseInterface
     {
