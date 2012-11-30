@@ -229,16 +229,30 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return addedOverride;
     }
 
-    private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
+    private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
     {
-      var interfaceMap = declaringType.GetInterfaceMap (method.DeclaringType, allowPartialInterfaceMapping: true);
-      var index = Array.IndexOf (interfaceMap.InterfaceMethods, method);
+      var interfaceMap = declaringType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
+      var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
       var implementation = interfaceMap.TargetMethods[index];
+
       if (implementation == null)
       {
-        isNewlyCreated = true;
-        var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
-        return CreateMutableMethod (declaringType, method.Name, method.Attributes, method.ReturnType, parameters, bodyProvider: null);
+        var parameters = ParameterDeclaration.CreateForEquivalentSignature (ifcMethod);
+        try
+        {
+          isNewlyCreated = true;
+          return CreateMutableMethod (declaringType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
+        }
+        catch (ArgumentException)
+        {
+          var message = string.Format (
+              "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
+              + "Use {1}.{2} to create an explicit implementation.",
+              ifcMethod.Name,
+              typeof (MutableType).Name,
+              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null)).Name);
+          throw new InvalidOperationException (message);
+        }
       }
       else
       {

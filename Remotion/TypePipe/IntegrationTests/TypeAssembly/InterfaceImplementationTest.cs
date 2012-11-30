@@ -50,12 +50,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AddedMethod(), Is.EqualTo ("implemented"));
     }
 
-    [Ignore("TODO 5229")]
+    [Ignore ("TODO 5229")]
     [Test]
     public void Implement_InvalidCandidates ()
     {
-      var interfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.NonPublicCandidate());
-      var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.NonVirtualCandidate());
+      var interfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInvalidCandidates obj) => obj.NonPublicCandidate());
+      var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInvalidCandidates obj) => obj.NonVirtualCandidate());
       AssembleType<DomainType> (
           mutableType =>
           {
@@ -212,9 +212,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainType.UnrelatedMethod";
       }
-
-      internal virtual void NonPublicCandidate() {}
-      public void NonVirtualCandidate () { }
     }
 
     public interface IBaseInterface
@@ -231,7 +228,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public interface IAddedInterface
     {
       string AddedMethod ();
-
+    }
+    public interface IInvalidCandidates
+    {
       void NonPublicCandidate ();
       void NonVirtualCandidate ();
     }

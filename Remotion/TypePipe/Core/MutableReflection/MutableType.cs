@@ -305,6 +305,14 @@ namespace Remotion.TypePipe.MutableReflection
       return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
     }
 
+    public MutableMethodInfo AddExplicitOverride (MethodInfo method)
+    {
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      // TODO 5229
+      return null;
+    }
+
     /// <summary>
     /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>.
     /// </summary>

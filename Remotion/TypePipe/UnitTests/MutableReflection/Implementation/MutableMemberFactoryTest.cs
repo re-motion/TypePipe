@@ -577,6 +577,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
+        + "Use MutableType.AddExplicitOverride to create an explicit implementation.")]
+    public void GetOrCreateMutableMethodOverride_InterfaceMethod_InvalidCandidate ()
+    {
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
+      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
     public void GetOrCreateMutableMethodOverride_UnrelatedDeclaringType ()
@@ -744,6 +755,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       public int IntField;
 
       public void InterfaceMethod () { }
+      public void InvalidCandidate () { } // Not virtual.
     }
 
     public interface IBaseInterface
@@ -757,6 +769,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public interface IAddedInterface
     {
       void AddedInterfaceMethod (int parameterName);
+      void InvalidCandidate ();
     }
 
     abstract class AbstractTypeWithOneMethod
