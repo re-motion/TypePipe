@@ -34,16 +34,17 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     private MethodInfo _existingBaseInterfaceMethod;
     private MethodInfo _existingInterfaceMethod;
     private MethodInfo _addedInterfaceMethod;
+    private MethodInfo _otherAddedInterfaceMethod;
 
     [SetUp]
     public void SetUp ()
     {
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
 
-      _existingBaseInterfaceMethod =
-          NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingBaseInterface obj) => obj.MethodOnExistingBaseInterface());
+      _existingBaseInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingBaseInterface obj) => obj.MethodOnExistingBaseInterface());
       _existingInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.MethodOnExistingInterface());
       _addedInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.MethodOnAddedInterface());
+      _otherAddedInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IOtherAddedInterface obj) => obj.MethodOnOtherAddedInterface());
     }
 
     [Test]
@@ -112,7 +113,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
-    // TODO Review: Test where an existing method implements an added interface, then add a shadowing method, now this is the interface implementation.
+    [Ignore ("TODO 5229")]
+    [Test]
+    public void AddInterface_ExistingMethod_ShadowedByAddedMethod ()
+    {
+      _mutableType.AddInterface (typeof (IOtherAddedInterface));
+      var implementationOnBase = _mutableType.GetMethod ("MethodOnOtherAddedInterface");
+      CheckGetInterfaceMap (_mutableType, _otherAddedInterfaceMethod, implementationOnBase);
+
+      var shadowingImplementation = AddSimiliarMethod (_mutableType, _otherAddedInterfaceMethod);
+
+      CheckGetInterfaceMap (_mutableType, _otherAddedInterfaceMethod, shadowingImplementation);
+    }
 
     [Test]
     public void AddedInterface_ExistingMethod_Explicit ()
@@ -163,9 +175,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
-      // TODO Review: Use interfaces with more than one method, check that the indexes of both methods in the respective array are equal (and not -1).
-      Assert.That (mapping.InterfaceMethods, Has.Length.EqualTo (1));
-      Assert.That (mapping.TargetMethods, Is.EqualTo (new[] { expectedImplementationMethod }));
+      var interfaceMethodIndex = Array.IndexOf (mapping.InterfaceMethods, interfaceMethod);
+      var targetMethodIndex = Array.IndexOf (mapping.TargetMethods, expectedImplementationMethod);
+      Assert.That (targetMethodIndex, Is.EqualTo (interfaceMethodIndex).And.Not.EqualTo (-1));
     }
 
     private MutableMethodInfo AddSimiliarMethod (MutableType mutableType, MethodInfo template, string methodName = null)
@@ -192,10 +204,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     class DomainTypeBase : IExistingBaseInterface
     {
       public void MethodOnExistingBaseInterface () { }
+      public virtual void MethodOnOtherAddedInterface () { }
     }
     class DomainType : DomainTypeBase, IExistingInterface
     {
       public void MethodOnExistingInterface () { }
+      public void AdditionalMethodOnExistingInterface () { }
+      public virtual void ExistingMethodMatchingAddedInterfaceMethod () { }
       public virtual void UnrelatedMethod () { }
 
       public virtual void PublicVirtualMethod () { }
@@ -203,11 +218,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public void NonVirtualMethod () { }
       public static void StaticMethod () { }
     }
-
     class OtherDomainType : IExistingInterface
     {
       void IExistingInterface.MethodOnExistingInterface () { }
+      public void AdditionalMethodOnExistingInterface () { }
       public virtual void MethodOnAddedInterface () { }
+      public virtual void ExistingMethodMatchingAddedInterfaceMethod () { }
     }
 
     interface IExistingBaseInterface
@@ -217,10 +233,16 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     interface IExistingInterface
     {
       void MethodOnExistingInterface ();
+      void AdditionalMethodOnExistingInterface ();
     }
     interface IAddedInterface
     {
       void MethodOnAddedInterface ();
+      void ExistingMethodMatchingAddedInterfaceMethod ();
+    }
+    interface IOtherAddedInterface
+    {
+      void MethodOnOtherAddedInterface ();
     }
     interface IImplementationCandidates
     {
