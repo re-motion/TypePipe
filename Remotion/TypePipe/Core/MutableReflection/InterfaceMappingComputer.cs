@@ -111,15 +111,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MethodInfo GetMostDerivedOrDefault (IEnumerable<MethodInfo> candidates)
     {
-      return candidates.FirstOrDefault();
-      //MethodInfo mostDerived = null;
-      //foreach (var method in candidates)
-      //{
-      //  if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
-      //    mostDerived = method;
-      //}
+      MethodInfo mostDerived = null;
+      foreach (var method in candidates)
+      {
+        if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
+          mostDerived = method;
+      }
 
-      //return mostDerived;
+      return mostDerived;
     }
 
     private InterfaceMapping CreateForExisting (
