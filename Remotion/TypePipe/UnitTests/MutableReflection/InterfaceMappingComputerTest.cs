@@ -170,12 +170,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (mapping.InterfaceMethods.Zip (mapping.TargetMethods), Is.EquivalentTo (expectedMapping));
     }
 
-    class DomainType : IExistingInterface
+    class DomainTypeBase
+    {
+      // This method is shadowed in 'DomainType', unordered implicit matching (without considering the type hierarchy)
+      // would result in an ambigous match.
+      public virtual void Method21 () { }
+    }
+    class DomainType : DomainTypeBase, IExistingInterface
     {
       public void Method11 () { }
       public void Method12 () { }
       public void Method13 () { }
-      public virtual void Method21 () { }
+      public new virtual void Method21 () { }
       public virtual void Method22 () { }
       public virtual void UnrelatedMethod () { }
 

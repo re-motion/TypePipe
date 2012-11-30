@@ -87,10 +87,13 @@ namespace Remotion.TypePipe.MutableReflection
         Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations,
         bool allowPartialInterfaceMapping)
     {
-      // Only public virtual methods may implicitly implement interfaces. (ECMA-335, 6th edition, II.12.2) 
-      var publicVirtualMethods = mutableType.GetMethods().Where (m => m.IsVirtual);
+      // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
+      var candidates = mutableType
+          .CreateSequence<Type> (t => t.BaseType)
+          .SelectMany (t => t.GetMethods (BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where (m => m.IsVirtual))
+          .Cast<MemberInfo>().Distinct (s_memberNameAndSignatureComparer).Cast<MethodInfo>() // TODO 5057 (cleanup code when upgrading to 4.x)
+          .ToDictionary (m => new { m.Name, Signature = MethodSignature.Create (m) });
 
-      var candidates = publicVirtualMethods.ToDictionary (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods().ToArray();
       var targetMethods = interfaceMethods
           .Select (
