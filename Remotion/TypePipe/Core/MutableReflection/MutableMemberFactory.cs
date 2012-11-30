@@ -126,6 +126,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       // bodyProvider is null for abstract methods
 
+      // TODO : virtual and static is an invalid combination
       // TODO XXXX: if it is an implicit method override, it needs the same visibility (or more public visibility?)!
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);

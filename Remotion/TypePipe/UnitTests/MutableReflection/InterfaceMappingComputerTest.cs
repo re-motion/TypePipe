@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
@@ -82,6 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // MutableMethodProvider returns null for base methods.
 
       CallComputeMappingAndCheckResult (
+          _mutableType,
           typeof (IExistingInterface),
           Tuple.Create (_existingInterfaceMethod1, (MethodInfo) fakeImplementation1),
           Tuple.Create (_existingInterfaceMethod2, (MethodInfo) explicitImplementation),
@@ -100,6 +102,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (implicitImplementation3.DeclaringType, Is.SameAs (typeof (DomainTypeBase)));
 
       CallComputeMappingAndCheckResult (
+          _mutableType,
           typeof (IAddedInterface),
           Tuple.Create (_addedInterfaceMethod1, (MethodInfo) explicitImplementation),
           Tuple.Create (_addedInterfaceMethod2, implicitImplementation2),
@@ -107,12 +110,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ComputeMapping_AddedInterface_CandidateOrder ()
+    {
+      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType), memberSelectorMock);
+
+      var baseMethod = typeof (DomainType).GetMethods().Single (m => m.Name == "Method22" && m.DeclaringType == typeof (DomainTypeBase));
+      var methods = GetAllMethods (mutableType).ToArray();
+      var baseMethodIndex = Array.IndexOf (methods, baseMethod);
+      // Change sequence so that base method comes at start.
+      var mixedMethods = methods.Skip (baseMethodIndex).Concat (methods.Take (baseMethodIndex)).ToArray();
+      Assert.That (mixedMethods[0], Is.SameAs (baseMethod));
+      Assert.That (mixedMethods, Is.EquivalentTo (methods));
+
+      mutableType.AddInterface (typeof (IAddedInterface));
+      memberSelectorMock
+          .Expect (mock => mock.SelectMethods (GetAllMethods (mutableType), BindingFlags.Public | BindingFlags.Instance, mutableType))
+          .Return (mixedMethods);
+
+      CallComputeMappingAndCheckResult (
+          mutableType,
+          typeof (IAddedInterface),
+          Tuple.Create (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
+          Tuple.Create (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),
+          Tuple.Create (_addedInterfaceMethod3, methods.First (m => m.Name == "Method23")));
+      memberSelectorMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void ComputeMapping_AddedInterface_NotFullyImplemented_AllowPartial ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose ());
 
-      CallComputeMappingAndCheckResult (typeof (IDisposable), Tuple.Create (interfaceMethod, (MethodInfo) null));
+      CallComputeMappingAndCheckResult (_mutableType, typeof (IDisposable), Tuple.Create (interfaceMethod, (MethodInfo) null));
     }
 
     [Test]
@@ -132,6 +163,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IImplementationCandidates obj) => obj.NonVirtualMethod());
 
       CallComputeMappingAndCheckResult (
+          _mutableType,
           typeof (IImplementationCandidates),
           Tuple.Create (interfaceMethod1, (MethodInfo) null),
           Tuple.Create (interfaceMethod2, (MethodInfo) null));
@@ -162,15 +194,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IDisposable), false);
     }
 
-    // Tuple means: 1) interface method, 2) impl method, 3) expected mutable impl method
-    private void CallComputeMappingAndCheckResult (Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
+    private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
     {
-      var mapping = _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, interfaceType, true);
+      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
+    }
+
+    // Tuple means: 1) interface method, 2) implementation method
+    private void CallComputeMappingAndCheckResult (MutableType mutableType, Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
+    {
+      var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, interfaceType, true);
 
       _interfaceMapProviderMock.VerifyAllExpectations();
       _mutableMethodProviderMock.VerifyAllExpectations();
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
-      Assert.That (mapping.TargetType, Is.SameAs (_mutableType));
+      Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       // Order matters for "expectedMapping".
       Assert.That (mapping.InterfaceMethods.Zip (mapping.TargetMethods), Is.EquivalentTo (expectedMapping));
     }

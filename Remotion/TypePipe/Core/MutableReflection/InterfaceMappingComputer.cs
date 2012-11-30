@@ -32,8 +32,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class InterfaceMappingComputer : IInterfaceMappingComputer
   {
-    private static readonly MemberNamedAndSignatureEqualityComparer s_memberNameAndSignatureComparer = new MemberNamedAndSignatureEqualityComparer();
-
     public InterfaceMapping ComputeMapping (
         MutableType mutableType,
         Func<Type, InterfaceMapping> interfacMappingProvider,
@@ -88,7 +86,10 @@ namespace Remotion.TypePipe.MutableReflection
         bool allowPartialInterfaceMapping)
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
-      var candidates = mutableType.GetMethods().Where (m => m.IsVirtual).ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
+      var candidates = mutableType
+          .GetMethods (BindingFlags.Public | BindingFlags.Instance)
+          .Where (m => m.IsVirtual)
+          .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods().ToArray();
       var targetMethods = interfaceMethods
           .Select (
