@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
