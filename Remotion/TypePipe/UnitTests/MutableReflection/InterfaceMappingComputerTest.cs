@@ -46,6 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private readonly MethodInfo _existingInterfaceMethod3 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.Method13());
     private readonly MethodInfo _addedInterfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.Method21());
     private readonly MethodInfo _addedInterfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.Method22());
+    private readonly MethodInfo _addedInterfaceMethod3 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.Method23());
 
     [SetUp]
     public void SetUp ()
@@ -93,12 +94,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableType.AddInterface (typeof (IAddedInterface));
       var explicitImplementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
       explicitImplementation.AddExplicitBaseDefinition (_addedInterfaceMethod1);
-      var implicitImplementation2 = _mutableType.GetMethod ("Method22");
+      var implicitImplementation2 = _mutableType.GetMethod ("Method22", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+      var implicitImplementation3 = _mutableType.GetMethod ("Method23");
+      Assert.That (implicitImplementation2.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (implicitImplementation3.DeclaringType, Is.SameAs (typeof (DomainTypeBase)));
 
       CallComputeMappingAndCheckResult (
           typeof (IAddedInterface),
           Tuple.Create (_addedInterfaceMethod1, (MethodInfo) explicitImplementation),
-          Tuple.Create (_addedInterfaceMethod2, implicitImplementation2));
+          Tuple.Create (_addedInterfaceMethod2, implicitImplementation2),
+          Tuple.Create (_addedInterfaceMethod3, implicitImplementation3));
     }
 
     [Test]
@@ -172,17 +177,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     class DomainTypeBase
     {
-      // This method is shadowed in 'DomainType', unordered implicit matching (without considering the type hierarchy)
+      // This methods can be shadowed in 'DomainType', unordered implicit matching (without considering the type hierarchy)
       // would result in an ambigous match.
-      public virtual void Method21 () { }
+      public virtual void Method22 () { } // Shadowed.
+      public virtual void Method23 () { } // Not shadowed.
     }
     class DomainType : DomainTypeBase, IExistingInterface
     {
       public void Method11 () { }
       public void Method12 () { }
       public void Method13 () { }
-      public new virtual void Method21 () { }
-      public virtual void Method22 () { }
+      public virtual void Method21 () { }
+      public new virtual void Method22 () { }
       public virtual void UnrelatedMethod () { }
 
       internal virtual void NonPublicMethod () { }
@@ -199,6 +205,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       void Method21 ();
       void Method22 ();
+      void Method23 ();
     }
     interface IImplementationCandidates
     {

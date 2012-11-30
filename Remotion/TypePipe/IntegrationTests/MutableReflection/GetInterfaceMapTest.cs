@@ -113,7 +113,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
-    [Ignore ("TODO 5229")]
     [Test]
     public void AddInterface_ExistingMethod_ShadowedByAddedMethod ()
     {

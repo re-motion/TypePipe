@@ -89,16 +89,16 @@ namespace Remotion.TypePipe.MutableReflection
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
       var candidates = mutableType
-          .CreateSequence<Type> (t => t.BaseType)
-          .SelectMany (t => t.GetMethods (BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where (m => m.IsVirtual))
-          .Cast<MemberInfo>().Distinct (s_memberNameAndSignatureComparer).Cast<MethodInfo>() // TODO 5057 (cleanup code when upgrading to 4.x)
-          .ToDictionary (m => new { m.Name, Signature = MethodSignature.Create (m) });
+          .GetMethods().Where (m => m.IsVirtual)
+          //.OrderBy (m => CountInheritLevel (mutableType, m))
+          //.Cast<MemberInfo>().Distinct (s_memberNameAndSignatureComparer).Cast<MethodInfo>() // TODO 5057 (cleanup code when upgrading to 4.x)
+          .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
 
       var interfaceMethods = interfaceType.GetMethods().ToArray();
       var targetMethods = interfaceMethods
           .Select (
               m =>
-              explicitImplementations.GetValueOrDefault (m) ?? candidates.GetValueOrDefault (new { m.Name, Signature = MethodSignature.Create (m) }))
+              explicitImplementations.GetValueOrDefault (m) ?? candidates[new { m.Name, Signature = MethodSignature.Create (m) }].FirstOrDefault())
           .ToArray();
 
       if (targetMethods.Contains (null) && !allowPartialInterfaceMapping)
@@ -112,6 +112,19 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       return CreateInterfaceMapping (interfaceType, mutableType, interfaceMethods, targetMethods);
+    }
+
+    private object CountInheritLevel (Type type, MethodInfo method)
+    {
+      int level = 0;
+
+      while (type != method.DeclaringType)
+      {
+        type = type.BaseType;
+        level++;
+      }
+
+      return level;
     }
 
     private InterfaceMapping CreateForExisting (
