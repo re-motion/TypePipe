@@ -16,6 +16,8 @@
 // 
 using System;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
+using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

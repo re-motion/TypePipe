@@ -1,7 +1,7 @@
 ﻿using System;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 {
   public static class TypeDescriptorObjectMother
   {

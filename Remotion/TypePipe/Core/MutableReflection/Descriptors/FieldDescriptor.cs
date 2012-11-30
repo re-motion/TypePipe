@@ -14,12 +14,13 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Descriptors
 {
   /// <summary>
   /// Defines the characteristics of a field.

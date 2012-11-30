@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -23,8 +24,9 @@ using Remotion.Development.UnitTesting.Reflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 {
   [TestFixture]
   public class ParameterDescriptorTest

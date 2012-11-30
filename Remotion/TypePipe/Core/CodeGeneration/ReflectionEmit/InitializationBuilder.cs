@@ -20,6 +20,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit

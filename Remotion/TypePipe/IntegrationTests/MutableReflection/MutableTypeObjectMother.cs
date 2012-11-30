@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {

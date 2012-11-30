@@ -23,7 +23,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Descriptors
 {
   /// <summary>
   /// Defines the characteristics of a parameter.

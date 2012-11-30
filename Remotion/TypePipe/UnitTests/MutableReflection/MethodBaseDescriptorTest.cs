@@ -19,6 +19,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

@@ -21,6 +21,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching

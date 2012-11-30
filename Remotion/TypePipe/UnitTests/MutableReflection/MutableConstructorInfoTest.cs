@@ -24,7 +24,9 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

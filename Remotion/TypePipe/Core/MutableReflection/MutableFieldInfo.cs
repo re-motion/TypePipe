@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection

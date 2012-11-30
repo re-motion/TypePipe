@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection

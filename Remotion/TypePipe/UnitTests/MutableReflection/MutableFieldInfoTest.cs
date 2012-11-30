@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
