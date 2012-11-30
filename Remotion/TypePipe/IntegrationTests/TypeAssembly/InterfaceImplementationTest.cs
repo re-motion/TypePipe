@@ -56,15 +56,24 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInvalidCandidates obj) => obj.NonPublicCandidate());
       var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInvalidCandidates obj) => obj.NonVirtualCandidate());
+
       AssembleType<DomainType> (
           mutableType =>
           {
-            mutableType.AddInterface (typeof (IAddedInterface));
+            mutableType.AddInterface (typeof (IInvalidCandidates));
 
-            var message = "Interface method 'NonPublicCandidate' cannot be implemented because a method with equal name and signature already "
-                          + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
-            Assert.That (() => mutableType.GetOrAddMutableMethod (interfaceMethod1), Throws.InvalidOperationException.With.Message.EqualTo (message));
-            Assert.That (() => mutableType.GetOrAddMutableMethod (interfaceMethod2), Throws.InvalidOperationException.With.Message.EqualTo (message));
+            var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already "
+                                + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
+            Assert.That (
+                () => mutableType.GetOrAddMutableMethod (interfaceMethod1),
+                Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod1.Name)));
+            Assert.That (
+                () => mutableType.GetOrAddMutableMethod (interfaceMethod2),
+                Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod2.Name)));
+
+            // Implement the interface, otherwise the type is invalid and cannot be generated.
+            mutableType.AddExplicitOverride (interfaceMethod1).SetBody (ctx => Expression.Empty());
+            mutableType.AddExplicitOverride (interfaceMethod2).SetBody (ctx => Expression.Empty());
           });
     }
 
@@ -212,6 +221,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainType.UnrelatedMethod";
       }
+
+      internal virtual void NonPublicCandidate () { }
+      public void NonVirtualCandidate () { }
     }
 
     public interface IBaseInterface
