@@ -50,6 +50,24 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AddedMethod(), Is.EqualTo ("implemented"));
     }
 
+    [Ignore("TODO 5229")]
+    [Test]
+    public void Implement_InvalidCandidates ()
+    {
+      var interfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.NonPublicCandidate());
+      var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.NonVirtualCandidate());
+      AssembleType<DomainType> (
+          mutableType =>
+          {
+            mutableType.AddInterface (typeof (IAddedInterface));
+
+            var message = "Interface method 'NonPublicCandidate' cannot be implemented because a method with equal name and signature already "
+                          + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
+            Assert.That (() => mutableType.GetOrAddMutableMethod (interfaceMethod1), Throws.InvalidOperationException.With.Message.EqualTo (message));
+            Assert.That (() => mutableType.GetOrAddMutableMethod (interfaceMethod2), Throws.InvalidOperationException.With.Message.EqualTo (message));
+          });
+    }
+
     [Test]
     public void Modify_Implicit ()
     {
@@ -161,9 +179,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.ShadowedBaseMethod(), Is.EqualTo ("DomainTypeBase.ShadowedBaseMethod explicitly overridden"));
     }
 
-    // TODO Review: Test that GetOrAddMutableMethod for an added interface method where an equivalent non-virtual already exists throws a sensible error.
-    // TODO Review: Add test where a private method resembling the interface method already exists, and GetOrAddMutableMethod cannot add an interface impl.
-
     public abstract class DomainTypeBase : IBaseInterface
     {
       public virtual string BaseMethod ()
@@ -197,6 +212,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainType.UnrelatedMethod";
       }
+
+      internal virtual void NonPublicCandidate() {}
+      public void NonVirtualCandidate () { }
     }
 
     public interface IBaseInterface
@@ -213,6 +231,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public interface IAddedInterface
     {
       string AddedMethod ();
+
+      void NonPublicCandidate ();
+      void NonVirtualCandidate ();
     }
   }
 }
