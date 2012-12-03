@@ -15,8 +15,14 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using Microsoft.Scripting.Ast;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -25,10 +31,52 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
+    private const string c_serializationKeyPrefix = "<tp>";
+
     public void MakeSerializable (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-      
+
+      var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
+      if (implementsSerializable)
+        OverrideGetObjectData (mutableType);
+    }
+
+    private void OverrideGetObjectData (MutableType mutableType)
+    {
+      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
+      var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
+      var serializedFields = mutableType.AddedFields.Where (f => !f.IsStatic);
+      getObjectDataOverride.SetBody (
+          ctx =>
+          {
+            var fieldSerializations = SerializeFields (ctx, serializedFields);
+            var expressions = EnumerableUtility.Singleton (ctx.PreviousBody).Concat (fieldSerializations);
+            return Expression.Block (expressions);
+          });
+    }
+
+    private IEnumerable<Expression> SerializeFields (MethodBodyModificationContext ctx, IEnumerable<MutableFieldInfo> serializedFields)
+    {
+      return serializedFields
+          .ToLookup (f => f.Name)
+          .SelectMany (
+              fieldsByName =>
+              {
+                var fields = fieldsByName.ToArray();
+                if (fields.Length == 1)
+                  return EnumerableUtility.Singleton (SerializeField (ctx, fields[0].Name, fields[0]));
+
+                return from field in fields
+                       let serializationKey = string.Format ("{0}@{1}", field.Name, field.FieldType.FullName)
+                       select SerializeField (ctx, serializationKey, field);
+              });
+    }
+
+    private Expression SerializeField (MethodBodyModificationContext ctx, string serializationKey, MutableFieldInfo field)
+    {
+      var key = c_serializationKeyPrefix + serializationKey;
+      return Expression.Call (ctx.Parameters[0], "AddValue", Type.EmptyTypes, Expression.Constant (key), Expression.Field (ctx.This, field));
     }
   }
 }
