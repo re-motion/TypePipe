@@ -57,15 +57,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var counter = mutableType.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
 
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize ());
-      var name = MethodOverrideUtility.GetNameForExplicitOverride (interfaceMethod);
-      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (interfaceMethod).Unset (MethodAttributes.Abstract);
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (interfaceMethod);
+      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
       var body = Expression.Block (interfaceMethod.ReturnType, mutableType.InstanceInitializations);
-      var initMethod = mutableType.AddMethod (name, attributes, interfaceMethod.ReturnType, parameters, ctx => body);
-      initMethod.AddExplicitBaseDefinition (interfaceMethod);
+      var initializationMethod = mutableType.AddExplicitOverride (interfaceMethod, ctx => body);
 
-      return Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
+      return Tuple.Create<FieldInfo, MethodInfo> (counter, initializationMethod);
     }
 
     public void WireConstructorWithInitialization (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
