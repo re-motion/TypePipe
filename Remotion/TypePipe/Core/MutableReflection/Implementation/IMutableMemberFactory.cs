@@ -33,15 +33,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     Expression CreateInitialization (MutableType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider);
 
-    MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
+    MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
 
-    MutableConstructorInfo CreateMutableConstructor (
+    MutableConstructorInfo CreateConstructor (
         MutableType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo CreateMutableMethod (
+    MutableMethodInfo CreateMethod (
         MutableType declaringType,
         string name,
         MethodAttributes attributes,
@@ -49,6 +49,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         IEnumerable<ParameterDeclaration> parameterDeclarations,
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo GetOrCreateMutableMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
+    MutableMethodInfo CreateExplicitOverride (
+        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
+
+    MutableMethodInfo GetOrCreateMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
   }
 }

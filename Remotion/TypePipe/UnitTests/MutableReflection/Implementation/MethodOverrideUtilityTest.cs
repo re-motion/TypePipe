@@ -19,7 +19,6 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -30,11 +29,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetNameForExplicitOverride ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
 
       var result = MethodOverrideUtility.GetNameForExplicitOverride (method);
 
-      Assert.That (result, Is.EqualTo ("System.Object_ToString"));
+      Assert.That (
+          result,
+          Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MethodOverrideUtilityTest.IDomainInterface.InterfaceMethod"));
+
+      // Make sure that the explicit override naming scheme is equivalent to the naming scheme of explicit implementations in C#.
+      Assert.That (typeof (DomainType).GetMethod (result, BindingFlags.NonPublic | BindingFlags.Instance), Is.Not.Null);
     }
 
     [Test]
@@ -42,7 +46,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString ());
       Assert.That (
-          method.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+          method.Attributes,
+          Is.EqualTo (MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
 
       var result = MethodOverrideUtility.GetAttributesForExplicitOverride (method);
 
@@ -55,18 +60,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtecterOrInternalMethod());
       Assert.That (
           method.Attributes,
-          Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+          Is.EqualTo (MethodAttributes.FamORAssem | MethodAttributes.Abstract | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
 
       var result = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
 
       Assert.That (result, Is.EqualTo (MethodAttributes.Family | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
     }
 
-    private class DomainType
+    abstract class DomainType : IDomainInterface
     {
-      protected internal virtual void ProtecterOrInternalMethod () { }
+      protected internal abstract void ProtecterOrInternalMethod ();
+      public abstract override string ToString ();
 
-      public override string ToString () { return ""; }
+      void IDomainInterface.InterfaceMethod () { }
+    }
+
+    interface IDomainInterface
+    {
+      void InterfaceMethod ();
     }
   }
 }

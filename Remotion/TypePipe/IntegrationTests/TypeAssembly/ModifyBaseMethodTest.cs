@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
           });
 
-      var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseMethod.Name);
+      var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseMethod);
       Assert.That (explicitOverride.DeclaringType, Is.SameAs (type));
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
           });
 
-      var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseBaseMethod.Name);
+      var explicitOverride = GetDeclaredExplicitOverrideMethod (type, baseBaseMethod);
       Assert.That (explicitOverride.DeclaringType, Is.SameAs (type));
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -199,7 +199,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             
           });
 
-      var explicitOverride = GetDeclaredExplicitOverrideMethod (type, shadowedMethod.Name);
+      var explicitOverride = GetDeclaredExplicitOverrideMethod (type, shadowedMethod);
       var implicitOverride = GetDeclaredMethod (type, shadowedMethod.Name);
 
       var instance = (DomainType) Activator.CreateInstance (type);

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -285,7 +286,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var type = ReflectionObjectMother.GetSomeType();
       var attributes = (FieldAttributes) 7;
       var fakeField = MutableFieldInfoObjectMother.Create (_mutableType);
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateMutableField (_mutableType, name, type, attributes)).Return (fakeField);
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateField (_mutableType, name, type, attributes)).Return (fakeField);
 
       var result = _mutableType.AddField (name, type, attributes);
 
@@ -314,7 +315,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
       var constructorFake = MutableConstructorInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations, bodyProvider))
+          .Expect (mock => mock.CreateConstructor (_mutableType, attributes, parameterDeclarations, bodyProvider))
           .Return (constructorFake);
 
       var result = _mutableType.AddConstructor (attributes, parameterDeclarations, bodyProvider);
@@ -347,7 +348,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeMethod = MutableMethodInfoObjectMother.Create(_mutableType);
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.CreateMutableMethod (
+              mock => mock.CreateMethod (
                   Arg.Is (_mutableType),
                   Arg.Is (name),
                   Arg.Is (attributes),
@@ -370,20 +371,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = MethodAttributes.Public;
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-
+      var expectedAttributes = MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.Virtual;
       var fakeMethod = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
-          .Expect (
-              mock => mock.CreateMutableMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is (name),
-                  Arg.Is (attributes | MethodAttributes.Abstract | MethodAttributes.Virtual),
-                  Arg.Is (returnType),
-                  Arg.Is (parameterDeclarations),
-                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Equal (null)))
+          .Expect (mock => mock.CreateMethod (_mutableType, name, expectedAttributes, returnType, parameterDeclarations, null))
           .Return (fakeMethod);
 
       var result = _mutableType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations);
+
+      Assert.That (result, Is.SameAs (fakeMethod));
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result }));
+    }
+
+    [Test]
+    public void AddExplicitOverride ()
+    {
+      var method = ReflectionObjectMother.GetSomeMethod();
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
+      var fakeMethod = MutableMethodInfoObjectMother.Create (_mutableType);
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateExplicitOverride (_mutableType, method, bodyProvider)).Return (fakeMethod);
+
+      var result = _mutableType.AddExplicitOverride (method, bodyProvider);
 
       Assert.That (result, Is.SameAs (fakeMethod));
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result }));
@@ -409,7 +417,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeOverride = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.GetOrCreateMutableMethodOverride (
+              mock => mock.GetOrCreateMethodOverride (
                   Arg.Is (_mutableType),
                   Arg.Is (baseMethod),
                   out Arg<bool>.Out (true).Dummy))
@@ -429,7 +437,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeOverride = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.GetOrCreateMutableMethodOverride (
+              mock => mock.GetOrCreateMethodOverride (
                   Arg.Is (_mutableType),
                   Arg.Is (baseMethod),
                   out Arg<bool>.Out (false).Dummy))
@@ -635,7 +643,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           parameterDeclarations: ParameterDeclaration.EmptyParameters,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMutableMethod (null, null, 0, null, null, null))
+          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null))
           .IgnoreArguments()
           .Return (fakeOverride);
       _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.EmptyParameters, ctx => null);
@@ -684,7 +692,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeField = MutableFieldInfoObjectMother.Create (mutableType, name: name);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableField (null, "", null, 0)).IgnoreArguments().Return (fakeField).Repeat.Once();
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateField (null, "", null, 0)).IgnoreArguments().Return (fakeField).Repeat.Once();
 
       return mutableType.AddField ("x", typeof (int));
     }
@@ -694,7 +702,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
       var fakeCtor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (mutableType, parameterDeclarations);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateMutableConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor).Repeat.Once();
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor).Repeat.Once();
 
       return mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => null);
     }
@@ -705,7 +713,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var fakeMethod = MutableMethodInfoObjectMother.Create (mutableType, name, parameterDeclarations: parameterDeclarations);
       _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateMutableMethod (null, "", 0, null, null, null)).IgnoreArguments()
+          .Stub (stub => stub.CreateMethod (null, "", 0, null, null, null)).IgnoreArguments()
           .Return (fakeMethod)
           .Repeat.Once();
 
@@ -731,7 +739,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public int BaseField;
 
-      public void ExistingBaseMethod () { }
+      public string ExplicitOverrideTarget (double d) { return ""; }
     }
 
     [Abc]

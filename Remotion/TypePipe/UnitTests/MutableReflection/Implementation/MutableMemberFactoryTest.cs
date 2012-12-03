@@ -84,9 +84,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateMutableField ()
+    public void CreateField ()
     {
-      var field = _mutableMemberFactory.CreateMutableField (_mutableType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
+      var field = _mutableMemberFactory.CreateField (_mutableType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
 
       Assert.That (field.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (field.Name, Is.EqualTo ("_newField"));
@@ -96,31 +96,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
-    public void CreateMutableField_VoidType ()
+    public void CreateField_VoidType ()
     {
-      _mutableMemberFactory.CreateMutableField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
+      _mutableMemberFactory.CreateField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
     }
 
     [Test]
-    public void CreateMutableField_ThrowsIfAlreadyExist ()
+    public void CreateField_ThrowsIfAlreadyExist ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableField (_mutableType, "OtherName", field.FieldType, 0),
+          () => _mutableMemberFactory.CreateField (_mutableType, "OtherName", field.FieldType, 0),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, typeof (string), 0),
+          () => _mutableMemberFactory.CreateField (_mutableType, field.Name, typeof (string), 0),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableField (_mutableType, field.Name, field.FieldType, 0),
-          Throws.ArgumentException.With.Message.EqualTo ("Field with equal signature already exists.\r\nParameter name: name"));
+          () => _mutableMemberFactory.CreateField (_mutableType, field.Name, field.FieldType, 0),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Field with equal signature already exists."));
     }
 
     [Test]
-    public void CreateMutableConstructor ()
+    public void CreateConstructor ()
     {
       var attributes = MethodAttributes.Public;
       var parameterDeclarations = new[]
@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeBody;
       };
 
-      var constructor = _mutableMemberFactory.CreateMutableConstructor (_mutableType, attributes, parameterDeclarations.AsOneTime(), bodyProvider);
+      var constructor = _mutableMemberFactory.CreateConstructor (_mutableType, attributes, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (constructor.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (constructor.Name, Is.EqualTo (".ctor"));
@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateMutableConstructor_ThrowsForInvalidMethodAttributes ()
+    public void CreateConstructor_ThrowsForInvalidMethodAttributes ()
     {
       const string message = "The following MethodAttributes are not supported for constructors: " +
                              "Abstract, HideBySig, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
@@ -171,29 +171,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     [ExpectedException (typeof (NotSupportedException),
         ExpectedMessage = "Type initializers (static constructors) cannot be added via this API, use MutableType.AddTypeInitialization instead.")]
-    public void CreateMutableConstructor_ThrowsIfStaticAndNonEmptyParameters ()
+    public void CreateConstructor_ThrowsIfStaticAndNonEmptyParameters ()
     {
-      _mutableMemberFactory.CreateMutableConstructor (_mutableType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null);
+      _mutableMemberFactory.CreateConstructor (_mutableType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null);
     }
 
     [Test]
-    public void CreateMutableConstructor_ThrowsIfAlreadyExists ()
+    public void CreateConstructor_ThrowsIfAlreadyExists ()
     {
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty ();
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
+          () => _mutableMemberFactory.CreateConstructor (_mutableType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableConstructor (_mutableType, 0, ParameterDeclaration.CreateForEquivalentSignature (ctor), bodyProvider),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "Constructor with equal signature already exists.\r\nParameter name: parameterDeclarations"));
+          () => _mutableMemberFactory.CreateConstructor (_mutableType, 0, ParameterDeclaration.CreateForEquivalentSignature (ctor), bodyProvider),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Constructor with equal signature already exists."));
     }
 
     [Test]
-    public void CreateMutableMethod ()
+    public void CreateMethod ()
     {
       var name = "Method";
       var attributes = MethodAttributes.Public;
@@ -215,7 +214,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeBody;
       };
 
-      var method = _mutableMemberFactory.CreateMutableMethod (
+      var method = _mutableMemberFactory.CreateMethod (
           _mutableType, name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
@@ -240,7 +239,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateMutableMethod_Static ()
+    public void CreateMethod_Static ()
     {
       var name = "StaticMethod";
       var attributes = MethodAttributes.Static;
@@ -253,13 +252,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
         return ExpressionTreeObjectMother.GetSomeExpression (returnType);
       };
-      var method = _mutableMemberFactory.CreateMutableMethod (_mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _mutableMemberFactory.CreateMethod (_mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider);
 
       Assert.That (method.IsStatic, Is.True);
     }
 
     [Test]
-    public void CreateMutableMethod_Shadowing_NonVirtual ()
+    public void CreateMethod_Shadowing_NonVirtual ()
     {
       var baseMethod = GetBaseMethod (_mutableType, "ToString");
       Assert.That (baseMethod, Is.Not.Null);
@@ -271,7 +270,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Assert.That (ctx.HasBaseMethod, Is.False);
         return Expression.Constant ("string");
       };
-      var method = _mutableMemberFactory.CreateMutableMethod (
+      var method = _mutableMemberFactory.CreateMethod (
           _mutableType,
           "ToString",
           nonVirtualAttributes,
@@ -285,7 +284,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateMutableMethod_Shadowing_VirtualAndNewSlot ()
+    public void CreateMethod_Shadowing_VirtualAndNewSlot ()
     {
       var baseMethod = GetBaseMethod (_mutableType, "ToString");
       Assert.That (baseMethod, Is.Not.Null);
@@ -297,7 +296,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Assert.That (ctx.HasBaseMethod, Is.False);
         return Expression.Constant ("string");
       };
-      var method = _mutableMemberFactory.CreateMutableMethod (
+      var method = _mutableMemberFactory.CreateMethod (
           _mutableType,
           "ToString",
           nonVirtualAttributes,
@@ -311,7 +310,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateMutableMethod_ImplicitOverride ()
+    public void CreateMethod_ImplicitOverride ()
     {
       var fakeOverridenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       _relatedMethodFinderMock
@@ -325,7 +324,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
         return Expression.Default (typeof (int));
       };
-      var method = _mutableMemberFactory.CreateMutableMethod (
+      var method = _mutableMemberFactory.CreateMethod (
           _mutableType,
           "Method",
           MethodAttributes.Public | MethodAttributes.Virtual,
@@ -340,21 +339,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Test]
     [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
-    public void CreateMutableMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
+    public void CreateMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
-      _mutableMemberFactory.CreateMutableMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
+      _mutableMemberFactory.CreateMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods cannot have a body.\r\nParameter name: bodyProvider")]
-    public void CreateMutableMethod_ThrowsIfAbstractAndBodyProvider ()
+    public void CreateMethod_ThrowsIfAbstractAndBodyProvider ()
     {
-      _mutableMemberFactory.CreateMutableMethod (
+      _mutableMemberFactory.CreateMethod (
           _mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, ctx => null);
     }
 
     [Test]
-    public void CreateMutableMethod_ThrowsForInvalidMethodAttributes ()
+    public void CreateMethod_ThrowsForInvalidMethodAttributes ()
     {
       const string message = "The following MethodAttributes are not supported for methods: " +
                              "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
@@ -365,51 +364,50 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods must also be virtual.\r\nParameter name: attributes")]
-    public void CreateMutableMethod_ThrowsIfAbstractAndNotVirtual ()
+    public void CreateMethod_ThrowsIfAbstractAndNotVirtual ()
     {
-      _mutableMemberFactory.CreateMutableMethod (
+      _mutableMemberFactory.CreateMethod (
           _mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
-    public void CreateMutableMethod_ThrowsIfNonVirtualAndNewSlot ()
+    public void CreateMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
-      _mutableMemberFactory.CreateMutableMethod (
+      _mutableMemberFactory.CreateMethod (
           _mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
     }
 
     [Test]
-    public void CreateMutableMethod_ThrowsIfAlreadyExists ()
+    public void CreateMethod_ThrowsIfAlreadyExists ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod());
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableMethod (
+          () => _mutableMemberFactory.CreateMethod (
               _mutableType, "OtherName", 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableMethod (
+          () => _mutableMemberFactory.CreateMethod (
               _mutableType, method.Name, 0, typeof (int), ParameterDeclaration.CreateForEquivalentSignature (method), ctx => Expression.Constant (7)),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableMethod (
+          () => _mutableMemberFactory.CreateMethod (
               _mutableType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMutableMethod (
+          () => _mutableMemberFactory.CreateMethod (
               _mutableType, method.Name, 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "Method 'InterfaceMethod' with equal signature already exists.\r\nParameter name: parameterDeclarations"));
+          Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal signature already exists."));
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void CreateMutableMethod_ThrowsIfOverridingFinalMethod ()
+    public void CreateMethod_ThrowsIfOverridingFinalMethod ()
     {
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
       var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
@@ -417,7 +415,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
           .Return (fakeBaseMethod);
 
-      _mutableMemberFactory.CreateMutableMethod (
+      _mutableMemberFactory.CreateMethod (
           _mutableType,
           "MethodName",
           MethodAttributes.Public | MethodAttributes.Virtual,
@@ -427,7 +425,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_ExistingOverride ()
+    public void CreateExplicitOverride ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => body;
+
+      var result = _mutableMemberFactory.CreateExplicitOverride (_mutableType, method, bodyProvider);
+
+      Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
+      Assert.That (result.Name, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest.A.OverrideHierarchy"));
+      Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig));
+      Assert.That (result.ReturnType, Is.SameAs (typeof (void)));
+      var parameters = result.GetParameters();
+      Assert.That (parameters, Has.Length.EqualTo (1));
+      Assert.That (parameters[0].Name, Is.EqualTo ("aaa"));
+      Assert.That (parameters[0].ParameterType, Is.SameAs (typeof (int)));
+      Assert.That (result.Body, Is.SameAs (body));
+      Assert.That (result.BaseMethod, Is.Null);
+      Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { method }));
+    }
+
+    [Test]
+    public void GetOrCreateMethodOverride_ExistingOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ToString());
@@ -439,7 +459,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (fakeExistingOverride);
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, method, out isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
@@ -447,17 +467,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride ()
+    public void GetOrCreateMethodOverride_BaseMethod_ImplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
 
-      CallAndCheckGetOrAddMutableMethod (
+      CallAndCheckGetOrAddMethod (
           baseDefinition,
           inputMethod,
           baseMethod,
           false,
+          "aaa",
           baseMethod,
           new MethodInfo[0],
           "OverrideHierarchy",
@@ -466,7 +487,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
+    public void GetOrCreateMethodOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
       var inputMethod = baseDefinition;
@@ -474,11 +495,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (baseMethod.IsFamilyOrAssembly, Is.True);
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
 
-      CallAndCheckGetOrAddMutableMethod (
+      CallAndCheckGetOrAddMethod (
           baseDefinition,
           inputMethod,
           baseMethod,
           false,
+          "protectedOrInternal",
           baseMethod,
           new MethodInfo[0],
           "ProtectedOrInternalVirtualNewSlotMethodInB",
@@ -487,15 +509,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
+    public void GetOrCreateMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
     {
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
       var mutableType = MutableTypeObjectMother.CreateForExisting (
           typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
-      SetupExpectationsForGetOrAddMutableMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
+      SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
 
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (mutableType, baseMethod, out _isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMethodOverride (mutableType, baseMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
@@ -504,32 +526,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_ShadowedBaseMethod_ExplicitOverride ()
+    public void GetOrCreateMethodOverride_ShadowedBaseMethod_ExplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
 
-      CallAndCheckGetOrAddMutableMethod (
+      CallAndCheckGetOrAddMethod (
           baseDefinition,
           inputMethod,
           baseMethod,
           true,
+          "aaa",
           null,
           new[] { baseDefinition },
-          "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest+C_OverrideHierarchy",
+          "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest.A.OverrideHierarchy",
           MethodAttributes.Private,
           MethodAttributes.NewSlot);
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_InterfaceMethod_ExistingImplementation ()
+    public void GetOrCreateMethodOverride_InterfaceMethod_ExistingImplementation ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
 
       var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "InterfaceMethod");
       Assert.That (result, Is.SameAs (implementation));
@@ -537,13 +560,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_InterfaceMethod_AddImplementation ()
+    public void GetOrCreateMethodOverride_InterfaceMethod_AddImplementation ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
       _mutableType.AddInterface (typeof (IAddedInterface));
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
 
       Assert.That (isNewlyCreated, Is.True);
       CheckMethodData (
@@ -551,6 +574,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "AddedInterfaceMethod",
           MethodAttributes.Public,
           MethodAttributes.NewSlot | MethodAttributes.Abstract,
+          expectedParameterName: "addedInterface",
           expectedBaseMethod: null,
           expectedAddedExplicitBaseDefinitions: new MethodInfo[0]);
 
@@ -559,16 +583,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMutableMethodOverride_InterfaceMethod_OverrideImplementationInBase ()
+    public void GetOrCreateMethodOverride_InterfaceMethod_OverrideImplementationInBase ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.BaseInterfaceMethod (7));
       var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseInterfaceMethod (7));
 
-      CallAndCheckGetOrAddMutableMethod (
+      CallAndCheckGetOrAddMethod (
           implementation,
           interfaceMethod,
           implementation,
           false,
+          "baseInterfaceMethodOnDomainTypeBase",
           implementation,
           new MethodInfo[0],
           "BaseInterfaceMethod",
@@ -580,65 +605,73 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
         + "Use MutableType.AddExplicitOverride to create an explicit implementation.")]
-    public void GetOrCreateMutableMethodOverride_InterfaceMethod_InvalidCandidate ()
+    public void GetOrCreateMethodOverride_InterfaceMethod_InvalidCandidate ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
-    public void GetOrCreateMutableMethodOverride_UnrelatedDeclaringType ()
+    public void GetOrCreateMethodOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "A method declared in a base type must be virtual in order to be modified.")]
-    public void GetOrCreateMutableMethodOverride_NonVirtualMethod ()
+    public void GetOrCreateMethodOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualBaseMethod());
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, method, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void GetOrCreateMutableMethodOverride_FinalBaseMethod ()
+    public void GetOrCreateMethodOverride_FinalBaseMethod ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
       var inputMethod = baseDefinition;
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean ();
 
-      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
+      SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
-      _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
     }
 
-    private void CallAndCheckGetOrAddMutableMethod (
+    private void CallAndCheckGetOrAddMethod (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
         MethodInfo baseMethod,
         bool isBaseDefinitionShadowed,
+        string expectedParameterName,
         MethodInfo expectedBaseMethod,
         IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions,
         string expectedOverrideMethodName,
         MethodAttributes expectedOverrideVisibility,
         MethodAttributes expectedVtableLayout)
     {
-      SetupExpectationsForGetOrAddMutableMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
+      SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
-      var result = _mutableMemberFactory.GetOrCreateMutableMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (_isNewlyCreated, Is.True);
 
       CheckMethodData (
-        result, expectedOverrideMethodName, expectedOverrideVisibility, expectedVtableLayout, expectedBaseMethod, expectedAddedExplicitBaseDefinitions);
+          result,
+          expectedOverrideMethodName,
+          expectedOverrideVisibility,
+          expectedVtableLayout,
+          expectedParameterName,
+          expectedBaseMethod,
+          expectedAddedExplicitBaseDefinitions);
+
       Assert.That (result.Body, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result.Body;
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
@@ -651,6 +684,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string expectedMethodName,
         MethodAttributes expectedVisibility,
         MethodAttributes expectedVtableLayout,
+        string expectedParameterName,
         MethodInfo expectedBaseMethod,
         IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions)
     {
@@ -660,12 +694,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.ReturnType, Is.SameAs (typeof (void)));
       var parameter = result.GetParameters().Single();
       Assert.That (parameter.ParameterType, Is.SameAs (typeof (int)));
-      Assert.That (parameter.Name, Is.EqualTo ("parameterName"));
+      Assert.That (parameter.Name, Is.EqualTo (expectedParameterName));
       Assert.That (result.BaseMethod, Is.SameAs (expectedBaseMethod));
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
     }
 
-    private void SetupExpectationsForGetOrAddMutableMethod (
+    private void SetupExpectationsForGetOrAddMethod (
         MethodInfo baseDefinition,
         MethodInfo baseMethod,
         bool isBaseDefinitionShadowed,
@@ -696,13 +730,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     
     private MutableConstructorInfo AddConstructor (MutableType mutableType, MethodAttributes attributes)
     {
-      return _mutableMemberFactory.CreateMutableConstructor (
+      return _mutableMemberFactory.CreateConstructor (
           mutableType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
     }
 
-    private MutableMethodInfo AddMethod (MutableType mutableType, MethodAttributes attributes)
+    private MethodInfo AddMethod (MutableType mutableType, MethodAttributes attributes)
     {
-      return _mutableMemberFactory.CreateMutableMethod (
+      return _mutableMemberFactory.CreateMethod (
           mutableType,
           "dummy",
           attributes,
@@ -716,9 +750,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
     }
 
-    private MutableTypeMemberCollection<MethodInfo, MutableMethodInfo> GetAllMethods (MutableType mutableType)
+    private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
     {
-      return (MutableTypeMemberCollection<MethodInfo, MutableMethodInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
+      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
     }
 
     public class A
@@ -731,22 +765,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     public class B : A
     {
-      // CreateMutableMethodOverride input
+      // CreateMethodOverride input
       public override void OverrideHierarchy (int bbb) { }
 
-      protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int parameterName) { }
+      protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int protectedOrInternal) { }
       public override sealed void FinalBaseMethodInB (int i) { }
     }
 
     public class C : B
     {
       // base inputMethod
-      public override void OverrideHierarchy (int parameterName) { }
+      public override void OverrideHierarchy (int ccc) { }
     }
 
     public class DomainTypeBase : C, IBaseInterface
     {
-      public virtual void BaseInterfaceMethod (int parameterName) { }
+      public virtual void BaseInterfaceMethod (int baseInterfaceMethodOnDomainTypeBase) { }
       public void NonVirtualBaseMethod () { }
     }
 
@@ -768,7 +802,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
     public interface IAddedInterface
     {
-      void AddedInterfaceMethod (int parameterName);
+      void AddedInterfaceMethod (int addedInterface);
       void InvalidCandidate ();
     }
 

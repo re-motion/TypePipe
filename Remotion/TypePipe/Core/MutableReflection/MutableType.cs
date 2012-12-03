@@ -242,7 +242,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var field = _mutableMemberFactory.CreateMutableField (this, name, type, attributes);
+      var field = _mutableMemberFactory.CreateField (this, name, type, attributes);
       _fields.Add (field);
 
       return field;
@@ -263,7 +263,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var constructor = _mutableMemberFactory.CreateMutableConstructor (this, attributes, parameterDeclarations, bodyProvider);
+      var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameterDeclarations, bodyProvider);
       _constructors.Add (constructor);
 
       return constructor;
@@ -288,7 +288,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       // bodyProvider is null for abstract methods
 
-      var method = _mutableMemberFactory.CreateMutableMethod (this, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameterDeclarations, bodyProvider);
       _methods.Add (method);
 
       return method;
@@ -305,12 +305,15 @@ namespace Remotion.TypePipe.MutableReflection
       return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
     }
 
-    public MutableMethodInfo AddExplicitOverride (MethodInfo method)
+    public MutableMethodInfo AddExplicitOverride (MethodInfo method, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      // TODO 5229
-      return null;
+      var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, method, bodyProvider);
+      _methods.Add (overrideMethod);
+
+      return overrideMethod;
     }
 
     /// <summary>
@@ -357,7 +360,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (mutableMethod == null)
       {
         bool isNewlyCreated;
-        mutableMethod = _mutableMemberFactory.GetOrCreateMutableMethodOverride (this, method, out isNewlyCreated);
+        mutableMethod = _mutableMemberFactory.GetOrCreateMethodOverride (this, method, out isNewlyCreated);
         if (isNewlyCreated)
           _methods.Add (mutableMethod);
       }

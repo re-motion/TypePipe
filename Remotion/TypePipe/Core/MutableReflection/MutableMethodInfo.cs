@@ -200,6 +200,7 @@ namespace Remotion.TypePipe.MutableReflection
             "overriddenMethodBaseDefinition");
       }
 
+      // TODO: check all mutable methods not just the current one
       if (_addedExplicitBaseDefinitions.Contains (overriddenMethodBaseDefinition))
         throw new InvalidOperationException ("The given method has already been added to the list of explicit base definitions.");
 

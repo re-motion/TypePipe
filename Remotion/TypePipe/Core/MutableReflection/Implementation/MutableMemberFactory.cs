@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
     }
 
-    public MutableFieldInfo CreateMutableField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -65,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var signature = new FieldSignature (type);
       if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
-        throw new ArgumentException ("Field with equal signature already exists.", "name");
+        throw new InvalidOperationException ("Field with equal signature already exists.");
 
       var descriptor = FieldDescriptor.Create (name, type, attributes);
       var field = new MutableFieldInfo (declaringType, descriptor);
@@ -73,7 +72,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return field;
     }
 
-    public MutableConstructorInfo CreateMutableConstructor (
+    public MutableConstructorInfo CreateConstructor (
         MutableType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
@@ -102,7 +101,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var parameterDescriptors = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
-        throw new ArgumentException ("Constructor with equal signature already exists.", "parameterDeclarations");
+        throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
       var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, _memberSelector);
@@ -114,7 +113,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return constructor;
     }
 
-    public MutableMethodInfo CreateMutableMethod (
+    public MutableMethodInfo CreateMethod (
         MutableType declaringType,
         string name,
         MethodAttributes attributes,
@@ -151,10 +150,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
-      {
-        var message = string.Format ("Method '{0}' with equal signature already exists.", name);
-        throw new ArgumentException (message, "parameterDeclarations");
-      }
+        throw new InvalidOperationException ("Method with equal signature already exists.");
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
       if (baseMethod != null)
@@ -172,7 +168,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return method;
     }
 
-    public MutableMethodInfo GetOrCreateMutableMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
+    public MutableMethodInfo CreateExplicitOverride (
+        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      var name = MethodOverrideUtility.GetNameForExplicitOverride (overriddenMethodBaseDefinition);
+      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (overriddenMethodBaseDefinition);
+      var parameters = ParameterDeclaration.CreateForEquivalentSignature (overriddenMethodBaseDefinition);
+
+      var method = CreateMethod (declaringType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProvider);
+      method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
+
+      return method;
+    }
+
+    public MutableMethodInfo GetOrCreateMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("method", method);
@@ -204,29 +217,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         isNewlyCreated = false;
         return existingMutableOverride;
       }
+      isNewlyCreated = true;
+
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
+      CheckNotFinalForOverride (baseMethod);
+      var bodyProvider =
+          baseMethod.IsAbstract
+              ? null
+              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
-      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
-      CheckNotFinalForOverride (baseMethod);
-
-      var name = needsExplicitOverride ? MethodOverrideUtility.GetNameForExplicitOverride (baseMethod) : baseMethod.Name;
-      var attributes = needsExplicitOverride
-                           ? MethodOverrideUtility.GetAttributesForExplicitOverride (baseMethod)
-                           : MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      var returnType = baseMethod.ReturnType;
-      var parameterDeclarations = ParameterDeclaration.CreateForEquivalentSignature (baseMethod);
-      var bodyProvider = baseMethod.IsAbstract
-                             ? null
-                             : new Func<MethodBodyCreationContext, Expression> (
-                                   ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
-
-      var addedOverride = CreateMutableMethod (declaringType, name, attributes, returnType, parameterDeclarations, bodyProvider);
       if (needsExplicitOverride)
-        addedOverride.AddExplicitBaseDefinition (baseDefinition);
+        return CreateExplicitOverride (declaringType, baseDefinition, bodyProvider); // TODO: bodyProvider has not-null check
+      // TODO 5229: Write a test that uses GetOrAddMutableMethod to override an abstract base method that is also shadowed. 
 
-      isNewlyCreated = true;
-      return addedOverride;
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod) | (baseMethod.IsAbstract ? MethodAttributes.Abstract : 0);
+      var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseDefinition);
+
+      return CreateMethod (declaringType, baseMethod.Name, attributes, baseMethod.ReturnType, parameters, bodyProvider);
     }
 
     private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
@@ -241,16 +250,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         try
         {
           isNewlyCreated = true;
-          return CreateMutableMethod (declaringType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
+          return CreateMethod (declaringType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
         }
-        catch (ArgumentException)
+        catch (InvalidOperationException)
         {
           var message = string.Format (
               "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
               + "Use {1}.{2} to create an explicit implementation.",
               ifcMethod.Name,
               typeof (MutableType).Name,
-              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null)).Name);
+              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null, null)).Name);
           throw new InvalidOperationException (message);
         }
       }

@@ -26,6 +26,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -60,9 +61,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       return method;
     }
 
-    protected MethodInfo GetDeclaredExplicitOverrideMethod (Type type, string nameSuffix)
+    protected MethodInfo GetDeclaredExplicitOverrideMethod (Type type, MethodInfo overriddenMethod)
     {
-      var method = type.GetMethods (c_allDeclared).SingleOrDefault (m => m.Name.EndsWith ("_" + nameSuffix));
+      var method = type.GetMethod (MethodOverrideUtility.GetNameForExplicitOverride (overriddenMethod), c_allDeclared);
       Assert.That (method, Is.Not.Null);
       return method;
     }

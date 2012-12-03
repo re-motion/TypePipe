@@ -50,7 +50,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AddedMethod(), Is.EqualTo ("implemented"));
     }
 
-    [Ignore ("TODO 5229")]
     [Test]
     public void Implement_InvalidCandidates ()
     {
@@ -72,8 +71,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod2.Name)));
 
             // Implement the interface, otherwise the type is invalid and cannot be generated.
-            mutableType.AddExplicitOverride (interfaceMethod1).SetBody (ctx => Expression.Empty());
-            mutableType.AddExplicitOverride (interfaceMethod2).SetBody (ctx => Expression.Empty());
+            mutableType.AddExplicitOverride (interfaceMethod1, ctx => Expression.Empty());
+            mutableType.AddExplicitOverride (interfaceMethod2, ctx => Expression.Empty());
           });
     }
 
@@ -188,7 +187,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.ShadowedBaseMethod(), Is.EqualTo ("DomainTypeBase.ShadowedBaseMethod explicitly overridden"));
     }
 
-    public abstract class DomainTypeBase : IBaseInterface
+    public class DomainTypeBase : IBaseInterface
     {
       public virtual string BaseMethod ()
       {

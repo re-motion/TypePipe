@@ -30,8 +30,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
+      Assertion.IsTrue (overriddenMethod.GetBaseDefinition() == overriddenMethod);
 
-      return overriddenMethod.DeclaringType.FullName + "_" + overriddenMethod.Name;
+      return overriddenMethod.DeclaringType.FullName.Replace ('+', '.') + "." + overriddenMethod.Name;
     }
     
     public static MethodAttributes GetAttributesForExplicitOverride (MethodInfo overriddenMethod)
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
+      return ChangeForOverride (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
     }
 
     public static MethodAttributes GetAttributesForImplicitOverride (MethodInfo overriddenMethod)
@@ -47,12 +48,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
+      return ChangeForOverride (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
     }
 
-    private static MethodAttributes ChangeVtableLayout (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
+    private static MethodAttributes ChangeForOverride (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
     {
-      return originalAttributes.Unset (MethodAttributes.VtableLayoutMask).Set (vtableLayout);
+      return originalAttributes
+          .Unset (MethodAttributes.VtableLayoutMask).Set (vtableLayout)
+          .Unset (MethodAttributes.Abstract);
     }
   }
 }
