@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
@@ -50,13 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
       var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
-      getObjectDataOverride.SetBody (
-          ctx =>
-          {
-            var fieldSerializations = EnumerateSerializableFields (ctx, SerializeField);
-            var expressions = EnumerableUtility.Singleton (ctx.PreviousBody).Concat (fieldSerializations);
-            return Expression.Block (expressions);
-          });
+      getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, SerializeField));
     }
 
     private void AdaptDeserializationConstructor (MutableType mutableType)
@@ -70,19 +63,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         throw new InvalidOperationException ("The modified type implements 'ISerializable' but does not define a deserialization constructor.");
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
-      mutableConstructor.SetBody (
-          ctx =>
-          {
-            var fieldDeserializations = EnumerateSerializableFields (ctx, DeserializeField);
-            var expressions = EnumerableUtility.Singleton (ctx.PreviousBody).Concat (fieldDeserializations);
-            return Expression.Block (expressions);
-          });
+      mutableConstructor.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, DeserializeField));
     }
 
-    private IEnumerable<Expression> EnumerateSerializableFields (
-        MethodBaseBodyContextBase ctx, Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
+    private Expression BuildSerializationBody (
+        MethodBaseBodyContextBase ctx, Expression previousBody, Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
     {
-      return ctx
+      var fieldSerializations = ctx
           .DeclaringType.AddedFields
           .Where (f => !f.IsStatic)
           .ToLookup (f => f.Name)
@@ -98,6 +85,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                        let serializationKey = string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, field.Name, field.FieldType.FullName)
                        select expressionProvider (ctx.This, ctx.Parameters[0], serializationKey, field);
               });
+      var expressions = EnumerableUtility.Singleton (previousBody).Concat (fieldSerializations);
+
+      return Expression.Block (expressions);
     }
 
     private Expression SerializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
