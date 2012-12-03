@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
@@ -39,44 +40,79 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
       if (implementsSerializable)
+      {
         OverrideGetObjectData (mutableType);
+        AdaptDeserializationConstructor (mutableType);
+      }
     }
 
     private void OverrideGetObjectData (MutableType mutableType)
     {
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
       var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
-      var serializedFields = mutableType.AddedFields.Where (f => !f.IsStatic);
       getObjectDataOverride.SetBody (
           ctx =>
           {
-            var fieldSerializations = SerializeFields (ctx, serializedFields);
+            var fieldSerializations = EnumerateSerializableFields (ctx, SerializeField);
             var expressions = EnumerableUtility.Singleton (ctx.PreviousBody).Concat (fieldSerializations);
             return Expression.Block (expressions);
           });
     }
 
-    private IEnumerable<Expression> SerializeFields (MethodBodyModificationContext ctx, IEnumerable<MutableFieldInfo> serializedFields)
+    private void AdaptDeserializationConstructor (MutableType mutableType)
     {
-      return serializedFields
+      var deserializationConstructor = mutableType.GetConstructor (
+          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+          null,
+          new[] { typeof (SerializationInfo), typeof (StreamingContext) },
+          null);
+      if (deserializationConstructor == null)
+        throw new InvalidOperationException ("The modified type implements 'ISerializable' but does not define a deserialization constructor.");
+
+      var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
+      mutableConstructor.SetBody (
+          ctx =>
+          {
+            var fieldDeserializations = EnumerateSerializableFields (ctx, DeserializeField);
+            var expressions = EnumerableUtility.Singleton (ctx.PreviousBody).Concat (fieldDeserializations);
+            return Expression.Block (expressions);
+          });
+    }
+
+    private IEnumerable<Expression> EnumerateSerializableFields (
+        MethodBaseBodyContextBase ctx, Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
+    {
+      return ctx
+          .DeclaringType.AddedFields
+          .Where (f => !f.IsStatic)
           .ToLookup (f => f.Name)
           .SelectMany (
               fieldsByName =>
               {
                 var fields = fieldsByName.ToArray();
                 if (fields.Length == 1)
-                  return EnumerableUtility.Singleton (SerializeField (ctx, fields[0].Name, fields[0]));
+                  return EnumerableUtility.Singleton (
+                      expressionProvider (ctx.This, ctx.Parameters[0], c_serializationKeyPrefix + fields[0].Name, fields[0]));
 
                 return from field in fields
-                       let serializationKey = string.Format ("{0}@{1}", field.Name, field.FieldType.FullName)
-                       select SerializeField (ctx, serializationKey, field);
+                       let serializationKey = string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, field.Name, field.FieldType.FullName)
+                       select expressionProvider (ctx.This, ctx.Parameters[0], serializationKey, field);
               });
     }
 
-    private Expression SerializeField (MethodBodyModificationContext ctx, string serializationKey, MutableFieldInfo field)
+    private Expression SerializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
     {
-      var key = c_serializationKeyPrefix + serializationKey;
-      return Expression.Call (ctx.Parameters[0], "AddValue", Type.EmptyTypes, Expression.Constant (key), Expression.Field (ctx.This, field));
+      return Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (serializationKey), Expression.Field (@this, field));
+    }
+
+    private Expression DeserializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
+    {
+      var getValueMethod = MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
+      var type = field.FieldType;
+      return Expression.Assign (
+          Expression.Field (@this, field),
+          Expression.Convert (
+              Expression.Call (serializationInfo, getValueMethod, Expression.Constant (serializationKey), Expression.Constant (type)), type));
     }
   }
 }
