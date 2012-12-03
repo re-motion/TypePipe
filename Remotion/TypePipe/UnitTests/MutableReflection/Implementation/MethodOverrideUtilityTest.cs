@@ -51,7 +51,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var result = MethodOverrideUtility.GetAttributesForExplicitOverride (method);
 
-      Assert.That (result, Is.EqualTo (MethodAttributes.Private | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+      Assert.That (
+          result,
+          Is.EqualTo (MethodAttributes.Private | MethodAttributes.Abstract | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
     }
 
     [Test]
@@ -64,7 +66,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var result = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
 
-      Assert.That (result, Is.EqualTo (MethodAttributes.Family | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
+      Assert.That (
+          result,
+          Is.EqualTo (MethodAttributes.Family | MethodAttributes.Abstract | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig));
     }
 
     abstract class DomainType : IDomainInterface

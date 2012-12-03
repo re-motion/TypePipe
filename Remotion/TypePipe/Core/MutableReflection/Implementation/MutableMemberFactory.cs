@@ -175,14 +175,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var name = MethodOverrideUtility.GetNameForExplicitOverride (overriddenMethodBaseDefinition);
-      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (overriddenMethodBaseDefinition);
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (overriddenMethodBaseDefinition);
-
-      var method = CreateMethod (declaringType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProvider);
-      method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
-
-      return method;
+      return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
     public MutableMethodInfo GetOrCreateMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
@@ -221,7 +214,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
       CheckNotFinalForOverride (baseMethod);
-      var bodyProvider =
+      var bodyProviderOrNull =
           baseMethod.IsAbstract
               ? null
               : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
@@ -229,13 +222,29 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
       if (needsExplicitOverride)
-        return CreateExplicitOverride (declaringType, baseDefinition, bodyProvider); // TODO: bodyProvider has not-null check
-      // TODO 5229: Write a test that uses GetOrAddMutableMethod to override an abstract base method that is also shadowed. 
+        return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProviderOrNull);
 
-      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod) | (baseMethod.IsAbstract ? MethodAttributes.Abstract : 0);
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseDefinition);
 
-      return CreateMethod (declaringType, baseMethod.Name, attributes, baseMethod.ReturnType, parameters, bodyProvider);
+      return CreateMethod (declaringType, baseMethod.Name, attributes, baseMethod.ReturnType, parameters, bodyProviderOrNull);
+    }
+
+    private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
+        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
+    {
+      Assertion.IsTrue (bodyProviderOrNull != null || overriddenMethodBaseDefinition.IsAbstract);
+
+      var name = MethodOverrideUtility.GetNameForExplicitOverride (overriddenMethodBaseDefinition);
+      var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (overriddenMethodBaseDefinition);
+      if (bodyProviderOrNull != null)
+        attributes = attributes.Unset (MethodAttributes.Abstract);
+      var parameters = ParameterDeclaration.CreateForEquivalentSignature (overriddenMethodBaseDefinition);
+
+      var method = CreateMethod (declaringType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProviderOrNull);
+      method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
+
+      return method;
     }
 
     private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)

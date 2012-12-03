@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -186,6 +187,45 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (((A) instance).MethodShadowedByB (), Is.EqualTo ("A explicitly overridden"));
     }
 
+    [Ignore ("TODO 5241")]
+    [Test]
+    public void OverrideAbstractShadowedMethod ()
+    {
+      var shadowedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractBase obj) => obj.AbstractShadowedMethod());
+
+      var type = AssembleType<AbstractDomain> (
+          mutableType =>
+          {
+            /*var shadowingMethod = */mutableType.AddMethod (
+                "AbstractShadowedMethod",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                typeof (string),
+                ParameterDeclaration.EmptyParameters,
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return Expression.Constant ("shadowing method");
+                });
+            // TODO 5059: Uncomment
+            //Assert.That (mutableType.GetMethod ("AbstractShadowedMethod"), Is.SameAs (shadowingMethod));
+            Assert.That (mutableType.IsAbstract, Is.True);
+
+            var overrideForAbstractShadowedMethod = mutableType.GetOrAddMutableMethod (shadowedMethod);
+            overrideForAbstractShadowedMethod.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  Assert.That (ctx.HasPreviousBody, Is.False);
+                  return Expression.Constant ("override");
+                });
+            Assert.That (mutableType.IsAbstract, Is.False);
+          });
+
+      var instance = (AbstractDomain) Activator.CreateInstance (type);
+
+      Assert.That (instance.AbstractShadowedMethod(), Is.EqualTo ("override"));
+    }
+
 // ReSharper disable VirtualMemberNeverOverriden.Global
     public class A
     {
@@ -221,6 +261,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public class C : B
     {
     }
-// ReSharper restore VirtualMemberNeverOverriden.Global
+
+    public abstract class AbstractBase
+    {
+      public abstract string AbstractShadowedMethod ();
+    }
+    public abstract class AbstractDomain : AbstractBase { }
+
+    // ReSharper restore VirtualMemberNeverOverriden.Global
   }
 }

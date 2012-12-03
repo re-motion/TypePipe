@@ -34,13 +34,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       return overriddenMethod.DeclaringType.FullName.Replace ('+', '.') + "." + overriddenMethod.Name;
     }
-    
+
     public static MethodAttributes GetAttributesForExplicitOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return ChangeForOverride (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
+      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.NewSlot).ChangeVisibility (MethodAttributes.Private);
     }
 
     public static MethodAttributes GetAttributesForImplicitOverride (MethodInfo overriddenMethod)
@@ -48,14 +48,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return ChangeForOverride (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
+      return ChangeVtableLayout (overriddenMethod.Attributes, MethodAttributes.ReuseSlot).AdjustVisibilityForAssemblyBoundaries();
     }
 
-    private static MethodAttributes ChangeForOverride (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
+    private static MethodAttributes ChangeVtableLayout (MethodAttributes originalAttributes, MethodAttributes vtableLayout)
     {
-      return originalAttributes
-          .Unset (MethodAttributes.VtableLayoutMask).Set (vtableLayout)
-          .Unset (MethodAttributes.Abstract);
+      return originalAttributes.Unset (MethodAttributes.VtableLayoutMask).Set (vtableLayout);
     }
   }
 }
