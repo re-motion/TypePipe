@@ -305,12 +305,12 @@ namespace Remotion.TypePipe.MutableReflection
       return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
     }
 
-    public MutableMethodInfo AddExplicitOverride (MethodInfo method, Func<MethodBodyCreationContext, Expression> bodyProvider)
+    public MutableMethodInfo AddExplicitOverride (MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, method, bodyProvider);
+      var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, overriddenMethodBaseDefinition, bodyProvider);
       _methods.Add (overrideMethod);
 
       return overrideMethod;
