@@ -133,6 +133,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    public void Override_LeaveAbstract_ResultsInValidCode ()
+    {
+      var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
+          mutableType =>
+          {
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
+            var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
+            Assert.That (mutableMethod.IsAbstract, Is.True);
+          });
+
+      Assert.That (type.IsAbstract, Is.True);
+    }
+
+    [Test]
     public void AccessingBodyOfAbstractMethod_Throws ()
     {
       var message = "An abstract method has no body.";
