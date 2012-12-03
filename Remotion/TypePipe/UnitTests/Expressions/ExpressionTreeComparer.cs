@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
         Assert.IsNull (actual, GetMessage (expected, actual, "Null nodes"));
       else
       {
-        Assert.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "NodeType"));
+        CheckAreEqualExpressionTypes (expected, actual);
         Assert.AreEqual (expected.NodeType, actual.NodeType, GetMessage (expected, actual, "NodeType"));
         Assert.AreEqual (expected.Type, actual.Type, GetMessage (expected, actual, "Type"));
         CheckAreEqualObjects (expected, actual);
@@ -59,7 +59,13 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public void CheckAreEqualObjects (object expected, object actual)
     {
-      Assert.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "GetType()"));
+      if (expected is Expression)
+      {
+        Assert.IsInstanceOf<Expression> (actual, GetMessage (expected, actual, "NodeType"));
+        CheckAreEqualExpressionTypes ((Expression) expected, (Expression) actual);
+      }
+      else
+        Assert.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "GetType()"));
 
       foreach (PropertyInfo property in expected.GetType().GetProperties (BindingFlags.Instance | BindingFlags.Public))
       {
@@ -67,6 +73,16 @@ namespace Remotion.TypePipe.UnitTests.Expressions
         object value2 = property.GetValue (actual, null);
         CheckAreEqualProperties (property, property.PropertyType, value1, value2, expected, actual);
       }
+    }
+
+    private void CheckAreEqualExpressionTypes (Expression expected, Expression actual)
+    {
+      if (expected is BlockExpression)
+        Assert.IsInstanceOf<BlockExpression> (actual, GetMessage (expected, actual, "NodeType"));
+      else if (expected is MethodCallExpression)
+        Assert.IsInstanceOf<MethodCallExpression> (actual, GetMessage (expected, actual, "NodeType"));
+      else
+        Assert.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "NodeType"));
     }
 
     private void CheckAreEqualProperties (PropertyInfo property, Type valueType, object value1, object value2, object expected, object actual)
@@ -92,16 +108,24 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           {
             var elementType1 = list1[i] != null ? list1[i].GetType() : typeof (object);
             var elementType2 = list2[i] != null ? list2[i].GetType() : typeof (object);
-            Assert.AreSame (
-                elementType1,
-                elementType2,
-                string.Format (
-                    "The item types of the items in the lists in {0} differ: One is '{1}', the other is '{2}'.\nExpected tree: {3}\nActual tree: {4}",
-                    property.Name,
-                    elementType1,
-                    elementType2,
-                    _expectedInitial,
-                    _actualInitial));
+
+            if (typeof (BlockExpression).IsAssignableFrom (elementType1))
+              Assert.That (typeof (BlockExpression).IsAssignableFrom (elementType2));
+            else if (typeof (MethodCallExpression).IsAssignableFrom (elementType1))
+              Assert.That (typeof (MethodCallExpression).IsAssignableFrom (elementType2));
+            else
+            {
+              Assert.AreSame (
+                  elementType1,
+                  elementType2,
+                  string.Format (
+                      "The item types of the items in the lists in {0} differ: One is '{1}', the other is '{2}'.\nExpected tree: {3}\nActual tree: {4}",
+                      property.Name,
+                      elementType1,
+                      elementType2,
+                      _expectedInitial,
+                      _actualInitial));
+            }
 
             CheckAreEqualProperties (property, elementType1, list1[i], list2[i], expected, actual);
           }
