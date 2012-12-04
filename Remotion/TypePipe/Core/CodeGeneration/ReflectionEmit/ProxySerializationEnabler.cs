@@ -32,8 +32,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
     private const string c_serializationKeyPrefix = "<tp>";
+
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
+    private static readonly MethodInfo s_onDeserializationMethod =
+      MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
     public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
     {
@@ -44,30 +47,31 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var implementsDeserializationCallback = mutableType.GetInterfaces().Contains (typeof (IDeserializationCallback));
       var hasInstanceInitializations = initializationMethod != null;
 
-      if (implementsSerializable)
+      if (implementsSerializable && mutableType.AddedFields.Count != 0)
       {
         OverrideGetObjectData (mutableType);
         AdaptDeserializationConstructor (mutableType);
       }
-      else if (hasInstanceInitializations && (mutableType.IsSerializable || implementsDeserializationCallback))
-        WireInitializationsViaDeserializationCallback (mutableType, initializationMethod);
+
+      if (hasInstanceInitializations)
+      {
+        if (implementsDeserializationCallback)
+          OverrideOnDeserialization (mutableType, initializationMethod);
+        else if (mutableType.IsSerializable)
+          ExplicitlyImplementOnDeserialization (mutableType, initializationMethod);
+      }
     }
 
-    private void WireInitializationsViaDeserializationCallback (MutableType mutableType, MethodInfo initializationMethod)
+    private static void ExplicitlyImplementOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
     {
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
-      var implementsDeserializationCallback = mutableType.GetInterfaces().Contains (typeof (IDeserializationCallback));
+      mutableType.AddInterface (typeof (IDeserializationCallback));
+      mutableType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
+    }
 
-      if (implementsDeserializationCallback)
-      {
-        var onDeserializationOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
-        onDeserializationOverride.SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
-      }
-      else
-      {
-        mutableType.AddInterface (typeof (IDeserializationCallback));
-        mutableType.AddExplicitOverride (interfaceMethod, ctx => Expression.Call (ctx.This, initializationMethod));
-      }
+    private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
+    {
+      var onDeserializationOverride = mutableType.GetOrAddMutableMethod (s_onDeserializationMethod);
+      onDeserializationOverride.SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
     }
 
     private void OverrideGetObjectData (MutableType mutableType)

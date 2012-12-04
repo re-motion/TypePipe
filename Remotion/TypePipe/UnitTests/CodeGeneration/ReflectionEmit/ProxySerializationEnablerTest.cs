@@ -34,10 +34,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private ProxySerializationEnabler _enabler;
 
-    private MutableType _nonSerializableType;
-    private MutableType _serializableType;
+    private MutableType _someType;
     private MutableType _serializableInterfaceType;
-    private MutableType _nonSerializableDeserializationCallbackType;
+    private MutableType _serializableType;
+    private MutableType _deserializationCallbackType;
+    private MutableType _serializableInterfaceWithDeserializationCallbackType;
     private MutableType _serializableInterfaceMissingCtorType;
 
     private MethodInfo _someInitializationMethod;
@@ -47,84 +48,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _enabler = new ProxySerializationEnabler();
 
-      _nonSerializableType = MutableTypeObjectMother.Create();
+      _someType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
       _serializableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
       _serializableInterfaceType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceType));
-      _nonSerializableDeserializationCallbackType = MutableTypeObjectMother.CreateForExisting (typeof (NonSerializableDeserializationCallbackType));
+      _deserializationCallbackType = MutableTypeObjectMother.CreateForExisting (typeof (DeserializationCallbackType));
+      _serializableInterfaceWithDeserializationCallbackType =
+          MutableTypeObjectMother.CreateForExisting (typeof (SerializableWithDeserializationCallbackType));
       _serializableInterfaceMissingCtorType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
 
     [Test]
-    public void MakeSerializable_NonSerializableType_AddedFields_WithInitializations ()
-    {
-      _nonSerializableType.AddField ("abc", typeof (int));
-
-      _enabler.MakeSerializable (_nonSerializableType, _someInitializationMethod);
-
-      Assert.That (_nonSerializableType.AddedInterfaces, Is.Empty);
-      Assert.That (_nonSerializableType.AllMutableMethods, Is.Empty);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableType_AddedFields ()
-    {
-      _serializableType.AddField ("abc", typeof (int));
-
-      _enabler.MakeSerializable (_serializableType, initializationMethod: null);
-
-      Assert.That (_serializableType.AddedInterfaces, Is.Empty);
-      Assert.That (_serializableType.AllMutableMethods, Is.Empty);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableType_WithInitializations ()
-    {
-      var initMethod = _serializableType.AddMethod ("InitMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
-
-      _enabler.MakeSerializable (_serializableType, initMethod);
-
-      Assert.That (_serializableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IDeserializationCallback) }));
-      Assert.That (_serializableType.AllMutableMethods.Count(), Is.EqualTo (2));
-
-      var method = _serializableType.AddedMethods[1];
-      Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.IDeserializationCallback.OnDeserialization"));
-      Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (object) }));
-      var expectedBody = MethodCallExpression.Call (new ThisExpression (_serializableType), initMethod);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableType_WithInitializations_Implements_IDeserializationCallback ()
-    {
-      _serializableType.AddInterface (typeof (IDeserializationCallback));
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
-      var method = _serializableType.GetOrAddMutableMethod (interfaceMethod);
-      var oldBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      method.SetBody (ctx => oldBody);
-
-      _enabler.MakeSerializable (_serializableType, _someInitializationMethod);
-
-      Assert.That (_serializableType.AllMutableMethods.Count(), Is.EqualTo (1));
-      var expectedBody = Expression.Block (
-          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_serializableType), _someInitializationMethod));
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableType_WithInitializations_NullIntializationMethod ()
-    {
-      _serializableType.AddInstanceInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
-
-      _enabler.MakeSerializable (_serializableType, initializationMethod: null);
-
-      Assert.That (_serializableType.AddedInterfaces, Is.Empty);
-      Assert.That (_serializableType.AllMutableMethods, Is.Empty);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableInterfaceType_AddedFields_WithInitializations ()
+    public void MakeSerializable_SerializableInterfaceType_AddedFields ()
     {
       var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
       Assert.That (deserializationCtor.IsModified, Is.False);
@@ -184,31 +120,93 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializable_NonDeserializationCallbackType ()
+    public void MakeSerializable_SerializableInterfaceType ()
     {
-      _enabler.MakeSerializable (_nonSerializableDeserializationCallbackType, initializationMethod: null);
+      _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
-      Assert.That (_nonSerializableDeserializationCallbackType.AddedInterfaces, Is.Empty);
-      Assert.That (_nonSerializableDeserializationCallbackType.AllMutableMethods.Count(), Is.EqualTo (1));
-      var method = _nonSerializableDeserializationCallbackType.ExistingMutableMethods.Single();
+      Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
+      Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
+      var method = _serializableInterfaceType.ExistingMutableMethods.Single();
       Assert.That (method.IsModified, Is.False);
     }
 
     [Test]
-    public void MakeSerializable_NonDeserializationCallbackType_WithInitializations ()
+    public void MakeSerializable_SomeType_AddedFields ()
     {
-      var initMethod = _nonSerializableDeserializationCallbackType.AddMethod (
-          "InitMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
-      var method = _nonSerializableDeserializationCallbackType.ExistingMutableMethods.Single();
+      _someType.AddField ("abc", typeof (int));
+
+      _enabler.MakeSerializable (_someType, _someInitializationMethod);
+
+      Assert.That (_someType.AddedInterfaces, Is.Empty);
+      Assert.That (_someType.AllMutableMethods, Is.Empty);
+    }
+
+    [Test]
+    public void MakeSerializable_SomeType ()
+    {
+      _enabler.MakeSerializable (_someType, initializationMethod: null);
+
+      Assert.That (_someType.AddedInterfaces, Is.Empty);
+      Assert.That (_someType.AllMutableMethods, Is.Empty);
+    }
+
+    [Test]
+    public void MakeSerializableType_SerializableType_WithInitializations ()
+    {
+      var initMethod = MutableMethodInfoObjectMother.Create (
+          _serializableType, parameterDeclarations: ParameterDeclaration.EmptyParameters, returnType: typeof (void));
+
+      _enabler.MakeSerializable (_serializableType, initMethod);
+
+      Assert.That (_serializableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IDeserializationCallback) }));
+      Assert.That (_serializableType.AllMutableMethods.Count (), Is.EqualTo (1));
+
+      var method = _serializableType.AddedMethods.Single();
+      Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.IDeserializationCallback.OnDeserialization"));
+      Assert.That (method.GetParameters ().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (object) }));
+      var expectedBody = MethodCallExpression.Call (new ThisExpression (_serializableType), initMethod);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+    }
+
+    [Test]
+    public void MakeSerializableType_DeserializationCallbackType_WithInitializations ()
+    {
+      var initMethod = MutableMethodInfoObjectMother.Create (
+          _deserializationCallbackType, parameterDeclarations: ParameterDeclaration.EmptyParameters, returnType: typeof (void));
+      var method = _deserializationCallbackType.ExistingMutableMethods.Single (x => x.Name == "OnDeserialization");
       var oldBody = method.Body;
 
-      _enabler.MakeSerializable (_nonSerializableDeserializationCallbackType, initMethod);
+      _enabler.MakeSerializable (_deserializationCallbackType, initMethod);
 
-      Assert.That (_nonSerializableDeserializationCallbackType.AddedInterfaces, Is.Empty);
-      Assert.That (_nonSerializableDeserializationCallbackType.AllMutableMethods.Count(), Is.EqualTo (2));
-      Assert.That (method.IsModified, Is.True);
+      Assert.That (_deserializationCallbackType.AllMutableMethods.Count(), Is.EqualTo (1));
       var expectedBody = Expression.Block (
-          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_nonSerializableDeserializationCallbackType), initMethod));
+          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_deserializationCallbackType), initMethod));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+    }
+
+    [Test]
+    public void MakeSerializableType_SerializableWithDeserializationCallbackType ()
+    {
+      _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackType, initializationMethod: null);
+
+      Assert.That (_serializableInterfaceWithDeserializationCallbackType.AddedInterfaces, Is.Empty);
+      Assert.That (_serializableInterfaceWithDeserializationCallbackType.AddedMethods, Is.Empty);
+    }
+
+    [Test]
+    public void MakeSerializableType_SerializableWithDeserializationCallbackType_WithInitializations ()
+    {
+      var initMethod = MutableMethodInfoObjectMother.Create (
+          _serializableInterfaceWithDeserializationCallbackType,
+          parameterDeclarations: ParameterDeclaration.EmptyParameters,
+          returnType: typeof (void));
+      var method = _serializableInterfaceWithDeserializationCallbackType.ExistingMutableMethods.Single (x => x.Name == "OnDeserialization");
+      var oldBody = method.Body;
+
+      _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackType, initMethod);
+
+      var expectedBody = Expression.Block (
+          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_serializableInterfaceWithDeserializationCallbackType), initMethod));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -217,11 +215,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         "The modified type implements 'ISerializable' but does not define a deserialization constructor.")]
     public void MakeSerializable_SerializableInterfaceType_AddedFields_UnaccessibleCtor ()
     {
+      _serializableInterfaceMissingCtorType.AddField ("field", typeof (int));
+
       _enabler.MakeSerializable (_serializableInterfaceMissingCtorType, _someInitializationMethod);
     }
 
-    [Serializable]
-    class SerializableType { }
+    class SomeType { }
 
     class SerializableInterfaceType : ISerializable
     {
@@ -229,7 +228,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    class NonSerializableDeserializationCallbackType : IDeserializationCallback
+    [Serializable]
+    class SerializableType { }
+
+    class DeserializationCallbackType : IDeserializationCallback
+    {
+      public virtual void OnDeserialization (object sender) { }
+    }
+
+    [Serializable]
+    class SerializableWithDeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
     }
