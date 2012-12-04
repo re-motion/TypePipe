@@ -62,13 +62,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_SerializableInterfaceType_AddedFields ()
     {
+      var nonSerializedAttributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute ());
       var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
       Assert.That (deserializationCtor.IsModified, Is.False);
       var oldCtorBody = deserializationCtor.Body;
       var field1 = _serializableInterfaceType.AddField ("field", typeof (int));
       var field2 = _serializableInterfaceType.AddField ("xxx", typeof (int));
       var field3 = _serializableInterfaceType.AddField ("xxx", typeof (string));
-      _serializableInterfaceType.AddField ("does not matter", typeof (double), FieldAttributes.Static);
+      _serializableInterfaceType.AddField ("staticField", typeof (double), FieldAttributes.Static);
+      _serializableInterfaceType.AddField ("nonSerializedField", typeof (double))
+                                .AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedAttributeConstructor, new object[0]));
 
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 

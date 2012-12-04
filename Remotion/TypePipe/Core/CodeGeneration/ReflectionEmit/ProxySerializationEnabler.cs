@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var fieldSerializations = ctx
           .DeclaringType.AddedFields
-          .Where (f => !f.IsStatic)
+          .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
           .ToLookup (f => f.Name)
           .SelectMany (
               fieldsByName =>
