@@ -32,17 +32,6 @@ namespace Remotion.TypePipe.IntegrationTests
   [TestFixture]
   public class SimpleSerializationTest : ObjectFactoryIntegrationTestBase
   {
-    [TestFixtureSetUp]
-    public static void FixtureSetUp ()
-    {
-      // TODO 5223:
-      // Cannot delete on TearDown because assembly is loaded into AppDomain (still in use).
-      // Maybe better option with AppDomainRunner?
-      var files = Directory.GetFiles (Environment.CurrentDirectory, typeof (SimpleSerializationTest).Name + ".*");
-      foreach (var file in files)
-        File.Delete (file);
-    }
-
     [Test]
     public void Standard_NoModifications ()
     {
@@ -118,30 +107,48 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
       factory.CodeGenerator.SetAssemblyDirectory (null);
-      SkipDeletion();
 
       return factory;
     }
 
-    private SerializableType CheckInstanceIsSerializable (SerializableType instance, string expectedStringFieldValue = "abc")
+    private void CheckInstanceIsSerializable (
+        SerializableType instance,
+        string expectedStringFieldValue = "abc",
+        Action<SerializableType, object[]> additionalAssertionAction = null,
+        object[] additonalExpectedValues = null)
     {
       Assert.That (instance.GetType().IsSerializable, Is.True);
       instance.String = "abc";
 
       var memoryStream = new MemoryStream();
-      var binaryFormatter = new BinaryFormatter();
+      new BinaryFormatter().Serialize (memoryStream, instance);
+      memoryStream.Position = 0;
 
       FlushAndTrackFilesForCleanup();
-      binaryFormatter.Serialize (memoryStream, instance);
-      memoryStream.Position = 0;
-      var deserializedInstance = (SerializableType) binaryFormatter.Deserialize (memoryStream);
+      AppDomainRunner.Run (
+          args =>
+          {
+            var memStream = (MemoryStream) args[0];
+            var expectedAssemblyQualifiedName = (string) args[1];
+            var expectedFieldValue = (string) args[2];
+            var additonalAssertions = (Action<SerializableType, object[]>) args[3];
+            var additonalExpectedVals = (object[]) args[4];
 
-      Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (instance.GetType().AssemblyQualifiedName));
-      // TODO 5223: correct?
-      //Assert.That (deserializedInstance.GetType(), Is.EqualTo (instance.GetType()));
-      Assert.That (deserializedInstance.String, Is.EqualTo (expectedStringFieldValue));
+            var deserializedInstance = (SerializableType) new BinaryFormatter().Deserialize (memStream);
 
-      return deserializedInstance;
+            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (expectedAssemblyQualifiedName));
+            // TODO 5223: correct?
+            //Assert.That (deserializedInstance.GetType(), Is.EqualTo (instance.GetType()));
+            Assert.That (deserializedInstance.String, Is.EqualTo (expectedFieldValue));
+
+            if (additonalAssertions != null)
+              additonalAssertions (deserializedInstance, additonalExpectedVals);
+          },
+          memoryStream,
+          instance.GetType().AssemblyQualifiedName,
+          expectedStringFieldValue,
+          additionalAssertionAction,
+          additonalExpectedValues);
     }
 
     private void CheckInstanceIsSerializableAndAddedFields (
@@ -154,11 +161,16 @@ namespace Remotion.TypePipe.IntegrationTests
       PrivateInvoke.SetPublicField (instance, "IntField", 7);
       PrivateInvoke.SetPublicField (instance, "SkippedIntField", 7);
 
-      var deserialized = CheckInstanceIsSerializable (instance, expectedStringFieldValue);
-
-      Assert.That (deserialized.ConstructorCalled, Is.EqualTo (ctorWasCalled));
-      Assert.That (PrivateInvoke.GetPublicField (deserialized, "IntField"), Is.EqualTo (expectedIntFieldValue));
-      Assert.That (PrivateInvoke.GetPublicField (deserialized, "SkippedIntField"), Is.EqualTo (expectedSkippedIntField));
+      CheckInstanceIsSerializable (
+          instance,
+          expectedStringFieldValue,
+          (deserialized, args) =>
+          {
+            Assert.That (deserialized.ConstructorCalled, Is.EqualTo (args[0]));
+            Assert.That (PrivateInvoke.GetPublicField (deserialized, "IntField"), Is.EqualTo (args[1]));
+            Assert.That (PrivateInvoke.GetPublicField (deserialized, "SkippedIntField"), Is.EqualTo (args[2]));
+          },
+          new object[] { ctorWasCalled, expectedIntFieldValue, expectedSkippedIntField });
     }
 
     private IParticipant CreateFieldAddingParticipant ()
