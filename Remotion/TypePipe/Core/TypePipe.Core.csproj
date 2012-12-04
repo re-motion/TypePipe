@@ -324,6 +324,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Caching\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
+    <Compile Include="Serialization\Implementation\SerializationSurrogate.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
   </ItemGroup>
   <ItemGroup>
