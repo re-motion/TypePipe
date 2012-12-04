@@ -78,6 +78,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
       var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
+
+      if (!getObjectDataOverride.CanSetBody)
+        throw new NotSupportedException (
+          "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+          + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.");
+
       getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, SerializeField));
     }
 

@@ -29,7 +29,6 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
-  //[Ignore ("TODO 5217")]
   [TestFixture]
   public class SimpleSerializationTest : ObjectFactoryIntegrationTestBase
   {
@@ -94,7 +93,6 @@ namespace Remotion.TypePipe.IntegrationTests
       CheckInstanceIsSerializableAndAddedFields (instance2, "abc callback:True init", 8, 1, ctorWasCalled: true);
     }
 
-    [Ignore ("TODO 5217")]
     [Test]
     public void CannotSerialize ()
     {
@@ -102,7 +100,6 @@ namespace Remotion.TypePipe.IntegrationTests
 
       var factory = CreateObjectFactory (CreateFieldAddingParticipant());
 
-      // TODO: Apply this comment to implementation to the code that deals with the first case: TODO RM-4695
       var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
                     + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (

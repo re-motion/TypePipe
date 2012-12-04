@@ -41,6 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MutableType _deserializationCallbackType;
     private MutableType _serializableInterfaceWithDeserializationCallbackType;
     private MutableType _serializableInterfaceMissingCtorType;
+    private MutableType _serializableInterfaceCannotModifyGetObjectDataType;
 
     private MethodInfo _someInitializationMethod;
 
@@ -56,6 +57,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _serializableInterfaceWithDeserializationCallbackType =
           MutableTypeObjectMother.CreateForExisting (typeof (SerializableWithDeserializationCallbackType));
       _serializableInterfaceMissingCtorType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
+      _serializableInterfaceCannotModifyGetObjectDataType =
+          MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceCannotModifyGetObjectDataType));
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
@@ -220,8 +223,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void MakeSerializable_SerializableInterfaceType_AddedFields_UnaccessibleCtor ()
     {
       _serializableInterfaceMissingCtorType.AddField ("field", typeof (int));
-
       _enabler.MakeSerializable (_serializableInterfaceMissingCtorType, _someInitializationMethod);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
+    public void MakeSerializable_SerializableInterfaceType_AddedFields_CannotModifyGetObjectData ()
+    {
+      _serializableInterfaceCannotModifyGetObjectDataType.AddField ("field", typeof (int));
+      _enabler.MakeSerializable (_serializableInterfaceCannotModifyGetObjectDataType, _someInitializationMethod);
     }
 
     class SomeType { }
@@ -249,6 +261,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     class SerializableInterfaceMissingCtorType : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
+    }
+
+    class SerializableInterfaceCannotModifyGetObjectDataType : ISerializable
+    {
+      void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
   }
 }
