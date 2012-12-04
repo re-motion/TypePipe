@@ -184,14 +184,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializable_NonDeserializationCallbackType_WithInitializations ()
+    public void MakeSerializable_NonDeserializationCallbackType ()
     {
-      _enabler.MakeSerializable (_nonSerializableDeserializationCallbackType, _someInitializationMethod);
+      _enabler.MakeSerializable (_nonSerializableDeserializationCallbackType, initializationMethod: null);
 
       Assert.That (_nonSerializableDeserializationCallbackType.AddedInterfaces, Is.Empty);
-      Assert.That (_nonSerializableDeserializationCallbackType.AllMutableMethods.Count (), Is.EqualTo (1));
-      var method = _nonSerializableDeserializationCallbackType.ExistingMutableMethods.Single ();
+      Assert.That (_nonSerializableDeserializationCallbackType.AllMutableMethods.Count(), Is.EqualTo (1));
+      var method = _nonSerializableDeserializationCallbackType.ExistingMutableMethods.Single();
       Assert.That (method.IsModified, Is.False);
+    }
+
+    [Test]
+    public void MakeSerializable_NonDeserializationCallbackType_WithInitializations ()
+    {
+      var initMethod = _nonSerializableDeserializationCallbackType.AddMethod (
+          "InitMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      var method = _nonSerializableDeserializationCallbackType.ExistingMutableMethods.Single();
+      var oldBody = method.Body;
+
+      _enabler.MakeSerializable (_nonSerializableDeserializationCallbackType, initMethod);
+
+      Assert.That (_nonSerializableDeserializationCallbackType.AddedInterfaces, Is.Empty);
+      Assert.That (_nonSerializableDeserializationCallbackType.AllMutableMethods.Count(), Is.EqualTo (2));
+      Assert.That (method.IsModified, Is.True);
+      var expectedBody = Expression.Block (
+          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_nonSerializableDeserializationCallbackType), initMethod));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
@@ -213,14 +231,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     class NonSerializableDeserializationCallbackType : IDeserializationCallback
     {
-      public void OnDeserialization (object sender) { }
+      public virtual void OnDeserialization (object sender) { }
     }
 
     class SerializableInterfaceMissingCtorType : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
-
-    void InitializeMethod () { }
   }
 }

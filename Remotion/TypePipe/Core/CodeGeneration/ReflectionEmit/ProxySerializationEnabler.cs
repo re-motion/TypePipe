@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // initializationMethod may be null
 
       var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
+      var implementsDeserializationCallback = mutableType.GetInterfaces().Contains (typeof (IDeserializationCallback));
       var hasInstanceInitializations = initializationMethod != null;
 
       if (implementsSerializable)
@@ -46,7 +47,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         OverrideGetObjectData (mutableType);
         AdaptDeserializationConstructor (mutableType);
       }
-      else if (hasInstanceInitializations && mutableType.IsSerializable)
+      else if (hasInstanceInitializations && (mutableType.IsSerializable || implementsDeserializationCallback))
         WireInitializationsViaDeserializationCallback (mutableType, initializationMethod);
     }
 
