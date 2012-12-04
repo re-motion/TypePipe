@@ -16,16 +16,20 @@
 // 
 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.Development.UnitTesting.Reflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   public static class ExpressionHelper
   {
+    public static readonly MethodInfo StringConcatMethod =
+        NormalizingMemberInfoFromExpressionUtility.GetMethod (() => string.Concat ((object) null, null));
+
     public static BinaryExpression StringConcat (Expression left, Expression right)
     {
-      var concatMethod = typeof (string).GetMethod ("Concat", new[] { typeof (string), typeof (string) });
-      return Expression.Add (left, right, concatMethod);
+      return Expression.Add (Expression.Convert(left, typeof(object)), Expression.Convert(right, typeof(object)), StringConcatMethod);
     }
   }
 }

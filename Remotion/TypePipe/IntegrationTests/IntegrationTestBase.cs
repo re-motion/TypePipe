@@ -33,8 +33,9 @@ namespace Remotion.TypePipe.IntegrationTests
   public abstract class IntegrationTestBase
   {
     private List<string> _generatedAssemblyPaths;
-    private bool _shouldDeleteGeneratedFiles;
-    private bool _shouldPeVerify;
+    private bool _skipAll;
+    private bool _skipPeVerify;
+    private bool _skipDeletion;
 
     private ICodeGenerator _codeGenerator;
 
@@ -42,23 +43,28 @@ namespace Remotion.TypePipe.IntegrationTests
     public virtual void SetUp ()
     {
       _generatedAssemblyPaths = new List<string>();
-      _shouldDeleteGeneratedFiles = true;
-      _shouldPeVerify = true;
+      _skipAll = false;
+      _skipPeVerify = false;
+      _skipDeletion = false;
+
     }
 
     [TearDown]
     public virtual void TearDown ()
     {
+      if (_skipAll)
+        return;
+
       FlushAndTrackFilesForCleanup();
 
       try
       {
         foreach (var assemblyPath in _generatedAssemblyPaths)
         {
-          if (_shouldPeVerify)
+          if (!_skipPeVerify)
             PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
 
-          if (_shouldDeleteGeneratedFiles)
+          if (!_skipDeletion)
           {
             File.Delete (assemblyPath);
             File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
@@ -74,14 +80,19 @@ namespace Remotion.TypePipe.IntegrationTests
       }
     }
 
+    protected void SkipSavingAndPeVerification ()
+    {
+      _skipAll = true;
+    }
+
     protected void SkipDeletion ()
     {
-      _shouldDeleteGeneratedFiles = false;
+      _skipDeletion = true;
     }
 
     protected void SkipPeVerification ()
     {
-      _shouldPeVerify = false;
+      _skipPeVerify = true;
     }
 
     protected IParticipant CreateParticipant (Action<MutableType> typeModification)

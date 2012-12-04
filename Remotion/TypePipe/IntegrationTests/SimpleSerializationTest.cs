@@ -29,10 +29,21 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
-  [Ignore ("TODO 5217")]
+  //[Ignore ("TODO 5217")]
   [TestFixture]
   public class SimpleSerializationTest : ObjectFactoryIntegrationTestBase
   {
+    [TestFixtureSetUp]
+    public static void FixtureSetUp ()
+    {
+      // TODO 5223:
+      // Cannot delete on TearDown because assembly is loaded into AppDomain (still in use).
+      // Maybe better option with AppDomainRunner?
+      var files = Directory.GetFiles (Environment.CurrentDirectory, typeof (SimpleSerializationTest).Name + ".*");
+      foreach (var file in files)
+        File.Delete (file);
+    }
+
     [Test]
     public void Standard_NoModifications ()
     {
@@ -83,14 +94,17 @@ namespace Remotion.TypePipe.IntegrationTests
       CheckInstanceIsSerializableAndAddedFields (instance2, "abc callback:True init", 8, 1, ctorWasCalled: true);
     }
 
+    [Ignore ("TODO 5217")]
     [Test]
     public void CannotSerialize ()
     {
-      var factory = CreateObjectFactory();
+      SkipSavingAndPeVerification();
+
+      var factory = CreateObjectFactory (CreateFieldAddingParticipant());
 
       // TODO: Apply this comment to implementation to the code that deals with the first case: TODO RM-4695
-      var message = "The underlying type implements ISerializable but GetObjectData cannot be overrided. "
-                    + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual";
+      var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+                    + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData)),
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
@@ -99,8 +113,17 @@ namespace Remotion.TypePipe.IntegrationTests
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
       Assert.That (
           () => factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor)),
-          Throws.TypeOf<NotSupportedException>()
-                .With.Message.EqualTo ("The underlying type implements ISerializable but no deserialization constructor was found."));
+          Throws.TypeOf<InvalidOperationException>()
+                .With.Message.EqualTo ("The underlying type implements 'ISerializable' but does not define a deserialization constructor."));
+    }
+
+    private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
+    {
+      var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
+      factory.CodeGenerator.SetAssemblyDirectory (null);
+      SkipDeletion();
+
+      return factory;
     }
 
     private SerializableType CheckInstanceIsSerializable (SerializableType instance, string expectedStringFieldValue = "abc")
@@ -113,9 +136,12 @@ namespace Remotion.TypePipe.IntegrationTests
 
       FlushAndTrackFilesForCleanup();
       binaryFormatter.Serialize (memoryStream, instance);
+      memoryStream.Position = 0;
       var deserializedInstance = (SerializableType) binaryFormatter.Deserialize (memoryStream);
 
-      Assert.That (deserializedInstance.GetType(), Is.SameAs (instance.GetType()));
+      Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (instance.GetType().AssemblyQualifiedName));
+      // TODO 5223: correct?
+      //Assert.That (deserializedInstance.GetType(), Is.EqualTo (instance.GetType()));
       Assert.That (deserializedInstance.String, Is.EqualTo (expectedStringFieldValue));
 
       return deserializedInstance;
@@ -159,10 +185,11 @@ namespace Remotion.TypePipe.IntegrationTests
             var intField = mutableType.GetField ("IntField");
             var skippedIntField = mutableType.GetField ("SkippedIntField");
 
-            // TODO if method necessary: make ExpressionHelper.StringConcatMethod field
-            mutableType.AddInstanceInitialization (ctx => Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" init")));
-            mutableType.AddInstanceInitialization (ctx => Expression.Increment (Expression.Field (ctx.This, intField)));
-            mutableType.AddInstanceInitialization (ctx => Expression.Increment (Expression.Field (ctx.This, skippedIntField)));
+            mutableType.AddInstanceInitialization (
+                ctx =>
+                Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" init"), ExpressionHelper.StringConcatMethod));
+            mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, intField)));
+            mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, skippedIntField)));
           });
     }
 
@@ -178,11 +205,11 @@ namespace Remotion.TypePipe.IntegrationTests
             mutableType.AddInterface (typeof (IDeserializationCallback));
             var method = mutableType.GetOrAddMutableMethod (callback);
             method.SetBody (
-                ctx => Expression.AddAssign (
+                ctx =>
+                Expression.AddAssign (
                     Expression.Field (ctx.This, stringField),
-                    ExpressionHelper.StringConcat (
-                        Expression.Constant (" callback:"),
-                        Expression.Call (Expression.Field (ctx.This, ctorCalledField), "ToString", Type.EmptyTypes))));
+                    ExpressionHelper.StringConcat (Expression.Constant (" callback:"), Expression.Field (ctx.This, ctorCalledField)),
+                    ExpressionHelper.StringConcatMethod));
           });
     }
 
@@ -190,6 +217,8 @@ namespace Remotion.TypePipe.IntegrationTests
     public class SerializableType
     {
       public string String;
+
+      [NonSerialized]
       public bool ConstructorCalled;
 
       public SerializableType ()
@@ -201,6 +230,7 @@ namespace Remotion.TypePipe.IntegrationTests
     [Serializable]
     public class CustomSerializableType : SerializableType, ISerializable
     {
+      public CustomSerializableType () { }
       public CustomSerializableType (SerializationInfo info, StreamingContext context)
       {
         String = info.GetString ("key1");
