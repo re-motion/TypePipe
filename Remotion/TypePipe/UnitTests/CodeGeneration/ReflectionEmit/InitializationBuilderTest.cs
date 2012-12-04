@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
@@ -148,11 +149,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void WireConstructorWithInitialization_Null ()
     {
       var constructor = MutableConstructorInfoObjectMother.Create();
-      var oldBody = constructor.Body;
 
       _builder.WireConstructorWithInitialization (constructor, initializationMembers: null);
 
-      Assert.That (constructor.Body, Is.SameAs (oldBody));
+      Assert.That (constructor.IsModified, Is.False);
+    }
+
+    [Test]
+    public void WireConstructorWithInitialization_DeserializationConstructor ()
+    {
+      var constructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
+          new ParameterDeclaration (typeof (SerializationInfo), "info"),
+          new ParameterDeclaration (typeof (StreamingContext), "context")
+          );
+      var initializationMembers = new Tuple<FieldInfo, MethodInfo> (null, null);
+
+      _builder.WireConstructorWithInitialization (constructor, initializationMembers);
+
+      Assert.That (constructor.IsModified, Is.False);
     }
   }
 }
