@@ -95,8 +95,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         _memberEmitter.AddConstructor (_context, typeInitializer);
 
       var initializationMembers = _initializationBuilder.CreateInstanceInitializationMembers (mutableType);
+      var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
 
-      _proxySerializationEnabler.MakeSerializable (mutableType);
+      _proxySerializationEnabler.MakeSerializable (mutableType, initializationMethod);
 
       foreach (var ifc in mutableType.AddedInterfaces)
         _context.TypeBuilder.AddInterfaceImplementation (ifc);

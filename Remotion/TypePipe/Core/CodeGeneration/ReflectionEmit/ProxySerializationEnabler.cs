@@ -33,15 +33,37 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private const string c_serializationKeyPrefix = "<tp>";
 
-    public void MakeSerializable (MutableType mutableType)
+    public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      // initializationMethod may be null
 
       var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
+      var hasInstanceInitializations = initializationMethod != null;
+
       if (implementsSerializable)
       {
         OverrideGetObjectData (mutableType);
         AdaptDeserializationConstructor (mutableType);
+      }
+      else if (hasInstanceInitializations && mutableType.IsSerializable)
+        WireInitializationsViaDeserializationCallback (mutableType, initializationMethod);
+    }
+
+    private void WireInitializationsViaDeserializationCallback (MutableType mutableType, MethodInfo initializationMethod)
+    {
+      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+      var implementsDeserializationCallback = mutableType.GetInterfaces().Contains (typeof (IDeserializationCallback));
+
+      if (implementsDeserializationCallback)
+      {
+        var onDeserializationOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
+        onDeserializationOverride.SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+      }
+      else
+      {
+        mutableType.AddInterface (typeof (IDeserializationCallback));
+        mutableType.AddExplicitOverride (interfaceMethod, ctx => Expression.Call (ctx.This, initializationMethod));
       }
     }
 
@@ -87,7 +109,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
               });
       var expressions = EnumerableUtility.Singleton (previousBody).Concat (fieldSerializations);
 
-      return Expression.Block (expressions);
+      return Expression.Block (typeof (void), expressions);
     }
 
     private Expression SerializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)

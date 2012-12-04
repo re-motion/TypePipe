@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Linq;
 using System.Reflection;
@@ -38,46 +37,94 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MutableType _nonSerializableType;
     private MutableType _serializableType;
     private MutableType _serializableInterfaceType;
-    private MutableType _missingCtor;
+    private MutableType _nonSerializableDeserializationCallbackType;
+    private MutableType _serializableInterfaceMissingCtorType;
+
+    private MethodInfo _someInitializationMethod;
 
     [SetUp]
     public void SetUp ()
     {
       _enabler = new ProxySerializationEnabler();
 
-      _nonSerializableType = MutableTypeObjectMother.CreateForExisting (typeof (NonSerializableType));
+      _nonSerializableType = MutableTypeObjectMother.Create();
       _serializableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
       _serializableInterfaceType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceType));
-      _missingCtor = MutableTypeObjectMother.CreateForExisting (typeof (MissingCtor));
+      _nonSerializableDeserializationCallbackType = MutableTypeObjectMother.CreateForExisting (typeof (NonSerializableDeserializationCallbackType));
+      _serializableInterfaceMissingCtorType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
+
+      _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
 
     [Test]
-    public void MakeSerializable_NonSerializableType ()
+    public void MakeSerializable_NonSerializableType_AddedFields_WithInitializations ()
     {
-      var defaultCtor = _nonSerializableType.AllMutableConstructors.Single();
+      _nonSerializableType.AddField ("abc", typeof (int));
 
-      _enabler.MakeSerializable (_nonSerializableType);
+      _enabler.MakeSerializable (_nonSerializableType, _someInitializationMethod);
 
       Assert.That (_nonSerializableType.AddedInterfaces, Is.Empty);
       Assert.That (_nonSerializableType.AllMutableMethods, Is.Empty);
-      Assert.That (_nonSerializableType.AllMutableConstructors, Is.EqualTo (new[] { defaultCtor }));
     }
 
     [Test]
     public void MakeSerializable_SerializableType_AddedFields ()
     {
-      var defaultCtor = _serializableType.AllMutableConstructors.Single();
-      _serializableInterfaceType.AddField ("abc", typeof (int));
+      _serializableType.AddField ("abc", typeof (int));
 
-      _enabler.MakeSerializable (_serializableType);
+      _enabler.MakeSerializable (_serializableType, initializationMethod: null);
 
       Assert.That (_serializableType.AddedInterfaces, Is.Empty);
       Assert.That (_serializableType.AllMutableMethods, Is.Empty);
-      Assert.That (_serializableType.AllMutableConstructors, Is.EqualTo (new[] { defaultCtor }));
     }
 
     [Test]
-    public void MakeSerializable_SerializableInterfaceType_AddedFields ()
+    public void MakeSerializable_SerializableType_WithInitializations ()
+    {
+      var initMethod = _serializableType.AddMethod ("InitMethod", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+
+      _enabler.MakeSerializable (_serializableType, initMethod);
+
+      Assert.That (_serializableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IDeserializationCallback) }));
+      Assert.That (_serializableType.AllMutableMethods.Count(), Is.EqualTo (2));
+
+      var method = _serializableType.AddedMethods[1];
+      Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.IDeserializationCallback.OnDeserialization"));
+      Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (object) }));
+      var expectedBody = MethodCallExpression.Call (new ThisExpression (_serializableType), initMethod);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+    }
+
+    [Test]
+    public void MakeSerializable_SerializableType_WithInitializations_Implements_IDeserializationCallback ()
+    {
+      _serializableType.AddInterface (typeof (IDeserializationCallback));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+      var method = _serializableType.GetOrAddMutableMethod (interfaceMethod);
+      var oldBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      method.SetBody (ctx => oldBody);
+
+      _enabler.MakeSerializable (_serializableType, _someInitializationMethod);
+
+      Assert.That (_serializableType.AllMutableMethods.Count(), Is.EqualTo (1));
+      var expectedBody = Expression.Block (
+          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_serializableType), _someInitializationMethod));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+    }
+
+    [Test]
+    public void MakeSerializable_SerializableType_WithInitializations_NullIntializationMethod ()
+    {
+      _serializableType.AddInstanceInitialization (ctx => ExpressionTreeObjectMother.GetSomeExpression());
+
+      _enabler.MakeSerializable (_serializableType, initializationMethod: null);
+
+      Assert.That (_serializableType.AddedInterfaces, Is.Empty);
+      Assert.That (_serializableType.AllMutableMethods, Is.Empty);
+    }
+
+    [Test]
+    public void MakeSerializable_SerializableInterfaceType_AddedFields_WithInitializations ()
     {
       var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
       Assert.That (deserializationCtor.IsModified, Is.False);
@@ -87,14 +134,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var field3 = _serializableInterfaceType.AddField ("xxx", typeof (string));
       _serializableInterfaceType.AddField ("does not matter", typeof (double), FieldAttributes.Static);
 
-      _enabler.MakeSerializable (_serializableInterfaceType);
+      _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
       Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
       Assert.That (_serializableInterfaceType.AllMutableConstructors, Is.EqualTo (new[] { deserializationCtor }));
       Assert.That (deserializationCtor.IsModified, Is.True);
 
-      var method = _serializableInterfaceType.AllMutableMethods.Single();
+      var method = _serializableInterfaceType.ExistingMutableMethods.Single();
       Assert.That (method.Name, Is.EqualTo ("GetObjectData"));
       Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
 
@@ -115,26 +162,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var getValue = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
       var expectedCtorBody = Expression.Block (
           typeof (void),
-          Expression.Block (
-              oldCtorBody,
-              Expression.Assign (
-                  field1Expr,
-                  Expression.Convert (
-                      Expression.Call (serializationInfo, getValue, Expression.Constant ("<tp>field"), Expression.Constant (typeof (int))),
-                      typeof (int))),
-              Expression.Assign (
-                  field2Expr,
-                  Expression.Convert (
-                      Expression.Call (serializationInfo, getValue, Expression.Constant ("<tp>xxx@System.Int32"), Expression.Constant (typeof (int))),
-                      typeof (int))),
-              Expression.Assign (
-                  field3Expr,
-                  Expression.Convert (
-                      Expression.Call (
-                          serializationInfo, getValue, Expression.Constant ("<tp>xxx@System.String"), Expression.Constant (typeof (string))),
-                      typeof (string)))
-              ));
+          oldCtorBody,
+          Expression.Assign (
+              field1Expr,
+              Expression.Convert (
+                  Expression.Call (serializationInfo, getValue, Expression.Constant ("<tp>field"), Expression.Constant (typeof (int))),
+                  typeof (int))),
+          Expression.Assign (
+              field2Expr,
+              Expression.Convert (
+                  Expression.Call (serializationInfo, getValue, Expression.Constant ("<tp>xxx@System.Int32"), Expression.Constant (typeof (int))),
+                  typeof (int))),
+          Expression.Assign (
+              field3Expr,
+              Expression.Convert (
+                  Expression.Call (
+                      serializationInfo, getValue, Expression.Constant ("<tp>xxx@System.String"), Expression.Constant (typeof (string))),
+                  typeof (string)))
+          );
       ExpressionTreeComparer.CheckAreEqualTrees (expectedCtorBody, deserializationCtor.Body);
+    }
+
+    [Test]
+    public void MakeSerializable_NonDeserializationCallbackType_WithInitializations ()
+    {
+      _enabler.MakeSerializable (_nonSerializableDeserializationCallbackType, _someInitializationMethod);
+
+      Assert.That (_nonSerializableDeserializationCallbackType.AddedInterfaces, Is.Empty);
+      Assert.That (_nonSerializableDeserializationCallbackType.AllMutableMethods.Count (), Is.EqualTo (1));
+      var method = _nonSerializableDeserializationCallbackType.ExistingMutableMethods.Single ();
+      Assert.That (method.IsModified, Is.False);
     }
 
     [Test]
@@ -142,25 +199,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         "The modified type implements 'ISerializable' but does not define a deserialization constructor.")]
     public void MakeSerializable_SerializableInterfaceType_AddedFields_UnaccessibleCtor ()
     {
-      _enabler.MakeSerializable (_missingCtor);
+      _enabler.MakeSerializable (_serializableInterfaceMissingCtorType, _someInitializationMethod);
     }
-    
-    private class NonSerializableType { }
 
     [Serializable]
-    private class SerializableType { }
+    class SerializableType { }
 
-    [Serializable]
-    private class SerializableInterfaceType : ISerializable
+    class SerializableInterfaceType : ISerializable
     {
       public SerializableInterfaceType (SerializationInfo info, StreamingContext context) { }
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    [Serializable]
-    private class MissingCtor : ISerializable
+    class NonSerializableDeserializationCallbackType : IDeserializationCallback
+    {
+      public void OnDeserialization (object sender) { }
+    }
+
+    class SerializableInterfaceMissingCtorType : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
+
+    void InitializeMethod () { }
   }
 }

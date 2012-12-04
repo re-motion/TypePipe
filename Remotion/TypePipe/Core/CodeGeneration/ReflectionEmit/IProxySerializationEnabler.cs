@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -26,6 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyBuilder"/>.</remarks>
   public interface IProxySerializationEnabler
   {
-    void MakeSerializable (MutableType mutableType);
+    void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod);
   }
 }
