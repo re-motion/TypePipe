@@ -203,7 +203,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     /// <summary>
     /// Adds instance initialization code.
-    /// The initialization code is executed exactly once after the constructor.
+    /// The initialization code is executed exactly once after object creation or deserialization.
     /// </summary>
     /// <remarks>
     /// The added initializations are not executed when instances of the type are created directly through the

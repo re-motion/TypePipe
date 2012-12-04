@@ -24,6 +24,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests
@@ -56,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests
       var factory = CreateObjectFactory (CreateFieldAddingParticipant());
       var instance = factory.CreateObject<CustomSerializableType>();
 
-      CheckInstanceIsSerializableAndAddedFields (instance);
+      CheckInstanceIsSerializableAndAddedFields (instance, ctorWasCalled: true);
     }
 
     [Test]
@@ -66,8 +67,20 @@ namespace Remotion.TypePipe.IntegrationTests
       var instance1 = factory.CreateObject<SerializableType>();
       var instance2 = factory.CreateObject<CustomSerializableType>();
 
-      CheckInstanceIsSerializableAndAddedFields (instance1, "abc def", 8, 1);
-      CheckInstanceIsSerializableAndAddedFields (instance2, "abc def", 8, 1);
+      CheckInstanceIsSerializableAndAddedFields (instance1, "abc init", 8, 1);
+      CheckInstanceIsSerializableAndAddedFields (instance2, "abc init", 8, 1, ctorWasCalled: true);
+    }
+
+    [Test]
+    public void InstanceInitialization_PreserveCallback ()
+    {
+      var factory = CreateObjectFactory (
+          CreateFieldAddingParticipant(), CreateInitializationAddingParticipant(), CreateCallbackImplementingParticipant());
+      var instance1 = factory.CreateObject<SerializableType>();
+      var instance2 = factory.CreateObject<CustomSerializableType>();
+
+      CheckInstanceIsSerializableAndAddedFields (instance1, "abc callback:False init", 8, 1);
+      CheckInstanceIsSerializableAndAddedFields (instance2, "abc callback:True init", 8, 1, ctorWasCalled: true);
     }
 
     [Test]
@@ -109,13 +122,18 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     private void CheckInstanceIsSerializableAndAddedFields (
-        SerializableType instance, string expectedStringFieldValue = "abc", int expectedIntFieldValue = 7, int expectedSkippedIntField = 0)
+        SerializableType instance,
+        string expectedStringFieldValue = "abc",
+        int expectedIntFieldValue = 7,
+        int expectedSkippedIntField = 0,
+        bool ctorWasCalled = false)
     {
       PrivateInvoke.SetPublicField (instance, "IntField", 7);
       PrivateInvoke.SetPublicField (instance, "SkippedIntField", 7);
 
       var deserialized = CheckInstanceIsSerializable (instance, expectedStringFieldValue);
 
+      Assert.That (deserialized.ConstructorCalled, Is.EqualTo (ctorWasCalled));
       Assert.That (PrivateInvoke.GetPublicField (deserialized, "IntField"), Is.EqualTo (expectedIntFieldValue));
       Assert.That (PrivateInvoke.GetPublicField (deserialized, "SkippedIntField"), Is.EqualTo (expectedSkippedIntField));
     }
@@ -142,9 +160,29 @@ namespace Remotion.TypePipe.IntegrationTests
             var skippedIntField = mutableType.GetField ("SkippedIntField");
 
             // TODO if method necessary: make ExpressionHelper.StringConcatMethod field
-            mutableType.AddInstanceInitialization (ctx => Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" def")));
+            mutableType.AddInstanceInitialization (ctx => Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" init")));
             mutableType.AddInstanceInitialization (ctx => Expression.Increment (Expression.Field (ctx.This, intField)));
             mutableType.AddInstanceInitialization (ctx => Expression.Increment (Expression.Field (ctx.This, skippedIntField)));
+          });
+    }
+
+    private IParticipant CreateCallbackImplementingParticipant ()
+    {
+      return CreateParticipant (
+          mutableType =>
+          {
+            var stringField = mutableType.GetField ("String");
+            var ctorCalledField = mutableType.GetField ("ConstructorCalled");
+            var callback = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+
+            mutableType.AddInterface (typeof (IDeserializationCallback));
+            var method = mutableType.GetOrAddMutableMethod (callback);
+            method.SetBody (
+                ctx => Expression.AddAssign (
+                    Expression.Field (ctx.This, stringField),
+                    ExpressionHelper.StringConcat (
+                        Expression.Constant (" callback:"),
+                        Expression.Call (Expression.Field (ctx.This, ctorCalledField), "ToString", Type.EmptyTypes))));
           });
     }
 
@@ -152,6 +190,12 @@ namespace Remotion.TypePipe.IntegrationTests
     public class SerializableType
     {
       public string String;
+      public bool ConstructorCalled;
+
+      public SerializableType ()
+      {
+        ConstructorCalled = true;
+      }
     }
 
     [Serializable]
@@ -160,6 +204,7 @@ namespace Remotion.TypePipe.IntegrationTests
       public CustomSerializableType (SerializationInfo info, StreamingContext context)
       {
         String = info.GetString ("key1");
+        ConstructorCalled = true;
       }
 
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context)
