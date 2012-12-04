@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           new[] { typeof (SerializationInfo), typeof (StreamingContext) },
           null);
       if (deserializationConstructor == null)
-        throw new InvalidOperationException ("The modified type implements 'ISerializable' but does not define a deserialization constructor.");
+        throw new InvalidOperationException ("The underlying type implements 'ISerializable' but does not define a deserialization constructor.");
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
       mutableConstructor.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, DeserializeField));

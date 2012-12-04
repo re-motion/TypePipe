@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
@@ -215,7 +216,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The modified type implements 'ISerializable' but does not define a deserialization constructor.")]
+        "The underlying type implements 'ISerializable' but does not define a deserialization constructor.")]
     public void MakeSerializable_SerializableInterfaceType_AddedFields_UnaccessibleCtor ()
     {
       _serializableInterfaceMissingCtorType.AddField ("field", typeof (int));
@@ -227,7 +228,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     class SerializableInterfaceType : ISerializable
     {
-      public SerializableInterfaceType (SerializationInfo info, StreamingContext context) { }
+      public SerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
