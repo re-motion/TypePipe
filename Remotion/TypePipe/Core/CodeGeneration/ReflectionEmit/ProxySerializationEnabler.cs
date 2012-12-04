@@ -32,6 +32,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
     private const string c_serializationKeyPrefix = "<tp>";
+    private static readonly MethodInfo s_getValueMethod =
+        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
 
     public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
     {
@@ -99,15 +101,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           .SelectMany (
               fieldsByName =>
               {
-                var fields = fieldsByName.ToArray();
-                if (fields.Length == 1)
-                  return EnumerableUtility.Singleton (
-                      expressionProvider (ctx.This, ctx.Parameters[0], c_serializationKeyPrefix + fields[0].Name, fields[0]));
+                var fields = fieldsByName.ToList();
 
-                return from field in fields
-                       let serializationKey = string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, field.Name, field.FieldType.FullName)
-                       select expressionProvider (ctx.This, ctx.Parameters[0], serializationKey, field);
+                var serializationKeyProvider =
+                    fields.Count == 1
+                        ? (Func<FieldInfo, string>) (f => c_serializationKeyPrefix + f.Name)
+                        : (f => string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, f.Name, f.FieldType.FullName));
+
+                return fields.Select (f => expressionProvider (ctx.This, ctx.Parameters[0], serializationKeyProvider (f), f));
               });
+
       var expressions = EnumerableUtility.Singleton (previousBody).Concat (fieldSerializations);
 
       return Expression.Block (typeof (void), expressions);
@@ -120,12 +123,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private Expression DeserializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
     {
-      var getValueMethod = MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
       var type = field.FieldType;
       return Expression.Assign (
           Expression.Field (@this, field),
           Expression.Convert (
-              Expression.Call (serializationInfo, getValueMethod, Expression.Constant (serializationKey), Expression.Constant (type)), type));
+              Expression.Call (serializationInfo, s_getValueMethod, Expression.Constant (serializationKey), Expression.Constant (type)), type));
     }
   }
 }
