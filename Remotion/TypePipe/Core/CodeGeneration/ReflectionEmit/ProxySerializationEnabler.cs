@@ -19,9 +19,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
-using Remotion.FunctionalProgramming;
+using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -37,27 +36,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
     private static readonly MethodInfo s_onDeserializationMethod =
-      MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+        MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
     public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      // TODO Review: Use IsAssignableTo
-      var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
+      var implementsSerializable = mutableType.IsAssignableTo (typeof (ISerializable));
+      var implementsDeserializationCallback = mutableType.IsAssignableTo (typeof (IDeserializationCallback));
       var serializedFields = mutableType
           .AddedFields
           .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
           .ToArray();
-      // TODO Review: Use IsAssignableTo
-      var implementsDeserializationCallback = mutableType.GetInterfaces ().Contains (typeof (IDeserializationCallback));
       var hasInstanceInitializations = initializationMethod != null;
 
       if (implementsSerializable && serializedFields.Length != 0)
       {
-        OverrideGetObjectData (mutableType, serializedFields);
-        AdaptDeserializationConstructor (mutableType, serializedFields);
+        var serializedFieldMapping = GetFieldSerializationKeys (serializedFields).ToArray();
+        OverrideGetObjectData (mutableType, serializedFieldMapping);
+        AdaptDeserializationConstructor (mutableType, serializedFieldMapping);
       }
 
       if (hasInstanceInitializations)
@@ -81,20 +79,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       onDeserializationOverride.SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
     }
 
-    private void OverrideGetObjectData (MutableType mutableType, MutableFieldInfo[] serializedFields)
+    private void OverrideGetObjectData (MutableType mutableType, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
     {
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
       var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
 
       if (!getObjectDataOverride.CanSetBody)
+      {
         throw new NotSupportedException (
-          "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
-          + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.");
+            "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+            + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.");
+      }
 
-      getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx, serializedFields, ctx.PreviousBody, SerializeField));
+      getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
     }
 
-    private void AdaptDeserializationConstructor (MutableType mutableType, IEnumerable<FieldInfo> serializedFields)
+    private void AdaptDeserializationConstructor (MutableType mutableType, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
     {
       var deserializationConstructor = mutableType.GetConstructor (
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
@@ -105,35 +105,39 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         throw new InvalidOperationException ("The underlying type implements 'ISerializable' but does not define a deserialization constructor.");
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
-      mutableConstructor.SetBody (ctx => BuildSerializationBody (ctx, serializedFields, ctx.PreviousBody, DeserializeField));
+      mutableConstructor.SetBody (ctx => BuildDeserializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
     }
 
-    // TODO Review: Refactor this method to return an IEnumerable<FieldInfo, string>, then input this to a BuildSerializationBody/BuildDeserializationBody method.
-    private Expression BuildSerializationBody (
-        MethodBaseBodyContextBase ctx,
-        IEnumerable<FieldInfo> serializedFields,
-        Expression previousBody,
-        Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
+    private IEnumerable<Tuple<string, FieldInfo>> GetFieldSerializationKeys (IEnumerable<FieldInfo> serializedFields)
     {
-      // TODO Review: Move check for serializable fields out to caller and do not create an override if there are no serializable fields.
-      var fieldSerializations = serializedFields
+      return serializedFields
           .ToLookup (f => f.Name)
           .SelectMany (
               fieldsByName =>
               {
-                var fields = fieldsByName.ToList();
+                var fields = fieldsByName.ToArray();
 
                 var serializationKeyProvider =
-                    fields.Count == 1
+                    fields.Length == 1
                         ? (Func<FieldInfo, string>) (f => c_serializationKeyPrefix + f.Name)
                         : (f => string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, f.Name, f.FieldType.FullName));
 
-                return fields.Select (f => expressionProvider (ctx.This, ctx.Parameters[0], serializationKeyProvider (f), f));
+                return fields.Select (f => Tuple.Create (serializationKeyProvider (f), f));
               });
+    }
 
-      var expressions = EnumerableUtility.Singleton (previousBody).Concat (fieldSerializations);
+    private Expression BuildSerializationBody (
+        Expression @this, Expression serializationInfo, Expression previousBody, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
+    {
+      var expressions = serializedFieldMapping.Select (fm => SerializeField (@this, serializationInfo, fm.Item1, fm.Item2));
+      return Expression.Block (typeof (void), new[] { previousBody }.Concat (expressions));
+    }
 
-      return Expression.Block (typeof (void), expressions);
+    private Expression BuildDeserializationBody (
+        Expression @this, Expression serializationInfo, Expression previousBody, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
+    {
+      var expressions = serializedFieldMapping.Select (fm => DeserializeField (@this, serializationInfo, fm.Item1, fm.Item2));
+      return Expression.Block (typeof (void), new[] { previousBody }.Concat (expressions));
     }
 
     private Expression SerializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
