@@ -127,7 +127,8 @@ namespace Remotion.TypePipe.IntegrationTests
           });
     }
 
-    // TODO Review: Add test for IDeserializationCallback implemented on underlying type (virtual).
+    // TODO Review: Add test for IDeserializationCallback implemented on underlying type (virtual). (With instance init code.)
+    // TODO Review: Add test for virtual OnDeserialization method on underlying type that does not implement IDeserializationCallback - the method must not be invoked during deserialization. (With instance init code.)
 
     [Test]
     public void CannotSerialize ()

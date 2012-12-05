@@ -43,12 +43,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
+      // TODO Review: Use IsAssignableTo
       var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
-      var implementsDeserializationCallback = mutableType.GetInterfaces().Contains (typeof (IDeserializationCallback));
+      // TODO Review: Use IsAssignableTo
+      var implementsDeserializationCallback = mutableType.GetInterfaces ().Contains (typeof (IDeserializationCallback));
       var hasInstanceInitializations = initializationMethod != null;
 
       if (implementsSerializable && mutableType.AddedFields.Count != 0)
       {
+        // TODO Review: Pass in mutableType.AddedFields for explicitness
         OverrideGetObjectData (mutableType);
         AdaptDeserializationConstructor (mutableType);
       }
@@ -101,9 +104,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mutableConstructor.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, DeserializeField));
     }
 
+    // TODO Review: Refactor this method to return an IEnumerable<FieldInfo, string>, then input this to a BuildSerializationBody/BuildDeserializationBody method.
     private Expression BuildSerializationBody (
         MethodBaseBodyContextBase ctx, Expression previousBody, Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
     {
+      // TODO Review: Move check for serializable fields out to caller and do not create an override if there are no serializable fields.
       var fieldSerializations = ctx
           .DeclaringType.AddedFields
           .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
