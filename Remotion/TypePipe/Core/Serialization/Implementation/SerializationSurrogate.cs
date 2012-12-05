@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
       var factory = _registry.Get (factoryIdentifier);
 
       var paramList = ParamList.Create (_serializationInfo, _streamingContext);
-      return factory.CreateObject (underlyingType, paramList);
+      return factory.CreateObject (underlyingType, paramList, allowNonPublicConstructor: true);
     }
   }
 }

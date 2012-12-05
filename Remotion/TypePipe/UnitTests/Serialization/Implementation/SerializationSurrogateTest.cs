@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       var fakeInstance = new object();
       _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (_objectFactoryMock);
       _objectFactoryMock
-        .Expect (mock => mock.CreateObject (Arg.Is (underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (false)))
+        .Expect (mock => mock.CreateObject (Arg.Is (underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
         .WhenCalled (
             mi =>
             {
