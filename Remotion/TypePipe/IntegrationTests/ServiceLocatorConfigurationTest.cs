@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -52,8 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 5222")]
-    public void Resolutation_ObjectFactoryRegistry ()
+    public void Resolutation_ObjectFactoryRegistry_SingletonScope ()
     {
       var registry1 = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
       var registry2 = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();

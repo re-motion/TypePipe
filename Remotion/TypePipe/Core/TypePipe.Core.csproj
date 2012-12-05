@@ -137,7 +137,7 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
-    <Compile Include="IObjectFactoryRegistry.cs" />
+    <Compile Include="Serialization\IObjectFactoryRegistry.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\InitializationBodyContext.cs" />
@@ -325,6 +325,7 @@
     <Compile Include="Caching\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
     <Compile Include="Serialization\Implementation\SerializationSurrogate.cs" />
+    <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
   </ItemGroup>
   <ItemGroup>
