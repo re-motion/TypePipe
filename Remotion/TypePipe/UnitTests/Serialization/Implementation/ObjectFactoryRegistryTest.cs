@@ -16,7 +16,8 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.ServiceLocation;
+using Remotion.Collections;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Serialization.Implementation;
 using Rhino.Mocks;
 
@@ -31,6 +32,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     public void SetUp ()
     {
       _registry = new ObjectFactoryRegistry();
+    }
+
+    [Test]
+    public void Initialization ()
+    {
+      var objectFactories = PrivateInvoke.GetNonPublicField (_registry, "_objectFactories");
+
+      Assert.That (objectFactories, Is.TypeOf<LockingDataStoreDecorator<string, IObjectFactory>>());
     }
 
     [Test]
