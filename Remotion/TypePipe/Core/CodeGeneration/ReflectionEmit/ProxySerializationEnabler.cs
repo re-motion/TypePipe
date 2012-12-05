@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -40,15 +41,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
+    private readonly ISerializedFieldFilter _serializedFieldFilter;
+
+    public ProxySerializationEnabler (ISerializedFieldFilter serializedFieldFilter)
+    {
+      ArgumentUtility.CheckNotNull ("serializedFieldFilter", serializedFieldFilter);
+
+      _serializedFieldFilter = serializedFieldFilter;
+    }
+
     public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var serializedFields = mutableType
-          .AddedFields
-          .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
-          .ToArray();
+      var serializedFields = _serializedFieldFilter.GetSerializedFields (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
       var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFields.Length != 0;
 
       if (needsCustomFieldSerialization)

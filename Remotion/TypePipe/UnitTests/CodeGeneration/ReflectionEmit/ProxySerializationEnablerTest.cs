@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -25,14 +26,18 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class ProxySerializationEnablerTest
   {
+    private ISerializedFieldFilter _serializedFieldFilterMock;
+    
     private ProxySerializationEnabler _enabler;
 
     private MutableType _someType;
@@ -46,7 +51,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _enabler = new ProxySerializationEnabler();
+      _serializedFieldFilterMock = MockRepository.GenerateStrictMock<ISerializedFieldFilter>();
+
+      _enabler = new ProxySerializationEnabler (_serializedFieldFilterMock);
 
       _someType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
       _serializableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
@@ -61,6 +68,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_SerializableInterfaceType ()
     {
+      StubFilterWithNoSerializedFields();
+
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
@@ -70,40 +79,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializable_SerializableInterfaceType_AddedFields_NonSerialized ()
+    public void MakeSerializable_SerializableInterfaceType_SerializedFields ()
     {
-      var nonSerializedAttributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
-      var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
-
-      _serializableInterfaceType.AddField ("staticField", typeof (double), FieldAttributes.Static);
-      _serializableInterfaceType.AddField ("nonSerializedField", typeof (double))
-                                .AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedAttributeConstructor, new object[0]));
-
-      _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
-
-      Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
-      Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
-      var method = _serializableInterfaceType.ExistingMutableMethods.Single();
-      Assert.That (method.IsModified, Is.False);
-      Assert.That (deserializationCtor.IsModified, Is.False);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableInterfaceType_AddedFields ()
-    {
-      var nonSerializedAttributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute ());
       var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
       Assert.That (deserializationCtor.IsModified, Is.False);
       var oldCtorBody = deserializationCtor.Body;
-      var field1 = _serializableInterfaceType.AddField ("field", typeof (int));
-      var field2 = _serializableInterfaceType.AddField ("xxx", typeof (int));
-      var field3 = _serializableInterfaceType.AddField ("xxx", typeof (string));
-      _serializableInterfaceType.AddField ("staticField", typeof (double), FieldAttributes.Static);
-      _serializableInterfaceType.AddField ("nonSerializedField", typeof (double))
-                                .AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedAttributeConstructor, new object[0]));
+      var field = _serializableInterfaceType.AddField ("field", typeof (int));
+      var fakeField1 = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, "field", typeof (int));
+      var fakeField2 = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, "xxx", typeof (int));
+      var fakeField3 = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, "xxx", typeof (string));
+      _serializedFieldFilterMock
+          .Expect (mock => mock.GetSerializedFields (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { field })))
+          .Return (new[] { fakeField1, fakeField2, fakeField3 });
 
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
+      _serializedFieldFilterMock.VerifyAllExpectations();
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
       Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
       Assert.That (_serializableInterfaceType.AllMutableConstructors, Is.EqualTo (new[] { deserializationCtor }));
@@ -115,9 +106,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var serializationInfo = method.ParameterExpressions[0];
       var thisExpr = new ThisExpression (_serializableInterfaceType);
-      var field1Expr = Expression.Field (thisExpr, field1);
-      var field2Expr = Expression.Field (thisExpr, field2);
-      var field3Expr = Expression.Field (thisExpr, field3);
+      var field1Expr = Expression.Field (thisExpr, fakeField1);
+      var field2Expr = Expression.Field (thisExpr, fakeField2);
+      var field3Expr = Expression.Field (thisExpr, fakeField3);
       var baseMethod =
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableInterfaceType obj) => obj.GetObjectData (null, new StreamingContext()));
       var expectedBody = Expression.Block (
@@ -152,9 +143,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializable_SomeType_AddedFields ()
+    public void MakeSerializable_SomeType_SerializedFields ()
     {
-      _someType.AddField ("abc", typeof (int));
+      StubFilterWithSerializedFields (_someType);
 
       _enabler.MakeSerializable (_someType, _someInitializationMethod);
 
@@ -165,6 +156,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_SomeType ()
     {
+      StubFilterWithNoSerializedFields();
+
       _enabler.MakeSerializable (_someType, initializationMethod: null);
 
       Assert.That (_someType.AddedInterfaces, Is.Empty);
@@ -174,6 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializableType_SerializableType_WithInitializations ()
     {
+      StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
           _serializableType, parameterDeclarations: ParameterDeclaration.EmptyParameters, returnType: typeof (void));
 
@@ -192,6 +186,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializableType_DeserializationCallbackType_WithInitializations ()
     {
+      StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
           _deserializationCallbackType, parameterDeclarations: ParameterDeclaration.EmptyParameters, returnType: typeof (void));
       var method = _deserializationCallbackType.ExistingMutableMethods.Single (x => x.Name == "OnDeserialization");
@@ -208,6 +203,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializableType_SerializableWithDeserializationCallbackType ()
     {
+      StubFilterWithNoSerializedFields();
+
       _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackType, initializationMethod: null);
 
       Assert.That (_serializableInterfaceWithDeserializationCallbackType.AddedInterfaces, Is.Empty);
@@ -217,6 +214,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializableType_SerializableWithDeserializationCallbackType_WithInitializations ()
     {
+      StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
           _serializableInterfaceWithDeserializationCallbackType,
           parameterDeclarations: ParameterDeclaration.EmptyParameters,
@@ -234,10 +232,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "The underlying type implements ISerializable but does not define a deserialization constructor.")]
-    public void MakeSerializable_ISerializable_AddedFields_InaccessibleCtor ()
+    public void MakeSerializable_ISerializable_SerializedFields_InaccessibleCtor ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
-      mutableType.AddField ("field", typeof (int));
+      StubFilterWithSerializedFields (mutableType);
+
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
@@ -245,10 +244,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_ISerializable_AddedFields_CannotModifyGetObjectData ()
+    public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectData ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ExplicitSerializableInterfaceType));
-      mutableType.AddField ("field", typeof (int));
+      StubFilterWithSerializedFields (mutableType);
+
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
@@ -256,10 +256,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_ISerializable_AddedFields_CannotModifyGetObjectDataInBase ()
+    public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectDataInBase ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedExplicitSerializableInterfaceType));
-      mutableType.AddField ("field", typeof (int));
+      StubFilterWithSerializedFields (mutableType);
+
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
@@ -267,10 +268,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_IDeserializationCallback_AddedFields_CannotModifyGetObjectData ()
+    public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectData ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ExplicitDeserializationCallbackType));
-      mutableType.AddField ("field", typeof (int));
+      StubFilterWithNoSerializedFields ();
+
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
@@ -278,10 +280,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_IDeserializationCallback_AddedFields_CannotModifyGetObjectDataInBase ()
+    public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectDataInBase ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedExplicitDeserializationCallbackType));
-      mutableType.AddField ("field", typeof (int));
+      StubFilterWithNoSerializedFields ();
+
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
@@ -293,6 +296,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_enabler.IsDeserializationConstructor (ctor1), Is.True);
       Assert.That (_enabler.IsDeserializationConstructor (ctor2), Is.False);
+    }
+
+    private void StubFilterWithNoSerializedFields ()
+    {
+      _serializedFieldFilterMock.Stub (stub => stub.GetSerializedFields (Arg<IEnumerable<FieldInfo>>.Is.Anything)).Return (new FieldInfo[0]);
+    }
+
+    private void StubFilterWithSerializedFields (MutableType declaringType)
+    {
+      _serializedFieldFilterMock
+          .Stub (stub => stub.GetSerializedFields (Arg<IEnumerable<FieldInfo>>.Is.Anything))
+          .Return (new[] { MutableFieldInfoObjectMother.Create (declaringType) });
     }
 
     class SomeType { }
