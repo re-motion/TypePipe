@@ -45,24 +45,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var implementsSerializable = mutableType.IsAssignableTo (typeof (ISerializable));
-      var implementsDeserializationCallback = mutableType.IsAssignableTo (typeof (IDeserializationCallback));
       var serializedFields = mutableType
           .AddedFields
           .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
           .ToArray();
-      var hasInstanceInitializations = initializationMethod != null;
+      var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFields.Length != 0;
 
-      if (implementsSerializable && serializedFields.Length != 0)
+      if (needsCustomFieldSerialization)
       {
         var serializedFieldMapping = GetFieldSerializationKeys (serializedFields).ToArray();
         OverrideGetObjectData (mutableType, serializedFieldMapping);
         AdaptDeserializationConstructor (mutableType, serializedFieldMapping);
       }
 
-      if (hasInstanceInitializations)
+      if (initializationMethod != null)
       {
-        if (implementsDeserializationCallback)
+        if (mutableType.IsAssignableTo (typeof (IDeserializationCallback)))
           OverrideOnDeserialization (mutableType, initializationMethod);
         else if (mutableType.IsSerializable)
           ExplicitlyImplementOnDeserialization (mutableType, initializationMethod);

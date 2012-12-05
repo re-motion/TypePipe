@@ -58,8 +58,7 @@ namespace Remotion.TypePipe.Serialization
       if (!mutableType.IsSerializable)
         return;
 
-      var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
-      if (implementsSerializable)
+      if (mutableType.IsAssignableTo (typeof (ISerializable)))
       {
         mutableType.GetOrAddMutableMethod (s_getObjectDataMethod)
                    .SetBody (ctx => Expression.Block (new[] { ctx.PreviousBody }.Concat (CreateSerializationExpressions (ctx))));
