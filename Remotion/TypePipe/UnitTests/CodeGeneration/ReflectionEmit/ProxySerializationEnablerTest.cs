@@ -40,8 +40,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MutableType _serializableType;
     private MutableType _deserializationCallbackType;
     private MutableType _serializableInterfaceWithDeserializationCallbackType;
-    private MutableType _serializableInterfaceMissingCtorType;
-    private MutableType _serializableInterfaceCannotModifyGetObjectDataType;
 
     private MethodInfo _someInitializationMethod;
 
@@ -56,9 +54,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _deserializationCallbackType = MutableTypeObjectMother.CreateForExisting (typeof (DeserializationCallbackType));
       _serializableInterfaceWithDeserializationCallbackType =
           MutableTypeObjectMother.CreateForExisting (typeof (SerializableWithDeserializationCallbackType));
-      _serializableInterfaceMissingCtorType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
-      _serializableInterfaceCannotModifyGetObjectDataType =
-          MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceCannotModifyGetObjectDataType));
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
@@ -238,21 +233,56 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The underlying type implements 'ISerializable' but does not define a deserialization constructor.")]
-    public void MakeSerializable_SerializableInterfaceType_AddedFields_UnaccessibleCtor ()
+        "The underlying type implements ISerializable but does not define a deserialization constructor.")]
+    public void MakeSerializable_ISerializable_AddedFields_InaccessibleCtor ()
     {
-      _serializableInterfaceMissingCtorType.AddField ("field", typeof (int));
-      _enabler.MakeSerializable (_serializableInterfaceMissingCtorType, _someInitializationMethod);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
+      mutableType.AddField ("field", typeof (int));
+      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_SerializableInterfaceType_AddedFields_CannotModifyGetObjectData ()
+    public void MakeSerializable_ISerializable_AddedFields_CannotModifyGetObjectData ()
     {
-      _serializableInterfaceCannotModifyGetObjectDataType.AddField ("field", typeof (int));
-      _enabler.MakeSerializable (_serializableInterfaceCannotModifyGetObjectDataType, _someInitializationMethod);
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ExplicitSerializableInterfaceType));
+      mutableType.AddField ("field", typeof (int));
+      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
+    public void MakeSerializable_ISerializable_AddedFields_CannotModifyGetObjectDataInBase ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedExplicitSerializableInterfaceType));
+      mutableType.AddField ("field", typeof (int));
+      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+        + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
+    public void MakeSerializable_IDeserializationCallback_AddedFields_CannotModifyGetObjectData ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ExplicitDeserializationCallbackType));
+      mutableType.AddField ("field", typeof (int));
+      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+        + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
+    public void MakeSerializable_IDeserializationCallback_AddedFields_CannotModifyGetObjectDataInBase ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedExplicitDeserializationCallbackType));
+      mutableType.AddField ("field", typeof (int));
+      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
     }
 
     [Test]
@@ -292,9 +322,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    class SerializableInterfaceCannotModifyGetObjectDataType : ISerializable
+    class ExplicitSerializableInterfaceType : ISerializable
     {
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
+    class DerivedExplicitSerializableInterfaceType : ExplicitSerializableInterfaceType { }
+
+    class ExplicitDeserializationCallbackType : IDeserializationCallback
+    {
+      void IDeserializationCallback.OnDeserialization (object sender) { }
+    }
+    class DerivedExplicitDeserializationCallbackType : ExplicitDeserializationCallbackType { }
   }
 }

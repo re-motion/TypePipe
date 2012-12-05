@@ -131,26 +131,45 @@ namespace Remotion.TypePipe.IntegrationTests
     // TODO Review: Add test for virtual OnDeserialization method on underlying type that does not implement IDeserializationCallback - the method must not be invoked during deserialization. (With instance init code.)
 
     [Test]
-    public void CannotSerialize ()
+    public void ISerializable_CannotModifyOrOverrideGetObjectData ()
     {
       SkipSavingAndPeVerification();
-
       var factory = CreateObjectFactory (CreateFieldAddingParticipant());
 
       var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
                     + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
-          () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData)),
+          () => factory.GetAssembledType (typeof (ExplicitISerializableType)),
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
       Assert.That (
-          () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideExplicitlyImplementedGetOjbectData)),
+          () => factory.GetAssembledType (typeof (DerivedExplicitISerializableType)),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "The underlying type implements ISerializable but does not define a deserialization constructor.")]
+    public void ISerializable_MissingDeserializationConstructor ()
+    {
+      SkipSavingAndPeVerification();
+      var factory = CreateObjectFactory (CreateFieldAddingParticipant());
+      factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor));
+    }
+
+    [Test]
+    public void IDeserializationCallback_CannotModifyOrOverrideOnDeserialization ()
+    {
+      SkipSavingAndPeVerification();
+      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
+
+      var message = "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+                    + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
+      Assert.That (
+          () => factory.GetAssembledType (typeof (ExplicitIDeserializationCallbackType)),
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
       Assert.That (
-          () => factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor)),
-          Throws.TypeOf<InvalidOperationException>()
-          // TODO Review: Remove quotes.
-          .With.Message.EqualTo ("The underlying type implements 'ISerializable' but does not define a deserialization constructor."));
-      // TODO Review: Add test for explicitly implemented IDeserializationCallback on base class and instance initialization expression.
+          () => factory.GetAssembledType (typeof (DerivedExplicitIDeserializationCallbackType)),
+          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
     private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
@@ -269,19 +288,29 @@ namespace Remotion.TypePipe.IntegrationTests
       }
     }
 
-    public class CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData : ISerializable
-    {
-      public void GetObjectData (SerializationInfo info, StreamingContext context) { }
-    }
-
-    public class CustomSerializableTypeCannotOverrideExplicitlyImplementedGetOjbectData : ISerializable
+    public class ExplicitISerializableType : ISerializable
     {
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
+
+    public class DerivedExplicitISerializableType : ExplicitISerializableType { }
 
     public class CustomSerializableTypeWithoutDeserializationConstructor : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
+
+    public class DeserializationCallbackType : SerializableType, IDeserializationCallback
+    {
+      public virtual void OnDeserialization (object sender) { }
+    }
+
+    public class ExplicitIDeserializationCallbackType : SerializableType, IDeserializationCallback
+    {
+      void IDeserializationCallback.OnDeserialization (object sender) { }
+    }
+
+    [Serializable]
+    public class DerivedExplicitIDeserializationCallbackType : ExplicitIDeserializationCallbackType { }
   }
 }

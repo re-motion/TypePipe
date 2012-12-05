@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.IntegrationTests
       Assert.That (
           () => factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor)),
           Throws.TypeOf<InvalidOperationException> ()
-                .With.Message.EqualTo ("The underlying type implements 'ISerializable' but does not define a deserialization constructor."));
+                .With.Message.EqualTo ("The underlying type implements ISerializable but does not define a deserialization constructor."));
     }
 
     private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)

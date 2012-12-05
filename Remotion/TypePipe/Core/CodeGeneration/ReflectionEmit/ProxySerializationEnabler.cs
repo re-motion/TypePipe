@@ -33,6 +33,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private const string c_serializationKeyPrefix = "<tp>";
 
+    private static readonly MethodInfo s_getObjectDataMetod =
+        MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
     private static readonly MethodInfo s_onDeserializationMethod =
@@ -80,23 +82,34 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
     {
-      var onDeserializationOverride = mutableType.GetOrAddMutableMethod (s_onDeserializationMethod);
-      onDeserializationOverride.SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+      try
+      {
+        mutableType.GetOrAddMutableMethod (s_onDeserializationMethod)
+                   .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+      }
+      catch (NotSupportedException exception)
+      {
+        throw new NotSupportedException (
+            "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+            + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.",
+            exception);
+      }
     }
 
     private void OverrideGetObjectData (MutableType mutableType, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
     {
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
-      var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
-
-      if (!getObjectDataOverride.CanSetBody)
+      try
+      {
+        mutableType.GetOrAddMutableMethod (s_getObjectDataMetod)
+                   .SetBody (ctx => BuildSerializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
+      }
+      catch (NotSupportedException exception)
       {
         throw new NotSupportedException (
             "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
-            + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.");
+            + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.",
+            exception);
       }
-
-      getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
     }
 
     private void AdaptDeserializationConstructor (MutableType mutableType, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
@@ -107,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           new[] { typeof (SerializationInfo), typeof (StreamingContext) },
           null);
       if (deserializationConstructor == null)
-        throw new InvalidOperationException ("The underlying type implements 'ISerializable' but does not define a deserialization constructor.");
+        throw new InvalidOperationException ("The underlying type implements ISerializable but does not define a deserialization constructor.");
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
       mutableConstructor.SetBody (ctx => BuildDeserializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
