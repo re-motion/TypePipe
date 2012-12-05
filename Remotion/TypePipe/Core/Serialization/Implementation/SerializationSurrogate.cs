@@ -17,6 +17,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using Remotion.Reflection;
 using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
@@ -29,18 +30,26 @@ namespace Remotion.TypePipe.Serialization.Implementation
   public class SerializationSurrogate : ISerializable, IObjectReference
   {
     private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+
     private readonly SerializationInfo _serializationInfo;
+    private readonly StreamingContext _streamingContext;
 
     public SerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
     {
       ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
 
       _serializationInfo = serializationInfo;
+      _streamingContext = streamingContext;
     }
 
     public SerializationInfo SerializationInfo
     {
       get { return _serializationInfo; }
+    }
+
+    public StreamingContext StreamingContext
+    {
+      get { return _streamingContext; }
     }
 
     public void GetObjectData (SerializationInfo info, StreamingContext context)
@@ -56,7 +65,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
       var underlyingType = Type.GetType (underlyingTypeName, throwOnError: true);
       var factory = _registry.Get (factoryIdentifier);
 
-      return factory.CreateObject (underlyingType);
+      var paramList = ParamList.Create (_serializationInfo, _streamingContext);
+      return factory.CreateObject (underlyingType, paramList);
     }
   }
 }

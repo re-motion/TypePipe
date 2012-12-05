@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
   public class SerializationSurrogateTest
   {
     private SerializationInfo _info;
+    private StreamingContext _context;
 
     private SerializationSurrogate _surrogate;
 
@@ -42,18 +43,20 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       var serializableType = ReflectionObjectMother.GetSomeSerializableType ();
       var formatterConverter = new FormatterConverter();
       _info = new SerializationInfo (serializableType, formatterConverter);
+      _context = new StreamingContext ((StreamingContextStates) 7);
 
       _objectFactoryRegistryMock = MockRepository.GenerateStrictMock<IObjectFactoryRegistry> ();
       _objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory> ();
 
       using (new ServiceLocatorScope (typeof (IObjectFactoryRegistry), () => _objectFactoryRegistryMock))
-        _surrogate = new SerializationSurrogate (_info, new StreamingContext());
+        _surrogate = new SerializationSurrogate (_info, _context);
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_surrogate.SerializationInfo, Is.SameAs (_info));
+      Assert.That (_surrogate.StreamingContext, Is.EqualTo (_context));
     }
 
     [Test]
@@ -72,7 +75,17 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
       var fakeInstance = new object();
       _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (_objectFactoryMock);
-      _objectFactoryMock.Expect (mock => mock.CreateObject (underlyingType)).Return (fakeInstance);
+      _objectFactoryMock
+        .Expect (mock => mock.CreateObject (Arg.Is (underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (false)))
+        .WhenCalled (
+            mi =>
+            {
+              var paramList = (ParamList) mi.Arguments[1];
+              Assert.That (paramList.GetParameterValues(), Has.Length.EqualTo (2));
+              Assert.That (paramList.GetParameterValues()[0], Is.SameAs (_info));
+              Assert.That (paramList.GetParameterValues()[1], Is.EqualTo (_context));
+            })
+        .Return (fakeInstance);
 
       var result = _surrogate.GetRealObject (new StreamingContext());
 
