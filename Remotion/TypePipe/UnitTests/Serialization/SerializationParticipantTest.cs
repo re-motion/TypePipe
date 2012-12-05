@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -54,9 +55,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
       Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (mutableType.AllMutableMethods.Count(), Is.EqualTo (1));
+      Assert.That (mutableType.AddedConstructors.Count(), Is.EqualTo (1));
       var method = mutableType.AddedMethods.Single();
+      var ctor = mutableType.AddedConstructors.Single();
       Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.ISerializable.GetObjectData"));
       Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
+      Assert.That (ctor.Attributes, Is.EqualTo (MethodAttributes.Family));
+      Assert.That (ctor.GetParameters ().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
+      Assert.That (ctor.Body, Is.TypeOf<DefaultExpression>().And.Property ("Type").EqualTo (typeof (void)));
 
       var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (

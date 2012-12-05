@@ -69,6 +69,9 @@ namespace Remotion.TypePipe.Serialization
       else
       {
         mutableType.AddInterface (typeof (ISerializable));
+        var parameters =
+            new[] { new ParameterDeclaration (typeof (SerializationInfo), "info"), new ParameterDeclaration (typeof (StreamingContext), "context") };
+        mutableType.AddConstructor (MethodAttributes.Family, parameters, ctx => Expression.Empty());
         mutableType.AddExplicitOverride (s_getObjectDataMethod, ctx => Expression.Block (CreateSerializationExpressions (ctx)));
       }
     }
