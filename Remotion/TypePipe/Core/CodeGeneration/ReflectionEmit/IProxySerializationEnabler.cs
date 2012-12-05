@@ -28,5 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public interface IProxySerializationEnabler
   {
     void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod);
+   
+    bool IsDeserializationConstructor (ConstructorInfo constructor);
   }
 }

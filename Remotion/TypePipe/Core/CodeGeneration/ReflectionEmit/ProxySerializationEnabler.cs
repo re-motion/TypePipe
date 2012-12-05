@@ -67,6 +67,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
+    public bool IsDeserializationConstructor (ConstructorInfo constructor)
+    {
+      return constructor.GetParameters ().Select (x => x.ParameterType).SequenceEqual (new[] { typeof (SerializationInfo), typeof (StreamingContext) });
+    }
+
     private static void ExplicitlyImplementOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
     {
       mutableType.AddInterface (typeof (IDeserializationCallback));

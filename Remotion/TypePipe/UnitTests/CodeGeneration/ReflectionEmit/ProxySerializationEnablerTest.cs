@@ -255,6 +255,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _enabler.MakeSerializable (_serializableInterfaceCannotModifyGetObjectDataType, _someInitializationMethod);
     }
 
+    [Test]
+    public void IsDeserializationConstructor ()
+    {
+      var ctor1 = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new SerializableInterfaceType (null, new StreamingContext()));
+      var ctor2 = ReflectionObjectMother.GetSomeConstructor();
+
+      Assert.That (_enabler.IsDeserializationConstructor (ctor1), Is.True);
+      Assert.That (_enabler.IsDeserializationConstructor (ctor2), Is.False);
+    }
+
     class SomeType { }
 
     class SerializableInterfaceType : ISerializable
