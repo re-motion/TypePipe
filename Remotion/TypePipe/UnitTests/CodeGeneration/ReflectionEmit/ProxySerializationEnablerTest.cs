@@ -64,6 +64,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void MakeSerializable_SerializableInterfaceType ()
+    {
+      _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
+
+      Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
+      Assert.That (_serializableInterfaceType.AllMutableMethods.Count (), Is.EqualTo (1));
+      var method = _serializableInterfaceType.ExistingMutableMethods.Single ();
+      Assert.That (method.IsModified, Is.False);
+    }
+
+    [Test]
+    public void MakeSerializable_SerializableInterfaceType_AddedFields_NonSerialized ()
+    {
+      var nonSerializedAttributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
+      var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
+
+      _serializableInterfaceType.AddField ("staticField", typeof (double), FieldAttributes.Static);
+      _serializableInterfaceType.AddField ("nonSerializedField", typeof (double))
+                                .AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedAttributeConstructor, new object[0]));
+
+      _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
+
+      Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
+      Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
+      var method = _serializableInterfaceType.ExistingMutableMethods.Single();
+      Assert.That (method.IsModified, Is.False);
+      Assert.That (deserializationCtor.IsModified, Is.False);
+    }
+
+    [Test]
     public void MakeSerializable_SerializableInterfaceType_AddedFields ()
     {
       var nonSerializedAttributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute ());
@@ -124,17 +154,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                   typeof (string)))
           );
       ExpressionTreeComparer.CheckAreEqualTrees (expectedCtorBody, deserializationCtor.Body);
-    }
-
-    [Test]
-    public void MakeSerializable_SerializableInterfaceType ()
-    {
-      _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
-
-      Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
-      Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
-      var method = _serializableInterfaceType.ExistingMutableMethods.Single();
-      Assert.That (method.IsModified, Is.False);
     }
 
     [Test]

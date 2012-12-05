@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
@@ -45,15 +46,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       // TODO Review: Use IsAssignableTo
       var implementsSerializable = mutableType.GetInterfaces().Contains (typeof (ISerializable));
+      var serializedFields = mutableType
+          .AddedFields
+          .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
+          .ToArray();
       // TODO Review: Use IsAssignableTo
       var implementsDeserializationCallback = mutableType.GetInterfaces ().Contains (typeof (IDeserializationCallback));
       var hasInstanceInitializations = initializationMethod != null;
 
-      if (implementsSerializable && mutableType.AddedFields.Count != 0)
+      if (implementsSerializable && serializedFields.Length != 0)
       {
-        // TODO Review: Pass in mutableType.AddedFields for explicitness
-        OverrideGetObjectData (mutableType);
-        AdaptDeserializationConstructor (mutableType);
+        OverrideGetObjectData (mutableType, serializedFields);
+        AdaptDeserializationConstructor (mutableType, serializedFields);
       }
 
       if (hasInstanceInitializations)
@@ -77,7 +81,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       onDeserializationOverride.SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
     }
 
-    private void OverrideGetObjectData (MutableType mutableType)
+    private void OverrideGetObjectData (MutableType mutableType, MutableFieldInfo[] serializedFields)
     {
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
       var getObjectDataOverride = mutableType.GetOrAddMutableMethod (interfaceMethod);
@@ -87,10 +91,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
           + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.");
 
-      getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, SerializeField));
+      getObjectDataOverride.SetBody (ctx => BuildSerializationBody (ctx, serializedFields, ctx.PreviousBody, SerializeField));
     }
 
-    private void AdaptDeserializationConstructor (MutableType mutableType)
+    private void AdaptDeserializationConstructor (MutableType mutableType, IEnumerable<FieldInfo> serializedFields)
     {
       var deserializationConstructor = mutableType.GetConstructor (
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
@@ -101,17 +105,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         throw new InvalidOperationException ("The underlying type implements 'ISerializable' but does not define a deserialization constructor.");
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
-      mutableConstructor.SetBody (ctx => BuildSerializationBody (ctx, ctx.PreviousBody, DeserializeField));
+      mutableConstructor.SetBody (ctx => BuildSerializationBody (ctx, serializedFields, ctx.PreviousBody, DeserializeField));
     }
 
     // TODO Review: Refactor this method to return an IEnumerable<FieldInfo, string>, then input this to a BuildSerializationBody/BuildDeserializationBody method.
     private Expression BuildSerializationBody (
-        MethodBaseBodyContextBase ctx, Expression previousBody, Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
+        MethodBaseBodyContextBase ctx,
+        IEnumerable<FieldInfo> serializedFields,
+        Expression previousBody,
+        Func<Expression, Expression, string, FieldInfo, Expression> expressionProvider)
     {
       // TODO Review: Move check for serializable fields out to caller and do not create an override if there are no serializable fields.
-      var fieldSerializations = ctx
-          .DeclaringType.AddedFields
-          .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
+      var fieldSerializations = serializedFields
           .ToLookup (f => f.Name)
           .SelectMany (
               fieldsByName =>
