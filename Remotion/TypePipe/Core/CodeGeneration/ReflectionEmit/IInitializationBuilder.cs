@@ -28,9 +28,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public interface IInitializationBuilder
   {
     MutableConstructorInfo CreateTypeInitializer (MutableType mutableType);
-    
+
     Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType);
 
-    void WireConstructorWithInitialization (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers);
+    void WireConstructorWithInitialization (
+        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler);
   }
 }

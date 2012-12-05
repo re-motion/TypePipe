@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void WireAndAddConstructor (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
-      _initializationBuilder.WireConstructorWithInitialization (constructor, /* TODO Review: _proxySerializationEnabler, */ initializationMembers);
+      _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
       _memberEmitter.AddConstructor (_context, constructor);
     }
 

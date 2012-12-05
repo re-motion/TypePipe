@@ -15,9 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.Caching;
@@ -65,11 +63,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return Tuple.Create<FieldInfo, MethodInfo> (counter, initializationMethod);
     }
 
-    public void WireConstructorWithInitialization (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
+    public void WireConstructorWithInitialization (
+        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
+      // initializationMembers may be null
+      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
-      if (initializationMembers == null || IsDeserializationConstructor (constructor))
+      if (initializationMembers == null || proxySerializationEnabler.IsDeserializationConstructor (constructor))
         return;
 
       // We cannot protect the decrement with try-finally because the this pointer must be initialized before entering a try block.
@@ -88,11 +89,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                     Expression.Equal (counter, Expression.Constant (0)),
                     Expression.Call (ctx.This, initializationMembers.Item2)));
           });
-    }
-
-    private static bool IsDeserializationConstructor (MutableConstructorInfo constructor)
-    {
-      return constructor.GetParameters().Select (x => x.ParameterType).SequenceEqual (new[] { typeof (SerializationInfo), typeof (StreamingContext) });
     }
   }
 }

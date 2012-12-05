@@ -134,17 +134,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
         _memberEmitterMock.Expect (mock => mock.AddField (_context, addedMembers.Item1));
-        _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (addedMembers.Item2, _fakeInitializationMembers));
+        _initializationBuilderMock.Expect (
+            mock => mock.WireConstructorWithInitialization (addedMembers.Item2, _fakeInitializationMembers, _proxySerializationEnablerMock));
         _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, addedMembers.Item2));
         _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMembers.Item3, addedMembers.Item3.Attributes));
 
-        _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (modifiedMembers.Item2, _fakeInitializationMembers));
+        _initializationBuilderMock.Expect (
+            mock => mock.WireConstructorWithInitialization (modifiedMembers.Item2, _fakeInitializationMembers, _proxySerializationEnablerMock));
         _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, modifiedMembers.Item2));
         var expectedAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
         _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMembers.Item3, expectedAttributes));
 
         _emittableOperandProviderMock.Expect (mock => mock.AddMapping (unmodifiedMembers.Item1, unmodifiedMembers.Item1.UnderlyingSystemFieldInfo));
-        _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (unmodifiedMembers.Item2, _fakeInitializationMembers));
+        _initializationBuilderMock.Expect (
+            mock => mock.WireConstructorWithInitialization (unmodifiedMembers.Item2, _fakeInitializationMembers, _proxySerializationEnablerMock));
         _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, unmodifiedMembers.Item2));
         _emittableOperandProviderMock.Expect (mock => mock.AddMapping (unmodifiedMembers.Item3, unmodifiedMembers.Item3.UnderlyingSystemMethodInfo))
                                      .WhenCalled (x => Assert.That (buildActionCalled, Is.False));
@@ -178,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (mutableType)).Return (null);
       _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType, null));
       // Copied default constructor.
-      _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (defaultCtor, null));
+      _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (defaultCtor, null, _proxySerializationEnablerMock));
       _memberEmitterMock.Expect (mock => mock.AddConstructor (builder.MemberEmitterContext, defaultCtor));
       _typeBuilderMock.Expect (mock => mock.CreateType());
       _mockRepository.ReplayAll();
