@@ -15,10 +15,48 @@
 // under the License.
 // 
 
+using System;
+using System.Runtime.Serialization;
+using Remotion.ServiceLocation;
+using Remotion.Utilities;
+
 namespace Remotion.TypePipe.Serialization.Implementation
 {
-  // TODO docs
-  public class SerializationSurrogate
+  /// <summary>
+  /// Acts as a helper for the .NET deserialization process of modified types.
+  /// </summary>
+  [Serializable]
+  public class SerializationSurrogate : ISerializable, IObjectReference
   {
+    private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+    private readonly SerializationInfo _serializationInfo;
+
+    public SerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    {
+      ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
+
+      _serializationInfo = serializationInfo;
+    }
+
+    public SerializationInfo SerializationInfo
+    {
+      get { return _serializationInfo; }
+    }
+
+    public void GetObjectData (SerializationInfo info, StreamingContext context)
+    {
+      throw new NotSupportedException("This method should not be called.");
+    }
+
+    public object GetRealObject (StreamingContext context)
+    {
+      var underlyingTypeName = (string) _serializationInfo.GetValue (SerializationParticipant.UnderlyingTypeKey, typeof (string));
+      var factoryIdentifier = (string) _serializationInfo.GetValue (SerializationParticipant.FactoryIdentifierKey, typeof (string));
+
+      var underlyingType = Type.GetType (underlyingTypeName, throwOnError: true);
+      var factory = _registry.Get (factoryIdentifier);
+
+      return factory.CreateObject (underlyingType);
+    }
   }
 }

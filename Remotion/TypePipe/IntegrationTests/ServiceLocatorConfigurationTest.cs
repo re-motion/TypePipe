@@ -51,6 +51,16 @@ namespace Remotion.TypePipe.IntegrationTests
       Assert.That (type1.Module.ScopeName, Is.Not.EqualTo (type2.Module.ScopeName));
     }
 
+    [Test]
+    [Ignore ("TODO 5222")]
+    public void Resolutation_ObjectFactoryRegistry ()
+    {
+      var registry1 = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+      var registry2 = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+
+      Assert.That (registry1, Is.Not.Null.And.SameAs (registry2));
+    }
+
     public class DomainType { }
   }
 }

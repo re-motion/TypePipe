@@ -29,14 +29,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class SerializationParticipantTest
   {
-    private const string c_configurationKey = "configuration key";
+    private const string c_factoryIdentifier = "factory identifier";
 
     private SerializationParticipant _participant;
 
     [SetUp]
     public void SetUp ()
     {
-      _participant = new SerializationParticipant(c_configurationKey);
+      _participant = new SerializationParticipant(c_factoryIdentifier);
     }
 
     [Test]
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               Expression.Constant ("<tp>underlyingType"),
               Expression.Constant (typeof (SerializableType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>configurationKey"), Expression.Constant (c_configurationKey)));
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               Expression.Constant ("<tp>underlyingType"),
               Expression.Constant (typeof (SerializableInterfaceType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>configurationKey"), Expression.Constant (c_configurationKey)));
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 

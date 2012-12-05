@@ -34,16 +34,19 @@ namespace Remotion.TypePipe.Serialization
   /// </summary>
   public class SerializationParticipant : IParticipant
   {
+    public const string UnderlyingTypeKey = "<tp>underlyingType";
+    public const string FactoryIdentifierKey = "<tp>factoryIdentifier";
+
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
 
-    private readonly string _configurationKey;
+    private readonly string _factoryIdentifier;
 
-    public SerializationParticipant (string configurationKey)
+    public SerializationParticipant (string factoryIdentifier)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("configurationKey", configurationKey);
+      ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
 
-      _configurationKey = configurationKey;
+      _factoryIdentifier = factoryIdentifier;
     }
 
     public ICacheKeyProvider PartialCacheKeyProvider
@@ -79,10 +82,10 @@ namespace Remotion.TypePipe.Serialization
                      context.Parameters[0],
                      "AddValue",
                      Type.EmptyTypes,
-                     Expression.Constant ("<tp>underlyingType"),
+                     Expression.Constant (UnderlyingTypeKey),
                      Expression.Constant (context.DeclaringType.UnderlyingSystemType.AssemblyQualifiedName)),
                  Expression.Call (
-                     context.Parameters[0], "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>configurationKey"), Expression.Constant (_configurationKey))
+                     context.Parameters[0], "AddValue", Type.EmptyTypes, Expression.Constant (FactoryIdentifierKey), Expression.Constant (_factoryIdentifier))
              }
           ;
     }
