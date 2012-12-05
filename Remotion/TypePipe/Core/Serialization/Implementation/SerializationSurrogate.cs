@@ -59,6 +59,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
     public object GetRealObject (StreamingContext context)
     {
+      // TODO 5223: Which StreamingContext should we pass to the deserialization constructor?
       var underlyingTypeName = (string) _serializationInfo.GetValue (SerializationParticipant.UnderlyingTypeKey, typeof (string));
       var factoryIdentifier = (string) _serializationInfo.GetValue (SerializationParticipant.FactoryIdentifierKey, typeof (string));
 
