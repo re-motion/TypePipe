@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    public void InstanceInitialization_PreserveCallback ()
+    public void AddedCallback ()
     {
       var factory = CreateObjectFactory (CreateInitializationAddingParticipant(), CreateCallbackImplementingParticipant());
       var instance1 = factory.CreateObject<SerializableType>();
@@ -117,18 +117,39 @@ namespace Remotion.TypePipe.IntegrationTests
       instance2.String = "abc";
 
       CheckInstanceIsSerializable (
-          instance1, deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc callback valueFromInstanceInitialization")));
+          instance1, deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc addedCallback valueFromInstanceInitialization")));
       CheckInstanceIsSerializable (
           instance2,
           deserializedInstance =>
           { 
-            Assert.That (deserializedInstance.String, Is.EqualTo ("abc (custom deserialization ctor) callback valueFromInstanceInitialization"));
+            Assert.That (deserializedInstance.String, Is.EqualTo ("abc (custom deserialization ctor) addedCallback valueFromInstanceInitialization"));
             Assert.That (deserializedInstance.DeserializationConstructorCalled, Is.True);
           });
     }
 
-    // TODO Review: Add test for IDeserializationCallback implemented on underlying type (virtual). (With instance init code.)
-    // TODO Review: Add test for virtual OnDeserialization method on underlying type that does not implement IDeserializationCallback - the method must not be invoked during deserialization. (With instance init code.)
+    [Test]
+    public void ExistingCallback ()
+    {
+      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
+      var instance = factory.CreateObject<DeserializationCallbackType>();
+      instance.String = "abc";
+
+      CheckInstanceIsSerializable (
+          instance,
+          deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc existingCallback valueFromInstanceInitialization")));
+    }
+
+    [Test]
+    public void OnDeserializationMethodWithoutInterface ()
+    {
+      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
+      var instance = factory.CreateObject<OnDeserializationMethodType>();
+      instance.String = "abc";
+
+      CheckInstanceIsSerializable (
+          instance,
+          deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc valueFromInstanceInitialization")));
+    }
 
     [Test]
     public void ISerializable_CannotModifyOrOverrideGetObjectData ()
@@ -153,7 +174,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       SkipSavingAndPeVerification();
       var factory = CreateObjectFactory (CreateFieldAddingParticipant());
-      factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor));
+      factory.GetAssembledType (typeof (SerializableInterfaceTypeWithoutDeserializationConstructor));
     }
 
     [Test]
@@ -246,7 +267,7 @@ namespace Remotion.TypePipe.IntegrationTests
             mutableType.AddExplicitOverride (
                 callback,
                 ctx => Expression.AddAssign (
-                    Expression.Field (ctx.This, stringField), Expression.Constant (" callback"), ExpressionHelper.StringConcatMethod));
+                    Expression.Field (ctx.This, stringField), Expression.Constant (" addedCallback"), ExpressionHelper.StringConcatMethod));
           });
     }
 
@@ -288,6 +309,25 @@ namespace Remotion.TypePipe.IntegrationTests
       }
     }
 
+    [Serializable]
+    public class DeserializationCallbackType : SerializableType, IDeserializationCallback
+    {
+      public virtual void OnDeserialization (object sender)
+      {
+        String += " existingCallback";
+      }
+    }
+
+    [Serializable]
+    public class OnDeserializationMethodType : SerializableType
+    {
+      [UsedImplicitly]
+      public virtual void OnDeserialization (object sender)
+      {
+        String += " existingCallback (but does not implement IDeserializationCallback)";
+      }
+    }
+
     public class ExplicitISerializableType : ISerializable
     {
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
@@ -295,14 +335,9 @@ namespace Remotion.TypePipe.IntegrationTests
 
     public class DerivedExplicitISerializableType : ExplicitISerializableType { }
 
-    public class CustomSerializableTypeWithoutDeserializationConstructor : ISerializable
+    public class SerializableInterfaceTypeWithoutDeserializationConstructor : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
-    }
-
-    public class DeserializationCallbackType : SerializableType, IDeserializationCallback
-    {
-      public virtual void OnDeserialization (object sender) { }
     }
 
     public class ExplicitIDeserializationCallbackType : SerializableType, IDeserializationCallback
