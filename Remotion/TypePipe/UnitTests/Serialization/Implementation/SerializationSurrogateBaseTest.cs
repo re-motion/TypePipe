@@ -15,12 +15,9 @@
 // under the License.
 // 
 using System;
-using System.Configuration;
-using System.Reflection;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Reflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Rhino.Mocks;
@@ -28,71 +25,65 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class SerializationSurrogateTest
+  public class SerializationSurrogateBaseTest
   {
     private SerializationInfo _info;
     private StreamingContext _context;
 
-    private SerializationSurrogate _surrogate;
+    private SerializationSurrogateBase _serializationSurrogateBase;
 
     private IObjectFactoryRegistry _objectFactoryRegistryMock;
-    private IObjectFactory _objectFactoryMock;
+    private Func<IObjectFactory, Type, StreamingContext, object> _createRealObjectAssertions;
 
     [SetUp]
     public void SetUp ()
     {
-      var serializableType = ReflectionObjectMother.GetSomeSerializableType ();
+      var serializableType = ReflectionObjectMother.GetSomeSerializableType();
       var formatterConverter = new FormatterConverter();
       _info = new SerializationInfo (serializableType, formatterConverter);
       _context = new StreamingContext ((StreamingContextStates) 7);
 
-      _objectFactoryRegistryMock = MockRepository.GenerateStrictMock<IObjectFactoryRegistry> ();
-      _objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory> ();
+      _objectFactoryRegistryMock = MockRepository.GenerateStrictMock<IObjectFactoryRegistry>();
+      _createRealObjectAssertions = (f, t, c) => { throw new Exception ("should not be called"); };
 
       using (new ServiceLocatorScope (typeof (IObjectFactoryRegistry), () => _objectFactoryRegistryMock))
-        _surrogate = new SerializationSurrogate (_info, _context);
+      {
+        // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
+        _serializationSurrogateBase = new TestableSerializationSurrogateBase (_info, _context, (f, t, c) => _createRealObjectAssertions (f, t, c));
+      }
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_surrogate.SerializationInfo, Is.SameAs (_info));
-      Assert.That (_surrogate.StreamingContext, Is.EqualTo (_context));
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
-    public void GetObjectData ()
-    {
-      _surrogate.GetObjectData (null, new StreamingContext());
+      Assert.That (_serializationSurrogateBase.SerializationInfo, Is.SameAs (_info));
     }
 
     [Test]
     public void GetRealObject ()
     {
       var underlyingType = ReflectionObjectMother.GetSomeType();
+      var context = new StreamingContext ((StreamingContextStates) 8);
+
       _info.AddValue ("<tp>underlyingType", underlyingType.AssemblyQualifiedName);
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
-      var fakeInstance = new object();
-      _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (_objectFactoryMock);
-      _objectFactoryMock
-        .Expect (mock => mock.CreateObject (Arg.Is (underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
-        .WhenCalled (
-            mi =>
-            {
-              var paramList = (ParamList) mi.Arguments[1];
-              Assert.That (paramList.GetParameterValues(), Has.Length.EqualTo (2));
-              Assert.That (paramList.GetParameterValues()[0], Is.SameAs (_info));
-              Assert.That (paramList.GetParameterValues()[1], Is.EqualTo (_context));
-            })
-        .Return (fakeInstance);
+      var fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory>();
+      var fakeObject = new object();
+      _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (fakeObjectFactory);
+      _createRealObjectAssertions = (factory, type, ctx) =>
+      {
+        Assert.That (factory, Is.SameAs (fakeObjectFactory));
+        Assert.That (type, Is.SameAs (underlyingType));
+        Assert.That (ctx, Is.EqualTo (context).And.Not.EqualTo (_context));
 
-      var result = _surrogate.GetRealObject (new StreamingContext());
+        return fakeObject;
+      };
+
+      var result = _serializationSurrogateBase.GetRealObject (context);
 
       _objectFactoryRegistryMock.VerifyAllExpectations();
-      _objectFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeInstance));
+      Assert.That (result, Is.SameAs (fakeObject));
     }
 
     [Test]
@@ -103,7 +94,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _info.AddValue ("<tp>underlyingType", "UnknownType");
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
-      _surrogate.GetRealObject (new StreamingContext());
+      _serializationSurrogateBase.GetRealObject (new StreamingContext());
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
+    public void GetObjectData ()
+    {
+      _serializationSurrogateBase.GetObjectData (null, new StreamingContext());
     }
   }
 }

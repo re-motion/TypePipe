@@ -67,8 +67,11 @@ namespace Remotion.TypePipe.Serialization
 
       if (mutableType.IsAssignableTo (typeof (ISerializable)))
       {
-        mutableType.GetOrAddMutableMethod (s_getObjectDataMethod)
-                   .SetBody (ctx => Expression.Block (new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx))));
+        mutableType
+            .GetOrAddMutableMethod (s_getObjectDataMethod)
+            .SetBody (
+                ctx => Expression.Block (
+                    new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (CustomSerializationSurrogate)))));
       }
       else
       {
@@ -80,27 +83,17 @@ namespace Remotion.TypePipe.Serialization
             s_getObjectDataMethod,
             ctx => Expression.Block (
                 typeof (void),
-                CreateMetaDataSerializationExpressions (ctx)
+                CreateMetaDataSerializationExpressions (ctx, typeof (SerializationSurrogate))
                     .Concat (_fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFields))));
-
-        // TODO 5222: Modify for existing deserialization constructor -> throw exception
-        var parameters =
-            new[] { new ParameterDeclaration (typeof (SerializationInfo), "info"), new ParameterDeclaration (typeof (StreamingContext), "context") };
-        mutableType.AddConstructor (
-            MethodAttributes.Family,
-            parameters,
-            ctx => Expression.Block (
-                typeof (void),
-                _fieldSerializationExpressionBuilder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFields)));
       }
     }
 
-    private IEnumerable<Expression> CreateMetaDataSerializationExpressions (MethodBodyContextBase context)
+    private IEnumerable<Expression> CreateMetaDataSerializationExpressions (MethodBodyContextBase context, Type serializationSurrogateType)
     {
       var serializationInfo = context.Parameters[0];
       return new Expression[]
              {
-                 Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (SerializationSurrogate))),
+                 Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (serializationSurrogateType)),
                  CreateAddValueExpression (serializationInfo, UnderlyingTypeKey, context.DeclaringType.UnderlyingSystemType.AssemblyQualifiedName),
                  CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, _factoryIdentifier)
              };

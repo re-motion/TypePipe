@@ -17,27 +17,26 @@
 
 using System;
 using System.Runtime.Serialization;
-using Remotion.Utilities;
+using Remotion.TypePipe.Serialization.Implementation;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
-  /// <summary>
-  /// Acts as a helper for the .NET deserialization process of modified types that do NOT implement <see cref="ISerializable"/>.
-  /// </summary>
-  [Serializable]
-  public class SerializationSurrogate : SerializationSurrogateBase
+  public class TestableSerializationSurrogateBase : SerializationSurrogateBase
   {
-    public SerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    private readonly Func<IObjectFactory, Type, StreamingContext, object> _createRealObjectAssertions;
+
+    public TestableSerializationSurrogateBase (
+        SerializationInfo serializationInfo,
+        StreamingContext streamingContext,
+        Func<IObjectFactory, Type, StreamingContext, object> createRealObjectAssertions)
         : base (serializationInfo, streamingContext)
     {
+      _createRealObjectAssertions = createRealObjectAssertions;
     }
 
     protected override object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context)
     {
-      ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
-      ArgumentUtility.CheckNotNull ("underlyingType", underlyingType);
-
-      throw new NotImplementedException ("TODO");
+      return _createRealObjectAssertions (objectFactory, underlyingType, context);
     }
   }
 }

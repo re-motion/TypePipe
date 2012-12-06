@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class SerializationParticipantTest
   {
-    private const string c_factoryIdentifier = "factory identifier";
+    private const string c_factoryIdentifier = "expectedObjectFactory identifier";
 
     private IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder;
 
@@ -62,7 +62,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       Assert.That (mutableType.ExistingMutableFields, Is.Not.Empty);
       var fakeMapping = new[] { Tuple.Create ("abc", ReflectionObjectMother.GetSomeField()) };
       var fakeSerializationExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      var fakeDeserializatonExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _fieldSerializationExpressionBuilder
           .Expect (mock => mock.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (mutableType.ExistingMutableFields)))
           .Return (fakeMapping);
@@ -73,26 +72,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization
                   Arg<Expression>.Matches (e => e is ParameterExpression && e.Type == typeof (SerializationInfo)),
                   Arg.Is (fakeMapping)))
           .Return (new[] { fakeSerializationExpression });
-      _fieldSerializationExpressionBuilder
-          .Expect (
-              mock => mock.BuildFieldDeserializationExpressions (
-                  Arg<Expression>.Matches (e => ReferenceEquals (e.Type, mutableType)),
-                  Arg<Expression>.Matches (e => e is ParameterExpression && e.Type == typeof (SerializationInfo)),
-                  Arg.Is (fakeMapping)))
-          .Return (new[] { fakeDeserializatonExpression });
 
       _participant.ModifyType (mutableType);
 
       _fieldSerializationExpressionBuilder.VerifyAllExpectations();
       Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (mutableType.AllMutableMethods.Count(), Is.EqualTo (1));
-      Assert.That (mutableType.AddedConstructors.Count(), Is.EqualTo (1));
+      Assert.That (mutableType.AddedConstructors, Is.Empty);
       var method = mutableType.AddedMethods.Single();
-      var ctor = mutableType.AddedConstructors.Single();
-      Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.ISerializable.GetObjectData"));
-      Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
-      Assert.That (ctor.Attributes, Is.EqualTo (MethodAttributes.Family));
-      Assert.That (ctor.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
 
       var serializationInfo = method.ParameterExpressions[0];
       var expectedMethodBody = Expression.Block (
@@ -108,16 +95,13 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)),
           fakeSerializationExpression);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
-
-      var expectedCtorBody = Expression.Block (typeof (void), fakeDeserializatonExpression);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedCtorBody, ctor.Body);
     }
 
     [Test]
     public void ModifyType_SerializableInterfaceType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceType));
-      var method = mutableType.ExistingMutableMethods.Single ();
+      var method = mutableType.ExistingMutableMethods.Single();
       var oldBody = method.Body;
 
       _participant.ModifyType (mutableType);
@@ -128,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (
           oldBody,
-          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (SerializationSurrogate))),
+          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (CustomSerializationSurrogate))),
           Expression.Call (
               serializationInfo,
               "AddValue",
