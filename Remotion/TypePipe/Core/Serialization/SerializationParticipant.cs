@@ -42,12 +42,15 @@ namespace Remotion.TypePipe.Serialization
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
 
     private readonly string _factoryIdentifier;
+    private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder;
 
-    public SerializationParticipant (string factoryIdentifier)
+    public SerializationParticipant (string factoryIdentifier, IFieldSerializationExpressionBuilder fieldSerializationExpressionBuilder)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
+      ArgumentUtility.CheckNotNull ("fieldSerializationExpressionBuilder", fieldSerializationExpressionBuilder);
 
       _factoryIdentifier = factoryIdentifier;
+      _fieldSerializationExpressionBuilder = fieldSerializationExpressionBuilder;
     }
 
     public ICacheKeyProvider PartialCacheKeyProvider
@@ -65,33 +68,46 @@ namespace Remotion.TypePipe.Serialization
       if (mutableType.IsAssignableTo (typeof (ISerializable)))
       {
         mutableType.GetOrAddMutableMethod (s_getObjectDataMethod)
-                   .SetBody (ctx => Expression.Block (new[] { ctx.PreviousBody }.Concat (CreateSerializationExpressions (ctx))));
+                   .SetBody (ctx => Expression.Block (new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx))));
       }
       else
       {
+        var serializedFields = _fieldSerializationExpressionBuilder.GetSerializedFieldMapping (mutableType.ExistingMutableFields.Cast<FieldInfo>());
+
         mutableType.AddInterface (typeof (ISerializable));
+
+        mutableType.AddExplicitOverride (
+            s_getObjectDataMethod,
+            ctx => Expression.Block (
+                typeof (void),
+                CreateMetaDataSerializationExpressions (ctx)
+                    .Concat (_fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFields))));
+
         var parameters =
             new[] { new ParameterDeclaration (typeof (SerializationInfo), "info"), new ParameterDeclaration (typeof (StreamingContext), "context") };
-        mutableType.AddConstructor (MethodAttributes.Family, parameters, ctx => Expression.Empty());
-        mutableType.AddExplicitOverride (s_getObjectDataMethod, ctx => Expression.Block (CreateSerializationExpressions (ctx)));
+        mutableType.AddConstructor (
+            MethodAttributes.Family,
+            parameters,
+            ctx => Expression.Block (
+                typeof (void),
+                _fieldSerializationExpressionBuilder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFields)));
       }
     }
 
-    private IEnumerable<Expression> CreateSerializationExpressions (MethodBodyContextBase context)
+    private IEnumerable<Expression> CreateMetaDataSerializationExpressions (MethodBodyContextBase context)
     {
+      var serializationInfo = context.Parameters[0];
       return new Expression[]
              {
-                 Expression.Call (context.Parameters[0], "SetType", Type.EmptyTypes, Expression.Constant (typeof (SerializationSurrogate))),
-                 Expression.Call (
-                     context.Parameters[0],
-                     "AddValue",
-                     Type.EmptyTypes,
-                     Expression.Constant (UnderlyingTypeKey),
-                     Expression.Constant (context.DeclaringType.UnderlyingSystemType.AssemblyQualifiedName)),
-                 Expression.Call (
-                     context.Parameters[0], "AddValue", Type.EmptyTypes, Expression.Constant (FactoryIdentifierKey), Expression.Constant (_factoryIdentifier))
-             }
-          ;
+                 Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (SerializationSurrogate))),
+                 CreateAddValueExpression (serializationInfo, UnderlyingTypeKey, context.DeclaringType.UnderlyingSystemType.AssemblyQualifiedName),
+                 CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, _factoryIdentifier)
+             };
+    }
+
+    private MethodCallExpression CreateAddValueExpression (ParameterExpression serializationInfo, string key, string value)
+    {
+      return Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (key), Expression.Constant (value));
     }
   }
 }

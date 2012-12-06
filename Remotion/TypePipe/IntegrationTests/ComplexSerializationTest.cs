@@ -31,6 +31,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
+using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -103,7 +104,7 @@ namespace Remotion.TypePipe.IntegrationTests
     // TODO: [ExpectedException]
     public void ViaRegistry_CannotFindParticipantConfigurationForDeserialization ()
     {
-      var factory = base.CreateObjectFactory (new SerializationParticipant ("key"));
+      var factory = base.CreateObjectFactory (new SerializationParticipant ("key", new FieldSerializationExpressionBuilder()));
       _registry.Register ("other key", factory);
 
       var instance = factory.CreateObject<SerializableType>();
@@ -135,7 +136,7 @@ namespace Remotion.TypePipe.IntegrationTests
     private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
       var key = c_factoryIdentifier;
-      var allParticipants = participants.Concat (new SerializationParticipant (key));
+      var allParticipants = participants.Concat (new SerializationParticipant (key, new FieldSerializationExpressionBuilder()));
       var testName = GetNameForThisTest (1 + 1);
       var typeModifier = CreateTypeModifier (testName);
       var typeAssembler = new TypeAssembler (allParticipants, typeModifier);
@@ -233,7 +234,7 @@ namespace Remotion.TypePipe.IntegrationTests
     public class BlaParticpant : SerializationParticipant
     {
       public BlaParticpant ()
-          : base(c_factoryIdentifier)
+          : base(c_factoryIdentifier, new FieldSerializationExpressionBuilder())
       {
       }
     }

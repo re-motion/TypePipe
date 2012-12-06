@@ -15,15 +15,18 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Collections;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -32,12 +35,16 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   {
     private const string c_factoryIdentifier = "factory identifier";
 
+    private IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder;
+
     private SerializationParticipant _participant;
 
     [SetUp]
     public void SetUp ()
     {
-      _participant = new SerializationParticipant(c_factoryIdentifier);
+      _fieldSerializationExpressionBuilder = MockRepository.GenerateStrictMock<IFieldSerializationExpressionBuilder>();
+
+      _participant = new SerializationParticipant (c_factoryIdentifier, _fieldSerializationExpressionBuilder);
     }
 
     [Test]
@@ -50,9 +57,33 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void ModifyType_SerializableType ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
+      mutableType.AddField ("dummy", typeof (int));
+      Assert.That (mutableType.AddedFields, Is.Not.Empty);
+      Assert.That (mutableType.ExistingMutableFields, Is.Not.Empty);
+      var fakeMapping = new[] { Tuple.Create ("abc", ReflectionObjectMother.GetSomeField()) };
+      var fakeSerializationExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      var fakeDeserializatonExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _fieldSerializationExpressionBuilder
+          .Expect (mock => mock.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (mutableType.ExistingMutableFields)))
+          .Return (fakeMapping);
+      _fieldSerializationExpressionBuilder
+          .Expect (
+              mock => mock.BuildFieldSerializationExpressions (
+                  Arg<Expression>.Matches (e => ReferenceEquals (e.Type, mutableType)),
+                  Arg<Expression>.Matches (e => e is ParameterExpression && e.Type == typeof (SerializationInfo)),
+                  Arg.Is (fakeMapping)))
+          .Return (new[] { fakeSerializationExpression });
+      _fieldSerializationExpressionBuilder
+          .Expect (
+              mock => mock.BuildFieldDeserializationExpressions (
+                  Arg<Expression>.Matches (e => ReferenceEquals (e.Type, mutableType)),
+                  Arg<Expression>.Matches (e => e is ParameterExpression && e.Type == typeof (SerializationInfo)),
+                  Arg.Is (fakeMapping)))
+          .Return (new[] { fakeDeserializatonExpression });
 
       _participant.ModifyType (mutableType);
 
+      _fieldSerializationExpressionBuilder.VerifyAllExpectations();
       Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (mutableType.AllMutableMethods.Count(), Is.EqualTo (1));
       Assert.That (mutableType.AddedConstructors.Count(), Is.EqualTo (1));
@@ -61,11 +92,11 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.ISerializable.GetObjectData"));
       Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
       Assert.That (ctor.Attributes, Is.EqualTo (MethodAttributes.Family));
-      Assert.That (ctor.GetParameters ().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
-      Assert.That (ctor.Body, Is.TypeOf<DefaultExpression>().And.Property ("Type").EqualTo (typeof (void)));
+      Assert.That (ctor.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
 
       var serializationInfo = method.ParameterExpressions[0];
-      var expectedBody = Expression.Block (
+      var expectedMethodBody = Expression.Block (
+          typeof (void),
           Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (SerializationSurrogate))),
           Expression.Call (
               serializationInfo,
@@ -74,8 +105,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               Expression.Constant ("<tp>underlyingType"),
               Expression.Constant (typeof (SerializableType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)));
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)),
+          fakeSerializationExpression);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
+
+      var expectedCtorBody = Expression.Block (typeof (void), fakeDeserializatonExpression);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedCtorBody, ctor.Body);
     }
 
     [Test]
@@ -119,7 +154,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public class SomeType { }
 
     [Serializable]
-    public class SerializableType { }
+    public class SerializableType
+    {
+      public int ExistingField;
+    }
 
     [Serializable]
     class SerializableInterfaceType : ISerializable
