@@ -83,6 +83,7 @@ namespace Remotion.TypePipe.Serialization
                 CreateMetaDataSerializationExpressions (ctx)
                     .Concat (_fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFields))));
 
+        // TODO 5222: Modify for existing deserialization constructor -> throw exception
         var parameters =
             new[] { new ParameterDeclaration (typeof (SerializationInfo), "info"), new ParameterDeclaration (typeof (StreamingContext), "context") };
         mutableType.AddConstructor (

@@ -34,9 +34,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     [Test]
     public void NoModifications ()
     {
-      var factory = CreateObjectFactory();
-      var instance1 = factory.CreateObject<SerializableType>();
-      var instance2 = factory.CreateObject<CustomSerializableType>();
+      var factory = CreateObjectFactoryForSerialization ();
+      var instance1 = factory.CreateObject<SerializableType> ();
+      var instance2 = factory.CreateObject<CustomSerializableType> ();
       instance1.String = "abc";
       instance2.String = "def";
 
@@ -52,131 +52,131 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor)");
     }
 
-    [Test]
-    public void Standard_AddedFields ()
-    {
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant());
-      var instance1 = factory.CreateObject<SerializableType>();
-      var instance2 = factory.CreateObject<CustomSerializableType>();
+    //[Test]
+    //public void Standard_AddedFields ()
+    //{
+    //  var factory = CreateObjectFactoryForSerialization (CreateFieldAddingParticipant());
+    //  var instance1 = factory.CreateObject<SerializableType>();
+    //  var instance2 = factory.CreateObject<CustomSerializableType>();
 
-      PrivateInvoke.SetPublicField (instance1, "AddedIntField", 7);
-      PrivateInvoke.SetPublicField (instance1, "AddedSkippedIntField", 7);
-      PrivateInvoke.SetPublicField (instance2, "AddedIntField", 7);
-      PrivateInvoke.SetPublicField (instance2, "AddedSkippedIntField", 7);
+    //  PrivateInvoke.SetPublicField (instance1, "AddedIntField", 7);
+    //  PrivateInvoke.SetPublicField (instance1, "AddedSkippedIntField", 7);
+    //  PrivateInvoke.SetPublicField (instance2, "AddedIntField", 7);
+    //  PrivateInvoke.SetPublicField (instance2, "AddedSkippedIntField", 7);
 
-      Action<SerializableType, TestContext> assertions = (deserializedInstance, ctx) =>
-      {
-        Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
-        Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
-      };
-      CheckInstanceIsSerializable (instance1, assertions);
-      CheckInstanceIsSerializable (instance2, assertions);
-    }
+    //  Action<SerializableType, TestContext> assertions = (deserializedInstance, ctx) =>
+    //  {
+    //    Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
+    //    Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
+    //  };
+    //  CheckInstanceIsSerializable (instance1, assertions);
+    //  CheckInstanceIsSerializable (instance2, assertions);
+    //}
 
-    [Test]
-    public void InstanceInitialization ()
-    {
-      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
-      var instance1 = factory.CreateObject<SerializableType>();
-      var instance2 = factory.CreateObject<CustomSerializableType>();
-      instance1.String = "abc";
-      instance2.String = "def";
+    //[Test]
+    //public void InstanceInitialization ()
+    //{
+    //  var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant());
+    //  var instance1 = factory.CreateObject<SerializableType>();
+    //  var instance2 = factory.CreateObject<CustomSerializableType>();
+    //  instance1.String = "abc";
+    //  instance2.String = "def";
 
-      Action<SerializableType, TestContext> assertions =
-          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc valueFromInstanceInitialization");
-      CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
-    }
+    //  Action<SerializableType, TestContext> assertions =
+    //      (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+    //  CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc valueFromInstanceInitialization");
+    //  CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
+    //}
 
-    [Test]
-    public void AddedCallback ()
-    {
-      var factory = CreateObjectFactory (CreateInitializationAddingParticipant(), CreateCallbackImplementingParticipant());
-      var instance1 = factory.CreateObject<SerializableType>();
-      var instance2 = factory.CreateObject<CustomSerializableType>();
-      instance1.String = "abc";
-      instance2.String = "def";
+    //[Test]
+    //public void AddedCallback ()
+    //{
+    //  var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant(), CreateCallbackImplementingParticipant());
+    //  var instance1 = factory.CreateObject<SerializableType>();
+    //  var instance2 = factory.CreateObject<CustomSerializableType>();
+    //  instance1.String = "abc";
+    //  instance2.String = "def";
 
-      Action<SerializableType, TestContext> assertions =
-          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc addedCallback valueFromInstanceInitialization");
-      CheckInstanceIsSerializable (
-          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
-    }
+    //  Action<SerializableType, TestContext> assertions =
+    //      (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+    //  CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc addedCallback valueFromInstanceInitialization");
+    //  CheckInstanceIsSerializable (
+    //      instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
+    //}
 
-    [Test]
-    public void ExistingCallback ()
-    {
-      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
-      var instance1 = factory.CreateObject<DeserializationCallbackType>();
-      var instance2 = factory.CreateObject<CustomDeserializationCallbackType>();
-      instance1.String = "abc";
-      instance2.String = "def";
+    //[Test]
+    //public void ExistingCallback ()
+    //{
+    //  var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant());
+    //  var instance1 = factory.CreateObject<DeserializationCallbackType>();
+    //  var instance2 = factory.CreateObject<CustomDeserializationCallbackType>();
+    //  instance1.String = "abc";
+    //  instance2.String = "def";
 
-      Action<SerializableType, TestContext> assertions =
-          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc existingCallback valueFromInstanceInitialization");
-      CheckInstanceIsSerializable (
-          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
-    }
+    //  Action<SerializableType, TestContext> assertions =
+    //      (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+    //  CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc existingCallback valueFromInstanceInitialization");
+    //  CheckInstanceIsSerializable (
+    //      instance2, assertions, stringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
+    //}
 
-    [Test]
-    public void OnDeserializationMethodWithoutInterface ()
-    {
-      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
-      var instance = factory.CreateObject<OnDeserializationMethodType>();
-      instance.String = "abc";
+    //[Test]
+    //public void OnDeserializationMethodWithoutInterface ()
+    //{
+    //  var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant());
+    //  var instance = factory.CreateObject<OnDeserializationMethodType>();
+    //  instance.String = "abc";
 
-      CheckInstanceIsSerializable (
-          instance,
-          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue)),
-          stringFieldValue: "abc valueFromInstanceInitialization");
-    }
+    //  CheckInstanceIsSerializable (
+    //      instance,
+    //      (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue)),
+    //      stringFieldValue: "abc valueFromInstanceInitialization");
+    //}
 
-    [Test]
-    public void ISerializable_CannotModifyOrOverrideGetObjectData ()
-    {
-      SkipSavingAndPeVerification();
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant());
+    //[Test]
+    //public void ISerializable_CannotModifyOrOverrideGetObjectData ()
+    //{
+    //  SkipSavingAndPeVerification();
+    //  var factory = CreateObjectFactoryForSerialization (CreateFieldAddingParticipant());
 
-      var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
-                    + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
-      Assert.That (
-          () => factory.GetAssembledType (typeof (ExplicitISerializableType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
-      Assert.That (
-          () => factory.GetAssembledType (typeof (DerivedExplicitISerializableType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
-    }
+    //  var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+    //                + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
+    //  Assert.That (
+    //      () => factory.GetAssembledType (typeof (ExplicitISerializableType)),
+    //      Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+    //  Assert.That (
+    //      () => factory.GetAssembledType (typeof (DerivedExplicitISerializableType)),
+    //      Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+    //}
 
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The underlying type implements ISerializable but does not define a deserialization constructor.")]
-    public void ISerializable_MissingDeserializationConstructor ()
-    {
-      SkipSavingAndPeVerification();
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant());
-      factory.GetAssembledType (typeof (SerializableInterfaceTypeWithoutDeserializationConstructor));
-    }
+    //[Test]
+    //[ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+    //    "The underlying type implements ISerializable but does not define a deserialization constructor.")]
+    //public void ISerializable_MissingDeserializationConstructor ()
+    //{
+    //  SkipSavingAndPeVerification();
+    //  var factory = CreateObjectFactoryForSerialization (CreateFieldAddingParticipant());
+    //  factory.GetAssembledType (typeof (SerializableInterfaceTypeWithoutDeserializationConstructor));
+    //}
 
-    [Test]
-    public void IDeserializationCallback_CannotModifyOrOverrideOnDeserialization ()
-    {
-      SkipSavingAndPeVerification();
-      var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
+    //[Test]
+    //public void IDeserializationCallback_CannotModifyOrOverrideOnDeserialization ()
+    //{
+    //  SkipSavingAndPeVerification();
+    //  var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant());
 
-      var message = "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-                    + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
-      Assert.That (
-          () => factory.GetAssembledType (typeof (ExplicitIDeserializationCallbackType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
-      Assert.That (
-          () => factory.GetAssembledType (typeof (DerivedExplicitIDeserializationCallbackType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
-    }
+    //  var message = "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+    //                + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
+    //  Assert.That (
+    //      () => factory.GetAssembledType (typeof (ExplicitIDeserializationCallbackType)),
+    //      Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+    //  Assert.That (
+    //      () => factory.GetAssembledType (typeof (DerivedExplicitIDeserializationCallbackType)),
+    //      Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+    //}
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected new abstract IObjectFactory CreateObjectFactory (params IParticipant[] participants);
+    protected abstract IObjectFactory CreateObjectFactoryForSerialization (params IParticipant[] participants);
 
     protected abstract void CheckDeserializationInNewAppDomain (TestContext context);
 
@@ -191,6 +191,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
               SerializedData = Serializer.Serialize (instance),
               Assertions = assertions,
               ExpectedAssemblyQualifiedName = instance.GetType().AssemblyQualifiedName,
+              ExpectedTypeFullName = instance.GetType().FullName,
               ExpectedStringFieldValue = stringFieldValue
           };
 
@@ -248,6 +249,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       public Action<SerializableType, TestContext> Assertions { get; set; }
 
       public string ExpectedAssemblyQualifiedName { get; set; }
+      public string ExpectedTypeFullName { get; set; }
       public string ExpectedStringFieldValue { get; set; }
     }
 
@@ -265,7 +267,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       }
 
       [UsedImplicitly]
-      public SerializableType (SerializationInfo info, StreamingContext context) { }
+      public SerializableType (string arg1) { }
     }
 
     [Serializable]
@@ -273,7 +275,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     {
       public CustomSerializableType () { }
 
-      public CustomSerializableType (SerializationInfo info, StreamingContext context) : base (info, context)
+      public CustomSerializableType (SerializationInfo info, StreamingContext context) : base ("")
       {
         String = info.GetString ("key1") + " (custom deserialization ctor)";
       }

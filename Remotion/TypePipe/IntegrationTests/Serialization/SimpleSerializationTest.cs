@@ -26,6 +26,15 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   [TestFixture]
   public class SimpleSerializationTest : SerializationTestBase
   {
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    protected override IObjectFactory CreateObjectFactoryForSerialization (params IParticipant[] participants)
+    {
+      var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
+      factory.CodeGenerator.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
+
+      return factory;
+    }
+
     protected override void CheckDeserializationInNewAppDomain (TestContext context)
     {
       FlushAndTrackFilesForCleanup();
@@ -35,23 +44,12 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           {
             var ctx = (TestContext) args.Single();
 
-            // factory registrieren
-
             var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
             Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (ctx.ExpectedAssemblyQualifiedName));
             ctx.Assertions (deserializedInstance, ctx);
           },
           context);
-    }
-
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    protected override IObjectFactory CreateObjectFactory (params IParticipant[] participants)
-    {
-      var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
-      factory.CodeGenerator.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
-
-      return factory;
     }
   }
 }

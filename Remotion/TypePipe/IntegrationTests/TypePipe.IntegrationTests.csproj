@@ -59,12 +59,12 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CachingTest.cs" />
-    <Compile Include="Serialization\ComplexSerializationTest.cs" />
     <Compile Include="FlushGeneratedCodeTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
+    <Compile Include="Serialization\ComplexSerializationTest.cs" />
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
     <Compile Include="Serialization\SerializationTestBase.cs" />
     <Compile Include="Serialization\SimpleSerializationTest.cs" />

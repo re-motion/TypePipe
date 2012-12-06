@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,371 +14,60 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Reflection;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.IntegrationTests.TypeAssembly;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [Ignore ("TODO 5223")]
+  [Ignore ("5222")]
   [TestFixture]
-  public class ComplexSerializationTest : ObjectFactoryIntegrationTestBase
+  public class ComplexSerializationTest : SerializationTestBase
   {
-    private const string c_factoryIdentifier = "participant configuration key";
+    private const string c_factoryIdentifier = "abc";
 
-    [Test]
-    public void Standard_NoModifications ()
+    private static SerializationParticipant CreateSerializationParticipant ()
     {
-      SkipDeletion();
-
-      var factory = CreateObjectFactory ();
-      var instance = factory.CreateObject<CustomSerializableType>();
-
-      CheckInstanceIsSerializable (instance);
-    }
-
-    [Test]
-    public void Standard_AddedFields ()
-    {
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant ());
-      var instance = factory.CreateObject<SerializableType> ();
-
-      CheckInstanceIsSerializableAndAddedFields (instance);
-    }
-
-    [Test]
-    public void Custom_AddedFields ()
-    {
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant ());
-      var instance = factory.CreateObject<CustomSerializableType> ();
-
-      CheckInstanceIsSerializableAndAddedFields (instance, ctorWasCalled: true);
-    }
-
-    [Test]
-    public void InstanceInitialization ()
-    {
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant (), CreateInitializationAddingParticipant ());
-      var instance1 = factory.CreateObject<SerializableType> ();
-      var instance2 = factory.CreateObject<CustomSerializableType> ();
-
-      CheckInstanceIsSerializableAndAddedFields (instance1, "abc init", 8, 1);
-      CheckInstanceIsSerializableAndAddedFields (instance2, "abc init", 8, 1, ctorWasCalled: true);
-    }
-
-    [Test]
-    public void InstanceInitialization_PreserveCallback ()
-    {
-      var factory = CreateObjectFactory (
-          CreateFieldAddingParticipant (), CreateInitializationAddingParticipant (), CreateCallbackImplementingParticipant ());
-      var instance1 = factory.CreateObject<SerializableType> ();
-      var instance2 = factory.CreateObject<CustomSerializableType> ();
-
-      CheckInstanceIsSerializableAndAddedFields (instance1, "abc callback:False init", 8, 1);
-      CheckInstanceIsSerializableAndAddedFields (instance2, "abc callback:True init", 8, 1, ctorWasCalled: true);
-    }
-
-    [Test]
-    // TODO: [ExpectedException]
-    public void ViaRegistry_CannotFindParticipantConfigurationForDeserialization ()
-    {
-      var factory = base.CreateObjectFactory (new SerializationParticipant ("key", new FieldSerializationExpressionBuilder()));
-      //_registry.Register ("other key", factory);
-
-      var instance = factory.CreateObject<SerializableType>();
-
-      CheckInstanceIsSerializable (instance);
-    }
-
-    [Test]
-    public void CannotSerialize ()
-    {
-      SkipSavingAndPeVerification ();
-
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant ());
-
-      var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
-                    + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
-      Assert.That (
-          () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData)),
-          Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
-      Assert.That (
-          () => factory.GetAssembledType (typeof (CustomSerializableTypeCannotOverrideExplicitlyImplementedGetOjbectData)),
-          Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
-      Assert.That (
-          () => factory.GetAssembledType (typeof (CustomSerializableTypeWithoutDeserializationConstructor)),
-          Throws.TypeOf<InvalidOperationException> ()
-                .With.Message.EqualTo ("The underlying type implements ISerializable but does not define a deserialization constructor."));
+      return new SerializationParticipant (c_factoryIdentifier, new FieldSerializationExpressionBuilder ());
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
+    protected override IObjectFactory CreateObjectFactoryForSerialization (params IParticipant[] participants)
     {
-      var key = c_factoryIdentifier;
-      var allParticipants = participants.Concat (new SerializationParticipant (key, new FieldSerializationExpressionBuilder()));
-      var factory = base.CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
+      var allParticipants = participants.Concat (CreateSerializationParticipant());
+      var factory = CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
 
       return factory;
     }
 
-    private void CheckInstanceIsSerializable (
-        SerializableType instance,
-        string expectedStringFieldValue = "abc",
-        Action<SerializableType, object[]> additionalAssertionAction = null,
-        object[] additonalExpectedValues = null,
-        IParticipant[] participants = null)
+    protected override void CheckDeserializationInNewAppDomain (TestContext context)
     {
-      Assert.That (instance.GetType().IsSerializable, Is.True);
-      instance.String = "abc";
+      // Do not flush.
 
-      var data = Serializer.Serialize (instance);
-
-      // NO FLUSH!
-      //FlushAndTrackFilesForCleanup ();
       AppDomainRunner.Run (
           args =>
           {
-            var dataInOtherAppDomain = (byte[]) args[0];
-            var expectedAssemblyQualifiedName = (string) args[1];
-            var expectedFieldValue = (string) args[2];
-            var additonalAssertions = (Action<SerializableType, object[]>) args[3];
-            var additonalExpectedVals = (object[]) args[4];
-            var participants2 = (IParticipant[]) args[5];
-
-
-            var entry = new ServiceConfigurationEntry (
-                typeof (IParticipant), new ServiceImplementationInfo (typeof (BlaParticpant), LifetimeKind.Instance));
-
-            var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory> ();
-            var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry> ();
-
+            // Register a factory for deserialization in current (new) app domain.
+            IObjectFactory factory;
+            using (new ServiceLocatorScope (typeof (IParticipant), CreateSerializationParticipant))
+              factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+            var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
             registry.Register (c_factoryIdentifier, factory);
 
-            
-            var  deserializedInstance = (SerializableType) Serializer.Deserialize (dataInOtherAppDomain);
-            
+            var ctx = (TestContext) args.Single();
+            var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
-
-            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.Not.EqualTo (expectedAssemblyQualifiedName));
-            //Assert.That (deserializedInstance.GetType().FullName, Is.StringStarting (expectedAssemblyQualifiedName));
-            // TODO 5223: correct?
-            //Assert.That (deserializedInstance.GetType(), Is.EqualTo (instance.GetType()));
-            Assert.That (deserializedInstance.String, Is.EqualTo (expectedFieldValue));
-
-            if (additonalAssertions != null)
-              additonalAssertions (deserializedInstance, additonalExpectedVals);
+            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
+            Assert.That (deserializedInstance.GetType().FullName, Is.EqualTo (ctx.ExpectedTypeFullName));
+            ctx.Assertions (deserializedInstance, ctx);
           },
-          data,
-          instance.GetType ().AssemblyQualifiedName,
-          expectedStringFieldValue,
-          additionalAssertionAction,
-          additonalExpectedValues,
-          participants);
-    }
-
-    private void CheckInstanceIsSerializableAndAddedFields (
-        SerializableType instance,
-        string expectedStringFieldValue = "abc",
-        int expectedIntFieldValue = 7,
-        int expectedSkippedIntField = 0,
-        bool ctorWasCalled = false)
-    {
-      PrivateInvoke.SetPublicField (instance, "IntField", 7);
-      PrivateInvoke.SetPublicField (instance, "SkippedIntField", 7);
-
-      CheckInstanceIsSerializable (
-          instance,
-          expectedStringFieldValue,
-          (deserialized, args) =>
-          {
-            Assert.That (deserialized.ConstructorCalled, Is.EqualTo (args[0]));
-            Assert.That (PrivateInvoke.GetPublicField (deserialized, "IntField"), Is.EqualTo (args[1]));
-            Assert.That (PrivateInvoke.GetPublicField (deserialized, "SkippedIntField"), Is.EqualTo (args[2]));
-          },
-          new object[] { ctorWasCalled, expectedIntFieldValue, expectedSkippedIntField });
-    }
-
-
-    public class BlaParticpant : SerializationParticipant
-    {
-      public BlaParticpant ()
-          : base(c_factoryIdentifier, new FieldSerializationExpressionBuilder())
-      {
-      }
-    }
-
-
-
-    private IParticipant CreateFieldAddingParticipant ()
-    {
-      var attributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute ());
-      return CreateParticipant (
-          mutableType =>
-          {
-            mutableType.AddField ("IntField", typeof (int), FieldAttributes.Public);
-            mutableType.AddField ("SkippedIntField", typeof (int), FieldAttributes.Public)
-                       .AddCustomAttribute (new CustomAttributeDeclaration (attributeConstructor, new object[0]));
-          });
-    }
-
-    private IParticipant CreateInitializationAddingParticipant ()
-    {
-      return CreateParticipant (
-          mutableType =>
-          {
-            var stringField = mutableType.GetField ("String");
-            var intField = mutableType.GetField ("IntField");
-            var skippedIntField = mutableType.GetField ("SkippedIntField");
-
-            mutableType.AddInstanceInitialization (
-                ctx =>
-                Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" init"), ExpressionHelper.StringConcatMethod));
-            mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, intField)));
-            mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, skippedIntField)));
-          });
-    }
-
-    private IParticipant CreateCallbackImplementingParticipant ()
-    {
-      return CreateParticipant (
-          mutableType =>
-          {
-            var stringField = mutableType.GetField ("String");
-            var ctorCalledField = mutableType.GetField ("ConstructorCalled");
-            var callback = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
-
-            mutableType.AddInterface (typeof (IDeserializationCallback));
-            var method = mutableType.GetOrAddMutableMethod (callback);
-            method.SetBody (
-                ctx =>
-                Expression.AddAssign (
-                    Expression.Field (ctx.This, stringField),
-                    ExpressionHelper.StringConcat (Expression.Constant (" callback:"), Expression.Field (ctx.This, ctorCalledField)),
-                    ExpressionHelper.StringConcatMethod));
-          });
-    }
-
-    [Serializable]
-    public class FieldAddingParticipant : IParticipant
-    {
-      public ICacheKeyProvider PartialCacheKeyProvider
-      {
-        get { return null; }
-      }
-
-      public void ModifyType (MutableType mutableType)
-      {
-        var attributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
-        mutableType.AddField ("IntField", typeof (int), FieldAttributes.Public);
-        mutableType.AddField ("SkippedIntField", typeof (int), FieldAttributes.Public)
-                   .AddCustomAttribute (new CustomAttributeDeclaration (attributeConstructor, new object[0]));
-      }
-    }
-
-    [Serializable]
-    public class InitializationAddingParticipant : IParticipant
-    {
-      public ICacheKeyProvider PartialCacheKeyProvider
-      {
-        get { return null; }
-      }
-
-      public void ModifyType (MutableType mutableType)
-      {
-        var stringField = mutableType.GetField ("String");
-        var intField = mutableType.GetField ("IntField");
-        var skippedIntField = mutableType.GetField ("SkippedIntField");
-
-        mutableType.AddInstanceInitialization (
-            ctx =>
-            Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" init"), ExpressionHelper.StringConcatMethod));
-        mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, intField)));
-        mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, skippedIntField)));
-      }
-    }
-
-    [Serializable]
-    public class CallbackImplementingParticipant : IParticipant
-    {
-      public ICacheKeyProvider PartialCacheKeyProvider
-      {
-        get { return null; }
-      }
-
-      public void ModifyType (MutableType mutableType)
-      {
-        var stringField = mutableType.GetField ("String");
-        var ctorCalledField = mutableType.GetField ("ConstructorCalled");
-        var callback = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
-
-        mutableType.AddInterface (typeof (IDeserializationCallback));
-        var method = mutableType.GetOrAddMutableMethod (callback);
-        method.SetBody (
-            ctx =>
-            Expression.AddAssign (
-                Expression.Field (ctx.This, stringField),
-                ExpressionHelper.StringConcat (Expression.Constant (" callback:"), Expression.Field (ctx.This, ctorCalledField)),
-                ExpressionHelper.StringConcatMethod));
-      }
-    }
-
-
-    [Serializable]
-    public class SerializableType
-    {
-      public string String;
-
-      [NonSerialized]
-      public bool ConstructorCalled;
-
-      public SerializableType ()
-      {
-        ConstructorCalled = true;
-      }
-    }
-
-    [Serializable]
-    public class CustomSerializableType : SerializableType, ISerializable
-    {
-      public CustomSerializableType () { }
-      public CustomSerializableType (SerializationInfo info, StreamingContext context)
-      {
-        String = info.GetString ("key1");
-        ConstructorCalled = true;
-      }
-
-      public virtual void GetObjectData (SerializationInfo info, StreamingContext context)
-      {
-        info.AddValue ("key1", String);
-      }
-    }
-
-    public class CustomSerializableTypeCannotOverrideNonVirtualGetOjbectData : ISerializable
-    {
-      public void GetObjectData (SerializationInfo info, StreamingContext context) { }
-    }
-
-    public class CustomSerializableTypeCannotOverrideExplicitlyImplementedGetOjbectData : ISerializable
-    {
-      void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
-    }
-
-    public class CustomSerializableTypeWithoutDeserializationConstructor : ISerializable
-    {
-      public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
+          context);
     }
   }
 }
