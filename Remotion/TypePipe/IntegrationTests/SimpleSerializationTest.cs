@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
@@ -32,62 +33,45 @@ namespace Remotion.TypePipe.IntegrationTests
   public class SimpleSerializationTest : ObjectFactoryIntegrationTestBase
   {
     [Test]
-    public void Standard_NoModifications ()
+    public void NoModifications ()
     {
       var factory = CreateObjectFactory();
-      var instance = factory.CreateObject<SerializableType>();
-      instance.String = "abc";
-      Assert.That (instance.ConstructorCalled, Is.True);
-      Assert.That (instance.DeserializationConstructorCalled, Is.False);
+      var instance1 = factory.CreateObject<SerializableType>();
+      var instance2 = factory.CreateObject<CustomSerializableType>();
+      instance1.String = "abc";
+      instance2.String = "def";
 
-      CheckInstanceIsSerializable (
-          instance, deserializedInstance =>
-          {
-            Assert.That (deserializedInstance.String, Is.EqualTo ("abc"));
-            Assert.That (deserializedInstance.ConstructorCalled, Is.False);
-            Assert.That (deserializedInstance.DeserializationConstructorCalled, Is.False);
-          });
+      Assert.That (instance1.ConstructorCalled, Is.True);
+      Assert.That (instance2.ConstructorCalled, Is.True);
+
+      Action<SerializableType, TestContext> assertions = (deserializedInstance, ctx) =>
+      {
+        Assert.That (deserializedInstance.ConstructorCalled, Is.False);
+        Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+      };
+      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc");
+      CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor)");
     }
 
     [Test]
     public void Standard_AddedFields ()
     {
       var factory = CreateObjectFactory (CreateFieldAddingParticipant());
-      var instance = factory.CreateObject<SerializableType>();
-      instance.String = "abc";
-      PrivateInvoke.SetPublicField (instance, "AddedIntField", 7);
-      PrivateInvoke.SetPublicField (instance, "AddedSkippedIntField", 7);
+      var instance1 = factory.CreateObject<SerializableType>();
+      var instance2 = factory.CreateObject<CustomSerializableType>();
 
-      CheckInstanceIsSerializable (
-          instance, deserializedInstance =>
-          {
-            Assert.That (deserializedInstance.String, Is.EqualTo ("abc"));
-            Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
-            Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
-          });
-    }
+      PrivateInvoke.SetPublicField (instance1, "AddedIntField", 7);
+      PrivateInvoke.SetPublicField (instance1, "AddedSkippedIntField", 7);
+      PrivateInvoke.SetPublicField (instance2, "AddedIntField", 7);
+      PrivateInvoke.SetPublicField (instance2, "AddedSkippedIntField", 7);
 
-    [Test]
-    public void TypeImplementingISerializable_AddedFields ()
-    {
-      var factory = CreateObjectFactory (CreateFieldAddingParticipant());
-      var instance = factory.CreateObject<CustomSerializableType>();
-      instance.String = "abc";
-      PrivateInvoke.SetPublicField (instance, "AddedIntField", 7);
-      PrivateInvoke.SetPublicField (instance, "AddedSkippedIntField", 7);
-      Assert.That (instance.ConstructorCalled, Is.True);
-      Assert.That (instance.DeserializationConstructorCalled, Is.False);
-
-      CheckInstanceIsSerializable (
-          instance, deserializedInstance =>
-          {
-            Assert.That (deserializedInstance.String, Is.EqualTo ("abc (custom deserialization ctor)"));
-            Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
-            Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
-            
-            Assert.That (deserializedInstance.ConstructorCalled, Is.False);
-            Assert.That (deserializedInstance.DeserializationConstructorCalled, Is.True);
-          });
+      Action<SerializableType, TestContext> assertions = (deserializedInstance, ctx) =>
+      {
+        Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
+        Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
+      };
+      CheckInstanceIsSerializable (instance1, assertions);
+      CheckInstanceIsSerializable (instance2, assertions);
     }
 
     [Test]
@@ -95,16 +79,14 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
       var instance1 = factory.CreateObject<SerializableType>();
+      var instance2 = factory.CreateObject<CustomSerializableType>();
       instance1.String = "abc";
-      var instance2 = factory.CreateObject<CustomSerializableType> ();
-      instance2.String = "abc";
+      instance2.String = "def";
 
-      CheckInstanceIsSerializable (
-          instance1, deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc valueFromInstanceInitialization")));
-      CheckInstanceIsSerializable (
-          instance2,
-          deserializedInstance =>
-          Assert.That (deserializedInstance.String, Is.EqualTo ("abc (custom deserialization ctor) valueFromInstanceInitialization")));
+      Action<SerializableType, TestContext> assertions =
+          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc valueFromInstanceInitialization");
+      CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
     }
 
     [Test]
@@ -112,31 +94,31 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var factory = CreateObjectFactory (CreateInitializationAddingParticipant(), CreateCallbackImplementingParticipant());
       var instance1 = factory.CreateObject<SerializableType>();
-      instance1.String = "abc";
       var instance2 = factory.CreateObject<CustomSerializableType>();
-      instance2.String = "abc";
+      instance1.String = "abc";
+      instance2.String = "def";
 
+      Action<SerializableType, TestContext> assertions =
+          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc addedCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
-          instance1, deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc addedCallback valueFromInstanceInitialization")));
-      CheckInstanceIsSerializable (
-          instance2,
-          deserializedInstance =>
-          { 
-            Assert.That (deserializedInstance.String, Is.EqualTo ("abc (custom deserialization ctor) addedCallback valueFromInstanceInitialization"));
-            Assert.That (deserializedInstance.DeserializationConstructorCalled, Is.True);
-          });
+          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
     }
 
     [Test]
     public void ExistingCallback ()
     {
       var factory = CreateObjectFactory (CreateInitializationAddingParticipant());
-      var instance = factory.CreateObject<DeserializationCallbackType>();
-      instance.String = "abc";
+      var instance1 = factory.CreateObject<DeserializationCallbackType>();
+      var instance2 = factory.CreateObject<CustomDeserializationCallbackType>();
+      instance1.String = "abc";
+      instance2.String = "def";
 
+      Action<SerializableType, TestContext> assertions =
+          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc existingCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
-          instance,
-          deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc existingCallback valueFromInstanceInitialization")));
+          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
     }
 
     [Test]
@@ -148,7 +130,8 @@ namespace Remotion.TypePipe.IntegrationTests
 
       CheckInstanceIsSerializable (
           instance,
-          deserializedInstance => Assert.That (deserializedInstance.String, Is.EqualTo ("abc valueFromInstanceInitialization")));
+          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue)),
+          stringFieldValue: "abc valueFromInstanceInitialization");
     }
 
     [Test]
@@ -202,29 +185,31 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     private void CheckInstanceIsSerializable (
-        SerializableType instance,
-        Action<SerializableType> assertions)
+        SerializableType instance, Action<SerializableType, TestContext> assertions, string stringFieldValue = null)
     {
       Assert.That (instance.GetType().IsSerializable, Is.True);
 
-      var serializedData = Serializer.Serialize (instance);
+      var context =
+          new TestContext
+          {
+              SerializedData = Serializer.Serialize (instance),
+              Assertions = assertions,
+              ExpectedAssemblyQualifiedName = instance.GetType().AssemblyQualifiedName,
+              ExpectedStringFieldValue = stringFieldValue
+          };
 
       FlushAndTrackFilesForCleanup();
       AppDomainRunner.Run (
           args =>
           {
-            var data = (byte[]) args[0];
-            var expectedAssemblyQualifiedName = (string) args[1];
-            var assertionsDelegate = (Action<SerializableType>) args[2];
+            var ctx = (TestContext) args.Single();
 
-            var deserializedInstance = (SerializableType) Serializer.Deserialize (data);
+            var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
-            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (expectedAssemblyQualifiedName));
-            assertionsDelegate (deserializedInstance);
+            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (ctx.ExpectedAssemblyQualifiedName));
+            ctx.Assertions (deserializedInstance, ctx);
           },
-          serializedData,
-          instance.GetType().AssemblyQualifiedName,
-          assertions);
+          context);
     }
 
     private IParticipant CreateFieldAddingParticipant ()
@@ -272,14 +257,22 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Serializable]
+    private class TestContext
+    {
+      public byte[] SerializedData { get; set; }
+      public Action<SerializableType, TestContext> Assertions { get; set; }
+
+      public string ExpectedAssemblyQualifiedName { get; set; }
+      public string ExpectedStringFieldValue { get; set; }
+    }
+
+    [Serializable]
     public class SerializableType
     {
       public string String;
 
       [NonSerialized]
       public readonly bool ConstructorCalled;
-      [NonSerialized]
-      public readonly bool DeserializationConstructorCalled;
 
       public SerializableType ()
       {
@@ -287,10 +280,7 @@ namespace Remotion.TypePipe.IntegrationTests
       }
 
       [UsedImplicitly]
-      public SerializableType (SerializationInfo info, StreamingContext context)
-      {
-        DeserializationConstructorCalled = true;
-      }
+      public SerializableType (SerializationInfo info, StreamingContext context) { }
     }
 
     [Serializable]
@@ -312,6 +302,22 @@ namespace Remotion.TypePipe.IntegrationTests
     [Serializable]
     public class DeserializationCallbackType : SerializableType, IDeserializationCallback
     {
+      public virtual void OnDeserialization (object sender)
+      {
+        String += " existingCallback";
+      }
+    }
+
+    [Serializable]
+    public class CustomDeserializationCallbackType : CustomSerializableType, IDeserializationCallback
+    {
+      public CustomDeserializationCallbackType () { }
+
+      public CustomDeserializationCallbackType (SerializationInfo info, StreamingContext context) : base (info, context)
+      {
+        String = info.GetString ("key1") + " (custom deserialization ctor)";
+      }
+
       public virtual void OnDeserialization (object sender)
       {
         String += " existingCallback";
