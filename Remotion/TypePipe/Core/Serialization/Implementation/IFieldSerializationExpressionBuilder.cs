@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 
 namespace Remotion.TypePipe.Serialization.Implementation
@@ -25,8 +26,14 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields and building serialization and deserialization 
   /// expressions.
   /// </summary>
-  public interface ISerializedFieldHandler
+  public interface IFieldSerializationExpressionBuilder
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields);
+
+    IEnumerable<Expression> BuildFieldSerializationExpressions (
+        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping);
+
+    IEnumerable<Expression> BuildFieldDeserializationExpressions (
+        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping);
   }
 }

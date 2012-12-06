@@ -26,12 +26,12 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// This class implements <see cref="ISerializedFieldHandler" />.
+  /// This class implements <see cref="IFieldSerializationExpressionBuilder" />.
   /// It filters filters fields for those that are serializable and creates a mapping so that the field values can be stored or retrieved from a
   /// <see cref="SerializationInfo"/> instance.
   /// The expressions that represent those actions can also be created by this class.
   /// </summary>
-  public class SerializedFieldHandler : ISerializedFieldHandler
+  public class FieldSerializationExpressionBuilder : IFieldSerializationExpressionBuilder
   {
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));

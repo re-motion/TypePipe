@@ -39,13 +39,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
-    private readonly ISerializedFieldHandler _serializedFieldHandler;
+    private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder;
 
-    public ProxySerializationEnabler (ISerializedFieldHandler serializedFieldHandler)
+    public ProxySerializationEnabler (IFieldSerializationExpressionBuilder fieldSerializationExpressionBuilder)
     {
-      ArgumentUtility.CheckNotNull ("serializedFieldHandler", serializedFieldHandler);
+      ArgumentUtility.CheckNotNull ("fieldSerializationExpressionBuilder", fieldSerializationExpressionBuilder);
 
-      _serializedFieldHandler = serializedFieldHandler;
+      _fieldSerializationExpressionBuilder = fieldSerializationExpressionBuilder;
     }
 
     public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var serializedFieldMapping = _serializedFieldHandler.GetSerializedFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
+      var serializedFieldMapping = _fieldSerializationExpressionBuilder.GetSerializedFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
       var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFieldMapping.Length != 0;
 
       if (needsCustomFieldSerialization)

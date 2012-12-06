@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class ProxySerializationEnablerTest
   {
-    private ISerializedFieldHandler _serializedFieldHandlerMock;
+    private IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilderMock;
     
     private ProxySerializationEnabler _enabler;
 
@@ -52,9 +52,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _serializedFieldHandlerMock = MockRepository.GenerateStrictMock<ISerializedFieldHandler>();
+      _fieldSerializationExpressionBuilderMock = MockRepository.GenerateStrictMock<IFieldSerializationExpressionBuilder>();
 
-      _enabler = new ProxySerializationEnabler (_serializedFieldHandlerMock);
+      _enabler = new ProxySerializationEnabler (_fieldSerializationExpressionBuilderMock);
 
       _someType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
       _serializableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
@@ -90,13 +90,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeFieldType = ReflectionObjectMother.GetSomeType();
       FieldInfo fakeField = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, type: fakeFieldType);
       var fakeMapping = Tuple.Create ("fake key", fakeField);
-      _serializedFieldHandlerMock
+      _fieldSerializationExpressionBuilderMock
           .Expect (mock => mock.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { addedField })))
           .Return (new[] { fakeMapping });
 
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
-      _serializedFieldHandlerMock.VerifyAllExpectations();
+      _fieldSerializationExpressionBuilderMock.VerifyAllExpectations();
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
       Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
       Assert.That (_serializableInterfaceType.AllMutableConstructors, Is.EqualTo (new[] { deserializationCtor }));
@@ -286,14 +286,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void StubFilterWithNoSerializedFields ()
     {
-      _serializedFieldHandlerMock
+      _fieldSerializationExpressionBuilderMock
           .Stub (stub => stub.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))
           .Return (new Tuple<string, FieldInfo>[0]);
     }
 
     private void StubFilterWithSerializedFields (MutableType declaringType)
     {
-      _serializedFieldHandlerMock
+      _fieldSerializationExpressionBuilderMock
           .Stub (stub => stub.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))
           .Return (new[] { Tuple.Create<string, FieldInfo> ("someField", MutableFieldInfoObjectMother.Create (declaringType)) });
     }
