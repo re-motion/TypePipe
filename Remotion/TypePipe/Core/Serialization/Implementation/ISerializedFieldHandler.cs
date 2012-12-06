@@ -14,24 +14,23 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using Remotion.Utilities;
+using System.Runtime.Serialization;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Implements <see cref="ISerializedFieldFilter"/> by applying a LINQ query to the input fields.
+  /// This interfaces ecnapsulates getting serialized field mapping from a greater list of fields and building <see cref="SerializationInfo"/>
+  /// serialization and deserialization expressions.
   /// </summary>
-  public class SerializableFieldFilter : ISerializedFieldFilter
+  public interface ISerializedFieldHandler
   {
-    public IEnumerable<FieldInfo> GetSerializedFields (IEnumerable<FieldInfo> fields)
-    {
-      ArgumentUtility.CheckNotNull ("fields", fields);
+    IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields);
 
-      return fields.Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any());
-    }
+    // TODO remove
+    IEnumerable<FieldInfo> GetSerializedFields (IEnumerable<FieldInfo> fields);
   }
 }

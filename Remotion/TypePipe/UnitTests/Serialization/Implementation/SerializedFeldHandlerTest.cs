@@ -15,33 +15,50 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
+using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.Development.UnitTesting.Enumerables;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class SerializedFieldFilterTest
+  public class SerializedFeldHandlerTest
   {
-    private SerializableFieldFilter _filter;
+    private SerializedFeldHandler _filter;
 
     [SetUp]
     public void SetUp ()
     {
-      _filter = new SerializableFieldFilter();
+      _filter = new SerializedFeldHandler();
     }
 
     [Test]
-    public void GetSerializedFields ()
+    public void GetSerializedFieldMapping_Filtering ()
     {
       var field1 = NormalizingMemberInfoFromExpressionUtility.GetField (() => s_staticField);
       var field2 = NormalizingMemberInfoFromExpressionUtility.GetField (() => _instanceField);
       var field3 = NormalizingMemberInfoFromExpressionUtility.GetField (() => _nonSerializedField);
 
-      var result = _filter.GetSerializedFields (new[] { field1, field2, field3 });
+      var result = _filter.GetSerializedFieldMapping (new[] { field1, field2, field3 });
 
-      Assert.That (result, Is.EqualTo (new[] { field2 }));
+      Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>_instanceField", field2) }));
+    }
+
+    [Test]
+    public void GetSerializedFieldMapping_SameName ()
+    {
+      FieldInfo field1 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (int));
+      FieldInfo field2 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (string));
+
+      var result = _filter.GetSerializedFieldMapping (new[] { field1, field2 });
+
+      Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>abc@System.Int32", field1), Tuple.Create ("<tp>abc@System.String", field2) }));
     }
 
     private static int s_staticField = 0;

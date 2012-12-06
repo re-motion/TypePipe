@@ -170,7 +170,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistryTest.cs" />
     <Compile Include="Serialization\Implementation\SerializationSurrogateTest.cs" />
-    <Compile Include="Serialization\Implementation\SerializedFieldFilterTest.cs" />
+    <Compile Include="Serialization\Implementation\SerializedFeldHandlerTest.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />
