@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpressionPreparer(), ilGeneratorFactory);
       var initalizationBuilder = new InitializationBuilder();
-      var serializableFieldFilter = new SerializedFeldHandler();
+      var serializableFieldFilter = new SerializedFieldHandler();
       var proxySerializationEnabler = new ProxySerializationEnabler(serializableFieldFilter);
 
       var methodTrampolineProvider = new MethodTrampolineProvider (memberEmitter);

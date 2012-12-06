@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests
     private static readonly Type[] s_interfaceTypes = EnsureNoNulls (new[] { typeof (IDisposable), typeof (IServiceProvider) });
     private static readonly Type[] s_otherInterfaceTypes = EnsureNoNulls (new[] { typeof (IComparable), typeof (ICloneable) });
     private static readonly FieldInfo[] s_fields = EnsureNoNulls (new[] { typeof (string).GetField ("Empty"), typeof (Type).GetField ("EmptyTypes") });
+    private static readonly FieldInfo[] s_instanceFields = EnsureNoNulls (new[] { typeof (DomainType).GetField ("Field") });
     private static readonly ConstructorInfo[] s_defaultCtors = EnsureNoNulls (new[] { typeof (object).GetConstructor (Type.EmptyTypes), typeof (List<int>).GetConstructor (Type.EmptyTypes) });
     private static readonly MethodInfo[] s_instanceMethod = EnsureNoNulls (new[] { typeof (object).GetMethod ("ToString"), typeof (object).GetMethod ("GetHashCode") });
     private static readonly MethodInfo[] s_staticMethod = EnsureNoNulls (new[] { typeof (object).GetMethod ("ReferenceEquals"), typeof (double).GetMethod ("IsNaN") });
@@ -96,6 +98,11 @@ namespace Remotion.TypePipe.UnitTests
     public static FieldInfo GetSomeField ()
     {
       return GetRandomElement (s_fields);
+    }
+
+    public static FieldInfo GetSomeInstanceField ()
+    {
+      return GetRandomElement (s_instanceFields);
     }
 
     public static ConstructorInfo GetSomeDefaultConstructor ()
@@ -253,6 +260,9 @@ namespace Remotion.TypePipe.UnitTests
 
     private class DomainType : DomainTypeBase
     {
+      [UsedImplicitly]
+      public int Field = 0;
+
       public sealed override void FinalMethod () { }
 
       public override void Override () { }

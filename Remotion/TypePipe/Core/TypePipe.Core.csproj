@@ -138,7 +138,7 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="Serialization\Implementation\ISerializedFieldHandler.cs" />
-    <Compile Include="Serialization\Implementation\SerializedFeldHandler.cs" />
+    <Compile Include="Serialization\Implementation\SerializedFieldHandler.cs" />
     <Compile Include="Serialization\IObjectFactoryRegistry.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />

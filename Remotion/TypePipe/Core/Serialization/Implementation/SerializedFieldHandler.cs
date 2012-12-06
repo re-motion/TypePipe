@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Utilities;
 
@@ -30,8 +31,11 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// <see cref="SerializationInfo"/> instance.
   /// The expressions that represent those actions can also be created by this class.
   /// </summary>
-  public class SerializedFeldHandler : ISerializedFieldHandler
+  public class SerializedFieldHandler : ISerializedFieldHandler
   {
+    private static readonly MethodInfo s_getValueMethod =
+        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
+
     public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
@@ -52,6 +56,32 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
                 return fieldArray.Select (f => Tuple.Create (serializationKeyProvider (f), f));
               });
+    }
+
+    public IEnumerable<Expression> BuildFieldSerializationExpressions (
+        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
+    {
+      ArgumentUtility.CheckNotNull ("fieldMapping", fieldMapping);
+
+      return fieldMapping
+          .Select (
+              entry => (Expression) Expression.Call (
+                  serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (entry.Item1), Expression.Field (@this, entry.Item2)));
+    }
+
+    public IEnumerable<Expression> BuildFieldDeserializationExpressions (
+        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
+    {
+      ArgumentUtility.CheckNotNull ("fieldMapping", fieldMapping);
+
+      return fieldMapping
+          .Select (
+              entry => (Expression) Expression.Assign (
+                  Expression.Field (@this, entry.Item2),
+                  Expression.Convert (
+                      Expression.Call (
+                          serializationInfo, s_getValueMethod, Expression.Constant (entry.Item1), Expression.Constant (entry.Item2.FieldType)),
+                      entry.Item2.FieldType)));
     }
   }
 }
