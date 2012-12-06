@@ -32,8 +32,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
-    private const string c_serializationKeyPrefix = "<tp>";
-
     private static readonly MethodInfo s_getObjectDataMetod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
     private static readonly MethodInfo s_getValueMethod =

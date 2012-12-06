@@ -34,8 +34,9 @@ namespace Remotion.TypePipe.Serialization
   /// </summary>
   public class SerializationParticipant : IParticipant
   {
-    public const string UnderlyingTypeKey = "<tp>underlyingType";
-    public const string FactoryIdentifierKey = "<tp>factoryIdentifier";
+    public const string SerializationKeyPrefix = "<tp>";
+    public const string UnderlyingTypeKey = SerializationKeyPrefix + "underlyingType";
+    public const string FactoryIdentifierKey = SerializationKeyPrefix + "factoryIdentifier";
 
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));

@@ -17,14 +17,13 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Remotion.Collections;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// This interfaces ecnapsulates getting serialized field mapping from a greater list of fields and building <see cref="SerializationInfo"/>
-  /// serialization and deserialization expressions.
+  /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields and building serialization and deserialization 
+  /// expressions.
   /// </summary>
   public interface ISerializedFieldHandler
   {

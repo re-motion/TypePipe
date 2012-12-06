@@ -18,18 +18,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Implements <see cref="ISerializedFieldHandler"/>, e.g. returns field by names mappings and retuby checking if a field should be seby applying a LINQ query to the input fields.
+  /// This class implements <see cref="ISerializedFieldHandler" />.
+  /// It filters filters fields for those that are serializable and creates a mapping so that the field values can be stored or retrieved from a
+  /// <see cref="SerializationInfo"/> instance.
+  /// The expressions that represent those actions can also be created by this class.
   /// </summary>
   public class SerializedFeldHandler : ISerializedFieldHandler
   {
-    private const string c_serializationKeyPrefix = "<tp>";
-
     public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
@@ -40,14 +42,15 @@ namespace Remotion.TypePipe.Serialization.Implementation
           .SelectMany (
               fieldsByName =>
               {
-                var fields1 = fieldsByName.ToArray();
+                var fieldArray = fieldsByName.ToArray();
 
+                var prefix = SerializationParticipant.SerializationKeyPrefix;
                 var serializationKeyProvider =
-                    fields1.Length == 1
-                        ? (Func<FieldInfo, string>) (f => c_serializationKeyPrefix + f.Name)
-                        : (f => string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, f.Name, f.FieldType.FullName));
+                    fieldArray.Length == 1
+                        ? (Func<FieldInfo, string>) (f => prefix + f.Name)
+                        : (f => string.Format ("{0}{1}@{2}", prefix, f.Name, f.FieldType.FullName));
 
-                return fields1.Select (f => Tuple.Create (serializationKeyProvider (f), f));
+                return fieldArray.Select (f => Tuple.Create (serializationKeyProvider (f), f));
               });
     }
   }
