@@ -16,16 +16,14 @@
 // 
 
 using System;
-using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.FunctionalProgramming;
-using Remotion.Reflection;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
@@ -33,28 +31,21 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [Ignore("TODO 5223")]
+  [Ignore ("TODO 5223")]
   [TestFixture]
   public class ComplexSerializationTest : ObjectFactoryIntegrationTestBase
   {
     private const string c_factoryIdentifier = "participant configuration key";
 
-    private IObjectFactoryRegistry _registry;
-
-    public override void SetUp ()
-    {
-      base.SetUp ();
-
-      _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry> ();
-    }
-
     [Test]
     public void Standard_NoModifications ()
     {
+      SkipDeletion();
+
       var factory = CreateObjectFactory ();
-      var instance = factory.CreateObject<SerializableType> ();
+      var instance = factory.CreateObject<CustomSerializableType>();
 
       CheckInstanceIsSerializable (instance);
     }
@@ -105,7 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests
     public void ViaRegistry_CannotFindParticipantConfigurationForDeserialization ()
     {
       var factory = base.CreateObjectFactory (new SerializationParticipant ("key", new FieldSerializationExpressionBuilder()));
-      _registry.Register ("other key", factory);
+      //_registry.Register ("other key", factory);
 
       var instance = factory.CreateObject<SerializableType>();
 
@@ -133,18 +124,12 @@ namespace Remotion.TypePipe.IntegrationTests
                 .With.Message.EqualTo ("The underlying type implements ISerializable but does not define a deserialization constructor."));
     }
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
       var key = c_factoryIdentifier;
       var allParticipants = participants.Concat (new SerializationParticipant (key, new FieldSerializationExpressionBuilder()));
-      var testName = GetNameForThisTest (1 + 1);
-      var typeModifier = CreateTypeModifier (testName);
-      var typeAssembler = new TypeAssembler (allParticipants, typeModifier);
-      var constructorFinder = new ConstructorFinder();
-      var delegateFactory = new DelegateFactory();
-      var typeCache = new TypeCache (typeAssembler, constructorFinder, delegateFactory);
-      var factory = (IObjectFactory) new ObjectFactory (typeCache);
-      _registry.Register (key, factory);
+      var factory = base.CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
 
       return factory;
     }
@@ -159,16 +144,14 @@ namespace Remotion.TypePipe.IntegrationTests
       Assert.That (instance.GetType().IsSerializable, Is.True);
       instance.String = "abc";
 
-      var memoryStream = new MemoryStream ();
-      new BinaryFormatter ().Serialize (memoryStream, instance);
-      memoryStream.Position = 0;
+      var data = Serializer.Serialize (instance);
 
       // NO FLUSH!
       //FlushAndTrackFilesForCleanup ();
       AppDomainRunner.Run (
           args =>
           {
-            var memStream = (MemoryStream) args[0];
+            var dataInOtherAppDomain = (byte[]) args[0];
             var expectedAssemblyQualifiedName = (string) args[1];
             var expectedFieldValue = (string) args[2];
             var additonalAssertions = (Action<SerializableType, object[]>) args[3];
@@ -179,20 +162,18 @@ namespace Remotion.TypePipe.IntegrationTests
             var entry = new ServiceConfigurationEntry (
                 typeof (IParticipant), new ServiceImplementationInfo (typeof (BlaParticpant), LifetimeKind.Instance));
 
-            SerializableType deserializedInstance;
-            using (new ServiceLocatorScope (entry))
-            {
-              var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory> ();
-              var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry> ();
+            var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory> ();
+            var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry> ();
 
-              registry.Register (c_factoryIdentifier, factory);
-
-              deserializedInstance = (SerializableType) new BinaryFormatter ().Deserialize (memStream);
-            }
+            registry.Register (c_factoryIdentifier, factory);
 
             
+            var  deserializedInstance = (SerializableType) Serializer.Deserialize (dataInOtherAppDomain);
+            
 
-            //Assert.That (deserializedInstance.GetType ().AssemblyQualifiedName, Is.EqualTo (expectedAssemblyQualifiedName));
+
+            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.Not.EqualTo (expectedAssemblyQualifiedName));
+            //Assert.That (deserializedInstance.GetType().FullName, Is.StringStarting (expectedAssemblyQualifiedName));
             // TODO 5223: correct?
             //Assert.That (deserializedInstance.GetType(), Is.EqualTo (instance.GetType()));
             Assert.That (deserializedInstance.String, Is.EqualTo (expectedFieldValue));
@@ -200,7 +181,7 @@ namespace Remotion.TypePipe.IntegrationTests
             if (additonalAssertions != null)
               additonalAssertions (deserializedInstance, additonalExpectedVals);
           },
-          memoryStream,
+          data,
           instance.GetType ().AssemblyQualifiedName,
           expectedStringFieldValue,
           additionalAssertionAction,

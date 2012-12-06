@@ -16,8 +16,8 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
@@ -27,10 +27,9 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [TestFixture]
-  public class SimpleSerializationTest : ObjectFactoryIntegrationTestBase
+  public abstract class SerializationTestBase : ObjectFactoryIntegrationTestBase
   {
     [Test]
     public void NoModifications ()
@@ -176,13 +175,10 @@ namespace Remotion.TypePipe.IntegrationTests
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
-    private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
-    {
-      var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
-      factory.CodeGenerator.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    protected new abstract IObjectFactory CreateObjectFactory (params IParticipant[] participants);
 
-      return factory;
-    }
+    protected abstract void CheckDeserializationInNewAppDomain (TestContext context);
 
     private void CheckInstanceIsSerializable (
         SerializableType instance, Action<SerializableType, TestContext> assertions, string stringFieldValue = null)
@@ -198,18 +194,7 @@ namespace Remotion.TypePipe.IntegrationTests
               ExpectedStringFieldValue = stringFieldValue
           };
 
-      FlushAndTrackFilesForCleanup();
-      AppDomainRunner.Run (
-          args =>
-          {
-            var ctx = (TestContext) args.Single();
-
-            var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
-
-            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (ctx.ExpectedAssemblyQualifiedName));
-            ctx.Assertions (deserializedInstance, ctx);
-          },
-          context);
+      CheckDeserializationInNewAppDomain(context);
     }
 
     private IParticipant CreateFieldAddingParticipant ()
@@ -257,7 +242,7 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Serializable]
-    private class TestContext
+    protected class TestContext
     {
       public byte[] SerializedData { get; set; }
       public Action<SerializableType, TestContext> Assertions { get; set; }
