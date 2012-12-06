@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests
         foreach (var assemblyPath in _generatedAssemblyPaths)
         {
           if (!_skipPeVerify)
-            PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+            PeVerifyAssembly (assemblyPath);
 
           if (!_skipDeletion)
           {
@@ -135,6 +135,19 @@ namespace Remotion.TypePipe.IntegrationTests
       _generatedAssemblyPaths.Add (assemblyPath);
 
       return assemblyPath;
+    }
+
+    private static void PeVerifyAssembly (string assemblyPath)
+    {
+      try
+      {
+        PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+      }
+      catch (Exception exception)
+      {
+        Console.WriteLine (exception);
+        throw;
+      }
     }
   }
 }
