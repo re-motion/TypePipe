@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
@@ -34,8 +33,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private static readonly MethodInfo s_getObjectDataMetod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
-    private static readonly MethodInfo s_getValueMethod =
-        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
@@ -98,12 +95,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private void OverrideGetObjectData (MutableType mutableType, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
+    private void OverrideGetObjectData (MutableType mutableType, Tuple<string, FieldInfo>[] serializedFieldMapping)
     {
       try
       {
-        mutableType.GetOrAddMutableMethod (s_getObjectDataMetod)
-                   .SetBody (ctx => BuildSerializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
+        mutableType
+          .GetOrAddMutableMethod (s_getObjectDataMetod)
+          .SetBody (
+              ctx => Expression.Block (
+                  typeof (void),
+                  new[] { ctx.PreviousBody }.Concat (
+                      _fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
       }
       catch (NotSupportedException exception)
       {
@@ -114,7 +116,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private void AdaptDeserializationConstructor (MutableType mutableType, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
+    private void AdaptDeserializationConstructor (MutableType mutableType, Tuple<string, FieldInfo>[] serializedFieldMapping)
     {
       var deserializationConstructor = mutableType.GetConstructor (
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
@@ -125,35 +127,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         throw new InvalidOperationException ("The underlying type implements ISerializable but does not define a deserialization constructor.");
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
-      mutableConstructor.SetBody (ctx => BuildDeserializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
-    }
-
-    private Expression BuildSerializationBody (
-        Expression @this, Expression serializationInfo, Expression previousBody, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
-    {
-      var expressions = serializedFieldMapping.Select (fm => SerializeField (@this, serializationInfo, fm.Item1, fm.Item2));
-      return Expression.Block (typeof (void), new[] { previousBody }.Concat (expressions));
-    }
-
-    private Expression BuildDeserializationBody (
-        Expression @this, Expression serializationInfo, Expression previousBody, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping)
-    {
-      var expressions = serializedFieldMapping.Select (fm => DeserializeField (@this, serializationInfo, fm.Item1, fm.Item2));
-      return Expression.Block (typeof (void), new[] { previousBody }.Concat (expressions));
-    }
-
-    private Expression SerializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
-    {
-      return Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (serializationKey), Expression.Field (@this, field));
-    }
-
-    private Expression DeserializeField (Expression @this, Expression serializationInfo, string serializationKey, FieldInfo field)
-    {
-      var type = field.FieldType;
-      return Expression.Assign (
-          Expression.Field (@this, field),
-          Expression.Convert (
-              Expression.Call (serializationInfo, s_getValueMethod, Expression.Constant (serializationKey), Expression.Constant (type)), type));
+      mutableConstructor.SetBody (
+          ctx => Expression.Block (
+              typeof (void),
+              new[] { ctx.PreviousBody }.Concat (
+                  _fieldSerializationExpressionBuilder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
   }
 }
