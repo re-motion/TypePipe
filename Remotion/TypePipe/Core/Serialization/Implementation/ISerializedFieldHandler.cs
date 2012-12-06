@@ -29,8 +29,5 @@ namespace Remotion.TypePipe.Serialization.Implementation
   public interface ISerializedFieldHandler
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields);
-
-    // TODO remove
-    IEnumerable<FieldInfo> GetSerializedFields (IEnumerable<FieldInfo> fields);
   }
 }

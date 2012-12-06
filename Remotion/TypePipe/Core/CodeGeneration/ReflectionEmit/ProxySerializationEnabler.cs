@@ -55,12 +55,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var serializedFields = _serializedFieldHandler.GetSerializedFields (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
-      var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFields.Length != 0;
+      var serializedFieldMapping = _serializedFieldHandler.GetSerializedFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
+      var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFieldMapping.Length != 0;
 
       if (needsCustomFieldSerialization)
       {
-        var serializedFieldMapping = GetFieldSerializationKeys (serializedFields).ToArray();
         OverrideGetObjectData (mutableType, serializedFieldMapping);
         AdaptDeserializationConstructor (mutableType, serializedFieldMapping);
       }
@@ -129,24 +128,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
       mutableConstructor.SetBody (ctx => BuildDeserializationBody (ctx.This, ctx.Parameters[0], ctx.PreviousBody, serializedFieldMapping));
-    }
-
-    private IEnumerable<Tuple<string, FieldInfo>> GetFieldSerializationKeys (IEnumerable<FieldInfo> serializedFields)
-    {
-      return serializedFields
-          .ToLookup (f => f.Name)
-          .SelectMany (
-              fieldsByName =>
-              {
-                var fields = fieldsByName.ToArray();
-
-                var serializationKeyProvider =
-                    fields.Length == 1
-                        ? (Func<FieldInfo, string>) (f => c_serializationKeyPrefix + f.Name)
-                        : (f => string.Format ("{0}{1}@{2}", c_serializationKeyPrefix, f.Name, f.FieldType.FullName));
-
-                return fields.Select (f => Tuple.Create (serializationKeyProvider (f), f));
-              });
     }
 
     private Expression BuildSerializationBody (

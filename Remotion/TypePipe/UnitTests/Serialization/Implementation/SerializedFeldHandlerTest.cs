@@ -19,11 +19,8 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Development.UnitTesting.Enumerables;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {

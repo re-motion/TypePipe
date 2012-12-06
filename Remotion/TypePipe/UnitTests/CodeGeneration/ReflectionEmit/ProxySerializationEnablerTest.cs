@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -84,13 +85,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
       Assert.That (deserializationCtor.IsModified, Is.False);
       var oldCtorBody = deserializationCtor.Body;
-      var field = _serializableInterfaceType.AddField ("field", typeof (int));
-      var fakeField1 = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, "field", typeof (int));
-      var fakeField2 = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, "xxx", typeof (int));
-      var fakeField3 = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, "xxx", typeof (string));
+      var addedField = _serializableInterfaceType.AddField ("input field", typeof (int));
+
+      var fakeFieldType = ReflectionObjectMother.GetSomeType();
+      FieldInfo fakeField = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, type: fakeFieldType);
+      var fakeMapping = Tuple.Create ("fake key", fakeField);
       _serializedFieldHandlerMock
-          .Expect (mock => mock.GetSerializedFields (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { field })))
-          .Return (new[] { fakeField1, fakeField2, fakeField3 });
+          .Expect (mock => mock.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { addedField })))
+          .Return (new[] { fakeMapping });
 
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
@@ -104,41 +106,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (method.Name, Is.EqualTo ("GetObjectData"));
       Assert.That (method.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (SerializationInfo), typeof (StreamingContext) }));
 
-      var serializationInfo = method.ParameterExpressions[0];
+      var info1 = method.ParameterExpressions[0];
       var thisExpr = new ThisExpression (_serializableInterfaceType);
-      var field1Expr = Expression.Field (thisExpr, fakeField1);
-      var field2Expr = Expression.Field (thisExpr, fakeField2);
-      var field3Expr = Expression.Field (thisExpr, fakeField3);
+      var fieldExpr = Expression.Field (thisExpr, fakeField);
       var baseMethod =
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableInterfaceType obj) => obj.GetObjectData (null, new StreamingContext()));
       var expectedBody = Expression.Block (
           new OriginalBodyExpression (baseMethod, typeof (void), method.ParameterExpressions.Cast<Expression>()),
-          Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>field"), field1Expr),
-          Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>xxx@System.Int32"), field2Expr),
-          Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>xxx@System.String"), field3Expr));
+          Expression.Call (info1, "AddValue", Type.EmptyTypes, Expression.Constant ("fake key"), fieldExpr));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
 
       var getValue = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
+      var info2 = deserializationCtor.ParameterExpressions[0];
       var expectedCtorBody = Expression.Block (
           typeof (void),
           oldCtorBody,
           Expression.Assign (
-              field1Expr,
+              fieldExpr,
               Expression.Convert (
-                  Expression.Call (serializationInfo, getValue, Expression.Constant ("<tp>field"), Expression.Constant (typeof (int))),
-                  typeof (int))),
-          Expression.Assign (
-              field2Expr,
-              Expression.Convert (
-                  Expression.Call (serializationInfo, getValue, Expression.Constant ("<tp>xxx@System.Int32"), Expression.Constant (typeof (int))),
-                  typeof (int))),
-          Expression.Assign (
-              field3Expr,
-              Expression.Convert (
-                  Expression.Call (
-                      serializationInfo, getValue, Expression.Constant ("<tp>xxx@System.String"), Expression.Constant (typeof (string))),
-                  typeof (string)))
-          );
+                  Expression.Call (info2, getValue, Expression.Constant ("fake key"), Expression.Constant (fakeFieldType)), fakeFieldType)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedCtorBody, deserializationCtor.Body);
     }
 
@@ -300,14 +286,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void StubFilterWithNoSerializedFields ()
     {
-      _serializedFieldHandlerMock.Stub (stub => stub.GetSerializedFields (Arg<IEnumerable<FieldInfo>>.Is.Anything)).Return (new FieldInfo[0]);
+      _serializedFieldHandlerMock
+          .Stub (stub => stub.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))
+          .Return (new Tuple<string, FieldInfo>[0]);
     }
 
     private void StubFilterWithSerializedFields (MutableType declaringType)
     {
       _serializedFieldHandlerMock
-          .Stub (stub => stub.GetSerializedFields (Arg<IEnumerable<FieldInfo>>.Is.Anything))
-          .Return (new[] { MutableFieldInfoObjectMother.Create (declaringType) });
+          .Stub (stub => stub.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))
+          .Return (new[] { Tuple.Create<string, FieldInfo> ("someField", MutableFieldInfoObjectMother.Create (declaringType)) });
     }
 
     class SomeType { }

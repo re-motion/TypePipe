@@ -25,7 +25,9 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.FunctionalProgramming;
+using Remotion.Reflection;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
@@ -36,6 +38,8 @@ namespace Remotion.TypePipe.IntegrationTests
   [TestFixture]
   public class ComplexSerializationTest : ObjectFactoryIntegrationTestBase
   {
+    private const string c_factoryIdentifier = "participant configuration key";
+
     private IObjectFactoryRegistry _registry;
 
     public override void SetUp ()
@@ -130,9 +134,15 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private new IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
-      var key = "participant configuration key";
+      var key = c_factoryIdentifier;
       var allParticipants = participants.Concat (new SerializationParticipant (key));
-      var factory = CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
+      var testName = GetNameForThisTest (1 + 1);
+      var typeModifier = CreateTypeModifier (testName);
+      var typeAssembler = new TypeAssembler (allParticipants, typeModifier);
+      var constructorFinder = new ConstructorFinder();
+      var delegateFactory = new DelegateFactory();
+      var typeCache = new TypeCache (typeAssembler, constructorFinder, delegateFactory);
+      var factory = (IObjectFactory) new ObjectFactory (typeCache);
       _registry.Register (key, factory);
 
       return factory;
@@ -142,9 +152,10 @@ namespace Remotion.TypePipe.IntegrationTests
         SerializableType instance,
         string expectedStringFieldValue = "abc",
         Action<SerializableType, object[]> additionalAssertionAction = null,
-        object[] additonalExpectedValues = null)
+        object[] additonalExpectedValues = null,
+        IParticipant[] participants = null)
     {
-      Assert.That (instance.GetType ().IsSerializable, Is.True);
+      Assert.That (instance.GetType().IsSerializable, Is.True);
       instance.String = "abc";
 
       var memoryStream = new MemoryStream ();
@@ -161,10 +172,26 @@ namespace Remotion.TypePipe.IntegrationTests
             var expectedFieldValue = (string) args[2];
             var additonalAssertions = (Action<SerializableType, object[]>) args[3];
             var additonalExpectedVals = (object[]) args[4];
+            var participants2 = (IParticipant[]) args[5];
 
-            var deserializedInstance = (SerializableType) new BinaryFormatter ().Deserialize (memStream);
 
-            Assert.That (deserializedInstance.GetType ().AssemblyQualifiedName, Is.EqualTo (expectedAssemblyQualifiedName));
+            var entry = new ServiceConfigurationEntry (
+                typeof (IParticipant), new ServiceImplementationInfo (typeof (BlaParticpant), LifetimeKind.Instance));
+
+            SerializableType deserializedInstance;
+            using (new ServiceLocatorScope (entry))
+            {
+              var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory> ();
+              var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry> ();
+
+              registry.Register (c_factoryIdentifier, factory);
+
+              deserializedInstance = (SerializableType) new BinaryFormatter ().Deserialize (memStream);
+            }
+
+            
+
+            //Assert.That (deserializedInstance.GetType ().AssemblyQualifiedName, Is.EqualTo (expectedAssemblyQualifiedName));
             // TODO 5223: correct?
             //Assert.That (deserializedInstance.GetType(), Is.EqualTo (instance.GetType()));
             Assert.That (deserializedInstance.String, Is.EqualTo (expectedFieldValue));
@@ -176,7 +203,8 @@ namespace Remotion.TypePipe.IntegrationTests
           instance.GetType ().AssemblyQualifiedName,
           expectedStringFieldValue,
           additionalAssertionAction,
-          additonalExpectedValues);
+          additonalExpectedValues,
+          participants);
     }
 
     private void CheckInstanceIsSerializableAndAddedFields (
@@ -200,6 +228,17 @@ namespace Remotion.TypePipe.IntegrationTests
           },
           new object[] { ctorWasCalled, expectedIntFieldValue, expectedSkippedIntField });
     }
+
+
+    public class BlaParticpant : SerializationParticipant
+    {
+      public BlaParticpant ()
+          : base(c_factoryIdentifier)
+      {
+      }
+    }
+
+
 
     private IParticipant CreateFieldAddingParticipant ()
     {
@@ -249,6 +288,71 @@ namespace Remotion.TypePipe.IntegrationTests
                     ExpressionHelper.StringConcatMethod));
           });
     }
+
+    [Serializable]
+    public class FieldAddingParticipant : IParticipant
+    {
+      public ICacheKeyProvider PartialCacheKeyProvider
+      {
+        get { return null; }
+      }
+
+      public void ModifyType (MutableType mutableType)
+      {
+        var attributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
+        mutableType.AddField ("IntField", typeof (int), FieldAttributes.Public);
+        mutableType.AddField ("SkippedIntField", typeof (int), FieldAttributes.Public)
+                   .AddCustomAttribute (new CustomAttributeDeclaration (attributeConstructor, new object[0]));
+      }
+    }
+
+    [Serializable]
+    public class InitializationAddingParticipant : IParticipant
+    {
+      public ICacheKeyProvider PartialCacheKeyProvider
+      {
+        get { return null; }
+      }
+
+      public void ModifyType (MutableType mutableType)
+      {
+        var stringField = mutableType.GetField ("String");
+        var intField = mutableType.GetField ("IntField");
+        var skippedIntField = mutableType.GetField ("SkippedIntField");
+
+        mutableType.AddInstanceInitialization (
+            ctx =>
+            Expression.AddAssign (Expression.Field (ctx.This, stringField), Expression.Constant (" init"), ExpressionHelper.StringConcatMethod));
+        mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, intField)));
+        mutableType.AddInstanceInitialization (ctx => Expression.PreIncrementAssign (Expression.Field (ctx.This, skippedIntField)));
+      }
+    }
+
+    [Serializable]
+    public class CallbackImplementingParticipant : IParticipant
+    {
+      public ICacheKeyProvider PartialCacheKeyProvider
+      {
+        get { return null; }
+      }
+
+      public void ModifyType (MutableType mutableType)
+      {
+        var stringField = mutableType.GetField ("String");
+        var ctorCalledField = mutableType.GetField ("ConstructorCalled");
+        var callback = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+
+        mutableType.AddInterface (typeof (IDeserializationCallback));
+        var method = mutableType.GetOrAddMutableMethod (callback);
+        method.SetBody (
+            ctx =>
+            Expression.AddAssign (
+                Expression.Field (ctx.This, stringField),
+                ExpressionHelper.StringConcat (Expression.Constant (" callback:"), Expression.Field (ctx.This, ctorCalledField)),
+                ExpressionHelper.StringConcatMethod));
+      }
+    }
+
 
     [Serializable]
     public class SerializableType

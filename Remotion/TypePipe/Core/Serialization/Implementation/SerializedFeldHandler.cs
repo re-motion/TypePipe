@@ -50,10 +50,5 @@ namespace Remotion.TypePipe.Serialization.Implementation
                 return fields1.Select (f => Tuple.Create (serializationKeyProvider (f), f));
               });
     }
-
-    public IEnumerable<FieldInfo> GetSerializedFields (IEnumerable<FieldInfo> fields)
-    {
-      return fields.Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any());
-    }
   }
 }
