@@ -173,6 +173,7 @@
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistryTest.cs" />
     <Compile Include="Serialization\Implementation\DeserializationSurrogateBaseTest.cs" />
     <Compile Include="Serialization\Implementation\FieldSerializationExpressionBuilderTest.cs" />
+    <Compile Include="Serialization\Implementation\ReflectionSerializationHelperTest.cs" />
     <Compile Include="Serialization\Implementation\TestableDeserializationSurrogateBase.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />

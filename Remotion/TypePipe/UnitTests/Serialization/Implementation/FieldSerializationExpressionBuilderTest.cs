@@ -122,10 +122,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       Assert.That (memberExpression.Member, Is.SameAs (expectedField));
     }
 
-    // ReSharper disable ConvertToConstant.Global
-    internal static readonly int StaticField = 0;
-    internal readonly int InstanceField = 0;
+    static readonly int StaticField = 0;
+    readonly int InstanceField = 0;
     [NonSerialized]
-    internal readonly int NonSerializedField = 0;
+    readonly int NonSerializedField = 0;
   }
 }

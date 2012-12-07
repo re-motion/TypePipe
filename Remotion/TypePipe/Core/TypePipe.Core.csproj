@@ -141,6 +141,7 @@
     <Compile Include="Serialization\Implementation\IFieldSerializationExpressionBuilder.cs" />
     <Compile Include="Serialization\Implementation\FieldSerializationExpressionBuilder.cs" />
     <Compile Include="Serialization\Implementation\DeserializationSurrogateBase.cs" />
+    <Compile Include="Serialization\Implementation\ReflectionSerializationHelper.cs" />
     <Compile Include="Serialization\IObjectFactoryRegistry.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
