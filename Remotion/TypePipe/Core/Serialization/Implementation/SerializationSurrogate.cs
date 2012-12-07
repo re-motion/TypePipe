@@ -17,7 +17,6 @@
 using System;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
@@ -34,9 +33,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
     protected override object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context)
     {
-      ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
-      ArgumentUtility.CheckNotNull ("underlyingType", underlyingType);
-
       var paramList = ParamList.Create (SerializationInfo, context);
       return objectFactory.CreateObject (underlyingType, paramList, allowNonPublicConstructor: true);
     }

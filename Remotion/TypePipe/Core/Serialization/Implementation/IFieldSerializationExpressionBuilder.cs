@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
   public interface IFieldSerializationExpressionBuilder
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields);
+    IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type runtimeType);
 
     IEnumerable<Expression> BuildFieldSerializationExpressions (
         Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping);

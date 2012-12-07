@@ -16,8 +16,9 @@
 // 
 
 using System;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
@@ -25,9 +26,10 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// Acts as a helper for the .NET deserialization process of modified types that implement <see cref="ISerializable"/> but do not declare a
   /// deserialization constructor.
   /// </summary>
-  [Serializable]
   public class ReflectionSerializationSurrogate : SerializationSurrogateBase
   {
+    private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder = new FieldSerializationExpressionBuilder();
+
     public ReflectionSerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
         : base (serializationInfo, streamingContext)
     {
@@ -35,10 +37,16 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
     protected override object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context)
     {
-      ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
-      ArgumentUtility.CheckNotNull ("underlyingType", underlyingType);
+      var instance = objectFactory.GetUninitializedObject (underlyingType);
+      var type = instance.GetType();
 
-      throw new NotImplementedException ("TODO");
+      var mapping = _fieldSerializationExpressionBuilder.GetSerializedFieldMapping (type).ToArray();
+      var data = mapping.Select (m => SerializationInfo.GetValue (m.Item1, m.Item2.FieldType)).ToArray();
+      var fields = mapping.Select (m => m.Item2).Cast<MemberInfo>().ToArray();
+
+      FormatterServices.PopulateObjectMembers (instance, fields, data);
+
+      return instance;
     }
   }
 }

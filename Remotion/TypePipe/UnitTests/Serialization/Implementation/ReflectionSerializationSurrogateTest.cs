@@ -15,48 +15,63 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Runtime.Serialization;
 using NUnit.Framework;
+using Remotion.Collections;
 using Remotion.Development.UnitTesting;
-using Remotion.Reflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class SerializationSurrogateTest
+  public class ReflectionSerializationSurrogateTest
   {
     private Type _underlyingType;
     private SerializationInfo _serializationInfo;
+    private IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilderMock;
 
-    private SerializationSurrogate _surrogate;
+    private ReflectionSerializationSurrogate _surrogate;
 
     [SetUp]
     public void SetUp ()
     {
       _underlyingType = ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeDifferentType(), new FormatterConverter());
+      _fieldSerializationExpressionBuilderMock = MockRepository.GenerateStrictMock<IFieldSerializationExpressionBuilder>();
 
-      _surrogate = new SerializationSurrogate (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+      _surrogate = new ReflectionSerializationSurrogate (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+      PrivateInvoke.SetNonPublicField (_surrogate, "_fieldSerializationExpressionBuilder", _fieldSerializationExpressionBuilderMock);
     }
 
     [Test]
     public void CreateRealObject ()
     {
       var context = new StreamingContext (StreamingContextStates.Persistence);
+      _serializationInfo.AddValue ("key1", 7);
+
       var objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
-      var fakeObject = new object();
-      objectFactoryMock
-          .Expect (mock => mock.CreateObject (Arg.Is (_underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
-          .WhenCalled (
-              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
-          .Return (fakeObject);
+      var instance = new DomainType();
+      var serializableField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);
+      objectFactoryMock.Expect (mock => mock.GetUninitializedObject (_underlyingType)).Return (instance);
+      _fieldSerializationExpressionBuilderMock
+          .Expect (mock => mock.GetSerializedFieldMapping (typeof (DomainType)))
+          .Return (new[] { Tuple.Create ("key1", serializableField) });
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", objectFactoryMock, _underlyingType, context);
 
       objectFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeObject));
+      Assert.That (result, Is.SameAs (instance));
+      Assert.That (((DomainType) result).IntField, Is.EqualTo (7));
+    }
+
+    [Serializable]
+    class DomainType
+    {
+      public int IntField = 0;
     }
   }
 }

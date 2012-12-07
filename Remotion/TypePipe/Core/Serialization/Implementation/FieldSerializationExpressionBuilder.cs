@@ -58,6 +58,13 @@ namespace Remotion.TypePipe.Serialization.Implementation
               });
     }
 
+    public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type runtimeType)
+    {
+      ArgumentUtility.CheckNotNull ("runtimeType", runtimeType);
+
+      return null;
+    }
+
     public IEnumerable<Expression> BuildFieldSerializationExpressions (
         Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
     {
