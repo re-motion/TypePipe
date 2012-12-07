@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -82,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = _builder.CreateInstanceInitializationMembers (_mutableType);
 
-      var counter = result.Item1;
+      var counter = (MutableFieldInfo) result.Item1;
       var initMethod = (MutableMethodInfo) result.Item2;
 
       // Interface added.
@@ -90,8 +91,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       // Field added.
       Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
-      Assert.That (counter.Name, Is.EqualTo ("_<TypePipe-generated>_ctorRunCounter"));
+      Assert.That (counter.Name, Is.EqualTo ("<tp>_ctorRunCounter"));
       Assert.That (counter.FieldType, Is.SameAs (typeof (int)));
+      Assert.That (counter.AddedCustomAttributeDeclarations.Single().Type, Is.SameAs (typeof (NonSerializedAttribute)));
 
       // Initialization method added.
       var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;

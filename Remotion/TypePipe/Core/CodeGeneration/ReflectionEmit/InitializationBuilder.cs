@@ -54,7 +54,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       mutableType.AddInterface (typeof (IInitializableObject));
 
-      var counter = mutableType.AddField ("_<TypePipe-generated>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+      var counter = mutableType.AddField ("<tp>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+      var nonSerializedCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
+      counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
       var body = Expression.Block (interfaceMethod.ReturnType, mutableType.InstanceInitializations);
