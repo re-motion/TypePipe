@@ -29,8 +29,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// </summary>
   public interface IFieldSerializationExpressionBuilder
   {
+    IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type type);
     IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields);
-    IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type runtimeType);
 
     IEnumerable<Expression> BuildFieldSerializationExpressions (
         Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping);

@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -40,32 +41,56 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     }
 
     [Test]
-    public void GetSerializedFieldMapping_Filtering ()
+    public void GetSerializedFieldMapping_Fields_Filtering ()
     {
-      var field1 = NormalizingMemberInfoFromExpressionUtility.GetField (() => s_staticField);
-      var field2 = NormalizingMemberInfoFromExpressionUtility.GetField (() => _instanceField);
-      var field3 = NormalizingMemberInfoFromExpressionUtility.GetField (() => _nonSerializedField);
+      var field1 = NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.s_staticField);
+      var field2 = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.InstanceField);
+      var field3 = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.NonSerializedField);
 
       var result = _builder.GetSerializedFieldMapping (new[] { field1, field2, field3 });
 
-      Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>_instanceField", field2) }));
+      Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>InstanceField", field2) }));
     }
 
     [Test]
-    public void GetSerializedFieldMapping_SameName ()
+    public void GetSerializedFieldMapping_Fields_SameName ()
     {
       FieldInfo field1 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (int));
       FieldInfo field2 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (string));
 
       var result = _builder.GetSerializedFieldMapping (new[] { field1, field2 });
 
-      Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>abc@System.Int32", field1), Tuple.Create ("<tp>abc@System.String", field2) }));
+      Assert.That (
+          result,
+          Is.EqualTo (
+              new[]
+              {
+                  Tuple.Create ("<tp>" + field1.DeclaringType.FullName + "::abc@System.Int32", field1),
+                  Tuple.Create ("<tp>" + field2.DeclaringType.FullName + "::abc@System.String", field2)
+              }));
     }
 
+    [Test]
+    public void GetSerializedFieldMapping_Type ()
+    {
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.InstanceField);
+      var baseFieldWithSameName = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainTypeBase obj) => obj.InstanceField);
+      var privateBaseField = typeof (DomainTypeBase).GetField ("_privateBaseField", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    //Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> serializedFieldMapping
+      var result = _builder.GetSerializedFieldMapping (typeof (DomainType)).ToArray();
 
-
+      var domainTypeName = "Remotion.TypePipe.UnitTests.Serialization.Implementation.FieldSerializationExpressionBuilderTest+DomainType";
+      var domainTypeBaseName = "Remotion.TypePipe.UnitTests.Serialization.Implementation.FieldSerializationExpressionBuilderTest+DomainTypeBase";
+      Assert.That (
+          result,
+          Is.EqualTo (
+              new[]
+              {
+                  Tuple.Create ("<tp>" + domainTypeName + "::InstanceField@System.Int32", field),
+                  Tuple.Create ("<tp>" + domainTypeBaseName + "::InstanceField@System.Int32", baseFieldWithSameName),
+                  Tuple.Create ("<tp>_privateBaseField", privateBaseField)
+              }));
+    }
 
     [Test]
     public void BuildFieldSerializationExpressions ()
@@ -120,9 +145,22 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       Assert.That (memberExpression.Member, Is.SameAs (expectedField));
     }
 
-    private static int s_staticField = 0;
-    private int _instanceField = 0;
-    [NonSerialized]
-    private int _nonSerializedField = 0;
+    [Serializable]
+    class DomainTypeBase
+    {
+      private string _privateBaseField = "";
+      public int InstanceField = 0;
+
+      protected DomainTypeBase () { Dev.Null = _privateBaseField; }
+    }
+
+    [Serializable]
+    class DomainType : DomainTypeBase
+    {
+      internal static int s_staticField = 0;
+      public new int InstanceField = 0;
+      [NonSerialized]
+      internal int NonSerializedField = 0;
+    }
   }
 }

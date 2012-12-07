@@ -22,6 +22,7 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
@@ -36,12 +37,24 @@ namespace Remotion.TypePipe.Serialization.Implementation
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
 
+    public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      var fields = type
+          .CreateSequence (t => t.BaseType)
+          .SelectMany (t => t.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+      return GetSerializedFieldMapping (fields);
+    }
+
     public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
 
       return fields
-          .Where (f => !f.IsStatic && !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
+          .Where (f => !f.IsStatic && (f.Attributes & FieldAttributes.NotSerialized) == 0)
+          .Where (f => !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
           .ToLookup (f => f.Name)
           .SelectMany (
               fieldsByName =>
@@ -52,17 +65,10 @@ namespace Remotion.TypePipe.Serialization.Implementation
                 var serializationKeyProvider =
                     fieldArray.Length == 1
                         ? (Func<FieldInfo, string>) (f => prefix + f.Name)
-                        : (f => string.Format ("{0}{1}@{2}", prefix, f.Name, f.FieldType.FullName));
+                        : (f => string.Format ("{0}{1}::{2}@{3}", prefix, f.DeclaringType.FullName, f.Name, f.FieldType.FullName));
 
                 return fieldArray.Select (f => Tuple.Create (serializationKeyProvider (f), f));
               });
-    }
-
-    public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type runtimeType)
-    {
-      ArgumentUtility.CheckNotNull ("runtimeType", runtimeType);
-
-      return null;
     }
 
     public IEnumerable<Expression> BuildFieldSerializationExpressions (
