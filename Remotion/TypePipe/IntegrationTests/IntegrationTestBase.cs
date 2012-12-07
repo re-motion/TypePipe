@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipPeVerify = true;
     }
 
-    protected IParticipant CreateParticipant (Action<MutableType> typeModification)
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);

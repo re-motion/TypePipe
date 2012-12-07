@@ -25,7 +25,6 @@ using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [Ignore ("5222")]
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
@@ -36,9 +35,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return new SerializationParticipant (c_factoryIdentifier);
     }
 
+    private Func<IParticipant>[] _participantProviders;
+
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected override IObjectFactory CreateObjectFactoryForSerialization (params IParticipant[] participants)
+    protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
+      _participantProviders = participantProviders;
+      var participants = participantProviders.Select (pp => pp());
       var allParticipants = participants.Concat (CreateSerializationParticipant());
       var factory = CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
 
@@ -49,17 +52,23 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     {
       // Do not flush generated assembly to disk.
 
+      context.ParticipantProviders = _participantProviders;
       AppDomainRunner.Run (
           args =>
           {
+            var ctx = (TestContext) args.Single();
+
             // Register a factory for deserialization in current (new) app domain.
+            var allParticipantProviders = ctx.ParticipantProviders.Concat (CreateSerializationParticipant)
+                                             .Select<Func<IParticipant>, Func<Object>> (p => () => p()).ToArray();
             IObjectFactory factory;
-            using (new ServiceLocatorScope (typeof (IParticipant), CreateSerializationParticipant))
+            using (new ServiceLocatorScope (typeof (IParticipant), allParticipantProviders))
+            {
               factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+            }
             var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
             registry.Register (c_factoryIdentifier, factory);
 
-            var ctx = (TestContext) args.Single();
             var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
             // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.

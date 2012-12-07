@@ -27,8 +27,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   public class SimpleSerializationTest : SerializationTestBase
   {
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected override IObjectFactory CreateObjectFactoryForSerialization (params IParticipant[] participants)
+    protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
+      var participants = participantProviders.Select (pp => pp());
       var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
       factory.CodeGenerator.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
 
