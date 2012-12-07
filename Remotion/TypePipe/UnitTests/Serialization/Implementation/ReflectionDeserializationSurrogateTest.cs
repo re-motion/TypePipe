@@ -30,7 +30,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
   {
     private Type _underlyingType;
     private SerializationInfo _serializationInfo;
-    private IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilderMock;
 
     private ReflectionDeserializationSurrogate _surrogate;
 
@@ -39,25 +38,19 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     {
       _underlyingType = ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeDifferentType(), new FormatterConverter());
-      _fieldSerializationExpressionBuilderMock = MockRepository.GenerateStrictMock<IFieldSerializationExpressionBuilder>();
 
       _surrogate = new ReflectionDeserializationSurrogate (_serializationInfo, new StreamingContext (StreamingContextStates.File));
-      PrivateInvoke.SetNonPublicField (_surrogate, "_fieldSerializationExpressionBuilder", _fieldSerializationExpressionBuilderMock);
     }
 
     [Test]
     public void CreateRealObject ()
     {
       var context = new StreamingContext (StreamingContextStates.Persistence);
-      _serializationInfo.AddValue ("key1", 7);
+      _serializationInfo.AddValue ("<tp>IntField", 7);
 
       var objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
       var instance = new DomainType();
-      var serializableField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);
       objectFactoryMock.Expect (mock => mock.GetUninitializedObject (_underlyingType)).Return (instance);
-      _fieldSerializationExpressionBuilderMock
-          .Expect (mock => mock.GetSerializableFieldMapping (new[] { serializableField }))
-          .Return (new[] { Tuple.Create ("key1", serializableField) });
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", objectFactoryMock, _underlyingType, context);
 

@@ -16,8 +16,6 @@
 // 
 
 using System;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Remotion.TypePipe.Serialization.Implementation
@@ -29,8 +27,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
   [Serializable]
   public class ReflectionDeserializationSurrogate : DeserializationSurrogateBase
   {
-    private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder = new FieldSerializationExpressionBuilder();
-
     public ReflectionDeserializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
         : base (serializationInfo, streamingContext)
     {
@@ -39,13 +35,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
     protected override object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context)
     {
       var instance = objectFactory.GetUninitializedObject (underlyingType);
-      var type = instance.GetType();
 
-      var fields = FormatterServices.GetSerializableMembers (type);
-      var mapping = _fieldSerializationExpressionBuilder.GetSerializableFieldMapping (fields.Cast<FieldInfo>());
-      var data = mapping.Select (m => SerializationInfo.GetValue (m.Item1, m.Item2.FieldType)).ToArray();
-
-      FormatterServices.PopulateObjectMembers (instance, fields, data);
+      ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
 
       return instance;
     }
