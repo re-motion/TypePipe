@@ -14,17 +14,17 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Runtime.Serialization;
+using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Acts as a helper for the .NET deserialization process of modified types that do NOT implement <see cref="ISerializable"/>.
+  /// Acts as a helper for the .NET deserialization process of modified types that implement <see cref="ISerializable"/> and declare a
+  /// deserialization constructor.
   /// </summary>
-  [Serializable]
   public class SerializationSurrogate : SerializationSurrogateBase
   {
     public SerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
@@ -37,7 +37,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
       ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
       ArgumentUtility.CheckNotNull ("underlyingType", underlyingType);
 
-      throw new NotImplementedException ("TODO");
+      var paramList = ParamList.Create (SerializationInfo, context);
+      return objectFactory.CreateObject (underlyingType, paramList, allowNonPublicConstructor: true);
     }
   }
 }

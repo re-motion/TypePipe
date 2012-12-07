@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.Serialization
             .GetOrAddMutableMethod (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
-                    new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (CustomSerializationSurrogate)))));
+                    new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (SerializationSurrogate)))));
       }
       else
       {
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.Serialization
             s_getObjectDataMethod,
             ctx => Expression.Block (
                 typeof (void),
-                CreateMetaDataSerializationExpressions (ctx, typeof (SerializationSurrogate))
+                CreateMetaDataSerializationExpressions (ctx, typeof (ReflectionSerializationSurrogate))
                     .Concat (_fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFields))));
       }
     }

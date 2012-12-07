@@ -25,25 +25,24 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class CustomSerializationSurrogateTest
+  public class SerializationSurrogateTest
   {
     [Test]
     public void CreateRealObject ()
     {
       var underlyingType = ReflectionObjectMother.GetSomeType();
       var serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeDifferentType(), new FormatterConverter());
+      var surrogate = new SerializationSurrogate (serializationInfo, new StreamingContext (StreamingContextStates.File));
+
       var streamingContext = new StreamingContext (StreamingContextStates.Persistence);
       var fakeObject = new object();
       var objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
-      var surrogate = new CustomSerializationSurrogate (serializationInfo, new StreamingContext(StreamingContextStates.File));
-
       objectFactoryMock
           .Expect (x => x.CreateObject (Arg.Is (underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
           .WhenCalled (
               mi =>
               Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { serializationInfo, streamingContext })))
           .Return (fakeObject);
-
 
       var result = PrivateInvoke.InvokeNonPublicMethod (surrogate, "CreateRealObject", objectFactoryMock, underlyingType, streamingContext);
 
