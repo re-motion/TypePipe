@@ -34,9 +34,11 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
     protected override object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context)
     {
-      var instance = objectFactory.GetUninitializedObject (underlyingType);
+      var type = objectFactory.GetAssembledType (underlyingType);
 
+      var instance = FormatterServices.GetUninitializedObject (type);
       ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
+      objectFactory.PrepareExternalUninitializedObject (instance);
 
       return instance;
     }

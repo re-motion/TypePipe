@@ -47,8 +47,16 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _serializationInfo.AddValue ("<tp>IntField", 7);
 
       var objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
-      var instance = new DomainType();
-      objectFactoryMock.Expect (mock => mock.GetUninitializedObject (_underlyingType)).Return (instance);
+      objectFactoryMock.Expect (mock => mock.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
+      object instance = null;
+      objectFactoryMock
+          .Expect (mock => mock.PrepareExternalUninitializedObject (Arg<object>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                instance = mi.Arguments[0];
+                Assert.That (instance, Is.TypeOf<DomainType>());
+              });
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", objectFactoryMock, _underlyingType, context);
 
