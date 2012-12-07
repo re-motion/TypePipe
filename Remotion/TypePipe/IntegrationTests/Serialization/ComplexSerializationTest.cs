@@ -22,7 +22,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Serialization;
-using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
@@ -34,7 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private static SerializationParticipant CreateSerializationParticipant ()
     {
-      return new SerializationParticipant (c_factoryIdentifier, new FieldSerializationExpressionBuilder ());
+      return new SerializationParticipant (c_factoryIdentifier);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]

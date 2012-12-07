@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -40,17 +41,16 @@ namespace Remotion.TypePipe.Serialization
 
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
+    private static readonly MethodInfo s_addFieldValueMethod =
+        MemberInfoFromExpressionUtility.GetMethod (() => ReflectionSerializationHelper.AddFieldValues (null, null));
 
     private readonly string _factoryIdentifier;
-    private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder;
 
-    public SerializationParticipant (string factoryIdentifier, IFieldSerializationExpressionBuilder fieldSerializationExpressionBuilder)
+    public SerializationParticipant (string factoryIdentifier)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
-      ArgumentUtility.CheckNotNull ("fieldSerializationExpressionBuilder", fieldSerializationExpressionBuilder);
 
       _factoryIdentifier = factoryIdentifier;
-      _fieldSerializationExpressionBuilder = fieldSerializationExpressionBuilder;
     }
 
     public ICacheKeyProvider PartialCacheKeyProvider
@@ -75,8 +75,6 @@ namespace Remotion.TypePipe.Serialization
       }
       else
       {
-        var serializedFields = _fieldSerializationExpressionBuilder.GetSerializableFieldMapping (mutableType.ExistingMutableFields.Cast<FieldInfo>());
-
         mutableType.AddInterface (typeof (ISerializable));
 
         mutableType.AddExplicitOverride (
@@ -84,7 +82,7 @@ namespace Remotion.TypePipe.Serialization
             ctx => Expression.Block (
                 typeof (void),
                 CreateMetaDataSerializationExpressions (ctx, typeof (ReflectionDeserializationSurrogate))
-                    .Concat (_fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFields))));
+                    .Concat (Expression.Call (s_addFieldValueMethod, ctx.Parameters[0], ctx.This))));
       }
     }
 
