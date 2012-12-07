@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     protected override void CheckDeserializationInNewAppDomain (TestContext context)
     {
-      // Do not flush.
+      // Do not flush generated assembly to disk.
 
       AppDomainRunner.Run (
           args =>
@@ -63,8 +63,16 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
             var ctx = (TestContext) args.Single();
             var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
-            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
-            Assert.That (deserializedInstance.GetType().FullName, Is.EqualTo (ctx.ExpectedTypeFullName));
+            // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
+            var type = deserializedInstance.GetType();
+            Assert.That (type.AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
+            Assert.That (type.Assembly.GetName().Name, Is.EqualTo ("TypePipe_GeneratedAssembly_1"));
+            Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
+            // The generated type is always the first type in the assembly.
+            var counterStart = ctx.ExpectedTypeFullName.LastIndexOf ('_') + 1;
+            var expectedFullName = ctx.ExpectedTypeFullName.Remove (counterStart) + "Proxy1";
+            Assert.That (type.FullName, Is.EqualTo (expectedFullName));
+
             ctx.Assertions (deserializedInstance, ctx);
           },
           context);
