@@ -25,9 +25,9 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// deserialization constructor.
   /// </summary>
   [Serializable]
-  public class SerializationSurrogate : SerializationSurrogateBase
+  public class DeserializationSurrogate : DeserializationSurrogateBase
   {
-    public SerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    public DeserializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
         : base (serializationInfo, streamingContext)
     {
     }

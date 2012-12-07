@@ -25,12 +25,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class SerializationSurrogateBaseTest
+  public class DeserializationSurrogateBaseTest
   {
     private SerializationInfo _info;
     private StreamingContext _context;
 
-    private SerializationSurrogateBase _serializationSurrogateBase;
+    private DeserializationSurrogateBase _deserializationSurrogateBase;
 
     private IObjectFactoryRegistry _objectFactoryRegistryMock;
     private Func<IObjectFactory, Type, StreamingContext, object> _createRealObjectAssertions;
@@ -49,14 +49,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       using (new ServiceLocatorScope (typeof (IObjectFactoryRegistry), () => _objectFactoryRegistryMock))
       {
         // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
-        _serializationSurrogateBase = new TestableSerializationSurrogateBase (_info, _context, (f, t, c) => _createRealObjectAssertions (f, t, c));
+        _deserializationSurrogateBase = new TestableDeserializationSurrogateBase (_info, _context, (f, t, c) => _createRealObjectAssertions (f, t, c));
       }
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_serializationSurrogateBase.SerializationInfo, Is.SameAs (_info));
+      Assert.That (_deserializationSurrogateBase.SerializationInfo, Is.SameAs (_info));
     }
 
     [Test]
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
         return fakeObject;
       };
 
-      var result = _serializationSurrogateBase.GetRealObject (context);
+      var result = _deserializationSurrogateBase.GetRealObject (context);
 
       _objectFactoryRegistryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
@@ -94,14 +94,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _info.AddValue ("<tp>underlyingType", "UnknownType");
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
-      _serializationSurrogateBase.GetRealObject (new StreamingContext());
+      _deserializationSurrogateBase.GetRealObject (new StreamingContext());
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
     public void GetObjectData ()
     {
-      _serializationSurrogateBase.GetObjectData (null, new StreamingContext());
+      _deserializationSurrogateBase.GetObjectData (null, new StreamingContext());
     }
   }
 }

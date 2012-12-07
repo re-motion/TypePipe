@@ -24,14 +24,14 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// <summary>
   /// Acts as a common base for the .NET deserialization surrogates.
   /// </summary>
-  public abstract class SerializationSurrogateBase : ISerializable, IObjectReference
+  public abstract class DeserializationSurrogateBase : ISerializable, IObjectReference
   {
     private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
 
     private readonly SerializationInfo _serializationInfo;
 
 // ReSharper disable UnusedParameter.Local
-    protected SerializationSurrogateBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    protected DeserializationSurrogateBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
 // ReSharper restore UnusedParameter.Local
     {
       ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);

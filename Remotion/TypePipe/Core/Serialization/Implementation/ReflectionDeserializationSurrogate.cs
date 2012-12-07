@@ -27,11 +27,11 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// deserialization constructor.
   /// </summary>
   [Serializable]
-  public class ReflectionSerializationSurrogate : SerializationSurrogateBase
+  public class ReflectionDeserializationSurrogate : DeserializationSurrogateBase
   {
     private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder = new FieldSerializationExpressionBuilder();
 
-    public ReflectionSerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    public ReflectionDeserializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
         : base (serializationInfo, streamingContext)
     {
     }

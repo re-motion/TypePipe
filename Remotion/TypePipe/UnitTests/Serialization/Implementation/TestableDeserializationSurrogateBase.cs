@@ -21,11 +21,11 @@ using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
-  public class TestableSerializationSurrogateBase : SerializationSurrogateBase
+  public class TestableDeserializationSurrogateBase : DeserializationSurrogateBase
   {
     private readonly Func<IObjectFactory, Type, StreamingContext, object> _createRealObjectAssertions;
 
-    public TestableSerializationSurrogateBase (
+    public TestableDeserializationSurrogateBase (
         SerializationInfo serializationInfo,
         StreamingContext streamingContext,
         Func<IObjectFactory, Type, StreamingContext, object> createRealObjectAssertions)
