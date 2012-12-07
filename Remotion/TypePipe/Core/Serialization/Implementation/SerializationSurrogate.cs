@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// Acts as a helper for the .NET deserialization process of modified types that implement <see cref="ISerializable"/> and declare a
   /// deserialization constructor.
   /// </summary>
+  [Serializable]
   public class SerializationSurrogate : SerializationSurrogateBase
   {
     public SerializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)

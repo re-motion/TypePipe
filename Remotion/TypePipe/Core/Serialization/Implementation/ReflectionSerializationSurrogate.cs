@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// Acts as a helper for the .NET deserialization process of modified types that implement <see cref="ISerializable"/> but do not declare a
   /// deserialization constructor.
   /// </summary>
+  [Serializable]
   public class ReflectionSerializationSurrogate : SerializationSurrogateBase
   {
     private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder = new FieldSerializationExpressionBuilder();
