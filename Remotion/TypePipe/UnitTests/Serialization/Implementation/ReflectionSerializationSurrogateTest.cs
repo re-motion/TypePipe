@@ -15,14 +15,12 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation

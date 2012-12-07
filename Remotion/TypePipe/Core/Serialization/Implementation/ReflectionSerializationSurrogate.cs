@@ -41,8 +41,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
       var type = instance.GetType();
 
       var mapping = _fieldSerializationExpressionBuilder.GetSerializedFieldMapping (type).ToArray();
-      var data = mapping.Select (m => SerializationInfo.GetValue (m.Item1, m.Item2.FieldType)).ToArray();
       var fields = mapping.Select (m => m.Item2).Cast<MemberInfo>().ToArray();
+      var data = mapping.Select (m => SerializationInfo.GetValue (m.Item1, m.Item2.FieldType)).ToArray();
 
       FormatterServices.PopulateObjectMembers (instance, fields, data);
 
