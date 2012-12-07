@@ -150,16 +150,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The underlying type implements ISerializable but does not define a deserialization constructor.")]
-    public void ISerializable_MissingDeserializationConstructor ()
-    {
-      SkipSavingAndPeVerification ();
-      var factory = CreateObjectFactoryForSerialization (CreateFieldAddingParticipant ());
-      factory.GetAssembledType (typeof (SerializableInterfaceTypeWithoutDeserializationConstructor));
-    }
-
-    [Test]
     public void IDeserializationCallback_CannotModifyOrOverrideOnDeserialization ()
     {
       SkipSavingAndPeVerification ();
@@ -323,14 +313,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     public class ExplicitISerializableType : ISerializable
     {
+      public ExplicitISerializableType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    public class DerivedExplicitISerializableType : ExplicitISerializableType { }
-
-    public class SerializableInterfaceTypeWithoutDeserializationConstructor : ISerializable
+    public class DerivedExplicitISerializableType : ExplicitISerializableType
     {
-      public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
+      public DerivedExplicitISerializableType (SerializationInfo info, StreamingContext context) : base (info, context) { }
     }
 
     public class ExplicitIDeserializationCallbackType : SerializableType, IDeserializationCallback

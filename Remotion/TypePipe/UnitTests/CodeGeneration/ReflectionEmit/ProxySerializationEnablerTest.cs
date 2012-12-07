@@ -225,18 +225,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The underlying type implements ISerializable but does not define a deserialization constructor.")]
-    public void MakeSerializable_ISerializable_SerializedFields_InaccessibleCtor ()
+    public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
       StubFilterWithSerializedFields (mutableType);
-      _fieldSerializationExpressionBuilderMock
-          .Stub (stub => stub.BuildFieldSerializationExpressions (null, null, null))
-          .IgnoreArguments()
-          .Return (new Expression[0]);
 
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+
+      var method = mutableType.AllMutableMethods.Single();
+      var ctor = mutableType.AllMutableConstructors.Single();
+      Assert.That (method.IsModified, Is.False);
+      Assert.That (ctor.IsModified, Is.False);
     }
 
     [Test]
@@ -340,9 +339,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     class ExplicitSerializableInterfaceType : ISerializable
     {
+      public ExplicitSerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
-    class DerivedExplicitSerializableInterfaceType : ExplicitSerializableInterfaceType { }
+    class DerivedExplicitSerializableInterfaceType : ExplicitSerializableInterfaceType
+    {
+      public DerivedExplicitSerializableInterfaceType (SerializationInfo info, StreamingContext context) : base (info, context) { }
+    }
 
     class ExplicitDeserializationCallbackType : IDeserializationCallback
     {

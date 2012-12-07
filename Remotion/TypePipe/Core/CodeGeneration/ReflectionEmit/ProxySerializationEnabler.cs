@@ -51,12 +51,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // initializationMethod may be null
 
       var serializedFieldMapping = _fieldSerializationExpressionBuilder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
-      var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFieldMapping.Length != 0;
+      var deserializationConstructor = GetDeserializationConstructor (mutableType);
+      var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable))
+                                          && serializedFieldMapping.Length != 0
+                                          && deserializationConstructor != null;
 
       if (needsCustomFieldSerialization)
       {
         OverrideGetObjectData (mutableType, serializedFieldMapping);
-        AdaptDeserializationConstructor (mutableType, serializedFieldMapping);
+        AdaptDeserializationConstructor (mutableType, deserializationConstructor, serializedFieldMapping);
       }
 
       if (initializationMethod != null)
@@ -71,28 +74,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public bool IsDeserializationConstructor (ConstructorInfo constructor)
     {
       return constructor.GetParameters ().Select (x => x.ParameterType).SequenceEqual (new[] { typeof (SerializationInfo), typeof (StreamingContext) });
-    }
-
-    private static void ExplicitlyImplementOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
-    {
-      mutableType.AddInterface (typeof (IDeserializationCallback));
-      mutableType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
-    }
-
-    private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
-    {
-      try
-      {
-        mutableType.GetOrAddMutableMethod (s_onDeserializationMethod)
-                   .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
-      }
-      catch (NotSupportedException exception)
-      {
-        throw new NotSupportedException (
-            "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-            + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.",
-            exception);
-      }
     }
 
     private void OverrideGetObjectData (MutableType mutableType, Tuple<string, FieldInfo>[] serializedFieldMapping)
@@ -116,22 +97,47 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private void AdaptDeserializationConstructor (MutableType mutableType, Tuple<string, FieldInfo>[] serializedFieldMapping)
+    private ConstructorInfo GetDeserializationConstructor (Type type)
     {
-      var deserializationConstructor = mutableType.GetConstructor (
+      return type.GetConstructor (
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
           null,
           new[] { typeof (SerializationInfo), typeof (StreamingContext) },
           null);
-      if (deserializationConstructor == null)
-        throw new InvalidOperationException ("The underlying type implements ISerializable but does not define a deserialization constructor.");
+    }
 
-      var mutableConstructor = mutableType.GetMutableConstructor (deserializationConstructor);
-      mutableConstructor.SetBody (
-          ctx => Expression.Block (
-              typeof (void),
-              new[] { ctx.PreviousBody }.Concat (
-                  _fieldSerializationExpressionBuilder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
+    private void AdaptDeserializationConstructor (
+        MutableType mutableType, ConstructorInfo constructor, Tuple<string, FieldInfo>[] serializedFieldMapping)
+    {
+      mutableType
+          .GetMutableConstructor (constructor)
+          .SetBody (
+              ctx => Expression.Block (
+                  typeof (void),
+                  new[] { ctx.PreviousBody }.Concat (
+                      _fieldSerializationExpressionBuilder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
+    }
+
+    private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
+    {
+      try
+      {
+        mutableType.GetOrAddMutableMethod (s_onDeserializationMethod)
+                   .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+      }
+      catch (NotSupportedException exception)
+      {
+        throw new NotSupportedException (
+            "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+            + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.",
+            exception);
+      }
+    }
+
+    private static void ExplicitlyImplementOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
+    {
+      mutableType.AddInterface (typeof (IDeserializationCallback));
+      mutableType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
     }
   }
 }
