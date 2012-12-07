@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -21,22 +22,22 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using System.Linq;
 
-namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class FieldSerializationExpressionBuilderTest
+  public class SerializableFieldFinderTest
   {
-    private FieldSerializationExpressionBuilder _builder;
+    private SerializableFieldFinder _builder;
 
     [SetUp]
     public void SetUp ()
     {
-      _builder = new FieldSerializationExpressionBuilder();
+      _builder = new SerializableFieldFinder();
     }
 
     [Test]

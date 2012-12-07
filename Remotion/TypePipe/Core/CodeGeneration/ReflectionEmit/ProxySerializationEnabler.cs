@@ -36,13 +36,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
-    private readonly IFieldSerializationExpressionBuilder _fieldSerializationExpressionBuilder;
+    private readonly ISerializableFieldFinder _serializableFieldFinder;
 
-    public ProxySerializationEnabler (IFieldSerializationExpressionBuilder fieldSerializationExpressionBuilder)
+    public ProxySerializationEnabler (ISerializableFieldFinder serializableFieldFinder)
     {
-      ArgumentUtility.CheckNotNull ("fieldSerializationExpressionBuilder", fieldSerializationExpressionBuilder);
+      ArgumentUtility.CheckNotNull ("serializableFieldFinder", serializableFieldFinder);
 
-      _fieldSerializationExpressionBuilder = fieldSerializationExpressionBuilder;
+      _serializableFieldFinder = serializableFieldFinder;
     }
 
     public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var serializedFieldMapping = _fieldSerializationExpressionBuilder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
+      var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
       var deserializationConstructor = GetDeserializationConstructor (mutableType);
       var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable))
                                           && serializedFieldMapping.Length != 0
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
               ctx => Expression.Block (
                   typeof (void),
                   new[] { ctx.PreviousBody }.Concat (
-                      _fieldSerializationExpressionBuilder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
+                      _serializableFieldFinder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
       }
       catch (NotSupportedException exception)
       {
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
               ctx => Expression.Block (
                   typeof (void),
                   new[] { ctx.PreviousBody }.Concat (
-                      _fieldSerializationExpressionBuilder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
+                      _serializableFieldFinder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
 
     private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)

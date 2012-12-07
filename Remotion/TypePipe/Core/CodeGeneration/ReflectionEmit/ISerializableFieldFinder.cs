@@ -21,13 +21,12 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields and building serialization and deserialization 
-  /// expressions.
+  /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields.
   /// </summary>
-  public interface IFieldSerializationExpressionBuilder
+  public interface ISerializableFieldFinder
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields);
 

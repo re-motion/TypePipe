@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,17 +22,17 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// This class implements <see cref="IFieldSerializationExpressionBuilder" />.
+  /// This class implements <see cref="ISerializableFieldFinder" />.
   /// It filters filters fields for those that are serializable and creates a mapping so that the field values can be stored or retrieved from a
   /// <see cref="SerializationInfo"/> instance.
-  /// The expressions that represent those actions can also be created by this class.
   /// </summary>
-  public class FieldSerializationExpressionBuilder : IFieldSerializationExpressionBuilder
+  public class SerializableFieldFinder : ISerializableFieldFinder
   {
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));

@@ -71,6 +71,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
             var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
+            factory.CodeGenerator.FlushCodeToDisk();
+
             // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
             var type = deserializedInstance.GetType();
             Assert.That (type.AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));

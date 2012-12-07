@@ -138,8 +138,8 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="Serialization\Implementation\DeserializationSurrogate.cs" />
-    <Compile Include="Serialization\Implementation\IFieldSerializationExpressionBuilder.cs" />
-    <Compile Include="Serialization\Implementation\FieldSerializationExpressionBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ISerializableFieldFinder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\SerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\DeserializationSurrogateBase.cs" />
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelper.cs" />
     <Compile Include="Serialization\IObjectFactoryRegistry.cs" />
