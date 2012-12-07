@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var fakeMapping = new[] { Tuple.Create ("abc", ReflectionObjectMother.GetSomeField()) };
       var fakeSerializationExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _fieldSerializationExpressionBuilder
-          .Expect (mock => mock.GetSerializedFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (mutableType.ExistingMutableFields)))
+          .Expect (mock => mock.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (mutableType.ExistingMutableFields)))
           .Return (fakeMapping);
       _fieldSerializationExpressionBuilder
           .Expect (

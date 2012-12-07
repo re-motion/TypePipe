@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.Serialization
       }
       else
       {
-        var serializedFields = _fieldSerializationExpressionBuilder.GetSerializedFieldMapping (mutableType.ExistingMutableFields.Cast<FieldInfo>());
+        var serializedFields = _fieldSerializationExpressionBuilder.GetSerializableFieldMapping (mutableType.ExistingMutableFields.Cast<FieldInfo>());
 
         mutableType.AddInterface (typeof (ISerializable));
 

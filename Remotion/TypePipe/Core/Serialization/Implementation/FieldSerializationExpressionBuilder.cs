@@ -22,7 +22,6 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
@@ -37,18 +36,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
 
-    public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (Type type)
-    {
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      var fields = type
-          .CreateSequence (t => t.BaseType)
-          .SelectMany (t => t.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-      return GetSerializedFieldMapping (fields);
-    }
-
-    public IEnumerable<Tuple<string, FieldInfo>> GetSerializedFieldMapping (IEnumerable<FieldInfo> fields)
+    public IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
 

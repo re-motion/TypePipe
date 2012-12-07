@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var serializedFieldMapping = _fieldSerializationExpressionBuilder.GetSerializedFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
+      var serializedFieldMapping = _fieldSerializationExpressionBuilder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
       var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFieldMapping.Length != 0;
 
       if (needsCustomFieldSerialization)

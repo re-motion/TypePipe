@@ -20,7 +20,6 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -41,24 +40,24 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     }
 
     [Test]
-    public void GetSerializedFieldMapping_Fields_Filtering ()
+    public void GetSerializableFieldMapping_Filtering ()
     {
-      var field1 = NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.s_staticField);
-      var field2 = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.InstanceField);
-      var field3 = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.NonSerializedField);
+      var field1 = NormalizingMemberInfoFromExpressionUtility.GetField (() => StaticField);
+      var field2 = NormalizingMemberInfoFromExpressionUtility.GetField (() => InstanceField);
+      var field3 = NormalizingMemberInfoFromExpressionUtility.GetField (() => NonSerializedField);
 
-      var result = _builder.GetSerializedFieldMapping (new[] { field1, field2, field3 });
+      var result = _builder.GetSerializableFieldMapping (new[] { field1, field2, field3 });
 
       Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>InstanceField", field2) }));
     }
 
     [Test]
-    public void GetSerializedFieldMapping_Fields_SameName ()
+    public void GetSerializableFieldMapping_SameName ()
     {
       FieldInfo field1 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (int));
       FieldInfo field2 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (string));
 
-      var result = _builder.GetSerializedFieldMapping (new[] { field1, field2 });
+      var result = _builder.GetSerializableFieldMapping (new[] { field1, field2 });
 
       Assert.That (
           result,
@@ -67,28 +66,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
               {
                   Tuple.Create ("<tp>" + field1.DeclaringType.FullName + "::abc@System.Int32", field1),
                   Tuple.Create ("<tp>" + field2.DeclaringType.FullName + "::abc@System.String", field2)
-              }));
-    }
-
-    [Test]
-    public void GetSerializedFieldMapping_Type ()
-    {
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.InstanceField);
-      var baseFieldWithSameName = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainTypeBase obj) => obj.InstanceField);
-      var privateBaseField = typeof (DomainTypeBase).GetField ("_privateBaseField", BindingFlags.NonPublic | BindingFlags.Instance);
-
-      var result = _builder.GetSerializedFieldMapping (typeof (DomainType)).ToArray();
-
-      var domainTypeName = "Remotion.TypePipe.UnitTests.Serialization.Implementation.FieldSerializationExpressionBuilderTest+DomainType";
-      var domainTypeBaseName = "Remotion.TypePipe.UnitTests.Serialization.Implementation.FieldSerializationExpressionBuilderTest+DomainTypeBase";
-      Assert.That (
-          result,
-          Is.EqualTo (
-              new[]
-              {
-                  Tuple.Create ("<tp>" + domainTypeName + "::InstanceField@System.Int32", field),
-                  Tuple.Create ("<tp>" + domainTypeBaseName + "::InstanceField@System.Int32", baseFieldWithSameName),
-                  Tuple.Create ("<tp>_privateBaseField", privateBaseField)
               }));
     }
 
@@ -145,22 +122,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       Assert.That (memberExpression.Member, Is.SameAs (expectedField));
     }
 
-    [Serializable]
-    class DomainTypeBase
-    {
-      private string _privateBaseField = "";
-      public int InstanceField = 0;
-
-      protected DomainTypeBase () { Dev.Null = _privateBaseField; }
-    }
-
-    [Serializable]
-    class DomainType : DomainTypeBase
-    {
-      internal static int s_staticField = 0;
-      public new int InstanceField = 0;
-      [NonSerialized]
-      internal int NonSerializedField = 0;
-    }
+    // ReSharper disable ConvertToConstant.Global
+    internal static readonly int StaticField = 0;
+    internal readonly int InstanceField = 0;
+    [NonSerialized]
+    internal readonly int NonSerializedField = 0;
   }
 }

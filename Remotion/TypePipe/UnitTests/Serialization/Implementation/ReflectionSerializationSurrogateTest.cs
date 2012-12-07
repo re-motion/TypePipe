@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       var serializableField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);
       objectFactoryMock.Expect (mock => mock.GetUninitializedObject (_underlyingType)).Return (instance);
       _fieldSerializationExpressionBuilderMock
-          .Expect (mock => mock.GetSerializedFieldMapping (typeof (DomainType)))
+          .Expect (mock => mock.GetSerializableFieldMapping (new[] { serializableField }))
           .Return (new[] { Tuple.Create ("key1", serializableField) });
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", objectFactoryMock, _underlyingType, context);
