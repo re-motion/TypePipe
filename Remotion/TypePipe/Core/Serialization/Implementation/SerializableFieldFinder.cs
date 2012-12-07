@@ -22,10 +22,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
-using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
   /// This class implements <see cref="ISerializableFieldFinder" />.

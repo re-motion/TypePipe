@@ -22,22 +22,22 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using System.Linq;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
   public class SerializableFieldFinderTest
   {
-    private SerializableFieldFinder _builder;
+    private SerializableFieldFinder _finder;
 
     [SetUp]
     public void SetUp ()
     {
-      _builder = new SerializableFieldFinder();
+      _finder = new SerializableFieldFinder();
     }
 
     [Test]
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var field2 = NormalizingMemberInfoFromExpressionUtility.GetField (() => InstanceField);
       var field3 = NormalizingMemberInfoFromExpressionUtility.GetField (() => NonSerializedField);
 
-      var result = _builder.GetSerializableFieldMapping (new[] { field1, field2, field3 });
+      var result = _finder.GetSerializableFieldMapping (new[] { field1, field2, field3 });
 
       Assert.That (result, Is.EqualTo (new[] { Tuple.Create ("<tp>InstanceField", field2) }));
     }
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       FieldInfo field1 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (int));
       FieldInfo field2 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (string));
 
-      var result = _builder.GetSerializableFieldMapping (new[] { field1, field2 });
+      var result = _finder.GetSerializableFieldMapping (new[] { field1, field2 });
 
       Assert.That (
           result,
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var serializationInfo = ExpressionTreeObjectMother.GetSomeExpression (typeof (SerializationInfo));
       var fieldMapping = new[] { Tuple.Create ("abc", field) };
 
-      var result = _builder.BuildFieldSerializationExpressions (@this, serializationInfo, fieldMapping).Single();
+      var result = _finder.BuildFieldSerializationExpressions (@this, serializationInfo, fieldMapping).Single();
 
       Assert.That (result, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result;
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var serializationInfo = ExpressionTreeObjectMother.GetSomeExpression (typeof (SerializationInfo));
       var fieldMapping = new[] { Tuple.Create ("abc", field) };
 
-      var result = _builder.BuildFieldDeserializationExpressions (@this, serializationInfo, fieldMapping).Single();
+      var result = _finder.BuildFieldDeserializationExpressions (@this, serializationInfo, fieldMapping).Single();
 
       Assert.That (result, Is.InstanceOf<BinaryExpression>());
       var binaryExpression = (BinaryExpression) result;

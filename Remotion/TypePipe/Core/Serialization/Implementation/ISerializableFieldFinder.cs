@@ -21,7 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
   /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields.
