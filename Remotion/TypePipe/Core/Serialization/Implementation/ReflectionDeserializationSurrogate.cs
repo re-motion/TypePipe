@@ -38,7 +38,12 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
       var instance = FormatterServices.GetUninitializedObject (type);
       ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
-      objectFactory.PrepareExternalUninitializedObject (instance);
+
+      // Call this here? Allowed?
+      // TODO 5223
+      var deserializationCallback = instance as IDeserializationCallback;
+      if (deserializationCallback != null)
+        deserializationCallback.OnDeserialization (this);
 
       return instance;
     }
