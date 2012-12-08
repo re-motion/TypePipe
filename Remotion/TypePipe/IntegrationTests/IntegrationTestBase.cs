@@ -108,7 +108,6 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
       var method = stackFrame.GetMethod();
-      //Assertion.IsFalse (method.DeclaringType.Name.EndsWith ("TestBase"));
 
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }

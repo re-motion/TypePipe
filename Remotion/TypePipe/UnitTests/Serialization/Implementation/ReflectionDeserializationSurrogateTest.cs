@@ -59,35 +59,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       Assert.That (((DomainType) result).IntField, Is.EqualTo (7));
     }
 
-    [Test]
-    public void CreateRealObject_DeserializationCallback ()
-    {
-      _objectFactoryMock.Expect (mock => mock.GetAssembledType (_underlyingType)).Return (typeof (DeserializationCallbackType));
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", _objectFactoryMock, _underlyingType, _context);
-
-      _objectFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.TypeOf<DeserializationCallbackType>());
-      Assert.That (((DeserializationCallbackType) result).WasCalled, Is.True);
-    }
-
     [Serializable]
     class DomainType
     {
       public int IntField = 0;
-    }
-
-    [Serializable]
-    private class DeserializationCallbackType : IDeserializationCallback
-    {
-      [NonSerialized]
-      public bool WasCalled;
-
-      public void OnDeserialization (object sender)
-      {
-        Assert.That (sender, Is.TypeOf<ReflectionDeserializationSurrogate>());
-        WasCalled = true;
-      }
     }
   }
 }

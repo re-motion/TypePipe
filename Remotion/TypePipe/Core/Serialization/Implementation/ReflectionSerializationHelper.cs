@@ -19,7 +19,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
@@ -38,8 +37,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
       ArgumentUtility.CheckNotNull ("instance", instance);
 
       var members = FormatterServices.GetSerializableMembers (instance.GetType());
-      var data = FormatterServices.GetObjectData (instance, members);
       var mapping = s_serializableFieldFinder.GetSerializableFieldMapping (members.Cast<FieldInfo>()).ToArray();
+      var data = FormatterServices.GetObjectData (instance, members);
 
       for (int i = 0; i < mapping.Length; i++)
         serializationInfo.AddValue (mapping[i].Item1, data[i]);

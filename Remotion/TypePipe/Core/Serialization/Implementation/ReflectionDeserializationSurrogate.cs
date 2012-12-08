@@ -35,15 +35,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
     protected override object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context)
     {
       var type = objectFactory.GetAssembledType (underlyingType);
-
       var instance = FormatterServices.GetUninitializedObject (type);
       ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
-
-      // Call this here? Allowed?
-      // TODO 5223
-      var deserializationCallback = instance as IDeserializationCallback;
-      if (deserializationCallback != null)
-        deserializationCallback.OnDeserialization (this);
 
       return instance;
     }

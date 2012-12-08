@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _context = new StreamingContext ((StreamingContextStates) 7);
 
       _objectFactoryRegistryMock = MockRepository.GenerateStrictMock<IObjectFactoryRegistry>();
-      _createRealObjectAssertions = (f, t, c) => { throw new Exception ("should not be called"); };
+      _createRealObjectAssertions = (f, t, c) => { throw new Exception ("Setup assertions and return real object."); };
 
       using (new ServiceLocatorScope (typeof (IObjectFactoryRegistry), () => _objectFactoryRegistryMock))
       {
@@ -84,6 +84,24 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
       _objectFactoryRegistryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
+    }
+
+    [Test]
+    public void GetRealObject_DeserializationCallback ()
+    {
+      _info.AddValue ("<tp>underlyingType", typeof (object).AssemblyQualifiedName);
+      _info.AddValue ("<tp>factoryIdentifier", "factory1");
+
+      var objectMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
+      _objectFactoryRegistryMock.Stub (mock => mock.Get ("factory1"));
+      _createRealObjectAssertions = (factory, type, ctx) => objectMock;
+      objectMock.Expect (mock => mock.OnDeserialization (_deserializationSurrogateBase));
+
+      var result = _deserializationSurrogateBase.GetRealObject (new StreamingContext());
+
+      _objectFactoryRegistryMock.VerifyAllExpectations();
+      objectMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (objectMock));
     }
 
     [Test]

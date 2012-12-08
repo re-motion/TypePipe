@@ -56,8 +56,15 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
       var underlyingType = Type.GetType (underlyingTypeName, throwOnError: true);
       var factory = _registry.Get (factoryIdentifier);
+      var instance = CreateRealObject (factory, underlyingType, context);
 
-      return CreateRealObject (factory, underlyingType, context);
+      // Call this here? Allowed?
+      // TODO 5223
+      var deserializationCallback = instance as IDeserializationCallback;
+      if (deserializationCallback != null)
+        deserializationCallback.OnDeserialization (this);
+
+      return instance;
     }
 
     protected abstract object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context);

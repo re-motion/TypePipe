@@ -76,7 +76,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           });
     }
 
-    [Ignore]
     [Test]
     public void NoModifications ()
     {
@@ -97,7 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc");
       CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor)");
     }
-    [Ignore]
+    
     [Test]
     public void Standard_AddedFields ()
     {
@@ -135,24 +134,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
     }
 
-    [Ignore ("TODO 5222")]
-    [Test]
-    public void AddedCallback ()
-    {
-      var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant, CreateCallbackImplementingParticipant);
-      var instance1 = factory.CreateObject<SerializableType> ();
-      var instance2 = factory.CreateObject<CustomSerializableType> ();
-      instance1.String = "abc";
-      instance2.String = "def";
-
-      Action<SerializableType, TestContext> assertions =
-          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc addedCallback valueFromInstanceInitialization");
-      CheckInstanceIsSerializable (
-          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
-    }
-
-    [Ignore ("TODO 5222")]
     [Test]
     public void ExistingCallback ()
     {
@@ -169,7 +150,23 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           instance2, assertions, stringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
     }
 
-    [Ignore ("TODO 5222")]
+    [Test]
+    public void AddedCallback ()
+    {
+      var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant, CreateCallbackImplementingParticipant);
+      var instance1 = factory.CreateObject<SerializableType> ();
+      var instance2 = factory.CreateObject<CustomSerializableType> ();
+      instance1.String = "abc";
+      instance2.String = "def";
+
+      Action<SerializableType, TestContext> assertions =
+          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc addedCallback valueFromInstanceInitialization");
+      CheckInstanceIsSerializable (
+          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
+    }
+
+
     [Test]
     public void OnDeserializationMethodWithoutInterface ()
     {
@@ -182,7 +179,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue)),
           stringFieldValue: "abc valueFromInstanceInitialization");
     }
-    [Ignore]
+    
     [Test]
     public void ISerializable_CannotModifyOrOverrideGetObjectData ()
     {
@@ -198,7 +195,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           () => factory.GetAssembledType (typeof (DerivedExplicitISerializableType)),
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
-    [Ignore]
+    
     [Test]
     public void IDeserializationCallback_CannotModifyOrOverrideOnDeserialization ()
     {
