@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   {
     private const string c_factoryIdentifier = "abc";
 
-    private static SerializationParticipant CreateSerializationParticipant ()
+    private static IParticipant CreateSerializationParticipant ()
     {
       return new SerializationParticipant (c_factoryIdentifier);
     }
@@ -40,9 +41,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      _participantProviders = participantProviders;
-      var participants = participantProviders.Select (pp => pp());
-      var allParticipants = participants.Concat (CreateSerializationParticipant());
+      _participantProviders = participantProviders.Concat (CreateSerializationParticipant).ToArray();
+      var allParticipants = _participantProviders.Select (pp => pp());
       var factory = CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
 
       return factory;
@@ -59,10 +59,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
             var ctx = (TestContext) args.Single();
 
             // Register a factory for deserialization in current (new) app domain.
-            var allParticipantProviders = ctx.ParticipantProviders.Concat (CreateSerializationParticipant)
-                                             .Select<Func<IParticipant>, Func<Object>> (p => () => p()).ToArray();
+            var participantProviders = ctx.ParticipantProviders.Select<Func<IParticipant>, Func<Object>> (pp => () => pp()).ToArray();
             IObjectFactory factory;
-            using (new ServiceLocatorScope (typeof (IParticipant), allParticipantProviders))
+            using (new ServiceLocatorScope (typeof (IParticipant), participantProviders))
             {
               factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
             }
