@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 
 namespace Remotion.TypePipe.Serialization.Implementation
@@ -29,11 +28,5 @@ namespace Remotion.TypePipe.Serialization.Implementation
   public interface ISerializableFieldFinder
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields);
-
-    IEnumerable<Expression> BuildFieldSerializationExpressions (
-        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping);
-
-    IEnumerable<Expression> BuildFieldDeserializationExpressions (
-        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping);
   }
 }

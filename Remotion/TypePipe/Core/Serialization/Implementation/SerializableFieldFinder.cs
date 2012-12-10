@@ -20,22 +20,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// This class implements <see cref="ISerializableFieldFinder" />.
-  /// It filters filters fields for those that are serializable and creates a mapping so that the field values can be stored or retrieved from a
+  /// This class filters fields, retains the serializable ones and creates a mapping so that the field values can be stored or retrieved from a
   /// <see cref="SerializationInfo"/> instance.
   /// </summary>
   public class SerializableFieldFinder : ISerializableFieldFinder
   {
-    private static readonly MethodInfo s_getValueMethod =
-        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
-
     public IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
@@ -57,32 +52,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
                 return fieldArray.Select (f => Tuple.Create (serializationKeyProvider (f), f));
               });
-    }
-
-    public IEnumerable<Expression> BuildFieldSerializationExpressions (
-        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
-    {
-      ArgumentUtility.CheckNotNull ("fieldMapping", fieldMapping);
-
-      return fieldMapping
-          .Select (
-              entry => (Expression) Expression.Call (
-                  serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (entry.Item1), Expression.Field (@this, entry.Item2)));
-    }
-
-    public IEnumerable<Expression> BuildFieldDeserializationExpressions (
-        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
-    {
-      ArgumentUtility.CheckNotNull ("fieldMapping", fieldMapping);
-
-      return fieldMapping
-          .Select (
-              entry => (Expression) Expression.Assign (
-                  Expression.Field (@this, entry.Item2),
-                  Expression.Convert (
-                      Expression.Call (
-                          serializationInfo, s_getValueMethod, Expression.Constant (entry.Item1), Expression.Constant (entry.Item2.FieldType)),
-                      entry.Item2.FieldType)));
     }
   }
 }

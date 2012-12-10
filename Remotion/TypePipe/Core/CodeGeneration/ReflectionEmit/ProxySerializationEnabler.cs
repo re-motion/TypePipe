@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
@@ -33,6 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private static readonly MethodInfo s_getObjectDataMetod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
+    private static readonly MethodInfo s_getValueMethod =
+        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
@@ -52,9 +55,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
       var deserializationConstructor = GetDeserializationConstructor (mutableType);
-      var needsCustomFieldSerialization = mutableType.IsAssignableTo (typeof (ISerializable))
-                                          && serializedFieldMapping.Length != 0
-                                          && deserializationConstructor != null;
+      var needsCustomFieldSerialization =
+          mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFieldMapping.Length != 0 && deserializationConstructor != null;
 
       if (needsCustomFieldSerialization)
       {
@@ -81,12 +83,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       try
       {
         mutableType
-          .GetOrAddMutableMethod (s_getObjectDataMetod)
-          .SetBody (
-              ctx => Expression.Block (
-                  typeof (void),
-                  new[] { ctx.PreviousBody }.Concat (
-                      _serializableFieldFinder.BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
+            .GetOrAddMutableMethod (s_getObjectDataMetod)
+            .SetBody (
+                ctx => Expression.Block (
+                    typeof (void),
+                    new[] { ctx.PreviousBody }.Concat (BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
       }
       catch (NotSupportedException exception)
       {
@@ -114,8 +115,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           .SetBody (
               ctx => Expression.Block (
                   typeof (void),
-                  new[] { ctx.PreviousBody }.Concat (
-                      _serializableFieldFinder.BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
+                  new[] { ctx.PreviousBody }.Concat (BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
 
     private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
@@ -138,6 +138,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       mutableType.AddInterface (typeof (IDeserializationCallback));
       mutableType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
+    }
+
+    private IEnumerable<Expression> BuildFieldSerializationExpressions (
+        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
+    {
+      return fieldMapping
+          .Select (
+              entry => (Expression) Expression.Call (
+                  serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (entry.Item1), Expression.Field (@this, entry.Item2)));
+    }
+
+    private IEnumerable<Expression> BuildFieldDeserializationExpressions (
+        Expression @this, Expression serializationInfo, IEnumerable<Tuple<string, FieldInfo>> fieldMapping)
+    {
+      return fieldMapping
+          .Select (
+              entry => (Expression) Expression.Assign (
+                  Expression.Field (@this, entry.Item2),
+                  Expression.Convert (
+                      Expression.Call (
+                          serializationInfo, s_getValueMethod, Expression.Constant (entry.Item1), Expression.Constant (entry.Item2.FieldType)),
+                      entry.Item2.FieldType)));
     }
   }
 }

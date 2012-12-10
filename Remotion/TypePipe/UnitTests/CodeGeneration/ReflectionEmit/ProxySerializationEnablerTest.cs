@@ -93,25 +93,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeFieldType = ReflectionObjectMother.GetSomeType();
       FieldInfo fakeField = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, type: fakeFieldType);
       var fakeMapping = new[] { Tuple.Create ("fake key", fakeField) };
-      var fakeSerializationExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      var fakeDeserializationExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _serializableFieldFinderMock
           .Expect (mock => mock.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { addedField })))
           .Return (fakeMapping);
-      _serializableFieldFinderMock
-          .Expect (
-              mock => mock.BuildFieldSerializationExpressions (
-                  Arg<Expression>.Matches (e => ReferenceEquals (e.Type, _serializableInterfaceType)),
-                  Arg.Is (getObjectDataMethod.ParameterExpressions[0]),
-                  Arg.Is (fakeMapping)))
-          .Return (new[] { fakeSerializationExpression });
-      _serializableFieldFinderMock
-          .Expect (
-              mock => mock.BuildFieldDeserializationExpressions (
-                  Arg<Expression>.Matches (e => ReferenceEquals (e.Type, _serializableInterfaceType)),
-                  Arg.Is (deserializationCtor.ParameterExpressions[0]),
-                  Arg.Is (fakeMapping)))
-          .Return (new[] { fakeDeserializationExpression });
 
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
@@ -122,19 +106,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (getObjectDataMethod.IsModified, Is.True);
       Assert.That (deserializationCtor.IsModified, Is.True);
 
-      Assert.That (getObjectDataMethod.Body, Is.InstanceOf<BlockExpression>());
-      var newMethodBody = (BlockExpression) getObjectDataMethod.Body;
-      Assert.That (newMethodBody.Type, Is.SameAs (typeof (void)));
-      Assert.That (newMethodBody.Expressions, Has.Count.EqualTo (2));
-      Assert.That (newMethodBody.Expressions[0], Is.SameAs (oldMethodBody));
-      Assert.That (newMethodBody.Expressions[1], Is.SameAs (fakeSerializationExpression));
+      var expectedMethodBody = Expression.Block (
+          typeof (void),
+          oldMethodBody,
+          Expression.Call (
+              getObjectDataMethod.ParameterExpressions[0],
+              "AddValue",
+              Type.EmptyTypes,
+              Expression.Constant ("fake key"),
+              Expression.Field (new ThisExpression (_serializableInterfaceType), fakeField)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, getObjectDataMethod.Body);
 
-      Assert.That (deserializationCtor.Body, Is.InstanceOf<BlockExpression>());
-      var newCtorBody = (BlockExpression) deserializationCtor.Body;
-      Assert.That (newCtorBody.Type, Is.SameAs (typeof (void)));
-      Assert.That (newCtorBody.Expressions, Has.Count.EqualTo (2));
-      Assert.That (newCtorBody.Expressions[0], Is.SameAs (oldCtorBody));
-      Assert.That (newCtorBody.Expressions[1], Is.SameAs (fakeDeserializationExpression));
+      var getValue = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
+      var expectedCtorBody = Expression.Block (
+          typeof (void),
+          oldCtorBody,
+          Expression.Assign (
+              Expression.Field (new ThisExpression (_serializableInterfaceType), fakeField),
+              Expression.Convert (
+                  Expression.Call (
+                      deserializationCtor.ParameterExpressions[0], getValue, Expression.Constant ("fake key"), Expression.Constant (fakeFieldType)),
+                  fakeFieldType)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedCtorBody, deserializationCtor.Body);
     }
 
     [Test]
