@@ -84,6 +84,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       var instance2 = factory.CreateObject<CustomSerializableType>();
       instance1.String = "abc";
       instance2.String = "def";
+      instance1.PropertyForPrivateField = "private field value";
+      instance2.PropertyForPrivateField = "private field value";
 
       Assert.That (instance1.ConstructorCalled, Is.True);
       Assert.That (instance2.ConstructorCalled, Is.True);
@@ -92,6 +94,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       {
         Assert.That (deserializedInstance.ConstructorCalled, Is.False);
         Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+        Assert.That (deserializedInstance.PropertyForPrivateField, Is.EqualTo ("private field value"));
       };
       CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc");
       CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor)");
@@ -165,7 +168,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       CheckInstanceIsSerializable (
           instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
     }
-
 
     [Test]
     public void OnDeserializationMethodWithoutInterface ()
@@ -251,6 +253,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public class SerializableType
     {
       public string String;
+      private string _privateField;
 
       [NonSerialized]
       public readonly bool ConstructorCalled;
@@ -260,8 +263,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         ConstructorCalled = true;
       }
 
-      [UsedImplicitly]
-      public SerializableType (string arg1) { }
+      public SerializableType (string arg1) { Dev.Null = arg1; }
+
+      public string PropertyForPrivateField
+      {
+        get { return _privateField; }
+        set { _privateField = value; }
+      }
     }
 
     [Serializable]
@@ -272,11 +280,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       public CustomSerializableType (SerializationInfo info, StreamingContext context) : base ("")
       {
         String = info.GetString ("key1") + " (custom deserialization ctor)";
+        PropertyForPrivateField = info.GetString ("key2");
       }
 
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context)
       {
         info.AddValue ("key1", String);
+        info.AddValue ("key2", PropertyForPrivateField);
       }
     }
 
