@@ -187,13 +187,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (((A) instance).MethodShadowedByB (), Is.EqualTo ("A explicitly overridden"));
     }
 
-    [Ignore ("TODO 5241")]
     [Test]
     public void OverrideAbstractShadowedMethod ()
     {
-      var shadowedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractBase obj) => obj.AbstractShadowedMethod());
+      var shadowedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractShadowedMethod());
 
-      var type = AssembleType<AbstractDomain> (
+      var type = AssembleType<AbstractType> (
           mutableType =>
           {
             /*var shadowingMethod = */mutableType.AddMethod (
@@ -221,7 +220,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableType.IsAbstract, Is.False);
           });
 
-      var instance = (AbstractDomain) Activator.CreateInstance (type);
+      var instance = (AbstractType) Activator.CreateInstance (type, nonPublic: true);
 
       Assert.That (instance.AbstractShadowedMethod(), Is.EqualTo ("override"));
     }
@@ -258,16 +257,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       }
     }
 
-    public class C : B
-    {
-    }
+    public class C : B { }
 
-    public abstract class AbstractBase
+    public abstract class AbstractTypeBase
     {
       public abstract string AbstractShadowedMethod ();
     }
-    public abstract class AbstractDomain : AbstractBase { }
-
-    // ReSharper restore VirtualMemberNeverOverriden.Global
+    public abstract class AbstractType : AbstractTypeBase { }
   }
+// ReSharper restore VirtualMemberNeverOverriden.Global
 }
