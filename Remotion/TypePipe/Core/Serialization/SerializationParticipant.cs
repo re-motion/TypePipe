@@ -30,6 +30,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
+  // TODO Review: Add remarks section explaining how this works.
   /// <summary>
   /// Enables the serialization of modified type instances without the need of saving the generated assembly to disk.
   /// </summary>
@@ -67,6 +68,9 @@ namespace Remotion.TypePipe.Serialization
 
       if (mutableType.IsAssignableTo (typeof (ISerializable)))
       {
+        // If the mutable type already implements ISerializable, we only need to extend the implementation to include the metadata required for 
+        // deserialization. Existing fields will be serialized by the base ISerialization implementation. Added fields will be serialized by
+        // the TypePipe (ProxySerializationEnabler).
         mutableType
             .GetOrAddMutableMethod (s_getObjectDataMethod)
             .SetBody (
@@ -75,6 +79,11 @@ namespace Remotion.TypePipe.Serialization
       }
       else
       {
+        // If the mutable type does not implement ISerializable, we need to add the interface and then also serialize all the fields on the object.
+        // We cannot add a deserialization constructor because there is no base constructor that we could call. Therefore, ProxySerializationEnabler
+        // cannot take care of serializing the added fields, and we thus have to serialize both existing and added fields ourselves via 
+        // ReflectionHelper.AddFieldValues.
+
         mutableType.AddInterface (typeof (ISerializable));
 
         mutableType.AddExplicitOverride (

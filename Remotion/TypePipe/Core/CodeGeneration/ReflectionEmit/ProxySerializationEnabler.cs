@@ -53,10 +53,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       // initializationMethod may be null
 
-      var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo>()).ToArray();
+      // Existing fields are always serialized by the standard .NET serialization or by an implementation of ISerializable on the underlying type.
+      // Added fields are also serialized by the standard .NET serialization, unless the mutable type implements ISerializable. In that case,
+      // we need to extend the ISerializable implementation to include the added fields.
+      
+      var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo> ()).ToArray ();
       var deserializationConstructor = GetDeserializationConstructor (mutableType);
+
+      // If the underlying type implements ISerializable but has no deserialization constructor, we can't implement ISerializable correctly, so
+      // we don't even try. (SerializationParticipant relies on this behavior.)
       var needsCustomFieldSerialization =
-          mutableType.IsAssignableTo (typeof (ISerializable)) && serializedFieldMapping.Length != 0 && deserializationConstructor != null;
+          serializedFieldMapping.Length != 0 && mutableType.IsAssignableTo (typeof (ISerializable)) && deserializationConstructor != null;
 
       if (needsCustomFieldSerialization)
       {
