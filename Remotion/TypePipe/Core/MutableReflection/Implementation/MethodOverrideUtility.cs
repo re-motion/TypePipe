@@ -30,7 +30,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
-      Assertion.IsTrue (overriddenMethod.GetBaseDefinition() == overriddenMethod);
 
       return overriddenMethod.DeclaringType.FullName.Replace ('+', '.') + "." + overriddenMethod.Name;
     }

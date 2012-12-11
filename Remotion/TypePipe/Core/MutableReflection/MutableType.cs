@@ -403,11 +403,10 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      var allMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToArray();
-      var abstractMethods = allMethods.Where (m => m.IsAbstract).ToArray();
-      var explicitlyImplemented = AllMutableMethods.SelectMany (m => m.AddedExplicitBaseDefinitions).ToArray();
-      var filteredmethods = abstractMethods.Except (explicitlyImplemented).ToArray();
-      var hasAbstractMethods = filteredmethods
+      var hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+          .Where (m => m.IsAbstract)
+          .Select (m => m.GetBaseDefinition())
+          .Except (AllMutableMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
           .Any();
 
       if (hasAbstractMethods)

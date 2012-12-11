@@ -502,16 +502,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes | TypeAttributes.Abstract));
     }
 
-    [Ignore ("TODO 5241")]
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
       var descriptor = TypeDescriptorObjectMother.Create (typeof (AbstractType));
       var mutableType = MutableTypeObjectMother.Create (descriptor, _memberSelectorMock);
 
-      var abstractMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.AbstractMethod1());
-      var abstractMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.AbstractMethod2());
-      mutableType.AddExplicitOverride (abstractMethod1, ctx => Expression.Empty());
+      var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
+      var abstractMethod1 = mutableType.ExistingMutableMethods.Single (m => m.Name == "AbstractMethod1");
+      var abstractMethod2 = mutableType.ExistingMutableMethods.Single (m => m.Name == "AbstractMethod2");
+      Assert.That (abstractMethod1, Is.Not.EqualTo (abstractMethodBaseDefinition));
+      Assert.That (abstractMethod1.GetBaseDefinition(), Is.EqualTo (abstractMethodBaseDefinition));
+
+      mutableType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
       mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod").AddExplicitBaseDefinition (abstractMethod2);
 
       var allMethods = GetAllMethods (mutableType);
@@ -748,9 +751,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class AbcAttribute : Attribute { }
 
-    abstract class AbstractType
+    abstract class AbstractTypeBase
     {
       public abstract void AbstractMethod1 ();
+    }
+
+    abstract class AbstractType : AbstractTypeBase
+    {
+      public override abstract void AbstractMethod1 ();
       public abstract void AbstractMethod2 ();
 
       public virtual void ExistingMethod () { }
