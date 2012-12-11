@@ -90,14 +90,14 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       Assert.That (instance1.ConstructorCalled, Is.True);
       Assert.That (instance2.ConstructorCalled, Is.True);
 
-      Action<SerializableType, TestContext> assertions = (deserializedInstance, ctx) =>
+      Action<SerializableType, SerializationTestContext> assertions = (deserializedInstance, ctx) =>
       {
         Assert.That (deserializedInstance.ConstructorCalled, Is.False);
         Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
         Assert.That (deserializedInstance.PropertyForPrivateField, Is.EqualTo ("private field value"));
       };
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc");
-      CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor)");
+      CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc");
+      CheckInstanceIsSerializable (instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor)");
     }
     
     [Test]
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       PrivateInvoke.SetPublicField (instance2, "AddedIntField", 7);
       PrivateInvoke.SetPublicField (instance2, "AddedSkippedIntField", 7);
 
-      Action<SerializableType, TestContext> assertions = (deserializedInstance, ctx) =>
+      Action<SerializableType, SerializationTestContext> assertions = (deserializedInstance, ctx) =>
       {
         Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
         Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
@@ -130,10 +130,10 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, TestContext> assertions =
+      Action<SerializableType, SerializationTestContext> assertions =
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc valueFromInstanceInitialization");
-      CheckInstanceIsSerializable (instance2, assertions, stringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
+      CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc valueFromInstanceInitialization");
+      CheckInstanceIsSerializable (instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
     }
 
     [Test]
@@ -145,11 +145,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, TestContext> assertions =
+      Action<SerializableType, SerializationTestContext> assertions =
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc existingCallback valueFromInstanceInitialization");
+      CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc existingCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
-          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
+          instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
     }
 
     [Test]
@@ -161,11 +161,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, TestContext> assertions =
+      Action<SerializableType, SerializationTestContext> assertions =
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, stringFieldValue: "abc addedCallback valueFromInstanceInitialization");
+      CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc addedCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
-          instance2, assertions, stringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
+          instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor) addedCallback valueFromInstanceInitialization");
     }
 
     [Test]
@@ -178,7 +178,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       CheckInstanceIsSerializable (
           instance,
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue)),
-          stringFieldValue: "abc valueFromInstanceInitialization");
+          expectedStringFieldValue: "abc valueFromInstanceInitialization");
     }
     
     [Test]
@@ -216,7 +216,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected abstract IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders);
 
-    protected abstract Func<TestContext, SerializableType> CreateDeserializationCallback (TestContext context);
+    protected abstract Func<SerializationTestContext, SerializableType> CreateDeserializationCallback (SerializationTestContext context);
 
     private AppDomain _appDomainForDeserialization;
 
@@ -236,19 +236,19 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       base.TestFixtureTearDown();
     }
 
-    private void CheckInstanceIsSerializable (
-        SerializableType instance, Action<SerializableType, TestContext> assertions, string stringFieldValue = null)
+    protected void CheckInstanceIsSerializable (
+        SerializableType instance, Action<SerializableType, SerializationTestContext> assertions, string expectedStringFieldValue = null)
     {
       Assert.That (instance.GetType().IsSerializable, Is.True);
 
       var context =
-          new TestContext
+          new SerializationTestContext
           {
               SerializedData = Serializer.Serialize (instance),
               Assertions = assertions,
               ExpectedAssemblyQualifiedName = instance.GetType().AssemblyQualifiedName,
-              ExpectedTypeFullName = instance.GetType().FullName,
-              ExpectedStringFieldValue = stringFieldValue
+              SerializedTypeFullName = instance.GetType().FullName,
+              ExpectedStringFieldValue = expectedStringFieldValue
           };
       context.DeserializationCallback = CreateDeserializationCallback (context);
 
@@ -256,17 +256,17 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     [Serializable]
-    protected class TestContext
+    protected class SerializationTestContext
     {
       public IEnumerable<Func<IParticipant>> ParticipantProviders { get; set; }
       public byte[] SerializedData { get; set; }
-      public Action<SerializableType, TestContext> Assertions { get; set; }
+      public Action<SerializableType, SerializationTestContext> Assertions { get; set; }
 
       public string ExpectedAssemblyQualifiedName { get; set; }
-      public string ExpectedTypeFullName { get; set; }
+      public string SerializedTypeFullName { get; set; }
       public string ExpectedStringFieldValue { get; set; }
 
-      public Func<TestContext, SerializableType> DeserializationCallback { get; set; }
+      public Func<SerializationTestContext, SerializableType> DeserializationCallback { get; set; }
 
       public void AppDomainDelegate ()
       {

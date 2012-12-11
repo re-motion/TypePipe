@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return factory;
     }
 
-    protected override Func<TestContext, SerializableType> CreateDeserializationCallback (TestContext context)
+    protected override Func<SerializationTestContext, SerializableType> CreateDeserializationCallback (SerializationTestContext context)
     {
       // Flush generated assembly to disk to enable simple serialization strategy.
       Flush();

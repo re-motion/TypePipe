@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
@@ -47,38 +49,49 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return factory;
     }
 
-    protected override Func<TestContext, SerializableType> CreateDeserializationCallback (TestContext context)
+    protected override Func<SerializationTestContext, SerializableType> CreateDeserializationCallback (SerializationTestContext context)
     {
       // Do not flush generated assembly to disk to force complex serialization strategy.
 
       context.ParticipantProviders = _participantProviders;
       return ctx =>
       {
-        var participantProviders = ctx.ParticipantProviders.Select<Func<IParticipant>, Func<Object>> (pp => () => pp()).ToArray();
-        IObjectFactory factory;
-        using (new ServiceLocatorScope (typeof (IParticipant), participantProviders))
-        {
-          factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
-        }
-        // Register a factory for deserialization in current (new) app domain.
         var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
-        registry.Unregister (c_factoryIdentifier);
-        registry.Register (c_factoryIdentifier, factory);
 
+        SetUpDeserialization (registry, ctx.ParticipantProviders);
         var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
+        TearDownDeserialization (registry);
 
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
         var type = deserializedInstance.GetType();
         Assert.That (type.AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
         Assert.That (type.Assembly.GetName().Name, Is.StringStarting ("TypePipe_GeneratedAssembly_"));
         Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
-        // The generated type is always the first type in the assembly.
-        var counterStart = ctx.ExpectedTypeFullName.LastIndexOf ('_') + 1;
-        var expectedFullName = ctx.ExpectedTypeFullName.Remove (counterStart) + "Proxy1";
+
+        // The generated type is always the single type in the assembly. Its name is therefore the same as the serialized type name, but with
+        // "Proxy1" in the end.
+        var expectedFullName = Regex.Replace (ctx.SerializedTypeFullName, @"Proxy\d+$", "Proxy1");
         Assert.That (type.FullName, Is.EqualTo (expectedFullName));
 
         return deserializedInstance;
       };
+    }
+
+    private static void SetUpDeserialization (IObjectFactoryRegistry registry, IEnumerable<Func<IParticipant>> participantProviders)
+    {
+      var participantCreators = participantProviders.Select<Func<IParticipant>, Func<Object>> (pp => () => pp()).ToArray();
+
+      using (new ServiceLocatorScope (typeof (IParticipant), participantCreators))
+      {
+        var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+        // Register a factory for deserialization in current (new) app domain.
+        registry.Register (c_factoryIdentifier, factory);
+      }
+    }
+
+    private static void TearDownDeserialization (IObjectFactoryRegistry registry)
+    {
+      registry.Unregister (c_factoryIdentifier);
     }
   }
 }
