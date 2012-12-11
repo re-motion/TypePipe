@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -492,41 +491,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetAttributeFlagsImpl ()
-    {
-      var allMethods = GetAllMethods (_mutableType);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _mutableType)).Return (new MethodInfo[0]).Repeat.Times (2);
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAttributeFlagsImpl");
-
-      Assert.That (result, Is.EqualTo (_descriptor.Attributes));
-      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes));
-    }
-
-    [Test]
     public void GetAttributeFlagsImpl_Abstract ()
     {
       var allMethods = GetAllMethods (_mutableType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var fakeMethods = new[] { ReflectionObjectMother.GetSomeAbstractMethod() };
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _mutableType)).Return (fakeMethods).Repeat.Times(2);
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _mutableType)).Return (fakeMethods).Repeat.Times (2);
 
       Assert.That (_mutableType.IsAbstract, Is.True);
       Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes | TypeAttributes.Abstract));
     }
 
+    [Ignore ("TODO 5241")]
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
       var descriptor = TypeDescriptorObjectMother.Create (typeof (AbstractType));
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var mutableType = MutableTypeObjectMother.Create (descriptor, memberSelectorMock);
+      var mutableType = MutableTypeObjectMother.Create (descriptor, _memberSelectorMock);
+
+      var abstractMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.AbstractMethod1());
+      var abstractMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.AbstractMethod2());
+      mutableType.AddExplicitOverride (abstractMethod1, ctx => Expression.Empty());
+      mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod").AddExplicitBaseDefinition (abstractMethod2);
 
       var allMethods = GetAllMethods (mutableType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var fakeMethods = new[] { ReflectionObjectMother.GetSomeConcreteMethod() };
-      memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, mutableType)).Return (fakeMethods).Repeat.Times (2);
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, mutableType)).Return (allMethods).Repeat.Times (2);
 
       Assert.That (mutableType.IsAbstract, Is.False);
       Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
@@ -758,6 +748,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public class AbcAttribute : Attribute { }
 
-    abstract class AbstractType { }
+    abstract class AbstractType
+    {
+      public abstract void AbstractMethod1 ();
+      public abstract void AbstractMethod2 ();
+
+      public virtual void ExistingMethod () { }
+    }
   }
 }
