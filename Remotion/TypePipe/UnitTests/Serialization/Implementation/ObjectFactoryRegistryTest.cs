@@ -28,10 +28,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
   {
     private ObjectFactoryRegistry _registry;
 
+    private IObjectFactory _fakeObjectFactory;
+
     [SetUp]
     public void SetUp ()
     {
       _registry = new ObjectFactoryRegistry();
+
+      _fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory> ();
     }
 
     [Test]
@@ -45,11 +49,21 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     [Test]
     public void RegisterAndGet ()
     {
-      var fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory>();
+      _registry.Register ("factory1", _fakeObjectFactory);
 
-      _registry.Register ("factory1", fakeObjectFactory);
+      Assert.That (_registry.Get ("factory1"), Is.SameAs (_fakeObjectFactory));
+    }
 
-      Assert.That (_registry.Get ("factory1"), Is.SameAs (fakeObjectFactory));
+    [Test]
+    public void RegisterAndUnregister ()
+    {
+      _registry.Register ("factory1", _fakeObjectFactory);
+      Assert.That (_registry.Get ("factory1"), Is.Not.Null);
+
+      _registry.Unregister ("factory1");
+
+      Assert.That (() => _registry.Get ("factory1"), Throws.InvalidOperationException);
+      Assert.That (() => _registry.Unregister ("factory1"), Throws.Nothing);
     }
 
     [Test]

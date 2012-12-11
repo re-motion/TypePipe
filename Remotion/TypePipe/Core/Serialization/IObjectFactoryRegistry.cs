@@ -31,8 +31,27 @@ namespace Remotion.TypePipe.Serialization
   [ConcreteImplementation (typeof (ObjectFactoryRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IObjectFactoryRegistry
   {
+    /// <summary>
+    /// Registers an <see cref="IObjectFactory"/> under the specified identifier.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If a factory is already registered under the specified identifier.</exception>
+    /// <param name="factoryIdentifier">The factory identifier.</param>
+    /// <param name="objectFactory">The object factory to register.</param>
     void Register (string factoryIdentifier, IObjectFactory objectFactory);
 
+    /// <summary>
+    /// Unregisters the <see cref="IObjectFactory"/> instance that is currently registered under the specified identifier.
+    /// No exception is thrown if no factory is registered under the given identifier.
+    /// </summary>
+    /// <param name="factoryIdentifier">The factory identifier.</param>
+    void Unregister (string factoryIdentifier);
+
+    /// <summary>
+    /// Retrieves the <see cref="IObjectFactory"/> instance that is registered under the specified identifier.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If no factory is registered under the specified identifier.</exception>
+    /// <param name="factoryIdentifier">The factory identifier.</param>
+    /// <returns>The registered object factory.</returns>
     IObjectFactory Get (string factoryIdentifier);
   }
 }

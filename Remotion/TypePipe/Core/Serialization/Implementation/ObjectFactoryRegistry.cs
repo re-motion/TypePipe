@@ -34,15 +34,20 @@ namespace Remotion.TypePipe.Serialization.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
       ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
 
-      try
-      {
-        _objectFactories.Add (factoryIdentifier, objectFactory);
-      }
-      catch (ArgumentException exception)
+      if (_objectFactories.ContainsKey (factoryIdentifier))
       {
         var message = string.Format ("Another factory is already registered for identifier '{0}'.", factoryIdentifier);
-        throw new InvalidOperationException (message, exception);
+        throw new InvalidOperationException (message);
       }
+
+      _objectFactories.Add (factoryIdentifier, objectFactory);
+    }
+
+    public void Unregister (string factoryIdentifier)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
+
+      _objectFactories.Remove (factoryIdentifier);
     }
 
     public IObjectFactory Get (string factoryIdentifier)
