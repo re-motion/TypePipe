@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
@@ -48,43 +47,38 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return factory;
     }
 
-    protected override void CheckDeserializationInNewAppDomain (TestContext context)
+    protected override Func<TestContext, SerializableType> CreateDeserializationCallback (TestContext context)
     {
-      // Do not flush generated assembly to disk.
+      // Do not flush generated assembly to disk to force complex serialization strategy.
 
       context.ParticipantProviders = _participantProviders;
-      AppDomainRunner.Run (
-          args =>
-          {
-            var ctx = (TestContext) args.Single();
+      return ctx =>
+      {
+        var participantProviders = ctx.ParticipantProviders.Select<Func<IParticipant>, Func<Object>> (pp => () => pp()).ToArray();
+        IObjectFactory factory;
+        using (new ServiceLocatorScope (typeof (IParticipant), participantProviders))
+        {
+          factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+        }
+        // Register a factory for deserialization in current (new) app domain.
+        var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+        registry.Unregister (c_factoryIdentifier);
+        registry.Register (c_factoryIdentifier, factory);
 
-            // Register a factory for deserialization in current (new) app domain.
-            var participantProviders = ctx.ParticipantProviders.Select<Func<IParticipant>, Func<Object>> (pp => () => pp()).ToArray();
-            IObjectFactory factory;
-            using (new ServiceLocatorScope (typeof (IParticipant), participantProviders))
-            {
-              factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
-            }
-            var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
-            registry.Register (c_factoryIdentifier, factory);
+        var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
 
-            var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
+        // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
+        var type = deserializedInstance.GetType();
+        Assert.That (type.AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
+        Assert.That (type.Assembly.GetName().Name, Is.StringStarting ("TypePipe_GeneratedAssembly_"));
+        Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
+        // The generated type is always the first type in the assembly.
+        var counterStart = ctx.ExpectedTypeFullName.LastIndexOf ('_') + 1;
+        var expectedFullName = ctx.ExpectedTypeFullName.Remove (counterStart) + "Proxy1";
+        Assert.That (type.FullName, Is.EqualTo (expectedFullName));
 
-            factory.CodeGenerator.FlushCodeToDisk();
-
-            // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
-            var type = deserializedInstance.GetType();
-            Assert.That (type.AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
-            Assert.That (type.Assembly.GetName().Name, Is.EqualTo ("TypePipe_GeneratedAssembly_1"));
-            Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
-            // The generated type is always the first type in the assembly.
-            var counterStart = ctx.ExpectedTypeFullName.LastIndexOf ('_') + 1;
-            var expectedFullName = ctx.ExpectedTypeFullName.Remove (counterStart) + "Proxy1";
-            Assert.That (type.FullName, Is.EqualTo (expectedFullName));
-
-            ctx.Assertions (deserializedInstance, ctx);
-          },
-          context);
+        return deserializedInstance;
+      };
     }
   }
 }

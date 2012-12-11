@@ -124,7 +124,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     [Test]
     public void InstanceInitialization ()
     {
-      SkipDeletion();
       var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant);
       var instance1 = factory.CreateObject<SerializableType> ();
       var instance2 = factory.CreateObject<CustomSerializableType> ();
@@ -217,7 +216,25 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected abstract IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders);
 
-    protected abstract void CheckDeserializationInNewAppDomain (TestContext context);
+    protected abstract Func<TestContext, SerializableType> CreateDeserializationCallback (TestContext context);
+
+    private AppDomain _appDomainForDeserialization;
+
+    public override void TestFixtureSetUp ()
+    {
+      base.TestFixtureSetUp();
+
+      var evidence = AppDomain.CurrentDomain.Evidence;
+      var setup = AppDomain.CurrentDomain.SetupInformation;
+      _appDomainForDeserialization = AppDomain.CreateDomain ("AppDomainForDeserialization", evidence, setup);
+    }
+
+    public override void TestFixtureTearDown ()
+    {
+      AppDomain.Unload (_appDomainForDeserialization);
+
+      base.TestFixtureTearDown();
+    }
 
     private void CheckInstanceIsSerializable (
         SerializableType instance, Action<SerializableType, TestContext> assertions, string stringFieldValue = null)
@@ -233,8 +250,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
               ExpectedTypeFullName = instance.GetType().FullName,
               ExpectedStringFieldValue = stringFieldValue
           };
+      context.DeserializationCallback = CreateDeserializationCallback (context);
 
-      CheckDeserializationInNewAppDomain (context);
+      _appDomainForDeserialization.DoCallBack (context.AppDomainDelegate);
     }
 
     [Serializable]
@@ -247,6 +265,14 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       public string ExpectedAssemblyQualifiedName { get; set; }
       public string ExpectedTypeFullName { get; set; }
       public string ExpectedStringFieldValue { get; set; }
+
+      public Func<TestContext, SerializableType> DeserializationCallback { get; set; }
+
+      public void AppDomainDelegate ()
+      {
+        var deserializedInstance = DeserializationCallback (this);
+        Assertions (deserializedInstance, this);
+      }
     }
 
     [Serializable]

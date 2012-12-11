@@ -94,9 +94,6 @@ namespace Remotion.TypePipe.IntegrationTests
     [Test]
     public void CustomNameAndDirectory ()
     {
-      // The assembly will be saved in a directory that lacks the needed references for peverify.
-      SkipPeVerification();
-
       var directory = Path.GetTempPath();
       _codeGenerator.SetAssemblyDirectory (directory);
       _codeGenerator.SetAssemblyName ("Abc");
@@ -104,7 +101,8 @@ namespace Remotion.TypePipe.IntegrationTests
       Assert.That (_codeGenerator.AssemblyDirectory, Is.EqualTo (directory));
       Assert.That (_codeGenerator.AssemblyName, Is.EqualTo ("Abc"));
 
-      var path = RequestTypeAndFlush();
+      // The assembly will be saved in a directory that lacks the needed references for peverify.
+      var path = RequestTypeAndFlush (skipPeVerification: true);
 
       Assert.That (path, Is.EqualTo (Path.Combine (directory, "Abc.dll")));
       Assert.That (File.Exists (path), Is.True);
@@ -135,15 +133,15 @@ namespace Remotion.TypePipe.IntegrationTests
       return _objectFactory.GetAssembledType (requestedType);
     }
 
-    private string RequestTypeAndFlush (Type requestedType = null)
+    private string RequestTypeAndFlush (Type requestedType = null, bool skipPeVerification = false)
     {
       RequestType (requestedType);
-      return Flush();
+      return Flush (skipPeVerification);
     }
 
-    private string Flush ()
+    private string Flush (bool skipPeVerification = false)
     {
-      var assemblyPath = FlushAndTrackFilesForCleanup();
+      var assemblyPath = base.Flush (skipPeVerification: skipPeVerification);
       Assert.That (assemblyPath, Is.Not.Null);
 
       Assert.That (File.Exists (assemblyPath), Is.True);

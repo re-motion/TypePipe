@@ -32,21 +32,36 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
-    private List<string> _generatedAssemblyPaths;
+    private List<string> _assembliesToDelete;
+
     private bool _skipAll;
-    private bool _skipPeVerify;
+    private bool _skipPeVerification;
     private bool _skipDeletion;
 
     private ICodeGenerator _codeGenerator;
 
+    [TestFixtureSetUp]
+    public virtual void TestFixtureSetUp ()
+    {
+      _assembliesToDelete = new List<string>();
+    }
+
+    [TestFixtureTearDown]
+    public virtual void TestFixtureTearDown ()
+    {
+      foreach (var assembly in _assembliesToDelete)
+      {
+        File.Delete (assembly);
+        File.Delete (Path.ChangeExtension (assembly, "pdb"));
+      }
+    }
+
     [SetUp]
     public virtual void SetUp ()
     {
-      _generatedAssemblyPaths = new List<string>();
       _skipAll = false;
-      _skipPeVerify = false;
+      _skipPeVerification = false;
       _skipDeletion = false;
-
     }
 
     [TearDown]
@@ -55,21 +70,9 @@ namespace Remotion.TypePipe.IntegrationTests
       if (_skipAll)
         return;
 
-      FlushAndTrackFilesForCleanup();
-
       try
       {
-        foreach (var assemblyPath in _generatedAssemblyPaths)
-        {
-          if (!_skipPeVerify)
-            PeVerifyAssembly (assemblyPath);
-
-          if (!_skipDeletion)
-          {
-            File.Delete (assemblyPath);
-            File.Delete (Path.ChangeExtension (assemblyPath, "pdb"));
-          }
-        }
+        Flush (_skipDeletion, _skipPeVerification);
       }
       catch
       {
@@ -92,7 +95,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected void SkipPeVerification ()
     {
-      _skipPeVerify = true;
+      _skipPeVerification = true;
     }
 
     protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
@@ -123,7 +126,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return typeModifier;
     }
 
-    protected string FlushAndTrackFilesForCleanup ()
+    protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
       Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateReflectionEmitTypeModifier");
 
@@ -131,7 +134,11 @@ namespace Remotion.TypePipe.IntegrationTests
       if (assemblyPath == null)
         return null;
 
-      _generatedAssemblyPaths.Add (assemblyPath);
+      if (!skipDeletion)
+        _assembliesToDelete.Add (assemblyPath);
+
+      if (!skipPeVerification)
+        PeVerifyAssembly (assemblyPath);
 
       return assemblyPath;
     }

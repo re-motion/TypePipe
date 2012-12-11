@@ -36,21 +36,18 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return factory;
     }
 
-    protected override void CheckDeserializationInNewAppDomain (TestContext context)
+    protected override Func<TestContext, SerializableType> CreateDeserializationCallback (TestContext context)
     {
-      FlushAndTrackFilesForCleanup();
+      // Flush generated assembly to disk to enable simple serialization strategy.
+      Flush();
 
-      AppDomainRunner.Run (
-          args =>
-          {
-            var ctx = (TestContext) args.Single();
+      return ctx =>
+      {
+        var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
+        Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (ctx.ExpectedAssemblyQualifiedName));
 
-            var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
-
-            Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (ctx.ExpectedAssemblyQualifiedName));
-            ctx.Assertions (deserializedInstance, ctx);
-          },
-          context);
+        return deserializedInstance;
+      };
     }
   }
 }

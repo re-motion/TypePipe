@@ -64,7 +64,9 @@
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
-    <Compile Include="Serialization\ComplexSerializationTest.cs" />
+    <Compile Include="Serialization\ComplexSerializationTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
     <Compile Include="Serialization\SerializationTestBase.cs" />
     <Compile Include="Serialization\SimpleSerializationTest.cs" />
