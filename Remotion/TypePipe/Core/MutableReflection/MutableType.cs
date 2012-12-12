@@ -172,7 +172,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methods.AllMutableMembers; }
     }
 
-    public bool CanAddCustomAttributeData
+    public bool CanAddCustomAttributes
     {
       get { throw new NotImplementedException(); }
     }

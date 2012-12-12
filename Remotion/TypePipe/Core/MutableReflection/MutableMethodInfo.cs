@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return IsNew || (IsVirtual && !IsFinal); }
     }
 
-    public bool CanAddCustomAttributeData
+    public bool CanAddCustomAttributes
     {
       get { throw new NotImplementedException (); }
     }

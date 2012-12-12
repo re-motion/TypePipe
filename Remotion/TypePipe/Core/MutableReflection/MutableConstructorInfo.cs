@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new NotImplementedException (); }
     }
 
-    public bool CanAddCustomAttributeData
+    public bool CanAddCustomAttributes
     {
       get { throw new NotImplementedException (); }
     }

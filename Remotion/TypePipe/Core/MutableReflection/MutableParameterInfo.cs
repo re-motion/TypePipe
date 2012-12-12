@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.Attributes; }
     }
 
-    public bool CanAddCustomAttributeData
+    public bool CanAddCustomAttributes
     {
       get { throw new NotImplementedException(); }
     }
