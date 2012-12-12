@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var serializationInfo = method.ParameterExpressions[0];
       var expectedMethodBody = Expression.Block (
           typeof (void),
-          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ReflectionDeserializationSurrogate))),
+          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithoutDeserializationConstructorProxy))),
           Expression.Call (
               serializationInfo,
               "AddValue",
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (
           oldBody,
-          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (DeserializationSurrogate))),
+          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithDeserializationConstructorProxy))),
           Expression.Call (
               serializationInfo,
               "AddValue",

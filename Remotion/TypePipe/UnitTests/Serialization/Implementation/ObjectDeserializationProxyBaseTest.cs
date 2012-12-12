@@ -25,12 +25,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class DeserializationSurrogateBaseTest
+  public class ObjectDeserializationProxyBaseTest
   {
     private SerializationInfo _info;
     private StreamingContext _context;
 
-    private DeserializationSurrogateBase _deserializationSurrogateBase;
+    private ObjectDeserializationProxyBase _objectDeserializationProxyBase;
 
     private IObjectFactoryRegistry _objectFactoryRegistryMock;
     private Func<IObjectFactory, Type, StreamingContext, object> _createRealObjectAssertions;
@@ -49,14 +49,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       using (new ServiceLocatorScope (typeof (IObjectFactoryRegistry), () => _objectFactoryRegistryMock))
       {
         // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
-        _deserializationSurrogateBase = new TestableDeserializationSurrogateBase (_info, _context, (f, t, c) => _createRealObjectAssertions (f, t, c));
+        _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (_info, _context, (f, t, c) => _createRealObjectAssertions (f, t, c));
       }
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_deserializationSurrogateBase.SerializationInfo, Is.SameAs (_info));
+      Assert.That (_objectDeserializationProxyBase.SerializationInfo, Is.SameAs (_info));
     }
 
     [Test]
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
         return fakeObject;
       };
 
-      var result = _deserializationSurrogateBase.GetRealObject (context);
+      var result = _objectDeserializationProxyBase.GetRealObject (context);
 
       _objectFactoryRegistryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
@@ -95,9 +95,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       var objectMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
       _objectFactoryRegistryMock.Stub (mock => mock.Get ("factory1"));
       _createRealObjectAssertions = (factory, type, ctx) => objectMock;
-      objectMock.Expect (mock => mock.OnDeserialization (_deserializationSurrogateBase));
+      objectMock.Expect (mock => mock.OnDeserialization (_objectDeserializationProxyBase));
 
-      var result = _deserializationSurrogateBase.GetRealObject (new StreamingContext());
+      var result = _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
 
       _objectFactoryRegistryMock.VerifyAllExpectations();
       objectMock.VerifyAllExpectations();
@@ -112,14 +112,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _info.AddValue ("<tp>underlyingType", "UnknownType");
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
-      _deserializationSurrogateBase.GetRealObject (new StreamingContext());
+      _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
     public void GetObjectData ()
     {
-      _deserializationSurrogateBase.GetObjectData (null, new StreamingContext());
+      _objectDeserializationProxyBase.GetObjectData (null, new StreamingContext());
     }
   }
 }

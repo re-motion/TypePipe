@@ -24,12 +24,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class ReflectionDeserializationSurrogateTest
+  public class ObjectWithoutDeserializationConstructorProxyTest
   {
     private Type _underlyingType;
     private SerializationInfo _serializationInfo;
 
-    private ReflectionDeserializationSurrogate _surrogate;
+    private ObjectWithoutDeserializationConstructorProxy _proxy;
 
     private IObjectFactory _objectFactoryMock;
     private StreamingContext _context;
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _underlyingType = ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeDifferentType(), new FormatterConverter());
 
-      _surrogate = new ReflectionDeserializationSurrogate (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+      _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
 
       _objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
       _context = new StreamingContext (StreamingContextStates.Persistence);
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _serializationInfo.AddValue ("<tp>IntField", 7);
       _objectFactoryMock.Expect (mock => mock.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", _objectFactoryMock, _underlyingType, _context);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", _objectFactoryMock, _underlyingType, _context);
 
       _objectFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<DomainType>());

@@ -30,10 +30,19 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
-  // TODO Review: Add remarks section explaining how this works.
   /// <summary>
   /// Enables the serialization of modified type instances without the need of saving the generated assembly to disk.
   /// </summary>
+  /// <remarks>
+  /// Serialization is enabled by adding additional metadata to the serialization payload and using a serialization helper for deserialization.
+  /// The helper uses the metadata to regenerate a compatible type.
+  /// The metadata includes the following items:
+  /// <list type="bullet">
+  ///   <item>Type of the serialization helper which should be used for deserialization.</item>
+  ///   <item>The assembly-qualified type name of the underlying type.</item>
+  ///   <item>Object factory identifier that will be used to retrieve the object factory during deserialization.</item>
+  /// </list>
+  /// </remarks>
   public class SerializationParticipant : IParticipant
   {
     public const string SerializationKeyPrefix = "<tp>";
@@ -75,7 +84,7 @@ namespace Remotion.TypePipe.Serialization
             .GetOrAddMutableMethod (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
-                    new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (DeserializationSurrogate)))));
+                    new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithDeserializationConstructorProxy)))));
       }
       else
       {
@@ -90,7 +99,7 @@ namespace Remotion.TypePipe.Serialization
             s_getObjectDataMethod,
             ctx => Expression.Block (
                 typeof (void),
-                CreateMetaDataSerializationExpressions (ctx, typeof (ReflectionDeserializationSurrogate))
+                CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithoutDeserializationConstructorProxy))
                     .Concat (Expression.Call (s_addFieldValueMethod, ctx.Parameters[0], ctx.This))));
       }
     }

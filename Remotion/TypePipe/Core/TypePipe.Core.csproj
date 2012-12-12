@@ -137,10 +137,10 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
-    <Compile Include="Serialization\Implementation\DeserializationSurrogate.cs" />
+    <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />
-    <Compile Include="Serialization\Implementation\DeserializationSurrogateBase.cs" />
+    <Compile Include="Serialization\Implementation\ObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelper.cs" />
     <Compile Include="Serialization\IObjectFactoryRegistry.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
@@ -329,7 +329,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Caching\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
-    <Compile Include="Serialization\Implementation\ReflectionDeserializationSurrogate.cs" />
+    <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
   </ItemGroup>

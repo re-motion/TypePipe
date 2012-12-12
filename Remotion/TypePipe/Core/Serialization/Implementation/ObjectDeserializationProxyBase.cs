@@ -24,14 +24,14 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// <summary>
   /// Acts as a common base for the .NET deserialization surrogates.
   /// </summary>
-  public abstract class DeserializationSurrogateBase : ISerializable, IObjectReference
+  public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference
   {
     private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
 
     private readonly SerializationInfo _serializationInfo;
 
-// ReSharper disable UnusedParameter.Local
-    protected DeserializationSurrogateBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    // ReSharper disable UnusedParameter.Local
+    protected ObjectDeserializationProxyBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
 // ReSharper restore UnusedParameter.Local
     {
       ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
@@ -58,15 +58,22 @@ namespace Remotion.TypePipe.Serialization.Implementation
       var factory = _registry.Get (factoryIdentifier);
       var instance = CreateRealObject (factory, underlyingType, context);
 
-      // Call this here? Allowed?
-      // TODO 5223
-      var deserializationCallback = instance as IDeserializationCallback;
-      if (deserializationCallback != null)
-        deserializationCallback.OnDeserialization (this);
+      // TODO Review: This doesn't work correctly in case of cycles, maybe add an integration test. Move implementation down...
+      //var deserializationCallback = instance as IDeserializationCallback;
+      //if (deserializationCallback != null)
+      //  deserializationCallback.OnDeserialization (this);
 
       return instance;
     }
 
     protected abstract object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context);
+
+    // TODO Review: ... to here.
+    //public void OnDeserialization (object sender)
+    //{
+    //  var deserializationCallback = (_instance as IDeserializationCallback);
+    //  if (deserializationCallback != null)
+    //    deserializationCallback.OnDeserialization (sender);
+    //}
   }
 }

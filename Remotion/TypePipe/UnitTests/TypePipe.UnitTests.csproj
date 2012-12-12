@@ -168,13 +168,13 @@
     <Compile Include="ReflectionObjectMother.cs" />
     <Compile Include="ObjectFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serialization\Implementation\ReflectionDeserializationSurrogateTest.cs" />
-    <Compile Include="Serialization\Implementation\DeserializationSurrogateTest.cs" />
+    <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxyTest.cs" />
+    <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxyTest.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistryTest.cs" />
-    <Compile Include="Serialization\Implementation\DeserializationSurrogateBaseTest.cs" />
+    <Compile Include="Serialization\Implementation\ObjectDeserializationProxyBaseTest.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinderTest.cs" />
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelperTest.cs" />
-    <Compile Include="Serialization\Implementation\TestableDeserializationSurrogateBase.cs" />
+    <Compile Include="Serialization\Implementation\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />

@@ -24,9 +24,12 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// A static helper class for serializing object state.
-  /// This class is used by <see cref="SerializationParticipant"/> and <see cref="ReflectionDeserializationSurrogate"/>.
+  /// A static helper class for writing the contents of all serializable members of an object into a <see cref="SerializationInfo"/> object.
   /// </summary>
+  /// <remarks>
+  /// This class is used by <see cref="ObjectWithoutDeserializationConstructorProxy"/>, and <see cref="SerializationParticipant"/> generates code
+  /// that calls this class at runtime.
+  /// </remarks>
   public static class ReflectionSerializationHelper
   {
     private static readonly ISerializableFieldFinder s_serializableFieldFinder = new SerializableFieldFinder();

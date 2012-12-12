@@ -25,12 +25,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
   [TestFixture]
-  public class DeserializationSurrogateTest
+  public class ObjectWithDeserializationConstructorProxyTest
   {
     private Type _underlyingType;
     private SerializationInfo _serializationInfo;
 
-    private DeserializationSurrogate _surrogate;
+    private ObjectWithDeserializationConstructorProxy _proxy;
 
     [SetUp]
     public void SetUp ()
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _underlyingType = ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeDifferentType(), new FormatterConverter());
 
-      _surrogate = new DeserializationSurrogate (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+      _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
     }
 
     [Test]
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
               mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
           .Return (fakeObject);
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_surrogate, "CreateRealObject", objectFactoryMock, _underlyingType, context);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", objectFactoryMock, _underlyingType, context);
 
       objectFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));

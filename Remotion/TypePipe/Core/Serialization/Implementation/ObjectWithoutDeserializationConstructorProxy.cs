@@ -21,13 +21,13 @@ using System.Runtime.Serialization;
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Acts as a helper for the .NET deserialization process of modified types that implement <see cref="ISerializable"/> but do not declare a
-  /// deserialization constructor.
+  /// Acts as a helper for the .NET deserialization process of modified types that do not declare a deserialization constructor.
   /// </summary>
+  // TODO Review: Add remarks section explaining that for such types, the SerializationParticipant will add a call to AddFieldValues etc.
   [Serializable]
-  public class ReflectionDeserializationSurrogate : DeserializationSurrogateBase
+  public class ObjectWithoutDeserializationConstructorProxy : ObjectDeserializationProxyBase
   {
-    public ReflectionDeserializationSurrogate (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    public ObjectWithoutDeserializationConstructorProxy (SerializationInfo serializationInfo, StreamingContext streamingContext)
         : base (serializationInfo, streamingContext)
     {
     }
