@@ -25,6 +25,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
 
+    // TODO: Remove this interface and push members down to renamed "IMutableMember -> IMutableInfo"
+    // ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations {get;}
     //bool CanAddCustomAttributeData { get; }
     //void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration);
   }
