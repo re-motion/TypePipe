@@ -22,7 +22,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Defines a common interface for <see cref="MutableConstructorInfo"/> and <see cref="MutableMethodInfo"/>.
   /// </summary>
-  public interface IMutableMethodBase : IMutableMember
+  public interface IMutableMethodBase : IMutableInfo
   {
     ReadOnlyCollection<ParameterExpression> ParameterExpressions { get; }
     Expression Body { get; }

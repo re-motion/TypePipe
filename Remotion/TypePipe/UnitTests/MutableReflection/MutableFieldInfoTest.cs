@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
@@ -104,15 +103,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetCustomAttributeData ()
-    {
-      var result = _fieldWithAttribute.GetCustomAttributeData ();
-
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
-      Assert.That (result, Is.SameAs (_fieldWithAttribute.GetCustomAttributeData ()), "should be cached");
-    }
-
-    [Test]
     public void AddCustomAttribute ()
     {
       Assert.That (_field.IsNew, Is.True);
@@ -143,6 +133,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (fieldInfo.IsNew, Is.False);
 
       fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create ());
+    }
+
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var result = _fieldWithAttribute.GetCustomAttributeData ();
+
+      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
+      Assert.That (result, Is.SameAs (_fieldWithAttribute.GetCustomAttributeData ()), "should be cached");
     }
 
     [Test]

@@ -194,6 +194,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetCustomAttributeData ()
+    {
+      var result = _mutableType.GetCustomAttributeData ();
+
+      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
+      Assert.That (result, Is.SameAs (_mutableType.GetCustomAttributeData ()), "should be cached");
+    }
+
+    [Test]
     public void IsAssignableTo ()
     {
       Assert.That (_mutableType.IsAssignableTo (_mutableType), Is.True);
@@ -446,15 +455,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result, Is.SameAs (fakeOverride));
       Assert.That (_mutableType.AddedMethods, Has.No.Member (result));
-    }
-
-    [Test]
-    public void GetCustomAttributeData ()
-    {
-      var result = _mutableType.GetCustomAttributeData ();
-
-      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
-      Assert.That (result, Is.SameAs (_mutableType.GetCustomAttributeData ()), "should be cached");
     }
 
     [Test]

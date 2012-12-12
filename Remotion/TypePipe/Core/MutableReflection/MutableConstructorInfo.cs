@@ -99,6 +99,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public bool CanAddCustomAttributeData
+    {
+      get { throw new NotImplementedException (); }
+    }
+
     public Expression Body
     {
       get { return _body; }
@@ -140,6 +150,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      throw new NotImplementedException ();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

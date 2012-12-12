@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
   ///     IsEquivalentTo method should be used rather than comparing via <see cref="object.Equals(object)"/>.
   ///   </para>
   /// </remarks>
-  public class MutableType : CustomType, IMutableMember
+  public class MutableType : CustomType, IMutableInfo
   {
     private readonly IRelatedMethodFinder _relatedMethodFinder;
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
@@ -172,8 +172,27 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methods.AllMutableMembers; }
     }
 
-    // TODO 4972: Replace usages with TypeEqualityComparer.
+    public bool CanAddCustomAttributeData
+    {
+      get { throw new NotImplementedException(); }
+    }
 
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeDatas.Value;
+    }
+
+    // TODO 4972: Replace usages with TypeEqualityComparer.
     public bool IsAssignableTo (Type other)
     {
       ArgumentUtility.CheckNotNull ("other", other);
@@ -372,11 +391,6 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       return mutableMethod;
-    }
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return _customAttributeDatas.Value;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)

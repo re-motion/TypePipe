@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="ParameterInfo"/> that can be modified.
   /// This allows to represent parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
   /// </summary>
-  public class MutableParameterInfo : ParameterInfo, ITypePipeCustomAttributeProvider
+  public class MutableParameterInfo : ParameterInfo, IMutableInfo
   {
     private readonly MemberInfo _member;
     private readonly ParameterDescriptor _descriptor;
@@ -61,6 +61,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.UnderlyingSystemInfo ?? this; }
     }
 
+    public bool IsNew
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public bool IsModified
+    {
+      get { throw new NotImplementedException(); }
+    }
+
     public override Type ParameterType
     {
       get { return _descriptor.Type; }
@@ -74,6 +84,21 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterAttributes Attributes
     {
       get { return _descriptor.Attributes; }
+    }
+
+    public bool CanAddCustomAttributeData
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      throw new NotImplementedException();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

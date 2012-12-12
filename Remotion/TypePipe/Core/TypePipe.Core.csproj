@@ -176,7 +176,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMutableMethodBase.cs" />
-    <Compile Include="MutableReflection\IMutableMember.cs" />
+    <Compile Include="MutableReflection\IMutableInfo.cs" />
     <Compile Include="MutableReflection\Implementation\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\Implementation\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />

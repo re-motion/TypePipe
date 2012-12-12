@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       //CheckIsDefinedInheritance (mutableEvent, @event);
     }
 
-    private IMutableMember CreateMutableMember (MethodBase underlyingMethod)
+    private IMutableInfo CreateMutableMember (MethodBase underlyingMethod)
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
       return mutableType.GetOrAddMutableMethod ((MethodInfo) underlyingMethod);

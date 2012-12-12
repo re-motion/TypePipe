@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="FieldInfo"/> that can be modified.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableFieldInfo : FieldInfo, IMutableMember
+  public class MutableFieldInfo : FieldInfo, IMutableInfo
   {
     private readonly MutableType _declaringType;
     private readonly FieldDescriptor _descriptor;
@@ -87,17 +87,14 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributes; }
     }
 
+    public bool CanAddCustomAttributeData
+    {
+      get { throw new NotImplementedException(); }
+    }
+
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
       get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
-    }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      // TODO: 4695
-      Assertion.IsTrue (IsNew || _addedCustomAttributeDeclarations.Count == 0);
-
-      return IsNew ? AddedCustomAttributeDeclarations.Cast<ICustomAttributeData>() : _customAttributeDatas.Value;
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
@@ -112,6 +109,14 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (customAttributeDeclaration.Type == typeof (NonSerializedAttribute))
         _attributes |= FieldAttributes.NotSerialized;
+    }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      // TODO: 4695
+      Assertion.IsTrue (IsNew || _addedCustomAttributeDeclarations.Count == 0);
+
+      return IsNew ? AddedCustomAttributeDeclarations.Cast<ICustomAttributeData>() : _customAttributeDatas.Value;
     }
 
     public override object[] GetCustomAttributes (bool inherit)

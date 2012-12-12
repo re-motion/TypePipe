@@ -160,6 +160,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { return IsNew || (IsVirtual && !IsFinal); }
     }
 
+    public bool CanAddCustomAttributeData
+    {
+      get { throw new NotImplementedException (); }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { throw new NotImplementedException(); }
+    }
+
     public override MethodInfo GetBaseDefinition ()
     {
       return BaseMethod != null ? BaseMethod.GetBaseDefinition () : this;
@@ -244,6 +254,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      throw new NotImplementedException ();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
