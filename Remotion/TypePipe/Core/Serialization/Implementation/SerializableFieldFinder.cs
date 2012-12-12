@@ -35,12 +35,8 @@ namespace Remotion.TypePipe.Serialization.Implementation
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
 
-
       return fields
           .Where (f => !f.IsStatic && (f.Attributes & FieldAttributes.NotSerialized) == 0)
-        // TODO Review: This line should be unnecessary
-        // TODO Review: Adding a NonSerializedAttribute should set the NotSerialized flag in MutableFieldInfo
-          .Where (f => !f.GetCustomAttributes (typeof (NonSerializedAttribute), false).Any())
           .ToLookup (f => f.Name)
           .SelectMany (
               fieldsByName =>
