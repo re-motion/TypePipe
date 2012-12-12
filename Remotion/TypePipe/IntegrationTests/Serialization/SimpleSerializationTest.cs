@@ -36,14 +36,14 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return factory;
     }
 
-    protected override Func<SerializationTestContext, SerializableType> CreateDeserializationCallback (SerializationTestContext context)
+    protected override Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context)
     {
       // Flush generated assembly to disk to enable simple serialization strategy.
       Flush();
 
       return ctx =>
       {
-        var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
+        var deserializedInstance = (T) Serializer.Deserialize (ctx.SerializedData);
         Assert.That (deserializedInstance.GetType().AssemblyQualifiedName, Is.EqualTo (ctx.ExpectedAssemblyQualifiedName));
 
         return deserializedInstance;

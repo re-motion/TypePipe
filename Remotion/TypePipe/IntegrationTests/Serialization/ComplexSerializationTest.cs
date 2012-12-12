@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return factory;
     }
 
-    protected override Func<SerializationTestContext, SerializableType> CreateDeserializationCallback (SerializationTestContext context)
+    protected override Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context)
     {
       // Do not flush generated assembly to disk to force complex serialization strategy.
 
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
 
         SetUpDeserialization (registry, ctx.ParticipantProviders);
-        var deserializedInstance = (SerializableType) Serializer.Deserialize (ctx.SerializedData);
+        var deserializedInstance = (T) Serializer.Deserialize (ctx.SerializedData);
         TearDownDeserialization (registry);
 
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.

@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       Assert.That (instance1.ConstructorCalled, Is.True);
       Assert.That (instance2.ConstructorCalled, Is.True);
 
-      Action<SerializableType, SerializationTestContext> assertions = (deserializedInstance, ctx) =>
+      Action<SerializableType, SerializationTestContext<SerializableType>> assertions = (deserializedInstance, ctx) =>
       {
         Assert.That (deserializedInstance.ConstructorCalled, Is.False);
         Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       PrivateInvoke.SetPublicField (instance2, "AddedIntField", 7);
       PrivateInvoke.SetPublicField (instance2, "AddedSkippedIntField", 7);
 
-      Action<SerializableType, SerializationTestContext> assertions = (deserializedInstance, ctx) =>
+      Action<SerializableType, SerializationTestContext<SerializableType>> assertions = (deserializedInstance, ctx) =>
       {
         Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedIntField"), Is.EqualTo (7));
         Assert.That (PrivateInvoke.GetPublicField (deserializedInstance, "AddedSkippedIntField"), Is.EqualTo (0));
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, SerializationTestContext> assertions =
+      Action<SerializableType, SerializationTestContext<SerializableType>> assertions =
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
       CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc valueFromInstanceInitialization");
       CheckInstanceIsSerializable (instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor) valueFromInstanceInitialization");
@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, SerializationTestContext> assertions =
+      Action<SerializableType, SerializationTestContext<SerializableType>> assertions =
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
       CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc existingCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, SerializationTestContext> assertions =
+      Action<SerializableType, SerializationTestContext<SerializableType>> assertions =
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
       CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc addedCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
@@ -186,21 +186,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void CyclicObjectGraph ()
     {
       var factory = CreateObjectFactoryForSerialization();
-      var instance1 = CreateCyclicInstance<CyclicSerializableType> (factory);
-      var instance2 = CreateCyclicInstance<CustomCyclicSerializableType> (factory);
+      var instance1 = CreateCyclicInstance<ReferencingSerializableType> (factory);
+      var instance2 = CreateCyclicInstance<CustomReferencingSerializableType> (factory);
 
       CheckInstanceIsSerializable (instance1, (deserializedInstance, ctx) => { });
       CheckInstanceIsSerializable (instance2, (deserializedInstance, ctx) => { });
-    }
-
-    private static T CreateCyclicInstance<T> (IObjectFactory factory) where T : SerializableType
-    {
-      var a = factory.CreateObject<T>();
-      var b = factory.CreateObject<T>();
-      PrivateInvoke.SetPublicField (a, "Other", b);
-      PrivateInvoke.SetPublicField (b, "Other", a);
-
-      return a;
     }
 
     [Test]
@@ -235,10 +225,21 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
+    private T CreateCyclicInstance<T> (IObjectFactory factory) where T : ReferencingSerializableType
+    {
+      var instance = factory.CreateObject<T> ();
+      var referenceObject = new ReferencedType ();
+
+      instance.ReferencedObject = referenceObject;
+      referenceObject.ReferencingObject = instance;
+
+      return instance;
+    }
+
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected abstract IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders);
 
-    protected abstract Func<SerializationTestContext, SerializableType> CreateDeserializationCallback (SerializationTestContext context);
+    protected abstract Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context);
 
     private AppDomain _appDomainForDeserialization;
 
@@ -258,13 +259,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       base.TestFixtureTearDown();
     }
 
-    protected void CheckInstanceIsSerializable (
-        SerializableType instance, Action<SerializableType, SerializationTestContext> assertions, string expectedStringFieldValue = null)
+    protected void CheckInstanceIsSerializable<T> (
+        T instance, Action<T, SerializationTestContext<T>> assertions, string expectedStringFieldValue = null)
     {
       Assert.That (instance.GetType().IsSerializable, Is.True);
 
       var context =
-          new SerializationTestContext
+          new SerializationTestContext<T>
           {
               SerializedData = Serializer.Serialize (instance),
               Assertions = assertions,
@@ -278,17 +279,17 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     [Serializable]
-    protected class SerializationTestContext
+    protected class SerializationTestContext<T>
     {
       public IEnumerable<Func<IParticipant>> ParticipantProviders { get; set; }
       public byte[] SerializedData { get; set; }
-      public Action<SerializableType, SerializationTestContext> Assertions { get; set; }
+      public Action<T, SerializationTestContext<T>> Assertions { get; set; }
 
       public string ExpectedAssemblyQualifiedName { get; set; }
       public string SerializedTypeFullName { get; set; }
       public string ExpectedStringFieldValue { get; set; }
 
-      public Func<SerializationTestContext, SerializableType> DeserializationCallback { get; set; }
+      public Func<SerializationTestContext<T>, T> DeserializationCallback { get; set; }
 
       public void AppDomainDelegate ()
       {
@@ -374,40 +375,37 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     [Serializable]
-    public class CyclicSerializableType : SerializableType, IDeserializationCallback
+    public class ReferencingSerializableType : IDeserializationCallback
     {
-      public CyclicSerializableType Other;
+      public ReferencedType ReferencedObject;
 
-      public void OnDeserialization (object sender)
+      public virtual void OnDeserialization (object sender)
       {
-        Assert.That (Other, Is.Not.Null);
+        Assert.That (ReferencedObject, Is.Not.Null);
+        Assert.That (ReferencedObject.ReferencingObject, Is.Not.Null.And.SameAs (this));
       }
     }
 
     [Serializable]
-    public class CustomCyclicSerializableType : CustomSerializableType, IDeserializationCallback
+    public class CustomReferencingSerializableType : ReferencingSerializableType, ISerializable
     {
-      public CustomCyclicSerializableType Other;
+      public CustomReferencingSerializableType () { }
 
-      public CustomCyclicSerializableType () { }
-
-      public CustomCyclicSerializableType (SerializationInfo info, StreamingContext context)
-          : base (info, context)
+      public CustomReferencingSerializableType (SerializationInfo info, StreamingContext context)
       {
-        Other = (CustomCyclicSerializableType) info.GetValue ("other", typeof (CustomCyclicSerializableType));
+        ReferencedObject = (ReferencedType) info.GetValue ("ReferencedObject", typeof (ReferencedType));
       }
 
-      public override void GetObjectData (SerializationInfo info, StreamingContext context)
+      public virtual void GetObjectData (SerializationInfo info, StreamingContext context)
       {
-        base.GetObjectData (info, context);
-
-        info.AddValue ("other", Other);
+        info.AddValue ("ReferencedObject", ReferencedObject);
       }
+    }
 
-      public void OnDeserialization (object sender)
-      {
-        Assert.That (Other, Is.Not.Null);
-      }
+    [Serializable]
+    public class ReferencedType
+    {
+      public ReferencingSerializableType ReferencingObject;
     }
 
     public class ExplicitISerializableType : ISerializable
