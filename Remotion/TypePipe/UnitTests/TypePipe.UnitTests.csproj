@@ -108,6 +108,7 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Descriptors\FieldDescriptorObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MutableInfoCustomAttributeHelperTest.cs" />
     <Compile Include="MutableReflection\Implementation\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedEventFinderTest.cs" />
