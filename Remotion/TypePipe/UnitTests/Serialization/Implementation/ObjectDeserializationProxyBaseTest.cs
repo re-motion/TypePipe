@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
       var fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory>();
-      var fakeObject = new object();
+      var fakeInstance = MockRepository.GenerateStrictMock<IDeserializationCallback>();
       _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (fakeObjectFactory);
       _createRealObjectAssertions = (factory, type, ctx) =>
       {
@@ -77,32 +77,57 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
         Assert.That (type, Is.SameAs (underlyingType));
         Assert.That (ctx, Is.EqualTo (context).And.Not.EqualTo (_context));
 
-        return fakeObject;
+        return fakeInstance;
       };
 
       var result = _objectDeserializationProxyBase.GetRealObject (context);
 
       _objectFactoryRegistryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeObject));
+      fakeInstance.AssertWasNotCalled (mock => mock.OnDeserialization (Arg<object>.Is.Anything));
+      Assert.That (result, Is.SameAs (fakeInstance));
+      Assert.That (PrivateInvoke.GetNonPublicField (_objectDeserializationProxyBase, "_instance"), Is.SameAs (fakeInstance));
     }
 
     [Test]
-    public void GetRealObject_DeserializationCallback ()
+    public void CreateRealObject ()
     {
-      _info.AddValue ("<tp>underlyingType", typeof (object).AssemblyQualifiedName);
-      _info.AddValue ("<tp>factoryIdentifier", "factory1");
+      var instance = new object();
+      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_instance", instance);
+      var sender = new object();
 
-      var objectMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
-      _objectFactoryRegistryMock.Stub (mock => mock.Get ("factory1"));
-      _createRealObjectAssertions = (factory, type, ctx) => objectMock;
-      objectMock.Expect (mock => mock.OnDeserialization (_objectDeserializationProxyBase));
-
-      var result = _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
-
-      _objectFactoryRegistryMock.VerifyAllExpectations();
-      objectMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (objectMock));
+      Assert.That (() => _objectDeserializationProxyBase.OnDeserialization (sender), Throws.Nothing);
     }
+
+    [Test]
+    public void CreateRealObject_DeserializationCallback ()
+    {
+      var deserializationCallbackMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
+      var sender = new object ();
+      deserializationCallbackMock.Expect (x => x.OnDeserialization (sender));
+      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_instance", deserializationCallbackMock);
+
+      _objectDeserializationProxyBase.OnDeserialization (sender);
+
+      deserializationCallbackMock.VerifyAllExpectations ();
+    }
+
+    //[Test]
+    //public void GetRealObject_DeserializationCallback ()
+    //{
+    //  _info.AddValue ("<tp>underlyingType", typeof (object).AssemblyQualifiedName);
+    //  _info.AddValue ("<tp>factoryIdentifier", "factory1");
+
+    //  var objectMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
+    //  _objectFactoryRegistryMock.Stub (mock => mock.Get ("factory1"));
+    //  _createRealObjectAssertions = (factory, type, ctx) => objectMock;
+    //  objectMock.Expect (mock => mock.OnDeserialization (_objectDeserializationProxyBase));
+
+    //  var result = _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
+
+    //  _objectFactoryRegistryMock.VerifyAllExpectations();
+    //  objectMock.VerifyAllExpectations();
+    //  Assert.That (result, Is.SameAs (objectMock));
+    //}
 
     [Test]
     [ExpectedException (typeof (TypeLoadException), MatchType = MessageMatch.StartsWith,

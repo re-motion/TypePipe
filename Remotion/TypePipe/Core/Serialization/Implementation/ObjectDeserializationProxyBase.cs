@@ -28,11 +28,13 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// This class uses the metadata in the <see cref="SerializationInfo"/> that was added by the <see cref="SerializationParticipant"/> to 
   /// regenerate a suitable type for deserialization.
   /// </remarks>
-  public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference
+  public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference, IDeserializationCallback
   {
     private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
 
     private readonly SerializationInfo _serializationInfo;
+
+    private object _instance;
 
     // ReSharper disable UnusedParameter.Local
     protected ObjectDeserializationProxyBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
@@ -62,22 +64,20 @@ namespace Remotion.TypePipe.Serialization.Implementation
       var factory = _registry.Get (factoryIdentifier);
       var instance = CreateRealObject (factory, underlyingType, context);
 
-      // TODO Review: This doesn't work correctly in case of cycles, maybe add an integration test. Move implementation down...
-      var deserializationCallback = instance as IDeserializationCallback;
-      if (deserializationCallback != null)
-        deserializationCallback.OnDeserialization (this);
+      _instance = instance;
 
       return instance;
     }
 
-    protected abstract object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context);
+    public void OnDeserialization (object sender)
+    {
+      ArgumentUtility.CheckNotNull ("sender", sender);
 
-    // TODO Review: ... to here.
-    //public void OnDeserialization (object sender)
-    //{
-    //  var deserializationCallback = (_instance as IDeserializationCallback);
-    //  if (deserializationCallback != null)
-    //    deserializationCallback.OnDeserialization (sender);
-    //}
+      var deserializationCallback = _instance as IDeserializationCallback;
+      if (deserializationCallback != null)
+        deserializationCallback.OnDeserialization (sender);
+    }
+
+    protected abstract object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context);
   }
 }
