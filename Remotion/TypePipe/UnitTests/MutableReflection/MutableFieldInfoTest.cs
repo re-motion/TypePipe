@@ -125,6 +125,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddCustomAttribute_NonSerialized ()
+    {
+      Assert.That (_field.IsNotSerialized, Is.False);
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
+
+      _field.AddCustomAttribute (new CustomAttributeDeclaration (constructor, new object[0]));
+
+      Assert.That (_field.IsNotSerialized, Is.True);
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Adding attributes to existing fields is not supported.")]
     public void AddCustomAttribute_ThrowsForExisting ()
     {

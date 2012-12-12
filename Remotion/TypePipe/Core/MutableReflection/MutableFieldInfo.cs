@@ -39,6 +39,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
+    private FieldAttributes _attributes;
+
     public MutableFieldInfo (MutableType declaringType, FieldDescriptor descriptor)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
@@ -47,6 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _descriptor = descriptor;
       _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
+      _attributes = descriptor.Attributes;
     }
 
     public override Type DeclaringType
@@ -81,7 +84,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override FieldAttributes Attributes
     {
-      get { return _descriptor.Attributes; }
+      get { return _attributes; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
@@ -106,6 +109,9 @@ namespace Remotion.TypePipe.MutableReflection
         throw new NotSupportedException ("Adding attributes to existing fields is not supported.");
 
       _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
+
+      if (customAttributeDeclaration.Type == typeof (NonSerializedAttribute))
+        _attributes |= FieldAttributes.NotSerialized;
     }
 
     public override object[] GetCustomAttributes (bool inherit)
