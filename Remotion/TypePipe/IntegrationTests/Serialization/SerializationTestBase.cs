@@ -180,7 +180,29 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue)),
           expectedStringFieldValue: "abc valueFromInstanceInitialization");
     }
-    
+
+    [Ignore("TODO 5223")]
+    [Test]
+    public void CyclicObjectGraph ()
+    {
+      var factory = CreateObjectFactoryForSerialization();
+      var instance1 = CreateCyclicInstance<CyclicSerializableType> (factory);
+      var instance2 = CreateCyclicInstance<CustomCyclicSerializableType> (factory);
+
+      CheckInstanceIsSerializable (instance1, (deserializedInstance, ctx) => { });
+      CheckInstanceIsSerializable (instance2, (deserializedInstance, ctx) => { });
+    }
+
+    private static T CreateCyclicInstance<T> (IObjectFactory factory) where T : SerializableType
+    {
+      var a = factory.CreateObject<T>();
+      var b = factory.CreateObject<T>();
+      PrivateInvoke.SetPublicField (a, "Other", b);
+      PrivateInvoke.SetPublicField (b, "Other", a);
+
+      return a;
+    }
+
     [Test]
     public void ISerializable_CannotModifyOrOverrideGetObjectData ()
     {
@@ -348,6 +370,43 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       public virtual void OnDeserialization (object sender)
       {
         String += " existingCallback (but does not implement IDeserializationCallback)";
+      }
+    }
+
+    [Serializable]
+    public class CyclicSerializableType : SerializableType, IDeserializationCallback
+    {
+      public CyclicSerializableType Other;
+
+      public void OnDeserialization (object sender)
+      {
+        Assert.That (Other, Is.Not.Null);
+      }
+    }
+
+    [Serializable]
+    public class CustomCyclicSerializableType : CustomSerializableType, IDeserializationCallback
+    {
+      public CustomCyclicSerializableType Other;
+
+      public CustomCyclicSerializableType () { }
+
+      public CustomCyclicSerializableType (SerializationInfo info, StreamingContext context)
+          : base (info, context)
+      {
+        Other = (CustomCyclicSerializableType) info.GetValue ("other", typeof (CustomCyclicSerializableType));
+      }
+
+      public override void GetObjectData (SerializationInfo info, StreamingContext context)
+      {
+        base.GetObjectData (info, context);
+
+        info.AddValue ("other", Other);
+      }
+
+      public void OnDeserialization (object sender)
+      {
+        Assert.That (Other, Is.Not.Null);
       }
     }
 
