@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _field = MutableFieldInfoObjectMother.Create ();
+      _field = MutableFieldInfoObjectMother.Create();
 
       var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
       _fieldWithAttribute = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: field);
@@ -104,31 +104,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
-    {
-      var field = MutableFieldInfoObjectMother.Create (name: "_field", type: typeof (MutableFieldInfoTest));
-
-      Assert.That (field.ToString (), Is.EqualTo ("MutableFieldInfoTest _field"));
-    }
-
-    [Test]
-    public void ToDebugString ()
-    {
-      var declaringTypeName = _field.DeclaringType.Name;
-      var fieldTypeName = _field.FieldType.Name;
-      var fieldName = _field.Name;
-      var expected = "MutableField = \"" + fieldTypeName + " " + fieldName + "\", DeclaringType = \"" + declaringTypeName + "\"";
-
-      Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
-    }
-
-    [Test]
     public void GetCustomAttributeData ()
     {
       var result = _fieldWithAttribute.GetCustomAttributeData ();
 
       Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
       Assert.That (result, Is.SameAs (_fieldWithAttribute.GetCustomAttributeData ()), "should be cached");
+    }
+
+    [Test]
+    public void AddCustomAttribute ()
+    {
+      Assert.That (_field.IsNew, Is.True);
+      var declaration = CustomAttributeDeclarationObjectMother.Create ();
+
+      _field.AddCustomAttribute (declaration);
+
+      Assert.That (_field.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+      Assert.That (_field.GetCustomAttributeData (), Is.EqualTo (new[] { declaration }));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Adding attributes to existing fields is not supported.")]
+    public void AddCustomAttribute_ThrowsForExisting ()
+    {
+      var fieldInfo = MutableFieldInfoObjectMother.CreateForExisting ();
+      Assert.That (fieldInfo.IsNew, Is.False);
+
+      fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create ());
     }
 
     [Test]
@@ -157,25 +160,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddCustomAttribute ()
+    public new void ToString ()
     {
-      Assert.That (_field.IsNew, Is.True);
-      var declaration = CustomAttributeDeclarationObjectMother.Create();
+      var field = MutableFieldInfoObjectMother.Create (name: "_field", type: typeof (MutableFieldInfoTest));
 
-      _field.AddCustomAttribute (declaration);
-
-      Assert.That (_field.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
-      Assert.That (_field.GetCustomAttributeData(), Is.EqualTo (new[] { declaration }));
+      Assert.That (field.ToString(), Is.EqualTo ("MutableFieldInfoTest _field"));
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Adding attributes to existing fields is not supported.")]
-    public void AddCustomAttribute_ThrowsForExisting ()
+    public void ToDebugString ()
     {
-      var fieldInfo = MutableFieldInfoObjectMother.CreateForExisting ();
-      Assert.That (fieldInfo.IsNew, Is.False);
+      var declaringTypeName = _field.DeclaringType.Name;
+      var fieldTypeName = _field.FieldType.Name;
+      var fieldName = _field.Name;
+      var expected = "MutableField = \"" + fieldTypeName + " " + fieldName + "\", DeclaringType = \"" + declaringTypeName + "\"";
 
-      fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create ());
+      Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
     }
 
     [Derived]

@@ -23,6 +23,9 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface ITypePipeCustomAttributeProvider : System.Reflection.ICustomAttributeProvider
   {
-    IEnumerable<ICustomAttributeData> GetCustomAttributeData();
+    IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
+
+    //bool CanAddCustomAttributeData { get; }
+    //void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration);
   }
 }

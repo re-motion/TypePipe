@@ -89,8 +89,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private static bool IsDefined (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
-      return customAttributeDatas
-          .Any (a => attributeType.IsAssignableFrom (a.Type));
+      return customAttributeDatas.Any (a => attributeType.IsAssignableFrom (a.Type));
     }
   }
 }

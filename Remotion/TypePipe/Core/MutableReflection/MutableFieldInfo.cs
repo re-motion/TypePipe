@@ -35,8 +35,9 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly FieldDescriptor _descriptor;
-    private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
+
+    private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
     public MutableFieldInfo (MutableType declaringType, FieldDescriptor descriptor)
     {
@@ -45,7 +46,6 @@ namespace Remotion.TypePipe.MutableReflection
 
       _declaringType = declaringType;
       _descriptor = descriptor;
-
       _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
     }
 
@@ -89,22 +89,23 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
     }
 
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetFieldSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
-    }
-
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       // TODO: 4695
       Assertion.IsTrue (IsNew || _addedCustomAttributeDeclarations.Count == 0);
 
       return IsNew ? AddedCustomAttributeDeclarations.Cast<ICustomAttributeData>() : _customAttributeDatas.Value;
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+
+      // TODO: 4695
+      if (!IsNew)
+        throw new NotSupportedException ("Adding attributes to existing fields is not supported.");
+
+      _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
     }
 
     public override object[] GetCustomAttributes (bool inherit)
@@ -126,15 +127,14 @@ namespace Remotion.TypePipe.MutableReflection
       return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
     }
 
-    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    public override string ToString ()
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+      return SignatureDebugStringGenerator.GetFieldSignature (this);
+    }
 
-      // TODO: 4695
-      if (!IsNew)
-        throw new NotSupportedException ("Adding attributes to existing fields is not supported.");
-
-      _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
+    public string ToDebugString ()
+    {
+      return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
     #region Not Implemented from FieldInfo interface
