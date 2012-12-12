@@ -71,8 +71,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
     public void OnDeserialization (object sender)
     {
-      ArgumentUtility.CheckNotNull ("sender", sender);
-
       var deserializationCallback = _instance as IDeserializationCallback;
       if (deserializationCallback != null)
         deserializationCallback.OnDeserialization (sender);
