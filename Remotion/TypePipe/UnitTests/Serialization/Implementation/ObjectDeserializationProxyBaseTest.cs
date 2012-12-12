@@ -89,6 +89,17 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     }
 
     [Test]
+    public void GetRealObject_Caches ()
+    {
+      var instance = new object ();
+      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_instance", instance);
+
+      var result = _objectDeserializationProxyBase.GetRealObject (_context);
+
+      Assert.That (result, Is.SameAs (instance));
+    }
+
+    [Test]
     public void CreateRealObject ()
     {
       var instance = new object();
@@ -110,24 +121,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
       deserializationCallbackMock.VerifyAllExpectations ();
     }
-
-    //[Test]
-    //public void GetRealObject_DeserializationCallback ()
-    //{
-    //  _info.AddValue ("<tp>underlyingType", typeof (object).AssemblyQualifiedName);
-    //  _info.AddValue ("<tp>factoryIdentifier", "factory1");
-
-    //  var objectMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
-    //  _objectFactoryRegistryMock.Stub (mock => mock.Get ("factory1"));
-    //  _createRealObjectAssertions = (factory, type, ctx) => objectMock;
-    //  objectMock.Expect (mock => mock.OnDeserialization (_objectDeserializationProxyBase));
-
-    //  var result = _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
-
-    //  _objectFactoryRegistryMock.VerifyAllExpectations();
-    //  objectMock.VerifyAllExpectations();
-    //  Assert.That (result, Is.SameAs (objectMock));
-    //}
 
     [Test]
     [ExpectedException (typeof (TypeLoadException), MatchType = MessageMatch.StartsWith,
