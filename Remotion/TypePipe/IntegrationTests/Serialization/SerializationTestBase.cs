@@ -181,7 +181,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           expectedStringFieldValue: "abc valueFromInstanceInitialization");
     }
 
-    [Ignore("TODO 5223")]
     [Test]
     public void CyclicObjectGraph ()
     {
