@@ -21,9 +21,12 @@ using System.Runtime.Serialization;
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Acts as a helper for the .NET deserialization process of modified types that do not declare a deserialization constructor.
+  /// Acts as a placeholder in the .NET deserialization process for modified types that do not declare a deserialization constructor.
   /// </summary>
-  // TODO Review: Add remarks section explaining that for such types, the SerializationParticipant will add a call to AddFieldValues etc.
+  /// <remarks>
+  /// For such types, the <see cref="SerializationParticipant"/> will add serialization code that calls 
+  /// <see cref="ReflectionSerializationHelper.AddFieldValues"/>.
+  /// </remarks>
   [Serializable]
   public class ObjectWithoutDeserializationConstructorProxy : ObjectDeserializationProxyBase
   {

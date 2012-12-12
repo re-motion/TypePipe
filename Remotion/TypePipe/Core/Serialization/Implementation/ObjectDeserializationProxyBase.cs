@@ -22,8 +22,12 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Acts as a common base for the .NET deserialization surrogates.
+  /// A common base class for objects used as placeholders in the .NET deserialization process.
   /// </summary>
+  /// <remarks>
+  /// This class uses the metadata in the <see cref="SerializationInfo"/> that was added by the <see cref="SerializationParticipant"/> to 
+  /// regenerate a suitable type for deserialization.
+  /// </remarks>
   public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference
   {
     private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
@@ -32,7 +36,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
 
     // ReSharper disable UnusedParameter.Local
     protected ObjectDeserializationProxyBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
-// ReSharper restore UnusedParameter.Local
+    // ReSharper restore UnusedParameter.Local
     {
       ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
 
@@ -59,9 +63,9 @@ namespace Remotion.TypePipe.Serialization.Implementation
       var instance = CreateRealObject (factory, underlyingType, context);
 
       // TODO Review: This doesn't work correctly in case of cycles, maybe add an integration test. Move implementation down...
-      //var deserializationCallback = instance as IDeserializationCallback;
-      //if (deserializationCallback != null)
-      //  deserializationCallback.OnDeserialization (this);
+      var deserializationCallback = instance as IDeserializationCallback;
+      if (deserializationCallback != null)
+        deserializationCallback.OnDeserialization (this);
 
       return instance;
     }

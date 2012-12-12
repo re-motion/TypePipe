@@ -20,10 +20,8 @@ using Remotion.Reflection;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
-  // TODO Review: Explain how the placeholder stuff works. (Maybe in the base class.)
   /// <summary>
-  /// Acts as a helper for the .NET deserialization process of modified types that implement <see cref="ISerializable"/> and declare a
-  /// deserialization constructor.
+  /// Acts as a placeholder in the .NET deserialization process for modified types that declare a deserialization constructor.
   /// </summary>
   [Serializable]
   public class ObjectWithDeserializationConstructorProxy : ObjectDeserializationProxyBase
