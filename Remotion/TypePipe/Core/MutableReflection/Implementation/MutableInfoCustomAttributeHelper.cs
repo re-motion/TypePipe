@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private IEnumerable<ICustomAttributeData> GetCustomAttributeDataForMutableInfo (bool inherit)
     {
-      Assertion.IsTrue (_mutableInfo is MemberInfo || (_mutableInfo is ParameterInfo && !inherit));
+      Assertion.IsTrue (_mutableInfo is MemberInfo || _mutableInfo is ParameterInfo);
 
       return _mutableInfo is MemberInfo
                  ? TypePipeCustomAttributeData.GetCustomAttributes ((MemberInfo) _mutableInfo, inherit)

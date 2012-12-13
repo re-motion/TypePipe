@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -35,9 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly FieldDescriptor _descriptor;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
-
-    private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
+    private readonly MutableInfoCustomAttributeHelper _customAttributeHelper;
 
     private FieldAttributes _attributes;
 
@@ -48,7 +45,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       _declaringType = declaringType;
       _descriptor = descriptor;
-      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
+      _customAttributeHelper = new MutableInfoCustomAttributeHelper (this, descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
+
       _attributes = descriptor.Attributes;
     }
 
@@ -69,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _addedCustomAttributeDeclarations.Count != 0; }
+      get { return _customAttributeHelper.AddedCustomAttributeDeclarations.Count != 0; }
     }
 
     public override Type FieldType
@@ -89,23 +87,20 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool CanAddCustomAttributes
     {
-      get { throw new NotImplementedException(); }
+      // TODO 4695
+      get { return IsNew; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
-      get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
+      get { return _customAttributeHelper.AddedCustomAttributeDeclarations; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      // TODO: 4695
-      if (!IsNew)
-        throw new NotSupportedException ("Adding attributes to existing fields is not supported.");
-
-      _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
+      _customAttributeHelper.AddCustomAttribute (customAttributeDeclaration);
 
       if (customAttributeDeclaration.Type == typeof (NonSerializedAttribute))
         _attributes |= FieldAttributes.NotSerialized;
@@ -113,29 +108,26 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      // TODO: 4695
-      Assertion.IsTrue (IsNew || _addedCustomAttributeDeclarations.Count == 0);
-
-      return IsNew ? AddedCustomAttributeDeclarations.Cast<ICustomAttributeData>() : _customAttributeDatas.Value;
+      return _customAttributeHelper.GetCustomAttributeData();
     }
 
     public override object[] GetCustomAttributes (bool inherit)
     {
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
+      return _customAttributeHelper.GetCustomAttributes (inherit);
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
+      return _customAttributeHelper.GetCustomAttributes (attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
+      return _customAttributeHelper.IsDefined (attributeType, inherit);
     }
 
     public override string ToString ()

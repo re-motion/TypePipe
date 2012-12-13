@@ -49,8 +49,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableMember = mutableMethod;
       // TODO method.MutableParameters
       _mutableParameter = (MutableParameterInfo) mutableMethod.GetParameters().Single();
-      _attributeProvider = () => { throw new Exception ("setup before usage"); };
-      _canAddCustomAttributesDecider = () => { throw new Exception ("setup before usage"); };
+      _attributeProvider = () => { throw new Exception ("should be lazy"); };
+      _canAddCustomAttributesDecider = () => { throw new Exception ("should be lazy"); };
 
       _helper = new MutableInfoCustomAttributeHelper (_mutableMember, () => _attributeProvider(), () => _canAddCustomAttributesDecider());
       _helperForParameter = new MutableInfoCustomAttributeHelper (_mutableParameter, () => _attributeProvider(), () => _canAddCustomAttributesDecider());
@@ -79,10 +79,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Adding custom attributes to this element is not supported.")]
     public void AddCustomAttribute_CannotAdd ()
     {
-      var declaration = new CustomAttributeDeclaration (_attributeCtor, new object[0]);
       _canAddCustomAttributesDecider = () => false;
-
-      _helper.AddCustomAttribute (declaration);
+      _helper.AddCustomAttribute (new CustomAttributeDeclaration (_attributeCtor, new object[0]));
     }
 
     [Test]
@@ -90,13 +88,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var addedData = new CustomAttributeDeclaration (_attributeCtor, new object[0]);
       var existingData = new CustomAttributeDeclaration (_attributeCtor, new object[0]);
-      _attributeProvider = () => new ICustomAttributeData[] { existingData }.ToList().AsReadOnly();
       _canAddCustomAttributesDecider = () => true;
       _helper.AddCustomAttribute (addedData);
+
+      var callCount = 0;
+      _attributeProvider = () =>
+      {
+        callCount++;
+        return new ICustomAttributeData[] { existingData }.ToList().AsReadOnly();
+      };
 
       var result = _helper.GetCustomAttributeData();
 
       Assert.That (result, Is.EqualTo (new[] { addedData, existingData }));
+
+      Assert.That (callCount, Is.EqualTo (1));
+      _helper.GetCustomAttributeData();
+      Assert.That (callCount, Is.EqualTo (1), "should be cached");
     }
 
     [Test]

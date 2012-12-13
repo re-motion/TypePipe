@@ -17,7 +17,6 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
@@ -29,17 +28,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private MutableFieldInfo _field;
 
-    private MutableFieldInfo _fieldWithAttribute;
-    private bool _randomInherit;
-
     [SetUp]
     public void SetUp ()
     {
       _field = MutableFieldInfoObjectMother.Create();
-
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Field);
-      _fieldWithAttribute = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: field);
-      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
     }
 
     [Test]
@@ -48,13 +40,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = MutableTypeObjectMother.Create();
       var descriptor = FieldDescriptorObjectMother.Create();
 
-      var fieldInfo = new MutableFieldInfo (declaringType, descriptor);
+      var field = new MutableFieldInfo (declaringType, descriptor);
 
-      Assert.That (fieldInfo.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (fieldInfo.FieldType, Is.SameAs (descriptor.Type));
-      Assert.That (fieldInfo.Name, Is.EqualTo (descriptor.Name));
-      Assert.That (fieldInfo.Attributes, Is.EqualTo (descriptor.Attributes));
-      Assert.That (fieldInfo.AddedCustomAttributeDeclarations, Is.Empty);
+      Assert.That (field.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (field.FieldType, Is.SameAs (descriptor.Type));
+      Assert.That (field.Name, Is.EqualTo (descriptor.Name));
+      Assert.That (field.Attributes, Is.EqualTo (descriptor.Attributes));
+      Assert.That (field.AddedCustomAttributeDeclarations, Is.Empty);
     }
 
     [Test]
@@ -75,43 +67,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsNew_True ()
+    public void IsNew ()
     {
-      var fieldInfo = MutableFieldInfoObjectMother.CreateForNew();
-      Assert.That (fieldInfo.IsNew, Is.True);
+      var field1 = MutableFieldInfoObjectMother.CreateForExisting ();
+      var field2 = MutableFieldInfoObjectMother.CreateForNew();
+
+      Assert.That (field1.IsNew, Is.False);
+      Assert.That (field2.IsNew, Is.True);
     }
 
     [Test]
-    public void IsNew_Fase ()
-    {
-      var fieldInfo = MutableFieldInfoObjectMother.CreateForExisting ();
-      Assert.That (fieldInfo.IsNew, Is.False);
-    }
-
-    [Test]
-    public void IsModified_False ()
+    public void IsModified ()
     {
       Assert.That (_field.IsModified, Is.False);
-    }
 
-    [Test]
-    public void IsModified_True ()
-    {
       _field.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
-
       Assert.That (_field.IsModified, Is.True);
     }
 
     [Test]
-    public void AddCustomAttribute ()
+    public void CanAddCustomAttributes ()
     {
-      Assert.That (_field.IsNew, Is.True);
-      var declaration = CustomAttributeDeclarationObjectMother.Create ();
+      var existingField = MutableFieldInfoObjectMother.CreateForExisting();
+      var newField = MutableFieldInfoObjectMother.CreateForNew();
 
+      Assert.That (existingField.CanAddCustomAttributes, Is.False);
+      Assert.That (newField.CanAddCustomAttributes, Is.True);
+    }
+
+    [Test]
+    public void CustomAttributeMethods ()
+    {
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ObsoleteAttribute());
+      var declaration = new CustomAttributeDeclaration (constructor, new object[0]);
+      Assert.That (_field.CanAddCustomAttributes, Is.True);
       _field.AddCustomAttribute (declaration);
 
       Assert.That (_field.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
-      Assert.That (_field.GetCustomAttributeData (), Is.EqualTo (new[] { declaration }));
+
+      Assert.That (_field.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+
+      Assert.That (_field.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
+      Assert.That (_field.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+
+      Assert.That (_field.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_field.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
 
     [Test]
@@ -123,50 +123,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _field.AddCustomAttribute (new CustomAttributeDeclaration (constructor, new object[0]));
 
       Assert.That (_field.IsNotSerialized, Is.True);
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Adding attributes to existing fields is not supported.")]
-    public void AddCustomAttribute_ThrowsForExisting ()
-    {
-      var fieldInfo = MutableFieldInfoObjectMother.CreateForExisting ();
-      Assert.That (fieldInfo.IsNew, Is.False);
-
-      fieldInfo.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create ());
-    }
-
-    [Test]
-    public void GetCustomAttributeData ()
-    {
-      var result = _fieldWithAttribute.GetCustomAttributeData ();
-
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
-      Assert.That (result, Is.SameAs (_fieldWithAttribute.GetCustomAttributeData ()), "should be cached");
-    }
-
-    [Test]
-    public void GetCustomAttributes ()
-    {
-      var result = _fieldWithAttribute.GetCustomAttributes (_randomInherit);
-
-      Assert.That (result, Has.Length.EqualTo (1));
-      var attribute = result.Single ();
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
-      Assert.That (_fieldWithAttribute.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
-    }
-
-    [Test]
-    public void GetCustomAttributes_Filter ()
-    {
-      Assert.That (_fieldWithAttribute.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
-      Assert.That (_fieldWithAttribute.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
-    }
-
-    [Test]
-    public void IsDefined ()
-    {
-      Assert.That (_fieldWithAttribute.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
-      Assert.That (_fieldWithAttribute.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
     }
 
     [Test]
@@ -187,12 +143,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
     }
-
-    [Derived]
-    public string Field;
-
-    class BaseAttribute : Attribute { }
-    class DerivedAttribute : BaseAttribute { }
-    class UnrelatedAttribute : Attribute { }
   }
 }
