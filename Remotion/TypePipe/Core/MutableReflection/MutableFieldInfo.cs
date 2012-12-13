@@ -140,26 +140,26 @@ namespace Remotion.TypePipe.MutableReflection
       return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
     }
 
-    #region Not Implemented from FieldInfo interface
+    #region Unsupported Members
 
-    public override object GetValue (object obj)
+    public override RuntimeFieldHandle FieldHandle
     {
-      throw new NotImplementedException();
-    }
-
-    public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, CultureInfo culture)
-    {
-      throw new NotImplementedException();
+      get { throw new NotSupportedException ("Property FieldHandle is not supported."); }
     }
 
     public override Type ReflectedType
     {
-      get { throw new NotImplementedException(); }
+      get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
     }
 
-    public override RuntimeFieldHandle FieldHandle
+    public override object GetValue (object obj)
     {
-      get { throw new NotImplementedException(); }
+      throw new NotSupportedException ("Method GetValue is not supported.");
+    }
+
+    public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, CultureInfo culture)
+    {
+      throw new NotSupportedException ("Method SetValue is not supported.");
     }
 
     #endregion

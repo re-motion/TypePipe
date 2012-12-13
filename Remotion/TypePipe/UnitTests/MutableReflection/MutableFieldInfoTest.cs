@@ -143,5 +143,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
     }
+
+    [Test]
+    public void UnsupportedMembers ()
+    {
+      UnsupportedMemberTestHelper.CheckProperty (() => _field.FieldHandle, "FieldHandle");
+      UnsupportedMemberTestHelper.CheckProperty (() => _field.ReflectedType, "ReflectedType");
+
+      UnsupportedMemberTestHelper.CheckMethod (() => _field.GetValue (null), "GetValue");
+      UnsupportedMemberTestHelper.CheckMethod (() => _field.SetValue (null, null), "SetValue");
+    }
   }
 }
