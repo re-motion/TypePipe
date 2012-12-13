@@ -21,7 +21,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -70,25 +69,33 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _addedCustomAttributeDeclarations.Cast<ICustomAttributeData>().Concat (_existingCustomAttributeDatas.Value);
     }
 
-    // TODO
-    //public object[] GetCustomAttributes (bool inherit)
-    //{
-    //  return GetCustomAttributes (TypePipeCustomAttributeData.GetCustomAttributes (_mutableInfo, inherit), typeof (object));
-    //}
+    public object[] GetCustomAttributes (bool inherit)
+    {
+      return GetCustomAttributes (GetCustomAttributeDataForMutableInfo (inherit), typeof (object));
+    }
 
-    //public object[] GetCustomAttributes (Type attributeType, bool inherit)
-    //{
-    //  ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+    public object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-    //  return GetCustomAttributes (TypePipeCustomAttributeData.GetCustomAttributes (_mutableInfo, inherit), attributeType);
-    //}
+      return GetCustomAttributes (GetCustomAttributeDataForMutableInfo (inherit), attributeType);
+    }
 
-    //public bool IsDefined (Type attributeType, bool inherit)
-    //{
-    //  ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+    public bool IsDefined (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-    //  return IsDefined (TypePipeCustomAttributeData.GetCustomAttributes (_mutableInfo, inherit), attributeType);
-    //}
+      return IsDefined (GetCustomAttributeDataForMutableInfo (inherit), attributeType);
+    }
+
+    private IEnumerable<ICustomAttributeData> GetCustomAttributeDataForMutableInfo (bool inherit)
+    {
+      Assertion.IsTrue (_mutableInfo is MemberInfo || (_mutableInfo is ParameterInfo && !inherit));
+
+      return _mutableInfo is MemberInfo
+                 ? TypePipeCustomAttributeData.GetCustomAttributes ((MemberInfo) _mutableInfo, inherit)
+                 : TypePipeCustomAttributeData.GetCustomAttributes ((ParameterInfo) _mutableInfo);
+    }
 
     private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
@@ -97,11 +104,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           .Select (a => a.CreateInstance())
           .ToArray();
 
-      //if (attributeType != typeof(object))
-      var typedAttributeArray = Array.CreateInstance (attributeType, attributeArray.Length);
-      Array.Copy (attributeArray, typedAttributeArray, attributeArray.Length);
+      if (attributeArray.GetType().GetElementType() != attributeType)
+      {
+        var typedAttributeArray = Array.CreateInstance (attributeType, attributeArray.Length);
+        Array.Copy (attributeArray, typedAttributeArray, attributeArray.Length);
+        attributeArray = (object[]) typedAttributeArray;
+      }
 
-      return (object[]) typedAttributeArray;
+      return attributeArray;
     }
 
     private static bool IsDefined (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
