@@ -295,7 +295,10 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private Result RewriteExtensionAssignment(BinaryExpression node, Stack stack) {
-            node = Expression.Assign(node.Left.ReduceExtensions(), node.Right);
+            if (!node.CanReduce)
+                return new Result (RewriteAction.None, node);
+
+            node = Expression.Assign(node.Left.ReduceAndCheck(), node.Right);
             Result result = RewriteAssignBinaryExpression(node, stack);
             // it's at least Copy because we reduced the node
             return new Result(result.Action | RewriteAction.Copy, result.Node);
@@ -909,10 +912,10 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private Result RewriteExtensionExpression(Expression expr, Stack stack) {
-            if (expr is Remotion.TypePipe.Expressions.ITypePipeExpression)
+            if (!expr.CanReduce)
                 return new Result (RewriteAction.None, expr);
 
-            Result result = RewriteExpression(expr.ReduceExtensions(), stack);
+            Result result = RewriteExpression(expr.ReduceAndCheck(), stack);
             // it's at least Copy because we reduced the node
             return new Result(result.Action | RewriteAction.Copy, result.Node);
         }
