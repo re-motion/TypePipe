@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsNew ()
     {
-      var field1 = MutableFieldInfoObjectMother.CreateForExisting ();
+      var field1 = MutableFieldInfoObjectMother.CreateForExisting();
       var field2 = MutableFieldInfoObjectMother.CreateForNew();
 
       Assert.That (field1.IsNew, Is.False);
@@ -88,18 +88,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CanAddCustomAttributes ()
     {
-      var existingField = MutableFieldInfoObjectMother.CreateForExisting();
-      var newField = MutableFieldInfoObjectMother.CreateForNew();
+      var field1 = MutableFieldInfoObjectMother.CreateForExisting();
+      var field2 = MutableFieldInfoObjectMother.CreateForNew();
 
-      Assert.That (existingField.CanAddCustomAttributes, Is.False);
-      Assert.That (newField.CanAddCustomAttributes, Is.True);
+      Assert.That (field1.CanAddCustomAttributes, Is.False);
+      Assert.That (field2.CanAddCustomAttributes, Is.True);
     }
 
     [Test]
     public void CustomAttributeMethods ()
     {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ObsoleteAttribute());
-      var declaration = new CustomAttributeDeclaration (constructor, new object[0]);
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
       Assert.That (_field.CanAddCustomAttributes, Is.True);
       _field.AddCustomAttribute (declaration);
 

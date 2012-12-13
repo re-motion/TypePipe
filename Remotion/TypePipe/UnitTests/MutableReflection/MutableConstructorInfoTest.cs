@@ -19,7 +19,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
@@ -34,25 +33,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableConstructorInfoTest
   {
     private MutableType _declaringType;
-    
-    private MutableConstructorInfo _mutableCtor;
     private ConstructorDescriptor _descriptor;
 
-    private bool _randomInherit;
-    private MutableConstructorInfo _domainTypeDefaultCtor;
+    private MutableConstructorInfo _constructor;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
-
       var parameters = ParameterDescriptorObjectMother.CreateMultiple (2);
       _descriptor = ConstructorDescriptorObjectMother.Create (parameterDescriptors: parameters);
-      _mutableCtor = Create (_descriptor);
 
-      _randomInherit = BooleanObjectMother.GetRandomBoolean();
-      _domainTypeDefaultCtor =
-          MutableConstructorInfoObjectMother.CreateForExisting (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
+      _constructor = Create (_descriptor);
     }
 
     [Test]
@@ -62,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (ctor.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
-      Assert.That (_mutableCtor.Body, Is.SameAs (_descriptor.Body));
+      Assert.That (_constructor.Body, Is.SameAs (_descriptor.Body));
     }
 
     [Test]
@@ -88,55 +80,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void IsNewConstructor_True ()
+    public void IsNew ()
     {
-      var descriptor = ConstructorDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+      var ctor1 = MutableConstructorInfoObjectMother.CreateForExisting();
+      var ctor2 = MutableConstructorInfoObjectMother.CreateForNew();
 
-      var ctorInfo = Create (descriptor);
-
-      Assert.That (ctorInfo.IsNew, Is.True);
+      Assert.That (ctor1.IsNew, Is.False);
+      Assert.That (ctor2.IsNew, Is.True);
     }
 
     [Test]
-    public void IsNewConstructor_False ()
+    public void IsModified_CustomAttributes ()
     {
-      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
+      Assert.That (_constructor.IsModified, Is.False);
+      _constructor.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
 
-      var ctorInfo = Create (descriptor);
-
-      Assert.That (ctorInfo.IsNew, Is.False);
+      Assert.That (_constructor.IsModified, Is.True);
     }
 
     [Test]
-    public void IsModified_False ()
+    public void IsModified_Body ()
     {
-      var ctorInfo = MutableConstructorInfoObjectMother.Create();
-      Assert.That (ctorInfo.IsModified, Is.False);
-    }
+      Assert.That (_constructor.IsModified, Is.False);
+      _constructor.SetBody (ctx => Expression.Empty());
 
-    [Test]
-    public void IsModified_True ()
-    {
-      var ctorInfo = MutableConstructorInfoObjectMother.Create ();
-
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      ctorInfo.SetBody (ctx => fakeBody);
-
-      Assert.That (ctorInfo.IsModified, Is.True);
+      Assert.That (_constructor.IsModified, Is.True);
     }
 
     [Test]
     public void Name ()
     {
-      Assert.That (_mutableCtor.Name, Is.EqualTo (_descriptor.Name));
+      Assert.That (_constructor.Name, Is.EqualTo (_descriptor.Name));
     }
 
     [Test]
     public void Attributes ()
     {
-      Assert.That (_mutableCtor.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_constructor.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]
@@ -147,6 +127,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
+    }
+
+    [Test]
+    public void CanAddCustomAttributes ()
+    {
+      var ctor1 = MutableConstructorInfoObjectMother.CreateForExisting();
+      var ctor2 = MutableConstructorInfoObjectMother.CreateForNew();
+
+      Assert.That (ctor1.CanAddCustomAttributes, Is.True);
+      Assert.That (ctor2.CanAddCustomAttributes, Is.True);
+    }
+
+    [Test]
+    public void CustomAttributeMethods ()
+    {
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      Assert.That (_constructor.CanAddCustomAttributes, Is.True);
+      _constructor.AddCustomAttribute (declaration);
+
+      Assert.That (_constructor.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+
+      Assert.That (_constructor.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+
+      Assert.That (_constructor.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
+      Assert.That (_constructor.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+
+      Assert.That (_constructor.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_constructor.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
 
     [Test]
@@ -182,19 +190,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
       {
-        Assert.That (_mutableCtor.ParameterExpressions, Is.Not.Empty);
-        Assert.That (context.Parameters, Is.EqualTo (_mutableCtor.ParameterExpressions));
+        Assert.That (_constructor.ParameterExpressions, Is.Not.Empty);
+        Assert.That (context.Parameters, Is.EqualTo (_constructor.ParameterExpressions));
         Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
         Assert.That (context.IsStatic, Is.False);
-        Assert.That (context.PreviousBody, Is.SameAs (_mutableCtor.Body));
+        Assert.That (context.PreviousBody, Is.SameAs (_constructor.Body));
 
         return fakeBody;
       };
 
-      _mutableCtor.SetBody (bodyProvider);
+      _constructor.SetBody (bodyProvider);
 
       var expectedBody = Expression.Block (typeof (void), fakeBody);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _mutableCtor.Body);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, _constructor.Body);
     }
 
     [Test]
@@ -213,26 +221,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       };
 
       mutableCtor.SetBody (bodyProvider);
-    }
-
-    [Test]
-    public void ToString_WithParameters ()
-    {
-      var ctorInfo = CreateWithParameters (
-          ParameterDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
-          ParameterDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
-
-      Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
-    }
-
-    [Test]
-    public void ToDebugString ()
-    {
-      var declaringType = MutableTypeObjectMother.CreateForExisting (GetType());
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (declaringType, new ParameterDeclaration (typeof (int), "p1"));
-
-      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
-      Assert.That (ctorInfo.ToDebugString (), Is.EqualTo (expected));
     }
 
     [Test]
@@ -278,37 +266,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetCustomAttributeData ()
+    public void ToString_WithParameters ()
     {
-      var result = _domainTypeDefaultCtor.GetCustomAttributeData();
+      var ctorInfo = CreateWithParameters (
+          ParameterDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
+          ParameterDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
 
-      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
-      Assert.That (result, Is.SameAs (_domainTypeDefaultCtor.GetCustomAttributeData ()), "should be cached");
+      Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
 
     [Test]
-    public void GetCustomAttributes ()
+    public void ToDebugString ()
     {
-      var result = _domainTypeDefaultCtor.GetCustomAttributes (_randomInherit);
+      var declaringType = MutableTypeObjectMother.CreateForExisting (GetType ());
+      var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (declaringType, new ParameterDeclaration (typeof (int), "p1"));
 
-      Assert.That (result, Has.Length.EqualTo (1));
-      var attribute = result.Single();
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute>());
-      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (_randomInherit).Single(), Is.Not.SameAs (attribute), "new instance");
+      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
+      Assert.That (ctorInfo.ToDebugString (), Is.EqualTo (expected));
     }
 
     [Test]
-    public void GetCustomAttributes_Filter ()
+    public void UnsupportedMembers ()
     {
-      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
-      Assert.That (_domainTypeDefaultCtor.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
-    }
+      UnsupportedMemberTestHelper.CheckProperty (() => _constructor.MethodHandle, "MethodHandle");
+      UnsupportedMemberTestHelper.CheckProperty (() => _constructor.ReflectedType, "ReflectedType");
 
-    [Test]
-    public void IsDefined ()
-    {
-      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
-      Assert.That (_domainTypeDefaultCtor.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
+      UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (null, 0, null, null, null), "Invoke");
+      UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (0, null, null, null), "Invoke");
     }
 
     private MutableConstructorInfo Create (ConstructorDescriptor constructorDescriptor)
@@ -323,13 +307,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     class DomainType
     {
-      [Derived]
       public DomainType () { }
       internal DomainType (int i) { Dev.Null = i; }
     }
-
-    class BaseAttribute : Attribute { }
-    class DerivedAttribute : BaseAttribute { }
-    class UnrelatedAttribute : Attribute { }
   }
 }

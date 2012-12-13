@@ -38,9 +38,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MutableType _declaringType;
     private readonly ConstructorDescriptor _descriptor;
+    private readonly MutableInfoCustomAttributeHelper _customAttributeHelper;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
-    // TODO 5057 (Use Lazy<T>)
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     private Expression _body;
 
@@ -51,10 +50,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       _declaringType = declaringType;
       _descriptor = descriptor;
-
+      _customAttributeHelper = new MutableInfoCustomAttributeHelper (this, descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
       _parameters = _descriptor.ParameterDescriptors.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
-
-      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
 
       _body = _descriptor.Body;
     }
@@ -76,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _body != _descriptor.Body; }
+      get { return _body != _descriptor.Body || AddedCustomAttributeDeclarations.Count != 0; }
     }
 
     public override string Name
@@ -94,19 +91,20 @@ namespace Remotion.TypePipe.MutableReflection
       get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
     }
 
-    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
+    public bool CanAddCustomAttributes
     {
-      get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      // TODO 4695 (existing ctors are always copied)
+      get { return true; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
-      get { throw new NotImplementedException (); }
+      get { return _customAttributeHelper.AddedCustomAttributeDeclarations; }
     }
 
-    public bool CanAddCustomAttributes
+    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { throw new NotImplementedException (); }
+      get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public Expression Body
@@ -137,75 +135,82 @@ namespace Remotion.TypePipe.MutableReflection
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetConstructorSignature (this);
-    }
-
-    public string ToDebugString()
-    {
-      return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
-    }
-
     public override ParameterInfo[] GetParameters ()
     {
-      return _parameters.ToArray();
+      return _parameters.Cast<ParameterInfo>().ToArray();
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      throw new NotImplementedException ();
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+
+      _customAttributeHelper.AddCustomAttribute (customAttributeDeclaration);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeDatas.Value;
+      return _customAttributeHelper.GetCustomAttributeData();
     }
 
     public override object[] GetCustomAttributes (bool inherit)
     {
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
+      return _customAttributeHelper.GetCustomAttributes (inherit);
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
+      return _customAttributeHelper.GetCustomAttributes (attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
+      return _customAttributeHelper.IsDefined (attributeType, inherit);
+    }
+
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetConstructorSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString (), DeclaringType);
     }
 
     #region Not Implemented from ConstructorInfo interface
 
     public override MethodImplAttributes GetMethodImplementationFlags ()
     {
+      // TODO
       throw new NotImplementedException();
     }
 
-    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
+    #endregion
+
+    #region Unsupported Members
+
+    public override RuntimeMethodHandle MethodHandle
     {
-      throw new NotImplementedException();
+      get { throw new NotSupportedException ("Property MethodHandle is not supported."); }
     }
 
     public override Type ReflectedType
     {
-      get { throw new NotImplementedException(); }
+      get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
     }
 
-    public override RuntimeMethodHandle MethodHandle
+    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
     {
-      get { throw new NotImplementedException(); }
+      throw new NotSupportedException ("Method Invoke is not supported.");
     }
 
     public override object Invoke (BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException ("Method Invoke is not supported.");
     }
 
     #endregion

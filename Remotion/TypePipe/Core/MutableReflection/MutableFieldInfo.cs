@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _customAttributeHelper.AddedCustomAttributeDeclarations.Count != 0; }
+      get { return AddedCustomAttributeDeclarations.Count != 0; }
     }
 
     public override Type FieldType
