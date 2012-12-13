@@ -28,12 +28,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="ParameterInfo"/> that can be modified.
   /// This allows to represent parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
   /// </summary>
+  // TODO : [DebuggerDisplay]
   public class MutableParameterInfo : ParameterInfo, IMutableInfo
   {
     private readonly MemberInfo _member;
     private readonly ParameterDescriptor _descriptor;
-
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
+    private readonly MutableInfoCustomAttributeHelper _customAttributeHelper;
 
     public MutableParameterInfo (MemberInfo member, ParameterDescriptor descriptor)
     {
@@ -42,8 +42,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _member = member;
       _descriptor = descriptor;
-
-      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
+      _customAttributeHelper = new MutableInfoCustomAttributeHelper (this, descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
     }
 
     public override MemberInfo Member
@@ -63,12 +62,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsNew
     {
-      get { throw new NotImplementedException(); }
+      get { return _descriptor.UnderlyingSystemInfo == null; }
     }
 
     public bool IsModified
     {
-      get { throw new NotImplementedException(); }
+      get { return AddedCustomAttributeDeclarations.Count != 0; }
     }
 
     public override Type ParameterType
@@ -88,41 +87,46 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool CanAddCustomAttributes
     {
-      get { throw new NotImplementedException(); }
+      // TODO 4695
+      get { return IsNew; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
-      get { throw new NotImplementedException(); }
+      get { return _customAttributeHelper.AddedCustomAttributeDeclarations; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+
+      _customAttributeHelper.AddCustomAttribute (customAttributeDeclaration);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeDatas.Value;
+      return _customAttributeHelper.GetCustomAttributeData();
     }
 
     public override object[] GetCustomAttributes (bool inherit)
     {
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this);
+      return _customAttributeHelper.GetCustomAttributes (inherit);
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType);
+      return _customAttributeHelper.GetCustomAttributes (attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType);
+      return _customAttributeHelper.IsDefined (attributeType, inherit);
     }
+
+    // TODO: ToString and ToDebugString()
   }
 }

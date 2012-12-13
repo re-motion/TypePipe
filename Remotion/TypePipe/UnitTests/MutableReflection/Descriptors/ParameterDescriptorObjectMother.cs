@@ -28,6 +28,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
   {
     public static readonly ParameterDescriptor[] Empty = new ParameterDescriptor[0];
 
+    public static ParameterDescriptor Create (
+        Type parameterType = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
+    {
+      return CreateForNew (parameterType, name, attributes);
+    }
+
     public static ParameterDescriptor CreateForNew (
         Type parameterType = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
     {

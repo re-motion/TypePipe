@@ -52,18 +52,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemFieldInfo()
     {
-      var originalField = ReflectionObjectMother.GetSomeField();
-      var mutableField = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: originalField);
+      var underlyingField = ReflectionObjectMother.GetSomeField();
+      var field = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: underlyingField);
 
-      Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.SameAs (originalField));
+      Assert.That (field.UnderlyingSystemFieldInfo, Is.SameAs (underlyingField));
     }
 
     [Test]
     public void UnderlyingSystemFieldInfo_ForNull ()
     {
-      var mutableField = MutableFieldInfoObjectMother.CreateForNew();
+      var field = MutableFieldInfoObjectMother.CreateForNew();
 
-      Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.SameAs (mutableField));
+      Assert.That (field.UnderlyingSystemFieldInfo, Is.SameAs (field));
     }
 
     [Test]
@@ -80,8 +80,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsModified ()
     {
       Assert.That (_field.IsModified, Is.False);
-
       _field.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
+
       Assert.That (_field.IsModified, Is.True);
     }
 

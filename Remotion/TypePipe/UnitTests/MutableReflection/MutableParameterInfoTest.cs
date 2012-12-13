@@ -18,8 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.ObjectMothers;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
@@ -31,28 +29,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private MemberInfo _declaringMember;
     private ParameterDescriptor _descriptor;
-    private MutableParameterInfo _mutableParameter;
 
-    private MutableParameterInfo _mutableParameterWithAttribute;
-    private bool _randomInherit;
+    private MutableParameterInfo _parameter;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringMember = ReflectionObjectMother.GetSomeMember();
-      _descriptor = ParameterDescriptorObjectMother.CreateForNew();
-      _mutableParameter = new MutableParameterInfo (_declaringMember, _descriptor);
-
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((MutableParameterInfoTest obj) => obj.Method (""));
-      var parameter = method.GetParameters().Single();
-      _mutableParameterWithAttribute = MutableParameterInfoObjectMother.CreateForExisting (underlyingParameter: parameter);
-      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
+      _descriptor = ParameterDescriptorObjectMother.Create();
+      _parameter = new MutableParameterInfo (_declaringMember, _descriptor);
     }
 
     [Test]
     public void Initialization ()
     {
-      var member = ReflectionObjectMother.GetSomeMember ();
+      var member = ReflectionObjectMother.GetSomeMember();
 
       var mutableParameter = new MutableParameterInfo (member, _descriptor);
 
@@ -62,94 +53,89 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemParameterInfo ()
     {
-      var descriptor = ParameterDescriptorObjectMother.CreateForExisting();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
+      var underlyingParameter = ReflectionObjectMother.GetSomeParameter();
+      var parameter = MutableParameterInfoObjectMother.CreateForExisting (underlyingParameter: underlyingParameter);
 
-      var mutableParameter = Create (descriptor);
-
-      Assert.That (mutableParameter.UnderlyingSystemParameterInfo, Is.SameAs (descriptor.UnderlyingSystemInfo));
+      Assert.That (parameter.UnderlyingSystemParameterInfo, Is.SameAs (underlyingParameter));
     }
 
     [Test]
     public void UnderlyingSystemParameterInfo_ForNull ()
     {
-      var descriptor = ParameterDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+      var parameter = MutableParameterInfoObjectMother.CreateForNew();
 
-      var mutableParameter = Create (descriptor);
+      Assert.That (parameter.UnderlyingSystemParameterInfo, Is.SameAs (parameter));
+    }
 
-      Assert.That (mutableParameter.UnderlyingSystemParameterInfo, Is.SameAs (mutableParameter));
+    [Test]
+    public void IsNew ()
+    {
+      var parameter1 = MutableParameterInfoObjectMother.CreateForExisting();
+      var parameter2 = MutableParameterInfoObjectMother.CreateForNew();
+
+      Assert.That (parameter1.IsNew, Is.False);
+      Assert.That (parameter2.IsNew, Is.True);
+    }
+
+    [Test]
+    public void IsModified ()
+    {
+      Assert.That (_parameter.IsModified, Is.False);
+      _parameter.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
+
+      Assert.That (_parameter.IsModified, Is.True);
     }
 
     [Test]
     public void ParameterType ()
     {
-      Assert.That (_mutableParameter.ParameterType, Is.SameAs (_descriptor.Type));
+      Assert.That (_parameter.ParameterType, Is.SameAs (_descriptor.Type));
     }
 
     [Test]
     public void Name ()
     {
-      Assert.That (_mutableParameter.Name, Is.EqualTo (_descriptor.Name));
+      Assert.That (_parameter.Name, Is.EqualTo (_descriptor.Name));
     }
 
     [Test]
     public void Position ()
     {
-      Assert.That (_mutableParameter.Position, Is.EqualTo (_descriptor.Position));
+      Assert.That (_parameter.Position, Is.EqualTo (_descriptor.Position));
     }
 
     [Test]
     public void Attributes ()
     {
-      Assert.That (_mutableParameter.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_parameter.Attributes, Is.EqualTo (_descriptor.Attributes));
     }
 
     [Test]
-    public void GetCustomAttributeData ()
+    public void CanAddCustomAttributes ()
     {
-      var result = _mutableParameterWithAttribute.GetCustomAttributeData ();
+      var parameter1 = MutableParameterInfoObjectMother.CreateForExisting();
+      var parameter2 = MutableParameterInfoObjectMother.CreateForNew();
 
-      Assert.That (result.Select (a => a.Constructor.DeclaringType), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
-      Assert.That (result, Is.SameAs (_mutableParameterWithAttribute.GetCustomAttributeData ()), "should be cached");
+      Assert.That (parameter1.CanAddCustomAttributes, Is.False);
+      Assert.That (parameter2.CanAddCustomAttributes, Is.True);
     }
 
     [Test]
-    public void GetCustomAttributes ()
+    public void CustomAttributeMethods ()
     {
-      var result = _mutableParameterWithAttribute.GetCustomAttributes (_randomInherit);
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      Assert.That (_parameter.CanAddCustomAttributes, Is.True);
+      _parameter.AddCustomAttribute (declaration);
 
-      Assert.That (result, Has.Length.EqualTo (1));
-      var attribute = result.Single ();
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
-      Assert.That (_mutableParameterWithAttribute.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
+      Assert.That (_parameter.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+
+      Assert.That (_parameter.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+
+      Assert.That (_parameter.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
+      Assert.That (_parameter.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+
+      Assert.That (_parameter.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_parameter.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
-
-    [Test]
-    public void GetCustomAttributes_Filter ()
-    {
-      Assert.That (_mutableParameterWithAttribute.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
-      Assert.That (_mutableParameterWithAttribute.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
-    }
-
-    [Test]
-    public void IsDefined ()
-    {
-      Assert.That (_mutableParameterWithAttribute.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
-      Assert.That (_mutableParameterWithAttribute.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
-    }
-
-    private MutableParameterInfo Create (ParameterDescriptor descriptor)
-    {
-      return new MutableParameterInfo (ReflectionObjectMother.GetSomeMember (), descriptor);
-    }
-
-// ReSharper disable UnusedParameter.Local
-    private void Method ([Derived] string parameter) { }
-// ReSharper restore UnusedParameter.Local
-
-    class BaseAttribute : Attribute { }
-    class DerivedAttribute : BaseAttribute { }
-    class UnrelatedAttribute : Attribute { }
   }
 }
