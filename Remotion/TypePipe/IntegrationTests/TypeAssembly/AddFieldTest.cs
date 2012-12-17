@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var namedField = typeof (AddedAttribute).GetField ("NamedFieldArg");
             var customAttributeDeclaration = new CustomAttributeDeclaration (
                 attributeCtor,
-                new[] { "ctorArg" },
+                new object[] { "ctorArg" },
                 new NamedArgumentDeclaration (namedProperty, 7),
                 new NamedArgumentDeclaration (namedField, new[] { MyEnum.Other, MyEnum.Default }));
             mutableFieldInfo.AddCustomAttribute (customAttributeDeclaration);

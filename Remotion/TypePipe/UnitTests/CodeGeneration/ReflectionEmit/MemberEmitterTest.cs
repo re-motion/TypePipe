@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
           });
 
-      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
+      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
       method.AddExplicitBaseDefinition (overriddenMethod);
 
       var expectedAttributes = MethodAttributes.HideBySig;
@@ -252,40 +252,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.VerifyAllExpectations ();
     }
 
-    public class CustomAttribute : Attribute
+    class DomainType
     {
-      // ReSharper disable UnassignedField.Global
-      public string Field;
-      // ReSharper restore UnassignedField.Global
-
-      public CustomAttribute (string ctorArgument)
-      {
-        CtorArgument = ctorArgument;
-
-        Dev.Null = CtorArgument;
-        Dev.Null = Property;
-        Property = 0;
-      }
-
-      public string CtorArgument { get; private set; }
-      public int Property { get; set; }
-    }
-
-    public class DomainType
-    {
-      public virtual string Method (int i, out double d)
-      {
-        Dev.Null = i;
-        d = Dev<double>.Null;
-        return "";
-      }
-
-      public virtual string OverridableMethod (int i, out double d)
-      {
-        Dev.Null = i;
-        d = Dev<double>.Null;
-        return "";
-      }
+      public virtual string ExplicitBaseDefinition (int i, out double d) { Dev.Null = i; d = Dev<double>.Null; return ""; }
     }
   }
 }
