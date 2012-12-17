@@ -397,9 +397,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return type.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
     }
 
-    private MutableMethodInfo[]  GetDeclaredMutableMethods (Type type)
+    private MutableMethodInfo[] GetDeclaredMutableMethods (Type type)
     {
-      return GetDeclaredMethods (type).Select (MutableMethodInfoObjectMother.CreateForExisting).ToArray();
+      return GetDeclaredMethods (type).Select (m => MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: m)).ToArray();
     }
 
     // ReSharper disable UnusedMember.Local

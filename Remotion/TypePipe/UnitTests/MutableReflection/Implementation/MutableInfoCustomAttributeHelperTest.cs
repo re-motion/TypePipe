@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void SetUp ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Member (7));
-      var mutableMethod = MutableMethodInfoObjectMother.CreateForExisting (method);
+      var mutableMethod = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: method);
       _mutableMember = mutableMethod;
       // TODO method.MutableParameters
       _mutableParameter = (MutableParameterInfo) mutableMethod.GetParameters().Single();

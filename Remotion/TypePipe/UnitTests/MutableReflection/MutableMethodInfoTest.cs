@@ -46,9 +46,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private MutableMethodInfo _existingFinalMethod;
     private MutableMethodInfo _existingVirtualMethod;
 
-    private bool _randomInherit;
-    private MutableMethodInfo _attributeMethod;
-
     [SetUp]
     public void SetUp ()
     {
@@ -69,10 +66,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var virtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
       _existingVirtualMethod = Create (MethodDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
-
-      _randomInherit = BooleanObjectMother.GetRandomBoolean ();
-      var attributeUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AttributeMethod());
-      _attributeMethod = MutableMethodInfoObjectMother.CreateForExisting (attributeUnderlyingMethod);
     }
 
     [Test]
@@ -88,65 +81,52 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemMethodInfo ()
     {
-      var descriptor = MethodDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
+      var underlyingMethod = ReflectionObjectMother.GetSomeMethod();
+      var method = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: underlyingMethod);
 
-      var methodInfo = Create (descriptor);
-
-      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (descriptor.UnderlyingSystemInfo));
+      Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (underlyingMethod));
     }
 
     [Test]
     public void UnderlyingSystemMethodInfo_ForNull ()
     {
-      var descriptor = MethodDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+      var method = MutableMethodInfoObjectMother.CreateForNew();
 
-      var methodInfo = Create (descriptor);
-
-      Assert.That (methodInfo.UnderlyingSystemMethodInfo, Is.SameAs (methodInfo));
+      Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
     }
 
     [Test]
-    public void IsNewMethod_True ()
+    public void IsNew ()
     {
-      var descriptor = MethodDescriptorObjectMother.CreateForNew ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
+      var method1 = MutableMethodInfoObjectMother.CreateForExisting();
+      var method2 = MutableMethodInfoObjectMother.CreateForNew();
 
-      var methodInfo = Create (descriptor);
-
-      Assert.That (methodInfo.IsNew, Is.True);
+      Assert.That (method1.IsNew, Is.False);
+      Assert.That (method2.IsNew, Is.True);
     }
 
     [Test]
-    public void IsNewMethod_False ()
-    {
-      var descriptor = MethodDescriptorObjectMother.CreateForExisting ();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Not.Null);
-
-      var methodInfo = Create (descriptor);
-
-      Assert.That (methodInfo.IsNew, Is.False);
-    }
-
-    [Test]
-    public void IsModified_False ()
+    public void IsModified_CustomAttributes ()
     {
       Assert.That (_mutableMethod.IsModified, Is.False);
-    }
-
-    [Test]
-    public void IsModified_True_Body ()
-    {
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnType);
-      _mutableMethod.SetBody (ctx => fakeBody);
+      _mutableMethod.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
 
       Assert.That (_mutableMethod.IsModified, Is.True);
     }
 
     [Test]
-    public void IsModified_True_ExplicitBaseDefinition ()
+    public void IsModified_Body ()
     {
+      Assert.That (_mutableMethod.IsModified, Is.False);
+      _mutableMethod.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnType));
+
+      Assert.That (_mutableMethod.IsModified, Is.True);
+    }
+
+    [Test]
+    public void IsModified_ExplicitBaseDefinition ()
+    {
+      Assert.That (_existingVirtualMethod.IsModified, Is.False);
       var overriddenMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod());
       _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
 
@@ -187,26 +167,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetBaseDefinition ()
-    {
-      var baseMethod = typeof (DomainType).GetMethod ("OverridingMethod");
-      var rootDefinition = baseMethod.GetBaseDefinition ();
-      Assert.That (rootDefinition, Is.Not.EqualTo (baseMethod));
-
-      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
-
-      Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (rootDefinition));
-    }
-
-    [Test]
-    public void GetBaseDefinition_NoBaseMethod ()
-    {
-      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: null));
-
-      Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (mutableMethod));
-    }
-
-    [Test]
     public void IsGenericMethod ()
     {
       var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
@@ -244,13 +204,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CanAddCustomAttributes ()
+    {
+      Assert.That (_newNonVirtualMethod.CanSetBody, Is.True);
+      Assert.That (_newFinalMethod.CanSetBody, Is.True);
+      Assert.That (_newVirtualMethod.CanSetBody, Is.True);
+
+      Assert.That (_existingNonVirtualMethod.CanSetBody, Is.False);
+      Assert.That (_existingFinalMethod.CanSetBody, Is.False);
+
+      Assert.That (_existingVirtualMethod.CanSetBody, Is.True);
+    }
+
+    [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
     public void Body_ThrowsForAbstractMethod ()
     {
       var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
-      var method = MutableMethodInfoObjectMother.CreateForExisting (abstractMethod);
+      var method = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: abstractMethod);
 
       Dev.Null = method.Body;
+    }
+
+    [Test]
+    public void CanSetBody ()
+    {
+      Assert.That (_newNonVirtualMethod.CanSetBody, Is.True);
+      Assert.That (_newFinalMethod.CanSetBody, Is.True);
+      Assert.That (_newVirtualMethod.CanSetBody, Is.True);
+
+      Assert.That (_existingNonVirtualMethod.CanSetBody, Is.False);
+      Assert.That (_existingFinalMethod.CanSetBody, Is.False);
+
+      Assert.That (_existingVirtualMethod.CanSetBody, Is.True);
     }
 
     [Test]
@@ -267,16 +253,65 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CanSetBody ()
+    public void GetBaseDefinition ()
     {
-      Assert.That (_newNonVirtualMethod.CanSetBody, Is.True);
-      Assert.That (_newFinalMethod.CanSetBody, Is.True);
-      Assert.That (_newVirtualMethod.CanSetBody, Is.True);
+      var baseMethod = typeof (DomainType).GetMethod ("OverridingMethod");
+      var rootDefinition = baseMethod.GetBaseDefinition ();
+      Assert.That (rootDefinition, Is.Not.EqualTo (baseMethod));
 
-      Assert.That (_existingNonVirtualMethod.CanSetBody, Is.False);
-      Assert.That (_existingFinalMethod.CanSetBody, Is.False);
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
 
-      Assert.That (_existingVirtualMethod.CanSetBody, Is.True);
+      Assert.That (mutableMethod.GetBaseDefinition (), Is.SameAs (rootDefinition));
+    }
+
+    [Test]
+    public void GetBaseDefinition_NoBaseMethod ()
+    {
+      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: null));
+
+      Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (mutableMethod));
+    }
+
+    [Test]
+    public void GetParameters ()
+    {
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var methodInfo = CreateWithParameters (parameters);
+
+      var result = methodInfo.GetParameters();
+
+      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
+      var expectedParameterInfos =
+          new[]
+          {
+              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
+              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes }
+          };
+      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+    }
+
+    [Test]
+    public void GetParameters_ReturnsSameParameterInfoInstances ()
+    {
+      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
+
+      var result1 = methodInfo.GetParameters().Single();
+      var result2 = methodInfo.GetParameters().Single();
+
+      Assert.That (result1, Is.SameAs (result2));
+    }
+
+    [Test]
+    public void GetParameters_DoesNotAllowModificationOfInternalList ()
+    {
+      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
+
+      var parameters = methodInfo.GetParameters();
+      Assert.That (parameters[0], Is.Not.Null);
+      parameters[0] = null;
+
+      var parametersAgain = methodInfo.GetParameters();
+      Assert.That (parametersAgain[0], Is.Not.Null);
     }
 
     [Test]
@@ -457,7 +492,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void ToString_WithParameters ()
+    public void CustomAttributeMethods ()
+    {
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      Assert.That (_mutableMethod.CanAddCustomAttributes, Is.True);
+      _mutableMethod.AddCustomAttribute (declaration);
+
+      Assert.That (_mutableMethod.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+
+      Assert.That (_mutableMethod.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+
+      Assert.That (_mutableMethod.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
+      Assert.That (_mutableMethod.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+
+      Assert.That (_mutableMethod.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_mutableMethod.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
+    }
+
+    [Test]
+    public new void ToString ()
     {
       var parameters = new[]
                        {
@@ -466,96 +519,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                        };
       var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDeclarations: parameters);
 
-      Assert.That (methodInfo.ToString(), Is.EqualTo ("String Xxx(Int32, String&)"));
+      Assert.That (methodInfo.ToString (), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
 
     [Test]
     public void ToDebugString ()
     {
       var methodInfo = MutableMethodInfoObjectMother.Create (
-          declaringType: MutableTypeObjectMother.CreateForExisting (GetType()),
+          declaringType: MutableTypeObjectMother.CreateForExisting (GetType ()),
           returnType: typeof (void),
           name: "Xxx",
           parameterDeclarations: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
-      Assert.That (methodInfo.ToDebugString(), Is.EqualTo (expected));
-    }
-
-    [Test]
-    public void GetParameters ()
-    {
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var methodInfo = CreateWithParameters (parameters);
-
-      var result = methodInfo.GetParameters();
-
-      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
-      var expectedParameterInfos =
-          new[]
-          {
-              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
-              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes },
-          };
-      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
-    }
-
-    [Test]
-    public void GetParameters_ReturnsSameParameterInfoInstances ()
-    {
-      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
-
-      var result1 = methodInfo.GetParameters ().Single ();
-      var result2 = methodInfo.GetParameters ().Single ();
-
-      Assert.That (result1, Is.SameAs (result2));
-    }
-
-    [Test]
-    public void GetParameters_DoesNotAllowModificationOfInternalList ()
-    {
-      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
-
-      var parameters = methodInfo.GetParameters ();
-      Assert.That (parameters[0], Is.Not.Null);
-      parameters[0] = null;
-
-      var parametersAgain = methodInfo.GetParameters ();
-      Assert.That (parametersAgain[0], Is.Not.Null);
-    }
-
-    [Test]
-    public void GetCustomAttributeData ()
-    {
-      var result = _attributeMethod.GetCustomAttributeData();
-
-      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (DerivedAttribute) }));
-      Assert.That (result, Is.SameAs (_attributeMethod.GetCustomAttributeData ()), "should be cached");
-    }
-
-    [Test]
-    public void GetCustomAttributes ()
-    {
-      var result = _attributeMethod.GetCustomAttributes (_randomInherit);
-
-      Assert.That (result, Has.Length.EqualTo (1));
-      var attribute = result.Single ();
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute> ());
-      Assert.That (_attributeMethod.GetCustomAttributes (_randomInherit).Single (), Is.Not.SameAs (attribute), "new instance");
-    }
-
-    [Test]
-    public void GetCustomAttributes_Filter ()
-    {
-      Assert.That (_attributeMethod.GetCustomAttributes (typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
-      Assert.That (_attributeMethod.GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
-    }
-
-    [Test]
-    public void IsDefined ()
-    {
-      Assert.That (_attributeMethod.IsDefined (typeof (UnrelatedAttribute), _randomInherit), Is.False);
-      Assert.That (_attributeMethod.IsDefined (typeof (BaseAttribute), _randomInherit), Is.True);
+      Assert.That (methodInfo.ToDebugString (), Is.EqualTo (expected));
     }
 
     [Test]
@@ -568,15 +545,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnsupportedMembers ()
     {
-      CheckThrowsNotSupported (() => Dev.Null = _mutableMethod.MetadataToken, "Property", "MetadataToken");
-      CheckThrowsNotSupported (() => Dev.Null = _mutableMethod.Module, "Property", "Module");
-      CheckThrowsNotSupported (() => _mutableMethod.Invoke (null, 0, null, null, null), "Method", "Invoke");
-    }
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _mutableMethod.MetadataToken, "MetadataToken");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _mutableMethod.Module, "Module");
 
-    private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
-    {
-      var message = string.Format ("{0} {1} is not supported.", memberType, memberName);
-      Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
+      UnsupportedMemberTestHelper.CheckMethod (() => _mutableMethod.Invoke (null, 0, null, null, null), "Invoke");
     }
 
     private MutableMethodInfo Create (MethodDescriptor descriptor)
@@ -606,9 +578,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override void OverridingMethod () { }
       public sealed override void FinalMethod () { }
       public void InterfaceMethod () { }
-
-      [Derived]
-      public void AttributeMethod () { }
     }
 
     public class UnrelatedType
@@ -625,9 +594,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       void InterfaceMethod ();
     }
-
-    class BaseAttribute : Attribute { }
-    class DerivedAttribute : BaseAttribute { }
-    class UnrelatedAttribute : Attribute { }
   }
 }

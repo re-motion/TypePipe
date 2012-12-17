@@ -40,10 +40,9 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _declaringType;
     private readonly MethodDescriptor _descriptor;
 
+    private readonly MutableInfoCustomAttributeHelper _customAttributeHelper;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
-    // TODO 5057 (Use Lazy<T>)
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDatas;
 
     private MethodAttributes _attributes;
     private Expression _body;
@@ -57,8 +56,7 @@ namespace Remotion.TypePipe.MutableReflection
       _descriptor = descriptor;
 
       _parameters = _descriptor.ParameterDescriptors.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
-
-      _customAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (descriptor.CustomAttributeDataProvider);
+      _customAttributeHelper = new MutableInfoCustomAttributeHelper (this, descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
 
       _attributes = _descriptor.Attributes;
       _body = _descriptor.Body;
@@ -81,7 +79,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _body != _descriptor.Body || _addedExplicitBaseDefinitions.Count > 0; }
+      get { return _body != _descriptor.Body || AddedCustomAttributeDeclarations.Count > 0 || _addedExplicitBaseDefinitions.Count > 0; }
     }
 
     public override string Name
@@ -109,14 +107,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.BaseMethod; }
     }
 
-    /// <summary>
-    /// Returns all root <see cref="MethodInfo"/> instances that were added via <see cref="AddExplicitBaseDefinition"/>.
-    /// </summary>
-    public ReadOnlyCollectionDecorator<MethodInfo> AddedExplicitBaseDefinitions 
-    { 
-      get { return _addedExplicitBaseDefinitions.AsReadOnly(); } 
-    }
-
     public override bool IsGenericMethod
     {
       get { return _descriptor.IsGenericMethod; }
@@ -137,6 +127,23 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
+    public bool CanAddCustomAttributes
+    {
+      // TODO 4695
+      get { return CanSetBody; }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    {
+      get { return _customAttributeHelper.AddedCustomAttributeDeclarations; }
+    }
+
+    public bool CanSetBody
+    {
+      // TODO 4695
+      get { return IsNew || (IsVirtual && !IsFinal); }
+    }
+
     public Expression Body
     {
       get
@@ -154,25 +161,22 @@ namespace Remotion.TypePipe.MutableReflection
       get { return IsVirtual && (IsNew || !IsFinal); }
     }
 
-    public bool CanSetBody
+    /// <summary>
+    /// Returns all root <see cref="MethodInfo"/> instances that were added via <see cref="AddExplicitBaseDefinition"/>.
+    /// </summary>
+    public ReadOnlyCollectionDecorator<MethodInfo> AddedExplicitBaseDefinitions
     {
-      // TODO 4695
-      get { return IsNew || (IsVirtual && !IsFinal); }
-    }
-
-    public bool CanAddCustomAttributes
-    {
-      get { throw new NotImplementedException (); }
-    }
-
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
-    {
-      get { throw new NotImplementedException(); }
+      get { return _addedExplicitBaseDefinitions.AsReadOnly (); }
     }
 
     public override MethodInfo GetBaseDefinition ()
     {
-      return BaseMethod != null ? BaseMethod.GetBaseDefinition () : this;
+      return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
+    }
+
+    public override ParameterInfo[] GetParameters ()
+    {
+      return _parameters.Cast<ParameterInfo>().ToArray();
     }
 
     /// <summary>
@@ -241,6 +245,37 @@ namespace Remotion.TypePipe.MutableReflection
       _body = newBody;
     }
 
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+
+      _customAttributeHelper.AddCustomAttribute (customAttributeDeclaration);
+    }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeHelper.GetCustomAttributeData();
+    }
+
+    public override object[] GetCustomAttributes (bool inherit)
+    {
+      return _customAttributeHelper.GetCustomAttributes (inherit);
+    }
+
+    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return _customAttributeHelper.GetCustomAttributes (attributeType, inherit);
+    }
+
+    public override bool IsDefined (Type attributeType, bool inherit)
+    {
+      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+
+      return _customAttributeHelper.IsDefined (attributeType, inherit);
+    }
+
     public override string ToString ()
     {
       return SignatureDebugStringGenerator.GetMethodSignature (this);
@@ -248,41 +283,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public string ToDebugString ()
     {
-      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
-    }
-
-    public override ParameterInfo[] GetParameters ()
-    {
-      return _parameters.ToArray();
-    }
-
-    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return _customAttributeDatas.Value;
-    }
-
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
+      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString (), DeclaringType);
     }
 
     #region Not YET Implemented from MethodInfo interface
