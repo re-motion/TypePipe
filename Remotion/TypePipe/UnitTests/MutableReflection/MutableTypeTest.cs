@@ -133,6 +133,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsNew ()
+    {
+      var type1 = MutableTypeObjectMother.CreateForExisting();
+      //var type2 = MutableTypeObjectMother.CreateForNew();
+
+      Assert.That (type1.IsNew, Is.False);
+      //Assert.That (type2.IsNew, Is.True);
+    }
+
+    [Test]
+    [Ignore ("TODO 4744")]
+    public void IsModified ()
+    {
+      Assert.Fail ("(members, custom attributes, abstractness, ...");
+    }
+
+    [Test]
     public void AllMutableFields ()
     {
       Assert.That (GetAllFields (_mutableType).ExistingBaseMembers, Is.Not.Empty);
@@ -180,26 +197,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
+    public void CanAddCustomAttributes ()
     {
-      // Note: ToString() is implemented in CustomType base class.
-      Assert.That (_mutableType.ToString(), Is.EqualTo ("DomainType"));
+      var type1 = MutableTypeObjectMother.CreateForExisting();
+      //var type2 = MutableTypeObjectMother.CreateForNew();
+
+      Assert.That (type1.CanAddCustomAttributes, Is.True);
+      //Assert.That (type2.CanAddCustomAttributes, Is.True);
     }
 
     [Test]
-    public void ToDebugString ()
+    public void CustomAttributeMethods ()
     {
-      // Note: ToDebugString() is implemented in CustomType base class.
-      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"DomainType\""));
-    }
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      Assert.That (_mutableType.CanAddCustomAttributes, Is.True);
+      _mutableType.AddCustomAttribute (declaration);
 
-    [Test]
-    public void GetCustomAttributeData ()
-    {
-      var result = _mutableType.GetCustomAttributeData ();
+      Assert.That (_mutableType.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
 
-      Assert.That (result.Select (a => a.Type), Is.EquivalentTo (new[] { typeof (AbcAttribute) }));
-      Assert.That (result, Is.SameAs (_mutableType.GetCustomAttributeData ()), "should be cached");
+      Assert.That (
+          _mutableType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute), typeof (AbcAttribute) }));
+
+      Assert.That (
+          _mutableType.GetCustomAttributes (false).Select (a => a.GetType()),
+          Is.EquivalentTo (new[] { typeof (ObsoleteAttribute), typeof (AbcAttribute) }));
+      Assert.That (_mutableType.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+
+      Assert.That (_mutableType.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_mutableType.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
 
     [Test]
@@ -678,6 +703,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => _mutableType.GetMutableConstructor (ctorStub),
           Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
+    }
+
+    [Test]
+    public new void ToString ()
+    {
+      // Note: ToString() is implemented in CustomType base class.
+      Assert.That (_mutableType.ToString(), Is.EqualTo ("DomainType"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      // Note: ToDebugString() is implemented in CustomType base class.
+      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"DomainType\""));
     }
 
     private MutableFieldInfo AddField (MutableType mutableType, string name)
