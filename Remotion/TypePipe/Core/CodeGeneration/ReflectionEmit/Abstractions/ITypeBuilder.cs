@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Defines an interface for <see cref="TypeBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface ITypeBuilder
+  public interface ITypeBuilder : ICustomAttributeTargetBuilder
   {
     void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type);
 

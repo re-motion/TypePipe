@@ -26,11 +26,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="TypeBuilder"/> with the <see cref="ITypeBuilder"/> interface.
   /// </summary>
-  public class TypeBuilderAdapter : ITypeBuilder
+  public class TypeBuilderAdapter : CustomAttributeTargetBuilderBase, ITypeBuilder
   {
     private readonly TypeBuilder _typeBuilder;
 
     public TypeBuilderAdapter (TypeBuilder typeBuilder)
+        : base (typeBuilder.SetCustomAttribute)
     {
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
 
@@ -96,14 +97,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
-    }
-
-    [CLSCompliant (false)]
-    public void Emit (IILGenerator ilGenerator, OpCode opCode)
-    {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
-
-      ilGenerator.Emit (opCode, _typeBuilder);
     }
   }
 }

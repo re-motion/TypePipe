@@ -77,6 +77,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "OriginalField" }));
     }
 
+    [Ignore ("TODO 5281")]
     [Test]
     public void WithCustomAttribute ()
     {
@@ -96,9 +97,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableFieldInfo.AddCustomAttribute (customAttributeDeclaration);
           });
 
-      var fieldInfo = type.GetField ("_fieldWithCustomAttributes", BindingFlags.Instance | BindingFlags.NonPublic);
-      Assert.IsNotNull (fieldInfo);
-      var customAttributes = fieldInfo.GetCustomAttributes (false);
+      var field = type.GetField ("_fieldWithCustomAttributes", BindingFlags.Instance | BindingFlags.NonPublic);
+      var customAttributes = field.GetCustomAttributes (false);
       Assert.That (customAttributes, Has.Length.EqualTo (1));
 
       var customAttribute = (AddedAttribute) customAttributes.Single();

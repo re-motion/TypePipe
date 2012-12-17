@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,17 +14,33 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="FieldBuilder"/>.
+  /// A base for classes implementing <see cref="ICustomAttributeTargetBuilder"/>.
   /// </summary>
-  public interface IFieldBuilder : ICustomAttributeTargetBuilder
+  public abstract class CustomAttributeTargetBuilderBase : ICustomAttributeTargetBuilder
   {
-    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field);
+    private readonly Action<CustomAttributeBuilder> _setCustomAttributeMethod;
+
+    protected CustomAttributeTargetBuilderBase (Action<CustomAttributeBuilder> setCustomAttributeMethod)
+    {
+      ArgumentUtility.CheckNotNull ("setCustomAttributeMethod", setCustomAttributeMethod);
+
+      _setCustomAttributeMethod = setCustomAttributeMethod;
+    }
+
+    public void SetCustomAttribute (CustomAttributeDeclaration customBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("customBuilder", customBuilder);
+
+      // TODO
+    }
   }
 }

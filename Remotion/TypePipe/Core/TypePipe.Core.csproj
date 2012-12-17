@@ -56,6 +56,8 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ICustomAttributeTargetBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />

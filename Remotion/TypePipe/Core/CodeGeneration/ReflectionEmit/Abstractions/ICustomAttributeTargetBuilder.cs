@@ -15,16 +15,15 @@
 // under the License.
 // 
 using System;
-using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines an interface for <see cref="FieldBuilder"/>.
+  /// Defines a common interface for builders that create elements which can be used as targets for custom attributes.
   /// </summary>
-  public interface IFieldBuilder : ICustomAttributeTargetBuilder
+  public interface ICustomAttributeTargetBuilder
   {
-    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field);
+    void SetCustomAttribute (CustomAttributeDeclaration customBuilder);
   }
 }

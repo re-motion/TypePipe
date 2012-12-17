@@ -17,7 +17,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -74,83 +73,49 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddField ()
     {
-      var addedField = MutableFieldInfoObjectMother.Create ();
-      var fieldBuilderMock = MockRepository.GenerateStrictMock<IFieldBuilder> ();
+      var field = MutableFieldInfoObjectMother.Create();
+      var fieldBuilderMock = MockRepository.GenerateStrictMock<IFieldBuilder>();
 
       _typeBuilderMock
-          .Expect (mock => mock.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
+          .Expect (mock => mock.DefineField (field.Name, field.FieldType, field.Attributes))
           .Return (fieldBuilderMock);
-      fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedField));
+      fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, field));
+      SetupDefineCustomAttribute (fieldBuilderMock, field);
 
-      _emitter.AddField (_context, addedField);
+      _emitter.AddField (_context, field);
 
-      _typeBuilderMock.VerifyAllExpectations ();
-      fieldBuilderMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    public void AddField_WithCustomAttribute ()
-    {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new CustomAttribute (""));
-      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((CustomAttribute attr) => attr.Property);
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((CustomAttribute attr) => attr.Field);
-      var constructorArguments = new object[] { "ctorArgs" };
-      var declaration = new CustomAttributeDeclaration (
-          constructor,
-          constructorArguments,
-          new NamedArgumentDeclaration (property, 7),
-          new NamedArgumentDeclaration (field, "test"));
-      var addedField = MutableFieldInfoObjectMother.Create ();
-      addedField.AddCustomAttribute (declaration);
-
-      var fieldBuilderMock = MockRepository.GenerateMock<IFieldBuilder> ();
-      _typeBuilderMock
-          .Stub (stub => stub.DefineField (addedField.Name, addedField.FieldType, addedField.Attributes))
-          .Return (fieldBuilderMock);
-      fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedField));
-      fieldBuilderMock
-          .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeBuilder>.Is.Anything))
-          .WhenCalled (mi => CheckCustomAttributeBuilder (
-              (CustomAttributeBuilder) mi.Arguments[0],
-              constructor,
-              constructorArguments,
-              new[] { property },
-              new object[] { 7 },
-              new[] { field },
-              new object[] { "test" }));
-
-      _emitter.AddField (_context, addedField);
-
-      fieldBuilderMock.VerifyAllExpectations ();
+      _typeBuilderMock.VerifyAllExpectations();
+      fieldBuilderMock.VerifyAllExpectations();
     }
 
     [Test]
     public void AddConstructor ()
     {
-      var ctor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
+      var constructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
           new ParameterDeclaration (typeof (string), "p1", ParameterAttributes.In),
           new ParameterDeclaration (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out));
-      var expectedAttributes = ctor.Attributes;
-      var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType () };
+      var expectedAttributes = constructor.Attributes;
+      var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
 
-      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder> ();
+      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder>();
       _typeBuilderMock
           .Expect (mock => mock.DefineConstructor (expectedAttributes, CallingConventions.HasThis, expectedParameterTypes))
           .Return (constructorBuilderMock);
-      constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, ctor));
+      constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, constructor));
 
+      SetupDefineCustomAttribute (constructorBuilderMock, constructor);
       constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
       constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
-      _emitter.AddConstructor (_context, ctor);
+      _emitter.AddConstructor (_context, constructor);
 
-      _typeBuilderMock.VerifyAllExpectations ();
-      constructorBuilderMock.VerifyAllExpectations ();
+      _typeBuilderMock.VerifyAllExpectations();
+      constructorBuilderMock.VerifyAllExpectations();
 
       Assert.That (_context.PostDeclarationsActionManager.Actions.Count(), Is.EqualTo (1));
-      CheckBodyBuildAction (_context.PostDeclarationsActionManager.Actions.Single(), constructorBuilderMock, ctor);
+      CheckBodyBuildAction (_context.PostDeclarationsActionManager.Actions.Single(), constructorBuilderMock, constructor);
     }
 
     [Test]
@@ -170,9 +135,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMethod ()
     {
-      var addedMethod = MutableMethodInfoObjectMother.CreateForNew (
+      var method = MutableMethodInfoObjectMother.CreateForNew (
           MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
-          "AddedMethod",
+          "Method",
           MethodAttributes.Virtual,
           typeof (string),
           new[]
@@ -182,50 +147,51 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           });
 
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.OverridableMethod (7, out Dev<double>.Dummy));
-      addedMethod.AddExplicitBaseDefinition (overriddenMethod);
+      method.AddExplicitBaseDefinition (overriddenMethod);
 
       var expectedAttributes = MethodAttributes.HideBySig;
       var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
 
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod ("AddedMethod", expectedAttributes, typeof (string), expectedParameterTypes))
+          .Expect (mock => mock.DefineMethod ("Method", expectedAttributes, typeof (string), expectedParameterTypes))
           .Return (methodBuilderMock);
-      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
+      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
+      SetupDefineCustomAttribute (methodBuilderMock, method);
       methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
       methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
-      _emitter.AddMethod (_context, addedMethod, expectedAttributes);
+      _emitter.AddMethod (_context, method, expectedAttributes);
 
       _typeBuilderMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
       var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
 
-      CheckBodyBuildAction (actions[0], methodBuilderMock, addedMethod);
-      CheckExplicitOverrideAction (actions[1], overriddenMethod, addedMethod);
+      CheckBodyBuildAction (actions[0], methodBuilderMock, method);
+      CheckExplicitOverrideAction (actions[1], overriddenMethod, method);
     }
 
     [Test]
     public void AddMethod_Abstract ()
     {
-      var addedMethod = MutableMethodInfoObjectMother.CreateForNew (
+      var method = MutableMethodInfoObjectMother.CreateForNew (
           MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
-          "AddedAbstractMethod",
+          "AbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),
           ParameterDeclaration.EmptyParameters);
 
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod ("AddedAbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
+          .Expect (mock => mock.DefineMethod ("AbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
           .Return (methodBuilderMock);
-      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, addedMethod));
+      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
-      _emitter.AddMethod (_context, addedMethod, MethodAttributes.Abstract);
+      _emitter.AddMethod (_context, method, MethodAttributes.Abstract);
 
       _typeBuilderMock.VerifyAllExpectations();
       methodBuilderMock.VerifyAllExpectations();
@@ -233,30 +199,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (actions, Has.Length.EqualTo (1));
 
       // Executing the action has no side effect (strict mocks; empty override build action).
-      _emittableOperandProviderMock.Stub (mock => mock.GetEmittableMethod (addedMethod));
+      _emittableOperandProviderMock.Stub (mock => mock.GetEmittableMethod (method));
       actions[0].Invoke();
     }
 
-    private void CheckCustomAttributeBuilder (
-        CustomAttributeBuilder builder,
-        ConstructorInfo expectedCtor,
-        object[] expectedCtorArgs,
-        PropertyInfo[] expectedPropertyInfos,
-        object[] expectedPropertyValues,
-        FieldInfo[] expectedFieldInfos,
-        object[] expectedFieldValues)
+    private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)
     {
-      var actualConstructor = (ConstructorInfo) PrivateInvoke.GetNonPublicField (builder, "m_con");
-      var actualConstructorArgs = (object[]) PrivateInvoke.GetNonPublicField (builder, "m_constructorArgs");
-      var actualBlob = (byte[]) PrivateInvoke.GetNonPublicField (builder, "m_blob");
-
-      Assert.That (actualConstructor, Is.SameAs (expectedCtor));
-      Assert.That (actualConstructorArgs, Is.EqualTo (expectedCtorArgs));
-
-      var testBuilder = new CustomAttributeBuilder (
-          expectedCtor, expectedCtorArgs, expectedPropertyInfos, expectedPropertyValues, expectedFieldInfos, expectedFieldValues);
-      var expectedBlob = (byte[]) PrivateInvoke.GetNonPublicField (testBuilder, "m_blob");
-      Assert.That (actualBlob, Is.EqualTo (expectedBlob));
+      var declaration = CustomAttributeDeclarationObjectMother.Create();
+      mutableInfo.AddCustomAttribute (declaration);
+      customAttributeTargetBuilderMock.Expect (mock => mock.SetCustomAttribute (declaration));
     }
 
     private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)

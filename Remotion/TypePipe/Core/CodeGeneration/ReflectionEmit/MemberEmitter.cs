@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -64,21 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var fieldBuilder = context.TypeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
       fieldBuilder.RegisterWith (context.EmittableOperandProvider, field);
 
-      foreach (var declaration in field.AddedCustomAttributeDeclarations)
-      {
-        var propertyArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property).ToArray();
-        var fieldArguments = declaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field).ToArray();
-
-        var customAttributeBuilder = new CustomAttributeBuilder (
-            declaration.Constructor,
-            declaration.ConstructorArguments.ToArray(),
-            propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray(),
-            propertyArguments.Select (namedArg => namedArg.Value).ToArray(),
-            fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray(),
-            fieldArguments.Select (namedArg => namedArg.Value).ToArray());
-
-        fieldBuilder.SetCustomAttribute (customAttributeBuilder);
-      }
+      DefineCustomAttributes (fieldBuilder, field);
     }
 
     public void AddConstructor (MemberEmitterContext context, MutableConstructorInfo constructor)
@@ -91,7 +76,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, callingConvention, parameterTypes);
       ctorBuilder.RegisterWith (context.EmittableOperandProvider, constructor);
 
-      DefineParameters (ctorBuilder, constructor.GetParameters());
+      DefineCustomAttributes (ctorBuilder, constructor);
+      DefineParameters (ctorBuilder, constructor);
 
       var bodyBuildAction = CreateBodyBuildAction (context, ctorBuilder, constructor.ParameterExpressions, constructor.Body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
@@ -106,7 +92,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
-      DefineParameters (methodBuilder, method.GetParameters());
+      DefineCustomAttributes (methodBuilder, method);
+      DefineParameters (methodBuilder, method);
 
       if (!method.IsAbstract)
       {
@@ -118,14 +105,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.PostDeclarationsActionManager.AddAction (explicitOverrideAction);
     }
 
-    private Type[] GetParameterTypes (MethodBase methodBase)
+    private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
     {
-      return methodBase.GetParameters ().Select (pe => pe.ParameterType).ToArray ();
+      foreach (var declaration in mutableInfo.AddedCustomAttributeDeclarations)
+        customAttributeTargetBuilder.SetCustomAttribute (declaration);
     }
 
-    private void DefineParameters (IMethodBaseBuilder methodBuilder, ParameterInfo[] parameterInfos)
+    private Type[] GetParameterTypes (MethodBase methodBase)
     {
-      foreach (var parameterInfo in parameterInfos)
+      return methodBase.GetParameters().Select (pe => pe.ParameterType).ToArray();
+    }
+
+    private void DefineParameters (IMethodBaseBuilder methodBuilder, MethodBase methodBase)
+    {
+      foreach (var parameterInfo in methodBase.GetParameters())
         methodBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
     }
 

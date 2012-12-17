@@ -29,11 +29,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="MethodBuilder"/> with the <see cref="IMethodBaseBuilder"/> interface.
   /// </summary>
-  public class MethodBuilderAdapter : IMethodBuilder
+  public class MethodBuilderAdapter : CustomAttributeTargetBuilderBase, IMethodBuilder
   {
     private readonly MethodBuilder _methodBuilder;
 
     public MethodBuilderAdapter (MethodBuilder methodBuilder)
+        : base (methodBuilder.SetCustomAttribute)
     {
       ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
 

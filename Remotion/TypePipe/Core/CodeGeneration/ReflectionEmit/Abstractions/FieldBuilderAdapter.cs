@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
@@ -24,13 +25,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="FieldBuilder"/> with the <see cref="IFieldBuilder"/> interface.
   /// </summary>
-  public class FieldBuilderAdapter : IFieldBuilder
+  public class FieldBuilderAdapter : CustomAttributeTargetBuilderBase, IFieldBuilder
   {
     private readonly FieldBuilder _fieldBuilder;
 
     public FieldBuilderAdapter (FieldBuilder fieldBuilder)
+        : base (fieldBuilder.SetCustomAttribute)
     {
       ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
+
       _fieldBuilder = fieldBuilder;
     }
 
@@ -40,12 +43,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("field", field);
 
       emittableOperandProvider.AddMapping (field, _fieldBuilder);
-    }
-
-    public void SetCustomAttribute (CustomAttributeBuilder customBuilder)
-    {
-      ArgumentUtility.CheckNotNull ("customBuilder", customBuilder);
-      _fieldBuilder.SetCustomAttribute (customBuilder);
     }
   }
 }
