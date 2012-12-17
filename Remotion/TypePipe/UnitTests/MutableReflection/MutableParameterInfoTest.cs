@@ -121,6 +121,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public new void ToString ()
+    {
+      var parameter = MutableParameterInfoObjectMother.Create (name: "param1", parameterType: typeof (int), attributes: ParameterAttributes.Out);
+
+      Assert.That (parameter.ToString(), Is.EqualTo ("Int32 param1"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      var declaringMemberName = _parameter.Member.Name;
+      var parameterType = _parameter.ParameterType.Name;
+      var parameterName = _parameter.Name;
+      var expected = "MutableParameter = \"" + parameterType + " " + parameterName + "\", DeclaringMember = \"" + declaringMemberName + "\"";
+
+      Assert.That (_parameter.ToDebugString(), Is.EqualTo (expected));
+    }
+
+    [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));

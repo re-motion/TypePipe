@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -28,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="ParameterInfo"/> that can be modified.
   /// This allows to represent parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
   /// </summary>
-  // TODO : [DebuggerDisplay]
+  [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableParameterInfo : ParameterInfo, IMutableInfo
   {
     private readonly MemberInfo _member;
@@ -127,6 +128,14 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributeHelper.IsDefined (attributeType, inherit);
     }
 
-    // TODO: ToString and ToDebugString()
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetParameterSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("MutableParameter = \"{0}\", DeclaringMember = \"{1}\"", ToString(), Member.Name);
+    }
   }
 }

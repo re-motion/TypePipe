@@ -48,10 +48,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return GetSignatureString (methodInfo.ReturnType, methodInfo.Name, methodInfo.GetParameters());
     }
 
-    private static string GetSignatureString (Type returnType, string name, IEnumerable<ParameterInfo> parameters)
+    public static string GetParameterSignature (ParameterInfo parameter)
     {
-      var parameterTypes = SeparatedStringBuilder.Build (", ", parameters.Select (p => GetShortTypeName (p.ParameterType)));
-      return GetShortTypeName (returnType) + " " + name + "(" + parameterTypes + ")";
+      return string.Format ("{0} {1}", GetShortTypeName (parameter.ParameterType), parameter.Name);
     }
 
     private static string GetShortTypeName (Type type)
@@ -59,6 +58,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (type.IsGenericType)
         return type.Name + "[" + SeparatedStringBuilder.Build (",", type.GetGenericArguments(), GetShortTypeName) + "]";
       return type.Name;
+    }
+
+    private static string GetSignatureString (Type returnType, string name, IEnumerable<ParameterInfo> parameters)
+    {
+      var parameterTypes = SeparatedStringBuilder.Build (", ", parameters.Select (p => GetShortTypeName (p.ParameterType)));
+      return GetShortTypeName (returnType) + " " + name + "(" + parameterTypes + ")";
     }
   }
 }
