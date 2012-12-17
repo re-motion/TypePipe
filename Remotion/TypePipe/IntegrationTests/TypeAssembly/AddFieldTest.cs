@@ -77,7 +77,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "OriginalField" }));
     }
 
-    [Ignore ("TODO 5281")]
     [Test]
     public void WithCustomAttribute ()
     {
