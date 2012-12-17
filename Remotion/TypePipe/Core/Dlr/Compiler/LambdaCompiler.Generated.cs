@@ -196,7 +196,7 @@ namespace System.Linq.Expressions.Compiler {
                     EmitDefaultExpression(node);
                     break;
                 case ExpressionType.Extension:
-                    EmitExtensionExpression(node, flags);
+                    EmitExtensionExpression(node);
                     break;
                 case ExpressionType.Goto:
                     EmitGotoExpression(node, flags);
@@ -242,6 +242,10 @@ namespace System.Linq.Expressions.Compiler {
                     break;
 
                 // *** END GENERATED CODE ***
+
+                case Remotion.TypePipe.Expressions.TypePipeExpressionBase.TypePipeExpressionType:
+                    EmitTypePipeExpression(node, flags);
+                    break;
 
                 #endregion
 

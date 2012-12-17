@@ -25,6 +25,8 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public abstract class TypePipeExpressionBase : Expression, ITypePipeExpression
   {
+    public const ExpressionType TypePipeExpressionType = (ExpressionType) 1337;
+
     private readonly Type _type;
 
     protected TypePipeExpressionBase (Type type)
@@ -40,7 +42,7 @@ namespace Remotion.TypePipe.Expressions
 
     public override ExpressionType NodeType
     {
-      get { return ExpressionType.Extension; }
+      get { return TypePipeExpressionType; }
     }
 
     public abstract Expression Accept (ITypePipeExpressionVisitor visitor);

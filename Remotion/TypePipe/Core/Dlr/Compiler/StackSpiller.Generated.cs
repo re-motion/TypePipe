@@ -259,6 +259,9 @@ namespace System.Linq.Expressions.Compiler {
 
                 #endregion
 
+                case Remotion.TypePipe.Expressions.TypePipeExpressionBase.TypePipeExpressionType:
+                    return new Result(RewriteAction.None, node);
+
                 default:
                     throw ContractUtils.Unreachable;
             }

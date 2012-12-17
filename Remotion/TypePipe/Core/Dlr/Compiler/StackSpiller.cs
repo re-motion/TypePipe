@@ -20,7 +20,6 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Remotion.TypePipe.Expressions;
 
 #if SILVERLIGHT
 using System.Core;
@@ -138,7 +137,7 @@ namespace System.Linq.Expressions.Compiler {
             Debug.Assert((result.Action == RewriteAction.None) ^ (node != result.Node), "rewrite action does not match node object identity");
 
             // if the original node is an extension node, it should have been rewritten
-            Debug.Assert(result.Node.NodeType != ExpressionType.Extension || result.Node is ITypePipeExpression, "extension nodes must be rewritten");
+            Debug.Assert(result.Node.NodeType != ExpressionType.Extension, "extension nodes must be rewritten");
 
             // if we have Copy, then node type must match
             Debug.Assert(
@@ -295,10 +294,7 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private Result RewriteExtensionAssignment(BinaryExpression node, Stack stack) {
-            if (!node.CanReduce)
-                return new Result (RewriteAction.None, node);
-
-            node = Expression.Assign(node.Left.ReduceAndCheck(), node.Right);
+            node = Expression.Assign(node.Left.ReduceExtensions(), node.Right);
             Result result = RewriteAssignBinaryExpression(node, stack);
             // it's at least Copy because we reduced the node
             return new Result(result.Action | RewriteAction.Copy, result.Node);
@@ -912,10 +908,7 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private Result RewriteExtensionExpression(Expression expr, Stack stack) {
-            if (!expr.CanReduce)
-                return new Result (RewriteAction.None, expr);
-
-            Result result = RewriteExpression(expr.ReduceAndCheck(), stack);
+            Result result = RewriteExpression(expr.ReduceExtensions(), stack);
             // it's at least Copy because we reduced the node
             return new Result(result.Action | RewriteAction.Copy, result.Node);
         }

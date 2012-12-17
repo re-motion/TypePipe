@@ -19,7 +19,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
@@ -46,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void NodeType ()
     {
-      Assert.That (_typePipeExpressionBaseMock.NodeType, Is.EqualTo (ExpressionType.Extension));
+      Assert.That (_typePipeExpressionBaseMock.NodeType, Is.EqualTo ((ExpressionType) 1337));
     }
 
     [Test]

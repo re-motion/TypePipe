@@ -764,19 +764,20 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "expr")]
-        private void EmitExtensionExpression(Expression expr, CompilationFlags flags) {
-            var typePipeExpression = expr as Remotion.TypePipe.Expressions.ITypePipeExpression;
-            if (typePipeExpression != null)
-            {
-              var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingTypePipeExpressionVisitor (
-                  _ilg, childExpr => EmitExpression (childExpr, flags));
-              typePipeExpression.Accept (visitor);
-            }
-            else
-              throw Error.ExtensionNotReduced ();
+        private static void EmitExtensionExpression(Expression expr) {
+            throw Error.ExtensionNotReduced();
         }
 
-        #region ListInit, MemberInit
+        private void EmitTypePipeExpression (Expression expr, CompilationFlags flags)
+        {
+          var typePipeExpression = (Remotion.TypePipe.Expressions.ITypePipeExpression) expr;
+          var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingTypePipeExpressionVisitor (
+              _ilg, childExpression => EmitExpression (childExpression, flags));
+
+          typePipeExpression.Accept (visitor);
+        }
+
+      #region ListInit, MemberInit
 
         private void EmitListInitExpression(Expression expr) {
             EmitListInit((ListInitExpression)expr);
