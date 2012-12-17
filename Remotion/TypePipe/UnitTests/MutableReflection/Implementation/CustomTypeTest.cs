@@ -103,21 +103,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public new void ToString ()
-    {
-      Assert.That (_customType.ToString (), Is.EqualTo ("type name"));
-    }
-
-    [Test]
-    public void ToDebugString ()
-    {
-// ReSharper disable PossibleMistakenCallToGetType.2
-      var typeName = _customType.GetType().Name;
-// ReSharper restore PossibleMistakenCallToGetType.2
-      Assert.That (_customType.ToDebugString (), Is.EqualTo (typeName + " = \"type name\""));
-    }
-
-    [Test]
     public void GetElementType ()
     {
       Assert.That (_customType.GetElementType (), Is.Null);
@@ -339,6 +324,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public new void ToString ()
+    {
+      Assert.That (_customType.ToString(), Is.EqualTo ("type name"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      // ReSharper disable PossibleMistakenCallToGetType.2
+      var typeName = _customType.GetType().Name;
+      // ReSharper restore PossibleMistakenCallToGetType.2
+      Assert.That (_customType.ToDebugString(), Is.EqualTo (typeName + " = \"type name\""));
+    }
+
+    [Test]
     public void VirtualMethodsImplementedByType ()
     {
       // None of these members should throw an exception 
@@ -378,31 +378,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void UnsupportedMembers ()
     {
-      CheckThrowsNotSupported (() => Dev.Null = _customType.MetadataToken, "Property", "MetadataToken");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GUID, "Property", "GUID");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.AssemblyQualifiedName, "Property", "AssemblyQualifiedName");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.StructLayoutAttribute, "Property", "StructLayoutAttribute");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GenericParameterAttributes, "Property", "GenericParameterAttributes");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GenericParameterPosition, "Property", "GenericParameterPosition");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.TypeHandle, "Property", "TypeHandle");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.MetadataToken, "MetadataToken");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GUID, "GUID");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.AssemblyQualifiedName, "AssemblyQualifiedName");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterAttributes, "GenericParameterAttributes");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterPosition, "GenericParameterPosition");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.TypeHandle, "TypeHandle");
 
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GetDefaultMembers (), "Method", "GetDefaultMembers");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.InvokeMember (null, 0, null, null, null, null, null, null), "Method", "InvokeMember");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.MakePointerType (), "Method", "MakePointerType");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeByRefType (), "Method", "MakeByRefType");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeArrayType (), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeArrayType (7), "Method", "MakeArrayType");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GetArrayRank (), "Method", "GetArrayRank");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GetGenericParameterConstraints (), "Method", "GetGenericParameterConstraints");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.MakeGenericType (), "Method", "MakeGenericType");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GetGenericArguments (), "Method", "GetGenericArguments");
-      CheckThrowsNotSupported (() => Dev.Null = _customType.GetGenericTypeDefinition (), "Method", "GetGenericTypeDefinition");
-    }
-
-    private void CheckThrowsNotSupported (TestDelegate memberInvocation, string memberType, string memberName)
-    {
-      var message = string.Format ("{0} {1} is not supported.", memberType, memberName);
-      Assert.That (memberInvocation, Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (message));
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetDefaultMembers(), "GetDefaultMembers");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.InvokeMember (null, 0, null, null, null, null, null, null), "InvokeMember");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakePointerType(), "MakePointerType");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeByRefType(), "MakeByRefType");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType(), "MakeArrayType");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType (7), "MakeArrayType");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetArrayRank(), "GetArrayRank");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericParameterConstraints(), "GetGenericParameterConstraints");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeGenericType(), "MakeGenericType");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericArguments(), "GetGenericArguments");
+      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericTypeDefinition(), "GetGenericTypeDefinition");
     }
 
     // This exists for GetInterface method with ignore case parameter.

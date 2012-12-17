@@ -119,16 +119,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _fullName; }
     }
 
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetTypeSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("{0} = \"{1}\"", GetType ().Name, ToString ());
-    }
-
     public override Type GetElementType ()
     {
       return null;
@@ -281,6 +271,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
     {
       return new PropertyInfo[0]; // Needed for virtual method check
+    }
+
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetTypeSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("{0} = \"{1}\"", GetType().Name, ToString());
     }
 
     #endregion
