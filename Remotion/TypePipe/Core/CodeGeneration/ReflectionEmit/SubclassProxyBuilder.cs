@@ -99,6 +99,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _proxySerializationEnabler.MakeSerializable (mutableType, initializationMethod);
 
+      foreach (var customAttribute in mutableType.AddedCustomAttributeDeclarations)
+        _context.TypeBuilder.SetCustomAttribute (customAttribute);
+
       foreach (var ifc in mutableType.AddedInterfaces)
         _context.TypeBuilder.AddInterfaceImplementation (ifc);
 

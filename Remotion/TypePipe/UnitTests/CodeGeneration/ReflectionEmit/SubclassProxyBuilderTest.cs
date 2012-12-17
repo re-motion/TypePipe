@@ -105,6 +105,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mutableType.AddTypeInitialization (ctx => typeInitialization);
       _mutableType.AddInstanceInitialization (ctx => instanceInitialization);
 
+      var customAttributeDeclaration = CustomAttributeDeclarationObjectMother.Create();
+      _mutableType.AddCustomAttribute (customAttributeDeclaration);
+
       var addedInterface = typeof (IDisposable);
       _mutableType.AddInterface (addedInterface);
 
@@ -130,6 +133,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
 
         _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
+
+        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttributeDeclaration));
 
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
 
