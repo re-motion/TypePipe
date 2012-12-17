@@ -56,6 +56,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
@@ -207,9 +208,7 @@
       <Name>TypePipe.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CodeGeneration\ReflectionEmit\Abstractions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

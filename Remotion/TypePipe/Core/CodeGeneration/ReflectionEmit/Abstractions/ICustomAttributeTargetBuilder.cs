@@ -24,6 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// </summary>
   public interface ICustomAttributeTargetBuilder
   {
-    void SetCustomAttribute (CustomAttributeDeclaration customBuilder);
+    void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration);
   }
 }

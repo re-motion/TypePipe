@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -23,7 +25,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// A base for classes implementing <see cref="ICustomAttributeTargetBuilder"/>.
+  /// A base class for implementors of <see cref="ICustomAttributeTargetBuilder"/>.
   /// </summary>
   public abstract class CustomAttributeTargetBuilderBase : ICustomAttributeTargetBuilder
   {
@@ -36,11 +38,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _setCustomAttributeMethod = setCustomAttributeMethod;
     }
 
-    public void SetCustomAttribute (CustomAttributeDeclaration customBuilder)
+    public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      ArgumentUtility.CheckNotNull ("customBuilder", customBuilder);
+      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      // TODO
+      var propertyArguments = customAttributeDeclaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property).ToArray();
+      var fieldArguments = customAttributeDeclaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field).ToArray();
+
+      var customAttributeBuilder = new CustomAttributeBuilder (
+          customAttributeDeclaration.Constructor,
+          customAttributeDeclaration.ConstructorArguments.ToArray(),
+          propertyArguments.Select (namedArg => (PropertyInfo) namedArg.MemberInfo).ToArray(),
+          propertyArguments.Select (namedArg => namedArg.Value).ToArray(),
+          fieldArguments.Select (namedArg => (FieldInfo) namedArg.MemberInfo).ToArray(),
+          fieldArguments.Select (namedArg => namedArg.Value).ToArray());
+
+      _setCustomAttributeMethod (customAttributeBuilder);
     }
   }
 }
