@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -27,15 +28,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void MaxStackSizeLargerThan8 ()
     {
+      var methodWithManyArguments =
+          NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodWithManyArguments ("", "", "", "", "", "", "", "", ""));
+
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var abcdefghi = Enumerable.Range (0, 9).Select (i => "" + (char) ('a' + i)).Select (Expression.Constant);
+            var abcdefghi = methodWithManyArguments.GetParameters().Select ((p, i) => "" + (char) ('a' + i)).Select (Expression.Constant);
             mutableType
                 .AllMutableMethods
                 .Single (m => m.Name == "Method")
-                .SetBody (
-                    ctx => Expression.Call (ctx.This, "MethodWithManyArguments", Type.EmptyTypes, abcdefghi.Cast<Expression>().ToArray()));
+                .SetBody (ctx => Expression.Call (ctx.This, methodWithManyArguments, abcdefghi.Cast<Expression>().ToArray()));
           });
 
       var modifiedMethodBody = type.GetMethod ("Method").GetMethodBody();
