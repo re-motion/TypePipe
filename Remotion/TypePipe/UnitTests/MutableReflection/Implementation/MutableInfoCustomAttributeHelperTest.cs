@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   [TestFixture]
   public class MutableInfoCustomAttributeHelperTest
   {
-    private MemberInfo _member;
     private IMutableInfo _mutableMember;
     private IMutableInfo _mutableParameter;
     private Func<ReadOnlyCollection<ICustomAttributeData>> _attributeProvider;
@@ -45,7 +44,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Member (7));
       var mutableMethod = MutableMethodInfoObjectMother.CreateForExisting (method);
-      _member = method;
       _mutableMember = mutableMethod;
       // TODO method.MutableParameters
       _mutableParameter = (MutableParameterInfo) mutableMethod.GetParameters().Single();
@@ -55,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _helper = new MutableInfoCustomAttributeHelper (_mutableMember, () => _attributeProvider(), () => _canAddCustomAttributesDecider());
       _helperForParameter = new MutableInfoCustomAttributeHelper (_mutableParameter, () => _attributeProvider(), () => _canAddCustomAttributesDecider());
 
-      _attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new UnrelatedAttribute());
+      _attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ObsoleteAttribute());
     }
 
     [Test]
@@ -115,45 +113,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (result, Has.Length.EqualTo (1));
       var attribute = result.Single();
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute>());
-    }
-
-    [Test]
-    public void GetCustomAttributes_NewInstance ()
-    {
-      var attribute1 = _helper.GetCustomAttributes (inherit: true).Single();
-      var attribute2 = _helper.GetCustomAttributes (inherit: true).Single();
-
-      Assert.That (attribute1, Is.Not.SameAs (attribute2));
+      Assert.That (attribute, Is.TypeOf<SomeAttribute>());
     }
 
     [Test]
     public void GetCustomAttributes_Filter ()
     {
-      Assert.That (_helper.GetCustomAttributes (typeof (UnrelatedAttribute), inherit: true), Is.Empty);
-      Assert.That (_helper.GetCustomAttributes (typeof (DerivedAttribute), inherit: true), Has.Length.EqualTo (1));
-      Assert.That (_helper.GetCustomAttributes (typeof (BaseAttribute), inherit: true), Has.Length.EqualTo (1));
-      Assert.That (_helper.GetCustomAttributes (typeof (IBaseAttributeInterface), inherit: true), Has.Length.EqualTo (1));
-    }
-
-    [Test]
-    public void GetCustomAttributes_ArrayType ()
-    {
-      // Standard reflection. Use as reference behavior.
-      Assert.That (_member.GetCustomAttributes (false), Is.TypeOf (typeof (object[])));
-      Assert.That (_member.GetCustomAttributes (typeof (BaseAttribute), false), Is.TypeOf (typeof (BaseAttribute[])));
-
-      Assert.That (_helper.GetCustomAttributes (false), Is.TypeOf (typeof (object[])));
-      Assert.That (_helper.GetCustomAttributes (typeof (BaseAttribute), false), Is.TypeOf (typeof (BaseAttribute[])));
+      Assert.That (_helper.GetCustomAttributes (typeof (ObsoleteAttribute), true), Is.Empty);
+      Assert.That (_helper.GetCustomAttributes (typeof (SomeAttribute), true), Has.Length.EqualTo (1));
     }
 
     [Test]
     public void IsDefined ()
     {
-      Assert.That (_helper.IsDefined (typeof (UnrelatedAttribute), inherit: true), Is.False);
-      Assert.That (_helper.IsDefined (typeof (DerivedAttribute), inherit: true), Is.True);
-      Assert.That (_helper.IsDefined (typeof (BaseAttribute), inherit: true), Is.True);
-      Assert.That (_helper.IsDefined (typeof (IBaseAttributeInterface), inherit: true), Is.True);
+      Assert.That (_helper.IsDefined (typeof (ObsoleteAttribute), true), Is.False);
+      Assert.That (_helper.IsDefined (typeof (SomeAttribute), true), Is.True);
     }
 
     [Test]
@@ -164,23 +138,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (result, Has.Length.EqualTo (1));
       var attribute = result.Single();
-      Assert.That (attribute, Is.TypeOf<DerivedAttribute>());
+      Assert.That (attribute, Is.TypeOf<SomeAttribute>());
     }
 
     public class DomainTypeBase
     {
-      [Derived]
+      [Some]
       public virtual void Member (int arg) { Dev.Null = arg; }
     }
 
     public class DomainType : DomainTypeBase
     {
-      public override void Member ([Derived] int arg) { Dev.Null = arg; }
+      public override void Member ([Some] int arg) { Dev.Null = arg; }
     }
 
-    interface IBaseAttributeInterface { }
-    class BaseAttribute : Attribute, IBaseAttributeInterface { }
-    class DerivedAttribute : BaseAttribute { }
-    public class UnrelatedAttribute : Attribute { }
+    class SomeAttribute : Attribute { }
   }
 }

@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -71,52 +70,21 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public object[] GetCustomAttributes (bool inherit)
     {
-      return GetCustomAttributes (GetCustomAttributeDataForMutableInfo (inherit), typeof (object));
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (_mutableInfo, inherit);
     }
 
     public object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return GetCustomAttributes (GetCustomAttributeDataForMutableInfo (inherit), attributeType);
+      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (_mutableInfo, attributeType, inherit);
     }
 
     public bool IsDefined (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return IsDefined (GetCustomAttributeDataForMutableInfo (inherit), attributeType);
-    }
-
-    private IEnumerable<ICustomAttributeData> GetCustomAttributeDataForMutableInfo (bool inherit)
-    {
-      Assertion.IsTrue (_mutableInfo is MemberInfo || _mutableInfo is ParameterInfo);
-
-      return _mutableInfo is MemberInfo
-                 ? TypePipeCustomAttributeData.GetCustomAttributes ((MemberInfo) _mutableInfo, inherit)
-                 : TypePipeCustomAttributeData.GetCustomAttributes ((ParameterInfo) _mutableInfo);
-    }
-
-    private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
-    {
-      var attributeArray = customAttributeDatas
-          .Where (a => attributeType.IsAssignableFrom (a.Type))
-          .Select (a => a.CreateInstance())
-          .ToArray();
-
-      if (attributeArray.GetType().GetElementType() != attributeType)
-      {
-        var typedAttributeArray = Array.CreateInstance (attributeType, attributeArray.Length);
-        Array.Copy (attributeArray, typedAttributeArray, attributeArray.Length);
-        attributeArray = (object[]) typedAttributeArray;
-      }
-
-      return attributeArray;
-    }
-
-    private static bool IsDefined (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
-    {
-      return customAttributeDatas.Any (a => attributeType.IsAssignableFrom (a.Type));
+      return TypePipeCustomAttributeImplementationUtility.IsDefined (_mutableInfo, attributeType, inherit);
     }
   }
 }
