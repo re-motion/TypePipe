@@ -81,8 +81,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void UnderlyingSystemMethodInfo ()
     {
+      var unsealedDeclaringType = MutableTypeObjectMother.Create();
       var underlyingMethod = ReflectionObjectMother.GetSomeMethod();
-      var method = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: underlyingMethod);
+      var method = MutableMethodInfoObjectMother.CreateForExisting (unsealedDeclaringType, underlyingMethod);
 
       Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (underlyingMethod));
     }
