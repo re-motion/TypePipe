@@ -20,12 +20,16 @@ using Microsoft.Scripting.Ast;
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Defines an interface for classes handling <see cref="ITypePipeExpression"/> instances.
+  /// Identifies a primitive custom expressions, i.e., an <see cref="Expression"/> that cannot be reduced to a standard expression and must be
+  /// handled during code generation.
+  /// Implementations of this interface must return <see cref="PrimitiveTypePipeExpressionBase.TypePipeExpressionType"/> from 
+  /// <see cref="Expression.NodeType"/>.
+  /// Expressions of this type can be handled using an <see cref="IPrimitiveTypePipeExpressionVisitor"/>.
   /// </summary>
-  public interface ITypePipeExpressionVisitor
+  /// <seealso cref="PrimitiveTypePipeExpressionBase"/>
+  /// <seealso cref="PrimitiveTypePipeExpressionVisitorBase"/>
+  public interface IPrimitiveTypePipeExpression
   {
-    Expression VisitThis (ThisExpression expression);
-    Expression VisitOriginalBody (OriginalBodyExpression expression);
-    Expression VisitNewDelegate (NewDelegateExpression expression);
+    Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor);
   }
 }

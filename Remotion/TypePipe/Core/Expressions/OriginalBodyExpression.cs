@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.Expressions
   /// <summary>
   /// Represents the original body of a modified method or constructor.
   /// </summary>
-  public class OriginalBodyExpression : TypePipeExpressionBase
+  public class OriginalBodyExpression : PrimitiveTypePipeExpressionBase
   {
     private readonly MethodBase _methodBase;
     private readonly ReadOnlyCollection<Expression> _arguments;
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.Expressions
       get { return _arguments; }
     }
 
-    public override Expression Accept (ITypePipeExpressionVisitor visitor)
+    public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 

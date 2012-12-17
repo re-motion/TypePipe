@@ -62,7 +62,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
@@ -85,14 +85,14 @@
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
-    <Compile Include="Expressions\TypePipeExpressionVisitorTestHelper.cs" />
+    <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\ExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\OriginalBodyExpressionTest.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
-    <Compile Include="Expressions\TypePipeExpressionBaseTest.cs" />
-    <Compile Include="Expressions\TypePipeExpressionVisitorBaseTest.cs" />
+    <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
+    <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />

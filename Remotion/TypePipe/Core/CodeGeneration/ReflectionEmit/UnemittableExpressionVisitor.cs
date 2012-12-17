@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Replaces all occurences of <see cref="OriginalBodyExpression"/> and other expressions that can not be emitted by 
   /// our customized <see cref="LambdaCompiler"/>.
   /// </summary>
-  public class UnemittableExpressionVisitor : TypePipeExpressionVisitorBase
+  public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
     private readonly MemberEmitterContext _context;
 

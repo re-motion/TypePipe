@@ -24,28 +24,28 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class TypePipeExpressionBaseTest
+  public class PrimitiveTypePipeExpressionBaseTest
   {
     private Type _type;
-    private TypePipeExpressionBase _typePipeExpressionBaseMock;
+    private PrimitiveTypePipeExpressionBase _primitiveTypePipeExpressionBaseMock;
 
     [SetUp]
     public void SetUp ()
     {
       _type = ReflectionObjectMother.GetSomeType ();
-      _typePipeExpressionBaseMock = MockRepository.GeneratePartialMock<TypePipeExpressionBase> (_type);
+      _primitiveTypePipeExpressionBaseMock = MockRepository.GeneratePartialMock<PrimitiveTypePipeExpressionBase> (_type);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_typePipeExpressionBaseMock.Type, Is.SameAs (_type));
+      Assert.That (_primitiveTypePipeExpressionBaseMock.Type, Is.SameAs (_type));
     }
 
     [Test]
     public void NodeType ()
     {
-      Assert.That (_typePipeExpressionBaseMock.NodeType, Is.EqualTo ((ExpressionType) 1337));
+      Assert.That (_primitiveTypePipeExpressionBaseMock.NodeType, Is.EqualTo ((ExpressionType) 1337));
     }
 
     [Test]
@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
       var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();
       expressionVisitorMock
-        .Expect (mock => PrivateInvoke.InvokeNonPublicMethod (mock, "VisitExtension", _typePipeExpressionBaseMock))
+        .Expect (mock => PrivateInvoke.InvokeNonPublicMethod (mock, "VisitExtension", _primitiveTypePipeExpressionBaseMock))
         .Return (expectedResult);
 
-      var result = ExpressionTestHelper.CallAccept (_typePipeExpressionBaseMock, expressionVisitorMock);
+      var result = ExpressionTestHelper.CallAccept (_primitiveTypePipeExpressionBaseMock, expressionVisitorMock);
 
       expressionVisitorMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expectedResult));
@@ -67,13 +67,13 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public void VisitChildren_TypePipeExpressionVisitor ()
     {
       // Stubs cannot implement multiple interfaces
-      var expressionVisitorMock = MockRepository.GenerateMock<ExpressionVisitor, ITypePipeExpressionVisitor> ();
+      var expressionVisitorMock = MockRepository.GenerateMock<ExpressionVisitor, IPrimitiveTypePipeExpressionVisitor> ();
       var expectedResult = ExpressionTreeObjectMother.GetSomeExpression ();
-      _typePipeExpressionBaseMock.Expect (mock => mock.Accept ((ITypePipeExpressionVisitor) expressionVisitorMock)).Return (expectedResult);
+      _primitiveTypePipeExpressionBaseMock.Expect (mock => mock.Accept ((IPrimitiveTypePipeExpressionVisitor) expressionVisitorMock)).Return (expectedResult);
 
-      var result = ExpressionTestHelper.CallAccept (_typePipeExpressionBaseMock, expressionVisitorMock);
+      var result = ExpressionTestHelper.CallAccept (_primitiveTypePipeExpressionBaseMock, expressionVisitorMock);
 
-      _typePipeExpressionBaseMock.VerifyAllExpectations();
+      _primitiveTypePipeExpressionBaseMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expectedResult));
     }
   }

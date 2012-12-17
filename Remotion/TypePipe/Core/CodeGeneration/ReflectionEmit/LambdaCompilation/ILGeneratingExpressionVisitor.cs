@@ -15,21 +15,27 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
-  public class ILGeneratingTypePipeExpressionVisitor : ITypePipeExpressionVisitor
+  /// <summary>
+  /// An <see cref="IPrimitiveTypePipeExpressionVisitor"/> that emits code for <see cref="IPrimitiveTypePipeExpression"/> instances.
+  /// </summary>
+  /// <remarks>
+  /// This class participates in code generation via <see cref="LambdaCompiler.EmitPrimitiveTypePipeExpression"/> in the <see cref="LambdaCompiler"/>.
+  /// </remarks>
+  public class ILGeneratingExpressionVisitor : IPrimitiveTypePipeExpressionVisitor
   {
     private readonly IILGenerator _ilGenerator;
     private readonly Action<Expression> _childExpressionEmitter;
 
     [CLSCompliant (false)]
-    public ILGeneratingTypePipeExpressionVisitor (IILGenerator ilGenerator, Action<Expression> childExpressionEmitter)
+    public ILGeneratingExpressionVisitor (IILGenerator ilGenerator, Action<Expression> childExpressionEmitter)
     {
       ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
       ArgumentUtility.CheckNotNull ("childExpressionEmitter", childExpressionEmitter);
@@ -77,7 +83,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return expression;
     }
 
-    private NotSupportedException NewNotSupportedMustBeReplacedBeforeCodeGenerationException (ITypePipeExpression expression)
+    private NotSupportedException NewNotSupportedMustBeReplacedBeforeCodeGenerationException (IPrimitiveTypePipeExpression expression)
     {
       var message = string.Format ("{0} must be replaced before code generation.", expression.GetType().Name);
       return new NotSupportedException (message);

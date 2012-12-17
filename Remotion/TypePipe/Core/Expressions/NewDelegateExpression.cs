@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.Expressions
   /// <summary>
   /// Represents the instantiation of a delegate.
   /// </summary>
-  public class NewDelegateExpression : TypePipeExpressionBase
+  public class NewDelegateExpression : PrimitiveTypePipeExpressionBase
   {
     private readonly Expression _target;
     private readonly MethodInfo _method;
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.Expressions
       get { return _method; }
     }
 
-    public override Expression Accept (ITypePipeExpressionVisitor visitor)
+    public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 

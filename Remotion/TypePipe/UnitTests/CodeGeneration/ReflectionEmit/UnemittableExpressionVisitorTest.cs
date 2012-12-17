@@ -246,7 +246,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                 Assert.That (methodCallExpression.Arguments, Is.EqualTo (expectedMethodCallArguments));
               });
 
-      var result = TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (_visitorPartialMock, expression);
+      var result = PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (_visitorPartialMock, expression);
 
       _visitorPartialMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));

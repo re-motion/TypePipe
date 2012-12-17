@@ -22,16 +22,14 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
-using Rhino.Mocks.Constraints;
 using Is = NUnit.Framework.Is;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   [TestFixture]
-  public class ILGeneratingTypePipeExpressionVisitorTest
+  public class ILGeneratingExpressionVisitorTest
   {
     public interface IChildExpressionEmitter
     {
@@ -39,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     private IILGenerator _ilGeneratorMock;
-    private ILGeneratingTypePipeExpressionVisitor _visitor;
+    private ILGeneratingExpressionVisitor _visitor;
     private IChildExpressionEmitter _childExpressionEmitterMock;
 
     [SetUp]
@@ -47,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     {
       _ilGeneratorMock = MockRepository.GenerateStrictMock<IILGenerator>();
       _childExpressionEmitterMock = MockRepository.GenerateStrictMock<IChildExpressionEmitter>();
-      _visitor = new ILGeneratingTypePipeExpressionVisitor (_ilGeneratorMock, _childExpressionEmitterMock.EmitChildExpression);
+      _visitor = new ILGeneratingExpressionVisitor (_ilGeneratorMock, _childExpressionEmitterMock.EmitChildExpression);
     }
 
     [Test]

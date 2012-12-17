@@ -24,7 +24,7 @@ using Rhino.Mocks.Interfaces;
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class TypePipeExpressionVisitorBaseTest
+  public class PrimitiveTypePipeExpressionVisitorBaseTest
   {
     [Test]
     public void Visit_XXX ()
@@ -32,31 +32,31 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var thisExpression = ExpressionTreeObjectMother.GetSomeThisExpression();
       CheckDefaultVisitImplementation (
           thisExpression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitThis (mock, thisExpression),
+          mock => PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitThis (mock, thisExpression),
           visitor => visitor.VisitThis (thisExpression));
 
       var originalBodyExpression = ExpressionTreeObjectMother.GetSomeOriginalBodyExpression();
       CheckDefaultVisitImplementation (
           originalBodyExpression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (mock, originalBodyExpression),
+          mock => PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (mock, originalBodyExpression),
           visitor => visitor.VisitOriginalBody (originalBodyExpression));
 
       var newDelegateExpression = ExpressionTreeObjectMother.GetSomeNewDelegateExpression ();
       CheckDefaultVisitImplementation (
           newDelegateExpression,
-          mock => TypePipeExpressionVisitorTestHelper.CallVisitNewDelegate (mock, newDelegateExpression),
+          mock => PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitNewDelegate (mock, newDelegateExpression),
           visitor => visitor.VisitNewDelegate (newDelegateExpression));
     }
 
     private void CheckDefaultVisitImplementation<T> (
       T expression,
-      Function<TypePipeExpressionVisitorBase, Expression> expectedVisitMethod,
-      Func<ITypePipeExpressionVisitor, Expression> invokedMethod)
+      Function<PrimitiveTypePipeExpressionVisitorBase, Expression> expectedVisitMethod,
+      Func<IPrimitiveTypePipeExpressionVisitor, Expression> invokedMethod)
         where T : Expression
     {
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
 
-      var visitorBaseMock = MockRepository.GenerateStrictMock <TypePipeExpressionVisitorBase> ();
+      var visitorBaseMock = MockRepository.GenerateStrictMock <PrimitiveTypePipeExpressionVisitorBase> ();
       visitorBaseMock
           .Expect (expectedVisitMethod)
           .CallOriginalMethod (OriginalCallOptions.CreateExpectation);
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           .Expect (mock => ExpressionVisitorTestHelper.CallVisitExtension(mock, expression))
           .Return (fakeResult);
 
-      var result = invokedMethod ((ITypePipeExpressionVisitor) visitorBaseMock);
+      var result = invokedMethod ((IPrimitiveTypePipeExpressionVisitor) visitorBaseMock);
 
       visitorBaseMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));

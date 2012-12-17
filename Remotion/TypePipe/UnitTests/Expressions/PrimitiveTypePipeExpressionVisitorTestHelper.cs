@@ -21,19 +21,19 @@ using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
-  public static class TypePipeExpressionVisitorTestHelper
+  public static class PrimitiveTypePipeExpressionVisitorTestHelper
   {
-    public static Expression CallVisitThis (TypePipeExpressionVisitorBase expressionVisitor, ThisExpression expression)
+    public static Expression CallVisitThis (PrimitiveTypePipeExpressionVisitorBase expressionVisitor, ThisExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitThis", expression);
     }
 
-    public static Expression CallVisitOriginalBody (TypePipeExpressionVisitorBase expressionVisitor, OriginalBodyExpression expression)
+    public static Expression CallVisitOriginalBody (PrimitiveTypePipeExpressionVisitorBase expressionVisitor, OriginalBodyExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitOriginalBody", expression);
     }
 
-    public static Expression CallVisitNewDelegate (TypePipeExpressionVisitorBase expressionVisitor, NewDelegateExpression expression)
+    public static Expression CallVisitNewDelegate (PrimitiveTypePipeExpressionVisitorBase expressionVisitor, NewDelegateExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitNewDelegate", expression);
     }

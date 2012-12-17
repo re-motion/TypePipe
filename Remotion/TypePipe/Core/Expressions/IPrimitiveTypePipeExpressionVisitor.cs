@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,32 +16,16 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Represents the "this" instance within an instance method body.
+  /// Defines an interface for classes handling <see cref="IPrimitiveTypePipeExpression"/> instances.
   /// </summary>
-  public class ThisExpression : PrimitiveTypePipeExpressionBase
+  public interface IPrimitiveTypePipeExpressionVisitor
   {
-    public ThisExpression (Type type)
-      : base (ArgumentUtility.CheckNotNull ("type", type))
-    {
-    }
-
-    public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
-    {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-
-      return visitor.VisitThis (this);
-    }
-
-    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
-    {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
-
-      return this;
-    }
+    Expression VisitThis (ThisExpression expression);
+    Expression VisitOriginalBody (OriginalBodyExpression expression);
+    Expression VisitNewDelegate (NewDelegateExpression expression);
   }
 }

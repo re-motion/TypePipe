@@ -90,7 +90,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGeneratorFactory.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingTypePipeExpressionVisitor.cs">
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecorator.cs" />
@@ -119,8 +119,8 @@
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapter.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />
-    <Compile Include="Expressions\ITypePipeExpression.cs" />
-    <Compile Include="Expressions\ITypePipeExpressionVisitor.cs" />
+    <Compile Include="Expressions\IPrimitiveTypePipeExpression.cs" />
+    <Compile Include="Expressions\IPrimitiveTypePipeExpressionVisitor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\MethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IModuleBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ITypeBuilder.cs" />
@@ -130,8 +130,8 @@
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
-    <Compile Include="Expressions\TypePipeExpressionBase.cs" />
-    <Compile Include="Expressions\TypePipeExpressionVisitorBase.cs" />
+    <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
+    <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />
     <Compile Include="IObjectFactory.cs" />

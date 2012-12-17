@@ -21,11 +21,12 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// An abstract base class for <see cref="ExpressionVisitor"/> implementations that also need to handle <see cref="ITypePipeExpression"/> nodes.
+  /// An abstract base class for <see cref="ExpressionVisitor"/> implementations that also need to handle 
+  /// <see cref="IPrimitiveTypePipeExpression"/> nodes.
   /// </summary>
-  public abstract class TypePipeExpressionVisitorBase : ExpressionVisitor, ITypePipeExpressionVisitor
+  public abstract class PrimitiveTypePipeExpressionVisitorBase : ExpressionVisitor, IPrimitiveTypePipeExpressionVisitor
   {
-    Expression ITypePipeExpressionVisitor.VisitThis (ThisExpression expression)
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitThis (ThisExpression expression)
     {
       return VisitThis (expression);
     }
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.Expressions
       return VisitExtension (expression);
     }
 
-    Expression ITypePipeExpressionVisitor.VisitOriginalBody (OriginalBodyExpression expression)
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitOriginalBody (OriginalBodyExpression expression)
     {
       return VisitOriginalBody (expression);
     }
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.Expressions
       return VisitExtension (expression);
     }
 
-    Expression ITypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression expression)
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression expression)
     {
       ArgumentUtility.CheckNotNull ("expression", expression);
 

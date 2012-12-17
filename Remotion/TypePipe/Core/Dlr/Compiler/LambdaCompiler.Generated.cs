@@ -243,8 +243,8 @@ namespace System.Linq.Expressions.Compiler {
 
                 // *** END GENERATED CODE ***
 
-                case Remotion.TypePipe.Expressions.TypePipeExpressionBase.TypePipeExpressionType:
-                    EmitTypePipeExpression(node, flags);
+                case Remotion.TypePipe.Expressions.PrimitiveTypePipeExpressionBase.TypePipeExpressionType:
+                    EmitPrimitiveTypePipeExpression(node, flags);
                     break;
 
                 #endregion

@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "Accept", expressionVisitor);
     }
 
-    public static void CheckAccept (ITypePipeExpression expression, Function<ITypePipeExpressionVisitor, Expression> expectation)
+    public static void CheckAccept (IPrimitiveTypePipeExpression expression, Function<IPrimitiveTypePipeExpressionVisitor, Expression> expectation)
     {
-      var visitorMock = MockRepository.GenerateMock<ITypePipeExpressionVisitor>();
+      var visitorMock = MockRepository.GenerateMock<IPrimitiveTypePipeExpressionVisitor>();
       var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
       visitorMock
           .Expect (expectation)

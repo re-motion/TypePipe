@@ -259,7 +259,7 @@ namespace System.Linq.Expressions.Compiler {
 
                 #endregion
 
-                case Remotion.TypePipe.Expressions.TypePipeExpressionBase.TypePipeExpressionType:
+                case Remotion.TypePipe.Expressions.PrimitiveTypePipeExpressionBase.TypePipeExpressionType:
                     return new Result(RewriteAction.None, node);
 
                 default:

@@ -768,10 +768,10 @@ namespace System.Linq.Expressions.Compiler {
             throw Error.ExtensionNotReduced();
         }
 
-        private void EmitTypePipeExpression (Expression expr, CompilationFlags flags)
+        private void EmitPrimitiveTypePipeExpression (Expression expr, CompilationFlags flags)
         {
-          var typePipeExpression = (Remotion.TypePipe.Expressions.ITypePipeExpression) expr;
-          var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingTypePipeExpressionVisitor (
+          var typePipeExpression = (Remotion.TypePipe.Expressions.IPrimitiveTypePipeExpression) expr;
+          var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingExpressionVisitor (
               _ilg, childExpression => EmitExpression (childExpression, flags));
 
           typePipeExpression.Accept (visitor);

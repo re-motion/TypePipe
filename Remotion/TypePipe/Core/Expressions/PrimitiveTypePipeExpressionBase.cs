@@ -21,15 +21,15 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
-  /// Base class for custom expressions that also implement the <see cref="ITypePipeExpression"/> interface.
+  /// Base class for custom expressions that also implement the <see cref="IPrimitiveTypePipeExpression"/> interface.
   /// </summary>
-  public abstract class TypePipeExpressionBase : Expression, ITypePipeExpression
+  public abstract class PrimitiveTypePipeExpressionBase : Expression, IPrimitiveTypePipeExpression
   {
     public const ExpressionType TypePipeExpressionType = (ExpressionType) 1337;
 
     private readonly Type _type;
 
-    protected TypePipeExpressionBase (Type type)
+    protected PrimitiveTypePipeExpressionBase (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
       _type = type;
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.Expressions
       get { return TypePipeExpressionType; }
     }
 
-    public abstract Expression Accept (ITypePipeExpressionVisitor visitor);
+    public abstract Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor);
 
     protected internal abstract override Expression VisitChildren (ExpressionVisitor visitor);
 
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.Expressions
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 
-      var typePipeExpressionVisitor = visitor as ITypePipeExpressionVisitor;
+      var typePipeExpressionVisitor = visitor as IPrimitiveTypePipeExpressionVisitor;
       if (typePipeExpressionVisitor != null)
         return Accept (typePipeExpressionVisitor);
 
