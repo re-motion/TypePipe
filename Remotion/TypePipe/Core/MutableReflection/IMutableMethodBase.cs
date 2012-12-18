@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableMethodBase : IMutableInfo
   {
+    ReadOnlyCollection<MutableParameterInfo> MutableParameters { get; }
     ReadOnlyCollection<ParameterExpression> ParameterExpressions { get; }
     Expression Body { get; }
     bool CanSetBody { get; }

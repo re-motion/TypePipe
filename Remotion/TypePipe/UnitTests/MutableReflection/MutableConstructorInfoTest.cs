@@ -135,6 +135,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void MutableParameters ()
+    {
+      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
+      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
+      var method = CreateWithParameters (decl1, decl2);
+
+      var result = method.MutableParameters;
+
+      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
+      var expectedParameter =
+          new[]
+          {
+              new { Member = (MemberInfo) method, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
+              new { Member = (MemberInfo) method, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
+          };
+      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
+    }
+
+    [Test]
     public void ParameterExpressions ()
     {
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -204,21 +223,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
-      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
-      var constructor = CreateWithParameters (decl1, decl2);
+      var ctor = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (2));
 
-      var result = constructor.GetParameters();
+      var result = ctor.GetParameters();
 
-      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
-      var expectedParameter =
-          new[]
-          {
-              new { Member = (MemberInfo) constructor, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
-              new { Member = (MemberInfo) constructor, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
-          };
-      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
-      Assert.That (constructor.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
+      Assert.That (result, Is.EqualTo (ctor.MutableParameters));
+      Assert.That (ctor.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
     }
 
     [Test]

@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void BaseMethod ()
     {
       var baseMethod = ReflectionObjectMother.GetSomeMethod();
-      var mutableMethod = Create (MethodDescriptorObjectMother.CreateForNew (baseMethod: baseMethod));
+      var mutableMethod = Create (MethodDescriptorObjectMother.Create (baseMethod: baseMethod));
 
       Assert.That (mutableMethod.BaseMethod, Is.SameAs (baseMethod));
     }
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsGenericMethod ()
     {
       var isGenericMethod = BooleanObjectMother.GetRandomBoolean();
-      var method = Create (MethodDescriptorObjectMother.CreateForNew (isGenericMethod: isGenericMethod));
+      var method = Create (MethodDescriptorObjectMother.Create (isGenericMethod: isGenericMethod));
 
       Assert.That (method.IsGenericMethod, Is.EqualTo (isGenericMethod));
     }
@@ -180,7 +180,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsGenericMethodDefinition ()
     {
       var isGenericMethodDefinition = BooleanObjectMother.GetRandomBoolean ();
-      var method = Create (MethodDescriptorObjectMother.CreateForNew (isGenericMethodDefinition: isGenericMethodDefinition));
+      var method = Create (MethodDescriptorObjectMother.Create (isGenericMethodDefinition: isGenericMethodDefinition));
 
       Assert.That (method.IsGenericMethodDefinition, Is.EqualTo (isGenericMethodDefinition));
     }
@@ -189,16 +189,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ContainsGenericParameters ()
     {
       var containsGenericParameters = BooleanObjectMother.GetRandomBoolean ();
-      var method = Create (MethodDescriptorObjectMother.CreateForNew (containsGenericParameters: containsGenericParameters));
+      var method = Create (MethodDescriptorObjectMother.Create (containsGenericParameters: containsGenericParameters));
 
       Assert.That (method.ContainsGenericParameters, Is.EqualTo (containsGenericParameters));
+    }
+
+    [Test]
+    public void MutableParameters ()
+    {
+      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
+      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
+      var method = CreateWithParameters (decl1, decl2);
+
+      var result = method.MutableParameters;
+
+      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
+      var expectedParameter =
+          new[]
+          {
+              new { Member = (MemberInfo) method, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
+              new { Member = (MemberInfo) method, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
+          };
+      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
     }
 
     [Test]
     public void ParameterExpressions ()
     {
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var descriptor = MethodDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
+      var descriptor = MethodDescriptorObjectMother.Create (parameterDeclarations: parameterDeclarations);
       var method = Create (descriptor);
 
       Assert.That (method.ParameterExpressions, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
@@ -276,20 +295,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
-      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
-      var method = CreateWithParameters (decl1, decl2);
+      var method = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (2));
 
       var result = method.GetParameters();
 
-      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
-      var expectedParameter =
-          new[]
-          {
-              new { Member = (MemberInfo) method, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
-              new { Member = (MemberInfo) method, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
-          };
-      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
+      Assert.That (result, Is.EqualTo (method.MutableParameters));
       Assert.That (method.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
     }
 

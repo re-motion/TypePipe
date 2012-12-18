@@ -122,6 +122,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.ContainsGenericParameters; }
     }
 
+    public ReadOnlyCollection<MutableParameterInfo> MutableParameters
+    {
+      get { return _parameters; }
+    }
+
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
       get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
