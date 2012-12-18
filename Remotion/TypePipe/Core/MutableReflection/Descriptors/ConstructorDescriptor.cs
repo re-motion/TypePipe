@@ -68,10 +68,10 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private ConstructorDescriptor (
         ConstructorInfo underlyingConstructor,
         MethodAttributes attributes,
-        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
+        ReadOnlyCollection<ParameterDescriptor> parameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingConstructor, GetConstructorName (attributes), attributes, parameterDescriptors, customAttributeDataProvider, body)
+        : base (underlyingConstructor, GetConstructorName (attributes), attributes, parameters, customAttributeDataProvider, body)
     {
       Assertion.IsTrue (body.Type == typeof (void));
     }

@@ -37,8 +37,8 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     public static MethodDescriptor Create (
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDescriptor> parameterDescriptors,
+        ParameterDescriptor returnParameter,
+        IEnumerable<ParameterDescriptor> parameters,
         MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
@@ -46,24 +46,24 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         Expression body)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDescriptors", parameterDescriptors);
+      // returnParameter may be null
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
       // baseMethod may be null
       // body may be null
 
       if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
         throw new ArgumentException ("Non-abstract method must have a body.", "body");
 
-      if (body != null && !returnType.IsAssignableFrom (body.Type))
+      if (body != null && !returnParameter.Type.IsAssignableFrom (body.Type))
         throw new ArgumentException ("The body's return type must be assignable to the method return type.", "body");
 
-      var readonlyParameterDescriptors = parameterDescriptors.ToList().AsReadOnly();
+      var readOnlyParameters = parameters.ToList().AsReadOnly();
       return new MethodDescriptor (
           null,
           name,
           attributes,
-          returnType,
-          readonlyParameterDescriptors,
+          returnParameter,
+          readOnlyParameters,
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,
@@ -80,17 +80,18 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       // TODO 4695
       // If method visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = underlyingMethod.Attributes.AdjustVisibilityForAssemblyBoundaries();
-      var parameterDeclarations = ParameterDescriptor.CreateFromMethodBase (underlyingMethod);
+      var returnParameter = ParameterDescriptor.Create (underlyingMethod.ReturnParameter);
+      var parameters = ParameterDescriptor.CreateFromMethodBase (underlyingMethod);
       var baseMethod = relatedMethodFinder.GetBaseMethod (underlyingMethod);
       var customAttributeDataProvider = GetCustomAttributeProvider (underlyingMethod);
-      var body = underlyingMethod.IsAbstract ? null : CreateOriginalBodyExpression (underlyingMethod, underlyingMethod.ReturnType, parameterDeclarations);
+      var body = underlyingMethod.IsAbstract ? null : CreateOriginalBodyExpression (underlyingMethod, underlyingMethod.ReturnType, parameters);
 
       return new MethodDescriptor (
           underlyingMethod,
           underlyingMethod.Name,
           attributes,
-          underlyingMethod.ReturnType,
-          parameterDeclarations,
+          returnParameter,
+          parameters,
           baseMethod,
           underlyingMethod.IsGenericMethod,
           underlyingMethod.IsGenericMethodDefinition,
@@ -99,7 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
           body);
     }
 
-    private readonly Type _returnType;
+    private readonly ParameterDescriptor _returnParameter;
     private readonly MethodInfo _baseMethod;
     private readonly bool _isGenericMethod;
     private readonly bool _isGenericMethodDefinition;
@@ -109,30 +110,30 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         MethodInfo underlyingMethod,
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
+        ParameterDescriptor returnParameter,
+        ReadOnlyCollection<ParameterDescriptor> parameters,
         MethodInfo baseMethod,
         bool isGenericMethod,
         bool isGenericMethodDefinition,
         bool containsGenericParameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingMethod, name, attributes, parameterDescriptors, customAttributeDataProvider, body)
+        : base (underlyingMethod, name, attributes, parameters, customAttributeDataProvider, body)
     {
-      Assertion.IsNotNull (returnType);
+      Assertion.IsNotNull (returnParameter);
       Assertion.IsNotNull (customAttributeDataProvider);
-      Assertion.IsTrue (body == null || returnType.IsAssignableFrom (body.Type));
+      Assertion.IsTrue (body == null || returnParameter.Type.IsAssignableFrom (body.Type));
 
-      _returnType = returnType;
+      _returnParameter = returnParameter;
       _baseMethod = baseMethod;
       _isGenericMethod = isGenericMethod;
       _isGenericMethodDefinition = isGenericMethodDefinition;
       _containsGenericParameters = containsGenericParameters;
     }
 
-    public Type ReturnType
+    public ParameterDescriptor ReturnParameter
     {
-      get { return _returnType; }
+      get { return _returnParameter; }
     }
 
     public MethodInfo BaseMethod

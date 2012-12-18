@@ -35,6 +35,32 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   {
     public static readonly ParameterDescriptor[] EmptyParameters = new ParameterDescriptor[0];
 
+    public static ParameterDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
+    {
+      ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
+
+      return new ParameterDescriptor (
+          null,
+          parameterDeclaration.Type,
+          position,
+          parameterDeclaration.Name,
+          parameterDeclaration.Attributes,
+          EmptyCustomAttributeDataProvider);
+    }
+
+    public static ParameterDescriptor Create (ParameterInfo underlyingParameter)
+    {
+      ArgumentUtility.CheckNotNull ("underlyingParameter", underlyingParameter);
+
+      return new ParameterDescriptor (
+          underlyingParameter,
+          underlyingParameter.ParameterType,
+          underlyingParameter.Position,
+          underlyingParameter.Name,
+          underlyingParameter.Attributes,
+          GetCustomAttributeProvider (underlyingParameter));
+    }
+
     public static ReadOnlyCollection<ParameterDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
     {
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
@@ -47,28 +73,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
 
       return methodBase.GetParameters().Select (Create).ToList().AsReadOnly();
-    }
-
-    private static ParameterDescriptor Create (ParameterDeclaration parameterDeclaration, int position)
-    {
-      return new ParameterDescriptor (
-          null,
-          parameterDeclaration.Type,
-          position,
-          parameterDeclaration.Name,
-          parameterDeclaration.Attributes,
-          EmptyCustomAttributeDataProvider);
-    }
-
-    private static ParameterDescriptor Create (ParameterInfo originalParameter)
-    {
-      return new ParameterDescriptor (
-          originalParameter,
-          originalParameter.ParameterType,
-          originalParameter.Position,
-          originalParameter.Name,
-          originalParameter.Attributes,
-          GetCustomAttributeProvider (originalParameter));
     }
 
     private readonly Type _type;
@@ -86,13 +90,13 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         : base (underlyingSystemMember, name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (type, "type");
-      Assertion.IsTrue (position >= 0);
-      Assertion.IsNotNull (name, "name");
+      Assertion.IsTrue (position >= -1); // -1 == return parameter
 
       _type = type;
       _position = position;
       _attributes = attributes;
-      _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
+      if (type != typeof (void))
+        _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
     }
 
     public Type Type

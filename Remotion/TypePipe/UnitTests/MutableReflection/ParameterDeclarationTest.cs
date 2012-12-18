@@ -63,6 +63,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void CreateReturnParameter ()
+    {
+      var declaration = ParameterDeclaration.CreateReturnParameter (typeof (int));
+
+      Assert.That (declaration.Name, Is.Null);
+      Assert.That (declaration.Type, Is.SameAs (typeof (int)));
+      Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.None));
+    }
+
+    [Test]
     public void Initialization ()
     {
       var type = ReflectionObjectMother.GetSomeType();
@@ -79,6 +89,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new ParameterDeclaration (typeof (object), "foo");
 
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.In));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Parameter cannot be of type void.\r\nParameter name: type")]
+    public void Initialization_VoidType ()
+    {
+      Dev.Null = new ParameterDeclaration (typeof (void), "foo");
     }
 
     private abstract class DomainType

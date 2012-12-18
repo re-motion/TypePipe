@@ -27,6 +27,7 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -71,11 +72,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var mutableMethodInfo = new MutableMethodInfo (_declaringType, _descriptor);
-
-      Assert.That (mutableMethodInfo.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (mutableMethodInfo.Attributes, Is.EqualTo (_descriptor.Attributes));
-      Assert.That (mutableMethodInfo.Body, Is.SameAs (_descriptor.Body));
+      Assert.That (_mutableMethod.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_mutableMethod.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (_mutableMethod.Body, Is.SameAs (_descriptor.Body));
     }
 
     [Test]
@@ -119,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsModified_Body ()
     {
       Assert.That (_mutableMethod.IsModified, Is.False);
-      _mutableMethod.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnType));
+      _mutableMethod.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnParameter.Type));
 
       Assert.That (_mutableMethod.IsModified, Is.True);
     }
@@ -153,9 +152,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ReturnType ()
     {
-      Assert.That (_descriptor.ReturnType, Is.Not.Null);
+      Assert.That (_descriptor.ReturnParameter.Type, Is.Not.Null);
 
-      Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnType));
+      Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnParameter.Type));
     }
 
     [Test]
@@ -195,6 +194,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void ReturnParameter ()
+    {
+      var result = _mutableMethod.ReturnParameter;
+
+      Assert.That (result, Is.SameAs (_mutableMethod.MutableReturnParameter));
+      Assert.That (_mutableMethod.ReturnParameter, Is.SameAs (result), "should return same instance");
+    }
+
+    [Test]
+    public void MutableReturnParameter ()
+    {
+      var method1 = MutableMethodInfoObjectMother.Create (returnType: typeof (int));
+      var method2 = MutableMethodInfoObjectMother.Create (returnType: typeof (void));
+
+      Assertion.IsNotNull (method1.ReturnParameter);
+      Assert.That (method1.ReturnParameter.Name, Is.Null);
+      Assert.That (method1.ReturnParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
+      Assert.That (method1.ReturnParameter.ParameterType, Is.SameAs (typeof (int)));
+
+      Assertion.IsNotNull (method2.ReturnParameter);
+      Assert.That (method2.ReturnParameter.ParameterType, Is.SameAs (typeof (void)));
+    }
+
+    [Test]
     public void MutableParameters ()
     {
       var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
@@ -220,7 +243,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = MethodDescriptorObjectMother.Create (parameterDeclarations: parameterDeclarations);
       var method = Create (descriptor);
 
-      Assert.That (method.ParameterExpressions, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
+      Assert.That (method.ParameterExpressions, Is.EqualTo (descriptor.Parameters.Select (pd => pd.Expression)));
     }
 
     [Test]
@@ -300,7 +323,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = method.GetParameters();
 
       Assert.That (result, Is.EqualTo (method.MutableParameters));
-      Assert.That (method.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
+      Assert.That (method.GetParameters()[0], Is.SameAs (result[0]), "should return same instances");
     }
 
     [Test]

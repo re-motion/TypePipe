@@ -48,23 +48,23 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     }
 
     private readonly MethodAttributes _attributes;
-    private readonly ReadOnlyCollection<ParameterDescriptor> _parameterDescriptors;
+    private readonly ReadOnlyCollection<ParameterDescriptor> _parameters;
     private readonly Expression _body;
 
     protected MethodBaseDescriptor (
         TMethodBase underlyingMethodBase,
         string name,
         MethodAttributes attributes,
-        ReadOnlyCollection<ParameterDescriptor> parameterDescriptors,
+        ReadOnlyCollection<ParameterDescriptor> parameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
         : base (underlyingMethodBase, name, customAttributeDataProvider)
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
-      Assertion.IsNotNull (parameterDescriptors);
+      Assertion.IsNotNull (parameters);
 
       _attributes = attributes;
-      _parameterDescriptors = parameterDescriptors;
+      _parameters = parameters;
       _body = body;
     }
 
@@ -73,9 +73,9 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       get { return _attributes; }
     }
 
-    public ReadOnlyCollection<ParameterDescriptor> ParameterDescriptors
+    public ReadOnlyCollection<ParameterDescriptor> Parameters
     {
-      get { return _parameterDescriptors; }
+      get { return _parameters; }
     }
 
     public Expression Body

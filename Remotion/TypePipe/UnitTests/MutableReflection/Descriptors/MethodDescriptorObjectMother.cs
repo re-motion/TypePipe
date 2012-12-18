@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       return MethodDescriptor.Create (
           name,
           attributes,
-          returnType,
+          ParameterDescriptor.Create (ParameterDeclaration.CreateReturnParameter(returnType), position: -1),
           ParameterDescriptor.CreateFromDeclarations (parameterDeclarations),
           baseMethod,
           isGenericMethod,

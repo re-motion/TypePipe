@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         TInfo underlyingInfo, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
     {
       Assertion.IsTrue (underlyingInfo == null || underlyingInfo is MemberInfo || underlyingInfo is ParameterInfo);
-      Assertion.IsNotNull (name);
+      // name is null for return parameters
       Assertion.IsNotNull (customAttributeDataProvider);
 
       _underlyingSystemInfo = underlyingInfo;

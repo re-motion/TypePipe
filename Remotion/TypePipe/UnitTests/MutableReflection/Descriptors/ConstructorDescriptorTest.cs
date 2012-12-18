@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (".ctor"));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
-      Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (parameterDescriptors));
+      Assert.That (descriptor.Parameters, Is.EqualTo (parameterDescriptors));
       Assert.That (descriptor.CustomAttributeDataProvider.Invoke(), Is.Empty);
       Assert.That (descriptor.Body, Is.SameAs (body));
     }
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
               new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out },
           };
-      var actualParameters = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      var actualParameters = descriptor.Parameters.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameters, Is.EqualTo (expectedParamterDecls));
 
       Assert.That (
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (typeof (void)));
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (underlyingCtor));
-      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.Parameters.Select (pd => pd.Expression)));
     }
 
     [Test]

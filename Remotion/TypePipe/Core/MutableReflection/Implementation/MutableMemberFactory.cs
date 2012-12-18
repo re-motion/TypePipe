@@ -146,9 +146,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var parameterDescriptors = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
+      var parameters = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
 
-      var signature = new MethodSignature (returnType, parameterDescriptors.Select (pd => pd.Type), 0);
+      var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
       if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
         throw new InvalidOperationException ("Method with equal signature already exists.");
 
@@ -156,13 +156,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
-      var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
+      var returnParameter = ParameterDescriptor.Create (ParameterDeclaration.CreateReturnParameter (returnType), position: -1);
+      var parameterExpressions = parameters.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (declaringType, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var descriptor = MethodDescriptor.Create (
-          name, attributes, returnType, parameterDescriptors, baseMethod, false, false, false, body);
+      var descriptor = MethodDescriptor.Create (name, attributes, returnParameter, parameters, baseMethod, false, false, false, body);
       var method = new MutableMethodInfo (declaringType, descriptor);
 
       return method;

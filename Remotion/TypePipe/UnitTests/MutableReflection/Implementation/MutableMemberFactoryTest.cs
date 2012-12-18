@@ -31,6 +31,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -196,7 +197,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var name = "Method";
       var attributes = MethodAttributes.Public;
-      var returnType = typeof (object);
+      var returnType = typeof (IComparable);
       var parameterDeclarations = new[]
                                   {
                                       ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
@@ -220,8 +221,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
       Assert.That (method.Name, Is.EqualTo (name));
-      Assert.That (method.ReturnType, Is.EqualTo (returnType));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
+      Assert.That (method.ReturnType, Is.EqualTo (returnType));
+
+      var returnParameter = method.ReturnParameter;
+      Assertion.IsNotNull (returnParameter);
+      Assert.That (returnParameter.Position, Is.EqualTo (-1));
+      Assert.That (returnParameter.Name, Is.Null);
+      Assert.That (returnParameter.ParameterType, Is.SameAs (returnType));
+      Assert.That (returnParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
+
       Assert.That (method.BaseMethod, Is.Null);
       Assert.That (method.IsGenericMethod, Is.False);
       Assert.That (method.IsGenericMethodDefinition, Is.False);

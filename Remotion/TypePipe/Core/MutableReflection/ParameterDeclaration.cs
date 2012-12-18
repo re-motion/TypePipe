@@ -46,6 +46,13 @@ namespace Remotion.TypePipe.MutableReflection
       return methodBase.GetParameters().Select (CreateEquivalent).ToList().AsReadOnly();
     }
 
+    public static ParameterDeclaration CreateReturnParameter (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return new ParameterDeclaration (type);
+    }
+
     private readonly Type _type;
     private readonly string _name;
     private readonly ParameterAttributes _attributes;
@@ -55,9 +62,18 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
+      if (type == typeof (void))
+        throw new ArgumentException ("Parameter cannot be of type void.", "type");
+
       _type = type;
       _name = name;
       _attributes = attributes;
+    }
+
+    // Constructor used for return parameters.
+    private ParameterDeclaration (Type type)
+    {
+      _type = type;
     }
 
     public Type Type

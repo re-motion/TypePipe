@@ -23,8 +23,8 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection.Descriptors;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 {
@@ -41,24 +41,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     public void Create_ForNew ()
     {
       var type = ReflectionObjectMother.GetSomeType();
-      var position = 0;
+      var position = 7;
       var name = "parameterName";
       var attributes = ParameterAttributes.Optional | ParameterAttributes.In;
       var declaration = new ParameterDeclaration (type, name, attributes);
 
-      var descriptor = ParameterDescriptor.CreateFromDeclarations (new[] { declaration }.AsOneTime()).Single();
+      var descriptor = ParameterDescriptor.Create (declaration, position);
 
       CheckDescriptor (descriptor, null, type, name, position, attributes, type, false, Type.EmptyTypes);
     }
 
     [Test]
+    public void Create_ForNew_VoidType ()
+    {
+      var declaration = ParameterDeclaration.CreateReturnParameter (typeof (void));
+
+      var descriptor = ParameterDescriptor.Create (declaration, 7);
+
+      Assert.That (descriptor.Expression, Is.Null);
+    }
+
+    [Test]
     public void Create_ForExisting ()
     {
-      string s;
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
-      var underlyingParameter = method.GetParameters().Last();
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out Dev<string>.Dummy));
+      var underlyingParameter = method.GetParameters()[1];
 
-      var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
+      var descriptor = ParameterDescriptor.Create (underlyingParameter);
 
       var type = typeof (string);
       CheckDescriptor (
@@ -76,10 +85,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     [Test]
     public void Expression_ReturnsSameInstance ()
     {
-      string s;
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out Dev<string>.Dummy));
+      var underlyingParameter = method.GetParameters ()[1];
 
-      var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
+      var descriptor = ParameterDescriptor.Create (underlyingParameter);
 
       var result1 = descriptor.Expression;
       var result2 = descriptor.Expression;
@@ -92,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     {
       var declaration = ParameterDeclarationObjectMother.Create();
 
-      var descriptor = ParameterDescriptor.CreateFromDeclarations (new[] { declaration }).Single();
+      var descriptor = ParameterDescriptor.CreateFromDeclarations (new[] { declaration }.AsOneTime()).Single();
 
       var type = declaration.Type;
       Assert.That (type.IsByRef, Is.False);
@@ -102,8 +111,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     [Test]
     public void CreateFromMethodBase ()
     {
-      string s;
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out s));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (0, out Dev<string>.Dummy));
 
       var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
 

@@ -30,6 +30,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
@@ -39,8 +40,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
   {
     private string _name;
     private MethodAttributes _attributes;
-    private Type _returnType;
-    private ParameterDescriptor[] _parameterDescriptors;
+    private ParameterDescriptor _returnParameter;
+    private ParameterDescriptor[] _parameters;
     private MethodInfo _baseMethod;
     private bool _isGenMethod;
     private bool _isGenMethodDef;
@@ -54,13 +55,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     {
       _name = "Method";
       _attributes = (MethodAttributes) 7;
-      _returnType = ReflectionObjectMother.GetSomeType();
-      _parameterDescriptors = ParameterDescriptorObjectMother.CreateMultiple (2);
+      _returnParameter = ParameterDescriptorObjectMother.Create();
+      _parameters = ParameterDescriptorObjectMother.CreateMultiple (2);
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
       _isGenMethod = BooleanObjectMother.GetRandomBoolean();
       _isGenMethodDef = BooleanObjectMother.GetRandomBoolean();
       _containsGenParams = BooleanObjectMother.GetRandomBoolean();
-      _body = ExpressionTreeObjectMother.GetSomeExpression (_returnType);
+      _body = ExpressionTreeObjectMother.GetSomeExpression (_returnParameter.Type);
 
       _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
     }
@@ -71,8 +72,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var descriptor = MethodDescriptor.Create (
           _name,
           _attributes,
-          _returnType,
-          _parameterDescriptors.AsOneTime(),
+          _returnParameter,
+          _parameters.AsOneTime(),
           _baseMethod,
           _isGenMethod,
           _isGenMethodDef,
@@ -82,8 +83,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (_name));
       Assert.That (descriptor.Attributes, Is.EqualTo (_attributes));
-      Assert.That (descriptor.ReturnType, Is.SameAs (_returnType));
-      Assert.That (descriptor.ParameterDescriptors, Is.EqualTo (_parameterDescriptors));
+      Assert.That (descriptor.ReturnParameter, Is.SameAs (_returnParameter));
+      Assert.That (descriptor.Parameters, Is.EqualTo (_parameters));
       Assert.That (descriptor.BaseMethod, Is.SameAs (_baseMethod));
       Assert.That (descriptor.IsGenericMethod, Is.EqualTo (_isGenMethod));
       Assert.That (descriptor.IsGenericMethodDefinition, Is.EqualTo (_isGenMethodDef));
@@ -96,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     public void Create_ForNew_NullBaseMethod ()
     {
       var descriptor = MethodDescriptor.Create (
-          _name, _attributes, _returnType, _parameterDescriptors, null, _isGenMethod, _isGenMethodDef, _containsGenParams, _body);
+          _name, _attributes, _returnParameter, _parameters, null, _isGenMethod, _isGenMethodDef, _containsGenParams, _body);
 
       Assert.That (descriptor.BaseMethod, Is.Null);
     }
@@ -107,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var attributes = MethodAttributes.Abstract;
 
       var descriptor = MethodDescriptor.Create (
-          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
+          _name, attributes, _returnParameter, _parameters, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
 
       Assert.That (descriptor.Body, Is.Null);
     }
@@ -115,12 +116,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     [Test]
     public void Create_ForNew_BodyAssignableFromReturnType ()
     {
-      var returnType = typeof (IComparable);
+      var returnParameter = ParameterDescriptorObjectMother.Create (parameterType: typeof (IComparable));
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
 
       Assert.That (
           () => MethodDescriptor.Create (
-              _name, _attributes, returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body),
+              _name, _attributes, returnParameter, _parameters, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body),
           Throws.Nothing);
     }
 
@@ -131,7 +132,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var attributes = MethodAttributes.HasSecurity;
 
       MethodDescriptor.Create (
-          _name, attributes, _returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
+          _name, attributes, _returnParameter, _parameters, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body: null);
     }
 
     [Test]
@@ -139,11 +140,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
         "The body's return type must be assignable to the method return type.\r\nParameter name: body")]
     public void Create_ForNew_ThrowsForInvalidBodyReturnType ()
     {
-      var returnType = typeof (int);
+      var returnParameter = ParameterDescriptorObjectMother.Create (parameterType: typeof (int));
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
 
       MethodDescriptor.Create (
-          _name, _attributes, returnType, _parameterDescriptors, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
+          _name, _attributes, returnParameter, _parameters, _baseMethod, _isGenMethod, _isGenMethodDef, _containsGenParams, body);
     }
     
     [Test]
@@ -161,7 +162,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingMethod));
       Assert.That (descriptor.Name, Is.EqualTo (underlyingMethod.Name));
       Assert.That (descriptor.Attributes, Is.EqualTo (underlyingMethod.Attributes));
-      Assert.That (descriptor.ReturnType, Is.SameAs (underlyingMethod.ReturnType));
+
+      var returnParameter = descriptor.ReturnParameter;
+      var expectedReturnParameter = underlyingMethod.ReturnParameter;
+      Assertion.IsNotNull (expectedReturnParameter);
+      Assert.That (returnParameter.Position, Is.EqualTo(expectedReturnParameter.Position));
+      Assert.That (returnParameter.Name, Is.EqualTo(expectedReturnParameter.Name));
+      Assert.That (returnParameter.Type, Is.SameAs(expectedReturnParameter.ParameterType).And.SameAs(underlyingMethod.ReturnType));
+      Assert.That (returnParameter.Attributes, Is.EqualTo (expectedReturnParameter.Attributes));
 
       var expectedParameterDescriptors =
           new[]
@@ -171,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
               new { Type = typeof (double), Name = "d", Attributes = ParameterAttributes.In },
               new { Type = typeof (object), Name = "o", Attributes = ParameterAttributes.In | ParameterAttributes.Out }
           };
-      var actualParameterDescriptors = descriptor.ParameterDescriptors.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
+      var actualParameterDescriptors = descriptor.Parameters.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
       Assert.That (actualParameterDescriptors, Is.EqualTo (expectedParameterDescriptors));
       Assert.That (descriptor.BaseMethod, Is.SameAs (fakeBaseMethod));
 
@@ -183,7 +191,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var originalBodyExpression = (OriginalBodyExpression) descriptor.Body;
       Assert.That (originalBodyExpression.Type, Is.SameAs (underlyingMethod.ReturnType));
       Assert.That (originalBodyExpression.MethodBase, Is.SameAs (underlyingMethod));
-      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
+      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (descriptor.Parameters.Select (pd => pd.Expression)));
     }
 
     [Test]

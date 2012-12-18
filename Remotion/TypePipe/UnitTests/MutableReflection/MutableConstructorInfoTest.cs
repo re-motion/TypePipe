@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var descriptor = ConstructorDescriptorObjectMother.Create (parameterDeclarations: parameterDeclarations);
       var ctor = Create (descriptor);
 
-      Assert.That (ctor.ParameterExpressions, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
+      Assert.That (ctor.ParameterExpressions, Is.EqualTo (descriptor.Parameters.Select (pd => pd.Expression)));
     }
 
     [Test]
@@ -228,7 +228,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = ctor.GetParameters();
 
       Assert.That (result, Is.EqualTo (ctor.MutableParameters));
-      Assert.That (ctor.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
+      Assert.That (ctor.GetParameters()[0], Is.SameAs (result[0]), "should return same instances");
     }
 
     [Test]

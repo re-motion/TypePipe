@@ -41,6 +41,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MethodDescriptor _descriptor;
 
     private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
 
@@ -56,7 +57,8 @@ namespace Remotion.TypePipe.MutableReflection
       _descriptor = descriptor;
 
       _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
-      _parameters = _descriptor.ParameterDescriptors.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
+      _returnParameter = new MutableParameterInfo (this, descriptor.ReturnParameter);
+      _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
 
       _attributes = _descriptor.Attributes;
       _body = _descriptor.Body;
@@ -99,7 +101,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override Type ReturnType
     {
-      get { return _descriptor.ReturnType; }
+      get { return _returnParameter.ParameterType; }
     }
 
     public MethodInfo BaseMethod
@@ -122,6 +124,16 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.ContainsGenericParameters; }
     }
 
+    public override ParameterInfo ReturnParameter
+    {
+      get { return _returnParameter; }
+    }
+
+    public MutableParameterInfo MutableReturnParameter
+    {
+      get { return _returnParameter; }
+    }
+
     public ReadOnlyCollection<MutableParameterInfo> MutableParameters
     {
       get { return _parameters; }
@@ -129,7 +141,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _descriptor.Parameters.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public bool CanAddCustomAttributes
@@ -331,11 +343,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
     {
       throw new NotImplementedException ();
-    }
-
-    public override ParameterInfo ReturnParameter
-    {
-      get { throw new NotImplementedException (); }
     }
 
     public override MethodBody GetMethodBody ()

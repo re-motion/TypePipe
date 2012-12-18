@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection
       _descriptor = descriptor;
 
       _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
-      _parameters = _descriptor.ParameterDescriptors.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
+      _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
 
       _body = _descriptor.Body;
     }
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _descriptor.ParameterDescriptors.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _descriptor.Parameters.Select (pd => pd.Expression).ToList().AsReadOnly(); }
     }
 
     public Expression Body
