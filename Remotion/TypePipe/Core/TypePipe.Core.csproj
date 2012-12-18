@@ -49,7 +49,9 @@
       <HintPath>..\..\..\prereq\Assemblies\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\AssemblyInfoShared.cs">
@@ -112,6 +114,10 @@
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
+    <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />
+    <Compile Include="Configuration\RequireStrongNamingConfigurationElement.cs" />
+    <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
+    <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -345,6 +351,9 @@
     </None>
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
+    </None>
+    <None Include="Configuration\TypePipeConfigurationSchema.xsd">
+      <SubType>Designer</SubType>
     </None>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
   </ItemGroup>

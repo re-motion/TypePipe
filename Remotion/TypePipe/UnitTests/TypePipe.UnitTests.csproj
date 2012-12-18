@@ -49,6 +49,7 @@
       <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +79,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecoratorTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
     <Compile Include="Caching\ConstructorFinderTest.cs" />
+    <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
+    <Compile Include="Configuration\TypePipeConfigurationProviderTest.cs" />
+    <Compile Include="Configuration\TypePipeConfigurationSectionTest.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitorTest.cs" />
     <Compile Include="Expressions\ExpressionExtensionsTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
