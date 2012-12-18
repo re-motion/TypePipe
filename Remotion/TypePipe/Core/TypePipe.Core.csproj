@@ -344,6 +344,11 @@
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
+    <Compile Include="StrongNaming\StrongNameAnalyzer.cs" />
+    <Compile Include="StrongNaming\StrongNameCompatibility.cs" />
+    <Compile Include="StrongNaming\StrongNamedAssemblyVerifier.cs" />
+    <Compile Include="StrongNaming\StrongNamedExpressionVerifier.cs" />
+    <Compile Include="StrongNaming\StrongNamedTypeVerifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">
