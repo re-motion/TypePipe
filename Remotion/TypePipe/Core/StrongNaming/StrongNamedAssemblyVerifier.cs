@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.StrongNaming
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
-      // TODO Review: GetPublicKeyToken, may be null or empty
-      return assembly.GetName().GetPublicKey().Any();
+      var publicKeyToken = assembly.GetName().GetPublicKeyToken();
+      return publicKeyToken.Any();
     }
   }
 }
