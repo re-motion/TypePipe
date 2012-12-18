@@ -23,12 +23,14 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
+  // TODO Review: Rename to MutableInfoCustomAttributeContainer
   /// <summary>
   /// A helper class that is used to implement custom <see cref="Attribute"/>-related members of <see cref="IMutableInfo"/> on mutable reflection
   /// objects.
   /// </summary>
   public class MutableInfoCustomAttributeHelper
   {
+    // TODO Review: Remove
     private readonly IMutableInfo _mutableInfo;
     // TODO 5057: Use Lazy<T>
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _existingCustomAttributeDatas;
@@ -68,6 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _addedCustomAttributeDeclarations.Cast<ICustomAttributeData>().Concat (_existingCustomAttributeDatas.Value);
     }
 
+    // TODO Review: Remove, inline at call site
     public object[] GetCustomAttributes (bool inherit)
     {
       return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (_mutableInfo, inherit);

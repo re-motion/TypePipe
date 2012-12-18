@@ -18,6 +18,7 @@ using System.Collections.Generic;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  // TODO Review: Rename to IOwnCustomAttributeDataProvider
   /// <summary>
   /// Provides access to the <see cref="ICustomAttributeData"/>s of a member or parameter.
   /// </summary>

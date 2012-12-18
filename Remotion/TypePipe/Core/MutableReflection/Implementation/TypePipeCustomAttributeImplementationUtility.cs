@@ -23,6 +23,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
+  // TODO Review: Rename to CustomAttributeFinder, refactor to take ICustomAttributeDataProvider (derived from IOwnCustomAttributeDataProvider)
   /// <summary>
   /// A utility class that is used to implement the <see cref="ITypePipeCustomAttributeProvider"/> interface for mutable reflection objects.
   /// </summary>
@@ -62,6 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
+      // TODO Review: Avoid double allocation via ToList, then create right array, then use List.CopyTo (array)
       var attributeArray = customAttributeDatas
           .Where (a => attributeType.IsAssignableFrom (a.Type))
           .Select (a => a.CreateInstance())
