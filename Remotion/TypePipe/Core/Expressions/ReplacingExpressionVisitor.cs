@@ -37,7 +37,8 @@ namespace Remotion.TypePipe.Expressions
 
     public override Expression Visit (Expression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      if (node == null)
+        return null;
 
       return _replacements.GetValueOrDefault (node) ?? base.Visit (node);
     }

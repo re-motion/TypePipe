@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
+using Rhino.Mocks;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -65,6 +67,14 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var actualTree = visitor.Visit (replacedExpr);
 
       Assert.That (actualTree, Is.SameAs (replacementExpr));
+    }
+
+    [Test]
+    public void Visit_Null ()
+    {
+      var visitor = CreateVisitor (ExpressionTreeObjectMother.GetSomeExpression(), null);
+
+      Assert.That (() => visitor.Visit ((Expression) null), Throws.Nothing);
     }
 
     private ReplacingExpressionVisitor CreateVisitor (Expression replacedExpr, Expression replacingExpr)
