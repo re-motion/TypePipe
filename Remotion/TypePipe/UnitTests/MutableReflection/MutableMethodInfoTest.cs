@@ -51,21 +51,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = MutableTypeObjectMother.Create (TypeDescriptorObjectMother.Create (typeof (DomainType)));
 
-      _descriptor = MethodDescriptorObjectMother.CreateForNew();
-      _mutableMethod = Create (_descriptor);
+      _descriptor = MethodDescriptorObjectMother.Create();
+      _mutableMethod = new MutableMethodInfo (_declaringType, _descriptor);
 
-      _newNonVirtualMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: 0));
-      _newFinalMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual | MethodAttributes.Final));
-      _newVirtualMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Virtual));
+      _newNonVirtualMethod = MutableMethodInfoObjectMother.Create (attributes: 0);
+      _newFinalMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Virtual | MethodAttributes.Final);
+      _newVirtualMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Virtual);
 
-      var nonVirtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
-      _existingNonVirtualMethod = Create (MethodDescriptorObjectMother.CreateForExisting (nonVirtualUnderlyingMethod));
+      var nonVirtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod());
+      _existingNonVirtualMethod = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: nonVirtualUnderlyingMethod);
 
       var finalUnderlyingMethod = typeof (DomainType).GetMethod ("FinalMethod");
-      _existingFinalMethod = Create (MethodDescriptorObjectMother.CreateForExisting (finalUnderlyingMethod));
+      _existingFinalMethod = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: finalUnderlyingMethod);
 
-      var virtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
-      _existingVirtualMethod = Create (MethodDescriptorObjectMother.CreateForExisting (virtualUnderlyingMethod));
+      var virtualUnderlyingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod());
+      _existingVirtualMethod = MutableMethodInfoObjectMother.CreateForExisting (_declaringType, virtualUnderlyingMethod);
     }
 
     [Test]
@@ -143,8 +143,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CallingConvention ()
     {
-      var instanceMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: 0));
-      var staticMethod = Create (MethodDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Static));
+      var instanceMethod = MutableMethodInfoObjectMother.Create (attributes: 0);
+      var staticMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -276,43 +276,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var methodInfo = CreateWithParameters (parameters);
+      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
+      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
+      var method = CreateWithParameters (decl1, decl2);
 
-      var result = methodInfo.GetParameters();
+      var result = method.GetParameters();
 
-      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes });
-      var expectedParameterInfos =
+      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
+      var expectedParameter =
           new[]
           {
-              new { Member = (MemberInfo) methodInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
-              new { Member = (MemberInfo) methodInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes }
+              new { Member = (MemberInfo) method, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
+              new { Member = (MemberInfo) method, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
           };
-      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
-    }
-
-    [Test]
-    public void GetParameters_ReturnsSameParameterInfoInstances ()
-    {
-      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
-
-      var result1 = methodInfo.GetParameters().Single();
-      var result2 = methodInfo.GetParameters().Single();
-
-      Assert.That (result1, Is.SameAs (result2));
-    }
-
-    [Test]
-    public void GetParameters_DoesNotAllowModificationOfInternalList ()
-    {
-      var methodInfo = CreateWithParameters (ParameterDeclarationObjectMother.Create());
-
-      var parameters = methodInfo.GetParameters();
-      Assert.That (parameters[0], Is.Not.Null);
-      parameters[0] = null;
-
-      var parametersAgain = methodInfo.GetParameters();
-      Assert.That (parametersAgain[0], Is.Not.Null);
+      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
+      Assert.That (method.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
     }
 
     [Test]

@@ -41,8 +41,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
-      var parameters = ParameterDescriptorObjectMother.CreateMultiple (2);
-      _descriptor = ConstructorDescriptorObjectMother.Create (parameterDescriptors: parameters);
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      _descriptor = ConstructorDescriptorObjectMother.Create (parameterDeclarations: parameters);
 
       _constructor = Create (_descriptor);
     }
@@ -135,30 +135,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CustomAttributeMethods ()
-    {
-      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
-      Assert.That (_constructor.CanAddCustomAttributes, Is.True);
-      _constructor.AddCustomAttribute (declaration);
-
-      Assert.That (_constructor.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
-
-      Assert.That (_constructor.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
-
-      Assert.That (_constructor.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
-      Assert.That (_constructor.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
-
-      Assert.That (_constructor.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_constructor.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
-    }
-
-    [Test]
     public void ParameterExpressions ()
     {
-      var parameterDeclarations = ParameterDescriptorObjectMother.CreateMultiple (2);
-      var ctorInfo = CreateWithParameters (parameterDeclarations);
+      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var descriptor = ConstructorDescriptorObjectMother.Create (parameterDeclarations: parameterDeclarations);
+      var ctor = Create (descriptor);
 
-      Assert.That (ctorInfo.ParameterExpressions, Is.EqualTo (parameterDeclarations.Select (pd => pd.Expression)));
+      Assert.That (ctor.ParameterExpressions, Is.EqualTo (descriptor.ParameterDescriptors.Select (pd => pd.Expression)));
     }
 
     [Test]
@@ -221,51 +204,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetParameters ()
     {
-      var parameters = ParameterDescriptorObjectMother.CreateMultiple (2);
-      var ctorInfo = CreateWithParameters (parameters);
+      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
+      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
+      var constructor = CreateWithParameters (decl1, decl2);
 
-      var result = ctorInfo.GetParameters();
+      var result = constructor.GetParameters();
 
-      var actualParameterInfos = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray ();
-      var expectedParameterInfos =
+      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
+      var expectedParameter =
           new[]
           {
-              new { Member = (MemberInfo) ctorInfo, Position = 0, ParameterType = parameters[0].Type, parameters[0].Name, parameters[0].Attributes },
-              new { Member = (MemberInfo) ctorInfo, Position = 1, ParameterType = parameters[1].Type, parameters[1].Name, parameters[1].Attributes }
+              new { Member = (MemberInfo) constructor, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
+              new { Member = (MemberInfo) constructor, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
           };
-      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
+      Assert.That (constructor.GetParameters()[0], Is.SameAs (result[0]), "should return same parameter instances");
     }
 
     [Test]
-    public void GetParameters_ReturnsSameParameterInfoInstances()
+    public void CustomAttributeMethods ()
     {
-      var ctorInfo = CreateWithParameters (ParameterDescriptorObjectMother.CreateForNew());
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      Assert.That (_constructor.CanAddCustomAttributes, Is.True);
+      _constructor.AddCustomAttribute (declaration);
 
-      var result1 = ctorInfo.GetParameters().Single();
-      var result2 = ctorInfo.GetParameters().Single();
+      Assert.That (_constructor.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
 
-      Assert.That (result1, Is.SameAs (result2));
+      Assert.That (_constructor.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+
+      Assert.That (_constructor.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
+      Assert.That (_constructor.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+
+      Assert.That (_constructor.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_constructor.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
 
     [Test]
-    public void GetParameters_DoesNotAllowModificationOfInternalList ()
-    {
-      var ctorInfo = CreateWithParameters (ParameterDescriptorObjectMother.CreateForNew ());
-
-      var parameters = ctorInfo.GetParameters ();
-      Assert.That (parameters[0], Is.Not.Null);
-      parameters[0] = null;
-
-      var parametersAgain = ctorInfo.GetParameters ();
-      Assert.That (parametersAgain[0], Is.Not.Null);
-    }
-
-    [Test]
-    public void ToString_WithParameters ()
+    public new void ToString ()
     {
       var ctorInfo = CreateWithParameters (
-          ParameterDescriptorObjectMother.CreateForNew (typeof (int), "p1"),
-          ParameterDescriptorObjectMother.CreateForNew (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
+          ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
+          ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
 
       Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
@@ -295,9 +274,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableConstructorInfo (_declaringType, constructorDescriptor);
     }
 
-    private MutableConstructorInfo CreateWithParameters (params ParameterDescriptor[] parameterDescriptors)
+    private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
     {
-      return Create (ConstructorDescriptorObjectMother.CreateForNew (parameterDescriptors: parameterDescriptors));
+      return Create (ConstructorDescriptorObjectMother.CreateForNew (parameterDeclartions: parameterDeclarations));
     }
 
     class DomainType

@@ -649,7 +649,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeOverride = MutableMethodInfoObjectMother.Create (
           declaringType: _mutableType,
           name: baseMethod.Name,
-          methodAttributes: baseMethod.Attributes,
+          attributes: baseMethod.Attributes,
           parameterDeclarations: ParameterDeclaration.EmptyParameters,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock

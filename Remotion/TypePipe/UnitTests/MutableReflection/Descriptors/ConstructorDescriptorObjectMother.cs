@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
@@ -28,19 +29,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     public static ConstructorDescriptor Create (
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
-        IEnumerable<ParameterDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
     {
-      return CreateForNew (attributes, parameterDescriptors, body);
+      return CreateForNew (attributes, parameterDeclarations, body);
     }
 
     public static ConstructorDescriptor CreateForNew (
         MethodAttributes attributes =
             MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
-        IEnumerable<ParameterDescriptor> parameterDescriptors = null,
+        IEnumerable<ParameterDeclaration> parameterDeclartions = null,
         Expression body = null)
     {
-      return ConstructorDescriptor.Create (attributes, parameterDescriptors ?? new ParameterDescriptor[0], body ?? Expression.Empty());
+      parameterDeclartions = parameterDeclartions ?? ParameterDeclaration.EmptyParameters;
+      body = body ?? Expression.Empty();
+
+      return ConstructorDescriptor.Create (attributes, ParameterDescriptor.CreateFromDeclarations (parameterDeclartions), body);
     }
 
     public static ConstructorDescriptor CreateForExisting (ConstructorInfo underlyingConstructor = null)

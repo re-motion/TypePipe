@@ -30,13 +30,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MutableMethodInfo Create (
         MutableType declaringType = null,
         string name = "UnspecifiedMethod",
-        MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig,
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      return CreateForNew (declaringType, name, methodAttributes, returnType, parameterDeclarations, baseMethod, body);
+      return CreateForNew (declaringType, name, attributes, returnType, parameterDeclarations, baseMethod, body);
     }
 
     public static MutableMethodInfo CreateForNew (

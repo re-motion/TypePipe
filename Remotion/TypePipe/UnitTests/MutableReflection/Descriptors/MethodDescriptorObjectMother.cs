@@ -29,6 +29,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 {
   public static class MethodDescriptorObjectMother
   {
+    public static MethodDescriptor Create (
+        string name = "UnspecifiedMethod",
+        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+        Type returnType = null,
+        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        MethodInfo baseMethod = null,
+        bool isGenericMethod = false,
+        bool isGenericMethodDefinition = false,
+        bool containsGenericParameters = false,
+        Expression body = null)
+    {
+      return CreateForNew (
+          name, attributes, returnType, parameterDeclarations, baseMethod, isGenericMethod, isGenericMethodDefinition, containsGenericParameters, body);
+    }
+
     public static MethodDescriptor CreateForNew (
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
@@ -41,7 +56,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
         Expression body = null)
     {
       parameterDeclarations = parameterDeclarations ?? ParameterDeclaration.EmptyParameters;
-
       returnType = returnType ?? (body != null ? body.Type : typeof (UnspecifiedType));
 
       if (body == null && !attributes.IsSet (MethodAttributes.Abstract))
@@ -52,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
           name,
           attributes,
           returnType,
-          ParameterDescriptor.CreateFromDeclarations(parameterDeclarations),
+          ParameterDescriptor.CreateFromDeclarations (parameterDeclarations),
           baseMethod,
           isGenericMethod,
           isGenericMethodDefinition,

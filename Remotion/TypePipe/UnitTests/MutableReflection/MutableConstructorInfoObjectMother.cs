@@ -58,8 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null)
     {
       declaringType = declaringType ?? MutableTypeObjectMother.Create();
-      var parameterDescriptors = parameterDeclarations != null ? ParameterDescriptor.CreateFromDeclarations (parameterDeclarations) : null;
-      var descriptor = ConstructorDescriptorObjectMother.CreateForNew (attributes, parameterDescriptors, body);
+      var descriptor = ConstructorDescriptorObjectMother.CreateForNew (attributes, parameterDeclarations, body);
 
       return new MutableConstructorInfo (declaringType, descriptor);
     }
