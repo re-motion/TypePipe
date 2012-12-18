@@ -94,6 +94,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineCustomAttributes (methodBuilder, method);
       DefineParameters (methodBuilder, method);
+      DefineParameter (methodBuilder, method.MutableReturnParameter);
 
       if (!method.IsAbstract)
       {
@@ -116,13 +117,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return methodBase.GetParameters().Select (pe => pe.ParameterType).ToArray();
     }
 
-    private void DefineParameters (IMethodBaseBuilder methodBuilder, IMutableMethodBase mutableMethodBase)
+    private void DefineParameters (IMethodBaseBuilder methodBaseBuilder, IMutableMethodBase mutableMethodBase)
     {
       foreach (var parameter in mutableMethodBase.MutableParameters)
-      {
-        var parameterBuilder = methodBuilder.DefineParameter (parameter.Position + 1, parameter.Attributes, parameter.Name);
-        DefineCustomAttributes (parameterBuilder, parameter);
-      }
+        DefineParameter (methodBaseBuilder, parameter);
+    }
+
+    private void DefineParameter (IMethodBaseBuilder methodBaseBuilder, MutableParameterInfo parameter)
+    {
+      var parameterBuilder = methodBaseBuilder.DefineParameter (parameter.Position + 1, parameter.Attributes, parameter.Name);
+      DefineCustomAttributes (parameterBuilder, parameter);
     }
 
     private Action CreateBodyBuildAction (
