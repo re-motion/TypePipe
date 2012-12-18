@@ -104,8 +104,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, constructor));
 
       SetupDefineCustomAttribute (constructorBuilderMock, constructor);
-      constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1"));
-      constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2"));
+      constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1")).Return (null);
+      constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2")).Return (null);
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
@@ -159,8 +159,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       SetupDefineCustomAttribute (methodBuilderMock, method);
-      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i"));
-      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d"));
+      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i")).Return (null);
+      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d")).Return (null);
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 

@@ -49,9 +49,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       emittableOperandProvider.AddMapping (constructor, _constructorBuilder);
     }
 
-    public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
+    public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
-      _constructorBuilder.DefineParameter (iSequence, attributes, strParamName);
+      ArgumentUtility.CheckNotNullOrEmpty ("strParamName", strParamName);
+
+      var parameterBuilder = _constructorBuilder.DefineParameter (iSequence, attributes, strParamName);
+      return new ParameterBuilderAdapter (parameterBuilder);
     }
 
     [CLSCompliant (false)]

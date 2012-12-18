@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,23 +14,21 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/>.
+  /// Adapts <see cref="ParameterBuilder"/> with the <see cref="IParameterBuilder"/> interface.
   /// </summary>
-  [CLSCompliant (false)]
-  public interface IMethodBaseBuilder : ICustomAttributeTargetBuilder
+  public class ParameterBuilderAdapter : CustomAttributeTargetBuilderBase, IParameterBuilder
   {
-    IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName);
-
-    void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull);
+    public ParameterBuilderAdapter (ParameterBuilder parameterBuilder)
+        : base (ArgumentUtility.CheckNotNull ("parameterBuilder", parameterBuilder).SetCustomAttribute)
+    {
+    }
   }
 }

@@ -17,7 +17,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -63,7 +62,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return new FieldBuilderAdapter (_typeBuilder.DefineField (name, type, attributes));
+      var fieldBuilder = _typeBuilder.DefineField (name, type, attributes);
+      return new FieldBuilderAdapter (fieldBuilder);
     }
 
     [CLSCompliant (false)]

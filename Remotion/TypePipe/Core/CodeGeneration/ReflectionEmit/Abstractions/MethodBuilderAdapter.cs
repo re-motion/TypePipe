@@ -49,11 +49,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       emittableOperandProvider.AddMapping (method, _methodBuilder);
     }
 
-    public void DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
+    public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("strParamName", strParamName);
 
-      _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
+      var parameterBuilder = _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
+      return new ParameterBuilderAdapter (parameterBuilder);
     }
 
     [CLSCompliant (false)]
