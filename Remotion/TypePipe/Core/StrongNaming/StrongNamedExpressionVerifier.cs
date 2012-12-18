@@ -22,14 +22,6 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  /// <summary>
-  /// Determines wheter an <see cref="Expression"/> tree only contains access to strong-named types.
-  /// </summary>
-  public interface IStrongNamedExpressionVerifier
-  {
-    bool IsStrongNamed (Expression expression);
-  }
-
   public class StrongNamedExpressionVerifier : PrimitiveTypePipeExpressionVisitorBase, IStrongNamedExpressionVerifier
   {
     private readonly IStrongNamedTypeVerifier _typeVerifier;

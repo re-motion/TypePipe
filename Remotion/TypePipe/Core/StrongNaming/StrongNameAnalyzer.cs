@@ -25,14 +25,6 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  /// <summary>
-  /// Determines whether a <see cref="MutableType"/> is applicable for a strong-named assembly.
-  /// </summary>
-  public interface IStrongNameAnalyzer
-  {
-    bool IsSignable (MutableType mutableType);
-  }
-
   public class StrongNameAnalyzer : IStrongNameAnalyzer
   {
     private readonly IStrongNamedTypeVerifier _strongNamedTypeVerifier;

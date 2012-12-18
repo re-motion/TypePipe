@@ -15,20 +15,15 @@
 // under the License.
 // 
 using System;
-using System.Linq;
-using System.Reflection;
-using Remotion.Utilities;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNamedAssemblyVerifier : IStrongNamedAssemblyVerifier
+  /// <summary>
+  /// Determines whether a <see cref="MutableType"/> is applicable for a strong-named assembly.
+  /// </summary>
+  public interface IStrongNameAnalyzer
   {
-    public bool IsStrongNamed (Assembly assembly)
-    {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
-
-      var publicKeyToken = assembly.GetName().GetPublicKeyToken();
-      return publicKeyToken.Any();
-    }
+    bool IsSignable (MutableType mutableType);
   }
 }

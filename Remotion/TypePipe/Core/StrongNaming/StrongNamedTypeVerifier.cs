@@ -21,14 +21,6 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  /// <summary>
-  /// Determines wheter <see cref="Type"/> is strong-named.
-  /// </summary>
-  public interface IStrongNamedTypeVerifier
-  {
-    bool IsStrongNamed (Type type);
-  }
-
   public class StrongNamedTypeVerifier : IStrongNamedTypeVerifier
   {
     private readonly IStrongNamedAssemblyVerifier _assemblyVerifier;
