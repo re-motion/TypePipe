@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -34,11 +35,15 @@ namespace Remotion.TypePipe.StrongNaming
       _assemblyVerifier = assemblyVerifier;
     }
 
-    // TODO Review: Make private, move IsStrongNamed (Type) from StrongNameAnalyzer to here.
     public bool IsStrongNamed (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
+      return IsStrongNamedInternal (type) && type.GetGenericArguments().All (IsStrongNamedInternal);
+    }
+
+    private bool IsStrongNamedInternal (Type type)
+    {
       var assembly = type.Assembly;
 
       bool isSigned;

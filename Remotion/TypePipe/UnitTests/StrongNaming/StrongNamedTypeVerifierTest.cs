@@ -30,8 +30,16 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = ReflectionObjectMother.GetSomeType();
 
-      Check (type, type.Assembly, strongNamed: true);
-      Check (type, type.Assembly, strongNamed: false);
+      Check (type, type, strongNamed: true);
+      Check (type, type, strongNamed: false);
+    }
+
+    [Test]
+    public void IsStrongNamed_Generic ()
+    {
+      var type = typeof (IEquatable<StrongNamedTypeVerifierTest>);
+
+      Check (type, typeof (StrongNamedTypeVerifierTest), strongNamed: true);
     }
 
     [Test]
@@ -47,16 +55,19 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       verifier.IsStrongNamed (type);
     }
  
-    private void Check (Type type, Assembly assembly, bool strongNamed)
+    private void Check (Type type, Type expectedTypeToVerify, bool strongNamed)
     {
       var assemblyVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedAssemblyVerifier>();
       var verifier = new StrongNamedTypeVerifier (assemblyVerifierMock);
-      assemblyVerifierMock.Expect (x => x.IsStrongNamed (assembly)).Return (strongNamed);
+      assemblyVerifierMock.Expect (x => x.IsStrongNamed (expectedTypeToVerify.Assembly)).Return (strongNamed);
+      assemblyVerifierMock.Stub (x => x.IsStrongNamed (Arg<Assembly>.Is.Anything)).Return (true);
 
       var result = verifier.IsStrongNamed (type);
 
       assemblyVerifierMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (strongNamed));
     }
+
+    public interface IGenericInterface<T> { }
   }
 }
