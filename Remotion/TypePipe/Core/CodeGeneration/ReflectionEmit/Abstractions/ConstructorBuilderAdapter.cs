@@ -34,10 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly ConstructorBuilder _constructorBuilder;
 
     public ConstructorBuilderAdapter (ConstructorBuilder constructorBuilder)
-        : base (constructorBuilder.SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
-
       _constructorBuilder = constructorBuilder;
     }
 

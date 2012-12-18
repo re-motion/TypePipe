@@ -34,10 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly MethodBuilder _methodBuilder;
 
     public MethodBuilderAdapter (MethodBuilder methodBuilder)
-        : base (methodBuilder.SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
-
       _methodBuilder = methodBuilder;
     }
 

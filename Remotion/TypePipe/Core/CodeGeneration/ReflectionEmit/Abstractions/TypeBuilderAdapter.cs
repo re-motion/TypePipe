@@ -30,10 +30,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly TypeBuilder _typeBuilder;
 
     public TypeBuilderAdapter (TypeBuilder typeBuilder)
-        : base (typeBuilder.SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-
       _typeBuilder = typeBuilder;
     }
 

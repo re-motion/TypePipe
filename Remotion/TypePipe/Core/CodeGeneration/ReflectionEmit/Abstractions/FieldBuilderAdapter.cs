@@ -30,10 +30,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly FieldBuilder _fieldBuilder;
 
     public FieldBuilderAdapter (FieldBuilder fieldBuilder)
-        : base (fieldBuilder.SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
-
       _fieldBuilder = fieldBuilder;
     }
 
