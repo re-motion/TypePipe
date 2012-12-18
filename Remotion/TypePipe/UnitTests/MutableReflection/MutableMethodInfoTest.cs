@@ -502,7 +502,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableMethod.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
 
       Assert.That (_mutableMethod.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
-      // TODO Review
 
       Assert.That (_mutableMethod.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
       Assert.That (_mutableMethod.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);

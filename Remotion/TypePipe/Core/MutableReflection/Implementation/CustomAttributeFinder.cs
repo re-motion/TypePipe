@@ -52,18 +52,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
-      // TODO Review: Avoid double allocation via ToList, then create right array, then use List.CopyTo (array)
-      var attributeArray = customAttributeDatas
+      var attributes = customAttributeDatas
           .Where (a => attributeType.IsAssignableFrom (a.Type))
           .Select (a => a.CreateInstance())
-          .ToArray();
+          .ToList();
 
-      if (attributeArray.GetType().GetElementType() != attributeType)
-      {
-        var typedAttributeArray = Array.CreateInstance (attributeType, attributeArray.Length);
-        Array.Copy (attributeArray, typedAttributeArray, attributeArray.Length);
-        attributeArray = (object[]) typedAttributeArray;
-      }
+      var attributeArray = (object[]) Array.CreateInstance (attributeType, attributes.Count);
+      attributes.CopyTo (attributeArray);
 
       return attributeArray;
     }
