@@ -116,10 +116,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return methodBase.GetParameters().Select (pe => pe.ParameterType).ToArray();
     }
 
-    private void DefineParameters (IMethodBaseBuilder methodBuilder, MethodBase methodBase)
+    private void DefineParameters (IMethodBaseBuilder methodBuilder, IMutableMethodBase mutableMethodBase)
     {
-      foreach (var parameterInfo in methodBase.GetParameters())
-        methodBuilder.DefineParameter (parameterInfo.Position + 1, parameterInfo.Attributes, parameterInfo.Name);
+      foreach (var parameter in mutableMethodBase.MutableParameters)
+      {
+        var parameterBuilder = methodBuilder.DefineParameter (parameter.Position + 1, parameter.Attributes, parameter.Name);
+        DefineCustomAttributes (parameterBuilder, parameter);
+      }
     }
 
     private Action CreateBodyBuildAction (

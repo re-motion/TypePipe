@@ -104,8 +104,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, constructor));
 
       SetupDefineCustomAttribute (constructorBuilderMock, constructor);
-      constructorBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.In, "p1")).Return (null);
-      constructorBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "p2")).Return (null);
+      var parameterBuilderMock = SetupDefineParameter (constructorBuilderMock, 1, "p1", ParameterAttributes.In);
+      SetupDefineCustomAttribute (parameterBuilderMock, constructor.MutableParameters[0]);
+      SetupDefineParameter (constructorBuilderMock, 2, "p2", ParameterAttributes.Out);
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
@@ -113,6 +114,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _typeBuilderMock.VerifyAllExpectations();
       constructorBuilderMock.VerifyAllExpectations();
+      parameterBuilderMock.VerifyAllExpectations();
 
       Assert.That (_context.PostDeclarationsActionManager.Actions.Count(), Is.EqualTo (1));
       CheckBodyBuildAction (_context.PostDeclarationsActionManager.Actions.Single(), constructorBuilderMock, constructor);
@@ -143,7 +145,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           new[]
           {
               new ParameterDeclaration (typeof (int), "i", ParameterAttributes.None),
-              new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
+              new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Retval)
           });
 
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
@@ -159,8 +161,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       SetupDefineCustomAttribute (methodBuilderMock, method);
-      methodBuilderMock.Expect (mock => mock.DefineParameter (1, ParameterAttributes.None, "i")).Return (null);
-      methodBuilderMock.Expect (mock => mock.DefineParameter (2, ParameterAttributes.Out, "d")).Return (null);
+      var parameterBuilderMock = SetupDefineParameter (methodBuilderMock, 1, "i", ParameterAttributes.None);
+      SetupDefineCustomAttribute (parameterBuilderMock, method.MutableParameters[0]);
+      SetupDefineParameter (methodBuilderMock, 2, "d", ParameterAttributes.Retval);
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
@@ -168,6 +171,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _typeBuilderMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
+      parameterBuilderMock.VerifyAllExpectations();
+
       var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
 
@@ -208,6 +213,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var declaration = CustomAttributeDeclarationObjectMother.Create();
       mutableInfo.AddCustomAttribute (declaration);
       customAttributeTargetBuilderMock.Expect (mock => mock.SetCustomAttribute (declaration));
+    }
+
+    private IParameterBuilder SetupDefineParameter (
+        IMethodBaseBuilder methodBaseBuilderMock, int position, string parameterName, ParameterAttributes parameterAttributes)
+    {
+      var parameterBuilderMock = MockRepository.GenerateStrictMock<IParameterBuilder>();
+      methodBaseBuilderMock.Expect (mock => mock.DefineParameter (position, parameterAttributes, parameterName)).Return (parameterBuilderMock);
+      return parameterBuilderMock;
     }
 
     private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)
