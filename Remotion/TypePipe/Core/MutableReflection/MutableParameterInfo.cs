@@ -34,7 +34,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly MemberInfo _member;
     private readonly ParameterDescriptor _descriptor;
-    private readonly MutableInfoCustomAttributeHelper _customAttributeHelper;
+
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
 
     public MutableParameterInfo (MemberInfo member, ParameterDescriptor descriptor)
     {
@@ -43,7 +44,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       _member = member;
       _descriptor = descriptor;
-      _customAttributeHelper = new MutableInfoCustomAttributeHelper (this, descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
+
+      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
     }
 
     public override MemberInfo Member
@@ -94,38 +96,43 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
-      get { return _customAttributeHelper.AddedCustomAttributeDeclarations; }
+      get { return _customAttributeContainer.AddedCustomAttributeDeclarations; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      _customAttributeHelper.AddCustomAttribute (customAttributeDeclaration);
+      _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeHelper.GetCustomAttributeData();
+      return _customAttributeContainer.GetCustomAttributeData();
+    }
+
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
+    {
+      return TypePipeCustomAttributeData.GetCustomAttributes (this);
     }
 
     public override object[] GetCustomAttributes (bool inherit)
     {
-      return _customAttributeHelper.GetCustomAttributes (inherit);
+      return CustomAttributeFinder.GetCustomAttributes (this, inherit);
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return _customAttributeHelper.GetCustomAttributes (attributeType, inherit);
+      return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return _customAttributeHelper.IsDefined (attributeType, inherit);
+      return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }
 
     public override string ToString ()

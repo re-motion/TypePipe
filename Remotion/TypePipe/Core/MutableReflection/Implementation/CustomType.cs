@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Other classes may derive from this class to inherit this implementation.
   /// </summary>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public abstract class CustomType : Type, ITypePipeCustomAttributeProvider
+  public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
     private readonly IMemberSelector _memberSelector;
 
@@ -124,23 +124,28 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return null;
     }
 
+    public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
+    {
+      return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
+    }
+
     public override object[] GetCustomAttributes (bool inherit)
     {
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, inherit);
+      return CustomAttributeFinder.GetCustomAttributes (this, inherit);
     }
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (this, attributeType, inherit);
+      return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return TypePipeCustomAttributeImplementationUtility.IsDefined (this, attributeType, inherit);
+      return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }
 
     public override Type[] GetInterfaces ()

@@ -149,6 +149,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_parameter.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
 
       Assert.That (_parameter.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+      // TODO review
 
       Assert.That (_parameter.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
       Assert.That (_parameter.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);

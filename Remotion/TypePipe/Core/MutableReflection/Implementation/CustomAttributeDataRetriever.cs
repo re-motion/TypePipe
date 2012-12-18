@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Implements <see cref="ICustomAttributeDataRetriever"/> for standard .NET reflection objects and mutable reflection objects
-  /// using <see cref="CustomAttributeData"/> and <see cref="ITypePipeCustomAttributeProvider"/> respectivly.
+  /// using <see cref="CustomAttributeData"/> and <see cref="IOwnCustomAttributeDataProvider"/> respectivly.
   /// </summary>
   public class CustomAttributeDataRetriever : ICustomAttributeDataRetriever
   {
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private IEnumerable<ICustomAttributeData> RetrieveCustomAttributes<T> (Func<T, IEnumerable<CustomAttributeData>> customAttributeProvider, T info)
     {
-      var typePipeCustomAttributeProvider = info as ITypePipeCustomAttributeProvider;
+      var typePipeCustomAttributeProvider = info as IOwnCustomAttributeDataProvider;
       if (typePipeCustomAttributeProvider != null)
         return typePipeCustomAttributeProvider.GetCustomAttributeData();
       else

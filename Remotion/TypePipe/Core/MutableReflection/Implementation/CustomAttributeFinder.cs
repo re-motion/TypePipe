@@ -18,47 +18,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  // TODO Review: Rename to CustomAttributeFinder, refactor to take ICustomAttributeDataProvider (derived from IOwnCustomAttributeDataProvider)
   /// <summary>
-  /// A utility class that is used to implement the <see cref="ITypePipeCustomAttributeProvider"/> interface for mutable reflection objects.
+  /// A utility class that is used to implement the <see cref="CustomAttributeFinder"/> interface for mutable reflection objects.
   /// </summary>
-  public static class TypePipeCustomAttributeImplementationUtility
+  public static class CustomAttributeFinder
   {
-    public static object[] GetCustomAttributes (ICustomAttributeProvider customAttributeProvider, bool inherit)
+    public static object[] GetCustomAttributes (ICustomAttributeDataProvider customAttributeDataProvider, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeProvider", customAttributeProvider);
+      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
 
-      return GetCustomAttributes (customAttributeProvider, typeof (object), inherit);
+      return GetCustomAttributes (customAttributeDataProvider, typeof (object), inherit);
     }
 
-    public static object[] GetCustomAttributes (ICustomAttributeProvider customAttributeProvider, Type attributeType, bool inherit)
+    public static object[] GetCustomAttributes (ICustomAttributeDataProvider customAttributeDataProvider, Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeProvider", customAttributeProvider);
+      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return GetCustomAttributes (GetCustomAttributeDatas (customAttributeProvider, inherit), attributeType);
+      return GetCustomAttributes (customAttributeDataProvider.GetCustomAttributeData (inherit), attributeType);
     }
 
-    public static bool IsDefined (ICustomAttributeProvider customAttributeProvider, Type attributeType, bool inherit)
+    public static bool IsDefined (ICustomAttributeDataProvider customAttributeDataProvider, Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeProvider", customAttributeProvider);
+      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
-      return IsDefined (GetCustomAttributeDatas (customAttributeProvider, inherit), attributeType);
-    }
-
-    private static IEnumerable<ICustomAttributeData> GetCustomAttributeDatas (ICustomAttributeProvider customAttributeProvider, bool inherit)
-    {
-      Assertion.IsTrue (customAttributeProvider is MemberInfo || customAttributeProvider is ParameterInfo);
-
-      return customAttributeProvider is MemberInfo
-                 ? TypePipeCustomAttributeData.GetCustomAttributes ((MemberInfo) customAttributeProvider, inherit)
-                 : TypePipeCustomAttributeData.GetCustomAttributes ((ParameterInfo) customAttributeProvider);
+      return IsDefined (customAttributeDataProvider.GetCustomAttributeData (inherit), attributeType);
     }
 
     private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)

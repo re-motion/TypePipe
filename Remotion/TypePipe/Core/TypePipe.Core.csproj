@@ -141,7 +141,8 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableInfoCustomAttributeHelper.cs" />
+    <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
+    <Compile Include="MutableReflection\Implementation\MutableInfoCustomAttributeContainer.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />
@@ -171,7 +172,7 @@
     <Compile Include="MutableReflection\ICustomAttributeNamedArgument.cs" />
     <Compile Include="MutableReflection\Implementation\IMemberSelector.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedMethodFinder.cs" />
-    <Compile Include="MutableReflection\ITypePipeCustomAttributeProvider.cs" />
+    <Compile Include="MutableReflection\IOwnCustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelector.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyCreationContext.cs" />
@@ -195,7 +196,7 @@
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\TypeExtensions.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
-    <Compile Include="MutableReflection\Implementation\TypePipeCustomAttributeImplementationUtility.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeFinder.cs" />
     <Compile Include="MutableReflection\Descriptors\ConstructorDescriptor.cs" />
     <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />

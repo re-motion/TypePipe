@@ -23,29 +23,24 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  // TODO Review: Rename to MutableInfoCustomAttributeContainer
   /// <summary>
   /// A helper class that is used to implement custom <see cref="Attribute"/>-related members of <see cref="IMutableInfo"/> on mutable reflection
   /// objects.
   /// </summary>
-  public class MutableInfoCustomAttributeHelper
+  public class MutableInfoCustomAttributeContainer
   {
-    // TODO Review: Remove
-    private readonly IMutableInfo _mutableInfo;
     // TODO 5057: Use Lazy<T>
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _existingCustomAttributeDatas;
     private readonly Func<bool> _canAddCustomAttributesDecider;
 
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
-    public MutableInfoCustomAttributeHelper (
-        IMutableInfo mutableInfo, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider, Func<bool> canAddCustomAttributesDecider)
+    public MutableInfoCustomAttributeContainer (
+        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider, Func<bool> canAddCustomAttributesDecider)
     {
-      ArgumentUtility.CheckNotNull ("mutableInfo", mutableInfo);
       ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
       ArgumentUtility.CheckNotNull ("canAddCustomAttributesDecider", canAddCustomAttributesDecider);
 
-      _mutableInfo = mutableInfo;
       _existingCustomAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (customAttributeDataProvider);
       _canAddCustomAttributesDecider = canAddCustomAttributesDecider;
     }
@@ -68,26 +63,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _addedCustomAttributeDeclarations.Cast<ICustomAttributeData>().Concat (_existingCustomAttributeDatas.Value);
-    }
-
-    // TODO Review: Remove, inline at call site
-    public object[] GetCustomAttributes (bool inherit)
-    {
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (_mutableInfo, inherit);
-    }
-
-    public object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return TypePipeCustomAttributeImplementationUtility.GetCustomAttributes (_mutableInfo, attributeType, inherit);
-    }
-
-    public bool IsDefined (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return TypePipeCustomAttributeImplementationUtility.IsDefined (_mutableInfo, attributeType, inherit);
     }
   }
 }

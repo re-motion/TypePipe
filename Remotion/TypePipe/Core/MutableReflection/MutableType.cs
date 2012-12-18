@@ -46,8 +46,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     private readonly TypeAttributes _attributes;
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
     private readonly Func<Type, InterfaceMapping> _interfacMappingProvider;
-    private readonly MutableInfoCustomAttributeHelper _customAttributeHelper;
 
     private readonly List<Expression> _typeInitializations = new List<Expression>();
     private readonly List<Expression> _instanceInitializations = new List<Expression>();
@@ -84,8 +84,8 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableMemberFactory = mutableMemberFactory;
 
       _attributes = descriptor.Attributes;
+      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
       _interfacMappingProvider = descriptor.InterfaceMappingProvider;
-      _customAttributeHelper = new MutableInfoCustomAttributeHelper (this, descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
 
       _existingInterfaces = descriptor.Interfaces;
 
@@ -178,19 +178,19 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
     {
-      get { return _customAttributeHelper.AddedCustomAttributeDeclarations; }
+      get { return _customAttributeContainer.AddedCustomAttributeDeclarations; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      _customAttributeHelper.AddCustomAttribute (customAttributeDeclaration);
+      _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeHelper.GetCustomAttributeData();
+      return _customAttributeContainer.GetCustomAttributeData();
     }
 
     // TODO 4972: Replace usages with TypeEqualityComparer.

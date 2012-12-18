@@ -185,10 +185,10 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       return mutableType.GetOrAddMutableMethod ((MethodInfo) underlyingMethod);
     }
 
-    private void CheckAttributeInheritance (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
+    private void CheckAttributeInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
     {
-      var actualNonInheritableAttributes = typePipeAttributeProvider.GetCustomAttributes (false);
-      var actualInheritableAttributes = typePipeAttributeProvider.GetCustomAttributes (true);
+      var actualNonInheritableAttributes = ownAttributeDataProvider.GetCustomAttributes (false);
+      var actualInheritableAttributes = ownAttributeDataProvider.GetCustomAttributes (true);
       var expectedNonInheritableAttributes = attributeProvider.GetCustomAttributes (false);
       var expectedInheritableAttributes = attributeProvider.GetCustomAttributes (true);
 
@@ -197,11 +197,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (typeComparer));
     }
 
-    private void CheckAttributeInheritanceAllowMultiple (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
+    private void CheckAttributeInheritanceAllowMultiple (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
     {
       var filterType = typeof (AllowMultipleBaseAttribute);
-      var actualNonInheritableAttributes = (AllowMultipleBaseAttribute[]) typePipeAttributeProvider.GetCustomAttributes (filterType, false);
-      var actualInheritableAttributes = (AllowMultipleBaseAttribute[]) typePipeAttributeProvider.GetCustomAttributes (filterType, true);
+      var actualNonInheritableAttributes = (AllowMultipleBaseAttribute[]) ownAttributeDataProvider.GetCustomAttributes (filterType, false);
+      var actualInheritableAttributes = (AllowMultipleBaseAttribute[]) ownAttributeDataProvider.GetCustomAttributes (filterType, true);
       var expectedNonInheritableAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, false);
       var expectedInheritableAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, true);
 
@@ -210,13 +210,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (multipleAttributeComparer));
     }
 
-    private void CheckIsDefinedInheritance (ITypePipeCustomAttributeProvider typePipeAttributeProvider, ICustomAttributeProvider attributeProvider)
+    private void CheckIsDefinedInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
     {
       Assert.That (
-          typePipeAttributeProvider.IsDefined (typeof (InheritableAttribute), true),
+          ownAttributeDataProvider.IsDefined (typeof (InheritableAttribute), true),
           Is.EqualTo (attributeProvider.IsDefined (typeof (InheritableAttribute), true)));
       Assert.That (
-          typePipeAttributeProvider.IsDefined (typeof (NonInheritableAttribute), true),
+          ownAttributeDataProvider.IsDefined (typeof (NonInheritableAttribute), true),
           Is.EqualTo (attributeProvider.IsDefined (typeof (NonInheritableAttribute), true)));
     }
 

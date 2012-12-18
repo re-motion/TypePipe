@@ -14,15 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System.Collections.Generic;
 
 namespace Remotion.TypePipe.MutableReflection
 {
-  // TODO Review: Rename to IOwnCustomAttributeDataProvider
   /// <summary>
   /// Provides access to the <see cref="ICustomAttributeData"/>s of a member or parameter.
   /// </summary>
-  public interface ITypePipeCustomAttributeProvider : System.Reflection.ICustomAttributeProvider
+  public interface IOwnCustomAttributeDataProvider : System.Reflection.ICustomAttributeProvider
   {
     IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
   }
