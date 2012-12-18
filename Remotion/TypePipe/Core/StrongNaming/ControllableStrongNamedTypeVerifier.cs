@@ -21,12 +21,12 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class CachedStrongNamedTypeVerifier : ICachedStrongNamedTypeVerifier
+  public class ControllableStrongNamedTypeVerifier : IControllableStrongNamedTypeVerifier
   {
     private readonly IStrongNamedTypeVerifier _strongNamedTypeVerifier;
     private readonly Dictionary<Type, bool> _cache = new Dictionary<Type, bool>();
 
-    public CachedStrongNamedTypeVerifier (IStrongNamedTypeVerifier strongNamedTypeVerifier)
+    public ControllableStrongNamedTypeVerifier (IStrongNamedTypeVerifier strongNamedTypeVerifier)
     {
       ArgumentUtility.CheckNotNull ("strongNamedTypeVerifier", strongNamedTypeVerifier);
 

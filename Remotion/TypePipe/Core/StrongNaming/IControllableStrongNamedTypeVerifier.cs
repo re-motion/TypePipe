@@ -19,7 +19,13 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public interface ICachedStrongNamedTypeVerifier : IStrongNamedTypeVerifier
+  /// <summary>
+  /// Adds the ability to manually control the verification of a <see cref="MutableType"/>.
+  /// </summary>
+  /// <remarks>
+  /// This facility is required in order to resolve dependency issues when a mutable type holds a member of its own.
+  /// </remarks>
+  public interface IControllableStrongNamedTypeVerifier : IStrongNamedTypeVerifier
   {
     void SetIsStrongNamed (MutableType mutableType, bool strongNamed);
   }

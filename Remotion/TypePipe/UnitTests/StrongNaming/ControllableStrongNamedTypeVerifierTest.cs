@@ -23,9 +23,9 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class CachedStrongNamedTypeVerifierTest
+  public class ControllableStrongNamedTypeVerifierTest
   {
-    private CachedStrongNamedTypeVerifier _verifier;
+    private ControllableStrongNamedTypeVerifier _verifier;
 
     private IStrongNamedTypeVerifier _typeVerifierMock;
 
@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void SetUp ()
     {
       _typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedTypeVerifier>();
-      _verifier = new CachedStrongNamedTypeVerifier (_typeVerifierMock);
+      _verifier = new ControllableStrongNamedTypeVerifier (_typeVerifierMock);
     }
 
     [Test]
