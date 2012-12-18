@@ -20,7 +20,7 @@ using System.Collections.Generic;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Provides access to the <see cref="ICustomAttributeData"/>s of a member or parameter.
+  /// Provides access to the <see cref="ICustomAttributeData"/> for custom attributes that are declared directly on the member or parameter.
   /// </summary>
   public interface IOwnCustomAttributeDataProvider : System.Reflection.ICustomAttributeProvider
   {

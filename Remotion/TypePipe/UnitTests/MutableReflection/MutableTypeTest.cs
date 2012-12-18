@@ -217,14 +217,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (
           _mutableType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute), typeof (AbcAttribute) }));
-
-      Assert.That (
-          _mutableType.GetCustomAttributes (false).Select (a => a.GetType()),
-          Is.EquivalentTo (new[] { typeof (ObsoleteAttribute), typeof (AbcAttribute) }));
-      Assert.That (_mutableType.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
-
-      Assert.That (_mutableType.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_mutableType.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
 
     [Test]
