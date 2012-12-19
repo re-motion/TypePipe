@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var singleParameter = addedMethod.GetParameters ().Single ();
       Assert.That (singleParameter.ParameterType, Is.SameAs (typeof (string)));
       Assert.That (singleParameter.Name, Is.EqualTo ("parameterName"));
-      Assert.That (singleParameter.Attributes, Is.EqualTo (ParameterAttributes.In));
+      Assert.That (singleParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var arguments = new object[] { "test string" };

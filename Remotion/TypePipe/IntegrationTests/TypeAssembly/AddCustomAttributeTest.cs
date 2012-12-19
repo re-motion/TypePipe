@@ -18,7 +18,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -58,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckAddedCustomAttributes (type.GetField ("Field"));
       CheckAddedCustomAttributes (type.GetConstructor (Type.EmptyTypes));
       CheckAddedCustomAttributes (methodInfo);
-      CheckAddedCustomAttributes (methodInfo.GetParameters().Single(), typeof (InAttribute));
+      CheckAddedCustomAttributes (methodInfo.GetParameters().Single());
       CheckAddedCustomAttributes (methodInfo.ReturnParameter);
       // TODO 4791
       //CheckAddedAttributes (type.GetProperty("Property"));
@@ -81,12 +80,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       mutableInfo.AddCustomAttribute (CreateMultipleAttribute ("def"));
     }
 
-    private void CheckAddedCustomAttributes (ICustomAttributeProvider attributeProvider, params Type[] additionalAttributeTypes)
+    private void CheckAddedCustomAttributes (ICustomAttributeProvider attributeProvider)
     {
       var attributes = attributeProvider.GetCustomAttributes (false);
 
-      var expectedAttributeTypes = new[] { typeof (SingleAttribute), typeof (MultipleAttribute), typeof (MultipleAttribute) }
-          .Concat (additionalAttributeTypes);
+      var expectedAttributeTypes = new[] { typeof (SingleAttribute), typeof (MultipleAttribute), typeof (MultipleAttribute) };
       Assert.That (attributes.Select (a => a.GetType()), Is.EquivalentTo (expectedAttributeTypes));
       Assert.That (attributes.OfType<MultipleAttribute>().Select (a => a.String), Is.EquivalentTo (new[] { "abc", "def" }));
     }

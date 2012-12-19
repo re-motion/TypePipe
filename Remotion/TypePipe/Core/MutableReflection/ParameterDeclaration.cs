@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _name;
     private readonly ParameterAttributes _attributes;
 
-    public ParameterDeclaration (Type type, string name, ParameterAttributes attributes = ParameterAttributes.In)
+    public ParameterDeclaration (Type type, string name, ParameterAttributes attributes = ParameterAttributes.None)
     {
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

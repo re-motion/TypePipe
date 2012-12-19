@@ -73,7 +73,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var expectedParameterData =
           new[]
           {
-              new { Name = "i", ParameterType = typeof (int), Attributes = ParameterAttributes.In },
+              new { Name = "i", ParameterType = typeof (int), Attributes = ParameterAttributes.None },
               new { Name = "s", ParameterType = typeof (string).MakeByRefType(), Attributes = ParameterAttributes.Out }
           };
       Assert.That (actualParameterData, Is.EqualTo (expectedParameterData));

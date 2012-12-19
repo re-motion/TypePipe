@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var declaration = new ParameterDeclaration (typeof (object), "foo");
 
-      Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.In));
+      Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.None));
     }
 
     [Test]
