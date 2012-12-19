@@ -23,10 +23,17 @@ namespace Remotion.TypePipe.Configuration
 {
   public class TypePipeConfigurationSection : ConfigurationSection
   {
+    public static readonly string ExampleConfiguration =
+        "<typePipe xmlns=\"" + c_xmlNamespace + "\">" + Environment.NewLine +
+        "  <forceStrongNaming keyFile=\"key.snk\" />" + Environment.NewLine +
+        "</typePipe>";
+
+    private const string c_xmlNamespace = "http://typepipe.codeplex.com/configuration/TypePipeConfigurationSchema.xsd";
+
     [ConfigurationProperty ("xmlns")]
     public string XmlNamespace
     {
-      get { throw new NotSupportedException (); }
+      get { return c_xmlNamespace; }
     }
 
     [ConfigurationProperty ("forceStrongNaming")]
@@ -37,11 +44,7 @@ namespace Remotion.TypePipe.Configuration
 
     protected override bool OnDeserializeUnrecognizedElement (string elementName, XmlReader reader)
     {
-      var message = "Unknown element name: " + elementName + Environment.NewLine +
-                    "Example configuration: " + Environment.NewLine +
-                    "<typepipe xmlns=\"http://typepipe.codeplex.com/configuration/schema.xsd\">" + Environment.NewLine +
-                    "  <forceStrongNaming keyFile=\"key.snk\"" + Environment.NewLine +
-                    "</typepipe>";
+      var message = string.Format ("Unknown element name: {0}{2}Example configuration:{2}{1}", elementName, ExampleConfiguration, Environment.NewLine);
       throw new ConfigurationErrorsException (message);
     }
   }

@@ -365,6 +365,7 @@
     </None>
     <None Include="Configuration\TypePipeConfigurationSchema.xsd">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
   </ItemGroup>

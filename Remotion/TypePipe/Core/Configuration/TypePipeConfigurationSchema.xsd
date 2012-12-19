@@ -1,16 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema id="typepipe"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:c="http://typepipe.codeplex.com/configuration/TypePipeConfigurationSchema.xsd"
     targetNamespace="http://typepipe.codeplex.com/configuration/TypePipeConfigurationSchema.xsd"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified">
-  <xs:element name="typepipe">
+  <xs:element name="typePipe">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element name="keyFile" type="xs:string" maxOccurs="1"/>
-      </xs:sequence>
-      <xs:attribute name="forceStrongNaming" type="xs:boolean" use="optional"/>
+      <xs:all>
+        <xs:element name="forceStrongNaming" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:attribute name="keyFile" type="xs:string" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 </xs:schema>

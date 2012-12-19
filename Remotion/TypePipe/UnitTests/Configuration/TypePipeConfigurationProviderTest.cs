@@ -20,7 +20,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Configuration;
 using Remotion.TypePipe.Configuration;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Configuration
 {
@@ -39,9 +38,9 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     }
 
     [Test]
-    public void RequireStrongNaming ()
+    public void ForceStrongNaming ()
     {
-      var xmlFragment = "<typepipe><forceStrongNaming/></typepipe>";
+      var xmlFragment = "<typePipe><forceStrongNaming/></typePipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.ForceStrongNaming, Is.True);
@@ -49,9 +48,9 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     }
 
     [Test]
-    public void RequireStrongNaming_False ()
+    public void ForceStrongNaming_False ()
     {
-      var xmlFragment = "<typepipe></typepipe>";
+      var xmlFragment = "<typePipe />";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.ForceStrongNaming, Is.False);
@@ -60,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     [Test]
     public void KeyFile ()
     {
-      var xmlFragment = @"<typepipe><forceStrongNaming keyFile=""C:\key.snk""/></typepipe>";
+      var xmlFragment = @"<typePipe><forceStrongNaming keyFile=""C:\key.snk""/></typePipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.KeyFile, Is.EqualTo (@"C:\key.snk"));

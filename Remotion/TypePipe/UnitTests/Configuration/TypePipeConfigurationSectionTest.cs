@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Configuration;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Configuration;
 using Remotion.TypePipe.Configuration;
@@ -34,21 +35,41 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     }
 
     [Test]
-    public void RequireStrongNaming ()
+    public void ExampleConfiguration ()
     {
-      var xmlFragment = @"<typepipe><forceStrongNaming/></typepipe>";
-      ConfigurationHelper.DeserializeSection (_section, xmlFragment);
+      DeserializeSection (TypePipeConfigurationSection.ExampleConfiguration);
+    }
+
+    [Test]
+    public void ForceStrongNaming ()
+    {
+      var xmlFragment = @"<typePipe {xmlns}><forceStrongNaming/></typePipe>";
+      DeserializeSection (xmlFragment);
 
       Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.True);
     }
 
     [Test]
-    public void RequireStrongNaming_Empty ()
+    public void ForceStrongNaming_Empty ()
     {
-      var xmlFragment = @"<typepipe/>";
-      ConfigurationHelper.DeserializeSection (_section, xmlFragment);
-
+      var xmlFragment = @"<typePipe {xmlns} />";
+      DeserializeSection (xmlFragment);
+      
       Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.False);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ConfigurationErrorsException), ExpectedMessage = "Example configuration:", MatchType = MessageMatch.Contains)]
+    public void ForceStrongNaming_InvalidSection ()
+    {
+      var xmlFragment = "<typePipe {xmlns}><invalid /></typePipe>";
+      DeserializeSection (xmlFragment);
+    }
+
+    private void DeserializeSection (string xmlFragment)
+    {
+      xmlFragment = xmlFragment.Replace ("{xmlns}", "xmlns=\"" + _section.XmlNamespace + "\"");
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment, "Configuration/TypePipeConfigurationSchema.xsd");
     }
   }
 }
