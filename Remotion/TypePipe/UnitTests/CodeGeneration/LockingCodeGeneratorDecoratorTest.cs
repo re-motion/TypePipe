@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
@@ -49,6 +50,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void AssemblyName ()
     {
       _helper.ExpectSynchronizedDelegation (cg => cg.AssemblyName, "abc");
+    }
+
+    [Test]
+    public void IsAssemblyStrongNamed ()
+    {
+      var randomBool = BooleanObjectMother.GetRandomBoolean();
+      _helper.ExpectSynchronizedDelegation (cg => cg.IsAssemblyStrongNamed, randomBool);
     }
 
     [Test]
