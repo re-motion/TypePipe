@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (field.FieldType, Is.SameAs (descriptor.Type));
       Assert.That (field.Name, Is.EqualTo (descriptor.Name));
       Assert.That (field.Attributes, Is.EqualTo (descriptor.Attributes));
-      Assert.That (field.AddedCustomAttributeDeclarations, Is.Empty);
+      Assert.That (field.AddedCustomAttributes, Is.Empty);
     }
 
     [Test]
@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_field.CanAddCustomAttributes, Is.True);
       _field.AddCustomAttribute (declaration);
 
-      Assert.That (_field.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+      Assert.That (_field.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
 
       Assert.That (_field.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
 

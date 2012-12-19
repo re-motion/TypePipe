@@ -41,9 +41,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void AddedCustomAttributeDeclarations ()
+    public void AddedCustomAttributes ()
     {
-      Assert.That (_container.AddedCustomAttributeDeclarations, Is.Empty);
+      Assert.That (_container.AddedCustomAttributes, Is.Empty);
     }
 
     [Test]
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _container.AddCustomAttribute (declaration);
 
-      Assert.That (_container.AddedCustomAttributeDeclarations, Is.EqualTo (new[] { declaration }));
+      Assert.That (_container.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
     }
 
     [Test]

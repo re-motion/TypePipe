@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _body != _descriptor.Body || AddedCustomAttributeDeclarations.Count != 0; }
+      get { return _body != _descriptor.Body || AddedCustomAttributes.Count != 0; }
     }
 
     public override string Name
@@ -99,9 +99,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return true; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
-      get { return _customAttributeContainer.AddedCustomAttributeDeclarations; }
+      get { return _customAttributeContainer.AddedCustomAttributes; }
     }
 
     public ReadOnlyCollection<MutableParameterInfo> MutableParameters

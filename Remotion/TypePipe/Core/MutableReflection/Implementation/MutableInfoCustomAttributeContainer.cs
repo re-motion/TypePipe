@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _canAddCustomAttributesDecider = canAddCustomAttributesDecider;
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
     }

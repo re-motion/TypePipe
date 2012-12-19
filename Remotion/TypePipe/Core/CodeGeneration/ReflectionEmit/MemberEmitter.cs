@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
     {
-      foreach (var declaration in mutableInfo.AddedCustomAttributeDeclarations)
+      foreach (var declaration in mutableInfo.AddedCustomAttributes)
         customAttributeTargetBuilder.SetCustomAttribute (declaration);
     }
 

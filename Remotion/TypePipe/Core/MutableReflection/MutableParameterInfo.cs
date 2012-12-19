@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return AddedCustomAttributeDeclarations.Count != 0; }
+      get { return AddedCustomAttributes.Count != 0; }
     }
 
     public override Type ParameterType
@@ -94,9 +94,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return IsNew; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributeDeclarations
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
-      get { return _customAttributeContainer.AddedCustomAttributeDeclarations; }
+      get { return _customAttributeContainer.AddedCustomAttributes; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)

@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
       Assert.That (counter.Name, Is.EqualTo ("<tp>_ctorRunCounter"));
       Assert.That (counter.FieldType, Is.SameAs (typeof (int)));
-      Assert.That (counter.AddedCustomAttributeDeclarations.Single().Type, Is.SameAs (typeof (NonSerializedAttribute)));
+      Assert.That (counter.AddedCustomAttributes.Single().Type, Is.SameAs (typeof (NonSerializedAttribute)));
 
       // Initialization method added.
       var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
