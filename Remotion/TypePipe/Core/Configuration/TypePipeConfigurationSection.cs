@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.Configuration
         "  <forceStrongNaming keyFile=\"key.snk\" />" + Environment.NewLine +
         "</typePipe>";
 
-    private const string c_xmlNamespace = "http://typepipe.codeplex.com/configuration/TypePipeConfigurationSchema.xsd";
+    private const string c_xmlNamespace = "http://typepipe.codeplex.com/configuration";
 
     [ConfigurationProperty ("xmlns")]
     public string XmlNamespace
