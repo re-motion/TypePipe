@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.Configuration
   {
     public static readonly string ExampleConfiguration =
         "<typePipe xmlns=\"" + c_xmlNamespace + "\">" + Environment.NewLine +
-        "  <forceStrongNaming keyFile=\"key.snk\" />" + Environment.NewLine +
+        "  <forceStrongNaming keyFilePath=\"key.snk\" />" + Environment.NewLine +
         "</typePipe>";
 
     private const string c_xmlNamespace = "http://typepipe.codeplex.com/configuration";

@@ -9,7 +9,7 @@
       <xs:all>
         <xs:element name="forceStrongNaming" minOccurs="0" maxOccurs="1">
           <xs:complexType>
-            <xs:attribute name="keyFile" type="xs:string" use="optional"/>
+            <xs:attribute name="keyFilePath" type="xs:string" use="optional"/>
           </xs:complexType>
         </xs:element>
       </xs:all>

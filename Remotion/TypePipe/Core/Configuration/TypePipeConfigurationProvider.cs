@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.Configuration
 
     public string KeyFile
     {
-      get { return _section.ForceStrongNaming.KeyFile; }
+      get { return _section.ForceStrongNaming.KeyFilePath; }
     }
   }
 }
