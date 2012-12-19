@@ -10,7 +10,7 @@
       <xs:sequence>
         <xs:element name="keyFile" type="xs:string" maxOccurs="1"/>
       </xs:sequence>
-      <xs:attribute name="requireStrongNaming" type="xs:boolean" use="optional"/>
+      <xs:attribute name="forceStrongNaming" type="xs:boolean" use="optional"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

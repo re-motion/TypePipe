@@ -41,10 +41,10 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     [Test]
     public void RequireStrongNaming ()
     {
-      var xmlFragment = "<typepipe><requireStrongNaming/></typepipe>";
+      var xmlFragment = "<typepipe><forceStrongNaming/></typepipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
-      Assert.That (_provider.RequireStrongNaming, Is.True);
+      Assert.That (_provider.ForceStrongNaming, Is.True);
       Assert.That (_provider.KeyFile, Is.Empty);
     }
 
@@ -54,13 +54,13 @@ namespace Remotion.TypePipe.UnitTests.Configuration
       var xmlFragment = "<typepipe></typepipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
-      Assert.That (_provider.RequireStrongNaming, Is.False);
+      Assert.That (_provider.ForceStrongNaming, Is.False);
     }
 
     [Test]
     public void KeyFile ()
     {
-      var xmlFragment = @"<typepipe><requireStrongNaming keyFile=""C:\key.snk""/></typepipe>";
+      var xmlFragment = @"<typepipe><forceStrongNaming keyFile=""C:\key.snk""/></typepipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.KeyFile, Is.EqualTo (@"C:\key.snk"));

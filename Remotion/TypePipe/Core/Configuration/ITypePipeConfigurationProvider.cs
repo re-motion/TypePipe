@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.Configuration
   [ConcreteImplementation (typeof (TypePipeConfigurationProvider), Lifetime = LifetimeKind.Singleton)]
   public interface ITypePipeConfigurationProvider
   {
-    bool RequireStrongNaming { get; }
+    bool ForceStrongNaming { get; }
     string KeyFile { get; }
   }
 }

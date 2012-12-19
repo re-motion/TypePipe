@@ -24,12 +24,12 @@ namespace Remotion.TypePipe.UnitTests.Configuration
   [TestFixture]
   public class RequireStrongNamingConfigurationElementTest
   {
-    private RequireStrongNamingConfigurationElement _element;
+    private ForceStrongNamingConfigurationElement _element;
 
     [SetUp]
     public void SetUp ()
     {
-      _element = new RequireStrongNamingConfigurationElement();
+      _element = new ForceStrongNamingConfigurationElement();
     }
 
     [Test]

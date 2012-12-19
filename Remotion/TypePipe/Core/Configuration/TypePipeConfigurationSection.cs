@@ -29,10 +29,10 @@ namespace Remotion.TypePipe.Configuration
       get { throw new NotSupportedException (); }
     }
 
-    [ConfigurationProperty ("requireStrongNaming")]
-    public RequireStrongNamingConfigurationElement RequireStrongNaming
+    [ConfigurationProperty ("forceStrongNaming")]
+    public ForceStrongNamingConfigurationElement ForceStrongNaming
     {
-      get { return (RequireStrongNamingConfigurationElement) this["requireStrongNaming"]; }
+      get { return (ForceStrongNamingConfigurationElement) this["forceStrongNaming"]; }
     }
 
     protected override bool OnDeserializeUnrecognizedElement (string elementName, XmlReader reader)
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.Configuration
       var message = "Unknown element name: " + elementName + Environment.NewLine +
                     "Example configuration: " + Environment.NewLine +
                     "<typepipe xmlns=\"http://typepipe.codeplex.com/configuration/schema.xsd\">" + Environment.NewLine +
-                    "  <requireStrongNaming keyFile=\"key.snk\"" + Environment.NewLine +
+                    "  <forceStrongNaming keyFile=\"key.snk\"" + Environment.NewLine +
                     "</typepipe>";
       throw new ConfigurationErrorsException (message);
     }

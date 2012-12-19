@@ -19,7 +19,7 @@ using System.Configuration;
 
 namespace Remotion.TypePipe.Configuration
 {
-  public class RequireStrongNamingConfigurationElement : ConfigurationElement
+  public class ForceStrongNamingConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty ("keyFile")]
     public string KeyFile

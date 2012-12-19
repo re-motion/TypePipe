@@ -28,14 +28,14 @@ namespace Remotion.TypePipe.Configuration
       _section = (TypePipeConfigurationSection) ConfigurationManager.GetSection ("typepipe") ?? new TypePipeConfigurationSection();
     }
 
-    public bool RequireStrongNaming
+    public bool ForceStrongNaming
     {
-      get { return _section.RequireStrongNaming.ElementInformation.IsPresent; }
+      get { return _section.ForceStrongNaming.ElementInformation.IsPresent; }
     }
 
     public string KeyFile
     {
-      get { return _section.RequireStrongNaming.KeyFile; }
+      get { return _section.ForceStrongNaming.KeyFile; }
     }
   }
 }

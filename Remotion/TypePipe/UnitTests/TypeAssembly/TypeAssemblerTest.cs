@@ -20,6 +20,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
@@ -72,10 +73,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
         participantMock1
             .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == requestedType)))
-            .WhenCalled (mi => mutableType = (MutableType) mi.Arguments[0]);
+            .WhenCalled (mi => mutableType = (MutableType) mi.Arguments[0])
+            .Return (StrongNameCompatibility.Unknown);
         participantMock2
             .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
-            .WhenCalled (mi => Assert.That (mi.Arguments[0], Is.SameAs (mutableType)));
+            .WhenCalled (mi => Assert.That (mi.Arguments[0], Is.SameAs (mutableType)))
+            .Return (StrongNameCompatibility.Unknown);
 
         typeModifierMock
             .Expect (mock => mock.ApplyModifications (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))

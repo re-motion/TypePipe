@@ -36,10 +36,10 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     [Test]
     public void RequireStrongNaming ()
     {
-      var xmlFragment = @"<typepipe><requireStrongNaming /></typepipe>";
+      var xmlFragment = @"<typepipe><forceStrongNaming/></typepipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
-      Assert.That (_section.RequireStrongNaming.ElementInformation.IsPresent, Is.True);
+      Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.True);
     }
 
     [Test]
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.Configuration
       var xmlFragment = @"<typepipe/>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
-      Assert.That (_section.RequireStrongNaming.ElementInformation.IsPresent, Is.False);
+      Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.False);
     }
   }
 }

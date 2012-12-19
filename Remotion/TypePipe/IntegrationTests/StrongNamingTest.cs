@@ -15,21 +15,21 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore]
+  [Ignore ("TODO 5287")]
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
   {
-    private IObjectFactory _objectFactory;
     private ITypePipeConfigurationProvider _typePipeConfigurationProviderMock;
 
     public override void SetUp ()
@@ -37,53 +37,89 @@ namespace Remotion.TypePipe.IntegrationTests
       base.SetUp();
 
       _typePipeConfigurationProviderMock = MockRepository.GenerateStrictMock<ITypePipeConfigurationProvider>();
+    }
+
+    [Test]
+    public void NoStrongName_Compatible ()
+    {
+      var compatibilities = new[] { StrongNameCompatibility.Compatible };
+      CheckStrongNaming (compatibilities, forceStrongNaming: false, expectedIsStrongNamed: false);
+    }
+
+    [Test]
+    public void RequireStrongName_Compatible ()
+    {
+      var compatibilities = new[] { StrongNameCompatibility.Compatible };
+      CheckStrongNaming (compatibilities, forceStrongNaming: true, expectedIsStrongNamed: true);
+    }
+
+    [Test]
+    public void RequireStrongName_Unknown_CompatibleModifications ()
+    {
+      var compatibilities = new[] { StrongNameCompatibility.Compatible, StrongNameCompatibility.Unknown };
+      CheckStrongNaming (compatibilities, forceStrongNaming: true, expectedIsStrongNamed: true);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
+    public void RequireStrongName_Incompatible ()
+    {
+      var objectFactory = CreateObjectFactoryForStrongNaming (StrongNameCompatibility.Compatible, StrongNameCompatibility.Incompatible);
+      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
+    public void RequireStrongName_Unknown_IncompatibleModifications ()
+    {
+      var participant = CreateParticipant (
+          mutableType =>
+          {
+            var unsignedType = CreateUnsignedType ("UnsignedType");
+            mutableType.AddField ("Field", unsignedType);
+
+            return StrongNameCompatibility.Unknown;
+          });
+      var objectFactory = CreateObjectFactory (participant);
+      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
+    }
+
+    private void CheckStrongNaming (StrongNameCompatibility[] compatibilities, bool forceStrongNaming, bool expectedIsStrongNamed)
+    {
+      var objectFactory = CreateObjectFactoryForStrongNaming (compatibilities);
+      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (forceStrongNaming);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
+      var result = objectFactory.CodeGenerator.FlushCodeToDisk();
+
+      var assembly = Assembly.LoadFrom (result);
+      var isStrongNamed = assembly.GetName().GetPublicKeyToken().Any();
+      Assert.That (isStrongNamed, Is.EqualTo (expectedIsStrongNamed));
+    }
+
+    private IObjectFactory CreateObjectFactoryForStrongNaming (params StrongNameCompatibility[] compatibilities)
+    {
+      var participants = compatibilities.Select (c => CreateParticipant (mutableType => c));
       using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => _typePipeConfigurationProviderMock))
       {
-        _objectFactory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+        return CreateObjectFactory (participants, stackFramesToSkip: 1);
       }
     }
 
-    [Test]
-    public void UnsignedUnderlyingType ()
-    {
-      var unsignedType = GetUnsignedType("MyType");
-
-      _objectFactory.GetAssembledType (unsignedType);
-      var result = _objectFactory.CodeGenerator.FlushCodeToDisk();
-
-      var assembly = Assembly.LoadFrom (result);
-      Assert.That (assembly.GetName().GetPublicKey(), Is.Empty);
-    }
-
-    [Test]
-    public void SignedUnderlyingType_RequireStrongNamed ()
-    {
-      _typePipeConfigurationProviderMock.Expect (x => x.RequireStrongNaming).Return (true);
-
-      _objectFactory.GetAssembledType (typeof (DomainType));
-      var result = _objectFactory.CodeGenerator.FlushCodeToDisk();
-
-      var assembly = Assembly.LoadFrom (result);
-      Assert.That (assembly.GetName().GetPublicKey(), Is.Not.Empty);
-    }
-
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot build a signed type on the underlying unsigned type MyType.")]
-    public void UnsignedUnderlyingType_RequireStrongNamed ()
-    {
-      var unsignedType = GetUnsignedType("MyType");
-
-      _objectFactory.GetAssembledType (unsignedType);
-      //_objectFactory.CodeGenerator.FlushCodeToDisk();
-    }
-
-    private static Type GetUnsignedType (string typeName)
+    private Type CreateUnsignedType (string typeName)
     {
       var assemblyName = "test";
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
       var typeBuilder = moduleBuilder.DefineType (typeName);
       var type = typeBuilder.CreateType();
+
       return type;
     }
 

@@ -115,7 +115,7 @@
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
     <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />
-    <Compile Include="Configuration\RequireStrongNamingConfigurationElement.cs" />
+    <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
     <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
     <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
