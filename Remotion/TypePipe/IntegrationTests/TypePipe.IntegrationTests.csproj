@@ -70,6 +70,7 @@
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
     <Compile Include="Serialization\SerializationTestBase.cs" />
     <Compile Include="Serialization\SimpleSerializationTest.cs" />
+    <Compile Include="StrongNamingTest.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddCustomAttributeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
