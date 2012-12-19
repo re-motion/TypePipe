@@ -57,6 +57,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!_canAddCustomAttributesDecider())
         throw new NotSupportedException ("Adding custom attributes to this element is not supported.");
 
+      if (GetCustomAttributeData().Any (a => a.Type == customAttributeDeclaration.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
+      {
+        var message = string.Format ("Attribute of type '{0}' (with AllowMultiple = false) is already present.", customAttributeDeclaration.Type.Name);
+        throw new InvalidOperationException (message);
+      }
+
       _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
     }
 

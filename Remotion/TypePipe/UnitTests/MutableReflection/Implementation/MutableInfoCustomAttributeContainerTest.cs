@@ -16,9 +16,7 @@
 // 
 using System;
 using System.Collections.ObjectModel;
-using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using System.Linq;
@@ -29,21 +27,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   public class MutableInfoCustomAttributeContainerTest
   {
     private Func<ReadOnlyCollection<ICustomAttributeData>> _attributeProvider;
-    private Func<bool> _canAddCustomAttributesDecider;
+    private bool _canAddCustomAttributes;
 
     private MutableInfoCustomAttributeContainer _container;
-
-    private ConstructorInfo _attributeCtor;
 
     [SetUp]
     public void SetUp ()
     {
       _attributeProvider = () => { throw new Exception ("should be lazy"); };
-      _canAddCustomAttributesDecider = () => { throw new Exception ("should be lazy"); };
+      _canAddCustomAttributes = true;
 
-      _container = new MutableInfoCustomAttributeContainer (() => _attributeProvider(), () => _canAddCustomAttributesDecider());
-
-      _attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ObsoleteAttribute());
+      _container = new MutableInfoCustomAttributeContainer (() => _attributeProvider(), () => _canAddCustomAttributes);
     }
 
     [Test]
@@ -55,8 +49,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void AddCustomAttribute ()
     {
-      var declaration = new CustomAttributeDeclaration (_attributeCtor, new object[0]);
-      _canAddCustomAttributesDecider = () => true;
+      SetupAttributeProvider();
+      var declaration = CustomAttributeDeclarationObjectMother.Create ();
 
       _container.AddCustomAttribute (declaration);
 
@@ -67,17 +61,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Adding custom attributes to this element is not supported.")]
     public void AddCustomAttribute_CannotAdd ()
     {
-      _canAddCustomAttributesDecider = () => false;
-      _container.AddCustomAttribute (new CustomAttributeDeclaration (_attributeCtor, new object[0]));
+      _canAddCustomAttributes = false;
+      _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
+    }
+
+    [Test]
+    public void AddCustomAttribute_AlreadyPresent_Existing ()
+    {
+      SetupAttributeProvider (
+          CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute)),
+          CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute)));
+
+      Assert.That (
+          () => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute))),
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Attribute of type 'SingleAttribute' (with AllowMultiple = false) is already present."));
+      Assert.That (() => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute))), Throws.Nothing);
+    }
+
+    [Test]
+    public void AddCustomAttribute_AlreadyPresent_Added ()
+    {
+      SetupAttributeProvider();
+      _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute)));
+      _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute)));
+
+      Assert.That (
+          () => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute))),
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Attribute of type 'SingleAttribute' (with AllowMultiple = false) is already present."));
+      Assert.That (() => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute))), Throws.Nothing);
     }
 
     [Test]
     public void GetCustomAttributeData ()
     {
-      var addedData = new CustomAttributeDeclaration (_attributeCtor, new object[0]);
-      var existingData = new CustomAttributeDeclaration (_attributeCtor, new object[0]);
-      _canAddCustomAttributesDecider = () => true;
-      _container.AddCustomAttribute (addedData);
+      var existingData = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      var addedData = CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute));
 
       var callCount = 0;
       _attributeProvider = () =>
@@ -85,6 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         callCount++;
         return new ICustomAttributeData[] { existingData }.ToList().AsReadOnly();
       };
+      _container.AddCustomAttribute (addedData);
 
       var result = _container.GetCustomAttributeData();
 
@@ -94,5 +115,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _container.GetCustomAttributeData();
       Assert.That (callCount, Is.EqualTo (1), "should be cached");
     }
+
+    private void SetupAttributeProvider (params ICustomAttributeData[] customAttributeDatas)
+    {
+      _attributeProvider = () => new ReadOnlyCollection<ICustomAttributeData> (customAttributeDatas);
+    }
+
+    [AttributeUsage (AttributeTargets.All, AllowMultiple = false)]
+    public class SingleAttribute : Attribute { }
+
+    [AttributeUsage (AttributeTargets.All, AllowMultiple = true)]
+    public class MultipleAttribute : Attribute { }
   }
 }
