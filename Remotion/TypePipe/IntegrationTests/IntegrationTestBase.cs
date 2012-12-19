@@ -25,6 +25,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -98,12 +99,22 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipPeVerification = true;
     }
 
-    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
+    protected static IParticipant CreateParticipant (Func<MutableType, StrongNameCompatibility> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
 
       return participantStub;
+    }
+
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
+    {
+      return CreateParticipant (
+          mutableType =>
+          {
+            typeModification (mutableType);
+            return StrongNameCompatibility.Unknown;
+          });
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]

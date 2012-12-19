@@ -26,6 +26,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
@@ -68,12 +69,12 @@ namespace Remotion.TypePipe.Serialization
       get { return null; }
     }
 
-    public void ModifyType (MutableType mutableType)
+    public StrongNameCompatibility ModifyType (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
       if (!mutableType.IsSerializable)
-        return;
+        return StrongNameCompatibility.Compatible;
 
       if (mutableType.IsAssignableTo (typeof (ISerializable)))
       {
@@ -102,6 +103,8 @@ namespace Remotion.TypePipe.Serialization
                 CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithoutDeserializationConstructorProxy))
                     .Concat (Expression.Call (s_addFieldValueMethod, ctx.Parameters[0], ctx.This))));
       }
+
+      return StrongNameCompatibility.Compatible;
     }
 
     private IEnumerable<Expression> CreateMetaDataSerializationExpressions (MethodBodyContextBase context, Type serializationSurrogateType)
