@@ -32,14 +32,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class ModuleBuilderFactory : IModuleBuilderFactory
   {
     [CLSCompliant (false)]
-    public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull)
+    public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
-      // assemblyDirectory may be null.
+      // assemblyDirectoryOrNull may be null
+      // keyFilePath may be null
 
       var assemName = new AssemblyName (assemblyName);
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
       var moduleName = assemblyName + ".dll";
+
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
       var uniqueNamingModuleBuilder = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);

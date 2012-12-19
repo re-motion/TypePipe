@@ -56,7 +56,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder ()
     {
-      var result = _factory.CreateModuleBuilder (c_assemblyName, _someDirectory);
+      // TODO 5291
+      var result = _factory.CreateModuleBuilder (c_assemblyName, _someDirectory, false, null);
 
       CheckDecoratedAdapterAndSaveToDiskBehavior (result, _someDirectory);
     }
@@ -64,7 +65,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder_NullAssemblyDirectory ()
     {
-      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null);
+      // TODO 5291
+      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
 
       CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory);
     }

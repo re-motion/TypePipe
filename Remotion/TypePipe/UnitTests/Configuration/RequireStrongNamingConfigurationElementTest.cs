@@ -33,21 +33,21 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     }
 
     [Test]
-    public void KeyFile ()
+    public void KeyFilePath ()
     {
-      var xmlFragment = @"<requireStrongNaming keyFile=""C:\key.snk""/>";
+      var xmlFragment = @"<forceStrongNaming keyFilePath=""C:\key.snk""/>";
       ConfigurationHelper.DeserializeElement (_element, xmlFragment);
 
-      Assert.That (_element.KeyFile, Is.EqualTo (@"C:\key.snk"));
+      Assert.That (_element.KeyFilePath, Is.EqualTo (@"C:\key.snk"));
     }
 
     [Test]
-    public void KeyFile_Empty ()
+    public void KeyFilePath_Missing ()
     {
-      var xmlFragment = @"<requireStrongNaming />";
+      var xmlFragment = @"<forceStrongNaming />";
       ConfigurationHelper.DeserializeElement (_element, xmlFragment);
 
-      Assert.That (_element.KeyFile, Is.Empty);
+      Assert.That (_element.KeyFilePath, Is.Empty);
     }
   }
 }

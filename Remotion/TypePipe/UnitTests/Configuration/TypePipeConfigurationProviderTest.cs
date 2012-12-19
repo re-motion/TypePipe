@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     [Test]
     public void KeyFile ()
     {
-      var xmlFragment = @"<typePipe><forceStrongNaming keyFile=""C:\key.snk""/></typePipe>";
+      var xmlFragment = @"<typePipe><forceStrongNaming keyFilePath=""C:\key.snk""/></typePipe>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.KeyFile, Is.EqualTo (@"C:\key.snk"));

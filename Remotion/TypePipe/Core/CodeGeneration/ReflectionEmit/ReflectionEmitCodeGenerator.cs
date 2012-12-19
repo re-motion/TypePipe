@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.Configuration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -38,6 +39,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
+    private readonly ITypePipeConfigurationProvider _configurationProvider;
     private readonly DebugInfoGenerator _debugInfoGenerator;
 
     private IModuleBuilder _currentModuleBuilder;
@@ -45,11 +47,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private string _assemblyName;
 
     [CLSCompliant (false)]
-    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory)
+    // TODO 5291 null check
+    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, ITypePipeConfigurationProvider configurationProvider = null)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
 
       _moduleBuilderFactory = moduleBuilderFactory;
+      _configurationProvider = configurationProvider;
       _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
     }
 
@@ -70,6 +74,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
         return _assemblyName;
       }
+    }
+
+    public bool IsAssemblyStrongNamed
+    {
+      get { throw new NotImplementedException(); }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
@@ -113,7 +122,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("parent", parent);
 
       if (_currentModuleBuilder == null)
-        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory);
+        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, false, null);
 
       return _currentModuleBuilder.DefineType (name, attributes, parent);
     }

@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var type = ReflectionObjectMother.GetSomeType();
       var otherType = ReflectionObjectMother.GetSomeDifferentType();
 
-      _moduleBuilderFactoryMock.Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null)).Return (_moduleBuilderMock);
+      _moduleBuilderFactoryMock.Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, false, null)).Return (_moduleBuilderMock);
       _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes, type)).Return (_fakeTypeBuilder);
       _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0, otherType)).Return (_fakeTypeBuilder);
 
@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void DefineSomeType ()
     {
       _moduleBuilderFactoryMock
-          .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory))
+          .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null))
           .Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
 

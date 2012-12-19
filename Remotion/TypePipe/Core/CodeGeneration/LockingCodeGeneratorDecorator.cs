@@ -54,6 +54,11 @@ namespace Remotion.TypePipe.CodeGeneration
       }
     }
 
+    public bool IsAssemblyStrongNamed
+    {
+      get { throw new System.NotImplementedException(); }
+    }
+
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
       lock (_lockObject)
