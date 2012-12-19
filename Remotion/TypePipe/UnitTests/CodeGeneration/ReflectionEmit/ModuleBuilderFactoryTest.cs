@@ -16,14 +16,17 @@
 // 
 using System;
 using System.IO;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
+  [Ignore ("TODO 5291")]
   public class ModuleBuilderFactoryTest
   {
     private const string c_assemblyName = "MyAssembly";
@@ -56,30 +59,49 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder ()
     {
-      // TODO 5291
+      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
+
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory);
+    }
+
+    [Test]
+    public void CreateModuleBuilder_CustomDirectory ()
+    {
       var result = _factory.CreateModuleBuilder (c_assemblyName, _someDirectory, false, null);
 
       CheckDecoratedAdapterAndSaveToDiskBehavior (result, _someDirectory);
     }
 
     [Test]
-    public void CreateModuleBuilder_NullAssemblyDirectory ()
+    public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
-      // TODO 5291
-      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
+      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
 
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory);
+      var keyPair = GetFallbackKeyPair();
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedKeyPair: keyPair);
     }
 
-    private static void CheckDecoratedAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory)
+    [Test]
+    public void CreateModuleBuilder_StrongNamed_ProvidedKey ()
     {
-      Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator> ());
+      var otherKeyPath = @"..\..\..\..\remotion.snk";
+      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
+
+      var keyPair = new StrongNameKeyPair (File.OpenRead (otherKeyPath));
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedKeyPair: keyPair);
+    }
+
+    private void CheckDecoratedAdapterAndSaveToDiskBehavior (
+        IModuleBuilder moduleBuilder, string assemblyDirectory, StrongNameKeyPair expectedKeyPair = null)
+    {
+      Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
       var decorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
 
       Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter> ());
       var adapter = (ModuleBuilderAdapter) decorator.InnerModuleBuilder;
       Assert.That (adapter.AssemblyName, Is.EqualTo (c_assemblyName));
       Assert.That (adapter.ScopeName, Is.EqualTo (c_assemblyFileName));
+      Assert.That (IsEqualKeyPair (adapter.KeyPair, expectedKeyPair), Is.True);
 
       var assemblyPath = Path.Combine (assemblyDirectory, c_assemblyFileName);
       var pdbPath = Path.Combine (assemblyDirectory, c_pdbFileName);
@@ -91,6 +113,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (pdbPath), Is.True);
       Assert.That (result, Is.EqualTo (assemblyPath));
+    }
+
+    private bool IsEqualKeyPair (StrongNameKeyPair actualKeyPair, StrongNameKeyPair expectedKeyPair)
+    {
+      return actualKeyPair == expectedKeyPair
+             || actualKeyPair != null && expectedKeyPair != null && actualKeyPair.PublicKey.SequenceEqual (expectedKeyPair.PublicKey);
+    }
+
+    private StrongNameKeyPair GetFallbackKeyPair ()
+    {
+      var fallbackKeyPairResourceName = "Remotion.TypePipe.StrongNaming.FallbackKey.snk";
+      var resourceStream = typeof (ModuleBuilderFactory).Assembly.GetManifestResourceStream (fallbackKeyPairResourceName);
+      var memoryStream = new MemoryStream();
+      FileUtility.CopyStream (resourceStream, memoryStream);
+      var bytes = memoryStream.ToArray();
+
+      return new StrongNameKeyPair (bytes);
     }
   }
 }

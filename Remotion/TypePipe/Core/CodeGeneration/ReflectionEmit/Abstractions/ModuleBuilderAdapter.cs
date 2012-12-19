@@ -40,6 +40,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _assemblyBuilder.GetName().Name; }
     }
 
+    public StrongNameKeyPair KeyPair
+    {
+      get { return _assemblyBuilder.GetName().KeyPair; }
+    }
+
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder, string moduleName)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
