@@ -18,6 +18,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -37,32 +38,32 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var field = mutableType.AddField ("Field", typeof (int), FieldAttributes.Public);
             var constructor = mutableType.AllMutableConstructors.Single();
-            var parameterDecls = new[] { new ParameterDeclaration (typeof (int), "p") };
-            var method = mutableType.AddMethod ("Method", MethodAttributes.Public, typeof (int), parameterDecls, ctx => Expression.Constant (7));
-            // TODO 4791
-            //var parameter = method.MutableParameters.Single();
-            //var returnParameter = method.MutableReturnParameter;
+            var parameters = new[] { new ParameterDeclaration (typeof (int), "p") };
+            var method = mutableType.AddMethod ("Method", MethodAttributes.Public, typeof (int), parameters, ctx => Expression.Constant (7));
+            var parameter = method.MutableParameters.Single ();
+            var returnParameter = method.MutableReturnParameter;
 
             AddCustomAttributes (mutableType);
             AddCustomAttributes (field);
             AddCustomAttributes (constructor);
             AddCustomAttributes (method);
-            //AddCustomAttributes (parameter);
-            //AddCustomAttributes (returnParameter);
+            AddCustomAttributes (parameter);
+            AddCustomAttributes (returnParameter);
+            // TODO 4791
             //AddCustomAttributes (property);
             //AddCustomAttributes (@event);
           });
 
+      var methodInfo = type.GetMethod ("Method");
       CheckAddedCustomAttributes (type);
       CheckAddedCustomAttributes (type.GetField ("Field"));
       CheckAddedCustomAttributes (type.GetConstructor (Type.EmptyTypes));
-      CheckAddedCustomAttributes (type.GetMethod ("Method"));
-      CheckAddedCustomAttributes (type.GetMethod ("Method").GetParameters().Single());
+      CheckAddedCustomAttributes (methodInfo);
+      CheckAddedCustomAttributes (methodInfo.GetParameters().Single(), typeof (InAttribute));
+      CheckAddedCustomAttributes (methodInfo.ReturnParameter);
       // TODO 4791
-      //CheckAddedAttributes (method.ReturnParameter);
       //CheckAddedAttributes (type.GetProperty("Property"));
       //CheckAddedAttributes (type.GetEvent("Event"));
-      // TODO 4791
       // nested types
       // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
     }
@@ -73,7 +74,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       mutableInfo.AddCustomAttribute (CreateSingleAttribute());
       Assert.That (
-          () => mutableInfo.AddCustomAttribute (CreateSingleAttribute()),
+          () => mutableInfo.AddCustomAttribute (CreateSingleAttribute ()),
           Throws.InvalidOperationException.With.Message.EqualTo (
               "Attribute of type 'SingleAttribute' (with AllowMultiple = false) is already present."));
 
@@ -81,11 +82,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       mutableInfo.AddCustomAttribute (CreateMultipleAttribute ("def"));
     }
 
-    private void CheckAddedCustomAttributes (ICustomAttributeProvider attributeProvider)
+    private void CheckAddedCustomAttributes (ICustomAttributeProvider attributeProvider, params Type[] additionalAttributeTypes)
     {
       var attributes = attributeProvider.GetCustomAttributes (false);
 
-      var expectedAttributeTypes = new[] { typeof (SingleAttribute), typeof (MultipleAttribute), typeof (MethodAttributes) };
+      var expectedAttributeTypes = new[] { typeof (SingleAttribute), typeof (MultipleAttribute), typeof (MultipleAttribute) }
+          .Concat (additionalAttributeTypes);
       Assert.That (attributes.Select (a => a.GetType()), Is.EquivalentTo (expectedAttributeTypes));
       Assert.That (attributes.OfType<MultipleAttribute>().Select (a => a.String), Is.EquivalentTo (new[] { "abc", "def" }));
     }
