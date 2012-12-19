@@ -117,9 +117,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddCustomAttribute_NonSerialized ()
     {
       Assert.That (_field.IsNotSerialized, Is.False);
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
 
-      _field.AddCustomAttribute (new CustomAttributeDeclaration (constructor, new object[0]));
+      _field.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (NonSerializedAttribute)));
 
       Assert.That (_field.IsNotSerialized, Is.True);
     }

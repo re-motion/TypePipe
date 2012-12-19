@@ -45,7 +45,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
-    private readonly TypeAttributes _attributes;
     private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
     private readonly Func<Type, InterfaceMapping> _interfacMappingProvider;
 
@@ -58,6 +57,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
     private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
     private readonly MutableTypeMethodCollection _methods;
+
+    private TypeAttributes _attributes;
 
     public MutableType (
         TypeDescriptor descriptor,
@@ -83,7 +84,6 @@ namespace Remotion.TypePipe.MutableReflection
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
 
-      _attributes = descriptor.Attributes;
       _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
       _interfacMappingProvider = descriptor.InterfaceMappingProvider;
 
@@ -93,6 +93,8 @@ namespace Remotion.TypePipe.MutableReflection
       _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
           this, descriptor.Constructors, CreateExistingMutableConstructor);
       _methods = new MutableTypeMethodCollection (this, descriptor.Methods, CreateExistingMutableMethod);
+
+      _attributes = descriptor.Attributes;
     }
 
     public bool IsNew
@@ -186,6 +188,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
       _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
+
+      if (customAttributeDeclaration.Type == typeof (SerializableAttribute))
+        _attributes |= TypeAttributes.Serializable;
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

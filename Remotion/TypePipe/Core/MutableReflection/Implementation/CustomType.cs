@@ -183,7 +183,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray ();
+      return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
     }
 
     protected override ConstructorInfo GetConstructorImpl (

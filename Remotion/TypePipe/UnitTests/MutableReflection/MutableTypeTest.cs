@@ -220,6 +220,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddCustomAttribute_Serializable ()
+    {
+      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      Assert.That (_mutableType.IsSerializable, Is.False);
+
+      _mutableType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
+
+      Assert.That (_mutableType.IsSerializable, Is.True);
+    }
+
+    [Test]
     public void IsAssignableTo ()
     {
       Assert.That (_mutableType.IsAssignableTo (_mutableType), Is.True);
