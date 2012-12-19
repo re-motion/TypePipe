@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class AddCustomAttributeTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore("TODO 5280")]
     [Test]
     public void NewMembers ()
     {
