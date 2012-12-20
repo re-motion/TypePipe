@@ -40,9 +40,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _assemblyBuilder.GetName().Name; }
     }
 
-    public StrongNameKeyPair KeyPair
+    public byte[] PublicKey
     {
-      get { return _assemblyBuilder.GetName().KeyPair; }
+      get { return _assemblyBuilder.GetName().GetPublicKey(); }
     }
 
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder, string moduleName)

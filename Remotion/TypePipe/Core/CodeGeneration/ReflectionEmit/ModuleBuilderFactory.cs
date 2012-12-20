@@ -14,11 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -39,15 +40,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // keyFilePath may be null
 
       var assemName = new AssemblyName (assemblyName);
+      if (strongNamed)
+        assemName.KeyPair = GetKeyPair (keyFilePathOrNull);
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
 
       var moduleName = assemblyName + ".dll";
-
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
       var uniqueNamingModuleBuilder = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
 
       return uniqueNamingModuleBuilder;
+    }
+
+    private StrongNameKeyPair GetKeyPair (string keyFilePathOrNull)
+    {
+      if (keyFilePathOrNull == null)
+        return FallbackKey.KeyPair;
+
+      using (var fileStrema = File.OpenRead (keyFilePathOrNull))
+        return new StrongNameKeyPair (fileStrema);
     }
   }
 }
