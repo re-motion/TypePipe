@@ -47,8 +47,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private string _assemblyName;
 
     [CLSCompliant (false)]
-    // TODO 5291 null check
-    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, ITypePipeConfigurationProvider configurationProvider = null)
+    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, ITypePipeConfigurationProvider configurationProvider)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
 
@@ -76,9 +75,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    public bool IsAssemblyStrongNamed
+    public bool IsStrongNamingEnabled
     {
-      get { throw new NotImplementedException(); }
+      get { return _configurationProvider.ForceStrongNaming; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator

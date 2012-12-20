@@ -54,12 +54,12 @@ namespace Remotion.TypePipe.CodeGeneration
       }
     }
 
-    public bool IsAssemblyStrongNamed
+    public bool IsStrongNamingEnabled
     {
       get
       {
         lock (_lockObject)
-          return _innerCodeGenerator.IsAssemblyStrongNamed;
+          return _innerCodeGenerator.IsStrongNamingEnabled;
       }
     }
 

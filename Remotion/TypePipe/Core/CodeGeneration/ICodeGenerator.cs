@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     string AssemblyDirectory { get; }
     string AssemblyName { get; }
-    bool IsAssemblyStrongNamed { get; }
+    bool IsStrongNamingEnabled { get; }
 
     /// <summary>
     /// Sets the directory in that assemblies will be saved, when <see cref="FlushCodeToDisk"/> is called.

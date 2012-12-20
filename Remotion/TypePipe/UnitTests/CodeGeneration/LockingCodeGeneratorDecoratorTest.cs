@@ -53,10 +53,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void IsAssemblyStrongNamed ()
+    public void IsStrongNamingEnabled ()
     {
       var randomBool = BooleanObjectMother.GetRandomBoolean();
-      _helper.ExpectSynchronizedDelegation (cg => cg.IsAssemblyStrongNamed, randomBool);
+      _helper.ExpectSynchronizedDelegation (cg => cg.IsStrongNamingEnabled, randomBool);
     }
 
     [Test]

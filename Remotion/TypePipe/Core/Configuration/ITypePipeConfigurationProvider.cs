@@ -24,6 +24,6 @@ namespace Remotion.TypePipe.Configuration
   public interface ITypePipeConfigurationProvider
   {
     bool ForceStrongNaming { get; }
-    string KeyFile { get; }
+    string KeyFilePath { get; }
   }
 }

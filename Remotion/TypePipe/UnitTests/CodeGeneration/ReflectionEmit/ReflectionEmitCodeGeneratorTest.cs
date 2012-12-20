@@ -17,8 +17,10 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.Configuration;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -29,6 +31,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private const string c_assemblyNamePattern = @"TypePipe_GeneratedAssembly_\d+";
 
     private IModuleBuilderFactory _moduleBuilderFactoryMock;
+    private ITypePipeConfigurationProvider _configurationProviderMock;
 
     private ReflectionEmitCodeGenerator _generator;
 
@@ -39,8 +42,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _moduleBuilderFactoryMock = MockRepository.GenerateStrictMock<IModuleBuilderFactory>();
+      _configurationProviderMock = MockRepository.GenerateStrictMock<ITypePipeConfigurationProvider>();
 
-      _generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock);
+      _generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock, _configurationProviderMock);
 
       _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
       _fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder> ();
@@ -51,22 +55,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (_generator.AssemblyDirectory, Is.Null);
       Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
+
+      var result = _generator.DebugInfoGenerator;
+      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (result));
     }
 
     [Test]
     public void AssemblyName_Unique ()
     {
-      var generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock);
+      var generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock, _configurationProviderMock);
       Assert.That (generator.AssemblyName, Is.Not.EqualTo (_generator.AssemblyName));
     }
 
     [Test]
-    public void DebugInfoGenerator ()
+    public void IsStrongNamingEnabled ()
     {
-      var result = _generator.DebugInfoGenerator;
+      var fakeBool = BooleanObjectMother.GetRandomBoolean();
+      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (fakeBool);
 
-      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
-      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (result));
+      Assert.That (_generator.IsStrongNamingEnabled, Is.EqualTo (fakeBool));
     }
 
     [Test]

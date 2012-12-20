@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.Configuration
       get { return _section.ForceStrongNaming.ElementInformation.IsPresent; }
     }
 
-    public string KeyFile
+    public string KeyFilePath
     {
       get { return _section.ForceStrongNaming.KeyFilePath; }
     }
