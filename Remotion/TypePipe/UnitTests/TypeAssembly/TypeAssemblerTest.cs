@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
-        @"Strong-naming is enabled but the following participants requested unknown type modifications: 'IParticipantProxy.*'\.")]
+        @"Strong-naming is enabled but at least one of the following participants requested incompatible type modifications: 'IParticipantProxy.*'\.")]
     public void AssemblyType_StrongNaming_Unknown_CheckFails ()
     {
       _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);

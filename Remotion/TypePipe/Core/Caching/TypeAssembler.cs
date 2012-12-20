@@ -109,18 +109,20 @@ namespace Remotion.TypePipe.Caching
     {
       var incompatibleParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Incompatible).Select (t => t.Item1).ToList();
       if (incompatibleParticipants.Count > 0)
-        throw NewInvalidOperationException ("incompatible", incompatibleParticipants);
+        throw NewInvalidOperationException ("", incompatibleParticipants);
 
       var unknownParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Unknown).Select (t => t.Item1).ToList();
       if (unknownParticipants.Count > 0 && !_strongNameAnalyzer.IsStrongNameCompatible (mutableType))
-        throw NewInvalidOperationException ("unknown", unknownParticipants);
+        throw NewInvalidOperationException ("at least one of ", unknownParticipants);
     }
 
-    private InvalidOperationException NewInvalidOperationException (string offendingCompatibility, List<IParticipant> offendingParticipants)
+    private InvalidOperationException NewInvalidOperationException (string participantMeaning, List<IParticipant> offendingParticipants)
     {
       var participantList = SeparatedStringBuilder.Build (", ", offendingParticipants, p => string.Format ("'{0}'", p.GetType().Name));
       var message = string.Format (
-          "Strong-naming is enabled but the following participants requested {0} type modifications: {1}.", offendingCompatibility, participantList);
+          "Strong-naming is enabled but {0}the following participants requested incompatible type modifications: {1}.",
+          participantMeaning,
+          participantList);
       return new InvalidOperationException (message);
     }
   }
