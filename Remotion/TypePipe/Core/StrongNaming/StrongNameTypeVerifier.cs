@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.StrongNaming
 {
   public class StrongNameTypeVerifier : IStrongNameTypeVerifier
   {
+    // TODO 5288: Use ReferenceEqualityComparer
     private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool>();
 
     private readonly IStrongNameAssemblyVerifier _assemblyVerifier;

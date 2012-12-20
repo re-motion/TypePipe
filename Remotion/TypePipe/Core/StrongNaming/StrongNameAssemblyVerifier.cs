@@ -16,28 +16,21 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   public class StrongNameAssemblyVerifier : IStrongNameAssemblyVerifier
   {
-    private readonly Dictionary<Assembly, bool> _cache = new Dictionary<Assembly, bool>();
+    private readonly ICache<Assembly, bool> _cache = CacheFactory.Create<Assembly, bool>();
 
     public bool IsStrongNamed (Assembly assembly)
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
-      bool isStrongNamed;
-      if (!_cache.TryGetValue (assembly, out isStrongNamed))
-      {
-        isStrongNamed = CalculateIsStrongNamed (assembly);
-        _cache[assembly] = isStrongNamed;
-      }
-
-      return isStrongNamed;
+      return _cache.GetOrCreateValue (assembly, CalculateIsStrongNamed);
     }
 
     private bool CalculateIsStrongNamed (Assembly assembly)
