@@ -28,6 +28,24 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   [TestFixture]
   public class TypeAssemblerTest
   {
+    private IParticipant _participantStub1;
+    private IParticipant _participantStub2;
+    private IStrongNameAnalyzer _strongNameAnalyzerStub;
+    private ITypeModifier _typeModifierStub;
+    
+    private Type _requestedType;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _participantStub1 = MockRepository.GenerateStub<IParticipant>();
+      _participantStub2 = MockRepository.GenerateStub<IParticipant>();
+      _strongNameAnalyzerStub = MockRepository.GenerateStub<IStrongNameAnalyzer>();
+      _typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
+
+      _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
+    }
+
     [Test]
     public void Initialization ()
     {
@@ -35,11 +53,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
-      var participants = new[] { MockRepository.GenerateStub<IParticipant>(), participantWithCacheProviderStub };
-      var strongNameAnalyzerStub = MockRepository.GenerateStub<IStrongNameAnalyzer>();
-      var typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
-
-      var typeAssembler = new TypeAssembler (participants.AsOneTime(), strongNameAnalyzerStub, typeModifierStub);
+      var participants = new[] { _participantStub1, participantWithCacheProviderStub };
+      var typeAssembler = new TypeAssembler (participants.AsOneTime(), _strongNameAnalyzerStub, _typeModifierStub);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -47,23 +62,22 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void CodeGenerator ()
     {
-      var typeModifierMock = MockRepository.GenerateStrictMock<ITypeModifier>();
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
-      typeModifierMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
-      var typeAssembler = CreateTypeAssembler (typeModifier: typeModifierMock);
+      _typeModifierStub.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+      var typeAssembler = CreateTypeAssembler (typeModifier: _typeModifierStub);
 
       Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
 
     [Test]
-    public void AssemblyType ()
+    public void AssemblyType_StrongNaming_Unknown ()
     {
       var mockRepository = new MockRepository();
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
+      var strongNameAnalyzer = mockRepository.StrictMock<IStrongNameAnalyzer>();
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier>();
 
-      var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       MutableType mutableType = null;
       var fakeResult = ReflectionObjectMother.GetSomeType();
 
@@ -73,13 +87,17 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         participantMock1
-            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == requestedType)))
+            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == _requestedType)))
             .WhenCalled (mi => mutableType = (MutableType) mi.Arguments[0])
-            .Return (StrongNameCompatibility.Unknown);
+            .Return (StrongNameCompatibility.Compatible);
         participantMock2
             .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
-            .WhenCalled (mi => Assert.That (mi.Arguments[0], Is.SameAs (mutableType)))
             .Return (StrongNameCompatibility.Unknown);
+
+        typeModifierMock.Expect (mock => mock.CodeGenerator.IsStrongNamingEnabled).Return (true);
+        strongNameAnalyzer
+            .Expect (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
+            .Return (true);
 
         typeModifierMock
             .Expect (mock => mock.ApplyModifications (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
@@ -87,13 +105,62 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       }
       mockRepository.ReplayAll();
 
-      var typeAssembler = CreateTypeAssembler (typeModifier: typeModifierMock, participants: new[] { participantMock1, participantMock2 });
+      var typeAssembler = CreateTypeAssembler (strongNameAnalyzer, typeModifierMock, participants: new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.AssembleType (requestedType);
+      var result = typeAssembler.AssembleType (_requestedType);
 
       mockRepository.VerifyAll();
       Assert.That (mutableType, Is.Not.Null);
       Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void AssemblyType_NoStrongNaming ()
+    {
+      _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Incompatible);
+      _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (false);
+      var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1);
+
+      typeAssembler.AssembleType (_requestedType);
+
+      _strongNameAnalyzerStub.AssertWasNotCalled (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything));
+    }
+
+    [Test]
+    public void AssemblyType_StrongNaming_Compatible ()
+    {
+      _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
+      _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (true);
+      var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1);
+
+      typeAssembler.AssembleType (_requestedType);
+
+      _strongNameAnalyzerStub.AssertWasNotCalled (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "TODO 5291")]
+    public void AssemblyType_StrongNaming_Incompatible ()
+    {
+      _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
+      _participantStub2.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Incompatible);
+      _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (true);
+      var typeAssembler = CreateTypeAssembler (typeModifier: _typeModifierStub, participants: new[] { _participantStub1, _participantStub2 });
+
+      typeAssembler.AssembleType (_requestedType);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "TODO 5291")]
+    public void AssemblyType_StrongNaming_Unknown_CheckFails ()
+    {
+      _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
+      _participantStub2.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Incompatible);
+      _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (true);
+      _strongNameAnalyzerStub.Stub (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything)).Return (false);
+      var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1, _participantStub2);
+
+      typeAssembler.AssembleType (_requestedType);
     }
 
     [Test]
@@ -112,10 +179,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     private TypeAssembler CreateTypeAssembler (
         IStrongNameAnalyzer strongNameAnalyzer = null, ITypeModifier typeModifier = null, params IParticipant[] participants)
     {
+      typeModifier = typeModifier ?? MockRepository.GenerateStub<ITypeModifier>();
+
       return new TypeAssembler (
-          participants,
+          participants.AsOneTime(),
           strongNameAnalyzer ?? MockRepository.GenerateStub<IStrongNameAnalyzer>(),
-          typeModifier ?? MockRepository.GenerateStub<ITypeModifier>());
+          typeModifier);
     }
 
     private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)

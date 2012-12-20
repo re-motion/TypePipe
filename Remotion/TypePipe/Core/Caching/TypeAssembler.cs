@@ -69,8 +69,15 @@ namespace Remotion.TypePipe.Caching
     {
       var mutableType = CreateMutableType (requestedType);
 
+      var compatibility = StrongNameCompatibility.Compatible;
       foreach (var participant in _participants)
-        participant.ModifyType (mutableType);
+      {
+        var c = participant.ModifyType (mutableType);
+        compatibility = ComputeCompatibility (compatibility, c);
+      }
+
+      if (_typeModifier.CodeGenerator.IsStrongNamingEnabled)
+        CheckCompatibility(compatibility, mutableType);
 
       return _typeModifier.ApplyModifications (mutableType);
     }
@@ -99,6 +106,25 @@ namespace Remotion.TypePipe.Caching
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
       return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
+    }
+
+    private StrongNameCompatibility ComputeCompatibility (StrongNameCompatibility c1, StrongNameCompatibility c2)
+    {
+      if (c1 == StrongNameCompatibility.Incompatible || c2 == StrongNameCompatibility.Incompatible)
+        return StrongNameCompatibility.Incompatible;
+
+      if (c1 == StrongNameCompatibility.Unknown || c2 == StrongNameCompatibility.Unknown)
+        return StrongNameCompatibility.Unknown;
+
+      return StrongNameCompatibility.Compatible;
+    }
+
+    private void CheckCompatibility (StrongNameCompatibility compatibility, MutableType mutableType)
+    {
+      if (compatibility == StrongNameCompatibility.Incompatible)
+        throw new InvalidOperationException ("TODO 5291");
+      if (compatibility == StrongNameCompatibility.Unknown && !_strongNameAnalyzer.IsStrongNameCompatible (mutableType))
+        throw new InvalidOperationException ("TODO 5291");
     }
   }
 }
