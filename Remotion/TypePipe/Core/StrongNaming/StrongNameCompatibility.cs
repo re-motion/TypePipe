@@ -22,6 +22,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// <summary>
   /// Specifies the compatibility of performed code modifications with strong-naming.
   /// </summary>
+  // TODO 5292: Document impliciations (unknown --> poorer performance)
   public enum StrongNameCompatibility
   {
     Compatible,

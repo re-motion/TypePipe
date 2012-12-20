@@ -14,8 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -23,12 +24,26 @@ namespace Remotion.TypePipe.StrongNaming
 {
   public class StrongNameAssemblyVerifier : IStrongNameAssemblyVerifier
   {
+    private readonly Dictionary<Assembly, bool> _cache = new Dictionary<Assembly, bool>();
+
     public bool IsStrongNamed (Assembly assembly)
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
-      var publicKeyToken = assembly.GetName().GetPublicKeyToken();
-      return publicKeyToken.Any();
+      bool isStrongNamed;
+      if (!_cache.TryGetValue (assembly, out isStrongNamed))
+      {
+        isStrongNamed = CalculateIsStrongNamed (assembly);
+        _cache[assembly] = isStrongNamed;
+      }
+
+      return isStrongNamed;
+    }
+
+    private bool CalculateIsStrongNamed (Assembly assembly)
+    {
+      var token = assembly.GetName().GetPublicKeyToken();
+      return token != null && token.Length != 0;
     }
   }
 }

@@ -21,7 +21,7 @@ using Remotion.ServiceLocation;
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// Determines wheter <see cref="Type"/> is strong-named.
+  /// Determines wheter a given <see cref="Type"/> is strong-named.
   /// </summary>
   [ConcreteImplementation (typeof (StrongNameAssemblyVerifier))]
   public interface IStrongNameAssemblyVerifier
