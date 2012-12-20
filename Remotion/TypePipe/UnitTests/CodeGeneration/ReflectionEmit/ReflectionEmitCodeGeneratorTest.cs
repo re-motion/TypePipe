@@ -36,7 +36,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ReflectionEmitCodeGenerator _generator;
 
     private IModuleBuilder _moduleBuilderMock;
-    private ITypeBuilder _fakeTypeBuilder;
 
     [SetUp]
     public void SetUp ()
@@ -46,8 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock, _configurationProviderMock);
 
-      _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder> ();
-      _fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder> ();
+      _moduleBuilderMock = MockRepository.GenerateStrictMock<IModuleBuilder>();
     }
 
     [Test]
@@ -140,21 +138,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var attributes = (TypeAttributes) 7;
       var type = ReflectionObjectMother.GetSomeType();
       var otherType = ReflectionObjectMother.GetSomeDifferentType();
+      var forceStrongNaming = BooleanObjectMother.GetRandomBoolean();
+      var keyFilePath = "key file path";
 
-      _moduleBuilderFactoryMock.Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, false, null)).Return (_moduleBuilderMock);
-      _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes, type)).Return (_fakeTypeBuilder);
-      _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0, otherType)).Return (_fakeTypeBuilder);
+      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (forceStrongNaming);
+      _configurationProviderMock.Expect (mock => mock.KeyFilePath).Return (keyFilePath);
+      _moduleBuilderFactoryMock
+          .Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, forceStrongNaming, keyFilePath))
+          .Return (_moduleBuilderMock);
 
-      var result = _generator.DefineType (name, attributes, type);
-      _generator.DefineType ("OtherType", 0, otherType);
+      var fakeTypeBuilder1 = MockRepository.GenerateStub<ITypeBuilder>();
+      var fakeTypeBuilder2 = MockRepository.GenerateStub<ITypeBuilder>();
+      _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes, type)).Return (fakeTypeBuilder1);
+      _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0, otherType)).Return (fakeTypeBuilder2);
+
+      var result1 = _generator.DefineType (name, attributes, type);
+      var result2 = _generator.DefineType ("OtherType", 0, otherType);
 
       _moduleBuilderFactoryMock.VerifyAllExpectations();
       _moduleBuilderMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (_fakeTypeBuilder));
+      _configurationProviderMock.VerifyAllExpectations();
+      Assert.That (result1, Is.SameAs (fakeTypeBuilder1));
+      Assert.That (result2, Is.SameAs (fakeTypeBuilder2));
     }
 
     private void DefineSomeType ()
     {
+      _configurationProviderMock.Stub (stub => stub.ForceStrongNaming).Return (false);
+      _configurationProviderMock.Stub (stub => stub.KeyFilePath).Return (null);
       _moduleBuilderFactoryMock
           .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null))
           .Return (_moduleBuilderMock);

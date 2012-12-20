@@ -121,7 +121,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("parent", parent);
 
       if (_currentModuleBuilder == null)
-        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, false, null);
+      {
+        var strongNamed = _configurationProvider.ForceStrongNaming;
+        var keyFilePathOrNull = _configurationProvider.KeyFilePath;
+        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, strongNamed, keyFilePathOrNull);
+      }
 
       return _currentModuleBuilder.DefineType (name, attributes, parent);
     }
