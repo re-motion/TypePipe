@@ -27,21 +27,21 @@ namespace Remotion.TypePipe.StrongNaming
 {
   public class StrongNameAnalyzer : IStrongNameAnalyzer
   {
-    private readonly IStrongNamedTypeVerifier _strongNamedTypeVerifier;
-    private readonly IStrongNamedExpressionVerifier _strongNamedExpressionVerifier;
+    private readonly IStrongNameTypeVerifier _strongNameTypeVerifier;
+    private readonly IStrongNameExpressionVerifier _strongNameExpressionVerifier;
 
     private readonly Dictionary<Type, bool> _cache = new Dictionary<Type, bool> ();
 
-    public StrongNameAnalyzer (IStrongNamedTypeVerifier strongNamedTypeVerifier, IStrongNamedExpressionVerifier strongNamedExpressionVerifier)
+    public StrongNameAnalyzer (IStrongNameTypeVerifier strongNameTypeVerifier, IStrongNameExpressionVerifier strongNameExpressionVerifier)
     {
-      ArgumentUtility.CheckNotNull ("strongNamedTypeVerifier", strongNamedTypeVerifier);
-      ArgumentUtility.CheckNotNull ("strongNamedExpressionVerifier", strongNamedExpressionVerifier);
+      ArgumentUtility.CheckNotNull ("strongNameTypeVerifier", strongNameTypeVerifier);
+      ArgumentUtility.CheckNotNull ("strongNameExpressionVerifier", strongNameExpressionVerifier);
 
-      _strongNamedTypeVerifier = strongNamedTypeVerifier;
-      _strongNamedExpressionVerifier = strongNamedExpressionVerifier;
+      _strongNameTypeVerifier = strongNameTypeVerifier;
+      _strongNameExpressionVerifier = strongNameExpressionVerifier;
     }
 
-    public bool IsSignable (MutableType mutableType)
+    public bool IsStrongNameCompatible (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.StrongNaming
       if (!_cache.TryGetValue (type, out signed))
       {
         // TODO Review: Is there a test for a non-generic type?
-        signed = _strongNamedTypeVerifier.IsStrongNamed (type) && type.GetGenericArguments().All (IsStrongNamed);
+        signed = _strongNameTypeVerifier.IsStrongNamed (type) && type.GetGenericArguments().All (IsStrongNamed);
         _cache.Add (type, signed);
       }
 
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.StrongNaming
 
       // TODO Review: Add .MutableParameters to IMutableMethodBase, move parameter checks from MethodInfo overload to here.
 
-      if (!_strongNamedExpressionVerifier.IsStrongNamed (mutable.Body))
+      if (!_strongNameExpressionVerifier.IsStrongNamed (mutable.Body))
         return false;
 
       return true;

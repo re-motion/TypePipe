@@ -15,20 +15,16 @@
 // under the License.
 // 
 using System;
-using System.Linq;
-using System.Reflection;
-using Remotion.Utilities;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNamedAssemblyVerifier : IStrongNamedAssemblyVerifier
+  /// <summary>
+  /// Determines wheter <see cref="Type"/> is strong-named.
+  /// </summary>
+  [ConcreteImplementation (typeof (StrongNameTypeVerifier))]
+  public interface IStrongNameTypeVerifier
   {
-    public bool IsStrongNamed (Assembly assembly)
-    {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
-
-      var publicKeyToken = assembly.GetName().GetPublicKeyToken();
-      return publicKeyToken.Any();
-    }
+    bool IsStrongNamed (Type type);
   }
 }

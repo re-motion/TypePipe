@@ -58,8 +58,8 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
 
     private void Check (Expression expression, bool strongNamed, Type type)
     {
-      var strongTypeVerifier = MockRepository.GenerateStrictMock<IStrongNamedTypeVerifier> ();
-      var visitorPartialMock = MockRepository.GeneratePartialMock<StrongNamedExpressionVerifier> (strongTypeVerifier);
+      var strongTypeVerifier = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier> ();
+      var visitorPartialMock = MockRepository.GeneratePartialMock<StrongNameExpressionVerifier> (strongTypeVerifier);
 
       strongTypeVerifier.Expect (mock => mock.IsStrongNamed (type))
           .Return (strongNamed)

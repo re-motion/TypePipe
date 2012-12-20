@@ -23,8 +23,8 @@ namespace Remotion.TypePipe.StrongNaming
   /// <summary>
   /// Determines wheter an <see cref="Expression"/> tree only contains access to strong-named types.
   /// </summary>
-  [ConcreteImplementation (typeof (StrongNamedExpressionVerifier))]
-  public interface IStrongNamedExpressionVerifier
+  [ConcreteImplementation (typeof (StrongNameExpressionVerifier))]
+  public interface IStrongNameExpressionVerifier
   {
     bool IsStrongNamed (Expression expression);
   }

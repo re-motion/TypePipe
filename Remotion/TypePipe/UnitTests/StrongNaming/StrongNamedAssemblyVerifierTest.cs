@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void IsStrongNamed ()
     {
-      var verifier = new StrongNamedAssemblyVerifier();
+      var verifier = new StrongNameAssemblyVerifier();
 
       var assembly1 = typeof (StrongNamedAssemblyVerifierTest).Assembly;
       var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName("test1"), AssemblyBuilderAccess.Run);

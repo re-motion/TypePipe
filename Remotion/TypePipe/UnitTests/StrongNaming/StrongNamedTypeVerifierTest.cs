@@ -45,8 +45,8 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void Cache ()
     {
-      var assemblyVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedAssemblyVerifier> ();
-      var verifier = new StrongNamedTypeVerifier (assemblyVerifierMock);
+      var assemblyVerifierMock = MockRepository.GenerateStrictMock<IStrongNameAssemblyVerifier> ();
+      var verifier = new StrongNameTypeVerifier (assemblyVerifierMock);
 
       var type = ReflectionObjectMother.GetSomeType();
       assemblyVerifierMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (false).Repeat.Once();
@@ -57,8 +57,8 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
  
     private void Check (Type type, Type expectedTypeToVerify, bool strongNamed)
     {
-      var assemblyVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedAssemblyVerifier>();
-      var verifier = new StrongNamedTypeVerifier (assemblyVerifierMock);
+      var assemblyVerifierMock = MockRepository.GenerateStrictMock<IStrongNameAssemblyVerifier>();
+      var verifier = new StrongNameTypeVerifier (assemblyVerifierMock);
       assemblyVerifierMock.Expect (x => x.IsStrongNamed (expectedTypeToVerify.Assembly)).Return (strongNamed);
       assemblyVerifierMock.Stub (x => x.IsStrongNamed (Arg<Assembly>.Is.Anything)).Return (true);
 

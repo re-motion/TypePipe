@@ -26,6 +26,6 @@ namespace Remotion.TypePipe.StrongNaming
   [ConcreteImplementation (typeof (StrongNameAnalyzer))]
   public interface IStrongNameAnalyzer
   {
-    bool IsSignable (MutableType mutableType);
+    bool IsStrongNameCompatible (MutableType mutableType);
   }
 }

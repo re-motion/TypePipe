@@ -16,44 +16,46 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNamedTypeVerifier : IStrongNamedTypeVerifier
+  public class ControllableStrongNameTypeVerifier : IControllableStrongNameTypeVerifier
   {
-    private readonly IStrongNamedAssemblyVerifier _assemblyVerifier;
+    private readonly IStrongNameTypeVerifier _strongNameTypeVerifier;
+    private readonly Dictionary<Type, bool> _cache = new Dictionary<Type, bool>();
 
-    private readonly Dictionary<Assembly, bool> _cache = new Dictionary<Assembly, bool>();
-
-    public StrongNamedTypeVerifier (IStrongNamedAssemblyVerifier assemblyVerifier)
+    public ControllableStrongNameTypeVerifier (IStrongNameTypeVerifier strongNameTypeVerifier)
     {
-      ArgumentUtility.CheckNotNull ("assemblyVerifier", assemblyVerifier);
+      ArgumentUtility.CheckNotNull ("strongNameTypeVerifier", strongNameTypeVerifier);
 
-      _assemblyVerifier = assemblyVerifier;
+      _strongNameTypeVerifier = strongNameTypeVerifier;
     }
 
     public bool IsStrongNamed (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return IsStrongNamedInternal (type) && type.GetGenericArguments().All (IsStrongNamedInternal);
-    }
+      bool strongNamed;
 
-    private bool IsStrongNamedInternal (Type type)
-    {
-      var assembly = type.Assembly;
-
-      bool isSigned;
-      if (!_cache.TryGetValue (assembly, out isSigned))
+      if (!_cache.TryGetValue(type, out strongNamed))
       {
-        isSigned = _assemblyVerifier.IsStrongNamed (assembly);
-        _cache.Add (assembly, isSigned);
+        strongNamed = _strongNameTypeVerifier.IsStrongNamed (type);
+        _cache.Add (type, strongNamed);
       }
 
-      return isSigned;
+      return strongNamed;
+    }
+
+    public void SetIsStrongNamed (MutableType mutableType, bool strongNamed)
+    {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+
+      if (strongNamed)
+        _cache[mutableType] = true;
+      else
+        _cache.Remove (mutableType);
     }
   }
 }

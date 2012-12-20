@@ -42,14 +42,14 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void Cache ()
     {
-      var expressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedExpressionVerifier> ();
-      var typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedTypeVerifier>();
+      var expressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNameExpressionVerifier> ();
+      var typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier>();
       var analyzer = new StrongNameAnalyzer (typeVerifierMock, expressionVerifierMock);
 
       typeVerifierMock.Expect (mock => mock.IsStrongNamed (_mutableType.UnderlyingSystemType)).Return (true).Repeat.Once();
 
-      analyzer.IsSignable (_mutableType);
-      analyzer.IsSignable (_mutableType);
+      analyzer.IsStrongNameCompatible (_mutableType);
+      analyzer.IsStrongNameCompatible (_mutableType);
     }
 
     [Test]
@@ -129,8 +129,8 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
 
     private void Check (MutableType mutableType, bool signable, Type type = null, Expression expression = null)
     {
-      var expressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedExpressionVerifier> ();
-      var typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedTypeVerifier> ();
+      var expressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNameExpressionVerifier> ();
+      var typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier> ();
       var analyzer = new StrongNameAnalyzer (typeVerifierMock, expressionVerifierMock);
 
       if (type != null)
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       typeVerifierMock.Stub (stub => stub.IsStrongNamed (null)).IgnoreArguments ().Return (true);
       expressionVerifierMock.Stub (stub => stub.IsStrongNamed (null)).IgnoreArguments ().Return (true);
 
-      var result = analyzer.IsSignable (mutableType);
+      var result = analyzer.IsStrongNameCompatible (mutableType);
       typeVerifierMock.VerifyAllExpectations ();
       expressionVerifierMock.VerifyAllExpectations ();
       Assert.That (result, Is.EqualTo (signable));

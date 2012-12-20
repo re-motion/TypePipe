@@ -22,13 +22,13 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNamedExpressionVerifier : PrimitiveTypePipeExpressionVisitorBase, IStrongNamedExpressionVerifier
+  public class StrongNameExpressionVerifier : PrimitiveTypePipeExpressionVisitorBase, IStrongNameExpressionVerifier
   {
-    private readonly IStrongNamedTypeVerifier _typeVerifier;
+    private readonly IStrongNameTypeVerifier _typeVerifier;
 
     private bool _isStrongNamed = true;
 
-    public StrongNamedExpressionVerifier (IStrongNamedTypeVerifier typeVerifier)
+    public StrongNameExpressionVerifier (IStrongNameTypeVerifier typeVerifier)
     {
       ArgumentUtility.CheckNotNull ("typeVerifier", typeVerifier);
 

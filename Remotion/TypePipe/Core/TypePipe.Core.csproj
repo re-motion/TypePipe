@@ -344,18 +344,18 @@
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
-    <Compile Include="StrongNaming\ControllableStrongNamedTypeVerifier.cs" />
+    <Compile Include="StrongNaming\ControllableStrongNameTypeVerifier.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
-    <Compile Include="StrongNaming\IControllableStrongNamedTypeVerifier.cs" />
+    <Compile Include="StrongNaming\IControllableStrongNameTypeVerifier.cs" />
     <Compile Include="StrongNaming\IStrongNameAnalyzer.cs" />
-    <Compile Include="StrongNaming\IStrongNamedAssemblyVerifier.cs" />
-    <Compile Include="StrongNaming\IStrongNamedExpressionVerifier.cs" />
-    <Compile Include="StrongNaming\IStrongNamedTypeVerifier.cs" />
+    <Compile Include="StrongNaming\IStrongNameAssemblyVerifier.cs" />
+    <Compile Include="StrongNaming\IStrongNameExpressionVerifier.cs" />
+    <Compile Include="StrongNaming\IStrongNameTypeVerifier.cs" />
     <Compile Include="StrongNaming\StrongNameAnalyzer.cs" />
     <Compile Include="StrongNaming\StrongNameCompatibility.cs" />
-    <Compile Include="StrongNaming\StrongNamedAssemblyVerifier.cs" />
-    <Compile Include="StrongNaming\StrongNamedExpressionVerifier.cs" />
-    <Compile Include="StrongNaming\StrongNamedTypeVerifier.cs" />
+    <Compile Include="StrongNaming\StrongNameAssemblyVerifier.cs" />
+    <Compile Include="StrongNaming\StrongNameExpressionVerifier.cs" />
+    <Compile Include="StrongNaming\StrongNameTypeVerifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

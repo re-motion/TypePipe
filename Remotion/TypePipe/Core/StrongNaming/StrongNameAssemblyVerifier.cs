@@ -15,18 +15,20 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.MutableReflection;
+using System.Linq;
+using System.Reflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  /// <summary>
-  /// Adds the ability to manually control the verification of a <see cref="MutableType"/>.
-  /// </summary>
-  /// <remarks>
-  /// This facility is required in order to resolve dependency issues when a mutable type holds a member of its own.
-  /// </remarks>
-  public interface IControllableStrongNamedTypeVerifier : IStrongNamedTypeVerifier
+  public class StrongNameAssemblyVerifier : IStrongNameAssemblyVerifier
   {
-    void SetIsStrongNamed (MutableType mutableType, bool strongNamed);
+    public bool IsStrongNamed (Assembly assembly)
+    {
+      ArgumentUtility.CheckNotNull ("assembly", assembly);
+
+      var publicKeyToken = assembly.GetName().GetPublicKeyToken();
+      return publicKeyToken.Any();
+    }
   }
 }

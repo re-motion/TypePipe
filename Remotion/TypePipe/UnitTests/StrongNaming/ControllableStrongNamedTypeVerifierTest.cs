@@ -25,15 +25,15 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
   [TestFixture]
   public class ControllableStrongNamedTypeVerifierTest
   {
-    private ControllableStrongNamedTypeVerifier _verifier;
+    private ControllableStrongNameTypeVerifier _verifier;
 
-    private IStrongNamedTypeVerifier _typeVerifierMock;
+    private IStrongNameTypeVerifier _typeVerifierMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNamedTypeVerifier>();
-      _verifier = new ControllableStrongNamedTypeVerifier (_typeVerifierMock);
+      _typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier>();
+      _verifier = new ControllableStrongNameTypeVerifier (_typeVerifierMock);
     }
 
     [Test]

@@ -23,8 +23,8 @@ namespace Remotion.TypePipe.StrongNaming
   /// <summary>
   /// Determines wheter <see cref="Type"/> is strong-named.
   /// </summary>
-  [ConcreteImplementation (typeof (StrongNamedAssemblyVerifier))]
-  public interface IStrongNamedAssemblyVerifier
+  [ConcreteImplementation (typeof (StrongNameAssemblyVerifier))]
+  public interface IStrongNameAssemblyVerifier
   {
     bool IsStrongNamed (Assembly assembly);
   }

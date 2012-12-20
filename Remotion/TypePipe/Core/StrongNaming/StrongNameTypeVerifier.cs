@@ -16,46 +16,44 @@
 // 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.MutableReflection;
+using System.Linq;
+using System.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class ControllableStrongNamedTypeVerifier : IControllableStrongNamedTypeVerifier
+  public class StrongNameTypeVerifier : IStrongNameTypeVerifier
   {
-    private readonly IStrongNamedTypeVerifier _strongNamedTypeVerifier;
-    private readonly Dictionary<Type, bool> _cache = new Dictionary<Type, bool>();
+    private readonly IStrongNameAssemblyVerifier _assemblyVerifier;
 
-    public ControllableStrongNamedTypeVerifier (IStrongNamedTypeVerifier strongNamedTypeVerifier)
+    private readonly Dictionary<Assembly, bool> _cache = new Dictionary<Assembly, bool>();
+
+    public StrongNameTypeVerifier (IStrongNameAssemblyVerifier assemblyVerifier)
     {
-      ArgumentUtility.CheckNotNull ("strongNamedTypeVerifier", strongNamedTypeVerifier);
+      ArgumentUtility.CheckNotNull ("assemblyVerifier", assemblyVerifier);
 
-      _strongNamedTypeVerifier = strongNamedTypeVerifier;
+      _assemblyVerifier = assemblyVerifier;
     }
 
     public bool IsStrongNamed (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      bool strongNamed;
-
-      if (!_cache.TryGetValue(type, out strongNamed))
-      {
-        strongNamed = _strongNamedTypeVerifier.IsStrongNamed (type);
-        _cache.Add (type, strongNamed);
-      }
-
-      return strongNamed;
+      return IsStrongNamedInternal (type) && type.GetGenericArguments().All (IsStrongNamedInternal);
     }
 
-    public void SetIsStrongNamed (MutableType mutableType, bool strongNamed)
+    private bool IsStrongNamedInternal (Type type)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      var assembly = type.Assembly;
 
-      if (strongNamed)
-        _cache[mutableType] = true;
-      else
-        _cache.Remove (mutableType);
+      bool isSigned;
+      if (!_cache.TryGetValue (assembly, out isSigned))
+      {
+        isSigned = _assemblyVerifier.IsStrongNamed (assembly);
+        _cache.Add (assembly, isSigned);
+      }
+
+      return isSigned;
     }
   }
 }
