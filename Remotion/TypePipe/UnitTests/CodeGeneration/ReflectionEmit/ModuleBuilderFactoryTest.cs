@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private ModuleBuilderFactory _factory;
 
-    private string _someDirectory;
     private string _currentDirectory;
 
     [SetUp]
@@ -42,17 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _factory = new ModuleBuilderFactory();
 
-      _someDirectory = Path.GetTempPath();
       _currentDirectory = Environment.CurrentDirectory;
-    }
-
-    [TearDown]
-    public void TearDown ()
-    {
-      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_someDirectory, c_assemblyFileName));
-      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_someDirectory, c_pdbFileName));
-      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_currentDirectory, c_assemblyFileName));
-      FileUtility.DeleteAndWaitForCompletion (Path.Combine (_currentDirectory, c_pdbFileName));
     }
 
     [Test]
@@ -66,18 +55,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder_CustomDirectory ()
     {
-      var result = _factory.CreateModuleBuilder (c_assemblyName, _someDirectory, false, null);
+      var tempDirectory = Path.GetTempPath();
+      var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null);
 
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _someDirectory);
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result, tempDirectory);
     }
 
     [Test]
     public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
-      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
+      var result1 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
+      var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
 
       var publicKey = FallbackKey.KeyPair.PublicKey;
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedPublicKey: publicKey);
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result1, _currentDirectory, expectedPublicKey: publicKey);
+      CheckDecoratedAdapterAndSaveToDiskBehavior (result2, _currentDirectory, expectedPublicKey: publicKey);
     }
 
     [Test]
@@ -95,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
       var decorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
 
-      Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter> ());
+      Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var adapter = (ModuleBuilderAdapter) decorator.InnerModuleBuilder;
       Assert.That (adapter.AssemblyName, Is.EqualTo (c_assemblyName));
       Assert.That (adapter.ScopeName, Is.EqualTo (c_assemblyFileName));
@@ -106,11 +98,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (File.Exists (assemblyPath), Is.False);
       Assert.That (File.Exists (pdbPath), Is.False);
 
-      var result = adapter.SaveToDisk ();
+      var result = adapter.SaveToDisk();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (pdbPath), Is.True);
       Assert.That (result, Is.EqualTo (assemblyPath));
+
+      FileUtility.DeleteAndWaitForCompletion (Path.Combine (assemblyDirectory, c_assemblyFileName));
+      FileUtility.DeleteAndWaitForCompletion (Path.Combine (assemblyDirectory, c_pdbFileName));
     }
   }
 }

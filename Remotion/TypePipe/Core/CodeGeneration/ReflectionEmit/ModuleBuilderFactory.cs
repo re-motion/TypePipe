@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private StrongNameKeyPair GetKeyPair (string keyFilePathOrNull)
     {
-      if (keyFilePathOrNull == null)
+      if (string.IsNullOrEmpty (keyFilePathOrNull))
         return FallbackKey.KeyPair;
 
       using (var fileStrema = File.OpenRead (keyFilePathOrNull))
