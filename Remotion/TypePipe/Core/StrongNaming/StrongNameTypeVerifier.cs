@@ -14,19 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   public class StrongNameTypeVerifier : IStrongNameTypeVerifier
   {
-    private readonly IStrongNameAssemblyVerifier _assemblyVerifier;
+    private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool>();
 
-    private readonly Dictionary<Assembly, bool> _cache = new Dictionary<Assembly, bool>();
+    private readonly IStrongNameAssemblyVerifier _assemblyVerifier;
 
     public StrongNameTypeVerifier (IStrongNameAssemblyVerifier assemblyVerifier)
     {
@@ -39,21 +39,12 @@ namespace Remotion.TypePipe.StrongNaming
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return IsStrongNamedInternal (type) && type.GetGenericArguments().All (IsStrongNamedInternal);
+      return _cache.GetOrCreateValue (type, CalculateIsStrongNamed);
     }
 
-    private bool IsStrongNamedInternal (Type type)
+    private bool CalculateIsStrongNamed (Type type)
     {
-      var assembly = type.Assembly;
-
-      bool isSigned;
-      if (!_cache.TryGetValue (assembly, out isSigned))
-      {
-        isSigned = _assemblyVerifier.IsStrongNamed (assembly);
-        _cache.Add (assembly, isSigned);
-      }
-
-      return isSigned;
+      return _assemblyVerifier.IsStrongNamed (type.Assembly) && type.GetGenericArguments().All (IsStrongNamed);
     }
   }
 }

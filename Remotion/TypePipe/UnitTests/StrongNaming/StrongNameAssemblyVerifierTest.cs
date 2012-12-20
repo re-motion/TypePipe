@@ -23,22 +23,18 @@ using Remotion.TypePipe.StrongNaming;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class StrongNamedAssemblyVerifierTest
+  public class StrongNameAssemblyVerifierTest
   {
     [Test]
     public void IsStrongNamed ()
     {
       var verifier = new StrongNameAssemblyVerifier();
 
-      var assembly1 = typeof (StrongNamedAssemblyVerifierTest).Assembly;
-      var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName("test1"), AssemblyBuilderAccess.Run);
-      var assembly3 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName("test2"), AssemblyBuilderAccess.Run);
-      assembly3.GetName().SetPublicKey (null);
-      assembly3.GetName().SetPublicKeyToken (null);
+      var assembly1 = typeof (StrongNameAssemblyVerifierTest).Assembly;
+      var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("test1"), AssemblyBuilderAccess.Run);
 
       Assert.That (verifier.IsStrongNamed (assembly1), Is.True);
       Assert.That (verifier.IsStrongNamed (assembly2), Is.False);
-      Assert.That (verifier.IsStrongNamed (assembly3), Is.False);
     }
   }
 }
