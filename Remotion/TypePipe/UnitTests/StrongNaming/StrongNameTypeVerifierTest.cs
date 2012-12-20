@@ -69,5 +69,17 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       _assemblyVerifierMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
+
+    [Test]
+    public void SetStrongNamed ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      _assemblyVerifierMock.Stub (x => x.IsStrongNamed (type.Assembly)).Return (false);
+      Assert.That (_verifier.IsStrongNamed (type), Is.False);
+
+      _verifier.SetStrongNamed (type, true);
+
+      Assert.That (_verifier.IsStrongNamed (type), Is.True);
+    }
   }
 }

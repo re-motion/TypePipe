@@ -344,9 +344,7 @@
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
-    <Compile Include="StrongNaming\ControllableStrongNameTypeVerifier.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
-    <Compile Include="StrongNaming\IControllableStrongNameTypeVerifier.cs" />
     <Compile Include="StrongNaming\IStrongNameAnalyzer.cs" />
     <Compile Include="StrongNaming\IStrongNameAssemblyVerifier.cs" />
     <Compile Include="StrongNaming\IStrongNameExpressionVerifier.cs" />

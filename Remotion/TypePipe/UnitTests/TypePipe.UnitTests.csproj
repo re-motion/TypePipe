@@ -183,7 +183,6 @@
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelperTest.cs" />
     <Compile Include="Serialization\Implementation\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
-    <Compile Include="StrongNaming\ControllableStrongNameTypeVerifierTest.cs" />
     <Compile Include="StrongNaming\StrongNameAnalyzerTest.cs" />
     <Compile Include="StrongNaming\StrongNameAssemblyVerifierTest.cs" />
     <Compile Include="StrongNaming\StrongNameExpressionVerifierTest.cs" />

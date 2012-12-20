@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.StrongNaming
   public class StrongNameTypeVerifier : IStrongNameTypeVerifier
   {
     // TODO 5288: Use ReferenceEqualityComparer
-    private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool>();
+    private readonly IDataStore<Type, bool> _cache = DataStoreFactory.Create<Type, bool>();
 
     private readonly IStrongNameAssemblyVerifier _assemblyVerifier;
 
@@ -41,6 +41,13 @@ namespace Remotion.TypePipe.StrongNaming
       ArgumentUtility.CheckNotNull ("type", type);
 
       return _cache.GetOrCreateValue (type, CalculateIsStrongNamed);
+    }
+
+    public void SetStrongNamed (Type type, bool isStrongNamed)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      _cache[type] = isStrongNamed;
     }
 
     private bool CalculateIsStrongNamed (Type type)
