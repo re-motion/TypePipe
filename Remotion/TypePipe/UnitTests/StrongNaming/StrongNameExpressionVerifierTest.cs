@@ -24,7 +24,7 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class StrongNamedExpressionVerifierTest
+  public class StrongNameExpressionVerifierTest
   {
     [Test]
     public void Visit_Expression ()

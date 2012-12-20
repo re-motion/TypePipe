@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -25,16 +26,22 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
   [TestFixture]
   public class StrongNameAssemblyVerifierTest
   {
+    private StrongNameAssemblyVerifier _verifier;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _verifier = new StrongNameAssemblyVerifier();
+    }
+
     [Test]
     public void IsStrongNamed ()
     {
-      var verifier = new StrongNameAssemblyVerifier();
-
       var assembly1 = typeof (StrongNameAssemblyVerifierTest).Assembly;
       var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("test1"), AssemblyBuilderAccess.Run);
 
-      Assert.That (verifier.IsStrongNamed (assembly1), Is.True);
-      Assert.That (verifier.IsStrongNamed (assembly2), Is.False);
+      Assert.That (_verifier.IsStrongNamed (assembly1), Is.True);
+      Assert.That (_verifier.IsStrongNamed (assembly2), Is.False);
     }
   }
 }

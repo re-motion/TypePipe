@@ -23,7 +23,7 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class ControllableStrongNamedTypeVerifierTest
+  public class ControllableStrongNameTypeVerifierTest
   {
     private ControllableStrongNameTypeVerifier _verifier;
 
