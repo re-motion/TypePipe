@@ -16,12 +16,14 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
   /// Determines wheter an <see cref="Expression"/> tree only contains access to strong-named types.
   /// </summary>
+  [ConcreteImplementation (typeof (StrongNamedExpressionVerifier))]
   public interface IStrongNamedExpressionVerifier
   {
     bool IsStrongNamed (Expression expression);

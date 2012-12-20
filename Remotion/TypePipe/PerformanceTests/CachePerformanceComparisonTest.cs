@@ -21,13 +21,15 @@ using NUnit.Framework;
 using Remotion.Data.DomainObjects;
 using Remotion.Data.DomainObjects.Infrastructure;
 using Remotion.Data.DomainObjects.Mapping;
+using Remotion.Development.UnitTesting;
 using Remotion.Mixins;
-using Remotion.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.PerformanceTests
 {
@@ -43,32 +45,35 @@ namespace Remotion.TypePipe.PerformanceTests
       var remixParticipantStub = MockRepository.GenerateStub<IParticipant>();
       restoreParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RestoreCacheKeyProvider());
       remixParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RemixCacheKeyProvider());
+      var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
       var typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
       typeModifierStub.Stub (stub => stub.ApplyModifications (Arg<MutableType>.Is.Anything)).Return (typeof (DomainType));
-      var constructorFinder = new ConstructorFinder();
-      var typeAssembler = new TypeAssembler (new[] { restoreParticipantStub, remixParticipantStub }, typeModifierStub);
-      var constructorProvider = new DelegateFactory();
 
-      ITypeCache typeCacheAsInterface = new TypeCache (typeAssembler, constructorFinder, constructorProvider);
+      var serviceLocator = new DefaultServiceLocator();
+      serviceLocator.Register (typeof (IParticipant), participants.Select (p => (Func<object>) (() => p)));
+      serviceLocator.Register (typeof (ITypeModifier), () => typeModifierStub);
 
-      Func<Type> typeCache = () => typeCacheAsInterface.GetOrCreateType (typeof (DomainType));
-      Func<Delegate> constructorDelegateCache =
-          () => typeCacheAsInterface.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);
+      ITypeCache typeCache;
+      using (new ServiceLocatorScope (serviceLocator))
+        typeCache = SafeServiceLocator.Current.GetInstance<ITypeCache>();
 
-      TimeThis ("TypePipe_Types", typeCache);
-      TimeThis ("TypePipe_ConstructorDelegates", constructorDelegateCache);
+      Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeof (DomainType));
+      Func<Delegate> constructorDelegateCacheFunc = () => typeCache.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);
+
+      TimeThis ("TypePipe_Types", typeCacheFunc);
+      TimeThis ("TypePipe_ConstructorDelegates", constructorDelegateCacheFunc);
     }
 
     [Test]
     public void Remotion ()
     {
-      Func<Type> typeCache = () => InterceptedDomainObjectCreator.Instance.Factory.GetConcreteDomainObjectType (typeof (DomainType));
-      Func<Delegate> constructorDelegateCache =
+      Func<Type> typeCacheFunc = () => InterceptedDomainObjectCreator.Instance.Factory.GetConcreteDomainObjectType (typeof (DomainType));
+      Func<Delegate> constructorDelegateCacheFunc =
           () => InterceptedDomainObjectCreator.Instance.GetConstructorLookupInfo (typeof (DomainType)).GetDelegate (typeof (Func<object>));
 
-      TimeThis ("Remotion_Types", typeCache);
-      TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCache);
+      TimeThis ("Remotion_Types", typeCacheFunc);
+      TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCacheFunc);
     }
 
     private static void TimeThis<T> (string testName, Func<T> func)
@@ -128,8 +133,6 @@ namespace Remotion.TypePipe.PerformanceTests
 
     [DBTable]
     [Uses (typeof (object))]
-    public class DomainType : DomainObject
-    {
-    }
+    public class DomainType : DomainObject { }
   }
 }

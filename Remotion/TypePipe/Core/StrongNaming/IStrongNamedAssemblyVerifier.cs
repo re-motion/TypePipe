@@ -16,12 +16,14 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
   /// Determines wheter <see cref="Type"/> is strong-named.
   /// </summary>
+  [ConcreteImplementation (typeof (StrongNamedAssemblyVerifier))]
   public interface IStrongNamedAssemblyVerifier
   {
     bool IsStrongNamed (Assembly assembly);

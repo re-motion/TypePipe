@@ -23,6 +23,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -36,17 +37,21 @@ namespace Remotion.TypePipe.Caching
   public class TypeAssembler : ITypeAssembler
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
+    private readonly IStrongNameAnalyzer _strongNameAnalyzer;
     private readonly ITypeModifier _typeModifier;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
-    public TypeAssembler (IEnumerable<IParticipant> participants, ITypeModifier typeModifier)
+    public TypeAssembler (IEnumerable<IParticipant> participants, IStrongNameAnalyzer strongNameAnalyzer, ITypeModifier typeModifier)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
+      ArgumentUtility.CheckNotNull ("strongNameAnalyzer", strongNameAnalyzer);
       ArgumentUtility.CheckNotNull ("typeModifier", typeModifier);
 
       _participants = participants.ToList().AsReadOnly();
+      _strongNameAnalyzer = strongNameAnalyzer;
       _typeModifier = typeModifier;
+
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
 

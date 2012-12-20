@@ -36,9 +36,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { MockRepository.GenerateStub<IParticipant>(), participantWithCacheProviderStub };
-      var typeModifier = MockRepository.GenerateStub<ITypeModifier>();
+      var strongNameAnalyzerStub = MockRepository.GenerateStub<IStrongNameAnalyzer>();
+      var typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
 
-      var typeAssembler = new TypeAssembler (participants.AsOneTime(), typeModifier);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime(), strongNameAnalyzerStub, typeModifierStub);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var typeModifierMock = MockRepository.GenerateStrictMock<ITypeModifier>();
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
       typeModifierMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
-      var typeAssembler = CreateTypeAssembler (typeModifierMock);
+      var typeAssembler = CreateTypeAssembler (typeModifier: typeModifierMock);
 
       Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
@@ -60,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var mockRepository = new MockRepository();
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
-      var typeModifierMock = mockRepository.StrictMock<ITypeModifier> ();
+      var typeModifierMock = mockRepository.StrictMock<ITypeModifier>();
 
       var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       MutableType mutableType = null;
@@ -86,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       }
       mockRepository.ReplayAll();
 
-      var typeAssembler = CreateTypeAssembler (typeModifierMock, participantMock1, participantMock2);
+      var typeAssembler = CreateTypeAssembler (typeModifier: typeModifierMock, participants: new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.AssembleType (requestedType);
 
@@ -108,9 +109,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       Assert.That (result, Is.EqualTo (new object[] { null, null, null, requestedType, 1, "2" }));
     }
 
-    private TypeAssembler CreateTypeAssembler (ITypeModifier typeModifier = null, params IParticipant[] participants)
+    private TypeAssembler CreateTypeAssembler (
+        IStrongNameAnalyzer strongNameAnalyzer = null, ITypeModifier typeModifier = null, params IParticipant[] participants)
     {
-      return new TypeAssembler (participants, typeModifier ?? MockRepository.GenerateStub<ITypeModifier>());
+      return new TypeAssembler (
+          participants,
+          strongNameAnalyzer ?? MockRepository.GenerateStub<IStrongNameAnalyzer>(),
+          typeModifier ?? MockRepository.GenerateStub<ITypeModifier>());
     }
 
     private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)

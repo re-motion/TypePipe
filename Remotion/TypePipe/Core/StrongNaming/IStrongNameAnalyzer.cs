@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.StrongNaming
@@ -22,6 +23,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// <summary>
   /// Determines whether a <see cref="MutableType"/> is applicable for a strong-named assembly.
   /// </summary>
+  [ConcreteImplementation (typeof (StrongNameAnalyzer))]
   public interface IStrongNameAnalyzer
   {
     bool IsSignable (MutableType mutableType);

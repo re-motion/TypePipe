@@ -23,10 +23,12 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -85,11 +87,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<MutableType>> participantActions)
     {
       var participants = participantActions.Select (CreateParticipant).AsOneTime();
+      var strongNameAnalyzer = SafeServiceLocator.Current.GetInstance<IStrongNameAnalyzer>();
       var typeModifier = CreateTypeModifier (testName);
-      var typeAssembler = new TypeAssembler (participants, typeModifier);
-      var assembledType = typeAssembler.AssembleType (requestedType);
+      var typeAssembler = new TypeAssembler (participants, strongNameAnalyzer, typeModifier);
 
-      return assembledType;
+      return typeAssembler.AssembleType (requestedType);
     }
   }
 }

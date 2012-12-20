@@ -18,8 +18,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.StrongNaming;
+using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -34,14 +39,16 @@ namespace Remotion.TypePipe.IntegrationTests
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
+      var participantProviders = participants.Select (p => (Func<object>) (() => p));
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       var typeModifier = CreateTypeModifier (testName);
-      var typeAssembler = new TypeAssembler (participants, typeModifier);
-      var constructorFinder = new ConstructorFinder();
-      var delegateFactory = new DelegateFactory();
-      var typeCache = new TypeCache (typeAssembler, constructorFinder, delegateFactory);
 
-      return new ObjectFactory (typeCache);
+      var serviceLocator = new DefaultServiceLocator();
+      serviceLocator.Register (typeof (ITypeModifier), () => typeModifier);
+      serviceLocator.Register (typeof (IParticipant), participantProviders);
+
+      using (new ServiceLocatorScope (serviceLocator))
+        return SafeServiceLocator.Current.GetInstance<IObjectFactory>();
     }
   }
 }

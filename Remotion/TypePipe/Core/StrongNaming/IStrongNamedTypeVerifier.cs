@@ -15,12 +15,14 @@
 // under the License.
 // 
 using System;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
   /// Determines wheter <see cref="Type"/> is strong-named.
   /// </summary>
+  [ConcreteImplementation (typeof (StrongNamedTypeVerifier))]
   public interface IStrongNamedTypeVerifier
   {
     bool IsStrongNamed (Type type);
