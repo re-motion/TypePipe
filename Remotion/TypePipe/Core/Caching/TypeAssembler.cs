@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Remotion.Collections;
+using Remotion.Text;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
@@ -69,15 +71,10 @@ namespace Remotion.TypePipe.Caching
     {
       var mutableType = CreateMutableType (requestedType);
 
-      var compatibility = StrongNameCompatibility.Compatible;
-      foreach (var participant in _participants)
-      {
-        var c = participant.ModifyType (mutableType);
-        compatibility = ComputeCompatibility (compatibility, c);
-      }
+      var participantCompatibilities = _participants.Select (p => Tuple.Create (p, p.ModifyType (mutableType))).ToList();
 
       if (_typeModifier.CodeGenerator.IsStrongNamingEnabled)
-        CheckCompatibility(compatibility, mutableType);
+        CheckCompatibility (mutableType, participantCompatibilities);
 
       return _typeModifier.ApplyModifications (mutableType);
     }
@@ -108,23 +105,23 @@ namespace Remotion.TypePipe.Caching
       return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
     }
 
-    private StrongNameCompatibility ComputeCompatibility (StrongNameCompatibility c1, StrongNameCompatibility c2)
+    private void CheckCompatibility (MutableType mutableType, List<Tuple<IParticipant, StrongNameCompatibility>> compatibilities)
     {
-      if (c1 == StrongNameCompatibility.Incompatible || c2 == StrongNameCompatibility.Incompatible)
-        return StrongNameCompatibility.Incompatible;
+      var incompatibleParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Incompatible).Select (t => t.Item1).ToList();
+      if (incompatibleParticipants.Count > 0)
+        throw NewInvalidOperationException ("incompatible", incompatibleParticipants);
 
-      if (c1 == StrongNameCompatibility.Unknown || c2 == StrongNameCompatibility.Unknown)
-        return StrongNameCompatibility.Unknown;
-
-      return StrongNameCompatibility.Compatible;
+      var unknownParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Unknown).Select (t => t.Item1).ToList();
+      if (unknownParticipants.Count > 0 && !_strongNameAnalyzer.IsStrongNameCompatible (mutableType))
+        throw NewInvalidOperationException ("unknown", unknownParticipants);
     }
 
-    private void CheckCompatibility (StrongNameCompatibility compatibility, MutableType mutableType)
+    private InvalidOperationException NewInvalidOperationException (string offendingCompatibility, List<IParticipant> offendingParticipants)
     {
-      if (compatibility == StrongNameCompatibility.Incompatible)
-        throw new InvalidOperationException ("TODO 5291");
-      if (compatibility == StrongNameCompatibility.Unknown && !_strongNameAnalyzer.IsStrongNameCompatible (mutableType))
-        throw new InvalidOperationException ("TODO 5291");
+      var participantList = SeparatedStringBuilder.Build (", ", offendingParticipants, p => string.Format ("'{0}'", p.GetType().Name));
+      var message = string.Format (
+          "Strong-naming is enabled but the following participants requested {0} type modifications: {1}.", offendingCompatibility, participantList);
+      return new InvalidOperationException (message);
     }
   }
 }

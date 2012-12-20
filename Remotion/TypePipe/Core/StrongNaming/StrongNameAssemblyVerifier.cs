@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.StrongNaming
     private bool CalculateIsStrongNamed (Assembly assembly)
     {
       var token = assembly.GetName().GetPublicKeyToken();
-      return token != null && token.Length != 0;
+      return token != null && token.Length > 0;
     }
   }
 }

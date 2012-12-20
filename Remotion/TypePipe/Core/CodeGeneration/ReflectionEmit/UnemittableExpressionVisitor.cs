@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return Visit (baseCall);
     }
 
-    private Exception NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)
+    private NotSupportedException NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)
     {
       var message =
           string.Format (

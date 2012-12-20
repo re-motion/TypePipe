@@ -139,7 +139,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "TODO 5291")]
+    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        @"Strong-naming is enabled but the following participants requested incompatible type modifications: 'IParticipantProxy.*'\.")]
     public void AssemblyType_StrongNaming_Incompatible ()
     {
       _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
@@ -151,11 +152,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "TODO 5291")]
+    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        @"Strong-naming is enabled but the following participants requested unknown type modifications: 'IParticipantProxy.*'\.")]
     public void AssemblyType_StrongNaming_Unknown_CheckFails ()
     {
       _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
-      _participantStub2.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Incompatible);
+      _participantStub2.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Unknown);
       _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (true);
       _strongNameAnalyzerStub.Stub (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything)).Return (false);
       var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1, _participantStub2);
