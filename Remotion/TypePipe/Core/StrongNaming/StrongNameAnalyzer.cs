@@ -17,8 +17,6 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -41,6 +39,7 @@ namespace Remotion.TypePipe.StrongNaming
     public bool IsStrongNameCompatible (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      Assertion.IsFalse (mutableType.IsGenericType, "TODO: adapt code");
 
       // TODO Review: This has a problem when the mutableType reoccurs within a member signature or expression.
       // Fix by adding the mutableType to the cache with "true" first, and in the end replacing the cache entry with 
@@ -108,26 +107,26 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool IsStrongNamed (MutableMethodInfo method)
     {
+      Assertion.IsFalse (method.IsGenericMethod, "TODO: adapt code");
+
       if (!IsStrongNamed ((IMutableMethodBase) method))
         return false;
 
       if (!IsStrongNamed (method.MutableReturnParameter))
         return false;
 
-      // TODO Review: Assertion: Method is not generic
-
       return true;
     }
 
-    private bool IsStrongNamed (MutableParameterInfo parameterInfo)
+    private bool IsStrongNamed (MutableParameterInfo parameter)
     {
+      Assertion.IsTrue (parameter.GetRequiredCustomModifiers().Length == 0 && parameter.GetOptionalCustomModifiers().Length == 0);
+
       // TODO Review: AddedAttributes
-      //if (!TypePipeCustomAttributeData.GetCustomAttributes (parameterInfo).Select (x => x.Type).All (IsSigned))
+      //if (!TypePipeCustomAttributeData.GetCustomAttributes (parameter).Select (x => x.Type).All (IsSigned))
       //  return false;
 
-      // TODO Review: Assertion: No required or optional custom modifiers
-
-      if (!_strongNameTypeVerifier.IsStrongNamed (parameterInfo.ParameterType))
+      if (!_strongNameTypeVerifier.IsStrongNamed (parameter.ParameterType))
         return false;
 
       return true;
