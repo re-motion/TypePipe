@@ -88,7 +88,6 @@ namespace Remotion.TypePipe.StrongNaming
       return true;
     }
 
-
     private bool IsStrongNamed (IMutableMethodBase methodBase)
     {
       // TODO Review: AddedAttributes
@@ -99,8 +98,8 @@ namespace Remotion.TypePipe.StrongNaming
       if (!methodBase.MutableParameters.All (IsStrongNamed))
         return false;
 
-      //if (!_strongNameExpressionVerifier.IsStrongNamed (methodBase.Body))
-      //  return false;
+      if (!_strongNameExpressionVerifier.IsStrongNamed (methodBase.Body))
+        return false;
 
       return true;
     }
