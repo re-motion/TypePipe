@@ -21,12 +21,11 @@ using Remotion.ServiceLocation;
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// Determines wheter an <see cref="Expression"/> tree only contains access to strong-named types.
+  /// Determines if an <see cref="Expression"/> is compatible with strong-naming, i.e., only contains types that reside in strong-named assemblies.
   /// </summary>
   [ConcreteImplementation (typeof (StrongNameExpressionVerifier))]
   public interface IStrongNameExpressionVerifier
   {
-    // TODO rename: IsStrongNameCompatible
-    bool IsStrongNamed (Expression expression);
+    bool IsStrongNameCompatible (Expression expression);
   }
 }

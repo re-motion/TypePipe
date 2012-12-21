@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var initialization = ExpressionTreeObjectMother.GetSomeExpression();
       _mutableType.AddTypeInitialization (ctx => initialization);
-      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNamed (initialization)).Return (_randomBool);
+      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNameCompatible (initialization)).Return (_randomBool);
 
       CheckIsStrongNameCompatible();
     }
@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var initialization = ExpressionTreeObjectMother.GetSomeExpression();
       _mutableType.AddInstanceInitialization (ctx => initialization);
-      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNamed (initialization)).Return (_randomBool);
+      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNameCompatible (initialization)).Return (_randomBool);
 
       CheckIsStrongNameCompatible();
     }
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       _mutableType.AddConstructor (0, new[] { new ParameterDeclaration (_someType, "p") }, ctx => Expression.Empty());
       _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
-      _strongNameExpressionVerifierMock.Stub (stub => stub.IsStrongNamed (Arg<Expression>.Is.Anything)).Return (true);
+      _strongNameExpressionVerifierMock.Stub (stub => stub.IsStrongNameCompatible (Arg<Expression>.Is.Anything)).Return (true);
 
       CheckIsStrongNameCompatible();
     }
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNameCompatible_Constructors_Body ()
     {
       var ctor = _mutableType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
-      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNamed (ctor.Body)).Return (_randomBool);
+      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNameCompatible (ctor.Body)).Return (_randomBool);
 
       CheckIsStrongNameCompatible();
     }
@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       _mutableType.AddMethod ("method", 0, typeof (void), new[] { new ParameterDeclaration (_someType, "p") }, ctx => Expression.Empty());
       _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
-      _strongNameExpressionVerifierMock.Stub (stub => stub.IsStrongNamed (Arg<Expression>.Is.Anything)).Return (true);
+      _strongNameExpressionVerifierMock.Stub (stub => stub.IsStrongNameCompatible (Arg<Expression>.Is.Anything)).Return (true);
       _strongNameTypeVerifierMock.Stub (stub => stub.IsStrongNamed (typeof (void))).Return (true);
 
       CheckIsStrongNameCompatible();
@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNameCompatible_Methods_Body ()
     {
       var method = _mutableType.AddMethod ("method", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
-      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNamed (method.Body)).Return (_randomBool);
+      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNameCompatible (method.Body)).Return (_randomBool);
       _strongNameTypeVerifierMock.Stub (stub => stub.IsStrongNamed (typeof (void))).Return (true);
 
       CheckIsStrongNameCompatible();
@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       _mutableType.AddMethod ("method", 0, _someType, ParameterDeclaration.EmptyParameters, ctx => Expression.Default (_someType));
       _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
-      _strongNameExpressionVerifierMock.Stub (stub => stub.IsStrongNamed (Arg<Expression>.Is.Anything)).Return (true);
+      _strongNameExpressionVerifierMock.Stub (stub => stub.IsStrongNameCompatible (Arg<Expression>.Is.Anything)).Return (true);
 
       CheckIsStrongNameCompatible();
     }

@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.StrongNaming
       _typeVerifier = typeVerifier;
     }
 
-    public bool IsStrongNamed (Expression expression)
+    public bool IsStrongNameCompatible (Expression expression)
     {
       Visit (expression);
 

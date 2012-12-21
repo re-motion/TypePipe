@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
               });
       strongTypeVerifier.Stub (stub => stub.IsStrongNamed (Arg<Type>.Is.Anything)).Return (true);
 
-      var result = visitorPartialMock.IsStrongNamed (expression);
+      var result = visitorPartialMock.IsStrongNameCompatible (expression);
 
       strongTypeVerifier.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (strongNamed));

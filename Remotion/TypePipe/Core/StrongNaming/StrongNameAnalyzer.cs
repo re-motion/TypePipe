@@ -53,9 +53,9 @@ namespace Remotion.TypePipe.StrongNaming
 
       // TODO Review: AddedAttributes missing
 
-      if (!mutableType.TypeInitializations.All (_strongNameExpressionVerifier.IsStrongNamed))
+      if (!mutableType.TypeInitializations.All (_strongNameExpressionVerifier.IsStrongNameCompatible))
         return false;
-      if (!mutableType.InstanceInitializations.All (_strongNameExpressionVerifier.IsStrongNamed))
+      if (!mutableType.InstanceInitializations.All (_strongNameExpressionVerifier.IsStrongNameCompatible))
         return false;
 
       if (!mutableType.AddedInterfaces.All (_strongNameTypeVerifier.IsStrongNamed))
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.StrongNaming
       if (!methodBase.MutableParameters.All (IsStrongNamed))
         return false;
 
-      if (!_strongNameExpressionVerifier.IsStrongNamed (methodBase.Body))
+      if (!_strongNameExpressionVerifier.IsStrongNameCompatible (methodBase.Body))
         return false;
 
       return true;
