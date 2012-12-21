@@ -21,7 +21,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// Determines whether a <see cref="MutableType"/> is applicable for a strong-named assembly.
+  /// Determines whether a <see cref="MutableType"/> can be generated into a a strong-named assembly.
   /// </summary>
   [ConcreteImplementation (typeof (StrongNameAnalyzer))]
   public interface IStrongNameAnalyzer

@@ -15,141 +15,145 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using Rhino.Mocks.Interfaces;
 
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
   public class StrongNameAnalyzerTest
   {
+    private IStrongNameTypeVerifier _strongNameTypeVerifierMock;
+    private IStrongNameExpressionVerifier _strongNameExpressionVerifierMock;
+
+    private StrongNameAnalyzer _analyzer;
+
     private MutableType _mutableType;
-    private Type _type;
+    private IMethodOptions<bool> _underlyingTypeCheck;
+    private Type _someType;
+    private bool _randomBool;
 
     [SetUp]
     public void SetUp ()
     {
+      _strongNameTypeVerifierMock = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier>();
+      _strongNameExpressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNameExpressionVerifier>();
+
+      _analyzer = new StrongNameAnalyzer (_strongNameTypeVerifierMock, _strongNameExpressionVerifierMock);
+
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
-      _type = ReflectionObjectMother.GetSomeType();
+      _underlyingTypeCheck = _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_mutableType.UnderlyingSystemType)).Return (true);
+      _someType = ReflectionObjectMother.GetSomeType();
+      _randomBool = BooleanObjectMother.GetRandomBoolean();
     }
 
     [Test]
-    public void Cache ()
+    public void IsStrongNameCompatible ()
     {
-      var expressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNameExpressionVerifier> ();
-      var typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier>();
-      var analyzer = new StrongNameAnalyzer (typeVerifierMock, expressionVerifierMock);
-
-      typeVerifierMock.Expect (mock => mock.IsStrongNamed (_mutableType.UnderlyingSystemType)).Return (true).Repeat.Once();
-
-      analyzer.IsStrongNameCompatible (_mutableType);
-      analyzer.IsStrongNameCompatible (_mutableType);
+      Assert.That (_analyzer.IsStrongNameCompatible (_mutableType), Is.True);
     }
 
     [Test]
-    public void UnderlyingType ()
+    public void IsStrongNameCompatible_UnderlyingType ()
     {
-      Check (_mutableType, signable: true, type: _mutableType.UnderlyingSystemType);
-      Check (_mutableType, signable: false, type: _mutableType.UnderlyingSystemType);
+      _underlyingTypeCheck.Return (_randomBool);
+
+      CheckIsStrongNameCompatible();
     }
 
     [Test]
-    public void Interface ()
+    public void IsStrongNameCompatible_Interfaces ()
     {
-      var interfaceType = typeof (IDomainInterface);
-      _mutableType.AddInterface (interfaceType);
+      Assert.That (_mutableType.ExistingInterfaces, Is.Not.Empty);
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (typeof (IAddedInterface))).Return (_randomBool);
 
-      Check (_mutableType, signable: true, type: interfaceType);
-      Check (_mutableType, signable: false, type: interfaceType);
+      CheckIsStrongNameCompatible();
     }
 
     [Test]
-    public void GenericInterface ()
+    public void IsStrongNameCompatible_Fields_Type ()
     {
-      var interfaceType = typeof (IGenericInterface<>).MakeGenericType (_type);
-      _mutableType.AddInterface (interfaceType);
+      Assert.That (_mutableType.ExistingMutableFields, Is.Not.Empty);
+      _mutableType.AddField ("field", _someType);
+      _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
 
-      Check (_mutableType, signable: true, type: _type);
-      Check (_mutableType, signable: false, type: _type);
+      CheckIsStrongNameCompatible();
     }
 
     [Test]
-    public void Fields ()
+    public void IsStrongNameCompatible_Constructors_Parameters ()
     {
-      _mutableType.AddField ("Field", _type, FieldAttributes.Public);
+      Assert.That (_mutableType.ExistingMutableConstructors, Is.Not.Empty);
+      _mutableType.AddConstructor (0, new[] { new ParameterDeclaration (_someType, "p") }, ctx => Expression.Empty());
+      _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
 
-      Check (_mutableType, signable: true, type: _type);
-      Check (_mutableType, signable: false, type: _type);
+      CheckIsStrongNameCompatible();
     }
 
     [Test]
-    public void MethodReturnType ()
+    public void IsStrongNameCompatible_Methods_ReturnParameter ()
     {
-      _mutableType.AddMethod ("Method", MethodAttributes.Public, _type, ParameterDeclaration.EmptyParameters, ctx => Expression.Default(_type));
+      Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
+      _mutableType.AddMethod ("method", 0, _someType, ParameterDeclaration.EmptyParameters, ctx => Expression.Default (_someType));
+      _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
 
-      Check (_mutableType, signable: true, type: _type);
-      Check (_mutableType, signable: false, type: _type);
+      CheckIsStrongNameCompatible();
     }
 
     [Test]
-    public void MethodParameter ()
+    public void IsStrongNameCompatible_Methods_Parameters ()
     {
-      var parameters = new[] { new ParameterDeclaration (_type, "param") };
-      _mutableType.AddMethod ("Method", MethodAttributes.Public, typeof (void), parameters, ctx => Expression.Empty());
+      Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
+      _mutableType.AddMethod ("method", 0, typeof (void), new[] { new ParameterDeclaration (_someType, "p") }, ctx => Expression.Empty());
+      _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
 
-      Check (_mutableType, signable: true, type: _type);
-      Check (_mutableType, signable: false, type: _type);
+      CheckIsStrongNameCompatible();
     }
 
-    [Test]
-    public void MethodBody ()
-    {
-      var expression = Expression.Block (typeof (void), ExpressionTreeObjectMother.GetSomeExpression());
-      _mutableType.AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, ctx => expression);
+    //[Test]
+    //public void MethodBody ()
+    //{
+    //  var expression = Expression.Block (typeof (void), ExpressionTreeObjectMother.GetSomeExpression());
+    //  _mutableType.AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, ctx => expression);
 
-      Check (_mutableType, signable: true, expression: expression);
-      Check (_mutableType, signable: false, expression: expression);
+    //  Check (_mutableType, signable: true, expression: expression);
+    //  Check (_mutableType, signable: false, expression: expression);
+    //}
+
+    //[Test]
+    //public void ConstructorBody ()
+    //{
+    //  var expression = Expression.Block (typeof (void), ExpressionTreeObjectMother.GetSomeExpression());
+    //  _mutableType.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "param") }, ctx => expression);
+
+    //  Check (_mutableType, signable: true, expression: expression);
+    //  Check (_mutableType, signable: false, expression: expression);
+    //}
+
+    private void CheckIsStrongNameCompatible ()
+    {
+      var result = _analyzer.IsStrongNameCompatible (_mutableType);
+
+      _strongNameTypeVerifierMock.VerifyAllExpectations();
+      _strongNameExpressionVerifierMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (_randomBool));
     }
 
-    [Test]
-    public void ConstructorBody ()
+    class DomainType : IExistingInterface
     {
-      var expression = Expression.Block (typeof (void), ExpressionTreeObjectMother.GetSomeExpression());
-      _mutableType.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "param") }, ctx => expression);
+      public int ExistingField = 0;
 
-      Check (_mutableType, signable: true, expression: expression);
-      Check (_mutableType, signable: false, expression: expression);
+      public void ExistingMethod() {}
     }
 
-    private void Check (MutableType mutableType, bool signable, Type type = null, Expression expression = null)
-    {
-      var expressionVerifierMock = MockRepository.GenerateStrictMock<IStrongNameExpressionVerifier> ();
-      var typeVerifierMock = MockRepository.GenerateStrictMock<IStrongNameTypeVerifier> ();
-      var analyzer = new StrongNameAnalyzer (typeVerifierMock, expressionVerifierMock);
-
-      if (type != null)
-        typeVerifierMock.Expect (mock => mock.IsStrongNamed (type)).Return (signable);
-      if (expression != null)
-        expressionVerifierMock.Expect (mock => mock.IsStrongNamed (expression)).Return (signable);
-      typeVerifierMock.Stub (stub => stub.IsStrongNamed (null)).IgnoreArguments ().Return (true);
-      expressionVerifierMock.Stub (stub => stub.IsStrongNamed (null)).IgnoreArguments ().Return (true);
-
-      var result = analyzer.IsStrongNameCompatible (mutableType);
-      typeVerifierMock.VerifyAllExpectations ();
-      expressionVerifierMock.VerifyAllExpectations ();
-      Assert.That (result, Is.EqualTo (signable));
-    }
-
-    public class DomainType {}
-
-    public interface IDomainInterface {}
-
-    public interface IGenericInterface<T> {}
+    interface IExistingInterface {}
+    interface IAddedInterface { }
   }
 }

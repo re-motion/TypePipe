@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.StrongNaming
   [ConcreteImplementation (typeof (StrongNameExpressionVerifier))]
   public interface IStrongNameExpressionVerifier
   {
+    // TODO rename: IsStrongNameCompatible
     bool IsStrongNamed (Expression expression);
   }
 }
