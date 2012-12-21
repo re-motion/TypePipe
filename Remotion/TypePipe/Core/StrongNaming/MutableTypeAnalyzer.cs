@@ -22,18 +22,18 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNameAnalyzer : IStrongNameAnalyzer
+  public class MutableTypeAnalyzer : IMutableTypeAnalyzer
   {
-    private readonly IStrongNameTypeVerifier _strongNameTypeVerifier;
-    private readonly IStrongNameExpressionVerifier _strongNameExpressionVerifier;
+    private readonly ITypeAnalyzer _typeAnalyzer;
+    private readonly IExpressionAnalyzer _expressionAnalyzer;
 
-    public StrongNameAnalyzer (IStrongNameTypeVerifier strongNameTypeVerifier, IStrongNameExpressionVerifier strongNameExpressionVerifier)
+    public MutableTypeAnalyzer (ITypeAnalyzer typeAnalyzer, IExpressionAnalyzer expressionAnalyzer)
     {
-      ArgumentUtility.CheckNotNull ("strongNameTypeVerifier", strongNameTypeVerifier);
-      ArgumentUtility.CheckNotNull ("strongNameExpressionVerifier", strongNameExpressionVerifier);
+      ArgumentUtility.CheckNotNull ("typeAnalyzer", typeAnalyzer);
+      ArgumentUtility.CheckNotNull ("expressionAnalyzer", expressionAnalyzer);
 
-      _strongNameTypeVerifier = strongNameTypeVerifier;
-      _strongNameExpressionVerifier = strongNameExpressionVerifier;
+      _typeAnalyzer = typeAnalyzer;
+      _expressionAnalyzer = expressionAnalyzer;
     }
 
     public bool IsStrongNameCompatible (MutableType mutableType)
@@ -48,17 +48,17 @@ namespace Remotion.TypePipe.StrongNaming
       // have a separate entry from the underlying type.
 
       // TODO 4740: Adapt for new types
-      if (!_strongNameTypeVerifier.IsStrongNamed (mutableType.UnderlyingSystemType))
+      if (!_typeAnalyzer.IsStrongNamed (mutableType.UnderlyingSystemType))
         return false;
 
       // TODO Review: AddedAttributes missing
 
-      if (!mutableType.TypeInitializations.All (_strongNameExpressionVerifier.IsStrongNameCompatible))
+      if (!mutableType.TypeInitializations.All (_expressionAnalyzer.IsStrongNameCompatible))
         return false;
-      if (!mutableType.InstanceInitializations.All (_strongNameExpressionVerifier.IsStrongNameCompatible))
+      if (!mutableType.InstanceInitializations.All (_expressionAnalyzer.IsStrongNameCompatible))
         return false;
 
-      if (!mutableType.AddedInterfaces.All (_strongNameTypeVerifier.IsStrongNamed))
+      if (!mutableType.AddedInterfaces.All (_typeAnalyzer.IsStrongNamed))
         return false;
       if (!mutableType.AddedFields.All (IsStrongNamed))
         return false;
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.StrongNaming
       //if (TypePipeCustomAttributeData.GetCustomAttributes (field).Select (x => x.Type).Any (IsSigned))
       //  return true;
 
-      if (!_strongNameTypeVerifier.IsStrongNamed (field.FieldType))
+      if (!_typeAnalyzer.IsStrongNamed (field.FieldType))
         return false;
 
       return true;
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.StrongNaming
       if (!methodBase.MutableParameters.All (IsStrongNamed))
         return false;
 
-      if (!_strongNameExpressionVerifier.IsStrongNameCompatible (methodBase.Body))
+      if (!_expressionAnalyzer.IsStrongNameCompatible (methodBase.Body))
         return false;
 
       return true;
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.StrongNaming
       //if (!TypePipeCustomAttributeData.GetCustomAttributes (parameter).Select (x => x.Type).All (IsSigned))
       //  return false;
 
-      if (!_strongNameTypeVerifier.IsStrongNamed (parameter.ParameterType))
+      if (!_typeAnalyzer.IsStrongNamed (parameter.ParameterType))
         return false;
 
       return true;

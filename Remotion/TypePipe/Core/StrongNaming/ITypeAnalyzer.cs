@@ -14,34 +14,20 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Reflection;
-using System.Reflection.Emit;
-using NUnit.Framework;
-using Remotion.TypePipe.StrongNaming;
+using Remotion.ServiceLocation;
 
-namespace Remotion.TypePipe.UnitTests.StrongNaming
+namespace Remotion.TypePipe.StrongNaming
 {
-  [TestFixture]
-  public class StrongNameAssemblyVerifierTest
+  /// <summary>
+  /// Determines wheter a given <see cref="Type"/> resides in a strong-named assembly.
+  /// Also allows to explicitly set or override the strong-name compatibility status of a type in the internal lookup structure.
+  /// </summary>
+  [ConcreteImplementation (typeof (TypeAnalyzer))]
+  public interface ITypeAnalyzer
   {
-    private StrongNameAssemblyVerifier _verifier;
+    bool IsStrongNamed (Type type);
 
-    [SetUp]
-    public void SetUp ()
-    {
-      _verifier = new StrongNameAssemblyVerifier();
-    }
-
-    [Test]
-    public void IsStrongNamed ()
-    {
-      var assembly1 = typeof (StrongNameAssemblyVerifierTest).Assembly;
-      var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("test1"), AssemblyBuilderAccess.Run);
-
-      Assert.That (_verifier.IsStrongNamed (assembly1), Is.True);
-      Assert.That (_verifier.IsStrongNamed (assembly2), Is.False);
-    }
+    void SetStrongNamed (Type type, bool isStrongNamed);
   }
 }

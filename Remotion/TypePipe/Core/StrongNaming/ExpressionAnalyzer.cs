@@ -22,17 +22,17 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNameExpressionVerifier : PrimitiveTypePipeExpressionVisitorBase, IStrongNameExpressionVerifier
+  public class ExpressionAnalyzer : PrimitiveTypePipeExpressionVisitorBase, IExpressionAnalyzer
   {
-    private readonly IStrongNameTypeVerifier _typeVerifier;
+    private readonly ITypeAnalyzer _typeAnalyzer;
 
     private bool _isStrongNamed = true;
 
-    public StrongNameExpressionVerifier (IStrongNameTypeVerifier typeVerifier)
+    public ExpressionAnalyzer (ITypeAnalyzer typeAnalyzer)
     {
-      ArgumentUtility.CheckNotNull ("typeVerifier", typeVerifier);
+      ArgumentUtility.CheckNotNull ("typeAnalyzer", typeAnalyzer);
 
-      _typeVerifier = typeVerifier;
+      _typeAnalyzer = typeAnalyzer;
     }
 
     public bool IsStrongNameCompatible (Expression expression)
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     public override Expression Visit (Expression node)
     {
-      if (node != null && !_typeVerifier.IsStrongNamed (node.Type))
+      if (node != null && !_typeAnalyzer.IsStrongNamed (node.Type))
       {
         _isStrongNamed = false;
         return node;
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.StrongNaming
     protected internal override Expression VisitMethodCall (MethodCallExpression node)
     {
       // TODO Review: Also check generic arguments of method.
-      if (!_typeVerifier.IsStrongNamed (node.Method.DeclaringType))
+      if (!_typeAnalyzer.IsStrongNamed (node.Method.DeclaringType))
       {
         _isStrongNamed = false;
         return node;
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     protected internal override Expression VisitMember (MemberExpression node)
     {
-      if (!_typeVerifier.IsStrongNamed (node.Member.DeclaringType))
+      if (!_typeAnalyzer.IsStrongNamed (node.Member.DeclaringType))
       {
         _isStrongNamed = false;
         return node;
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     protected override CatchBlock VisitCatchBlock (CatchBlock node)
     {
-      if (!_typeVerifier.IsStrongNamed (node.Test))
+      if (!_typeAnalyzer.IsStrongNamed (node.Test))
       {
         _isStrongNamed = false;
         return node;

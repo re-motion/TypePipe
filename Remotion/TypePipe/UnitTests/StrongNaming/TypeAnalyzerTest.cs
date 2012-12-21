@@ -27,18 +27,18 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class StrongNameTypeVerifierTest
+  public class TypeAnalyzerTest
   {
-    private IStrongNameAssemblyVerifier _assemblyVerifierMock;
+    private IAssemblyAnalyzer _assemblyAnalyzerMock;
 
-    private StrongNameTypeVerifier _verifier;
+    private TypeAnalyzer _analyzer;
 
     [SetUp]
     public void SetUp ()
     {
-      _assemblyVerifierMock = MockRepository.GenerateStrictMock<IStrongNameAssemblyVerifier>();
+      _assemblyAnalyzerMock = MockRepository.GenerateStrictMock<IAssemblyAnalyzer>();
 
-      _verifier = new StrongNameTypeVerifier (_assemblyVerifierMock);
+      _analyzer = new TypeAnalyzer (_assemblyAnalyzerMock);
     }
 
     [Test]
@@ -46,12 +46,12 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = ReflectionObjectMother.GetSomeType();
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
-      _assemblyVerifierMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (fakeResult);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (fakeResult);
 
-      var result1 = _verifier.IsStrongNamed (type);
-      var result2 = _verifier.IsStrongNamed (type);
+      var result1 = _analyzer.IsStrongNamed (type);
+      var result2 = _analyzer.IsStrongNamed (type);
 
-      _assemblyVerifierMock.VerifyAllExpectations();
+      _assemblyAnalyzerMock.VerifyAllExpectations();
       Assert.That (result1, Is.EqualTo (fakeResult));
       Assert.That (result2, Is.EqualTo (fakeResult));
     }
@@ -61,13 +61,13 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = typeof (IList<Set<IParticipant>>);
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
-      _assemblyVerifierMock.Expect (x => x.IsStrongNamed (typeof (IList<>).Assembly)).Return (true);
-      _assemblyVerifierMock.Expect (x => x.IsStrongNamed (typeof (Set<>).Assembly)).Return (true);
-      _assemblyVerifierMock.Expect (x => x.IsStrongNamed (typeof (IParticipant).Assembly)).Return (fakeResult);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (IList<>).Assembly)).Return (true);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (Set<>).Assembly)).Return (true);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (IParticipant).Assembly)).Return (fakeResult);
 
-      var result = _verifier.IsStrongNamed (type);
+      var result = _analyzer.IsStrongNamed (type);
 
-      _assemblyVerifierMock.VerifyAllExpectations();
+      _assemblyAnalyzerMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -76,24 +76,24 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = typeof (object);
       var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      _verifier.SetStrongNamed (mutableType, true);
-      _assemblyVerifierMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
+      _analyzer.SetStrongNamed (mutableType, true);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
 
-      _verifier.IsStrongNamed (type);
+      _analyzer.IsStrongNamed (type);
 
-      _assemblyVerifierMock.VerifyAllExpectations();
+      _assemblyAnalyzerMock.VerifyAllExpectations();
     }
 
     [Test]
     public void SetStrongNamed ()
     {
       var type = ReflectionObjectMother.GetSomeType();
-      _assemblyVerifierMock.Stub (x => x.IsStrongNamed (type.Assembly)).Return (false);
-      Assert.That (_verifier.IsStrongNamed (type), Is.False);
+      _assemblyAnalyzerMock.Stub (x => x.IsStrongNamed (type.Assembly)).Return (false);
+      Assert.That (_analyzer.IsStrongNamed (type), Is.False);
 
-      _verifier.SetStrongNamed (type, true);
+      _analyzer.SetStrongNamed (type, true);
 
-      Assert.That (_verifier.IsStrongNamed (type), Is.True);
+      Assert.That (_analyzer.IsStrongNamed (type), Is.True);
     }
   }
 }

@@ -14,18 +14,34 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.StrongNaming
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+using NUnit.Framework;
+using Remotion.TypePipe.StrongNaming;
+
+namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
-  /// <summary>
-  /// Determines whether a <see cref="MutableType"/> can be generated into a a strong-named assembly.
-  /// </summary>
-  [ConcreteImplementation (typeof (StrongNameAnalyzer))]
-  public interface IStrongNameAnalyzer
+  [TestFixture]
+  public class AssemblyAnalyzerTest
   {
-    bool IsStrongNameCompatible (MutableType mutableType);
+    private AssemblyAnalyzer _analyzer;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _analyzer = new AssemblyAnalyzer();
+    }
+
+    [Test]
+    public void IsStrongNamed ()
+    {
+      var assembly1 = typeof (AssemblyAnalyzerTest).Assembly;
+      var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("test1"), AssemblyBuilderAccess.Run);
+
+      Assert.That (_analyzer.IsStrongNamed (assembly1), Is.True);
+      Assert.That (_analyzer.IsStrongNamed (assembly2), Is.False);
+    }
   }
 }

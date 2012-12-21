@@ -345,15 +345,15 @@
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
-    <Compile Include="StrongNaming\IStrongNameAnalyzer.cs" />
-    <Compile Include="StrongNaming\IStrongNameAssemblyVerifier.cs" />
-    <Compile Include="StrongNaming\IStrongNameExpressionVerifier.cs" />
-    <Compile Include="StrongNaming\IStrongNameTypeVerifier.cs" />
-    <Compile Include="StrongNaming\StrongNameAnalyzer.cs" />
+    <Compile Include="StrongNaming\IMutableTypeAnalyzer.cs" />
+    <Compile Include="StrongNaming\IAssemblyAnalyzer.cs" />
+    <Compile Include="StrongNaming\IExpressionAnalyzer.cs" />
+    <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
+    <Compile Include="StrongNaming\MutableTypeAnalyzer.cs" />
     <Compile Include="StrongNaming\StrongNameCompatibility.cs" />
-    <Compile Include="StrongNaming\StrongNameAssemblyVerifier.cs" />
-    <Compile Include="StrongNaming\StrongNameExpressionVerifier.cs" />
-    <Compile Include="StrongNaming\StrongNameTypeVerifier.cs" />
+    <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
+    <Compile Include="StrongNaming\ExpressionAnalyzer.cs" />
+    <Compile Include="StrongNaming\TypeAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

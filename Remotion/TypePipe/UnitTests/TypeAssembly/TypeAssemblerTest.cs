@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   {
     private IParticipant _participantStub1;
     private IParticipant _participantStub2;
-    private IStrongNameAnalyzer _strongNameAnalyzerStub;
+    private IMutableTypeAnalyzer _mutableTypeAnalyzerStub;
     private ITypeModifier _typeModifierStub;
     
     private Type _requestedType;
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       _participantStub1 = MockRepository.GenerateStub<IParticipant>();
       _participantStub2 = MockRepository.GenerateStub<IParticipant>();
-      _strongNameAnalyzerStub = MockRepository.GenerateStub<IStrongNameAnalyzer>();
+      _mutableTypeAnalyzerStub = MockRepository.GenerateStub<IMutableTypeAnalyzer>();
       _typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
 
       _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { _participantStub1, participantWithCacheProviderStub };
-      var typeAssembler = new TypeAssembler (participants.AsOneTime(), _strongNameAnalyzerStub, _typeModifierStub);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime(), _mutableTypeAnalyzerStub, _typeModifierStub);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var mockRepository = new MockRepository();
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
-      var strongNameAnalyzer = mockRepository.StrictMock<IStrongNameAnalyzer>();
+      var strongNameAnalyzer = mockRepository.StrictMock<IMutableTypeAnalyzer>();
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier>();
 
       MutableType mutableType = null;
@@ -119,11 +119,11 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Incompatible);
       _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (false);
-      var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1);
+      var typeAssembler = CreateTypeAssembler (_mutableTypeAnalyzerStub, _typeModifierStub, _participantStub1);
 
       typeAssembler.AssembleType (_requestedType);
 
-      _strongNameAnalyzerStub.AssertWasNotCalled (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything));
+      _mutableTypeAnalyzerStub.AssertWasNotCalled (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything));
     }
 
     [Test]
@@ -131,11 +131,11 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
       _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (true);
-      var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1);
+      var typeAssembler = CreateTypeAssembler (_mutableTypeAnalyzerStub, _typeModifierStub, _participantStub1);
 
       typeAssembler.AssembleType (_requestedType);
 
-      _strongNameAnalyzerStub.AssertWasNotCalled (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything));
+      _mutableTypeAnalyzerStub.AssertWasNotCalled (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything));
     }
 
     [Test]
@@ -159,8 +159,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       _participantStub1.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Compatible);
       _participantStub2.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Return (StrongNameCompatibility.Unknown);
       _typeModifierStub.Stub (stub => stub.CodeGenerator.IsStrongNamingEnabled).Return (true);
-      _strongNameAnalyzerStub.Stub (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything)).Return (false);
-      var typeAssembler = CreateTypeAssembler (_strongNameAnalyzerStub, _typeModifierStub, _participantStub1, _participantStub2);
+      _mutableTypeAnalyzerStub.Stub (mock => mock.IsStrongNameCompatible (Arg<MutableType>.Is.Anything)).Return (false);
+      var typeAssembler = CreateTypeAssembler (_mutableTypeAnalyzerStub, _typeModifierStub, _participantStub1, _participantStub2);
 
       typeAssembler.AssembleType (_requestedType);
     }
@@ -179,13 +179,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     private TypeAssembler CreateTypeAssembler (
-        IStrongNameAnalyzer strongNameAnalyzer = null, ITypeModifier typeModifier = null, params IParticipant[] participants)
+        IMutableTypeAnalyzer mutableTypeAnalyzer = null, ITypeModifier typeModifier = null, params IParticipant[] participants)
     {
       typeModifier = typeModifier ?? MockRepository.GenerateStub<ITypeModifier>();
 
       return new TypeAssembler (
           participants.AsOneTime(),
-          strongNameAnalyzer ?? MockRepository.GenerateStub<IStrongNameAnalyzer>(),
+          mutableTypeAnalyzer ?? MockRepository.GenerateStub<IMutableTypeAnalyzer>(),
           typeModifier);
     }
 

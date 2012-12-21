@@ -14,18 +14,29 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using Microsoft.Scripting.Ast;
-using Remotion.ServiceLocation;
+using System.Reflection;
+using Remotion.Collections;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  /// <summary>
-  /// Determines if an <see cref="Expression"/> is compatible with strong-naming, i.e., only contains types that reside in strong-named assemblies.
-  /// </summary>
-  [ConcreteImplementation (typeof (StrongNameExpressionVerifier))]
-  public interface IStrongNameExpressionVerifier
+  public class AssemblyAnalyzer : IAssemblyAnalyzer
   {
-    bool IsStrongNameCompatible (Expression expression);
+    private readonly ICache<Assembly, bool> _cache = CacheFactory.Create<Assembly, bool>();
+
+    public bool IsStrongNamed (Assembly assembly)
+    {
+      ArgumentUtility.CheckNotNull ("assembly", assembly);
+
+      return _cache.GetOrCreateValue (assembly, CalculateIsStrongNamed);
+    }
+
+    private bool CalculateIsStrongNamed (Assembly assembly)
+    {
+      var token = assembly.GetName().GetPublicKeyToken();
+      return token != null && token.Length > 0;
+    }
   }
 }

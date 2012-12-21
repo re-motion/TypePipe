@@ -16,18 +16,16 @@
 // 
 using System;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// Determines wheter a given <see cref="Type"/> resides in a strong-named assembly.
-  /// Also allows to explicitly set or override the strong-name compatibility status of a type in the internal lookup structure.
+  /// Determines whether a <see cref="MutableType"/> can be generated into a a strong-named assembly.
   /// </summary>
-  [ConcreteImplementation (typeof (StrongNameTypeVerifier))]
-  public interface IStrongNameTypeVerifier
+  [ConcreteImplementation (typeof (MutableTypeAnalyzer))]
+  public interface IMutableTypeAnalyzer
   {
-    bool IsStrongNamed (Type type);
-
-    void SetStrongNamed (Type type, bool isStrongNamed);
+    bool IsStrongNameCompatible (MutableType mutableType);
   }
 }

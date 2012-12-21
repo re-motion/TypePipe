@@ -39,19 +39,19 @@ namespace Remotion.TypePipe.Caching
   public class TypeAssembler : ITypeAssembler
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
-    private readonly IStrongNameAnalyzer _strongNameAnalyzer;
+    private readonly IMutableTypeAnalyzer _mutableTypeAnalyzer;
     private readonly ITypeModifier _typeModifier;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
-    public TypeAssembler (IEnumerable<IParticipant> participants, IStrongNameAnalyzer strongNameAnalyzer, ITypeModifier typeModifier)
+    public TypeAssembler (IEnumerable<IParticipant> participants, IMutableTypeAnalyzer mutableTypeAnalyzer, ITypeModifier typeModifier)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
-      ArgumentUtility.CheckNotNull ("strongNameAnalyzer", strongNameAnalyzer);
+      ArgumentUtility.CheckNotNull ("mutableTypeAnalyzer", mutableTypeAnalyzer);
       ArgumentUtility.CheckNotNull ("typeModifier", typeModifier);
 
       _participants = participants.ToList().AsReadOnly();
-      _strongNameAnalyzer = strongNameAnalyzer;
+      _mutableTypeAnalyzer = mutableTypeAnalyzer;
       _typeModifier = typeModifier;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.Caching
         throw NewInvalidOperationException ("", incompatibleParticipants);
 
       var unknownParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Unknown).Select (t => t.Item1).ToList();
-      if (unknownParticipants.Count > 0 && !_strongNameAnalyzer.IsStrongNameCompatible (mutableType))
+      if (unknownParticipants.Count > 0 && !_mutableTypeAnalyzer.IsStrongNameCompatible (mutableType))
         throw NewInvalidOperationException ("at least one of ", unknownParticipants);
     }
 

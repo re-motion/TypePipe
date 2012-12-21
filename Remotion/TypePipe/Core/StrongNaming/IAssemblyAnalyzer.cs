@@ -14,29 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Reflection;
-using Remotion.Collections;
-using Remotion.Utilities;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNameAssemblyVerifier : IStrongNameAssemblyVerifier
+  /// <summary>
+  /// Determines wheter a given <see cref="Type"/> is strong-named.
+  /// </summary>
+  [ConcreteImplementation (typeof (AssemblyAnalyzer))]
+  public interface IAssemblyAnalyzer
   {
-    private readonly ICache<Assembly, bool> _cache = CacheFactory.Create<Assembly, bool>();
-
-    public bool IsStrongNamed (Assembly assembly)
-    {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
-
-      return _cache.GetOrCreateValue (assembly, CalculateIsStrongNamed);
-    }
-
-    private bool CalculateIsStrongNamed (Assembly assembly)
-    {
-      var token = assembly.GetName().GetPublicKeyToken();
-      return token != null && token.Length > 0;
-    }
+    bool IsStrongNamed (Assembly assembly);
   }
 }

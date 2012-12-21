@@ -15,17 +15,17 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// Determines wheter a given <see cref="Type"/> is strong-named.
+  /// Determines if an <see cref="Expression"/> is compatible with strong-naming, i.e., only contains types that reside in strong-named assemblies.
   /// </summary>
-  [ConcreteImplementation (typeof (StrongNameAssemblyVerifier))]
-  public interface IStrongNameAssemblyVerifier
+  [ConcreteImplementation (typeof (ExpressionAnalyzer))]
+  public interface IExpressionAnalyzer
   {
-    bool IsStrongNamed (Assembly assembly);
+    bool IsStrongNameCompatible (Expression expression);
   }
 }

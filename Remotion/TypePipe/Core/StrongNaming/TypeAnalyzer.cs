@@ -22,17 +22,17 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class StrongNameTypeVerifier : IStrongNameTypeVerifier
+  public class TypeAnalyzer : ITypeAnalyzer
   {
     private readonly IDataStore<Type, bool> _cache = DataStoreFactory.Create<Type, bool> (new ReferenceEqualityComparer<Type>());
 
-    private readonly IStrongNameAssemblyVerifier _assemblyVerifier;
+    private readonly IAssemblyAnalyzer _assemblyAnalyzer;
 
-    public StrongNameTypeVerifier (IStrongNameAssemblyVerifier assemblyVerifier)
+    public TypeAnalyzer (IAssemblyAnalyzer assemblyAnalyzer)
     {
-      ArgumentUtility.CheckNotNull ("assemblyVerifier", assemblyVerifier);
+      ArgumentUtility.CheckNotNull ("assemblyAnalyzer", assemblyAnalyzer);
 
-      _assemblyVerifier = assemblyVerifier;
+      _assemblyAnalyzer = assemblyAnalyzer;
     }
 
     public bool IsStrongNamed (Type type)
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool CalculateIsStrongNamed (Type type)
     {
-      return _assemblyVerifier.IsStrongNamed (type.Assembly) && type.GetGenericArguments().All (IsStrongNamed);
+      return _assemblyAnalyzer.IsStrongNamed (type.Assembly) && type.GetGenericArguments().All (IsStrongNamed);
     }
   }
 }
