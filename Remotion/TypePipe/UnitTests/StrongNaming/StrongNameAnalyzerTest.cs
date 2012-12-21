@@ -113,6 +113,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
       _mutableType.AddMethod ("method", 0, typeof (void), new[] { new ParameterDeclaration (_someType, "p") }, ctx => Expression.Empty());
       _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (_someType)).Return (_randomBool);
+      _strongNameTypeVerifierMock.Stub (stub => stub.IsStrongNamed (typeof (void))).Return (true);
 
       CheckIsStrongNameCompatible();
     }

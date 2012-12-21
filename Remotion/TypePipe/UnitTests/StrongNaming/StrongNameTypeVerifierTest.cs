@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void IsStrongNamed_CacheUsesReferenceEquality ()
     {
-      var type = ReflectionObjectMother.GetSomeSubclassableType();
+      var type = typeof (object);
       var mutableType = MutableTypeObjectMother.CreateForExisting (type);
       _verifier.SetStrongNamed (mutableType, true);
       _assemblyVerifierMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
