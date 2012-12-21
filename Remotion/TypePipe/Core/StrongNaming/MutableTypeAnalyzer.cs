@@ -51,36 +51,21 @@ namespace Remotion.TypePipe.StrongNaming
       return isCompatible;
     }
 
+    // TODO 4740: Adapt for new types
+    // TODO 4791: properties, events
     private bool IsCompatible (MutableType mutableType)
     {
       Assertion.IsFalse (mutableType.IsGenericType, "TODO: adapt code");
 
-      // TODO 4740: Adapt for new types
-      if (!_typeAnalyzer.IsStrongNamed (mutableType.UnderlyingSystemType))
-        return false;
-
-      if (!IsCompatible (attributeTarget: mutableType))
-        return false;
-
-      if (!mutableType.TypeInitializations.All (_expressionAnalyzer.IsStrongNameCompatible))
-        return false;
-      if (!mutableType.InstanceInitializations.All (_expressionAnalyzer.IsStrongNameCompatible))
-        return false;
-
-      if (!mutableType.AddedInterfaces.All (_typeAnalyzer.IsStrongNamed))
-        return false;
-      if (!mutableType.AddedFields.All (IsCompatible))
-        return false;
-      if (!mutableType.AddedConstructors.All (IsCompatible))
-        return false;
-      if (!mutableType.AddedMethods.All (IsCompatible))
-        return false;
-
-      // TODO 4791: properties, events
-
+      return _typeAnalyzer.IsStrongNamed (mutableType.UnderlyingSystemType)
+             && IsCompatible (attributeTarget: mutableType)
+             && mutableType.TypeInitializations.All (_expressionAnalyzer.IsStrongNameCompatible)
+             && mutableType.InstanceInitializations.All (_expressionAnalyzer.IsStrongNameCompatible)
+             && mutableType.AddedInterfaces.All (_typeAnalyzer.IsStrongNamed)
+             && mutableType.AddedFields.All (IsCompatible)
+             && mutableType.AddedConstructors.All (IsCompatible)
+             && mutableType.AddedMethods.All (IsCompatible);
       // TODO added and modified bodies (ctors, methods)
-
-      return true;
     }
 
     private bool IsCompatible (IMutableInfo attributeTarget)
@@ -90,53 +75,28 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool IsCompatible (MutableFieldInfo field)
     {
-      if (!IsCompatible (attributeTarget: field))
-        return false;
-
-      if (!_typeAnalyzer.IsStrongNamed (field.FieldType))
-        return false;
-
-      return true;
+      return IsCompatible (attributeTarget: field) && _typeAnalyzer.IsStrongNamed (field.FieldType);
     }
 
     private bool IsCompatible (IMutableMethodBase methodBase)
     {
-      if (!IsCompatible (attributeTarget: methodBase))
-        return false;
-
-      if (!methodBase.MutableParameters.All (IsCompatible))
-        return false;
-
-      if (!_expressionAnalyzer.IsStrongNameCompatible (methodBase.Body))
-        return false;
-
-      return true;
+      return IsCompatible (attributeTarget: methodBase)
+             && methodBase.MutableParameters.All (IsCompatible)
+             && _expressionAnalyzer.IsStrongNameCompatible (methodBase.Body);
     }
 
     private bool IsCompatible (MutableMethodInfo method)
     {
       Assertion.IsFalse (method.IsGenericMethod, "TODO: adapt code");
 
-      if (!IsCompatible (methodBase: method))
-        return false;
-
-      if (!IsCompatible (method.MutableReturnParameter))
-        return false;
-
-      return true;
+      return IsCompatible (methodBase: method) && IsCompatible (method.MutableReturnParameter);
     }
 
     private bool IsCompatible (MutableParameterInfo parameter)
     {
       Assertion.IsTrue (parameter.GetRequiredCustomModifiers().Length == 0 && parameter.GetOptionalCustomModifiers().Length == 0);
 
-      if (!IsCompatible (attributeTarget: parameter))
-        return false;
-
-      if (!_typeAnalyzer.IsStrongNamed (parameter.ParameterType))
-        return false;
-
-      return true;
+      return IsCompatible (attributeTarget: parameter) && _typeAnalyzer.IsStrongNamed (parameter.ParameterType);
     }
   }
 }
