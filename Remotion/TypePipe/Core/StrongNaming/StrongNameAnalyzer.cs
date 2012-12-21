@@ -53,25 +53,23 @@ namespace Remotion.TypePipe.StrongNaming
 
       // TODO Review: AddedAttributes missing
 
-      // TODO : TypeInitializations, InstanceInitializations
-
-      if (!mutableType.AddedInterfaces.All (type => _strongNameTypeVerifier.IsStrongNamed (type)))
+      if (!mutableType.TypeInitializations.All (_strongNameExpressionVerifier.IsStrongNamed))
+        return false;
+      if (!mutableType.InstanceInitializations.All (_strongNameExpressionVerifier.IsStrongNamed))
         return false;
 
+      if (!mutableType.AddedInterfaces.All (_strongNameTypeVerifier.IsStrongNamed))
+        return false;
       if (!mutableType.AddedFields.All (IsStrongNamed))
         return false;
-
       if (!mutableType.AddedConstructors.All (IsStrongNamed))
         return false;
-
-      // TODO Review: Just call the overload for MutableMethodInfo, which itself should delegate to the overload for IMutableMethodBase
       if (!mutableType.AddedMethods.All (IsStrongNamed))
         return false;
 
-      // TODO added and modified
+      // TODO 4791: properties, events
 
-      // TODO 4791
-      // properties, events
+      // TODO added and modified bodies (ctors, methods)
 
       return true;
     }

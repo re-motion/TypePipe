@@ -21,6 +21,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using Rhino.Mocks.Interfaces;
@@ -76,12 +77,32 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
+    public void IsStrongNameCompatible_TypeInitializations ()
+    {
+      var initialization = ExpressionTreeObjectMother.GetSomeExpression();
+      _mutableType.AddTypeInitialization (ctx => initialization);
+      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNamed (initialization)).Return (_randomBool);
+
+      CheckIsStrongNameCompatible();
+    }
+
+    [Test]
+    public void IsStrongNameCompatible_InstanceInitializations ()
+    {
+      var initialization = ExpressionTreeObjectMother.GetSomeExpression();
+      _mutableType.AddInstanceInitialization (ctx => initialization);
+      _strongNameExpressionVerifierMock.Expect (mock => mock.IsStrongNamed (initialization)).Return (_randomBool);
+
+      CheckIsStrongNameCompatible();
+    }
+
+    [Test]
     public void IsStrongNameCompatible_Interfaces ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
       _strongNameTypeVerifierMock.Expect (mock => mock.IsStrongNamed (typeof (IAddedInterface))).Return (_randomBool);
 
-      CheckIsStrongNameCompatible();
+      CheckIsStrongNameCompatible ();
     }
 
     [Test]
