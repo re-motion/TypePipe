@@ -65,7 +65,8 @@ namespace Remotion.TypePipe.StrongNaming
              && mutableType.AddedFields.All (IsCompatible)
              && mutableType.AddedConstructors.All (IsCompatible)
              && mutableType.AddedMethods.All (IsCompatible);
-      // TODO added and modified bodies (ctors, methods)
+
+      // TODO 5309: Modified members (with modifying code generator).
     }
 
     private bool IsCompatible (IMutableInfo attributeTarget)
