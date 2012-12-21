@@ -90,9 +90,8 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool IsCompatible (MutableFieldInfo field)
     {
-      // TODO Review: AddedAttributes
-      //if (TypePipeCustomAttributeData.GetCustomAttributes (field).Select (x => x.Type).Any (IsSigned))
-      //  return true;
+      if (!IsCompatible (attributeTarget: field))
+        return false;
 
       if (!_typeAnalyzer.IsStrongNamed (field.FieldType))
         return false;
@@ -102,9 +101,8 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool IsCompatible (IMutableMethodBase methodBase)
     {
-      // TODO Review: AddedAttributes
-      //if (!TypePipeCustomAttributeData.GetCustomAttributes (mutableMethod).Select (x => x.Type).All (IsSigned))
-      //  return false;
+      if (!IsCompatible (attributeTarget: methodBase))
+        return false;
 
       if (!methodBase.MutableParameters.All (IsCompatible))
         return false;
@@ -132,9 +130,8 @@ namespace Remotion.TypePipe.StrongNaming
     {
       Assertion.IsTrue (parameter.GetRequiredCustomModifiers().Length == 0 && parameter.GetOptionalCustomModifiers().Length == 0);
 
-      // TODO Review: AddedAttributes
-      //if (!TypePipeCustomAttributeData.GetCustomAttributes (parameter).Select (x => x.Type).All (IsSigned))
-      //  return false;
+      if (!IsCompatible (attributeTarget: parameter))
+        return false;
 
       if (!_typeAnalyzer.IsStrongNamed (parameter.ParameterType))
         return false;
