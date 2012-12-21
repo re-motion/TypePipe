@@ -59,7 +59,8 @@ namespace Remotion.TypePipe.StrongNaming
       if (!_typeAnalyzer.IsStrongNamed (mutableType.UnderlyingSystemType))
         return false;
 
-      // TODO Review: AddedAttributes missing
+      if (!IsCompatible (attributeTarget: mutableType))
+        return false;
 
       if (!mutableType.TypeInitializations.All (_expressionAnalyzer.IsStrongNameCompatible))
         return false;
@@ -82,6 +83,11 @@ namespace Remotion.TypePipe.StrongNaming
       return true;
     }
 
+    private bool IsCompatible (IMutableInfo attributeTarget)
+    {
+      return attributeTarget.AddedCustomAttributes.All (a => _typeAnalyzer.IsStrongNamed (a.Type));
+    }
+
     private bool IsCompatible (MutableFieldInfo field)
     {
       // TODO Review: AddedAttributes
@@ -100,7 +106,6 @@ namespace Remotion.TypePipe.StrongNaming
       //if (!TypePipeCustomAttributeData.GetCustomAttributes (mutableMethod).Select (x => x.Type).All (IsSigned))
       //  return false;
 
-      // TODO Review: Add .MutableParameters to IMutableMethodBase, move parameter checks from MethodInfo overload to here.
       if (!methodBase.MutableParameters.All (IsCompatible))
         return false;
 
@@ -114,7 +119,7 @@ namespace Remotion.TypePipe.StrongNaming
     {
       Assertion.IsFalse (method.IsGenericMethod, "TODO: adapt code");
 
-      if (!IsCompatible ((IMutableMethodBase) method))
+      if (!IsCompatible (methodBase: method))
         return false;
 
       if (!IsCompatible (method.MutableReturnParameter))

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -55,6 +56,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void DomainTypeHasExistingMembers ()
     {
+      Assert.That (_mutableType.GetCustomAttributeData(), Is.Not.Empty);
       Assert.That (_mutableType.ExistingInterfaces, Is.Not.Empty);
       Assert.That (_mutableType.ExistingMutableFields, Is.Not.Empty);
       Assert.That (_mutableType.ExistingMutableConstructors, Is.Not.Empty);
@@ -71,6 +73,16 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       var result = _analyzer.IsStrongNameCompatible (_mutableType);
 
       Assert.That (result, Is.EqualTo (_randomBool));
+    }
+
+    [Test]
+    public void IsStrongNameCompatible_CustomAttributes ()
+    {
+      var attribute = CustomAttributeDeclarationObjectMother.Create();
+      _mutableType.AddCustomAttribute (attribute);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (attribute.Type)).Return (_randomBool);
+
+      CheckIsStrongNameCompatible();
     }
 
     [Test]
@@ -174,6 +186,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       Assert.That (result, Is.EqualTo (_randomBool));
     }
 
+    [UsedImplicitly]
     class DomainType : IExistingInterface
     {
       public int ExistingField = 0;
