@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.StrongNaming;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.StrongNaming
@@ -68,6 +69,19 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
 
       _assemblyVerifierMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void IsStrongNamed_CacheUsesReferenceEquality ()
+    {
+      var type = ReflectionObjectMother.GetSomeSubclassableType();
+      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
+      _verifier.SetStrongNamed (mutableType, true);
+      _assemblyVerifierMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
+
+      _verifier.IsStrongNamed (type);
+
+      _assemblyVerifierMock.VerifyAllExpectations();
     }
 
     [Test]
