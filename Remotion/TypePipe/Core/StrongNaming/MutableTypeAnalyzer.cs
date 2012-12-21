@@ -39,13 +39,21 @@ namespace Remotion.TypePipe.StrongNaming
     public bool IsStrongNameCompatible (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-      Assertion.IsFalse (mutableType.IsGenericType, "TODO: adapt code");
 
-      // TODO Review: This has a problem when the mutableType reoccurs within a member signature or expression.
-      // Fix by adding the mutableType to the cache with "true" first, and in the end replacing the cache entry with 
-      // the real result. (This requires a method SetStrongNamed (Type, bool) on IStrongNamedTypeVerifier.)
-      // TODO Review: Change the cache to use reference equality (ReferenceEqualityComparer), otherwise MutableType can't
-      // have a separate entry from the underlying type.
+      // Temporarily assume the that the mutable type is compatible in case it is used in signatures or bodies.
+      _typeAnalyzer.SetStrongNamed (mutableType, true);
+
+      var isCompatible = IsCompatible (mutableType);
+
+      // Correct the temporary assumption with the actual result.
+      _typeAnalyzer.SetStrongNamed (mutableType, isCompatible);
+
+      return isCompatible;
+    }
+
+    private bool IsCompatible (MutableType mutableType)
+    {
+      Assertion.IsFalse (mutableType.IsGenericType, "TODO: adapt code");
 
       // TODO 4740: Adapt for new types
       if (!_typeAnalyzer.IsStrongNamed (mutableType.UnderlyingSystemType))
@@ -60,11 +68,11 @@ namespace Remotion.TypePipe.StrongNaming
 
       if (!mutableType.AddedInterfaces.All (_typeAnalyzer.IsStrongNamed))
         return false;
-      if (!mutableType.AddedFields.All (IsStrongNamed))
+      if (!mutableType.AddedFields.All (IsCompatible))
         return false;
-      if (!mutableType.AddedConstructors.All (IsStrongNamed))
+      if (!mutableType.AddedConstructors.All (IsCompatible))
         return false;
-      if (!mutableType.AddedMethods.All (IsStrongNamed))
+      if (!mutableType.AddedMethods.All (IsCompatible))
         return false;
 
       // TODO 4791: properties, events
@@ -74,7 +82,7 @@ namespace Remotion.TypePipe.StrongNaming
       return true;
     }
 
-    private bool IsStrongNamed (MutableFieldInfo field)
+    private bool IsCompatible (MutableFieldInfo field)
     {
       // TODO Review: AddedAttributes
       //if (TypePipeCustomAttributeData.GetCustomAttributes (field).Select (x => x.Type).Any (IsSigned))
@@ -86,14 +94,14 @@ namespace Remotion.TypePipe.StrongNaming
       return true;
     }
 
-    private bool IsStrongNamed (IMutableMethodBase methodBase)
+    private bool IsCompatible (IMutableMethodBase methodBase)
     {
       // TODO Review: AddedAttributes
       //if (!TypePipeCustomAttributeData.GetCustomAttributes (mutableMethod).Select (x => x.Type).All (IsSigned))
       //  return false;
 
       // TODO Review: Add .MutableParameters to IMutableMethodBase, move parameter checks from MethodInfo overload to here.
-      if (!methodBase.MutableParameters.All (IsStrongNamed))
+      if (!methodBase.MutableParameters.All (IsCompatible))
         return false;
 
       if (!_expressionAnalyzer.IsStrongNameCompatible (methodBase.Body))
@@ -102,20 +110,20 @@ namespace Remotion.TypePipe.StrongNaming
       return true;
     }
 
-    private bool IsStrongNamed (MutableMethodInfo method)
+    private bool IsCompatible (MutableMethodInfo method)
     {
       Assertion.IsFalse (method.IsGenericMethod, "TODO: adapt code");
 
-      if (!IsStrongNamed ((IMutableMethodBase) method))
+      if (!IsCompatible ((IMutableMethodBase) method))
         return false;
 
-      if (!IsStrongNamed (method.MutableReturnParameter))
+      if (!IsCompatible (method.MutableReturnParameter))
         return false;
 
       return true;
     }
 
-    private bool IsStrongNamed (MutableParameterInfo parameter)
+    private bool IsCompatible (MutableParameterInfo parameter)
     {
       Assertion.IsTrue (parameter.GetRequiredCustomModifiers().Length == 0 && parameter.GetOptionalCustomModifiers().Length == 0);
 

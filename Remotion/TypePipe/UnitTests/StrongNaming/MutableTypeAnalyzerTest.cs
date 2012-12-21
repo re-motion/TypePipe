@@ -24,7 +24,6 @@ using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
-using Rhino.Mocks.Interfaces;
 
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
@@ -40,8 +39,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     private Type _someType;
     private bool _randomBool;
 
-    private IMethodOptions<bool> _underlyingTypeCheck;
-
     [SetUp]
     public void SetUp ()
     {
@@ -53,27 +50,27 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
       _someType = ReflectionObjectMother.GetSomeType();
       _randomBool = BooleanObjectMother.GetRandomBoolean();
-
-      _underlyingTypeCheck = _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (_mutableType.UnderlyingSystemType)).Return (true);
     }
 
     [Test]
-    public void IsStrongNameCompatible ()
+    public void DomainTypeHasExistingMembers ()
     {
       Assert.That (_mutableType.ExistingInterfaces, Is.Not.Empty);
       Assert.That (_mutableType.ExistingMutableFields, Is.Not.Empty);
       Assert.That (_mutableType.ExistingMutableConstructors, Is.Not.Empty);
       Assert.That (_mutableType.ExistingMutableMethods, Is.Not.Empty);
-
-      Assert.That (_analyzer.IsStrongNameCompatible (_mutableType), Is.True);
     }
 
     [Test]
     public void IsStrongNameCompatible_UnderlyingType ()
     {
-      _underlyingTypeCheck.Return (_randomBool);
+      _typeAnalyzerMock.Expect (mock => mock.SetStrongNamed (_mutableType, true));
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (_mutableType.UnderlyingSystemType)).Return (_randomBool);
+      _typeAnalyzerMock.Expect (mock => mock.SetStrongNamed (_mutableType, _randomBool));
 
-      CheckIsStrongNameCompatible();
+      var result = _analyzer.IsStrongNameCompatible (_mutableType);
+
+      Assert.That (result, Is.EqualTo (_randomBool));
     }
 
     [Test]
@@ -166,6 +163,10 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
 
     private void CheckIsStrongNameCompatible ()
     {
+      _typeAnalyzerMock.Expect (mock => mock.SetStrongNamed (_mutableType, true));
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (_mutableType.UnderlyingSystemType)).Return (true);
+      _typeAnalyzerMock.Expect (mock => mock.SetStrongNamed (_mutableType, _randomBool));
+
       var result = _analyzer.IsStrongNameCompatible (_mutableType);
 
       _typeAnalyzerMock.VerifyAllExpectations();
