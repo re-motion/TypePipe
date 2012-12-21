@@ -47,23 +47,39 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    public void RequireStrongName_Compatible ()
+    public void ForceStrongName_Compatible ()
     {
       var compatibilities = new[] { StrongNameCompatibility.Compatible };
       CheckStrongNaming (compatibilities, forceStrongNaming: true, expectedIsStrongNamed: true);
     }
 
     [Test]
-    public void RequireStrongName_Unknown_CompatibleModifications ()
+    public void ForceStrongName_Unknown_CompatibleModifications ()
     {
       var compatibilities = new[] { StrongNameCompatibility.Compatible, StrongNameCompatibility.Unknown };
       CheckStrongNaming (compatibilities, forceStrongNaming: true, expectedIsStrongNamed: true);
     }
 
     [Test]
+    public void ForceStrongName_Unknown_CompatibleModifications_MutableType ()
+    {
+      var participant = CreateParticipant (
+          mutableType =>
+          {
+            mutableType.AddField ("Field", mutableType);
+
+            return StrongNameCompatibility.Unknown;
+          });
+      var objectFactory = CreateObjectFactory (participant);
+      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
+    }
+
+    [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
-    public void RequireStrongName_Incompatible ()
+    public void ForceStrongName_Incompatible ()
     {
       var objectFactory = CreateObjectFactoryForStrongNaming (StrongNameCompatibility.Compatible, StrongNameCompatibility.Incompatible);
       _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
@@ -74,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
-    public void RequireStrongName_Unknown_IncompatibleModifications ()
+    public void ForceStrongName_Unknown_IncompatibleModifications ()
     {
       var participant = CreateParticipant (
           mutableType =>
