@@ -22,13 +22,14 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class ExpressionAnalyzer : PrimitiveTypePipeExpressionVisitorBase, IExpressionAnalyzer
+  public class ExpressionAnalyzingVisitor : PrimitiveTypePipeExpressionVisitorBase, IExpressionAnalyzer
   {
     private readonly ITypeAnalyzer _typeAnalyzer;
 
-    private bool _isStrongNamed = true;
+    // TODO
+    private bool _isCompatible = true;
 
-    public ExpressionAnalyzer (ITypeAnalyzer typeAnalyzer)
+    public ExpressionAnalyzingVisitor (ITypeAnalyzer typeAnalyzer)
     {
       ArgumentUtility.CheckNotNull ("typeAnalyzer", typeAnalyzer);
 
@@ -40,14 +41,14 @@ namespace Remotion.TypePipe.StrongNaming
       Visit (expression);
 
 
-      return _isStrongNamed;
+      return _isCompatible;
     }
 
     public override Expression Visit (Expression node)
     {
       if (node != null && !_typeAnalyzer.IsStrongNamed (node.Type))
       {
-        _isStrongNamed = false;
+        _isCompatible = false;
         return node;
       }
 
@@ -59,7 +60,7 @@ namespace Remotion.TypePipe.StrongNaming
       // TODO Review: Also check generic arguments of method.
       if (!_typeAnalyzer.IsStrongNamed (node.Method.DeclaringType))
       {
-        _isStrongNamed = false;
+        _isCompatible = false;
         return node;
       }
 
@@ -71,7 +72,7 @@ namespace Remotion.TypePipe.StrongNaming
     {
       if (!_typeAnalyzer.IsStrongNamed (node.Member.DeclaringType))
       {
-        _isStrongNamed = false;
+        _isCompatible = false;
         return node;
       }
 
@@ -87,7 +88,7 @@ namespace Remotion.TypePipe.StrongNaming
     {
       if (!_typeAnalyzer.IsStrongNamed (node.Test))
       {
-        _isStrongNamed = false;
+        _isCompatible = false;
         return node;
       }
       return base.VisitCatchBlock (node);

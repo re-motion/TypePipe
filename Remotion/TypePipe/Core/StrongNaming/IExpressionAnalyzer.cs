@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// <summary>
   /// Determines if an <see cref="Expression"/> is compatible with strong-naming, i.e., only contains types that reside in strong-named assemblies.
   /// </summary>
-  [ConcreteImplementation (typeof (ExpressionAnalyzer))]
+  [ConcreteImplementation (typeof (ExpressionAnalyzingVisitor))]
   public interface IExpressionAnalyzer
   {
     bool IsStrongNameCompatible (Expression expression);

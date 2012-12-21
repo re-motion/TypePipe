@@ -24,8 +24,10 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class ExpressionAnalyzerTest
+  public class ExpressionAnalyzingVisitorTest
   {
+
+    // TODO 
     [Test]
     public void Visit_Expression ()
     {
@@ -59,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     private void Check (Expression expression, bool strongNamed, Type type)
     {
       var strongTypeVerifier = MockRepository.GenerateStrictMock<ITypeAnalyzer> ();
-      var visitorPartialMock = MockRepository.GeneratePartialMock<ExpressionAnalyzer> (strongTypeVerifier);
+      var visitorPartialMock = MockRepository.GeneratePartialMock<ExpressionAnalyzingVisitor> (strongTypeVerifier);
 
       strongTypeVerifier.Expect (mock => mock.IsStrongNamed (type))
           .Return (strongNamed)

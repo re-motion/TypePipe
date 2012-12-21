@@ -352,7 +352,7 @@
     <Compile Include="StrongNaming\MutableTypeAnalyzer.cs" />
     <Compile Include="StrongNaming\StrongNameCompatibility.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
-    <Compile Include="StrongNaming\ExpressionAnalyzer.cs" />
+    <Compile Include="StrongNaming\ExpressionAnalyzingVisitor.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
