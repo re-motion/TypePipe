@@ -30,34 +30,22 @@ namespace Remotion.TypePipe.IntegrationTests
   [Ignore ("TODO 5287")]
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
   {
-    private ITypePipeConfigurationProvider _typePipeConfigurationProviderMock;
-
-    public override void SetUp ()
-    {
-      base.SetUp();
-
-      _typePipeConfigurationProviderMock = MockRepository.GenerateStrictMock<ITypePipeConfigurationProvider>();
-    }
-
     [Test]
     public void NoStrongName_Compatible ()
     {
-      var compatibilities = new[] { StrongNameCompatibility.Compatible };
-      CheckStrongNaming (compatibilities, forceStrongNaming: false, expectedIsStrongNamed: false);
+      CheckStrongNaming (false, StrongNameCompatibility.Compatible);
     }
 
     [Test]
     public void ForceStrongName_Compatible ()
     {
-      var compatibilities = new[] { StrongNameCompatibility.Compatible };
-      CheckStrongNaming (compatibilities, forceStrongNaming: true, expectedIsStrongNamed: true);
+      CheckStrongNaming (true, StrongNameCompatibility.Compatible);
     }
 
     [Test]
     public void ForceStrongName_Unknown_CompatibleModifications ()
     {
-      var compatibilities = new[] { StrongNameCompatibility.Compatible, StrongNameCompatibility.Unknown };
-      CheckStrongNaming (compatibilities, forceStrongNaming: true, expectedIsStrongNamed: true);
+      CheckStrongNaming (true, StrongNameCompatibility.Compatible, StrongNameCompatibility.Unknown);
     }
 
     [Test]
@@ -70,10 +58,8 @@ namespace Remotion.TypePipe.IntegrationTests
 
             return StrongNameCompatibility.Unknown;
           });
-      var objectFactory = CreateObjectFactory (participant);
-      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
 
-      objectFactory.GetAssembledType (typeof (DomainType));
+      CheckStrongNaming (true, participant);
     }
 
     [Test]
@@ -81,8 +67,9 @@ namespace Remotion.TypePipe.IntegrationTests
         "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
     public void ForceStrongName_Incompatible ()
     {
-      var objectFactory = CreateObjectFactoryForStrongNaming (StrongNameCompatibility.Compatible, StrongNameCompatibility.Incompatible);
-      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
+      var participant1 = CreateParticipant (mt => StrongNameCompatibility.Compatible);
+      var participant2 = CreateParticipant (mt => StrongNameCompatibility.Incompatible);
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, participant1, participant2);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
@@ -100,32 +87,36 @@ namespace Remotion.TypePipe.IntegrationTests
 
             return StrongNameCompatibility.Unknown;
           });
-      var objectFactory = CreateObjectFactory (participant);
-      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (true);
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, participant);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
 
-    private void CheckStrongNaming (StrongNameCompatibility[] compatibilities, bool forceStrongNaming, bool expectedIsStrongNamed)
-    {
-      var objectFactory = CreateObjectFactoryForStrongNaming (compatibilities);
-      _typePipeConfigurationProviderMock.Expect (x => x.ForceStrongNaming).Return (forceStrongNaming);
-
-      objectFactory.GetAssembledType (typeof (DomainType));
-      var result = objectFactory.CodeGenerator.FlushCodeToDisk();
-
-      var assembly = Assembly.LoadFrom (result);
-      var isStrongNamed = assembly.GetName().GetPublicKeyToken().Any();
-      Assert.That (isStrongNamed, Is.EqualTo (expectedIsStrongNamed));
-    }
-
-    private IObjectFactory CreateObjectFactoryForStrongNaming (params StrongNameCompatibility[] compatibilities)
+    private void CheckStrongNaming (bool forceStrongNaming, params StrongNameCompatibility[] compatibilities)
     {
       var participants = compatibilities.Select (c => CreateParticipant (mutableType => c));
-      using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => _typePipeConfigurationProviderMock))
-      {
+      CheckStrongNaming (forceStrongNaming, participants.ToArray());
+    }
+
+    private void CheckStrongNaming (bool forceStrongNaming, params IParticipant[] participants)
+    {
+      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, participants);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
+      var assemblyPath = objectFactory.CodeGenerator.FlushCodeToDisk();
+      var assembly = Assembly.LoadFrom (assemblyPath);
+
+      var isStrongNamed = assembly.GetName().GetPublicKeyToken().Length > 0;
+      Assert.That (isStrongNamed, Is.EqualTo (forceStrongNaming));
+    }
+
+    private IObjectFactory CreateObjectFactoryForStrongNaming (bool forceStrongNaming, params IParticipant[] participants)
+    {
+      var typePipeConfigurationProviderStub = MockRepository.GenerateStub<ITypePipeConfigurationProvider>();
+      typePipeConfigurationProviderStub.Stub (stub => stub.ForceStrongNaming).Return (forceStrongNaming);
+
+      using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => typePipeConfigurationProviderStub))
         return CreateObjectFactory (participants, stackFramesToSkip: 1);
-      }
     }
 
     private Type CreateUnsignedType (string typeName)

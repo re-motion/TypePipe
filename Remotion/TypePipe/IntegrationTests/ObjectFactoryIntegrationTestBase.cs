@@ -19,11 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Remotion.Development.UnitTesting;
-using Remotion.Reflection;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.StrongNaming;
 using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests
