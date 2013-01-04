@@ -32,7 +32,7 @@ namespace Remotion.UnitTests.Reflection
     {
       object o = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (o);
-      Assert.AreEqual (typeof (object), testObject.InvocationType);
+      Assert.That (testObject.InvocationType, Is.EqualTo (typeof (object)));
     }
 
     [Test]
@@ -40,7 +40,7 @@ namespace Remotion.UnitTests.Reflection
     {
       Base a = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (a);
-      Assert.AreEqual (typeof (Base), testObject.InvocationType);
+      Assert.That (testObject.InvocationType, Is.EqualTo (typeof (Base)));
     }
 
     [Test]
@@ -48,7 +48,7 @@ namespace Remotion.UnitTests.Reflection
     {
       Derived b = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (b);
-      Assert.AreEqual (typeof (Derived), testObject.InvocationType);
+      Assert.That (testObject.InvocationType, Is.EqualTo (typeof (Derived)));
     }
 
     [Test]
@@ -56,7 +56,7 @@ namespace Remotion.UnitTests.Reflection
     {
       DerivedDerived c = null;
       TestClass testObject = TypesafeActivator.CreateInstance<TestClass> ().With (c);
-      Assert.AreEqual (typeof (Derived), testObject.InvocationType);
+      Assert.That (testObject.InvocationType, Is.EqualTo (typeof (Derived)));
     }
 
     [Test]
@@ -64,7 +64,7 @@ namespace Remotion.UnitTests.Reflection
     {
       Base a = null;
       TestClass testObject = (TestClass) TypesafeActivator.CreateInstance (typeof (TestClass)).With (a);
-      Assert.AreEqual (typeof (Base), testObject.InvocationType);
+      Assert.That (testObject.InvocationType, Is.EqualTo (typeof (Base)));
     }
 
     [Test]
@@ -72,8 +72,8 @@ namespace Remotion.UnitTests.Reflection
     {
       Base a = TypesafeActivator.CreateInstance<Base> (typeof (Derived)).With ();
 
-      Assert.IsNotNull (a);
-      Assert.AreEqual (typeof (Derived), a.GetType ());
+      Assert.That (a, Is.Not.Null);
+      Assert.That (a.GetType (), Is.EqualTo (typeof (Derived)));
     }
 
     [Test]
@@ -81,8 +81,8 @@ namespace Remotion.UnitTests.Reflection
     {
       Base a = TypesafeActivator.CreateInstance<Base> (typeof (Derived), BindingFlags.Public | BindingFlags.Instance).With ();
 
-      Assert.IsNotNull (a);
-      Assert.AreEqual (typeof (Derived), a.GetType ());
+      Assert.That (a, Is.Not.Null);
+      Assert.That (a.GetType (), Is.EqualTo (typeof (Derived)));
     }
 
     [Test]
@@ -90,8 +90,8 @@ namespace Remotion.UnitTests.Reflection
     {
       Base a = TypesafeActivator.CreateInstance<Base> (typeof (Derived), BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, null).With ();
 
-      Assert.IsNotNull (a);
-      Assert.AreEqual (typeof (Derived), a.GetType ());
+      Assert.That (a, Is.Not.Null);
+      Assert.That (a.GetType (), Is.EqualTo (typeof (Derived)));
     }
 
     [Test]
@@ -105,14 +105,14 @@ namespace Remotion.UnitTests.Reflection
     public void TestValueTypeDefaultCtor()
     {
       Struct @struct = TypesafeActivator.CreateInstance<Struct>().With();
-      Assert.AreEqual (@struct.Value, 0);
+      Assert.That (0, Is.EqualTo (@struct.Value));
     }
 
     [Test]
     public void TestValueTypeCustomCtor ()
     {
       Struct @struct = TypesafeActivator.CreateInstance<Struct> ().With (1);
-      Assert.AreEqual (@struct.Value, 1);
+      Assert.That (1, Is.EqualTo (@struct.Value));
     }
   }
 }

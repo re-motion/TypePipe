@@ -46,7 +46,7 @@ namespace Remotion.UnitTests
       SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return null; });
       singleton.SetCurrent (instance);
 
-      Assert.AreSame (instance, SafeContext.Instance.GetData ("test"));
+      Assert.That (SafeContext.Instance.GetData ("test"), Is.SameAs (instance));
     }
 
     [Test]
@@ -55,15 +55,15 @@ namespace Remotion.UnitTests
       object instance = null;
       SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return (instance = new object ()); });
 
-      Assert.IsNull (instance);
+      Assert.That (instance, Is.Null);
       object current = singleton.Current;
-      Assert.IsNotNull (current);
-      Assert.IsNotNull (instance);
-      Assert.AreSame (instance, current);
+      Assert.That (current, Is.Not.Null);
+      Assert.That (instance, Is.Not.Null);
+      Assert.That (current, Is.SameAs (instance));
 
-      Assert.AreSame (current, singleton.Current);
-      Assert.AreSame (current, singleton.Current);
-      Assert.AreSame (current, singleton.Current);
+      Assert.That (singleton.Current, Is.SameAs (current));
+      Assert.That (singleton.Current, Is.SameAs (current));
+      Assert.That (singleton.Current, Is.SameAs (current));
     }
 
     [Test]
@@ -75,21 +75,21 @@ namespace Remotion.UnitTests
       SafeContextSingleton<object> singleton1 = new SafeContextSingleton<object> ("test1", delegate { return instance1; });
       SafeContextSingleton<object> singleton2 = new SafeContextSingleton<object> ("test2", delegate { return instance2; });
 
-      Assert.AreSame (instance1, singleton1.Current);
-      Assert.AreSame (instance2, singleton2.Current);
-      Assert.AreSame (instance1, singleton1.Current);
-      Assert.AreSame (instance2, singleton2.Current);
+      Assert.That (singleton1.Current, Is.SameAs (instance1));
+      Assert.That (singleton2.Current, Is.SameAs (instance2));
+      Assert.That (singleton1.Current, Is.SameAs (instance1));
+      Assert.That (singleton2.Current, Is.SameAs (instance2));
     }
 
     [Test]
     public void HasCurrent ()
     {
       SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return ( new object ()); });
-      Assert.IsFalse (singleton.HasCurrent);
+      Assert.That (singleton.HasCurrent, Is.False);
       Dev.Null = singleton.Current;
-      Assert.IsTrue (singleton.HasCurrent);
+      Assert.That (singleton.HasCurrent, Is.True);
       singleton.SetCurrent (null);
-      Assert.IsFalse (singleton.HasCurrent);
+      Assert.That (singleton.HasCurrent, Is.False);
     }
 
     [Test]
@@ -97,11 +97,11 @@ namespace Remotion.UnitTests
     {
       object instance = new object();
       SafeContextSingleton<object> singleton = new SafeContextSingleton<object> ("test", delegate { return new object (); });
-      Assert.AreNotSame (instance, singleton.Current);
+      Assert.That (singleton.Current, Is.Not.SameAs (instance));
       singleton.SetCurrent (instance);
-      Assert.AreSame (instance, singleton.Current);
+      Assert.That (singleton.Current, Is.SameAs (instance));
       singleton.SetCurrent (new object());
-      Assert.AreNotSame (instance, singleton.Current);
+      Assert.That (singleton.Current, Is.Not.SameAs (instance));
     }
   }
 }

@@ -120,17 +120,17 @@ namespace Remotion.UnitTests.Reflection
       B c_as_b = c;
 
       Func<A, string, string> f = MethodCaller.CallFunc<string> ("Say").GetDelegateWith<A, string> ();
-      Assert.AreEqual ("Hi foo from A", f (foo, "Hi"));
-      Assert.AreEqual ("Hi bar from A", f (bar, "Hi"));
-      Assert.AreEqual ("Hi B from B", f (b, "Hi"));
+      Assert.That (f (foo, "Hi"), Is.EqualTo ("Hi foo from A"));
+      Assert.That (f (bar, "Hi"), Is.EqualTo ("Hi bar from A"));
+      Assert.That (f (b, "Hi"), Is.EqualTo ("Hi B from B"));
 
-      Assert.AreEqual ("Hi foo from A", MethodCaller.CallFunc<string> ("Say").With (foo, "Hi"));
-      Assert.AreEqual ("Hi bar from A", MethodCaller.CallFunc<string> ("Say").With (bar, "Hi"));
-      Assert.AreEqual ("Hi B from B", MethodCaller.CallFunc<string> ("Say").With (b, "Hi"));
-      Assert.AreEqual ("Hi B from B", MethodCaller.CallFunc<string> ("Say").With (b_as_a, "Hi"));
-      Assert.AreEqual ("Hi C from C", MethodCaller.CallFunc<string> ("Say").With (c, "Hi"));
-      Assert.AreEqual ("Hi C from B", MethodCaller.CallFunc<string> ("Say").With (c_as_b, "Hi"));
-      Assert.AreEqual ("Hi C from B", MethodCaller.CallFunc<string> ("Say").With (c_as_a, "Hi"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (foo, "Hi"), Is.EqualTo ("Hi foo from A"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (bar, "Hi"), Is.EqualTo ("Hi bar from A"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (b, "Hi"), Is.EqualTo ("Hi B from B"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (b_as_a, "Hi"), Is.EqualTo ("Hi B from B"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (c, "Hi"), Is.EqualTo ("Hi C from C"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (c_as_b, "Hi"), Is.EqualTo ("Hi C from B"));
+      Assert.That (MethodCaller.CallFunc<string> ("Say").With (c_as_a, "Hi"), Is.EqualTo ("Hi C from B"));
     }
     
     [Test]
@@ -142,7 +142,7 @@ namespace Remotion.UnitTests.Reflection
       int i;
       NoOpOutInt noop = MethodCaller.CallAction ("NoOp").GetDelegate<NoOpOutInt>();
       noop (foo, out i);
-      Assert.AreEqual (1, i);
+      Assert.That (i, Is.EqualTo (1));
     }
 
     [Test]

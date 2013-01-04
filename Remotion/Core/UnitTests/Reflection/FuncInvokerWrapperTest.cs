@@ -63,32 +63,32 @@ namespace Remotion.UnitTests.Reflection
       });
       
       ClassWithCtors one = wrapper.With (0);
-      Assert.IsTrue (afterActionCalled);
-      Assert.AreEqual ("one", one.Ctor);
+      Assert.That (afterActionCalled, Is.True);
+      Assert.That (one.Ctor, Is.EqualTo ("one"));
 
       afterActionCalled = false;
 
       ClassWithCtors two = wrapper.With (0, "1");
-      Assert.IsTrue (afterActionCalled);
-      Assert.AreEqual ("two", two.Ctor);
+      Assert.That (afterActionCalled, Is.True);
+      Assert.That (two.Ctor, Is.EqualTo ("two"));
 
       afterActionCalled = false;
 
       ClassWithCtors three = wrapper.With (0, "1", 2);
-      Assert.IsTrue (afterActionCalled);
-      Assert.AreEqual ("three", three.Ctor);
+      Assert.That (afterActionCalled, Is.True);
+      Assert.That (three.Ctor, Is.EqualTo ("three"));
 
       afterActionCalled = false;
 
       ClassWithCtors threeInvoked1 = wrapper.Invoke (new object[] { 0, "1", 2 });
-      Assert.IsTrue (afterActionCalled);
-      Assert.AreEqual ("three", threeInvoked1.Ctor);
+      Assert.That (afterActionCalled, Is.True);
+      Assert.That (threeInvoked1.Ctor, Is.EqualTo ("three"));
 
       afterActionCalled = false;
 
       ClassWithCtors threeInvoked2 = wrapper.Invoke (new Type[] {typeof (int), typeof (string), typeof (int)}, new object[] { 0, "1", 2 });
-      Assert.IsTrue (afterActionCalled);
-      Assert.AreEqual ("three", threeInvoked2.Ctor);
+      Assert.That (afterActionCalled, Is.True);
+      Assert.That (threeInvoked2.Ctor, Is.EqualTo ("three"));
     }
 
     [Test]
@@ -103,16 +103,16 @@ namespace Remotion.UnitTests.Reflection
       });
 
       ClassWithCtors one = wrapper.With (0);
-      Assert.AreSame (fixedInstance, one);
+      Assert.That (one, Is.SameAs (fixedInstance));
 
       ClassWithCtors two = wrapper.With (0, "1");
-      Assert.AreSame (fixedInstance, two);
+      Assert.That (two, Is.SameAs (fixedInstance));
 
       ClassWithCtors threeInvoked1 = wrapper.Invoke (new object[] { 0, "1", 2 });
-      Assert.AreSame (fixedInstance, threeInvoked1);
+      Assert.That (threeInvoked1, Is.SameAs (fixedInstance));
 
       ClassWithCtors threeInvoked2 = wrapper.Invoke (new Type[] { typeof (int), typeof (string), typeof (int) }, new object[] { 0, "1", 2 });
-      Assert.AreSame (fixedInstance, threeInvoked2);
+      Assert.That (threeInvoked2, Is.SameAs (fixedInstance));
     }
   }
 }

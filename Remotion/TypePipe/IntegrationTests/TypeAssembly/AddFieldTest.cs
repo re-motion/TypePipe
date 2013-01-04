@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField" }));
 
       var fieldInfo = type.GetField ("_privateInstanceField", BindingFlags.Instance | BindingFlags.NonPublic);
-      Assert.IsNotNull (fieldInfo);
+      Assert.That (fieldInfo, Is.Not.Null);
       Assert.That (fieldInfo.FieldType, Is.EqualTo (typeof (string)));
       Assert.That (fieldInfo.Attributes, Is.EqualTo (FieldAttributes.Private));
     }
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var nonPublicInstanceFlags = BindingFlags.NonPublic | BindingFlags.Instance;
       var existingField = typeof (OriginalType).GetField ("OriginalField", nonPublicInstanceFlags);
-      Assert.IsNotNull (existingField);
+      Assert.That (existingField, Is.Not.Null);
 
       var type = AssembleType<DerivedType> (mutableType => 
       { 
