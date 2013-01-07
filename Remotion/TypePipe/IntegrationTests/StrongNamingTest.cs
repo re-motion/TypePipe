@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 5287")]
+    [Ignore ("TODO 5294")]
     public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInSignature ()
     {
       var participant = CreateParticipant (
