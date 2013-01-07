@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.StrongNaming
       var visitor = new ExpressionAnalyzingVisitor (_typeAnalyzer);
       visitor.Visit (expression);
 
-      return visitor.IsStrongNameStrongNameCompatible;
+      return visitor.IsStrongNameCompatible;
     }
   }
 }

@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.StrongNaming
       _typeAnalyzer = typeAnalyzer;
     }
 
-    public bool IsStrongNameStrongNameCompatible
+    public bool IsStrongNameCompatible
     {
       get { return _isStrongNameCompatible; }
     }
@@ -49,33 +50,45 @@ namespace Remotion.TypePipe.StrongNaming
       if (node == null)
         return null;
 
-      return CheckCompatibility (node.Type) ? base.Visit (node) : node;
+      return CheckType (node.Type) ? base.Visit (node) : node;
+    }
+
+    protected internal override Expression VisitBinary (BinaryExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckMethod (node.Method) ? base.VisitBinary (node) : node;
     }
 
     protected override CatchBlock VisitCatchBlock (CatchBlock node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      return CheckCompatibility (node.Test) ? base.VisitCatchBlock (node) : node;
+      return CheckType (node.Test) ? base.VisitCatchBlock (node) : node;
     }
 
     protected internal override Expression VisitMember (MemberExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      return CheckCompatibility (node.Member.DeclaringType) ? base.VisitMember (node) : node;
+      return CheckMember (node.Member) ? base.VisitMember (node) : node;
     }
 
     protected internal override Expression VisitMethodCall (MethodCallExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      return CheckCompatibility (node.Method.DeclaringType) && node.Method.GetGenericArguments().All (CheckCompatibility)
-                 ? base.VisitMethodCall (node)
-                 : node;
+      return CheckMethod (node.Method) ? base.VisitMethodCall (node) : node;
     }
 
-    private bool CheckCompatibility (Type type)
+    protected internal override Expression VisitUnary (UnaryExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckMethod (node.Method) ? base.VisitUnary (node) : node;
+    }
+
+    private bool CheckType (Type type)
     {
       var isCompatible = _typeAnalyzer.IsStrongNamed (type);
       if (!isCompatible)
@@ -84,8 +97,15 @@ namespace Remotion.TypePipe.StrongNaming
       return isCompatible;
     }
 
+    private bool CheckMember (MemberInfo member)
+    {
+      return CheckType (member.DeclaringType);
+    }
 
-    // TODO Review: VisitBinary, VisitUnary can also have methods
+    private bool CheckMethod (MethodInfo method)
+    {
+      return method == null || CheckMember (method) && method.GetGenericArguments().All (CheckType);
+    }
 
     // TODO Review: VisitDynamic => DelegateType
 

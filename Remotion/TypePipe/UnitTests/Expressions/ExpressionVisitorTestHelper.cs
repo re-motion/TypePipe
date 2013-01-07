@@ -23,6 +23,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 {
   public static class ExpressionVisitorTestHelper
   {
+    public static Expression CallVisitBinary (ExpressionVisitor expressionVisitor, BinaryExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitBinary", expression);
+    }
+
     public static CatchBlock CallVisitCatchBlock (ExpressionVisitor expressionVisitor, CatchBlock expression)
     {
       return (CatchBlock) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitCatchBlock", expression);
@@ -44,14 +49,19 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) method.Invoke (expressionVisitor, new object[] { expression });
     }
 
-    public static Expression CallVisitMember (ExpressionVisitor expressionVisitor, Expression expression)
+    public static Expression CallVisitMember (ExpressionVisitor expressionVisitor, MemberExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitMember", expression);
     }
 
-    public static Expression CallVisitMethodCall (ExpressionVisitor expressionVisitor, Expression expression)
+    public static Expression CallVisitMethodCall (ExpressionVisitor expressionVisitor, MethodCallExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitMethodCall", expression);
+    }
+
+    public static Expression CallVisitUnary (ExpressionVisitor expressionVisitor, UnaryExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitUnary", expression);
     }
   }
 }

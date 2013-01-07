@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       var expression = ExpressionTreeObjectMother.GetSomeExpression (someType);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (someType)).Return (_someBool);
 
-      CheckVisitMethod ((v, e) => v.Visit (e), _visitor, expression);
+      CheckVisitMethod ((v, e) => v.Visit (e), _visitor, expression, _someBool);
     }
 
     [Test]
@@ -63,55 +63,98 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
+    public void VisitBinary ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => BinaryMethod (7, 8));
+      var expression = BinaryExpression.MakeBinary (ExpressionType.Add, Expression.Constant (7), Expression.Constant (8), false, method);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitBinary, _visitor, expression, _someBool);
+    }
+
+    [Test]
+    public void VisitBinary_NullMethod ()
+    {
+      var expression = BinaryExpression.MakeBinary (ExpressionType.Add, Expression.Constant (7), Expression.Constant (8));
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitBinary, _visitor, expression, expectedCompatibility: true);
+    }
+
+    [Test]
     public void VisitCatchBlock ()
     {
       var expression = Expression.Catch (typeof (NullReferenceException), Expression.Default (typeof (int)));
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (NullReferenceException))).Return (_someBool);
       _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
 
-      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitCatchBlock, _visitor, expression);
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitCatchBlock, _visitor, expression, _someBool);
     }
 
     [Test]
     public void VisitMember ()
     {
       var member = NormalizingMemberInfoFromExpressionUtility.GetField (() => string.Empty);
-      Expression expression = Expression.Field (null, member);
+      var expression = Expression.Field (null, member);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (string))).Return (_someBool);
 
-      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMember, _visitor, expression);
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMember, _visitor, expression, _someBool);
     }
 
     [Test]
     public void VisitMethodCall_DeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GC.Collect());
-      Expression expression = Expression.Call (method);
+      var expression = Expression.Call (method);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (GC))).Return (_someBool);
 
-      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression);
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression, _someBool);
     }
 
     [Test]
     public void VisitMethodCall_GenericArguments ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GenericMethod<double>());
-      Expression expression = Expression.Call (method);
+      var expression = Expression.Call (method);
       _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (true);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (double))).Return (_someBool);
 
-      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression);
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression, _someBool);
     }
 
-    private void CheckVisitMethod<T> (Func<ExpressionAnalyzingVisitor, T, T> visitMethodInvoker, ExpressionAnalyzingVisitor visitor, T expression)
+    [Test]
+    public void VisitUnary ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => UnaryMethod (7));
+      var expression = BinaryExpression.MakeUnary (ExpressionType.Negate, Expression.Constant (7), null, method);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitUnary, _visitor, expression, _someBool);
+    }
+
+    [Test]
+    public void VisitUnary_NullMethod ()
+    {
+      var expression = BinaryExpression.MakeUnary (ExpressionType.Negate, Expression.Constant (7), null);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitUnary, _visitor, expression, expectedCompatibility: true);
+    }
+
+    private void CheckVisitMethod<T> (
+        Func<ExpressionAnalyzingVisitor, T, object> visitMethodInvoker, ExpressionAnalyzingVisitor visitor, T expression, bool expectedCompatibility)
     {
       var result = visitMethodInvoker (visitor, expression);
 
       _typeAnalyzerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (result));
-      Assert.That (_visitor.IsStrongNameStrongNameCompatible, Is.EqualTo (_someBool));
+      Assert.That (_visitor.IsStrongNameCompatible, Is.EqualTo (expectedCompatibility));
     }
 
     static void GenericMethod<[UsedImplicitly] T> () { }
+    static int BinaryMethod (int x, int y) { return x + y; }
+    static int UnaryMethod (int x) { return -x; }
   }
 }
