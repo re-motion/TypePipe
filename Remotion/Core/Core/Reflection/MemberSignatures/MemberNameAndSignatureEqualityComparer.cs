@@ -25,7 +25,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// Compares two members for equality by considering their name and signature.
   /// This comparer does not support comparing <see langword="null" /> values.
   /// </summary>
-  public class MemberNamedAndSignatureEqualityComparer : IEqualityComparer<MemberInfo>
+  public class MemberNameAndSignatureEqualityComparer : IEqualityComparer<MemberInfo>
   {
     private readonly MemberSignatureEqualityComparer _signatureComparer = new MemberSignatureEqualityComparer();
 

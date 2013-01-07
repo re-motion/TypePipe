@@ -24,9 +24,9 @@ using Remotion.Reflection.MemberSignatures;
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
   [TestFixture]
-  public class MemberNamedAndSignatureEqualityComparerTest
+  public class MemberNameAndSignatureEqualityComparerTest
   {
-    private MemberNamedAndSignatureEqualityComparer _comparer;
+    private MemberNameAndSignatureEqualityComparer _comparer;
 
     private MemberInfo _member;
     private MemberInfo _memberDifferentSignature;
@@ -36,7 +36,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     [SetUp]
     public void SetUp ()
     {
-      _comparer = new MemberNamedAndSignatureEqualityComparer();
+      _comparer = new MemberNameAndSignatureEqualityComparer();
 
       _member = NormalizingMemberInfoFromExpressionUtility.GetMember (() => Member (""));
       _memberDifferentSignature = NormalizingMemberInfoFromExpressionUtility.GetMember (() => Member (7));
