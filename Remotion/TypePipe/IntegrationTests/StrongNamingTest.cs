@@ -19,9 +19,11 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
@@ -50,7 +52,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     [Test]
     [Ignore ("TODO 5287")]
-    public void ForceStrongName_Unknown_CompatibleModifications_MutableType ()
+    public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInSignature ()
     {
       var participant = CreateParticipant (
           mutableType =>
@@ -60,7 +62,25 @@ namespace Remotion.TypePipe.IntegrationTests
             return StrongNameCompatibility.Unknown;
           });
 
-      CheckStrongNaming (true, 1, participant);
+      CheckStrongNaming (true, 0, participant);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        "Strong-naming is enabled but at least one of the following participants requested incompatible type modifications: 'IParticipantProxy.*'.")]
+    public void ForceStrongName_Unknown_IncompatibleModifications_Expression ()
+    {
+      var participant = CreateParticipant (
+          mutableType =>
+          {
+            var unsignedType = CreateUnsignedType ("UnsignedType");
+            mutableType.AddMethod ("Method", 0, typeof (object), ParameterDeclaration.EmptyParameters, ctx => Expression.Default (unsignedType));
+
+            return StrongNameCompatibility.Unknown;
+          });
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, 1, participant);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
     }
 
     [Test]
@@ -105,7 +125,7 @@ namespace Remotion.TypePipe.IntegrationTests
       var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip + 1, participants);
 
       objectFactory.GetAssembledType (typeof (DomainType));
-      var assemblyPath = Flush();
+      var assemblyPath = Flush(skipDeletion: true);
 
       AppDomainRunner.Run (
           args =>
