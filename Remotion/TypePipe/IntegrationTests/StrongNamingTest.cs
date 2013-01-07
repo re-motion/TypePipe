@@ -51,13 +51,30 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 5294")]
+    [Ignore ("TODO 4778")]
     public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInSignature ()
     {
       var participant = CreateParticipant (
           mutableType =>
           {
             mutableType.AddField ("Field", mutableType);
+
+            return StrongNameCompatibility.Unknown;
+          });
+
+      CheckStrongNaming (true, 0, participant);
+    }
+
+    [Test]
+    public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInExpression ()
+    {
+      var participant = CreateParticipant (
+          mutableType =>
+          {
+            var expression = Expression.Default (mutableType);
+            // TODO 4778
+            var usableExpression = Expression.Convert (expression, typeof (DomainType));
+            mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
 
             return StrongNameCompatibility.Unknown;
           });
