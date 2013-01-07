@@ -38,6 +38,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitConstant", expression);
     }
 
+    public static ElementInit CallVisitElementInit (ExpressionVisitor expressionVisitor, ElementInit expression)
+    {
+      return (ElementInit) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitElementInit", expression);
+    }
+
     public static Expression CallVisitExtension (ExpressionVisitor expressionVisitor, Expression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitExtension", expression);

@@ -19,6 +19,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.StrongNaming;
@@ -93,6 +94,17 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
+    public void VisitElementInit ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Add (7));
+      var expression = Expression.ElementInit (method, Expression.Constant (7));
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitElementInit, _visitor, expression, _someBool);
+    }
+
+    [Test]
     public void VisitMember ()
     {
       var member = NormalizingMemberInfoFromExpressionUtility.GetField (() => string.Empty);
@@ -156,5 +168,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     static void GenericMethod<[UsedImplicitly] T> () { }
     static int BinaryMethod (int x, int y) { return x + y; }
     static int UnaryMethod (int x) { return -x; }
+    void Add (int x) { Dev.Null = x; }
   }
 }

@@ -67,6 +67,13 @@ namespace Remotion.TypePipe.StrongNaming
       return CheckType (node.Test) ? base.VisitCatchBlock (node) : node;
     }
 
+    protected override ElementInit VisitElementInit (ElementInit node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckMethod (node.AddMethod) ? base.VisitElementInit (node) : node;
+    }
+
     protected internal override Expression VisitMember (MemberExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
