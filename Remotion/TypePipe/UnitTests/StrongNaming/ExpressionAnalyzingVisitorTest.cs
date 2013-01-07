@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
@@ -82,11 +83,22 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
-    public void VisitMethodCall ()
+    public void VisitMethodCall_DeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GC.Collect());
       Expression expression = Expression.Call (method);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (GC))).Return (_someBool);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression);
+    }
+
+    [Test]
+    public void VisitMethodCall_GenericArguments ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GenericMethod<double>());
+      Expression expression = Expression.Call (method);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (true);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (double))).Return (_someBool);
 
       CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression);
     }
@@ -99,5 +111,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       Assert.That (result, Is.SameAs (result));
       Assert.That (_visitor.IsStrongNameStrongNameCompatible, Is.EqualTo (_someBool));
     }
+
+    static void GenericMethod<[UsedImplicitly] T> () { }
   }
 }

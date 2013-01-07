@@ -16,12 +16,16 @@
 // 
 
 using System;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
+  /// <summary>
+  /// An <see cref="ExpressionVisitor"/> that can be used to check whether or not an <see cref="Expression"/> is strong-name compatible.
+  /// </summary>
   public class ExpressionAnalyzingVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
     private readonly ITypeAnalyzer _typeAnalyzer;
@@ -66,9 +70,9 @@ namespace Remotion.TypePipe.StrongNaming
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      return CheckCompatibility (node.Method.DeclaringType) ? base.VisitMethodCall (node) : node;
-
-      // TODO Review: Also check generic arguments of method.
+      return CheckCompatibility (node.Method.DeclaringType) && node.Method.GetGenericArguments().All (CheckCompatibility)
+                 ? base.VisitMethodCall (node)
+                 : node;
     }
 
     private bool CheckCompatibility (Type type)
