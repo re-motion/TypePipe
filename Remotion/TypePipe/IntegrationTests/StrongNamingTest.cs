@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Configuration;
@@ -27,7 +28,6 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.IntegrationTests
 {
   [TestFixture]
-  [Ignore ("TODO 5287")]
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
   {
     [Test]
@@ -49,6 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
+    [Ignore ("TODO 5287")]
     public void ForceStrongName_Unknown_CompatibleModifications_MutableType ()
     {
       var participant = CreateParticipant (
@@ -59,24 +60,24 @@ namespace Remotion.TypePipe.IntegrationTests
             return StrongNameCompatibility.Unknown;
           });
 
-      CheckStrongNaming (true, participant);
+      CheckStrongNaming (true, 1, participant);
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
+    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        "Strong-naming is enabled but the following participants requested incompatible type modifications: 'IParticipantProxy.*'.")]
     public void ForceStrongName_Incompatible ()
     {
       var participant1 = CreateParticipant (mt => StrongNameCompatibility.Compatible);
       var participant2 = CreateParticipant (mt => StrongNameCompatibility.Incompatible);
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, participant1, participant2);
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, 1, participant1, participant2);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "Strong-naming is enabled in the configuration, but participant '..' is strong-name incompatible.")]
+    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        "Strong-naming is enabled but at least one of the following participants requested incompatible type modifications: 'IParticipantProxy.*'.")]
     public void ForceStrongName_Unknown_IncompatibleModifications ()
     {
       var participant = CreateParticipant (
@@ -87,7 +88,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
             return StrongNameCompatibility.Unknown;
           });
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, participant);
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, 1, participant);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
@@ -95,28 +96,39 @@ namespace Remotion.TypePipe.IntegrationTests
     private void CheckStrongNaming (bool forceStrongNaming, params StrongNameCompatibility[] compatibilities)
     {
       var participants = compatibilities.Select (c => CreateParticipant (mutableType => c));
-      CheckStrongNaming (forceStrongNaming, participants.ToArray());
+      CheckStrongNaming (forceStrongNaming, 1, participants.ToArray());
     }
 
-    private void CheckStrongNaming (bool forceStrongNaming, params IParticipant[] participants)
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    private void CheckStrongNaming (bool forceStrongNaming, int stackFramesToSkip, params IParticipant[] participants)
     {
-      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, participants);
+      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip + 1, participants);
 
       objectFactory.GetAssembledType (typeof (DomainType));
-      var assemblyPath = objectFactory.CodeGenerator.FlushCodeToDisk();
-      var assembly = Assembly.LoadFrom (assemblyPath);
+      var assemblyPath = Flush();
 
-      var isStrongNamed = assembly.GetName().GetPublicKeyToken().Length > 0;
-      Assert.That (isStrongNamed, Is.EqualTo (forceStrongNaming));
+      AppDomainRunner.Run (
+          args =>
+          {
+            var path = (string) args[0];
+            var expectedIsStrongNamed = (bool) args[1];
+            var assembly = Assembly.LoadFrom (path);
+
+            var isStrongNamed = assembly.GetName().GetPublicKeyToken().Length > 0;
+            Assert.That (isStrongNamed, Is.EqualTo (expectedIsStrongNamed));
+          },
+          assemblyPath,
+          forceStrongNaming);
     }
 
-    private IObjectFactory CreateObjectFactoryForStrongNaming (bool forceStrongNaming, params IParticipant[] participants)
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    private IObjectFactory CreateObjectFactoryForStrongNaming (bool forceStrongNaming, int stackFramesToSkip, params IParticipant[] participants)
     {
       var typePipeConfigurationProviderStub = MockRepository.GenerateStub<ITypePipeConfigurationProvider>();
       typePipeConfigurationProviderStub.Stub (stub => stub.ForceStrongNaming).Return (forceStrongNaming);
 
       using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => typePipeConfigurationProviderStub))
-        return CreateObjectFactory (participants, stackFramesToSkip: 1);
+        return CreateObjectFactory (participants, stackFramesToSkip: stackFramesToSkip + 1);
     }
 
     private Type CreateUnsignedType (string typeName)
