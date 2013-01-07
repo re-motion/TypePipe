@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -91,6 +92,17 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
 
       CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitCatchBlock, _visitor, expression, _someBool);
+    }
+
+    [Test]
+    public void VisitDynamic ()
+    {
+      var callSiteBinderStub = MockRepository.GenerateStub<CallSiteBinder>();
+      var expression = Expression.Dynamic (callSiteBinderStub, typeof (double), Expression.Constant (7));
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (Func<CallSite, int, double>))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitDynamic, _visitor, expression, _someBool);
     }
 
     [Test]

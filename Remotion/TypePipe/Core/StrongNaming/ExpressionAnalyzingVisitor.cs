@@ -67,6 +67,13 @@ namespace Remotion.TypePipe.StrongNaming
       return CheckType (node.Test) ? base.VisitCatchBlock (node) : node;
     }
 
+    protected internal override Expression VisitDynamic (DynamicExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckType (node.DelegateType) ? base.VisitDynamic (node) : node;
+    }
+
     protected override ElementInit VisitElementInit (ElementInit node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
@@ -113,10 +120,6 @@ namespace Remotion.TypePipe.StrongNaming
     {
       return method == null || CheckMember (method) && method.GetGenericArguments().All (CheckType);
     }
-
-    // TODO Review: VisitDynamic => DelegateType
-
-    // TODO Review: ElementInit => AddMethod
 
     // TODO Review: Check remaining expressions for potential strong-naming relevant members.
   }

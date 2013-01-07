@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -36,6 +37,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public static Expression CallVisitConstant (ExpressionVisitor expressionVisitor, ConstantExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitConstant", expression);
+    }
+
+    public static Expression CallVisitDynamic (ExpressionVisitor expressionVisitor, DynamicExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitDynamic", expression);
     }
 
     public static ElementInit CallVisitElementInit (ExpressionVisitor expressionVisitor, ElementInit expression)
