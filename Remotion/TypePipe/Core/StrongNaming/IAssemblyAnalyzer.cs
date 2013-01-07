@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// <summary>
   /// Determines wheter a given <see cref="Type"/> is strong-named.
   /// </summary>
-  [ConcreteImplementation (typeof (AssemblyAnalyzer))]
+  [ConcreteImplementation (typeof (AssemblyAnalyzer), Lifetime = LifetimeKind.Singleton)]
   public interface IAssemblyAnalyzer
   {
     bool IsStrongNamed (Assembly assembly);

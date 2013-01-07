@@ -19,6 +19,7 @@ using System;
 using NUnit.Framework;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Serialization;
+using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -53,12 +54,24 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    public void Resolutation_ObjectFactoryRegistry_SingletonScope ()
+    public void Resolution_ObjectFactoryRegistry_SingletonScope ()
     {
       var registry1 = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
       var registry2 = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
 
       Assert.That (registry1, Is.Not.Null.And.SameAs (registry2));
+    }
+
+    [Test]
+    public void Resolution_StrongNaming_Caches_SingletonScope ()
+    {
+      var typeAnalyzer1 = SafeServiceLocator.Current.GetInstance<ITypeAnalyzer>();
+      var typeAnalyzer2 = SafeServiceLocator.Current.GetInstance<ITypeAnalyzer>();
+      var assemblyAnalyzer1 = SafeServiceLocator.Current.GetInstance<IAssemblyAnalyzer>();
+      var assemblyAnalyzer2 = SafeServiceLocator.Current.GetInstance<IAssemblyAnalyzer>();
+
+      Assert.That (typeAnalyzer1, Is.Not.Null.And.SameAs (typeAnalyzer2));
+      Assert.That (assemblyAnalyzer1, Is.Not.Null.And.SameAs (assemblyAnalyzer2));
     }
 
     public class DomainType { }
