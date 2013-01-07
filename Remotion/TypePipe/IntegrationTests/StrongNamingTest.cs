@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.IntegrationTests
       var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip + 1, participants);
 
       objectFactory.GetAssembledType (typeof (DomainType));
-      var assemblyPath = Flush(skipDeletion: true);
+      var assemblyPath = Flush();
 
       AppDomainRunner.Run (
           args =>
