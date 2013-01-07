@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,18 +14,35 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
-using Remotion.ServiceLocation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// Determines if an <see cref="Expression"/> is compatible with strong-naming, i.e., only contains types that reside in strong-named assemblies.
+  /// Uses <see cref="ExpressionAnalyzingVisitor"/> to implement see <see cref="IExpressionAnalyzer"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (ExpressionAnalyzer))]
-  public interface IExpressionAnalyzer
+  public class ExpressionAnalyzer : IExpressionAnalyzer
   {
-    bool IsStrongNameCompatible (Expression expression);
+    private readonly ITypeAnalyzer _typeAnalyzer;
+
+    public ExpressionAnalyzer (ITypeAnalyzer typeAnalyzer)
+    {
+      ArgumentUtility.CheckNotNull ("typeAnalyzer", typeAnalyzer);
+
+      _typeAnalyzer = typeAnalyzer;
+    }
+
+    public bool IsStrongNameCompatible (Expression expression)
+    {
+      ArgumentUtility.CheckNotNull ("expression", expression);
+
+      var visitor = new ExpressionAnalyzingVisitor (_typeAnalyzer);
+      visitor.Visit (expression);
+
+      return visitor.IsStrongNameStrongNameCompatible;
+    }
   }
 }

@@ -344,6 +344,7 @@
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
+    <Compile Include="StrongNaming\ExpressionAnalyzer.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
     <Compile Include="StrongNaming\IMutableTypeAnalyzer.cs" />
     <Compile Include="StrongNaming\IAssemblyAnalyzer.cs" />

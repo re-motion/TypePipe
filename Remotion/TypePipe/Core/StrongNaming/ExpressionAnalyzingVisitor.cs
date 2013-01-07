@@ -22,12 +22,11 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
-  public class ExpressionAnalyzingVisitor : PrimitiveTypePipeExpressionVisitorBase, IExpressionAnalyzer
+  public class ExpressionAnalyzingVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
     private readonly ITypeAnalyzer _typeAnalyzer;
 
-    // TODO
-    private bool _isCompatible = true;
+    private bool _isStrongNameCompatible = true;
 
     public ExpressionAnalyzingVisitor (ITypeAnalyzer typeAnalyzer)
     {
@@ -36,62 +35,58 @@ namespace Remotion.TypePipe.StrongNaming
       _typeAnalyzer = typeAnalyzer;
     }
 
-    public bool IsStrongNameCompatible (Expression expression)
+    public bool IsStrongNameStrongNameCompatible
     {
-      Visit (expression);
-
-
-      return _isCompatible;
+      get { return _isStrongNameCompatible; }
     }
 
     public override Expression Visit (Expression node)
     {
-      if (node != null && !_typeAnalyzer.IsStrongNamed (node.Type))
-      {
-        _isCompatible = false;
-        return node;
-      }
+      if (node == null)
+        return null;
 
-      return base.Visit (node);
+      return CheckCompatibility (node.Type) ? base.Visit (node) : node;
+    }
+
+    protected override CatchBlock VisitCatchBlock (CatchBlock node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckCompatibility (node.Test) ? base.VisitCatchBlock (node) : node;
+    }
+
+    protected internal override Expression VisitMember (MemberExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckCompatibility (node.Member.DeclaringType) ? base.VisitMember (node) : node;
     }
 
     protected internal override Expression VisitMethodCall (MethodCallExpression node)
     {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckCompatibility (node.Method.DeclaringType) ? base.VisitMethodCall (node) : node;
+
       // TODO Review: Also check generic arguments of method.
-      if (!_typeAnalyzer.IsStrongNamed (node.Method.DeclaringType))
-      {
-        _isCompatible = false;
-        return node;
-      }
-
-      return base.VisitMethodCall (node);
     }
 
-
-    protected internal override Expression VisitMember (MemberExpression node)
+    private bool CheckCompatibility (Type type)
     {
-      if (!_typeAnalyzer.IsStrongNamed (node.Member.DeclaringType))
-      {
-        _isCompatible = false;
-        return node;
-      }
+      var isCompatible = _typeAnalyzer.IsStrongNamed (type);
+      if (!isCompatible)
+        _isStrongNameCompatible = false;
 
-      return base.VisitMember (node);
+      return isCompatible;
     }
+
 
     // TODO Review: VisitBinary, VisitUnary can also have methods
-    // TODO Review: VisitDynamic => DelegateType
-    // TODO Review: ElementInit => AddMethod
-    // TODO Review: Check remaining expressions for potential strong-naming relevant members.
 
-    protected override CatchBlock VisitCatchBlock (CatchBlock node)
-    {
-      if (!_typeAnalyzer.IsStrongNamed (node.Test))
-      {
-        _isCompatible = false;
-        return node;
-      }
-      return base.VisitCatchBlock (node);
-    }
+    // TODO Review: VisitDynamic => DelegateType
+
+    // TODO Review: ElementInit => AddMethod
+
+    // TODO Review: Check remaining expressions for potential strong-naming relevant members.
   }
 }

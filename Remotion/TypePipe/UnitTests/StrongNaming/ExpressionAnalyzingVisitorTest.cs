@@ -14,11 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.StrongNaming;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.StrongNaming
@@ -26,64 +29,75 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
   [TestFixture]
   public class ExpressionAnalyzingVisitorTest
   {
+    private ITypeAnalyzer _typeAnalyzerMock;
 
-    // TODO 
-    [Test]
-    public void Visit_Expression ()
+    private ExpressionAnalyzingVisitor _visitor;
+
+    private bool _someBool;
+
+    [SetUp]
+    public void SetUp ()
     {
-      var type = ReflectionObjectMother.GetSomeType();
+      _typeAnalyzerMock = MockRepository.GenerateStrictMock<ITypeAnalyzer>();
 
-      Check (Expression.Default (type), true, type);
-      Check (Expression.Default (type), false, type);
+      _visitor = new ExpressionAnalyzingVisitor (_typeAnalyzerMock);
+
+      _someBool = BooleanObjectMother.GetRandomBoolean();
     }
 
     [Test]
-    public void Visit_Member ()
+    public void Visit ()
     {
-      Check (Expression.Field (null, NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.Field)), true, typeof (DomainType));
-      Check (Expression.Field (null, NormalizingMemberInfoFromExpressionUtility.GetField (() => DomainType.Field)), false, typeof (DomainType));
+      var someType = ReflectionObjectMother.GetSomeType();
+      var expression = ExpressionTreeObjectMother.GetSomeExpression (someType);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (someType)).Return (_someBool);
+
+      CheckVisitMethod ((v, e) => v.Visit (e), _visitor, expression);
     }
 
     [Test]
-    public void Visit_Call ()
+    public void Visit_Null ()
     {
-      Check (Expression.Call (null, NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.Method())), true, typeof (DomainType));
-      Check (Expression.Call (null, NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.Method())), false, typeof (DomainType));
+      Assert.That (_visitor.Visit (node: null), Is.Null);
     }
 
     [Test]
-    public void Visit_CatchBlock ()
+    public void VisitCatchBlock ()
     {
-      Check (Expression.TryCatch (Expression.Empty(), Expression.Catch (typeof (Exception), Expression.Empty())), true, typeof (Exception));
-      Check (Expression.TryCatch (Expression.Empty(), Expression.Catch (typeof (Exception), Expression.Empty())), false, typeof (Exception));
+      var expression = Expression.Catch (typeof (NullReferenceException), Expression.Default (typeof (int)));
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (NullReferenceException))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitCatchBlock, _visitor, expression);
     }
 
-    private void Check (Expression expression, bool strongNamed, Type type)
+    [Test]
+    public void VisitMember ()
     {
-      var strongTypeVerifier = MockRepository.GenerateStrictMock<ITypeAnalyzer> ();
-      var visitorPartialMock = MockRepository.GeneratePartialMock<ExpressionAnalyzingVisitor> (strongTypeVerifier);
+      var member = NormalizingMemberInfoFromExpressionUtility.GetField (() => string.Empty);
+      Expression expression = Expression.Field (null, member);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (string))).Return (_someBool);
 
-      strongTypeVerifier.Expect (mock => mock.IsStrongNamed (type))
-          .Return (strongNamed)
-          .WhenCalled (
-              mi =>
-              {
-                if (!strongNamed && !(expression is TryExpression))
-                  visitorPartialMock.Expect (mock => mock.Visit (Arg<Expression>.Is.Anything)).Repeat.Never();
-              });
-      strongTypeVerifier.Stub (stub => stub.IsStrongNamed (Arg<Type>.Is.Anything)).Return (true);
-
-      var result = visitorPartialMock.IsStrongNameCompatible (expression);
-
-      strongTypeVerifier.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (strongNamed));
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMember, _visitor, expression);
     }
 
-    public class DomainType
+    [Test]
+    public void VisitMethodCall ()
     {
-      public static int Field;
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GC.Collect());
+      Expression expression = Expression.Call (method);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (GC))).Return (_someBool);
 
-      public static void Method () {}
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitMethodCall, _visitor, expression);
+    }
+
+    private void CheckVisitMethod<T> (Func<ExpressionAnalyzingVisitor, T, T> visitMethodInvoker, ExpressionAnalyzingVisitor visitor, T expression)
+    {
+      var result = visitMethodInvoker (visitor, expression);
+
+      _typeAnalyzerMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (result));
+      Assert.That (_visitor.IsStrongNameStrongNameCompatible, Is.EqualTo (_someBool));
     }
   }
 }
