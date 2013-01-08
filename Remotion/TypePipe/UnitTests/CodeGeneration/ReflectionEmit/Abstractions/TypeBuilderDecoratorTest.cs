@@ -21,6 +21,7 @@ using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
@@ -114,18 +115,38 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 
       var result = _decorator.DefineMethod (name, attributes, returnType, new[] { parameterType });
 
-      _operandProvider.VerifyAllExpectations ();
-      _inner.VerifyAllExpectations ();
+      _operandProvider.VerifyAllExpectations();
+      _inner.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<MethodBuilderDecorator> ());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_methodBuilder"), Is.SameAs (fakeMethodBuilder));
     }
 
     [Test]
+    public void DefineMethodOverride ()
+    {
+      var methods = ReflectionObjectMother.GetMultipeMethods (2);
+
+      var emittableMethods = new[] { typeof (int).GetMethod ("Parse", Type.EmptyTypes), typeof (bool).GetMethod ("Parse") };
+      _operandProvider.Expect (mock => mock.GetEmittableMethod (methods[0])).Return (emittableMethods[0]);
+      _operandProvider.Expect (mock => mock.GetEmittableMethod (methods[1])).Return (emittableMethods[1]);
+      _inner.Expect (mock => mock.DefineMethodOverride (emittableMethods[0], emittableMethods[1]));
+
+      _decorator.DefineMethodOverride (methods[0], methods[1]);
+
+      _operandProvider.VerifyAllExpectations();
+      _inner.VerifyAllExpectations();
+    }
+
+    [Test]
     public void DelegatingMembers ()
     {
+      var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var mutableType = MutableTypeObjectMother.Create();
+
       var helper = new DecoratorTestHelper<ITypeBuilder> (_decorator, _inner);
 
-      // TODO
+      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableType));
+      helper.CheckDelegation (d => d.CreateType(), ReflectionObjectMother.GetSomeType());
     }
   }
 }

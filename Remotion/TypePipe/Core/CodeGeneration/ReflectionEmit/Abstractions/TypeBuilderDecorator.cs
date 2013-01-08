@@ -49,7 +49,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      _typeBuilder.RegisterWith (emittableOperandProvider, type);
     }
 
     public void AddInterfaceImplementation (Type interfaceType)
@@ -98,12 +101,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("methodInfoBody", methodInfoBody);
+      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
+
+      var emittableMethodInfoBody = _emittableOperandProvider.GetEmittableMethod (methodInfoBody);
+      var emittableMethodInfoDeclaration = _emittableOperandProvider.GetEmittableMethod (methodInfoDeclaration);
+      _typeBuilder.DefineMethodOverride (emittableMethodInfoBody, emittableMethodInfoDeclaration);
     }
 
     public Type CreateType ()
     {
-      throw new NotImplementedException();
+      return _typeBuilder.CreateType();
     }
   }
 }
