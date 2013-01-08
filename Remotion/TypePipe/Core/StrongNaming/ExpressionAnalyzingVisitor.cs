@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -116,6 +117,16 @@ namespace Remotion.TypePipe.StrongNaming
       return CheckMethod (node.Method) ? base.VisitUnary (node) : node;
     }
 
+    protected override Expression VisitOriginalBody (OriginalBodyExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      // TODO 4790: Check if generics influence this code.
+      Debug.Assert (!node.MethodBase.IsGenericMethod);
+
+      return CheckMember (node.MethodBase) ? base.VisitOriginalBody (node) : node;
+    }
+
     protected override Expression VisitNewDelegate (NewDelegateExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
@@ -151,10 +162,10 @@ namespace Remotion.TypePipe.StrongNaming
 
     // probably not
 
-    // IndexExpression (implicitly via node.Object.Type + strong-naming rules)
-    // OriginalBodyExpression -> MethodBase (implicitly checked via type hierarchy)
-    // Constant -> Value.GetType() != Type ?? check necessary? don't think so.
-    // InvocationExpression => LambdaOperand (not used in base call), but don't think so.
-    // LabelTarget -> LabelTarget.Type (not an expression)
+    // IndexExpression (implicitly via node.Object.Type + strong-naming rules) => CHECK statics
+    // OriginalBodyExpression -> MethodBase (implicitly checked via type hierarchy) => YES
+    // Constant -> Value.GetType() != Type ?? check necessary? don't think so. => YES
+    // InvocationExpression => LambdaOperand (not used in base call), but don't think so. => NO
+    
   }
 }

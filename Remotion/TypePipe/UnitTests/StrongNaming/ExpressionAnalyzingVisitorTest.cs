@@ -23,6 +23,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
@@ -215,11 +216,21 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void VisitUnary_NullMethod ()
     {
-      var expression = BinaryExpression.MakeUnary (ExpressionType.Negate, Expression.Constant (7), null);
+      var expression = Expression.MakeUnary (ExpressionType.Negate, Expression.Constant (7), null);
       Assert.That (expression.Method, Is.Null);
       _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
 
       CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitUnary, _visitor, expression, expectedCompatibility: true);
+    }
+
+    [Test]
+    public void VisitOriginalBody ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => double.IsNaN (0.7));
+      var expression = new OriginalBodyExpression (method, typeof (bool), new Expression[0]);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (double))).Return (_someBool);
+
+      CheckVisitMethod (PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitOriginalBody, _visitor, expression, _someBool);
     }
 
     [Test]
