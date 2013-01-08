@@ -78,7 +78,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _inner.VerifyAllExpectations();
     }
 
-
     public class AbcAttribute : Attribute
     {
       public AbcAttribute (object ctorArg) { Dev.Null = ctorArg; }

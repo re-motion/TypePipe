@@ -46,8 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
       var emittableConstructorArguments = customAttributeDeclaration.ConstructorArguments.Select (MakeEmittable).ToArray();
-      var emittableNamedArguments =
-          customAttributeDeclaration.NamedArguments.Select (na => CreateArgumentDeclaration (na.MemberInfo, MakeEmittable (na.Value))).ToArray();
+      var emittableNamedArguments = customAttributeDeclaration.NamedArguments.Select (MakeEmittable).ToArray();
       var emittableDeclaration = new CustomAttributeDeclaration (
           customAttributeDeclaration.Constructor, emittableConstructorArguments, emittableNamedArguments);
 
@@ -70,9 +69,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return obj;
     }
 
-    private NamedArgumentDeclaration CreateArgumentDeclaration (MemberInfo member, object emittableValue)
+    private NamedArgumentDeclaration MakeEmittable (ICustomAttributeNamedArgument customAttributeNamedArgument)
     {
-      Debug.Assert (member is FieldInfo || member is PropertyInfo);
+      var member = customAttributeNamedArgument.MemberInfo;
+      var emittableValue = MakeEmittable (customAttributeNamedArgument.Value);
 
       return member is FieldInfo
                  ? new NamedArgumentDeclaration ((FieldInfo) member, emittableValue)
