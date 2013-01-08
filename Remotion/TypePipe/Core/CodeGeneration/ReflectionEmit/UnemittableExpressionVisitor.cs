@@ -94,15 +94,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return Visit (block);
     }
 
-    protected override Expression VisitOriginalBody (OriginalBodyExpression expression)
+    protected override Expression VisitOriginalBody (OriginalBodyExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      var methodBase = expression.MethodBase;
+      var methodBase = node.MethodBase;
       var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.MutableType);
       var methodRepresentingOriginalBody = NonVirtualCallMethodInfoAdapter.Adapt (methodBase);
 
-      var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, expression.Arguments);
+      var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, node.Arguments);
 
       return Visit (baseCall);
     }

@@ -44,43 +44,43 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _childExpressionEmitter = childExpressionEmitter;
     }
 
-    public Expression VisitThis (ThisExpression expression)
+    public Expression VisitThis (ThisExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
       _ilGenerator.Emit (OpCodes.Ldarg_0);
-      return expression;
+      return node;
     }
 
-    public Expression VisitOriginalBody (OriginalBodyExpression expression)
+    public Expression VisitOriginalBody (OriginalBodyExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (expression);
+      throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (node);
     }
 
-    public Expression VisitNewDelegate (NewDelegateExpression expression)
+    public Expression VisitNewDelegate (NewDelegateExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      var constructorInfo = expression.Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
+      var constructorInfo = node.Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
 
-      if (expression.Method.IsStatic)
+      if (node.Method.IsStatic)
         _ilGenerator.Emit (OpCodes.Ldnull);
       else
-        _childExpressionEmitter (expression.Target);
+        _childExpressionEmitter (node.Target);
 
-      if (expression.Method.IsVirtual)
+      if (node.Method.IsVirtual)
       {
         _ilGenerator.Emit (OpCodes.Dup);
-        _ilGenerator.Emit (OpCodes.Ldvirtftn, expression.Method);
+        _ilGenerator.Emit (OpCodes.Ldvirtftn, node.Method);
       }
       else
-        _ilGenerator.Emit (OpCodes.Ldftn, expression.Method);
+        _ilGenerator.Emit (OpCodes.Ldftn, node.Method);
 
       _ilGenerator.Emit (OpCodes.Newobj, constructorInfo);
 
-      return expression;
+      return node;
     }
 
     private NotSupportedException NewNotSupportedMustBeReplacedBeforeCodeGenerationException (IPrimitiveTypePipeExpression expression)

@@ -26,42 +26,42 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public abstract class PrimitiveTypePipeExpressionVisitorBase : ExpressionVisitor, IPrimitiveTypePipeExpressionVisitor
   {
-    Expression IPrimitiveTypePipeExpressionVisitor.VisitThis (ThisExpression expression)
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitThis (ThisExpression node)
     {
-      return VisitThis (expression);
+      return VisitThis (node);
     }
 
-    protected virtual Expression VisitThis (ThisExpression expression)
+    protected virtual Expression VisitThis (ThisExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      return VisitExtension (expression);
+      return VisitExtension (node);
     }
 
-    Expression IPrimitiveTypePipeExpressionVisitor.VisitOriginalBody (OriginalBodyExpression expression)
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitOriginalBody (OriginalBodyExpression node)
     {
-      return VisitOriginalBody (expression);
+      return VisitOriginalBody (node);
     }
 
-    protected virtual Expression VisitOriginalBody (OriginalBodyExpression expression)
+    protected virtual Expression VisitOriginalBody (OriginalBodyExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      return VisitExtension (expression);
+      return VisitExtension (node);
     }
 
-    Expression IPrimitiveTypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression expression)
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      return VisitNewDelegate (expression);
+      return VisitNewDelegate (node);
     }
 
-    protected virtual Expression VisitNewDelegate (NewDelegateExpression expression)
+    protected virtual Expression VisitNewDelegate (NewDelegateExpression node)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull ("node", node);
 
-      return VisitExtension (expression);
+      return VisitExtension (node);
     }
   }
 }
