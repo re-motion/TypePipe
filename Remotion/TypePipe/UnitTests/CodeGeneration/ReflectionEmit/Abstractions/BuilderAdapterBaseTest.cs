@@ -27,7 +27,7 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
-  public class CustomAttributeTargetBuilderBaseTest
+  public class BuilderAdapterBaseTest
   {
     [Test]
     public void SetCustomAttribute ()
@@ -51,11 +51,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
             new[] { field },
             new object[] { 8 });
       };
-      var builderPartialMock = MockRepository.GeneratePartialMock<CustomAttributeTargetBuilderBase> (setCustomAttributeMethod);
+      var adapterBasePartialMock = MockRepository.GeneratePartialMock<BuilderAdapterBase> (setCustomAttributeMethod);
       var declaration = new CustomAttributeDeclaration (
           attributeCtor, new object[] { typeof (int) }, new NamedArgumentDeclaration (property, "def"), new NamedArgumentDeclaration (field, 8));
 
-      builderPartialMock.SetCustomAttribute (declaration);
+      adapterBasePartialMock.SetCustomAttribute (declaration);
 
       Assert.That (wasCalled, Is.True);
     }

@@ -57,7 +57,8 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />

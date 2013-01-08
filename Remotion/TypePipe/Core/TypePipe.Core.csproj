@@ -59,7 +59,8 @@
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecorator.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ICustomAttributeTargetBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IParameterBuilder.cs" />

@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="FieldBuilder"/> with the <see cref="IFieldBuilder"/> interface.
   /// </summary>
-  public class FieldBuilderAdapter : CustomAttributeTargetBuilderBase, IFieldBuilder
+  public class FieldBuilderAdapter : BuilderAdapterBase, IFieldBuilder
   {
     private readonly FieldBuilder _fieldBuilder;
 

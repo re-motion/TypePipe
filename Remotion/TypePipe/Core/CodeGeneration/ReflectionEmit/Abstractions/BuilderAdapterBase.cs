@@ -25,13 +25,13 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// A base class for implementors of <see cref="ICustomAttributeTargetBuilder"/>.
+  /// A base class for adapters adapting Reflection.Emit builders to <see cref="ICustomAttributeTargetBuilder"/>.
   /// </summary>
-  public abstract class CustomAttributeTargetBuilderBase : ICustomAttributeTargetBuilder
+  public abstract class BuilderAdapterBase : ICustomAttributeTargetBuilder
   {
     private readonly Action<CustomAttributeBuilder> _setCustomAttributeMethod;
 
-    protected CustomAttributeTargetBuilderBase (Action<CustomAttributeBuilder> setCustomAttributeMethod)
+    protected BuilderAdapterBase (Action<CustomAttributeBuilder> setCustomAttributeMethod)
     {
       ArgumentUtility.CheckNotNull ("setCustomAttributeMethod", setCustomAttributeMethod);
 

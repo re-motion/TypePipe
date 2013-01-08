@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="ParameterBuilder"/> with the <see cref="IParameterBuilder"/> interface.
   /// </summary>
-  public class ParameterBuilderAdapter : CustomAttributeTargetBuilderBase, IParameterBuilder
+  public class ParameterBuilderAdapter : BuilderAdapterBase, IParameterBuilder
   {
     public ParameterBuilderAdapter (ParameterBuilder parameterBuilder)
         : base (ArgumentUtility.CheckNotNull ("parameterBuilder", parameterBuilder).SetCustomAttribute)

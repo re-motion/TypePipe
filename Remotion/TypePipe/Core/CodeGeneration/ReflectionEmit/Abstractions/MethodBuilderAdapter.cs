@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="MethodBuilder"/> with the <see cref="IMethodBaseBuilder"/> interface.
   /// </summary>
-  public class MethodBuilderAdapter : CustomAttributeTargetBuilderBase, IMethodBuilder
+  public class MethodBuilderAdapter : BuilderAdapterBase, IMethodBuilder
   {
     private readonly MethodBuilder _methodBuilder;
 
