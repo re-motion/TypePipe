@@ -79,6 +79,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void VisitBinary_NullMethod ()
     {
       var expression = BinaryExpression.MakeBinary (ExpressionType.Add, Expression.Constant (7), Expression.Constant (8));
+      Assert.That (expression.Method, Is.Null);
       _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
 
       CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitBinary, _visitor, expression, expectedCompatibility: true);
@@ -148,6 +149,35 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
+    public void VisitSwitch ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Comparison (7, 8));
+      var switchValue = Expression.Parameter (typeof (int));
+      var defaultBody = Expression.Empty();
+      var switchCase = Expression.SwitchCase (Expression.Empty(), Expression.Constant (7));
+      var expression = Expression.Switch (switchValue, defaultBody, method, switchCase);
+
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (void))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitSwitch, _visitor, expression, _someBool);
+    }
+
+    [Test]
+    public void VisitSwitch_NullMethod ()
+    {
+      var switchCase = Expression.SwitchCase (Expression.Empty(), Expression.Constant (7));
+      var expression = Expression.Switch (Expression.Parameter (typeof (int)), Expression.Empty(), switchCase);
+      Assert.That (expression.Comparison, Is.Null);
+
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (void))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitSwitch, _visitor, expression, expectedCompatibility: true);
+    }
+
+    [Test]
     public void VisitUnary ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => UnaryMethod (7));
@@ -162,6 +192,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void VisitUnary_NullMethod ()
     {
       var expression = BinaryExpression.MakeUnary (ExpressionType.Negate, Expression.Constant (7), null);
+      Assert.That (expression.Method, Is.Null);
       _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
 
       CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitUnary, _visitor, expression, expectedCompatibility: true);
@@ -181,5 +212,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     static int BinaryMethod (int x, int y) { return x + y; }
     static int UnaryMethod (int x) { return -x; }
     void Add (int x) { Dev.Null = x; }
+    bool Comparison (int s, int i) { Dev.Null = s; Dev.Null = i; return false; }
   }
 }

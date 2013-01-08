@@ -65,6 +65,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitMember", expression);
     }
 
+    public static Expression CallVisitSwitch (ExpressionVisitor expressionVisitor, SwitchExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitSwitch", expression);
+    }
+
     public static Expression CallVisitMethodCall (ExpressionVisitor expressionVisitor, MethodCallExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitMethodCall", expression);

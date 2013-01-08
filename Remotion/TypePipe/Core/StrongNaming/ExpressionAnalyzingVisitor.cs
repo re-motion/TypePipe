@@ -95,6 +95,13 @@ namespace Remotion.TypePipe.StrongNaming
       return CheckMethod (node.Method) ? base.VisitMethodCall (node) : node;
     }
 
+    protected internal override Expression VisitSwitch (SwitchExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckMethod (node.Comparison) ? base.VisitSwitch (node) : node;
+    }
+
     protected internal override Expression VisitUnary (UnaryExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
@@ -123,7 +130,6 @@ namespace Remotion.TypePipe.StrongNaming
 
     // TODO NewDelegateExpression
     // TODO IndexExpression.Indexer
-    // TODO SwitchExpression.Comparison 
     // TODO TypeBinaryExpression.TypeOperand
 
 
