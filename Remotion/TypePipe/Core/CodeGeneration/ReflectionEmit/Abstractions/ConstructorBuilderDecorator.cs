@@ -16,12 +16,7 @@
 // 
 
 using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -29,28 +24,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Decorates an instance of <see cref="IConstructorBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
-  public class ConstructorBuilderDecorator : BuilderDecoratorBase, IConstructorBuilder
+  public class ConstructorBuilderDecorator : MethodBaseBuilderDecoratorBase, IConstructorBuilder
   {
     private readonly IConstructorBuilder _constructorBuilder;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
     public ConstructorBuilderDecorator (IConstructorBuilder constructorBuilder, IEmittableOperandProvider emittableOperandProvider)
         : base (constructorBuilder, emittableOperandProvider)
     {
       _constructorBuilder = constructorBuilder;
-      _emittableOperandProvider = emittableOperandProvider;
-    }
-
-    public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
-    {
-      throw new System.NotImplementedException();
-    }
-
-    [CLSCompliant (false)]
-    public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
-    {
-      throw new System.NotImplementedException();
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableConstructorInfo constructor)
