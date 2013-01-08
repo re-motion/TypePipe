@@ -222,6 +222,16 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitUnary, _visitor, expression, expectedCompatibility: true);
     }
 
+    [Test]
+    public void VisitNewDelegate ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DelegateMethod());
+      var expression = Expression.NewDelegate (typeof (Func<int>), null, method);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (_someBool);
+
+      CheckVisitMethod (PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitNewDelegate, _visitor, expression, _someBool);
+    }
+
     private void CheckVisitMethod<T> (
         Func<ExpressionAnalyzingVisitor, T, object> visitMethodInvoker, ExpressionAnalyzingVisitor visitor, T expression, bool expectedCompatibility)
     {
@@ -238,5 +248,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     void Add (int x) { Dev.Null = x; }
     bool Comparison (int s, int i) { Dev.Null = s; Dev.Null = i; return false; }
     public int this[int i] { get { return i; } }
+    static int DelegateMethod () { return 7; }
   }
 }

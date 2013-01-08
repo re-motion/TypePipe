@@ -116,6 +116,13 @@ namespace Remotion.TypePipe.StrongNaming
       return CheckMethod (node.Method) ? base.VisitUnary (node) : node;
     }
 
+    protected override Expression VisitNewDelegate (NewDelegateExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckMethod (node.Method) ? base.VisitNewDelegate (node) : node;
+    }
+
     private bool CheckType (Type type)
     {
       var isCompatible = _typeAnalyzer.IsStrongNamed (type);
@@ -134,8 +141,6 @@ namespace Remotion.TypePipe.StrongNaming
     {
       return method == null || CheckMember (method) && method.GetGenericArguments().All (CheckType);
     }
-
-    // TODO NewDelegateExpression
 
     // not sure
 
