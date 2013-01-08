@@ -29,24 +29,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Decorates an instance of <see cref="IMethodBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
-  public class MethodBuilderDecorator : IMethodBuilder
+  public class MethodBuilderDecorator : BuilderDecoratorBase, IMethodBuilder
   {
     private readonly IMethodBuilder _methodBuilder;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
     public MethodBuilderDecorator (IMethodBuilder methodBuilder, IEmittableOperandProvider emittableOperandProvider)
+        : base (methodBuilder, emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-
       _methodBuilder = methodBuilder;
       _emittableOperandProvider = emittableOperandProvider;
-    }
-
-    public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
-    {
-      throw new System.NotImplementedException();
     }
 
     public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)

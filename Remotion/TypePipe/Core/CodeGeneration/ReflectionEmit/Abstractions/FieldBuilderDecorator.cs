@@ -24,28 +24,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Decorates an instance of <see cref="IFieldBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
-  public class FieldBuilderDecorator : IFieldBuilder
+  public class FieldBuilderDecorator : BuilderDecoratorBase, IFieldBuilder
   {
     private readonly IFieldBuilder _fieldBuilder;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     public FieldBuilderDecorator (IFieldBuilder fieldBuilder, IEmittableOperandProvider emittableOperandProvider)
+        : base (fieldBuilder, emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-
       _fieldBuilder = fieldBuilder;
-      _emittableOperandProvider = emittableOperandProvider;
-    }
-
-    public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
-    {
-      throw new System.NotImplementedException();
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
     {
-      throw new System.NotImplementedException();
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      _fieldBuilder.RegisterWith (emittableOperandProvider, field);
     }
   }
 }

@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
