@@ -19,6 +19,7 @@ using System;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -53,24 +54,46 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void AddInterfaceImplementation (Type interfaceType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+
+      var emittableInterfaceType = _emittableOperandProvider.GetEmittableType (interfaceType);
+      _typeBuilder.AddInterfaceImplementation (emittableInterfaceType);
     }
 
     public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      var emittableType = _emittableOperandProvider.GetEmittableType (type);
+      var fieldBuilder = _typeBuilder.DefineField (name, emittableType, attributes);
+
+      return new FieldBuilderDecorator (fieldBuilder, _emittableOperandProvider);
     }
 
     [CLSCompliant (false)]    
     public IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      var emittableParameterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
+      var constructorBuilder = _typeBuilder.DefineConstructor (attributes, callingConvention, emittableParameterTypes);
+
+      return new ConstructorBuilderDecorator (constructorBuilder, _emittableOperandProvider);
     }
 
     [CLSCompliant(false)]
     public IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      var emittableReturnType = _emittableOperandProvider.GetEmittableType (returnType);
+      var emittableParameterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray ();
+      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, emittableReturnType, emittableParameterTypes);
+
+      return new MethodBuilderDecorator (methodBuilder, _emittableOperandProvider);
     }
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)

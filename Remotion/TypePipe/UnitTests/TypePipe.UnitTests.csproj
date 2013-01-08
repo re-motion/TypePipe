@@ -59,6 +59,7 @@
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />

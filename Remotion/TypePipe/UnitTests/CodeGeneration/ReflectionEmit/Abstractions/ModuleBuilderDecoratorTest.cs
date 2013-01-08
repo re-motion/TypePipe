@@ -47,11 +47,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var name = "method";
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeType();
+
+      var emittableBaseType = ReflectionObjectMother.GetSomeDifferentType();
       var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
-      _inner.Expect (mock => mock.DefineType (name, attributes, baseType)).Return (fakeTypeBuilder);
+      _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableBaseType);
+      _inner.Expect (mock => mock.DefineType (name, attributes, emittableBaseType)).Return (fakeTypeBuilder);
 
       var result = _decorator.DefineType (name, attributes, baseType);
 
+      _operandProvider.VerifyAllExpectations();
       _inner.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_typeBuilder"), Is.SameAs (fakeTypeBuilder));

@@ -15,47 +15,37 @@
 // under the License.
 // 
 
-using System;
-using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="IModuleBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
+  /// Decorates an instance of <see cref="IFieldBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
-  public class ModuleBuilderDecorator : IModuleBuilder
+  public class FieldBuilderDecorator : IFieldBuilder
   {
-    private readonly IModuleBuilder _moduleBuilder;
+    private readonly IFieldBuilder _fieldBuilder;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
-    [CLSCompliant (false)]
-    public ModuleBuilderDecorator (IModuleBuilder moduleBuilder, IEmittableOperandProvider emittableOperandProvider)
+    public FieldBuilderDecorator (IFieldBuilder fieldBuilder, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      _moduleBuilder = moduleBuilder;
+      _fieldBuilder = fieldBuilder;
       _emittableOperandProvider = emittableOperandProvider;
     }
 
-    [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
+    public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("parent", parent);
-
-      var emittableParent = _emittableOperandProvider.GetEmittableType (parent);
-      var typeBuilder = _moduleBuilder.DefineType (name, attr, emittableParent);
-
-      return new TypeBuilderDecorator (typeBuilder, _emittableOperandProvider);
+      throw new System.NotImplementedException();
     }
 
-    public string SaveToDisk ()
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
     {
-      return _moduleBuilder.SaveToDisk();
+      throw new System.NotImplementedException();
     }
   }
 }

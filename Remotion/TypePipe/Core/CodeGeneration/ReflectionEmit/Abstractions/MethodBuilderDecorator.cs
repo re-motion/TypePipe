@@ -17,45 +17,52 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="IModuleBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
+  /// Decorates an instance of <see cref="IMethodBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
-  public class ModuleBuilderDecorator : IModuleBuilder
+  public class MethodBuilderDecorator : IMethodBuilder
   {
-    private readonly IModuleBuilder _moduleBuilder;
+    private readonly IMethodBuilder _methodBuilder;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
-    public ModuleBuilderDecorator (IModuleBuilder moduleBuilder, IEmittableOperandProvider emittableOperandProvider)
+    public MethodBuilderDecorator (IMethodBuilder methodBuilder, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      _moduleBuilder = moduleBuilder;
+      _methodBuilder = methodBuilder;
       _emittableOperandProvider = emittableOperandProvider;
     }
 
-    [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
+    public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("parent", parent);
-
-      var emittableParent = _emittableOperandProvider.GetEmittableType (parent);
-      var typeBuilder = _moduleBuilder.DefineType (name, attr, emittableParent);
-
-      return new TypeBuilderDecorator (typeBuilder, _emittableOperandProvider);
+      throw new System.NotImplementedException();
     }
 
-    public string SaveToDisk ()
+    public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
-      return _moduleBuilder.SaveToDisk();
+      throw new System.NotImplementedException();
+    }
+
+    [CLSCompliant (false)]
+    public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
+    {
+      throw new System.NotImplementedException();
     }
   }
 }
