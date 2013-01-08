@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.StrongNaming
       return method == null || CheckMember (method) && method.GetGenericArguments().All (CheckType);
     }
 
-    // not sure
+    // document or write tests for the following!
 
     // MemberBinding.Member (only used in MemberInitExpression (and therefore covered through type and NewExpression.Type)
     // MemberAssignment.Member (subclass of MemberBinding)
@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     // probably not
 
-    // IndexExpression (implicitly via node.Object.Type + strong-naming rules) => CHECK statics
+    // IndexExpression (covered by tests, implicitly via node.Object.Type + strong-naming rules) => CHECK statics
     // OriginalBodyExpression -> MethodBase (implicitly checked via type hierarchy) => YES
     // Constant -> Value.GetType() != Type ?? check necessary? don't think so. => YES
     // InvocationExpression => LambdaOperand (not used in base call), but don't think so. => NO
