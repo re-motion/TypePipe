@@ -102,6 +102,13 @@ namespace Remotion.TypePipe.StrongNaming
       return CheckMethod (node.Comparison) ? base.VisitSwitch (node) : node;
     }
 
+    protected internal override Expression VisitTypeBinary (TypeBinaryExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return CheckType (node.TypeOperand) ? base.VisitTypeBinary (node) : node;
+    }
+
     protected internal override Expression VisitUnary (UnaryExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
@@ -129,9 +136,6 @@ namespace Remotion.TypePipe.StrongNaming
     }
 
     // TODO NewDelegateExpression
-    // TODO IndexExpression.Indexer
-    // TODO TypeBinaryExpression.TypeOperand
-
 
     // not sure
 
@@ -142,6 +146,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     // probably not
 
+    // IndexExpression (implicitly via node.Object.Type + strong-naming rules)
     // OriginalBodyExpression -> MethodBase (implicitly checked via type hierarchy)
     // Constant -> Value.GetType() != Type ?? check necessary? don't think so.
     // InvocationExpression => LambdaOperand (not used in base call), but don't think so.

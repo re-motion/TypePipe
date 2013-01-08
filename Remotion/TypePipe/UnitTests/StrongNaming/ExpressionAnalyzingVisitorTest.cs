@@ -191,6 +191,17 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
+    public void VisitTypeBinary ()
+    {
+      var someType = ReflectionObjectMother.GetSomeType();
+      var expression = Expression.TypeIs (Expression.Constant (7), someType);
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (someType)).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitTypeBinary, _visitor, expression, _someBool);
+    }
+
+    [Test]
     public void VisitUnary ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => UnaryMethod (7));
