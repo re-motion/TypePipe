@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -62,14 +63,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [Test]
-    public void SaveToDisk ()
+    public void DelegatingMembers ()
     {
-      _inner.Expect (mock => mock.SaveToDisk()).Return ("abc");
+      var helper = new DecoratorTestHelper<IModuleBuilder> (_decorator, _inner);
 
-      var result = _decorator.SaveToDisk();
-
-      _inner.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo ("abc"));
+      helper.CheckDelegation (d => d.SaveToDisk(), "assembly path");
     }
   }
 }

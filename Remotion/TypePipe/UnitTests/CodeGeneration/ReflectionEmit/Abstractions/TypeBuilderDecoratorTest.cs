@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -117,6 +118,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _inner.VerifyAllExpectations ();
       Assert.That (result, Is.TypeOf<MethodBuilderDecorator> ());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_methodBuilder"), Is.SameAs (fakeMethodBuilder));
+    }
+
+    [Test]
+    public void DelegatingMembers ()
+    {
+      var helper = new DecoratorTestHelper<ITypeBuilder> (_decorator, _inner);
+
+      // TODO
     }
   }
 }
