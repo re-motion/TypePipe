@@ -118,6 +118,19 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
+    public void VisitIndex ()
+    {
+      var instance = Expression.Default (typeof (ExpressionAnalyzingVisitorTest));
+      var indexer = typeof (ExpressionAnalyzingVisitorTest).GetProperty ("Item");
+      var expression = Expression.MakeIndex (instance, indexer, new[] { Expression.Constant (7) });
+      // Implicitly covered through 'node.Object.Type'.
+      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (ExpressionAnalyzingVisitorTest))).Return (_someBool);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (typeof (int))).Return (true);
+
+      CheckVisitMethod (ExpressionVisitorTestHelper.CallVisitIndex, _visitor, expression, _someBool);
+    }
+
+    [Test]
     public void VisitMember ()
     {
       var member = NormalizingMemberInfoFromExpressionUtility.GetField (() => string.Empty);
@@ -213,5 +226,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     static int UnaryMethod (int x) { return -x; }
     void Add (int x) { Dev.Null = x; }
     bool Comparison (int s, int i) { Dev.Null = s; Dev.Null = i; return false; }
+    public int this[int i] { get { return i; } }
   }
 }

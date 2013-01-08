@@ -18,7 +18,6 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -54,6 +53,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitExtension", expression);
     }
 
+    public static Expression CallVisitIndex (ExpressionVisitor expressionVisitor, IndexExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitIndex", expression);
+    }
+
     public static Expression CallVisitLambda<T> (ExpressionVisitor expressionVisitor, Expression<T> expression)
     {
       var method = typeof (ExpressionVisitor).GetMethod ("VisitLambda", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod (typeof (T));
@@ -73,6 +77,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public static Expression CallVisitMethodCall (ExpressionVisitor expressionVisitor, MethodCallExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitMethodCall", expression);
+    }
+
+    public static Expression CallVisitTypeBinary (ExpressionVisitor expressionVisitor, TypeBinaryExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitTypeBinary", expression);
     }
 
     public static Expression CallVisitUnary (ExpressionVisitor expressionVisitor, UnaryExpression expression)
