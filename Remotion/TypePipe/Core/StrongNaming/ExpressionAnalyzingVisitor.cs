@@ -121,6 +121,24 @@ namespace Remotion.TypePipe.StrongNaming
       return method == null || CheckMember (method) && method.GetGenericArguments().All (CheckType);
     }
 
-    // TODO Review: Check remaining expressions for potential strong-naming relevant members.
+    // TODO NewDelegateExpression
+    // TODO IndexExpression.Indexer
+    // TODO SwitchExpression.Comparison 
+    // TODO TypeBinaryExpression.TypeOperand
+
+
+    // not sure
+
+    // MemberBinding.Member (only used in MemberInitExpression (and therefore covered through type and NewExpression.Type)
+    // MemberAssignment.Member (subclass of MemberBinding)
+    // MemberMemberBinding.Member (same ..)
+    // MemberListBinding.Member (same ..)
+
+    // probably not
+
+    // OriginalBodyExpression -> MethodBase (implicitly checked via type hierarchy)
+    // Constant -> Value.GetType() != Type ?? check necessary? don't think so.
+    // InvocationExpression => LambdaOperand (not used in base call), but don't think so.
+    // LabelTarget -> LabelTarget.Type (not an expression)
   }
 }
