@@ -61,7 +61,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ICustomAttributeTargetBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IParameterBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
