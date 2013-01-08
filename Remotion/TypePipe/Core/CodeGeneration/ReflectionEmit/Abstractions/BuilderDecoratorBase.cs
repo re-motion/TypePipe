@@ -24,7 +24,7 @@ using System.Linq;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// A base class for decorators wrapping <see cref="ICustomAttributeTargetBuilder"/> instances.
+  /// A base class for decorators that decorate <see cref="ICustomAttributeTargetBuilder"/> instances.
   /// </summary>
   public abstract class BuilderDecoratorBase : ICustomAttributeTargetBuilder
   {
