@@ -40,9 +40,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
     private readonly ITypePipeConfigurationProvider _configurationProvider;
-    private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly DebugInfoGenerator _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
 
     private IModuleBuilder _currentModuleBuilder;
+    private IEmittableOperandProvider _emittableOperandProvider;
     private string _assemblyDirectory;
     private string _assemblyName;
 
@@ -53,7 +54,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _moduleBuilderFactory = moduleBuilderFactory;
       _configurationProvider = configurationProvider;
-      _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
     }
 
     public string AssemblyDirectory
@@ -85,6 +85,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
+    public IEmittableOperandProvider EmittableOperandProvider
+    {
+      get { return _emittableOperandProvider = _emittableOperandProvider ?? new EmittableOperandProvider(); }
+    }
+
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
     {
       // assemblyDirectory may be null.
@@ -109,6 +114,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var assemblyPath = _currentModuleBuilder.SaveToDisk();
 
       _currentModuleBuilder = null;
+      _emittableOperandProvider = null;
       _assemblyName = null;
 
       return assemblyPath;
@@ -124,7 +130,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       {
         var strongNamed = _configurationProvider.ForceStrongNaming;
         var keyFilePathOrNull = _configurationProvider.KeyFilePath;
-        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, strongNamed, keyFilePathOrNull);
+        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (
+            AssemblyName, _assemblyDirectory, strongNamed, keyFilePathOrNull, EmittableOperandProvider);
       }
 
       return _currentModuleBuilder.DefineType (name, attributes, parent);

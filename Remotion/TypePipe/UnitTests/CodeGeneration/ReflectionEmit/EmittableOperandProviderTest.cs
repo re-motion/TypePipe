@@ -62,13 +62,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMapping_Twice ()
     {
       CheckAddMappingTwiceThrows<MutableType, Type> (
-          _provider.AddMapping, _mutableType, "MutableType is already mapped.\r\nParameter name: mappedType");
+          _provider.AddMapping, _mutableType, "MutableType '{memberName}' is already mapped.\r\nParameter name: mappedType");
       CheckAddMappingTwiceThrows<MutableFieldInfo, FieldInfo> (
-          _provider.AddMapping, _mutableField, "MutableFieldInfo is already mapped.\r\nParameter name: mappedField");
+          _provider.AddMapping, _mutableField, "MutableFieldInfo '{memberName}' is already mapped.\r\nParameter name: mappedField");
       CheckAddMappingTwiceThrows<MutableConstructorInfo, ConstructorInfo> (
-          _provider.AddMapping, _mutableConstructor, "MutableConstructorInfo is already mapped.\r\nParameter name: mappedConstructor");
+          _provider.AddMapping, _mutableConstructor, "MutableConstructorInfo '{memberName}' is already mapped.\r\nParameter name: mappedConstructor");
       CheckAddMappingTwiceThrows<MutableMethodInfo, MethodInfo> (
-          _provider.AddMapping, _mutableMethod, "MutableMethodInfo is already mapped.\r\nParameter name: mappedMethod");
+          _provider.AddMapping, _mutableMethod, "MutableMethodInfo '{memberName}' is already mapped.\r\nParameter name: mappedMethod");
     }
 
     [Test]
@@ -258,11 +258,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckAddMappingTwiceThrows<TMutable, TBuilder> (
-        Action<TMutable, TBuilder> addMappingMethod, TMutable operandToBeEmitted, string expectedMessage)
+        Action<TMutable, TBuilder> addMappingMethod, TMutable operandToBeEmitted, string expectedMessageTemplate)
+        where TMutable : MemberInfo
         where TBuilder : class
     {
       addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBuilder>());
 
+      var expectedMessage = expectedMessageTemplate.Replace ("{memberName}", operandToBeEmitted.Name);
       Assert.That (
           () => addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBuilder>()),
           Throws.ArgumentException.With.Message.EqualTo (expectedMessage));

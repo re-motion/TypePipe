@@ -54,9 +54,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_generator.AssemblyDirectory, Is.Null);
       Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
 
-      var result = _generator.DebugInfoGenerator;
-      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
-      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (result));
+      var debugInfoGenerator = _generator.DebugInfoGenerator;
+      Assert.That (debugInfoGenerator.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (debugInfoGenerator));
+
+      var emittableOperandProvider = _generator.EmittableOperandProvider;
+      Assert.That (emittableOperandProvider, Is.TypeOf<EmittableOperandProvider>());
+      Assert.That (emittableOperandProvider, Is.SameAs (emittableOperandProvider));
     }
 
     [Test]
@@ -117,12 +121,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeAssemblyPath = "fake path";
       _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
+      var previousEmittableOperandProvider = _generator.EmittableOperandProvider;
 
       var result = _generator.FlushCodeToDisk();
 
       _moduleBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeAssemblyPath));
       Assert.That (_generator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
+      Assert.That (_generator.EmittableOperandProvider, Is.Not.Null.And.Not.SameAs (previousEmittableOperandProvider));
     }
 
     [Test]
@@ -144,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (forceStrongNaming);
       _configurationProviderMock.Expect (mock => mock.KeyFilePath).Return (keyFilePath);
       _moduleBuilderFactoryMock
-          .Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, forceStrongNaming, keyFilePath))
+          .Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, forceStrongNaming, keyFilePath, _generator.EmittableOperandProvider))
           .Return (_moduleBuilderMock);
 
       var fakeTypeBuilder1 = MockRepository.GenerateStub<ITypeBuilder>();
@@ -167,7 +173,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _configurationProviderMock.Stub (stub => stub.ForceStrongNaming).Return (false);
       _configurationProviderMock.Stub (stub => stub.KeyFilePath).Return (null);
       _moduleBuilderFactoryMock
-          .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null))
+          .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null, _generator.EmittableOperandProvider))
           .Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
 

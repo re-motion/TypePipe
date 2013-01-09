@@ -52,9 +52,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         typeAttributes |= TypeAttributes.Serializable;
 
       var typeBuilder = _codeGenerator.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
-      var debugInfoGenerator = _codeGenerator.DebugInfoGenerator;
 
-      var emittableOperandProvider = new EmittableOperandProvider();
+      var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
       typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
@@ -71,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           proxySerializationEnabler,
           mutableType,
           typeBuilder,
-          debugInfoGenerator,
+          _codeGenerator.DebugInfoGenerator,
           emittableOperandProvider,
           methodTrampolineProvider);
     }

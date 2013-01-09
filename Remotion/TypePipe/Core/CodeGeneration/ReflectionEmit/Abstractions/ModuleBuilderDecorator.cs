@@ -42,6 +42,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
+    public IModuleBuilder InnerModuleBuilder
+    {
+      get { return _moduleBuilder; }
+    }
+
+    [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

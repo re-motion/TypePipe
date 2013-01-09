@@ -57,19 +57,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
       _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType)).Return (typeBuilderMock);
+      var fakeEmittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
       var fakeDebugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
+      _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (fakeEmittableOperandProvider);
+      typeBuilderMock.Expect (mock => mock.RegisterWith (fakeEmittableOperandProvider, mutableType));
       _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (fakeDebugInfoGenerator);
-
-      EmittableOperandProvider emittableOperandProvider = null;
-      typeBuilderMock
-          .Expect (mock => mock.RegisterWith (Arg<EmittableOperandProvider>.Is.TypeOf, Arg.Is (mutableType)))
-          .WhenCalled (mi => emittableOperandProvider = ((EmittableOperandProvider) mi.Arguments[0]));
 
       var result = _factory.CreateBuilder (mutableType);
 
       _codeGeneratorMock.VerifyAllExpectations();
       typeBuilderMock.VerifyAllExpectations();
-
       Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
       var builder = (SubclassProxyBuilder) result;
 
@@ -77,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (context.MutableType, Is.SameAs (mutableType));
       Assert.That (context.TypeBuilder, Is.SameAs (typeBuilderMock));
       Assert.That (context.DebugInfoGenerator, Is.SameAs (fakeDebugInfoGenerator));
-      Assert.That (context.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+      Assert.That (context.EmittableOperandProvider, Is.SameAs (fakeEmittableOperandProvider));
       Assert.That (context.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider>());
       Assert.That (context.PostDeclarationsActionManager.Actions, Is.Empty);
 
@@ -91,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) memberEmitter.ILGeneratorFactory;
 
       Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
-      Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (emittableOperandProvider));
+      Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (fakeEmittableOperandProvider));
 
       var methodTrampolineProvider = (MethodTrampolineProvider) context.MethodTrampolineProvider;
       Assert.That (methodTrampolineProvider.MemberEmitter, Is.SameAs (memberEmitter));
@@ -106,6 +103,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract;
       _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType));
+      _codeGeneratorMock.Stub (stub => stub.EmittableOperandProvider).Return (MockRepository.GenerateStub<IEmittableOperandProvider>());
       _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
 
       _factory.CreateBuilder (mutableType);
@@ -122,6 +120,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Serializable;
       _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType));
+      _codeGeneratorMock.Stub (stub => stub.EmittableOperandProvider).Return (MockRepository.GenerateStub<IEmittableOperandProvider>());
       _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
 
       _factory.CreateBuilder (mutableType);

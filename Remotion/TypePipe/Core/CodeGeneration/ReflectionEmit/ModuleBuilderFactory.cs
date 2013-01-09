@@ -33,11 +33,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class ModuleBuilderFactory : IModuleBuilderFactory
   {
     [CLSCompliant (false)]
-    public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
+    public IModuleBuilder CreateModuleBuilder (
+        string assemblyName,
+        string assemblyDirectoryOrNull,
+        bool strongNamed,
+        string keyFilePathOrNull,
+        IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
       // assemblyDirectoryOrNull may be null
       // keyFilePath may be null
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
       var assemName = new AssemblyName (assemblyName);
       if (strongNamed)
@@ -46,10 +52,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var moduleName = assemblyName + ".dll";
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
-      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
-      var uniqueNamingModuleBuilder = new UniqueNamingModuleBuilderDecorator (moduleBuilderAdapter);
+      var adapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
+      var decorator = new ModuleBuilderDecorator (adapter, emittableOperandProvider);
+      var uniqueNamingDecorator = new UniqueNamingModuleBuilderDecorator (decorator);
 
-      return uniqueNamingModuleBuilder;
+      return uniqueNamingDecorator;
     }
 
     private StrongNameKeyPair GetKeyPair (string keyFilePathOrNull)

@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       if (mapping.ContainsKey (key))
       {
-        var message = typeof (TMutable).Name + " is already mapped.";
+        var message = string.Format ("{0} '{1}' is already mapped.", typeof (TMutable).Name, key.Name);
         var parameterName = "mapped" + typeof (T).Name.Replace ("Info", "");
 
         throw new ArgumentException (message, parameterName);
