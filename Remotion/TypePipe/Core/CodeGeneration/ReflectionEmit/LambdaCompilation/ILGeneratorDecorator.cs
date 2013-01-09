@@ -65,7 +65,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void BeginCatchBlock (Type exceptionType)
     {
-      _innerILGenerator.BeginCatchBlock (exceptionType);
+      ArgumentUtility.CheckNotNull ("exceptionType", exceptionType);
+
+      var emittableOperand = _emittableOperandProvider.GetEmittableType (exceptionType);
+      _innerILGenerator.BeginCatchBlock (emittableOperand);
     }
 
     public void BeginExceptFilterBlock ()
