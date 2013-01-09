@@ -162,7 +162,6 @@
     <Compile Include="MutableReflection\Descriptors\MethodDescriptorTest.cs" />
     <Compile Include="MutableReflection\Descriptors\ParameterDescriptorTest.cs" />
     <Compile Include="MutableReflection\Descriptors\TypeDescriptorObjectMother.cs" />
-    <Compile Include="MutableReflection\MemberNotFoundExceptionTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoObjectMother.cs" />

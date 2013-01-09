@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       {
         var message = String.Format ("Could not find a public instance constructor with signature ({0}) on type '{1}'.",
                                      SeparatedStringBuilder.Build (", ", argumentTypes), DeclaringType);
-        throw new MemberNotFoundException (message);
+        throw new MissingMemberException (message);
       }
 
       var adapter = NonVirtualCallMethodInfoAdapter.Adapt (constructor);

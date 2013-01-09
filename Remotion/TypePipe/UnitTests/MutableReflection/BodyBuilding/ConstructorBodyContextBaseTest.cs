@@ -14,6 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -81,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (MemberNotFoundException), ExpectedMessage =
+    [ExpectedException (typeof (MissingMemberException), ExpectedMessage =
         "Could not find a public instance constructor with signature (System.Int32, System.Int32) on type 'ClassWithConstructor'.")]
     public void GetConstructorCall_NoMatchingConstructor ()
     {
