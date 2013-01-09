@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -24,10 +25,15 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
-  /// TODO
+  /// A decorator that checks operands for strong-name compatibility.
   /// </summary>
+  /// <remarks>
+  /// Uses an instance <see cref="ITypeAnalyzer"/> retrieved via the <see cref="SafeServiceLocator"/>.
+  /// </remarks>
   public class StrongNamingEmittableOperandProviderDecorator : IEmittableOperandProvider
   {
+    private readonly ITypeAnalyzer _typeAnalyzer = SafeServiceLocator.Current.GetInstance<ITypeAnalyzer>();
+
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     public StrongNamingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider)
@@ -64,27 +70,68 @@ namespace Remotion.TypePipe.StrongNaming
 
     public Type GetEmittableType (Type type)
     {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      CheckStrongNameCompatibility (type);
+
       return _emittableOperandProvider.GetEmittableType (type);
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      CheckStrongNameCompatibility (field.DeclaringType);
+
       return _emittableOperandProvider.GetEmittableField (field);
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      CheckStrongNameCompatibility (constructor.DeclaringType);
+
       return _emittableOperandProvider.GetEmittableConstructor (constructor);
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      CheckStrongNameCompatibility (method.DeclaringType);
+      foreach (var genericArgument in method.GetGenericArguments())
+        CheckStrongNameCompatibility (genericArgument);
+
       return _emittableOperandProvider.GetEmittableMethod (method);
     }
 
     public object GetEmittableOperand (object operand)
     {
+      ArgumentUtility.CheckNotNull ("operand", operand);
+
+      if (operand is Type)
+        return GetEmittableType ((Type) operand);
+      if (operand is FieldInfo)
+        return GetEmittableField ((FieldInfo) operand);
+      if (operand is ConstructorInfo)
+        return GetEmittableConstructor ((ConstructorInfo) operand);
+      if (operand is MethodInfo)
+        return GetEmittableMethod ((MethodInfo) operand);
+
       return _emittableOperandProvider.GetEmittableOperand (operand);
+    }
+
+    private void CheckStrongNameCompatibility (Type type)
+    {
+      if (!_typeAnalyzer.IsStrongNamed (type))
+      {
+        var message = string.Format (
+            "Strong-naming is enabled but a participant used the type '{0}' which comes from the unsigned assembly '{1}'.",
+            type.FullName,
+            type.Assembly.GetName().Name);
+        throw new InvalidOperationException (message);
+      }
     }
   }
 }

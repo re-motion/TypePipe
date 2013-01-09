@@ -192,6 +192,7 @@
     <Compile Include="StrongNaming\MutableTypeAnalyzerTest.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="StrongNaming\ExpressionAnalyzingVisitorTest.cs" />
+    <Compile Include="StrongNaming\StrongNamingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />
