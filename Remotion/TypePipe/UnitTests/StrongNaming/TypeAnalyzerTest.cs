@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.StrongNaming;
+using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -82,6 +83,16 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       _analyzer.IsStrongNamed (type);
 
       _assemblyAnalyzerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void IsStrongNamed_TypeBuilder ()
+    {
+      // TypeBuilder returns null for GetGenericArguments() if there are no generic arguments.
+      var typeBuilder = ReflectionEmitObjectMother.CreateTypeBuilder();
+      _assemblyAnalyzerMock.Stub (x => x.IsStrongNamed (typeBuilder.Assembly)).Return (true);
+
+      Assert.That (_analyzer.IsStrongNamed (typeBuilder), Is.True);
     }
 
     [Test]

@@ -65,6 +65,7 @@ namespace Remotion.TypePipe.IntegrationTests
       CheckStrongNaming (true, 0, participant);
     }
 
+    [Ignore("TODO guard generic GetGenericArguments for MethodBuilder")]
     [Test]
     public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInExpression ()
     {

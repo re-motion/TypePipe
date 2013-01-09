@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool CalculateIsStrongNamed (Type type)
     {
-      return _assemblyAnalyzer.IsStrongNamed (type.Assembly) && type.GetGenericArguments().All (IsStrongNamed);
+      return _assemblyAnalyzer.IsStrongNamed (type.Assembly) && (!type.IsGenericType || type.GetGenericArguments().All (IsStrongNamed));
     }
   }
 }

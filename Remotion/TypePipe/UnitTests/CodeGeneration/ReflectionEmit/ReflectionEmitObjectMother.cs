@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -25,6 +26,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   public static class ReflectionEmitObjectMother
   {
+    public static TypeBuilder CreateTypeBuilder ()
+    {
+      var assemblyName = "test";
+      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
+      var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
+
+      return moduleBuilder.DefineType ("myType");
+    }
+
     public static TypeBuilder GetSomeTypeBuilder ()
     {
       return (TypeBuilder) FormatterServices.GetUninitializedObject (typeof (TypeBuilder));

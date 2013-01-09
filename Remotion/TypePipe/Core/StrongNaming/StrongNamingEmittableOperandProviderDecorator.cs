@@ -72,38 +72,43 @@ namespace Remotion.TypePipe.StrongNaming
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      CheckStrongNameCompatibility (type);
+      var emittableType = _emittableOperandProvider.GetEmittableType (type);
+      CheckStrongNameCompatibility (emittableType);
 
-      return _emittableOperandProvider.GetEmittableType (type);
+      return emittableType;
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      CheckStrongNameCompatibility (field.DeclaringType);
+      var emittableField = _emittableOperandProvider.GetEmittableField (field);
+      CheckStrongNameCompatibility (emittableField.DeclaringType);
 
-      return _emittableOperandProvider.GetEmittableField (field);
+      return emittableField;
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      CheckStrongNameCompatibility (constructor.DeclaringType);
+      var emittableConstructor = _emittableOperandProvider.GetEmittableConstructor (constructor);
+      CheckStrongNameCompatibility (emittableConstructor.DeclaringType);
 
-      return _emittableOperandProvider.GetEmittableConstructor (constructor);
+      return emittableConstructor;
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      CheckStrongNameCompatibility (method.DeclaringType);
-      foreach (var genericArgument in method.GetGenericArguments())
+      var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
+
+      CheckStrongNameCompatibility (emittableMethod.DeclaringType);
+      foreach (var genericArgument in emittableMethod.GetGenericArguments())
         CheckStrongNameCompatibility (genericArgument);
 
-      return _emittableOperandProvider.GetEmittableMethod (method);
+      return emittableMethod;
     }
 
     public object GetEmittableOperand (object operand)
