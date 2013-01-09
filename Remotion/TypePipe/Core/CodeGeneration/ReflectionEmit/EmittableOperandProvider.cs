@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
-    private readonly Dictionary<MutableType, Type> _mappedTypes = new Dictionary<MutableType, Type> ();
+    private readonly Dictionary<MutableType, Type> _mappedTypes = new Dictionary<MutableType, Type> (new ReferenceEqualityComparer<MutableType>());
     private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo> ();
     private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo> ();
     private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo> ();

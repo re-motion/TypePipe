@@ -59,6 +59,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void AddMapping_ReferenceEquality ()
+    {
+      var mutableType1 = MutableTypeObjectMother.CreateForExisting();
+      var mutableType2 = MutableTypeObjectMother.CreateForExisting();
+      Assert.That (mutableType1, Is.EqualTo (mutableType2).And.Not.SameAs (mutableType2));
+      _provider.AddMapping (mutableType1, mutableType1.UnderlyingSystemType);
+
+      Assert.That (() => _provider.AddMapping (mutableType2, mutableType2.UnderlyingSystemType), Throws.Nothing);
+    }
+
+    [Test]
     public void AddMapping_Twice ()
     {
       CheckAddMappingTwiceThrows<MutableType, Type> (
