@@ -26,7 +26,6 @@ using System.Linq;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  [Ignore ("TODO 4778")]
   public class MutableTypeInSignaturesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -38,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableType.AddCustomAttribute (CreateAttribute (mutableType));
             mutableType.AddField ("Field", typeof (int), FieldAttributes.Public).AddCustomAttribute (CreateAttribute (mutableType));
             var ctor = mutableType.AddConstructor (
-                MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => Expression.Empty());
+                MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => ctx.GetConstructorCall());
             ctor.AddCustomAttribute (CreateAttribute (mutableType));
             ctor.MutableParameters.Single().AddCustomAttribute (CreateAttribute (mutableType));
             mutableType
@@ -65,6 +64,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    [Ignore ("TODO 4778")]
     public void Constructor ()
     {
       var type = AssembleType<DomainType> (
@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    [Ignore ("TODO 4778")]
     public void Method ()
     {
       var type = AssembleType<DomainType> (
@@ -88,8 +89,19 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private void CheckCustomAttribute (ICustomAttributeProvider customAttributeProvider, Type expectedType)
     {
-      var attribute = (AbcAttribute) customAttributeProvider.GetCustomAttributes (typeof (AbcAttribute), false).Single ();
-      Assert.That (attribute.Type, Is.SameAs (expectedType));
+      // Retrieving custom attribute data triggers type loading and assembly resolving.
+      // The assembly cannot be resolved because it is not saved to disk.
+      ResolveEventHandler resolver = (sender, args) => expectedType.Assembly;
+      AppDomain.CurrentDomain.AssemblyResolve += resolver;
+      try
+      {
+        var attribute = (AbcAttribute) customAttributeProvider.GetCustomAttributes (typeof (AbcAttribute), false).Single();
+        Assert.That (attribute.Type, Is.SameAs (expectedType));
+      }
+      finally
+      {
+        AppDomain.CurrentDomain.AssemblyResolve -= resolver;
+      }
     }
 
     private CustomAttributeDeclaration CreateAttribute (MutableType mutableType)
