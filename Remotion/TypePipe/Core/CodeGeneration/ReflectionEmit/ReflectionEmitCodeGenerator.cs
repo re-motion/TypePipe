@@ -22,6 +22,7 @@ using System.Threading;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -87,7 +88,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public IEmittableOperandProvider EmittableOperandProvider
     {
-      get { return _emittableOperandProvider = _emittableOperandProvider ?? new EmittableOperandProvider(); }
+      get
+      {
+        if (_emittableOperandProvider == null)
+        {
+          IEmittableOperandProvider provider = new EmittableOperandProvider();
+          _emittableOperandProvider = IsStrongNamingEnabled ? new StrongNamingEmittableOperandProviderDecorator (provider) : provider;
+        }
+
+        return _emittableOperandProvider;
+      }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
