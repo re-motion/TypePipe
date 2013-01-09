@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   [TestFixture]
   public class ConstructorBuilderDecoratorTest
   {
-    private IConstructorBuilder _inner;
+    private IConstructorBuilder _innerMock;
     private IEmittableOperandProvider _operandProvider;
 
     private ConstructorBuilderDecorator _decorator;
@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _inner = MockRepository.GenerateStrictMock<IConstructorBuilder>();
+      _innerMock = MockRepository.GenerateStrictMock<IConstructorBuilder>();
       _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _decorator = new ConstructorBuilderDecorator (_inner, _operandProvider);
+      _decorator = new ConstructorBuilderDecorator (_innerMock, _operandProvider);
     }
 
     [Test]
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
       var mutableConstructor = MutableConstructorInfoObjectMother.Create();
 
-      var helper = new DecoratorTestHelper<IConstructorBuilder> (_decorator, _inner);
+      var helper = new DecoratorTestHelper<IConstructorBuilder> (_decorator, _innerMock);
 
       helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableConstructor));
     }

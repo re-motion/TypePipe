@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   [TestFixture]
   public class FieldBuilderDecoratorTest
   {
-    private IFieldBuilder _inner;
+    private IFieldBuilder _innerMock;
     private IEmittableOperandProvider _operandProvider;
 
     private FieldBuilderDecorator _decorator;
@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _inner = MockRepository.GenerateStrictMock<IFieldBuilder> ();
+      _innerMock = MockRepository.GenerateStrictMock<IFieldBuilder> ();
       _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider> ();
 
-      _decorator = new FieldBuilderDecorator (_inner, _operandProvider);
+      _decorator = new FieldBuilderDecorator (_innerMock, _operandProvider);
     }
 
     [Test]
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
       var mutableField = MutableFieldInfoObjectMother.Create();
 
-      var helper = new DecoratorTestHelper<IFieldBuilder> (_decorator, _inner);
+      var helper = new DecoratorTestHelper<IFieldBuilder> (_decorator, _innerMock);
 
       helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableField));
     }

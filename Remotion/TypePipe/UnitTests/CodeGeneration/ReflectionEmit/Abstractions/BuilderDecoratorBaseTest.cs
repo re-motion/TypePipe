@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   [TestFixture]
   public class BuilderDecoratorBaseTest
   {
-    private ICustomAttributeTargetBuilder _inner;
+    private ICustomAttributeTargetBuilder _innerMock;
     private IEmittableOperandProvider _operandProvider;
 
     private BuilderDecoratorBase _decorator;
@@ -37,10 +37,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _inner = MockRepository.GenerateStrictMock<ICustomAttributeTargetBuilder>();
+      _innerMock = MockRepository.GenerateStrictMock<ICustomAttributeTargetBuilder>();
       _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _decorator = MockRepository.GeneratePartialMock<BuilderDecoratorBase> (_inner, _operandProvider);
+      _decorator = MockRepository.GeneratePartialMock<BuilderDecoratorBase> (_innerMock, _operandProvider);
     }
 
     [Test]
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 
       var emittableType = ReflectionObjectMother.GetSomeDifferentType();
       _operandProvider.Expect (mock => mock.GetEmittableType (type)).Return (emittableType).Repeat.Twice();
-      _inner
+      _innerMock
           .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeDeclaration>.Is.Anything))
           .WhenCalled (
               mi =>
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _decorator.SetCustomAttribute (declaration);
 
       _operandProvider.VerifyAllExpectations();
-      _inner.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
     }
 
     public class AbcAttribute : Attribute

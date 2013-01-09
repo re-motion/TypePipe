@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   [TestFixture]
   public class ModuleBuilderDecoratorTest
   {
-    private IModuleBuilder _inner;
+    private IModuleBuilder _innerMock;
     private IEmittableOperandProvider _operandProvider;
     
     private ModuleBuilderDecorator _decorator;
@@ -36,10 +36,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _inner = MockRepository.GenerateStrictMock<IModuleBuilder>();
+      _innerMock = MockRepository.GenerateStrictMock<IModuleBuilder>();
       _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _decorator = new ModuleBuilderDecorator (_inner, _operandProvider);
+      _decorator = new ModuleBuilderDecorator (_innerMock, _operandProvider);
     }
 
     [Test]
@@ -52,12 +52,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var emittableBaseType = ReflectionObjectMother.GetSomeDifferentType();
       var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
       _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableBaseType);
-      _inner.Expect (mock => mock.DefineType (name, attributes, emittableBaseType)).Return (fakeTypeBuilder);
+      _innerMock.Expect (mock => mock.DefineType (name, attributes, emittableBaseType)).Return (fakeTypeBuilder);
 
       var result = _decorator.DefineType (name, attributes, baseType);
 
       _operandProvider.VerifyAllExpectations();
-      _inner.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_typeBuilder"), Is.SameAs (fakeTypeBuilder));
     }
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [Test]
     public void DelegatingMembers ()
     {
-      var helper = new DecoratorTestHelper<IModuleBuilder> (_decorator, _inner);
+      var helper = new DecoratorTestHelper<IModuleBuilder> (_decorator, _innerMock);
 
       helper.CheckDelegation (d => d.SaveToDisk(), "assembly path");
     }

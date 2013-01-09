@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   [TestFixture]
   public class MethodBuilderDecoratorTest
   {
-    private IMethodBuilder _inner;
+    private IMethodBuilder _innerMock;
     private IEmittableOperandProvider _operandProvider;
 
     private MethodBuilderDecorator _decorator;
@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _inner = MockRepository.GenerateStrictMock<IMethodBuilder>();
+      _innerMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
       _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _decorator = new MethodBuilderDecorator (_inner, _operandProvider);
+      _decorator = new MethodBuilderDecorator (_innerMock, _operandProvider);
     }
 
     [Test]
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
       var mutableMethod = MutableMethodInfoObjectMother.Create();
 
-      var helper = new DecoratorTestHelper<IMethodBuilder> (_decorator, _inner);
+      var helper = new DecoratorTestHelper<IMethodBuilder> (_decorator, _innerMock);
 
       helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableMethod));
     }
