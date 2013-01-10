@@ -105,8 +105,11 @@ namespace Remotion.TypePipe.StrongNaming
       var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
 
       CheckStrongNameCompatibility (emittableMethod.DeclaringType);
-      foreach (var genericArgument in emittableMethod.GetGenericArguments())
-        CheckStrongNameCompatibility (genericArgument);
+      if (emittableMethod.IsGenericMethod)
+      {
+        foreach (var genericArgument in emittableMethod.GetGenericArguments())
+          CheckStrongNameCompatibility (genericArgument);
+      }
 
       return emittableMethod;
     }

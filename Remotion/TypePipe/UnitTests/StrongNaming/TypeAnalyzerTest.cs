@@ -88,8 +88,8 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void IsStrongNamed_TypeBuilder ()
     {
-      // TypeBuilder returns null for GetGenericArguments() if there are no generic arguments.
       var typeBuilder = ReflectionEmitObjectMother.CreateTypeBuilder();
+      Assert.That (typeBuilder.GetGenericArguments(), Is.Null);
       _assemblyAnalyzerMock.Stub (x => x.IsStrongNamed (typeBuilder.Assembly)).Return (true);
 
       Assert.That (_analyzer.IsStrongNamed (typeBuilder), Is.True);

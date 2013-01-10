@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.StrongNaming;
+using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -86,14 +87,26 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var method = ReflectionObjectMother.GetSomeMethod();
       var emittableMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GenericMethod<int>());
+      _innerMock.Stub (stub => stub.GetEmittableMethod (method)).Return (emittableMethod);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (emittableMethod.DeclaringType)).Return (true);
       _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (int))).Return (true);
-      _innerMock.Stub (stub => stub.GetEmittableMethod (method)).Return (emittableMethod);
 
       var result = _decorator.GetEmittableMethod (method);
 
       _typeAnalyzerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (emittableMethod));
+    }
+
+    [Test]
+    public void GetEmittableMethod_MethodBuilder ()
+    {
+      var method = ReflectionObjectMother.GetSomeMethod();
+      var emittableMethod = ReflectionEmitObjectMother.CreateMethodBuilder();
+      Assert.That (emittableMethod.GetGenericArguments(), Is.Null);
+      _innerMock.Stub (stub => stub.GetEmittableMethod (method)).Return (emittableMethod);
+      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (emittableMethod.DeclaringType)).Return (true);
+
+      Assert.That (() => _decorator.GetEmittableMethod (method), Throws.Nothing);
     }
 
     [Test]

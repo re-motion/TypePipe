@@ -35,6 +35,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return moduleBuilder.DefineType ("myType");
     }
 
+    public static MethodBuilder CreateMethodBuilder ()
+    {
+      return CreateTypeBuilder().DefineMethod ("method", MethodAttributes.Public);
+    }
+
     public static TypeBuilder GetSomeTypeBuilder ()
     {
       return (TypeBuilder) FormatterServices.GetUninitializedObject (typeof (TypeBuilder));
