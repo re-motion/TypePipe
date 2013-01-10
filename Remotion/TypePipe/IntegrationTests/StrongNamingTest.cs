@@ -51,7 +51,6 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 4778")]
     public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInSignature ()
     {
       var participant = CreateParticipant (
@@ -65,7 +64,6 @@ namespace Remotion.TypePipe.IntegrationTests
       CheckStrongNaming (true, 0, participant);
     }
 
-    [Ignore("TODO guard generic GetGenericArguments for MethodBuilder")]
     [Test]
     public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInExpression ()
     {
