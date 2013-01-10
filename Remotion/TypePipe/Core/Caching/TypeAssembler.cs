@@ -68,6 +68,7 @@ namespace Remotion.TypePipe.Caching
       foreach (var participant in _participants)
         participant.ModifyType (mutableType);
 
+      // TODO Review: Catch InvalidOperationException, NotSupportedException; add participant list to exception message, then throw. (Wrap inner exception.)
       return _typeModifier.ApplyModifications (mutableType);
     }
 

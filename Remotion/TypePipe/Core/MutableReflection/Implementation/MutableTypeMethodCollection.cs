@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<MethodInfo> FilterBaseMembers (IEnumerable<MethodInfo> baseMembers)
     {
+      // TODO 5309: Use HashSet, not Set
       var overridenBaseDefinitions = new Set<MethodInfo> (AddedMembers.Select (mi => mi.GetBaseDefinition()));
       return baseMembers.Where (m => !overridenBaseDefinitions.Contains (m.GetBaseDefinition()));
     }

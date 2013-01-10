@@ -24,6 +24,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
+  // TODO Review: StrongNameCheckingEmittableOperandProviderDecorator, move to CodeGeneration.ReflectionEmit
   /// <summary>
   /// A decorator that checks operands for strong-name compatibility.
   /// </summary>
@@ -118,6 +119,7 @@ namespace Remotion.TypePipe.StrongNaming
     {
       ArgumentUtility.CheckNotNull ("operand", operand);
 
+      // TODO Review: Move type check/cast list to UnemittableExpressionVisitor.VisitConstant
       if (operand is Type)
         return GetEmittableType ((Type) operand);
       if (operand is FieldInfo)

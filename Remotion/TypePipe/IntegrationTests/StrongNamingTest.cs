@@ -30,28 +30,51 @@ namespace Remotion.TypePipe.IntegrationTests
   [TestFixture]
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
   {
-    [Test]
-    public void NoStrongName ()
-    {
-      var participant = CreateParticipant (mt => mt.AddField ("Field", CreateUnsignedType()));
+    private Type _signedType;
+    private Type _unsignedType;
 
-      CheckStrongNaming (false, participant);
+    public override void SetUp ()
+    {
+      base.SetUp ();
+
+      _signedType = typeof (int);
+      _unsignedType = CreateUnsignedType ();
     }
+
+    [Test]
+    public void NoStrongName_Default ()
+    {
+      // Could be strong-named, but isn't - the default is to output assemblies without strong name.
+      var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
+
+      CheckStrongNaming (participant, forceStrongNaming: false);
+    }
+
+    [Test]
+    public void NoStrongName_WithField ()
+    {
+      var participant = CreateParticipant (mt => mt.AddField ("Field", _unsignedType));
+
+      CheckStrongNaming (participant, forceStrongNaming: false);
+    }
+
+    // TODO Review: test with custom key file
 
     [Test]
     public void ForceStrongName ()
     {
-      var participant = CreateParticipant (mt => mt.AddField ("Field", typeof (int)));
+      var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
 
-      CheckStrongNaming (true, participant);
+      CheckStrongNaming (participant, forceStrongNaming: true);
+      // TODO Review: Check that default key is used to sign resulting assembly.
     }
 
     [Test]
-    public void ForceStrongName_MutableTypeInSignature ()
+    public void ForceStrongName_MutableTypeInFieldSignature ()
     {
       var participant = CreateParticipant (mt => mt.AddField ("Field", mt));
 
-      CheckStrongNaming (true, participant);
+      CheckStrongNaming (participant, forceStrongNaming: true);
     }
 
     [Test]
@@ -66,38 +89,47 @@ namespace Remotion.TypePipe.IntegrationTests
             mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
           });
 
-      CheckStrongNaming (true, participant);
+      CheckStrongNaming (participant, forceStrongNaming: true);
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
         "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned assembly 'testAssembly'.")]
-    public void ForceStrongName_IncompatibleModifications ()
+    public void ForceStrongName_IncompatibleType_InFieldSignature ()
     {
       SkipSavingAndPeVerification();
-      var participant = CreateParticipant (mt => mt.AddField ("Field", CreateUnsignedType()));
+      var participant = CreateParticipant (mt => mt.AddField ("Field", _unsignedType));
       var objectFactory = CreateObjectFactoryForStrongNaming (true, 0, participant);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
 
+    // TODO Review: Refactor above test to be one-liner, add tests for (positive and negative case):
+    // base type, interface types
+    // method parameter, method return type
+    // constructor parameter
+    // attributes (on constructors, methods, type, fields, parameters, return parameter, later: events, properties - mark TODO 4675 and 4676)
+    // later: event type, property type, property index parameter  - mark TODO 4675 and 4676
+
     [Test]
     [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
         "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned assembly 'testAssembly'.")]
-    public void ForceStrongName_IncompatibleModifications_Expression ()
+    public void ForceStrongName_IncompatibleType_InExpression ()
     {
       SkipSavingAndPeVerification();
       var participant = CreateParticipant (
-          mt => mt.AddMethod ("Method", 0, typeof (object), ParameterDeclaration.EmptyParameters, ctx => Expression.New (CreateUnsignedType())));
+          mt => mt.AddMethod ("Method", 0, typeof (object), ParameterDeclaration.EmptyParameters, ctx => Expression.New (_unsignedType)));
       var objectFactory = CreateObjectFactoryForStrongNaming (true, 0, participant);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
 
+    // TODO Review: Refactor above test to be one-liner, add tests for each opcode type, catch blocks, local variables (positive and negative case)
+
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNaming (bool forceStrongNaming, params IParticipant[] participants)
+    private void CheckStrongNaming (IParticipant participant, bool forceStrongNaming)
     {
-      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip: 1, participants: participants);
+      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip: 1, participants: new[] { participant });
 
       objectFactory.GetAssembledType (typeof (DomainType));
       var assemblyPath = Flush();
@@ -119,6 +151,7 @@ namespace Remotion.TypePipe.IntegrationTests
     [MethodImpl (MethodImplOptions.NoInlining)]
     private IObjectFactory CreateObjectFactoryForStrongNaming (bool forceStrongNaming, int stackFramesToSkip, params IParticipant[] participants)
     {
+      // TODO Review: Use config section instead of stub. (Use utility class to deserialize section from string.)
       var typePipeConfigurationProviderStub = MockRepository.GenerateStub<ITypePipeConfigurationProvider>();
       typePipeConfigurationProviderStub.Stub (stub => stub.ForceStrongNaming).Return (forceStrongNaming);
 

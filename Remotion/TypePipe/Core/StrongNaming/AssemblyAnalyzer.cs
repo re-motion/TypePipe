@@ -22,6 +22,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
+  /// <summary>
+  /// Determines wheter a given <see cref="Assembly"/> is strong-named.
+  /// </summary>
   public class AssemblyAnalyzer : IAssemblyAnalyzer
   {
     private readonly ICache<Assembly, bool> _cache = CacheFactory.Create<Assembly, bool>();
@@ -36,6 +39,7 @@ namespace Remotion.TypePipe.StrongNaming
     private bool CalculateIsStrongNamed (Assembly assembly)
     {
       var token = assembly.GetName().GetPublicKeyToken();
+      // TODO Review: Remove null check. (Check with unsigned non-builder Assembly first.)
       return token != null && token.Length > 0;
     }
   }

@@ -89,6 +89,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return null; }
     }
 
+    // TODO 5309: This
     public override Type UnderlyingSystemType
     {
       get { return _underlyingSystemType; }

@@ -123,6 +123,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var assemblyPath = _currentModuleBuilder.SaveToDisk();
 
+      // TODO Review: Move these three items to a single class to ensure they are always nulled out together. Module needs to stay lazy. Pass in required information via ctor (e.g., ForceStrongNaming).
+      // TODO Review: Add unit test proving that module creation uses the same ForceStrongNaming value that was read when the emittable operand provider was created.
       _currentModuleBuilder = null;
       _emittableOperandProvider = null;
       _assemblyName = null;

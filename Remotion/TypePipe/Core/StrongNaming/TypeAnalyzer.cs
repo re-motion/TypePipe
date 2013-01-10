@@ -22,8 +22,12 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
 {
+  /// <summary>
+  /// Determines whether a given <see cref="Type"/> resides in a strong-named assembly.
+  /// </summary>
   public class TypeAnalyzer : ITypeAnalyzer
   {
+    // TODO Review: ICache
     private readonly IDataStore<Type, bool> _cache = DataStoreFactory.Create<Type, bool> (new ReferenceEqualityComparer<Type>());
 
     private readonly IAssemblyAnalyzer _assemblyAnalyzer;

@@ -29,6 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     ICodeGenerator CodeGenerator { get; }
 
+    // TODO Review: Add doc comment documenting that this may throw InvalidOperationException, NotSupportedException
     Type ApplyModifications (MutableType mutableTpe);
   }
 }
