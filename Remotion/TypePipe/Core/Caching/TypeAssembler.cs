@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Remotion.Text;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
@@ -68,8 +69,7 @@ namespace Remotion.TypePipe.Caching
       foreach (var participant in _participants)
         participant.ModifyType (mutableType);
 
-      // TODO Review: Catch InvalidOperationException, NotSupportedException; add participant list to exception message, then throw. (Wrap inner exception.)
-      return _typeModifier.ApplyModifications (mutableType);
+      return ApplyModificationsWithDiagnostics (mutableType);
     }
 
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
@@ -96,6 +96,33 @@ namespace Remotion.TypePipe.Caching
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
       return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
+    }
+
+    private Type ApplyModificationsWithDiagnostics (MutableType mutableType)
+    {
+      try
+      {
+        return _typeModifier.ApplyModifications (mutableType);
+      }
+      catch (InvalidOperationException ex)
+      {
+        throw new InvalidOperationException (BuildExceptionMessage (mutableType, ex), ex);
+      }
+      catch (NotSupportedException ex)
+      {
+        throw new NotSupportedException (BuildExceptionMessage (mutableType, ex), ex);
+      }
+    }
+
+    private string BuildExceptionMessage (MutableType mutableType, SystemException exception)
+    {
+      var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
+      return string.Format (
+          "An error occurred during code generation for '{0}': {1} "
+          + "The following participants are currently configured and may have caused the error: {2}.",
+          mutableType.Name,
+          exception.Message,
+          participantList);
     }
   }
 }

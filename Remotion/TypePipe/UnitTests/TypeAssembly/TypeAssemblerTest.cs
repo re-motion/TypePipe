@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       _typeModifierMock = MockRepository.GenerateStrictMock<ITypeModifier>();
 
-      _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
+      _requestedType = typeof (object);
     }
 
     [Test]
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
-    public void AssemblyType_StrongNaming_Unknown ()
+    public void AssembleType ()
     {
       var mockRepository = new MockRepository();
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
@@ -96,7 +96,30 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       mockRepository.VerifyAll();
       Assert.That (mutableType, Is.Not.Null);
+      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (_requestedType));
       Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void AssembleType_ExceptionInCodeGeneraton ()
+    {
+      var exception1 = new InvalidOperationException ("blub");
+      var exception2 = new NotSupportedException ("blub");
+      var exception3 = new Exception();
+      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<MutableType>.Is.Anything)).Throw (exception1);
+      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<MutableType>.Is.Anything)).Throw (exception2);
+      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<MutableType>.Is.Anything)).Throw (exception3);
+      var typeAssembler = CreateTypeAssembler (_typeModifierMock, MockRepository.GenerateStub<IParticipant>());
+
+      var expectedMessageRegex = "An error occurred during code generation for 'Object': blub "
+                                 + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
+      Assert.That (
+          () => typeAssembler.AssembleType (_requestedType),
+          Throws.InvalidOperationException.With.InnerException.SameAs (exception1).And.With.Message.Matches (expectedMessageRegex));
+      Assert.That (
+          () => typeAssembler.AssembleType (_requestedType),
+          Throws.TypeOf<NotSupportedException>().With.InnerException.SameAs (exception2).And.With.Message.Matches (expectedMessageRegex));
+      Assert.That (() => typeAssembler.AssembleType (_requestedType), Throws.Exception.SameAs (exception3));
     }
 
     [Test]
