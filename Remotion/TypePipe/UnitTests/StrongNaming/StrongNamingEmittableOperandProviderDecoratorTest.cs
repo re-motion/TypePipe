@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       var constructor = ReflectionObjectMother.GetSomeConstructor();
       var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
       var method = ReflectionObjectMother.GetSomeMethod();
-      var emittableMethod = ReflectionObjectMother.GetSomeMethod();
+      var emittableMethod = ReflectionObjectMother.GetSomeNonGenericMethod();
 
       _innerMock.Expect (mock => mock.GetEmittableOperand (operand)).Return (emittableOperand);
       _innerMock.Expect (mock => mock.GetEmittableType (type)).Return (emittableType);
