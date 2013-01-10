@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.IntegrationTests
       var participant = CreateParticipant (
           mutableType =>
           {
-            var expression = Expression.Default (mutableType);
+            var expression = Expression.New (mutableType);
             // TODO 4778
             var usableExpression = Expression.Convert (expression, typeof (DomainType));
             mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
