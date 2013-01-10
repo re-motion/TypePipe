@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -24,7 +23,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests
@@ -33,39 +31,31 @@ namespace Remotion.TypePipe.IntegrationTests
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
   {
     [Test]
-    public void NoStrongName_Compatible ()
+    public void NoStrongName ()
     {
-      CheckStrongNaming (false, StrongNameCompatibility.Compatible);
+      var participant = CreateParticipant (mt => mt.AddField ("Field", CreateUnsignedType()));
+
+      CheckStrongNaming (false, participant);
     }
 
     [Test]
-    public void ForceStrongName_Compatible ()
+    public void ForceStrongName ()
     {
-      CheckStrongNaming (true, StrongNameCompatibility.Compatible);
+      var participant = CreateParticipant (mt => mt.AddField ("Field", typeof (int)));
+
+      CheckStrongNaming (true, participant);
     }
 
     [Test]
-    public void ForceStrongName_Unknown_CompatibleModifications ()
+    public void ForceStrongName_MutableTypeInSignature ()
     {
-      CheckStrongNaming (true, StrongNameCompatibility.Compatible, StrongNameCompatibility.Unknown);
+      var participant = CreateParticipant (mt => mt.AddField ("Field", mt));
+
+      CheckStrongNaming (true, participant);
     }
 
     [Test]
-    public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInSignature ()
-    {
-      var participant = CreateParticipant (
-          mutableType =>
-          {
-            mutableType.AddField ("Field", mutableType);
-
-            return StrongNameCompatibility.Unknown;
-          });
-
-      CheckStrongNaming (true, 0, participant);
-    }
-
-    [Test]
-    public void ForceStrongName_Unknown_CompatibleModifications_MutableTypeInExpression ()
+    public void ForceStrongName_MutableTypeInExpression ()
     {
       var participant = CreateParticipant (
           mutableType =>
@@ -74,71 +64,40 @@ namespace Remotion.TypePipe.IntegrationTests
             // TODO 4778
             var usableExpression = Expression.Convert (expression, typeof (DomainType));
             mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
-
-            return StrongNameCompatibility.Unknown;
           });
 
-      CheckStrongNaming (true, 0, participant);
+      CheckStrongNaming (true, participant);
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
-        "Strong-naming is enabled but at least one of the following participants requested incompatible type modifications: 'IParticipantProxy.*'.")]
-    public void ForceStrongName_Unknown_IncompatibleModifications_Expression ()
+        "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned assembly 'testAssembly'.")]
+    public void ForceStrongName_IncompatibleModifications ()
     {
+      SkipSavingAndPeVerification();
+      var participant = CreateParticipant (mt => mt.AddField ("Field", CreateUnsignedType()));
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, 0, participant);
+
+      objectFactory.GetAssembledType (typeof (DomainType));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned assembly 'testAssembly'.")]
+    public void ForceStrongName_IncompatibleModifications_Expression ()
+    {
+      SkipSavingAndPeVerification();
       var participant = CreateParticipant (
-          mutableType =>
-          {
-            var unsignedType = CreateUnsignedType ("UnsignedType");
-            mutableType.AddMethod ("Method", 0, typeof (object), ParameterDeclaration.EmptyParameters, ctx => Expression.Default (unsignedType));
-
-            return StrongNameCompatibility.Unknown;
-          });
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, 1, participant);
+          mt => mt.AddMethod ("Method", 0, typeof (object), ParameterDeclaration.EmptyParameters, ctx => Expression.New (CreateUnsignedType())));
+      var objectFactory = CreateObjectFactoryForStrongNaming (true, 0, participant);
 
       objectFactory.GetAssembledType (typeof (DomainType));
-    }
-
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
-        "Strong-naming is enabled but the following participants requested incompatible type modifications: 'IParticipantProxy.*'.")]
-    public void ForceStrongName_Incompatible ()
-    {
-      var participant1 = CreateParticipant (mt => StrongNameCompatibility.Compatible);
-      var participant2 = CreateParticipant (mt => StrongNameCompatibility.Incompatible);
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, 1, participant1, participant2);
-
-      objectFactory.GetAssembledType (typeof (DomainType));
-    }
-
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
-        "Strong-naming is enabled but at least one of the following participants requested incompatible type modifications: 'IParticipantProxy.*'.")]
-    public void ForceStrongName_Unknown_IncompatibleModifications ()
-    {
-      var participant = CreateParticipant (
-          mutableType =>
-          {
-            var unsignedType = CreateUnsignedType ("UnsignedType");
-            mutableType.AddField ("Field", unsignedType);
-
-            return StrongNameCompatibility.Unknown;
-          });
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, 1, participant);
-
-      objectFactory.GetAssembledType (typeof (DomainType));
-    }
-
-    private void CheckStrongNaming (bool forceStrongNaming, params StrongNameCompatibility[] compatibilities)
-    {
-      var participants = compatibilities.Select (c => CreateParticipant (mutableType => c));
-      CheckStrongNaming (forceStrongNaming, 1, participants.ToArray());
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNaming (bool forceStrongNaming, int stackFramesToSkip, params IParticipant[] participants)
+    private void CheckStrongNaming (bool forceStrongNaming, params IParticipant[] participants)
     {
-      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip + 1, participants);
+      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip: 1, participants: participants);
 
       objectFactory.GetAssembledType (typeof (DomainType));
       var assemblyPath = Flush();
@@ -167,12 +126,12 @@ namespace Remotion.TypePipe.IntegrationTests
         return CreateObjectFactory (participants, stackFramesToSkip: stackFramesToSkip + 1);
     }
 
-    private Type CreateUnsignedType (string typeName)
+    private Type CreateUnsignedType ()
     {
-      var assemblyName = "test";
+      var assemblyName = "testAssembly";
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
-      var typeBuilder = moduleBuilder.DefineType (typeName);
+      var typeBuilder = moduleBuilder.DefineType ("UnsignedType");
       var type = typeBuilder.CreateType();
 
       return type;

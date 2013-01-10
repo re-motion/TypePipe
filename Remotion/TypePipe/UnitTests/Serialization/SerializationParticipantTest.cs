@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
@@ -52,9 +51,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
 
-      var result = _participant.ModifyType (mutableType);
+      _participant.ModifyType (mutableType);
 
-      Assert.That (result, Is.EqualTo (StrongNameCompatibility.Compatible));
       Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (mutableType.AllMutableMethods.Count(), Is.EqualTo (1));
       Assert.That (mutableType.AddedConstructors, Is.Empty);
@@ -109,9 +107,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
 
-      var result = _participant.ModifyType (mutableType);
+      _participant.ModifyType (mutableType);
 
-      Assert.That (result, Is.EqualTo (StrongNameCompatibility.Compatible));
       Assert.That (mutableType.AddedInterfaces, Is.Empty);
       Assert.That (mutableType.AllMutableMethods, Is.Empty);
     }

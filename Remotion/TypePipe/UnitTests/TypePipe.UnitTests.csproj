@@ -189,9 +189,7 @@
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelperTest.cs" />
     <Compile Include="Serialization\Implementation\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
-    <Compile Include="StrongNaming\MutableTypeAnalyzerTest.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
-    <Compile Include="StrongNaming\ExpressionAnalyzingVisitorTest.cs" />
     <Compile Include="StrongNaming\StrongNamingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />

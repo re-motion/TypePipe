@@ -18,7 +18,6 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe
 {
@@ -51,13 +50,8 @@ namespace Remotion.TypePipe
     /// The provided <see cref="MutableType"/> instance represents the type to be generated for the requested type, plus the modifications applied
     /// by preceding participants.
     /// Its mutating members (e.g. <see cref="MutableType.AddMethod"/>) can be used to specify the needed modifications.
-    /// Furthermore it provides information, whether the performed modifications are compatible with a potentially strong-named assembly.
     /// </summary>
     /// <param name="mutableType">The mutable type.</param>
-    /// <returns>
-    /// Returns <see cref="StrongNameCompatibility.Compatible"/> if the modifications are compatible with a strong-named assembly;
-    /// <see cref="StrongNameCompatibility.Incompatible"/> when not; <see cref="StrongNameCompatibility.Unknown"/> when unknown.
-    /// </returns>
-    StrongNameCompatibility ModifyType (MutableType mutableType);
+    void ModifyType (MutableType mutableType);
   }
 }

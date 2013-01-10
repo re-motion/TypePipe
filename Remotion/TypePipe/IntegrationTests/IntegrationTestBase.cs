@@ -25,7 +25,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -35,8 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests
   {
     private List<string> _assembliesToDelete;
 
-    private bool _skipAll;
-    private bool _skipPeVerification;
+    private bool _skipSavingAndVerification;
     private bool _skipDeletion;
 
     private ICodeGenerator _codeGenerator;
@@ -60,20 +58,19 @@ namespace Remotion.TypePipe.IntegrationTests
     [SetUp]
     public virtual void SetUp ()
     {
-      _skipAll = false;
-      _skipPeVerification = false;
+      _skipSavingAndVerification = false;
       _skipDeletion = false;
     }
 
     [TearDown]
     public virtual void TearDown ()
     {
-      if (_skipAll)
+      if (_skipSavingAndVerification)
         return;
 
       try
       {
-        Flush (_skipDeletion, _skipPeVerification);
+        Flush (_skipDeletion);
       }
       catch
       {
@@ -86,7 +83,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected void SkipSavingAndPeVerification ()
     {
-      _skipAll = true;
+      _skipSavingAndVerification = true;
     }
 
     protected void SkipDeletion ()
@@ -94,27 +91,12 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected void SkipPeVerification ()
-    {
-      _skipPeVerification = true;
-    }
-
-    protected static IParticipant CreateParticipant (Func<MutableType, StrongNameCompatibility> typeModification)
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
 
       return participantStub;
-    }
-
-    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
-    {
-      return CreateParticipant (
-          mutableType =>
-          {
-            typeModification (mutableType);
-            return StrongNameCompatibility.Unknown;
-          });
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
