@@ -26,8 +26,5 @@ namespace Remotion.TypePipe.StrongNaming
   public interface ITypeAnalyzer
   {
     bool IsStrongNamed (Type type);
-
-    // TODO Review: Remove
-    void SetStrongNamed (Type type, bool isStrongNamed);
   }
 }

@@ -27,8 +27,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// </summary>
   public class TypeAnalyzer : ITypeAnalyzer
   {
-    // TODO Review: ICache
-    private readonly IDataStore<Type, bool> _cache = DataStoreFactory.Create<Type, bool> (new ReferenceEqualityComparer<Type>());
+    private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool> (new ReferenceEqualityComparer<Type>());
 
     private readonly IAssemblyAnalyzer _assemblyAnalyzer;
 
@@ -44,13 +43,6 @@ namespace Remotion.TypePipe.StrongNaming
       ArgumentUtility.CheckNotNull ("type", type);
 
       return _cache.GetOrCreateValue (type, CalculateIsStrongNamed);
-    }
-
-    public void SetStrongNamed (Type type, bool isStrongNamed)
-    {
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      _cache[type] = isStrongNamed;
     }
 
     private bool CalculateIsStrongNamed (Type type)

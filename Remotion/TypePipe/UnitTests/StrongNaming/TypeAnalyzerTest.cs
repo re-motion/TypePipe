@@ -77,10 +77,11 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = typeof (object);
       var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      _analyzer.SetStrongNamed (mutableType, true);
       _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (mutableType.Assembly)).Return (true);
 
       _analyzer.IsStrongNamed (type);
+      _analyzer.IsStrongNamed (mutableType);
 
       _assemblyAnalyzerMock.VerifyAllExpectations();
     }
@@ -93,18 +94,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       _assemblyAnalyzerMock.Stub (x => x.IsStrongNamed (typeBuilder.Assembly)).Return (true);
 
       Assert.That (_analyzer.IsStrongNamed (typeBuilder), Is.True);
-    }
-
-    [Test]
-    public void SetStrongNamed ()
-    {
-      var type = ReflectionObjectMother.GetSomeType();
-      _assemblyAnalyzerMock.Stub (x => x.IsStrongNamed (type.Assembly)).Return (false);
-      Assert.That (_analyzer.IsStrongNamed (type), Is.False);
-
-      _analyzer.SetStrongNamed (type, true);
-
-      Assert.That (_analyzer.IsStrongNamed (type), Is.True);
     }
   }
 }
