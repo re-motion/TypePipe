@@ -23,6 +23,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests
@@ -65,8 +66,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
 
-      CheckStrongNaming (participant, forceStrongNaming: true);
-      // TODO Review: Check that default key is used to sign resulting assembly.
+      CheckStrongNaming (participant, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
     }
 
     [Test]
@@ -127,25 +127,18 @@ namespace Remotion.TypePipe.IntegrationTests
     // TODO Review: Refactor above test to be one-liner, add tests for each opcode type, catch blocks, local variables (positive and negative case)
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNaming (IParticipant participant, bool forceStrongNaming)
+    private void CheckStrongNaming (IParticipant participant, bool forceStrongNaming, StrongNameKeyPair expectedKey = null)
     {
       var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip: 1, participants: new[] { participant });
 
-      objectFactory.GetAssembledType (typeof (DomainType));
-      var assemblyPath = Flush();
+      var type = objectFactory.GetAssembledType (typeof (DomainType));
+      var assemblyName = type.Assembly.GetName();
 
-      AppDomainRunner.Run (
-          args =>
-          {
-            var path = (string) args[0];
-            var expectedIsStrongNamed = (bool) args[1];
-            var assembly = Assembly.LoadFrom (path);
+      var isStrongNamed = assemblyName.GetPublicKeyToken().Length > 0;
+      Assert.That (isStrongNamed, Is.EqualTo (forceStrongNaming));
 
-            var isStrongNamed = assembly.GetName().GetPublicKeyToken().Length > 0;
-            Assert.That (isStrongNamed, Is.EqualTo (expectedIsStrongNamed));
-          },
-          assemblyPath,
-          forceStrongNaming);
+      if (expectedKey != null)
+        Assert.That (assemblyName.GetPublicKey(), Is.EqualTo (expectedKey.PublicKey));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
