@@ -178,8 +178,11 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_Expression ()
     {
-      // Emit (Opcode, Type)
+      // VisitConstant
       CheckStrongNamingExpression (Expression.Constant (_signedType));
+
+      // Emit (Opcode, Type)
+      CheckStrongNamingExpression (Expression.Convert (Expression.Constant (null), _signedType));
       // Emit (Opcode, FieldInfo)
       CheckStrongNamingExpression (Expression.Field (null, _signedField));
       // Emit (Opcode, ConstructorInfo)
@@ -199,8 +202,11 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     {
       SkipSavingAndPeVerification();
 
-      // Emit (Opcode, Type)
+      // VisitConstant
       CheckStrongNamingExpressionException (Expression.Constant (_unsignedType));
+
+      // Emit (Opcode, Type)
+      CheckStrongNamingExpressionException (Expression.Convert (Expression.Constant (null), _unsignedType));
       // Emit (Opcode, FieldInfo)
       CheckStrongNamingExpressionException (Expression.Field (null, _unsignedField));
       // Emit (Opcode, ConstructorInfo)
