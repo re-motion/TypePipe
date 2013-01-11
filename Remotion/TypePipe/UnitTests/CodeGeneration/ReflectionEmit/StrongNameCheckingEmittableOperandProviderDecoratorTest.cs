@@ -29,12 +29,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
-  public class StrongNamingEmittableOperandProviderDecoratorTest
+  public class StrongNameCheckingEmittableOperandProviderDecoratorTest
   {
     private ITypeAnalyzer _typeAnalyzerMock;
     private IEmittableOperandProvider _innerMock;
 
-    private StrongNamingEmittableOperandProviderDecorator _decorator;
+    private StrongNameCheckingEmittableOperandProviderDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
       _innerMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
       using (new ServiceLocatorScope (typeof (ITypeAnalyzer), () => _typeAnalyzerMock))
-        _decorator = new StrongNamingEmittableOperandProviderDecorator (_innerMock);
+        _decorator = new StrongNameCheckingEmittableOperandProviderDecorator (_innerMock);
     }
 
     [Test]

@@ -21,7 +21,6 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
-using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -84,8 +83,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var provider = _generator.EmittableOperandProvider;
       Assert.That (provider, Is.SameAs (_generator.EmittableOperandProvider));
-      Assert.That (provider, Is.TypeOf<StrongNamingEmittableOperandProviderDecorator>());
-      var strongNamingDecorator = (StrongNamingEmittableOperandProviderDecorator) provider;
+      Assert.That (provider, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator>());
+      var strongNamingDecorator = (StrongNameCheckingEmittableOperandProviderDecorator) provider;
       Assert.That (strongNamingDecorator.InnerEmittableOperandProvider, Is.TypeOf<EmittableOperandProvider>());
     }
 
@@ -188,7 +187,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
 
-      Assert.That (_generator.EmittableOperandProvider, Is.TypeOf<StrongNamingEmittableOperandProviderDecorator>());
+      Assert.That (_generator.EmittableOperandProvider, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator>());
       _generator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
 
       _configurationProviderMock.VerifyAllExpectations();

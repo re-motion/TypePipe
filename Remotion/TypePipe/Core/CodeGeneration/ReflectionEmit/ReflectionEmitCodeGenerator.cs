@@ -22,7 +22,6 @@ using System.Threading;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
-using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -121,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         {
           IEmittableOperandProvider provider = new EmittableOperandProvider();
           _moduleContext.EmittableOperandProvider =
-              _moduleContext.ForceStrongNaming ? new StrongNamingEmittableOperandProviderDecorator (provider) : provider;
+              _moduleContext.ForceStrongNaming ? new StrongNameCheckingEmittableOperandProviderDecorator (provider) : provider;
         }
 
         return _moduleContext.EmittableOperandProvider;

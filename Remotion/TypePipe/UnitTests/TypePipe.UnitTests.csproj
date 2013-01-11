@@ -190,7 +190,7 @@
     <Compile Include="Serialization\Implementation\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
-    <Compile Include="StrongNaming\StrongNamingEmittableOperandProviderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />

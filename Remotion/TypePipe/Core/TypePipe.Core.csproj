@@ -115,7 +115,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
-    <Compile Include="StrongNaming\StrongNamingEmittableOperandProviderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>

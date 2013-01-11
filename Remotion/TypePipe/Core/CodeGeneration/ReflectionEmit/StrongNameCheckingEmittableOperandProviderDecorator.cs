@@ -18,26 +18,25 @@
 using System;
 using System.Reflection;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.StrongNaming
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  // TODO Review: StrongNameCheckingEmittableOperandProviderDecorator, move to CodeGeneration.ReflectionEmit
   /// <summary>
   /// A decorator that checks operands for strong-name compatibility.
   /// </summary>
   /// <remarks>
   /// Uses an instance <see cref="ITypeAnalyzer"/> retrieved via the <see cref="SafeServiceLocator"/>.
   /// </remarks>
-  public class StrongNamingEmittableOperandProviderDecorator : IEmittableOperandProvider
+  public class StrongNameCheckingEmittableOperandProviderDecorator : IEmittableOperandProvider
   {
     private readonly ITypeAnalyzer _typeAnalyzer = SafeServiceLocator.Current.GetInstance<ITypeAnalyzer>();
 
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
-    public StrongNamingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider)
+    public StrongNameCheckingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
