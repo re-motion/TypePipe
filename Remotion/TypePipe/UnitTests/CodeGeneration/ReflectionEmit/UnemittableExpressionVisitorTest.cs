@@ -54,43 +54,44 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void VisitConstant_ReplacesValue ()
+    public void VisitConstant_SimpleValue ()
     {
-      var expression = Expression.Constant ("operand", typeof(object));
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableOperand ("operand")).Return ("emittable");
+      var expression = Expression.Constant ("emittable");
 
       var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
 
-      _emittableOperandProviderMock.VerifyAllExpectations();
-      Assert.That (result, Is.AssignableTo<ConstantExpression>());
-      var constantExpression = (ConstantExpression) result;
-      Assert.That (constantExpression.Value, Is.EqualTo("emittable"));
-      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
-    }
-
-    [Test]
-    public void VisitConstant_SameValue ()
-    {
-      var value = "emittable";
-      var expression = Expression.Constant (value, typeof (object));
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableOperand (value)).Return (value);
-
-      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
-
-      _emittableOperandProviderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (expression));
     }
 
     [Test]
+    public void VisitConstant_EmittableOperand ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      var field = ReflectionObjectMother.GetSomeField();
+      var emittableField = ReflectionObjectMother.GetSomeField();
+      var constructor = ReflectionObjectMother.GetSomeConstructor();
+      var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
+      var method = ReflectionObjectMother.GetSomeMethod();
+      var emittableMethod = ReflectionObjectMother.GetSomeMethod();
+
+      CheckVisitConstant (type, emittableType, (p, t) => p.GetEmittableType (t));
+      CheckVisitConstant (field, emittableField, (p, f) => p.GetEmittableField (f));
+      CheckVisitConstant (constructor, emittableConstructor, (p, c) => p.GetEmittableConstructor (c));
+      CheckVisitConstant (method, emittableMethod, (p, c) => p.GetEmittableMethod (c));
+    }
+
+    [Test]
     [ExpectedException (typeof (NotSupportedException), MatchType = MessageMatch.StartsWith, ExpectedMessage =
-        "It is not supported to have a ConstantExpression of type 'String' because instances of 'String' exist only at " +
+        "It is not supported to have a ConstantExpression of type 'MutableType' because instances of 'MutableType' exist only at " +
         "code generation time, not at runtime.")]
     public void VisitConstant_NotAssignableValue ()
     {
-      var expresison = Expression.Constant ("operand");
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableOperand ("operand")).Return (7);
+      var mutableType = MutableTypeObjectMother.Create();
+      var expression = Expression.Constant (mutableType);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (mutableType)).Return (typeof (int));
 
-      ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expresison);
+      ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
     }
 
     [Test]
@@ -250,6 +251,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _visitorPartialMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    private void CheckVisitConstant<T> (T value, T emittableValue, Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc)
+    {
+      var expression = Expression.Constant (value, typeof (object));
+      _emittableOperandProviderMock.BackToRecord();
+      _emittableOperandProviderMock.Expect (mock => getEmittableOperandFunc (mock, value)).Return (emittableValue);
+      _emittableOperandProviderMock.Replay();
+
+      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+
+      _emittableOperandProviderMock.VerifyAllExpectations();
+      Assert.That (result, Is.AssignableTo<ConstantExpression>());
+      var constantExpression = (ConstantExpression) result;
+      Assert.That (constantExpression.Value, Is.SameAs (emittableValue));
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
     }
 
     public class DomainType
