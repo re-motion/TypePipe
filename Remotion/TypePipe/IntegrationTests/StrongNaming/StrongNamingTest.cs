@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Configuration;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
@@ -35,71 +37,130 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
   {
     private Type _signedType;
     private Type _unsignedType;
+    private Type _signedInterfaceType;
+    private Type _unsignedInterfaceType;
+    private CustomAttributeDeclaration _signedAttribute;
+    private CustomAttributeDeclaration _unsignedAttribute;
 
     public override void SetUp ()
     {
       base.SetUp ();
 
       _signedType = typeof (int);
-      _unsignedType = CreateUnsignedType ();
+      _unsignedType = CreateUnsignedType (TypeAttributes.Class);
+
+      _signedInterfaceType = typeof (IMarkerInterface);
+      _unsignedInterfaceType = CreateUnsignedType (TypeAttributes.Interface | TypeAttributes.Abstract);
+
+      var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (null));
+      _signedAttribute = new CustomAttributeDeclaration (attributeCtor, new object[] { _signedType });
+      _unsignedAttribute = new CustomAttributeDeclaration (attributeCtor, new object[] { _unsignedType });
     }
 
     [Test]
     public void NoStrongName_Default ()
     {
       // Could be strong-named, but isn't - the default is to output assemblies without strong name.
-      var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
+      Action<MutableType> action = mt => mt.AddField ("Field", _signedType);
 
-      CheckStrongNaming (participant, forceStrongNaming: false);
+      CheckStrongNaming (action, forceStrongNaming: false);
     }
 
     [Test]
     public void NoStrongName_UnsignedType ()
     {
-      var participant = CreateParticipant (mt => mt.AddField ("Field", _unsignedType));
+      Action<MutableType> action = mt => mt.AddField ("Field", _unsignedType);
 
-      CheckStrongNaming (participant, forceStrongNaming: false);
+      CheckStrongNaming (action, forceStrongNaming: false);
     }
 
     [Test]
     public void ForceStrongName ()
     {
-      var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
+      Action<MutableType> action = mt => mt.AddField ("Field", _signedType);
 
-      CheckStrongNaming (participant, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
+      CheckStrongNaming (action, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
     }
 
     [Test]
     public void ForceStrongName_CustomKey ()
     {
-      var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
+      Action<MutableType> action = mt => mt.AddField ("Field", _signedType);
 
       var keyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"StrongNaming\OtherKey.snk");
       var customKey = new StrongNameKeyPair (File.ReadAllBytes (keyPath));
-      CheckStrongNaming (participant, forceStrongNaming: true, keyFilePath: keyPath, expectedKey: customKey);
+      CheckStrongNaming (action, forceStrongNaming: true, keyFilePath: keyPath, expectedKey: customKey);
     }
 
     [Test]
-    public void ForceStrongName_MutableTypeInFieldSignature ()
+    public void ForceStrongName_Signature ()
     {
-      var participant = CreateParticipant (mt => mt.AddField ("Field", mt));
+      // Base type is DomainType which is signed.
+      CheckStrongNaming (mt => mt.AddInterface (_signedInterfaceType));
+      CheckStrongNaming (mt => mt.AddField ("field", _signedType));
+      CheckStrongNaming (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.GetConstructorCall()));
+      CheckStrongNaming (mt => mt.AddMethod (
+              "method", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType)));
+      // Properties and Events: event type, property type, property index parameter
+      // TODO 4675
+      // TODO 4676
 
-      CheckStrongNaming (participant, forceStrongNaming: true);
-    }
-
-    [Test]
-    public void ForceStrongName_MutableTypeInExpression ()
-    {
-      var participant = CreateParticipant (
-          mutableType =>
+      // Attributes
+      CheckStrongNaming (mt => mt.AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (mt => mt.AddField ("f", _signedType).AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (mt => mt.AddConstructor (
+              0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.GetConstructorCall ()).AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (
+          mt =>
           {
-            var expression = Expression.New (mutableType);
-            // TODO 4778
-            var usableExpression = Expression.Convert (expression, typeof (DomainType));
-            mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
+            var method = mt.AddMethod (
+                "method", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType));
+            method.AddCustomAttribute (_signedAttribute);
+            method.MutableReturnParameter.AddCustomAttribute (_signedAttribute);
+            method.MutableParameters.Single().AddCustomAttribute (_signedAttribute);
           });
+      // Attributes on properties and events.
+      // TODO 4675
+      // TODO 4676
+    }
 
-      CheckStrongNaming (participant, forceStrongNaming: true);
+    [Test]
+    public void ForceStrongName_Signature_IncompatibleType ()
+    {
+      SkipSavingAndPeVerification();
+
+      CheckStrongNamingException (mt => { }, requestedType: _unsignedType);
+      CheckStrongNamingException (mt => mt.AddInterface (_unsignedInterfaceType));
+      CheckStrongNamingException (mt => mt.AddField ("field", _unsignedType));
+      CheckStrongNamingException (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.GetConstructorCall()));
+      CheckStrongNamingException (mt => mt.AddMethod (
+              "method", 0, _unsignedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_unsignedType)));
+      CheckStrongNamingException (mt => mt.AddMethod (
+              "method", 0, _signedType, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => Expression.Default (_signedType)));
+      // Properties and Events: event type, property type, property index parameter
+      // TODO 4675
+      // TODO 4676
+
+      // Attributes
+      CheckStrongNamingException (mt => mt.AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (mt => mt.AddField ("f", _signedType).AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (mt => mt.AddConstructor (
+              0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.GetConstructorCall ()).AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (
+          mt =>
+          mt.AddMethod ("method", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
+            .AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (
+          mt =>
+          mt.AddMethod ("method", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
+            .MutableReturnParameter.AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (
+          mt =>
+          mt.AddMethod ("method", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
+            .MutableParameters.Single().AddCustomAttribute (_unsignedAttribute));
+      // Attributes on properties and events.
+      // TODO 4675
+      // TODO 4676
     }
 
     [Test]
@@ -113,13 +174,6 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
-
-    // TODO Review: Refactor above test to be one-liner, add tests for (positive and negative case):
-    // base type, interface types
-    // method parameter, method return type
-    // constructor parameter
-    // attributes (on constructors, methods, type, fields, parameters, return parameter, later: events, properties - mark TODO 4675 and 4676)
-    // later: event type, property type, property index parameter  - mark TODO 4675 and 4676
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), MatchType = MessageMatch.Regex, ExpectedMessage =
@@ -136,9 +190,34 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
     // TODO Review: Refactor above test to be one-liner, add tests for each opcode type, catch blocks, local variables (positive and negative case)
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null, StrongNameKeyPair expectedKey = null)
+    [Test]
+    public void ForceStrongName_Signature_MutableType ()
     {
+      Action<MutableType> action = mt => mt.AddField ("Field", mt);
+
+      CheckStrongNaming (action, forceStrongNaming: true);
+    }
+
+    [Test]
+    public void ForceStrongName_Expression_MutableType ()
+    {
+      Action<MutableType> action =
+          mutableType =>
+          {
+            var expression = Expression.New (mutableType);
+            // TODO 4778
+            var usableExpression = Expression.Convert (expression, typeof (DomainType));
+            mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
+          };
+
+      CheckStrongNaming (action, forceStrongNaming: true);
+    }
+
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    private void CheckStrongNaming (
+        Action<MutableType> participantAction, bool forceStrongNaming = true, string keyFilePath = null, StrongNameKeyPair expectedKey = null)
+    {
+      var participant = CreateParticipant (participantAction);
       var objectFactory = CreateObjectFactoryForStrongNaming (participant, 1, forceStrongNaming, keyFilePath);
 
       var type = objectFactory.GetAssembledType (typeof (DomainType));
@@ -153,6 +232,19 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
         var publicKey = assemblyName.GetPublicKey();
         Assert.That (publicKey, Is.EqualTo (expectedKey.PublicKey));
       }
+    }
+
+    [MethodImpl (MethodImplOptions.NoInlining)]
+    private void CheckStrongNamingException (Action<MutableType> participantAction, Type requestedType = null)
+    {
+      requestedType = requestedType ?? typeof (DomainType);
+      var participant = CreateParticipant (participantAction);
+      var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip: 1, forceStrongNaming: true);
+
+      var messageRegex = "An error occurred during code generation for '.*Type': Strong-naming is enabled but a participant used the type "
+                         + "'UnsignedType' which comes from the unsigned assembly 'testAssembly'. The following participants are currently "
+                         + @"configured and may have caused the error: 'IParticipantProxy.*'\.";
+      Assert.That (() => objectFactory.GetAssembledType (requestedType), Throws.InvalidOperationException.With.Message.Matches (messageRegex));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -171,17 +263,17 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
         return CreateObjectFactory (new[] { participant }, stackFramesToSkip: stackFramesToSkip + 1);
     }
 
-    private Type CreateUnsignedType ()
+    private Type CreateUnsignedType (TypeAttributes attributes)
     {
       var assemblyName = "testAssembly";
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
-      var typeBuilder = moduleBuilder.DefineType ("UnsignedType");
-      var type = typeBuilder.CreateType();
-
-      return type;
+      var typeBuilder = moduleBuilder.DefineType ("UnsignedType", attributes);
+      return typeBuilder.CreateType();
     }
 
     public class DomainType {}
+    public interface IMarkerInterface { }
+    public class AbcAttribute : Attribute{ public AbcAttribute (Type type) { Dev.Null = type; } }
   }
 }
