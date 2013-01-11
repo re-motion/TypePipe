@@ -35,6 +35,33 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
+    private class ModuleContext
+    {
+      private readonly Func<bool> _forceStrongNamingFunc;
+      private bool? _forceStrongNaming;
+
+      // TODO 5057: Use Lazy<T>.
+      public ModuleContext (Func<bool> forceStrongNamingFunc)
+      {
+        _forceStrongNamingFunc = forceStrongNamingFunc;
+      }
+
+      public bool ForceStrongNaming
+      {
+        get
+        {
+          if (!_forceStrongNaming.HasValue)
+            _forceStrongNaming = _forceStrongNamingFunc();
+
+          return _forceStrongNaming.Value;
+        }
+      }
+
+      public IModuleBuilder ModuleBuilder { get; set; }
+      public IEmittableOperandProvider EmittableOperandProvider { get; set; }
+      public string AssemblyName { get; set; }
+    }
+
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
 
     private static int s_counter;
@@ -43,10 +70,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ITypePipeConfigurationProvider _configurationProvider;
     private readonly DebugInfoGenerator _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
 
-    private IModuleBuilder _currentModuleBuilder;
-    private IEmittableOperandProvider _emittableOperandProvider;
     private string _assemblyDirectory;
-    private string _assemblyName;
+    private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
     public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, ITypePipeConfigurationProvider configurationProvider)
@@ -55,6 +80,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _moduleBuilderFactory = moduleBuilderFactory;
       _configurationProvider = configurationProvider;
+
+      ResetContext();
+    }
+
+    private void ResetContext ()
+    {
+      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
     }
 
     public string AssemblyDirectory
@@ -66,19 +98,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       get
       {
-        if (_assemblyName == null)
+        if (_moduleContext.AssemblyName == null)
         {
           var uniqueCounterValue = Interlocked.Increment (ref s_counter);
-          _assemblyName = string.Format (c_assemblyNamePattern, uniqueCounterValue);
+          _moduleContext.AssemblyName = string.Format (c_assemblyNamePattern, uniqueCounterValue);
         }
 
-        return _assemblyName;
+        return _moduleContext.AssemblyName;
       }
-    }
-
-    public bool IsStrongNamingEnabled
-    {
-      get { return _configurationProvider.ForceStrongNaming; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
@@ -90,13 +117,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       get
       {
-        if (_emittableOperandProvider == null)
+        if (_moduleContext.EmittableOperandProvider == null)
         {
           IEmittableOperandProvider provider = new EmittableOperandProvider();
-          _emittableOperandProvider = IsStrongNamingEnabled ? new StrongNamingEmittableOperandProviderDecorator (provider) : provider;
+          _moduleContext.EmittableOperandProvider =
+              _moduleContext.ForceStrongNaming ? new StrongNamingEmittableOperandProviderDecorator (provider) : provider;
         }
 
-        return _emittableOperandProvider;
+        return _moduleContext.EmittableOperandProvider;
       }
     }
 
@@ -113,21 +141,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
       EnsureNoCurrentModuleBuilder ("assembly name");
 
-      _assemblyName = assemblyName;
+      _moduleContext.AssemblyName = assemblyName;
     }
 
     public string FlushCodeToDisk ()
     {
-      if (_currentModuleBuilder == null)
+      if (_moduleContext.ModuleBuilder == null)
         return null;
 
-      var assemblyPath = _currentModuleBuilder.SaveToDisk();
-
-      // TODO Review: Move these three items to a single class to ensure they are always nulled out together. Module needs to stay lazy. Pass in required information via ctor (e.g., ForceStrongNaming).
-      // TODO Review: Add unit test proving that module creation uses the same ForceStrongNaming value that was read when the emittable operand provider was created.
-      _currentModuleBuilder = null;
-      _emittableOperandProvider = null;
-      _assemblyName = null;
+      var assemblyPath = _moduleContext.ModuleBuilder.SaveToDisk();
+      ResetContext();
 
       return assemblyPath;
     }
@@ -138,20 +161,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("parent", parent);
 
-      if (_currentModuleBuilder == null)
+      if (_moduleContext.ModuleBuilder == null)
       {
-        var strongNamed = _configurationProvider.ForceStrongNaming;
+        var strongName = _moduleContext.ForceStrongNaming;
         var keyFilePathOrNull = _configurationProvider.KeyFilePath;
-        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (
-            AssemblyName, _assemblyDirectory, strongNamed, keyFilePathOrNull, EmittableOperandProvider);
+
+        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (
+            AssemblyName, _assemblyDirectory, strongName, keyFilePathOrNull, EmittableOperandProvider);
       }
 
-      return _currentModuleBuilder.DefineType (name, attributes, parent);
+      return _moduleContext.ModuleBuilder.DefineType (name, attributes, parent);
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)
     {
-      if (_currentModuleBuilder != null)
+      if (_moduleContext.ModuleBuilder != null)
       {
         var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
         var message = string.Format (

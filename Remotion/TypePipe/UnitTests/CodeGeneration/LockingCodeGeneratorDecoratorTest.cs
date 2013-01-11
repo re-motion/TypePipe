@@ -53,13 +53,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void IsStrongNamingEnabled ()
-    {
-      var randomBool = BooleanObjectMother.GetRandomBoolean();
-      _helper.ExpectSynchronizedDelegation (cg => cg.IsStrongNamingEnabled, randomBool);
-    }
-
-    [Test]
     public void SetAssemblyDirectory ()
     {
       _helper.ExpectSynchronizedDelegation (cg => cg.SetAssemblyDirectory ("klm"));
