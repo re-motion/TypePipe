@@ -115,22 +115,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           m => GetEmittableMemberOfGenericType<MethodInfo, MethodOnTypeInstantiation> (m, mi => mi.GenericMethod, TypeBuilder.GetMethod));
     }
 
-    public object GetEmittableOperand (object operand)
-    {
-      ArgumentUtility.CheckNotNull ("operand", operand);
-
-      if (operand is Type)
-        return GetEmittableType ((Type) operand);
-      if (operand is FieldInfo)
-        return GetEmittableField ((FieldInfo) operand);
-      if (operand is ConstructorInfo)
-        return GetEmittableConstructor ((ConstructorInfo) operand);
-      if (operand is MethodInfo)
-        return GetEmittableMethod ((MethodInfo) operand);
-
-      return operand;
-    }
-
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
         where TMutable : T
         where T : MemberInfo

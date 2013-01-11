@@ -52,10 +52,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMapping ()
     {
-      CheckAddMapping<MutableType, Type> (_provider.AddMapping, _provider.GetEmittableOperand, _mutableType);
-      CheckAddMapping<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _provider.GetEmittableOperand, _mutableField);
-      CheckAddMapping<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _provider.GetEmittableOperand, _mutableConstructor);
-      CheckAddMapping<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _provider.GetEmittableOperand, _mutableMethod);
+      CheckAddMapping<MutableType, Type> (_provider.AddMapping, _provider.GetEmittableType, _mutableType);
+      CheckAddMapping<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _provider.GetEmittableField, _mutableField);
+      CheckAddMapping<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _provider.GetEmittableConstructor, _mutableConstructor);
+      CheckAddMapping<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _provider.GetEmittableMethod, _mutableMethod);
     }
 
     [Test]
@@ -153,62 +153,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void GetEmittableOperand_Mutable ()
-    {
-      var typeBuilder = ReflectionEmitObjectMother.GetSomeTypeBuilder ();
-      var fieldBuilder = ReflectionEmitObjectMother.GetSomeFieldBuilder ();
-      var constructorBuilder = ReflectionEmitObjectMother.GetSomeConstructorBuilder ();
-      var methodBuilder = ReflectionEmitObjectMother.GetSomeMethodBuilder ();
-
-      _provider.AddMapping (_mutableType, typeBuilder);
-      _provider.AddMapping (_mutableField, fieldBuilder);
-      _provider.AddMapping (_mutableConstructor, constructorBuilder);
-      _provider.AddMapping (_mutableMethod, methodBuilder);
-
-      Assert.That (_provider.GetEmittableOperand (_mutableType), Is.SameAs (typeBuilder));
-      Assert.That (_provider.GetEmittableOperand (_mutableField), Is.SameAs (fieldBuilder));
-      Assert.That (_provider.GetEmittableOperand (_mutableConstructor), Is.SameAs (constructorBuilder));
-      Assert.That (_provider.GetEmittableOperand (_mutableMethod), Is.SameAs (methodBuilder));
-    }
-
-    [Test]
-    public void GetEmittableOperand_RuntimeInfos ()
-    {
-      var type = _mutableType.UnderlyingSystemType;
-      var field = _mutableField.UnderlyingSystemFieldInfo;
-      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
-      var method = _mutableMethod.UnderlyingSystemMethodInfo;
-
-      Assert.That (_provider.GetEmittableOperand (type), Is.SameAs (type));
-      Assert.That (_provider.GetEmittableOperand (field), Is.SameAs (field));
-      Assert.That (_provider.GetEmittableOperand (ctor), Is.SameAs (ctor)); 
-      Assert.That (_provider.GetEmittableOperand (method), Is.SameAs (method));
-    }
-
-    [Test]
-    public void GetEmittableOperand_Builders ()
-    {
-      var type = ReflectionEmitObjectMother.GetSomeTypeBuilder();
-      var field = ReflectionEmitObjectMother.GetSomeFieldBuilder();
-      var ctor = ReflectionEmitObjectMother.GetSomeConstructorBuilder();
-      var method = ReflectionEmitObjectMother.GetSomeMethodBuilder();
-
-      Assert.That (_provider.GetEmittableOperand (type), Is.SameAs (type));
-      Assert.That (_provider.GetEmittableOperand (field), Is.SameAs (field));
-      Assert.That (_provider.GetEmittableOperand (ctor), Is.SameAs (ctor));
-      Assert.That (_provider.GetEmittableOperand (method), Is.SameAs (method));
-    }
-
-    [Test]
-    public void GetEmittableOperand_Mutable_NoMapping ()
-    {
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableType);
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableField);
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableConstructor);
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableOperand, _mutableMethod);
-    }
-
-    [Test]
     public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting();
@@ -230,9 +174,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting();
       var constructedType = typeof (StrongBox<>).MakeGenericType (mutableType);
-      var field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
+      FieldInfo field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, mutableType, field);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, f) => p.GetEmittableField (f), mutableType, field);
     }
 
     [Test]
@@ -240,9 +184,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting ();
       var constructedType = typeof (List<>).MakeGenericType (mutableType);
-      var ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
+      ConstructorInfo ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, mutableType, ctor);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, c) => p.GetEmittableConstructor (c), mutableType, ctor);
     }
 
     [Test]
@@ -250,13 +194,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting();
       var constructedType = typeof (List<>).MakeGenericType (mutableType);
-      var method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
+      MethodInfo method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, mutableType, method);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, m) => p.GetEmittableMethod (m), mutableType, method);
     }
 
     private void CheckAddMapping<TMutable, T> (
-        Action<TMutable, T> addMappingMethod, Func<object, object> getEmittableOperandMethod, TMutable operandToBeEmitted)
+        Action<TMutable, T> addMappingMethod, Func<T, T> getEmittableOperandMethod, TMutable operandToBeEmitted)
         where TMutable : T
         where T : class
     {
@@ -283,7 +227,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void CheckGetEmitableOperandWithNoMappingThrows<TMutable, TBase> (
         Func<TMutable, TBase> getEmittableOperandMethod, TMutable operandToBeEmitted)
-        where TMutable: TBase
+        where TMutable : TBase
     {
       var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operandToBeEmitted, operandToBeEmitted.GetType().Name);
       Assert.That (
@@ -291,12 +235,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
 
-    private static void CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (EmittableOperandProvider provider, MutableType mutableTypeWithMapping, MemberInfo member)
+    private static void CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument<T> (
+        EmittableOperandProvider provider, Func<EmittableOperandProvider, T, T> getEmittableFunc, MutableType mutableTypeWithMapping, T member)
+        where T : MemberInfo
     {
       var emittableType = ReflectionEmitObjectMother.GetSomeTypeBuilderInstantiation();
       provider.AddMapping (mutableTypeWithMapping, emittableType);
 
-      var result = (MemberInfo) provider.GetEmittableOperand (member);
+      var result = getEmittableFunc (provider, member);
 
       var mutableTypeGenericArgument = result.DeclaringType.GetGenericArguments().Single();
       Assert.That (mutableTypeGenericArgument, Is.SameAs (emittableType));

@@ -110,41 +110,6 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     }
 
     [Test]
-    public void GetEmittableOperand ()
-    {
-      var operand = new object();
-      var emittableOperand = new object();
-      var type = ReflectionObjectMother.GetSomeType();
-      var emittableType = ReflectionObjectMother.GetSomeType();
-      var field = ReflectionObjectMother.GetSomeField();
-      var emittableField = ReflectionObjectMother.GetSomeField();
-      var constructor = ReflectionObjectMother.GetSomeConstructor();
-      var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
-      var method = ReflectionObjectMother.GetSomeMethod();
-      var emittableMethod = ReflectionObjectMother.GetSomeNonGenericMethod();
-
-      _innerMock.Expect (mock => mock.GetEmittableOperand (operand)).Return (emittableOperand);
-      _innerMock.Expect (mock => mock.GetEmittableType (type)).Return (emittableType);
-      _innerMock.Expect (mock => mock.GetEmittableField (field)).Return (emittableField);
-      _innerMock.Expect (mock => mock.GetEmittableConstructor (constructor)).Return (emittableConstructor);
-      _innerMock.Expect (mock => mock.GetEmittableMethod (method)).Return (emittableMethod);
-
-      _typeAnalyzerMock.Stub (mock => mock.IsStrongNamed (emittableType)).Return (true);
-      _typeAnalyzerMock.Stub (mock => mock.IsStrongNamed (emittableField.DeclaringType)).Return (true);
-      _typeAnalyzerMock.Stub (mock => mock.IsStrongNamed (emittableConstructor.DeclaringType)).Return (true);
-      _typeAnalyzerMock.Stub (mock => mock.IsStrongNamed (emittableMethod.DeclaringType)).Return (true);
-
-      Assert.That (_decorator.GetEmittableOperand (operand), Is.SameAs (emittableOperand));
-      Assert.That (_decorator.GetEmittableOperand (type), Is.SameAs (emittableType));
-      Assert.That (_decorator.GetEmittableOperand (field), Is.SameAs (emittableField));
-      Assert.That (_decorator.GetEmittableOperand (constructor), Is.SameAs (emittableConstructor));
-      Assert.That (_decorator.GetEmittableOperand (method), Is.SameAs (emittableMethod));
-
-      _typeAnalyzerMock.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void DelegatingMembers ()
     {
       var mutableType = MutableTypeObjectMother.Create();

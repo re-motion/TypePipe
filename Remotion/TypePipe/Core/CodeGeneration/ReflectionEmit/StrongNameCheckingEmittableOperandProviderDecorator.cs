@@ -114,23 +114,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return emittableMethod;
     }
 
-    public object GetEmittableOperand (object operand)
-    {
-      ArgumentUtility.CheckNotNull ("operand", operand);
-
-      // TODO Review: Move type check/cast list to UnemittableExpressionVisitor.VisitConstant
-      if (operand is Type)
-        return GetEmittableType ((Type) operand);
-      if (operand is FieldInfo)
-        return GetEmittableField ((FieldInfo) operand);
-      if (operand is ConstructorInfo)
-        return GetEmittableConstructor ((ConstructorInfo) operand);
-      if (operand is MethodInfo)
-        return GetEmittableMethod ((MethodInfo) operand);
-
-      return _emittableOperandProvider.GetEmittableOperand (operand);
-    }
-
     private void CheckStrongNameCompatibility (Type type)
     {
       if (!_typeAnalyzer.IsStrongNamed (type))

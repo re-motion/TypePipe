@@ -101,7 +101,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
 
-      _emittableOperandProviderMock.AssertWasNotCalled (mock => mock.GetEmittableOperand (Arg<object>.Is.Anything));
       Assert.That (result, Is.SameAs (expression));
     }
 
