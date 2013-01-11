@@ -23,10 +23,10 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Configuration;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
@@ -159,12 +159,15 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     private IObjectFactory CreateObjectFactoryForStrongNaming (
         IParticipant participant, int stackFramesToSkip, bool forceStrongNaming, string keyFilePath = null)
     {
-      // TODO Review: Use config section instead of stub. (Use utility class to deserialize section from string.)
-      var typePipeConfigurationProviderStub = MockRepository.GenerateStub<ITypePipeConfigurationProvider>();
-      typePipeConfigurationProviderStub.Stub (stub => stub.ForceStrongNaming).Return (forceStrongNaming);
-      typePipeConfigurationProviderStub.Stub (stub => stub.KeyFilePath).Return (keyFilePath);
+      var configurationProvider = new TypePipeConfigurationProvider();
+      var configSection = new TypePipeConfigurationSection();
+      var config = forceStrongNaming
+                       ? string.Format ("<typePipe><forceStrongNaming keyFilePath=\"{0}\" /></typePipe>", keyFilePath)
+                       : "<typePipe/>";
+      ConfigurationHelper.DeserializeSection (configSection, config);
+      PrivateInvoke.SetNonPublicField (configurationProvider, "_section", configSection);
 
-      using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => typePipeConfigurationProviderStub))
+      using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => configurationProvider))
         return CreateObjectFactory (new[] { participant }, stackFramesToSkip: stackFramesToSkip + 1);
     }
 
