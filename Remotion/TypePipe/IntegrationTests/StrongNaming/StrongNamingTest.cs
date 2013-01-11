@@ -14,7 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -26,7 +28,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
   [TestFixture]
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
@@ -52,14 +54,12 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    public void NoStrongName_WithField ()
+    public void NoStrongName_UnsignedType ()
     {
       var participant = CreateParticipant (mt => mt.AddField ("Field", _unsignedType));
 
       CheckStrongNaming (participant, forceStrongNaming: false);
     }
-
-    // TODO Review: test with custom key file
 
     [Test]
     public void ForceStrongName ()
@@ -67,6 +67,16 @@ namespace Remotion.TypePipe.IntegrationTests
       var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
 
       CheckStrongNaming (participant, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
+    }
+
+    [Test]
+    public void ForceStrongName_CustomKey ()
+    {
+      var participant = CreateParticipant (mt => mt.AddField ("Field", _signedType));
+
+      var keyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"StrongNaming\OtherKey.snk");
+      var customKey = new StrongNameKeyPair (File.ReadAllBytes (keyPath));
+      CheckStrongNaming (participant, forceStrongNaming: true, keyFilePath: keyPath, expectedKey: customKey);
     }
 
     [Test]
@@ -99,7 +109,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       SkipSavingAndPeVerification();
       var participant = CreateParticipant (mt => mt.AddField ("Field", _unsignedType));
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, 0, participant);
+      var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip: 0, forceStrongNaming: true);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
@@ -119,7 +129,7 @@ namespace Remotion.TypePipe.IntegrationTests
       SkipSavingAndPeVerification();
       var participant = CreateParticipant (
           mt => mt.AddMethod ("Method", 0, typeof (object), ParameterDeclaration.EmptyParameters, ctx => Expression.New (_unsignedType)));
-      var objectFactory = CreateObjectFactoryForStrongNaming (true, 0, participant);
+      var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip: 0, forceStrongNaming: true);
 
       objectFactory.GetAssembledType (typeof (DomainType));
     }
@@ -127,9 +137,9 @@ namespace Remotion.TypePipe.IntegrationTests
     // TODO Review: Refactor above test to be one-liner, add tests for each opcode type, catch blocks, local variables (positive and negative case)
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNaming (IParticipant participant, bool forceStrongNaming, StrongNameKeyPair expectedKey = null)
+    private void CheckStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null, StrongNameKeyPair expectedKey = null)
     {
-      var objectFactory = CreateObjectFactoryForStrongNaming (forceStrongNaming, stackFramesToSkip: 1, participants: new[] { participant });
+      var objectFactory = CreateObjectFactoryForStrongNaming (participant, 1, forceStrongNaming, keyFilePath);
 
       var type = objectFactory.GetAssembledType (typeof (DomainType));
       var assemblyName = type.Assembly.GetName();
@@ -137,19 +147,25 @@ namespace Remotion.TypePipe.IntegrationTests
       var isStrongNamed = assemblyName.GetPublicKeyToken().Length > 0;
       Assert.That (isStrongNamed, Is.EqualTo (forceStrongNaming));
 
-      if (expectedKey != null)
-        Assert.That (assemblyName.GetPublicKey(), Is.EqualTo (expectedKey.PublicKey));
+      if (forceStrongNaming)
+      {
+        expectedKey = expectedKey ?? FallbackKey.KeyPair;
+        var publicKey = assemblyName.GetPublicKey();
+        Assert.That (publicKey, Is.EqualTo (expectedKey.PublicKey));
+      }
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private IObjectFactory CreateObjectFactoryForStrongNaming (bool forceStrongNaming, int stackFramesToSkip, params IParticipant[] participants)
+    private IObjectFactory CreateObjectFactoryForStrongNaming (
+        IParticipant participant, int stackFramesToSkip, bool forceStrongNaming, string keyFilePath = null)
     {
       // TODO Review: Use config section instead of stub. (Use utility class to deserialize section from string.)
       var typePipeConfigurationProviderStub = MockRepository.GenerateStub<ITypePipeConfigurationProvider>();
       typePipeConfigurationProviderStub.Stub (stub => stub.ForceStrongNaming).Return (forceStrongNaming);
+      typePipeConfigurationProviderStub.Stub (stub => stub.KeyFilePath).Return (keyFilePath);
 
       using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => typePipeConfigurationProviderStub))
-        return CreateObjectFactory (participants, stackFramesToSkip: stackFramesToSkip + 1);
+        return CreateObjectFactory (new[] { participant }, stackFramesToSkip: stackFramesToSkip + 1);
     }
 
     private Type CreateUnsignedType ()

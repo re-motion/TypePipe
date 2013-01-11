@@ -70,7 +70,7 @@
     <Compile Include="ServiceLocatorConfigurationTest.cs" />
     <Compile Include="Serialization\SerializationTestBase.cs" />
     <Compile Include="Serialization\SimpleSerializationTest.cs" />
-    <Compile Include="StrongNamingTest.cs" />
+    <Compile Include="StrongNaming\StrongNamingTest.cs" />
     <Compile Include="TypeAssembly\AbstractTypeTest.cs" />
     <Compile Include="TypeAssembly\AddCustomAttributeTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
@@ -111,6 +111,9 @@
     </None>
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
+    </None>
+    <None Include="StrongNaming\OtherKey.snk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
