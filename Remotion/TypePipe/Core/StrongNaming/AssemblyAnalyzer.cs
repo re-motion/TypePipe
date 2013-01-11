@@ -38,9 +38,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     private bool CalculateIsStrongNamed (Assembly assembly)
     {
-      var token = assembly.GetName().GetPublicKeyToken();
-      // TODO Review: Remove null check. (Check with unsigned non-builder Assembly first.)
-      return token != null && token.Length > 0;
+      return assembly.GetName().GetPublicKeyToken().Length > 0;
     }
   }
 }
