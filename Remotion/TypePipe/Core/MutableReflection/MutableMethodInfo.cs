@@ -25,9 +25,9 @@ using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -38,29 +38,46 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
-    private readonly MethodDescriptor _descriptor;
-
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer ();
+    private readonly string _name;
+    private MethodAttributes _attributes;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly MethodInfo _baseMethod;
+
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
 
-    private MethodAttributes _attributes;
     private Expression _body;
 
-    public MutableMethodInfo (MutableType declaringType, MethodDescriptor descriptor)
+    public MutableMethodInfo (
+        MutableType declaringType,
+        string name,
+        MethodAttributes attributes,
+        ParameterDeclaration returnParameter,
+        IEnumerable<ParameterDeclaration> parameters,
+        MethodInfo baseMethod,
+        Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnParameter", returnParameter);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      // baseMethod may be null.
+      ArgumentUtility.CheckNotNull ("body", body);
+      Assertion.IsTrue ((body != null && returnParameter.Type.IsAssignableFrom (body.Type)) || attributes.IsSet (MethodAttributes.Abstract));
+
+      // TODO: AsOneTime
+      var parameterDeclaration = parameters.ConvertToCollection();
 
       _declaringType = declaringType;
-      _descriptor = descriptor;
-
-      _returnParameter = null;
-      _parameters = null;
-
-      _attributes = _descriptor.Attributes;
-      _body = _descriptor.Body;
+      _name = name;
+      _attributes = attributes;
+      _returnParameter = new MutableParameterInfo (this, -1, returnParameter.Name, returnParameter.Type, returnParameter.Attributes);
+      _parameters = parameterDeclaration.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = parameterDeclaration.Select (p => p.Expression).ToList().AsReadOnly();
+      _baseMethod = baseMethod;
+      _body = body;
     }
 
     public override Type DeclaringType
@@ -75,12 +92,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _body != _descriptor.Body || AddedCustomAttributes.Count > 0 || _addedExplicitBaseDefinitions.Count > 0; }
+      get { throw new Exception ("todo"); }
     }
 
     public override string Name
     {
-      get { return _descriptor.Name; }
+      get { return _name; }
     }
 
     public override MethodAttributes Attributes
@@ -100,22 +117,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MethodInfo BaseMethod
     {
-      get { return _descriptor.BaseMethod; }
+      get { return _baseMethod; }
     }
 
     public override bool IsGenericMethod
     {
-      get { return _descriptor.IsGenericMethod; }
+      get { return false; }
     }
 
     public override bool IsGenericMethodDefinition
     {
-      get { return _descriptor.IsGenericMethodDefinition; }
+      get { return false; }
     }
 
     public override bool ContainsGenericParameters
     {
-      get { return _descriptor.ContainsGenericParameters; }
+      get { return false; }
     }
 
     public override ParameterInfo ReturnParameter
@@ -135,7 +152,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _descriptor.Parameters.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _parameterExpressions; }
     }
 
     public bool CanAddCustomAttributes

@@ -21,7 +21,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -145,8 +144,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var parameters = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
-
+      var parameters = parameterDeclarations.ConvertToCollection();
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
       if (declaringType.AddedMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
         throw new InvalidOperationException ("Method with equal signature already exists.");
@@ -155,14 +153,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
-      var returnParameter = ParameterDescriptor.Create (ParameterDeclaration.CreateReturnParameter (returnType), position: -1);
+      var returnParameter = ParameterDeclaration.CreateReturnParameter (returnType);
       var parameterExpressions = parameters.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (declaringType, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var descriptor = MethodDescriptor.Create (name, attributes, returnParameter, parameters, baseMethod, false, false, false, body);
-      var method = new MutableMethodInfo (declaringType, descriptor);
+      var method = new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters, baseMethod, body);
 
       return method;
     }

@@ -215,7 +215,6 @@
     <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />
     <Compile Include="MutableReflection\Descriptors\DescriptorBase.cs" />
     <Compile Include="MutableReflection\Descriptors\MethodBaseDescriptor.cs" />
-    <Compile Include="MutableReflection\Descriptors\MethodDescriptor.cs" />
     <Compile Include="MutableReflection\Descriptors\ParameterDescriptor.cs" />
     <Compile Include="MutableReflection\Descriptors\TypeDescriptor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
