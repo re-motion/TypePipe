@@ -54,7 +54,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _participant.ModifyType (mutableType);
 
       Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
-      Assert.That (mutableType.AllMutableMethods.Count(), Is.EqualTo (1));
       Assert.That (mutableType.AddedConstructors, Is.Empty);
       var method = mutableType.AddedMethods.Single();
 

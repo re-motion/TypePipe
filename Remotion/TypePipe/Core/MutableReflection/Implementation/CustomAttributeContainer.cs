@@ -29,29 +29,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class CustomAttributeContainer
   {
-    private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
+    private readonly List<CustomAttributeDeclaration> _addedCustomAttributes = new List<CustomAttributeDeclaration>();
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
-      get { return _addedCustomAttributeDeclarations.AsReadOnly(); }
+      get { return _addedCustomAttributes.AsReadOnly(); }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      if (GetCustomAttributeData().Any (a => a.Type == customAttributeDeclaration.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
+      if (_addedCustomAttributes.Any (a => a.Type == customAttributeDeclaration.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
       {
         var message = string.Format ("Attribute of type '{0}' (with AllowMultiple = false) is already present.", customAttributeDeclaration.Type.Name);
         throw new InvalidOperationException (message);
       }
 
-      _addedCustomAttributeDeclarations.Add (customAttributeDeclaration);
-    }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return _addedCustomAttributeDeclarations.Cast<ICustomAttributeData>();
+      _addedCustomAttributes.Add (customAttributeDeclaration);
     }
   }
 }

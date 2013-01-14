@@ -49,7 +49,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
-      _mutableType = new MutableType (_descriptor, _memberSelectorMock, _relatedMethodFinderMock, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+      _mutableType = MutableTypeObjectMother.Create (
+          memberSelector: _memberSelectorMock,
+          relatedMethodFinder: _relatedMethodFinderMock,
+          interfaceMappingComputer: _interfaceMappingComputerMock,
+          mutableMemberFactory: _mutableMemberFactoryMock);
     }
 
     [Test]

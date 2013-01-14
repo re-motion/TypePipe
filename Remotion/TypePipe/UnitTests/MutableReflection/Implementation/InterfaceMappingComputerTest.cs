@@ -18,6 +18,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting;
@@ -63,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ComputeMapping_ExistingInterface ()
     {
-      var explicitImplementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
+      var explicitImplementation = CreateVirtualMethod(_mutableType);
       explicitImplementation.AddExplicitBaseDefinition (_existingInterfaceMethod2);
       var implicitImplementation1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method11());
       var implicitImplementation3 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method13());
@@ -194,6 +195,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IDisposable), false);
     }
 
+    private MutableMethodInfo CreateVirtualMethod (MutableType mutableType)
+    {
+      return mutableType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+    }
+
     private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
     {
       return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
@@ -226,7 +232,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       public void Method13 () { }
       public virtual void Method21 () { }
       public new virtual void Method22 () { }
-      public virtual void UnrelatedMethod () { }
 
       internal virtual void NonPublicMethod () { }
       public void NonVirtualMethod () { }

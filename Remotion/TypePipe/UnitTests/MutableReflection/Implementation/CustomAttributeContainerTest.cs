@@ -15,11 +15,8 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
 using NUnit.Framework;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -31,11 +28,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _container = new CustomAttributeContainer ();
+      _container = new CustomAttributeContainer();
     }
 
     [Test]
-    public void AddedCustomAttributes ()
+    public void Initialization ()
     {
       Assert.That (_container.AddedCustomAttributes, Is.Empty);
     }
@@ -43,8 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void AddCustomAttribute ()
     {
-      SetupAttributeProvider();
-      var declaration = CustomAttributeDeclarationObjectMother.Create ();
+      var declaration = CustomAttributeDeclarationObjectMother.Create();
 
       _container.AddCustomAttribute (declaration);
 
@@ -52,31 +48,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Adding custom attributes to this element is not supported.")]
-    public void AddCustomAttribute_CannotAdd ()
+    public void AddCustomAttribute_AlreadyPresent ()
     {
-      _canAddCustomAttributes = false;
-      _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
-    }
-
-    [Test]
-    public void AddCustomAttribute_AlreadyPresent_Existing ()
-    {
-      SetupAttributeProvider (
-          CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute)),
-          CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute)));
-
-      Assert.That (
-          () => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute))),
-          Throws.InvalidOperationException.With.Message.EqualTo (
-              "Attribute of type 'SingleAttribute' (with AllowMultiple = false) is already present."));
-      Assert.That (() => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute))), Throws.Nothing);
-    }
-
-    [Test]
-    public void AddCustomAttribute_AlreadyPresent_Added ()
-    {
-      SetupAttributeProvider();
       _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SingleAttribute)));
       _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute)));
 
@@ -85,34 +58,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo (
               "Attribute of type 'SingleAttribute' (with AllowMultiple = false) is already present."));
       Assert.That (() => _container.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (MultipleAttribute))), Throws.Nothing);
-    }
-
-    [Test]
-    public void GetCustomAttributeData ()
-    {
-      var existingData = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
-      var addedData = CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute));
-
-      var callCount = 0;
-      _attributeProvider = () =>
-      {
-        callCount++;
-        return new ICustomAttributeData[] { existingData }.ToList().AsReadOnly();
-      };
-      _container.AddCustomAttribute (addedData);
-
-      var result = _container.GetCustomAttributeData();
-
-      Assert.That (result, Is.EqualTo (new[] { addedData, existingData }));
-
-      Assert.That (callCount, Is.EqualTo (1));
-      _container.GetCustomAttributeData();
-      Assert.That (callCount, Is.EqualTo (1), "should be cached");
-    }
-
-    private void SetupAttributeProvider (params ICustomAttributeData[] customAttributeDatas)
-    {
-      _attributeProvider = () => new ReadOnlyCollection<ICustomAttributeData> (customAttributeDatas);
     }
 
     [AttributeUsage (AttributeTargets.All, AllowMultiple = false)]

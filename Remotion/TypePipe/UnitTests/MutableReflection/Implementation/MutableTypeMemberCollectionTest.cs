@@ -63,7 +63,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_baseMembers, Is.Not.Empty);
 
       Assert.That (_collection.AddedMembers, Is.Empty);
-      Assert.That (_collection.ExistingBaseMembers, Is.EqualTo (_baseMembers));
     }
 
     [Test]

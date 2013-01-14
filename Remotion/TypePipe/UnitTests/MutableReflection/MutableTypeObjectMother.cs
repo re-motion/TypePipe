@@ -30,14 +30,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string @namespace = "My",
         string fullname = "My.Proxy",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-        Func<Type, InterfaceMapping> interfaceMappingProvider = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
       baseType = baseType ?? ReflectionObjectMother.GetSomeSubclassableType();
-      interfaceMappingProvider = null;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
@@ -49,7 +47,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           @namespace,
           fullname,
           attributes,
-          interfaceMappingProvider,
           memberSelector,
           interfaceMappingComputer,
           mutableMemberFactory);

@@ -56,16 +56,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (enumeratedMethods, Has.No.Member (overriddenMethod));
     }
 
-    [Test]
-    public void GetMutableMember_StandardMemberInfo_BaseDeclaringType ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
-
-      var result = _collection.GetMutableMember (method);
-
-      Assert.That (result, Is.Null);
-    }
-
     public class DomainTypeBase
     {
       public virtual void BaseMethod () { }

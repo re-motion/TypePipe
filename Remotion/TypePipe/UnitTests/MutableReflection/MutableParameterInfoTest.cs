@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var parameter = new MutableParameterInfo (member, position, name, type, attributes);
 
-      CheckParameter (parameter, member, name, type, attributes);
+      CheckParameter (parameter, member, position, name, type, attributes);
     }
 
     [Test]
