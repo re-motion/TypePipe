@@ -21,7 +21,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
@@ -40,59 +39,46 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableInfo
   {
-    private readonly IRelatedMethodFinder _relatedMethodFinder;
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     // TODO 5309: Remove container, use List (probably)
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer ();
-    private readonly Func<Type, InterfaceMapping> _interfacMappingProvider;
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
+    private readonly Func<Type, InterfaceMapping> _interfaceMappingProvider;
 
+    // TODO remove.
     private readonly List<Expression> _typeInitializations = new List<Expression>();
+
     private readonly List<Expression> _instanceInitializations = new List<Expression>();
-
-    private readonly ReadOnlyCollection<Type> _existingInterfaces;
     private readonly List<Type> _addedInterfaces = new List<Type>();
-
-    private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields;
-    private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors;
-    private readonly MutableTypeMethodCollection _methods;
+    private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields = null;
+    private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors = null;
+    private readonly MutableTypeMethodCollection _methods = null;
 
     private TypeAttributes _attributes;
 
     public MutableType (
-        TypeDescriptor descriptor,
+        Type declaringType,
+        Type baseType,
+        string name,
+        string @namespace,
+        string fullname,
+        TypeAttributes attributes,
+        Func<Type, InterfaceMapping> interfaceMappingProvider,
         IMemberSelector memberSelector,
-        IRelatedMethodFinder relatedMethodFinder,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (
-            memberSelector,
-            descriptor.DeclaringType,
-            descriptor.BaseType,
-            descriptor.Name,
-            descriptor.Namespace,
-            descriptor.FullName)
+        : base (memberSelector, declaringType, baseType, name, @namespace, fullname)
     {
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
-      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull ("interfaceMappingProvider", interfaceMappingProvider);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
-      _relatedMethodFinder = relatedMethodFinder;
+      _attributes = attributes;
+      _interfaceMappingProvider = interfaceMappingProvider;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
-
-      _interfacMappingProvider = descriptor.InterfaceMappingProvider;
-
-      _existingInterfaces = descriptor.Interfaces;
-
-      _fields = new MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> (this, descriptor.Fields, CreateExistingMutableField);
-      _constructors = new MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> (
-          this, descriptor.Constructors, CreateExistingMutableConstructor);
-      _methods = new MutableTypeMethodCollection (this, descriptor.Methods, CreateExistingMutableMethod);
-
-      _attributes = descriptor.Attributes;
     }
 
     // TODO 5309: Remove
@@ -392,7 +378,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
       // TODO 5309: If _methods is changed to _addedMethods, change this accordingly
-      return _interfaceMappingComputer.ComputeMapping (this, _interfacMappingProvider, _methods, interfaceType, allowPartialInterfaceMapping);
+      return _interfaceMappingComputer.ComputeMapping (this, _interfaceMappingProvider, _methods, interfaceType, allowPartialInterfaceMapping);
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
@@ -411,7 +397,10 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return _existingInterfaces.Concat (_addedInterfaces);
+      Assertion.IsNotNull (BaseType);
+
+      // TODO test.
+      return _addedInterfaces.Concat (BaseType.GetInterfaces()).Distinct();
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
@@ -484,24 +473,6 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       return mutableMember;
-    }
-
-    // TODO 5309: Remove
-    private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
-    {
-      return null;
-    }
-
-    // TODO 5309: Remove
-    private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
-    {
-      return null;
-    }
-
-    // TODO 5309: Remove
-    private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
-    {
-      return null;
     }
   } 
 }

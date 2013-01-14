@@ -22,7 +22,6 @@ using System.Linq;
 using Remotion.Text;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -87,15 +86,29 @@ namespace Remotion.TypePipe.Caching
       return compoundKey;
     }
 
+    // TODO Create this method with injected ProxyTypeFactory.
     private MutableType CreateMutableType (Type requestedType)
     {
-      var underlyingTypeDescriptor = TypeDescriptor.Create (requestedType);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
-      var interfaceMappingHelper = new InterfaceMappingComputer();
+      var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
+      // TODO test.
+      // TODO name = xxxProxyYY
+      // TODO fullname
+      // TODO attributes
+      return new MutableType (
+          null,
+          requestedType,
+          requestedType.Name,
+          requestedType.Namespace,
+          requestedType.FullName,
+          requestedType.Attributes,
+          requestedType.GetInterfaceMap,
+          memberSelector,
+          interfaceMappingComputer,
+          mutableMemberFactory);
     }
 
     private Type ApplyModificationsWithDiagnostics (MutableType mutableType)
