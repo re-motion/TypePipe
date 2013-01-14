@@ -104,10 +104,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableXXX_RuntimeInfos ()
     {
-      var type = _mutableType.UnderlyingSystemType;
-      var field = _mutableField.UnderlyingSystemFieldInfo;
-      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
-      var method = _mutableMethod.UnderlyingSystemMethodInfo;
+      var type = ReflectionObjectMother.GetSomeType();
+      var field = ReflectionObjectMother.GetSomeField();
+      var ctor = ReflectionObjectMother.GetSomeConstructor();
+      var method = ReflectionObjectMother.GetSomeMethod();
 
       Assert.That (_provider.GetEmittableType (type), Is.SameAs (type));
       Assert.That (_provider.GetEmittableField (field), Is.SameAs (field));

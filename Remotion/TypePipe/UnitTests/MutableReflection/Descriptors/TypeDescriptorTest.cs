@@ -43,7 +43,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
       var descriptor = TypeDescriptor.Create (underlyingType);
 
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (typeof (DomainType)));
       Assert.That (descriptor.DeclaringType, Is.EqualTo (typeof (TypeDescriptorTest)));
       Assert.That (descriptor.BaseType, Is.EqualTo (typeof (DomainType).BaseType));
       Assert.That (descriptor.Name, Is.EqualTo (underlyingType.Name));

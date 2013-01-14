@@ -58,23 +58,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void UnderlyingSystemConstructorInfo ()
-    {
-      var underlyingConstructor = ReflectionObjectMother.GetSomeConstructor();
-      var constructor = MutableConstructorInfoObjectMother.CreateForExisting (underlyingConstructor);
-
-      Assert.That (constructor.UnderlyingSystemConstructorInfo, Is.SameAs (underlyingConstructor));
-    }
-
-    [Test]
-    public void UnderlyingSystemConstructorInfo_ForNull ()
-    {
-      var constructor = MutableConstructorInfoObjectMother.CreateForNew();
-
-      Assert.That (constructor.UnderlyingSystemConstructorInfo, Is.SameAs (constructor));
-    }
-
-    [Test]
     public void IsNew ()
     {
       var ctor1 = MutableConstructorInfoObjectMother.CreateForExisting();

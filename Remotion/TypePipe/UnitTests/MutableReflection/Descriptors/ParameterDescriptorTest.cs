@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
       var descriptor = ParameterDescriptor.Create (declaration, position);
 
-      CheckDescriptor (descriptor, null, type, name, position, attributes, type, false, Type.EmptyTypes);
+      CheckDescriptor (descriptor, type, name, position, attributes, type, false, Type.EmptyTypes);
     }
 
     [Test]
@@ -72,7 +72,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var type = typeof (string);
       CheckDescriptor (
           descriptor,
-          underlyingParameter,
           type.MakeByRefType(),
           "parameterName",
           1,
@@ -105,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
       var type = declaration.Type;
       Assert.That (type.IsByRef, Is.False);
-      CheckDescriptor (descriptor, null, type, declaration.Name, 0, declaration.Attributes, type, false, Type.EmptyTypes);
+      CheckDescriptor (descriptor, type, declaration.Name, 0, declaration.Attributes, type, false, Type.EmptyTypes);
     }
 
     [Test]
@@ -115,11 +114,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
       var descriptor = ParameterDescriptor.CreateFromMethodBase (method).Last();
 
-      var underlyingParameter = method.GetParameters().Last();
       var type = typeof (string);
       CheckDescriptor (
           descriptor,
-          underlyingParameter,
           type.MakeByRefType(),
           "parameterName",
           1,
@@ -129,9 +126,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
           expectedCustomAttributeTypes: new[] { typeof (AbcAttribute), typeof (DefAttribute) });
     }
 
-    private static void CheckDescriptor (ParameterDescriptor descriptor, ParameterInfo expectedParameterInfo, Type expectedType, string expectedName, int expectedPosition, ParameterAttributes expectedAttributes, Type expectedExpressionType, bool expectedIsByRef, Type[] expectedCustomAttributeTypes)
+    private static void CheckDescriptor (
+        ParameterDescriptor descriptor,
+        Type expectedType,
+        string expectedName,
+        int expectedPosition,
+        ParameterAttributes expectedAttributes,
+        Type expectedExpressionType,
+        bool expectedIsByRef,
+        Type[] expectedCustomAttributeTypes)
     {
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (expectedParameterInfo));
       Assert.That (descriptor.Type, Is.SameAs (expectedType));
       Assert.That (descriptor.Position, Is.EqualTo (expectedPosition));
       Assert.That (descriptor.Name, Is.EqualTo (expectedName));

@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// <remarks>
   /// This is used by <see cref="MutableParameterInfo"/> to represent a parameter, before any mutations.
   /// </remarks>
-  public class ParameterDescriptor : DescriptorBase<ParameterInfo>
+  public class ParameterDescriptor : DescriptorBase
   {
     public static readonly ParameterDescriptor[] EmptyParameters = new ParameterDescriptor[0];
 
@@ -40,7 +40,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       ArgumentUtility.CheckNotNull ("parameterDeclaration", parameterDeclaration);
 
       return new ParameterDescriptor (
-          null,
           parameterDeclaration.Type,
           position,
           parameterDeclaration.Name,
@@ -53,7 +52,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       ArgumentUtility.CheckNotNull ("underlyingParameter", underlyingParameter);
 
       return new ParameterDescriptor (
-          underlyingParameter,
           underlyingParameter.ParameterType,
           underlyingParameter.Position,
           underlyingParameter.Name,
@@ -81,16 +79,16 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private readonly ParameterExpression _expression;
 
     private ParameterDescriptor (
-        ParameterInfo underlyingSystemMember,
         Type type,
         int position,
         string name,
         ParameterAttributes attributes,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
-        : base (underlyingSystemMember, name, customAttributeDataProvider)
+        : base (name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (type, "type");
       Assertion.IsTrue (position >= -1); // -1 == return parameter
+      // name may be null.
 
       _type = type;
       _position = position;

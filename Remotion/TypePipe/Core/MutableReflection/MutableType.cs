@@ -68,7 +68,6 @@ namespace Remotion.TypePipe.MutableReflection
         IMutableMemberFactory mutableMemberFactory)
         : base (
             memberSelector,
-            descriptor.UnderlyingSystemInfo,
             descriptor.DeclaringType,
             descriptor.BaseType,
             descriptor.Name,

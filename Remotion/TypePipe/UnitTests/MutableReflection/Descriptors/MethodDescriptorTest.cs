@@ -80,7 +80,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
           _containsGenParams,
           _body);
 
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (_name));
       Assert.That (descriptor.Attributes, Is.EqualTo (_attributes));
       Assert.That (descriptor.ReturnParameter, Is.SameAs (_returnParameter));
@@ -159,7 +158,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       var descriptor = MethodDescriptor.Create (underlyingMethod, _relatedMethodFinderMock);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingMethod));
+      //Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingMethod));
       Assert.That (descriptor.Name, Is.EqualTo (underlyingMethod.Name));
       Assert.That (descriptor.Attributes, Is.EqualTo (underlyingMethod.Attributes));
 

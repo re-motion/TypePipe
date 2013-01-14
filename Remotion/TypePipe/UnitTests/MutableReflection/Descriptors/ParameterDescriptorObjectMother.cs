@@ -47,8 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
       underlyingParameter = underlyingParameter
         ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.Method (out s)).GetParameters().Single();
 
-      return ParameterDescriptor.CreateFromMethodBase ((MethodBase) underlyingParameter.Member)
-                                .Single (p => p.UnderlyingSystemInfo == underlyingParameter);
+      return ParameterDescriptor.CreateFromMethodBase ((MethodBase) underlyingParameter.Member).Single(); // TODO
     }
 
     public static ParameterDescriptor[] CreateMultiple (int count)

@@ -28,14 +28,14 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// <remarks>
   /// This is used by <see cref="MutableFieldInfo"/> to represent the original field, before any mutations.
   /// </remarks>
-  public class FieldDescriptor : DescriptorBase<FieldInfo>
+  public class FieldDescriptor : DescriptorBase
   {
     public static FieldDescriptor Create (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return new FieldDescriptor (null, type, name, attributes, EmptyCustomAttributeDataProvider);
+      return new FieldDescriptor (type, name, attributes, EmptyCustomAttributeDataProvider);
     }
 
     public static FieldDescriptor Create (FieldInfo underlyingField)
@@ -44,20 +44,18 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
 
       var customAttributeDataProvider = GetCustomAttributeProvider (underlyingField);
 
-      return new FieldDescriptor (
-          underlyingField, underlyingField.FieldType, underlyingField.Name, underlyingField.Attributes, customAttributeDataProvider);
+      return new FieldDescriptor (underlyingField.FieldType, underlyingField.Name, underlyingField.Attributes, customAttributeDataProvider);
     }
 
     private readonly FieldAttributes _attributes;
     private readonly Type _type;
 
     private FieldDescriptor (
-        FieldInfo underlyingField,
         Type fieldType,
         string name,
         FieldAttributes attributes,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
-      : base (underlyingField, name, customAttributeDataProvider)
+      : base (name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (fieldType);
       Assertion.IsNotNull (name);

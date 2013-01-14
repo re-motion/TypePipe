@@ -51,23 +51,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void UnderlyingSystemParameterInfo ()
-    {
-      var underlyingParameter = ReflectionObjectMother.GetSomeParameter();
-      var parameter = MutableParameterInfoObjectMother.CreateForExisting (underlyingParameter: underlyingParameter);
-
-      Assert.That (parameter.UnderlyingSystemParameterInfo, Is.SameAs (underlyingParameter));
-    }
-
-    [Test]
-    public void UnderlyingSystemParameterInfo_ForNull ()
-    {
-      var parameter = MutableParameterInfoObjectMother.CreateForNew();
-
-      Assert.That (parameter.UnderlyingSystemParameterInfo, Is.SameAs (parameter));
-    }
-
-    [Test]
     public void IsNew ()
     {
       var parameter1 = MutableParameterInfoObjectMother.CreateForExisting();

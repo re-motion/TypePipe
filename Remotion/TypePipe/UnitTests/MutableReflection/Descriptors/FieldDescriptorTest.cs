@@ -36,7 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
       var descriptor = FieldDescriptor.Create (name, fieldType, attributes);
 
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.Null);
       Assert.That (descriptor.Name, Is.EqualTo (name));
       Assert.That (descriptor.Attributes, Is.EqualTo (attributes));
       Assert.That (descriptor.Type, Is.SameAs (fieldType));
@@ -50,7 +49,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
       var descriptor = FieldDescriptor.Create (underlyingField);
 
-      Assert.That (descriptor.UnderlyingSystemInfo, Is.SameAs (underlyingField));
       Assert.That (descriptor.Name, Is.EqualTo ("_testField"));
       Assert.That (descriptor.Attributes, Is.EqualTo (FieldAttributes.Private));
       Assert.That (descriptor.Type, Is.SameAs (typeof(int)));

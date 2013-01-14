@@ -23,8 +23,7 @@ using Remotion.TypePipe.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 {
-  public class TestableDescriptorBase<T> : DescriptorBase<T>
-    where T : class 
+  public class TestableDescriptorBase : DescriptorBase
   {
     public static Func<ReadOnlyCollection<ICustomAttributeData>> GetEmptyProviderField ()
     {
@@ -33,17 +32,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
 
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
     {
-      return DescriptorBase<T>.GetCustomAttributeProvider (member);
+      return DescriptorBase.GetCustomAttributeProvider (member);
     }
 
     public new static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (ParameterInfo parameter)
     {
-      return DescriptorBase<T>.GetCustomAttributeProvider (parameter);
+      return DescriptorBase.GetCustomAttributeProvider (parameter);
     }
 
-    public TestableDescriptorBase (
-        T underlyingSystemMember, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
-        : base (underlyingSystemMember, name, customAttributeDataProvider)
+    public TestableDescriptorBase (string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+        : base (name, customAttributeDataProvider)
     {
     }
   }

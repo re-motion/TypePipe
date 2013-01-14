@@ -63,7 +63,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_baseMembers, Is.Not.Empty);
 
       Assert.That (_collection.AddedMembers, Is.Empty);
-      Assert.That (_collection.ExistingDeclaredMembers.Select (mm => mm.UnderlyingSystemMethodInfo), Is.EqualTo(_declaredMembers));
       Assert.That (_collection.ExistingBaseMembers, Is.EqualTo (_baseMembers));
     }
 
@@ -114,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var result = _collection.GetMutableMember(standardMember);
 
-      var expectedMutableMember = _collection.ExistingDeclaredMembers.Single (m => m.UnderlyingSystemMethodInfo == standardMember);
+      var expectedMutableMember = _collection.ExistingDeclaredMembers.Single (m => m == standardMember);
       Assert.That (result, Is.SameAs (expectedMutableMember));
     }
 

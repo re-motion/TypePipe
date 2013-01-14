@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// <remarks>
   /// This is used by <see cref="MutableType"/> to represent a type, before any mutations.
   /// </remarks>
-  public class TypeDescriptor : DescriptorBase<Type>
+  public class TypeDescriptor : DescriptorBase
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       }
 
       return new TypeDescriptor (
-          underlyingType,
           underlyingType.DeclaringType,
           underlyingType.BaseType,
           underlyingType.Name,
@@ -96,7 +95,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private readonly ReadOnlyCollection<MethodInfo> _methods;
 
     private TypeDescriptor (
-        Type underlyingType,
         Type declaringType,
         Type baseType,
         string name,
@@ -109,7 +107,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         ReadOnlyCollection<FieldInfo> fields,
         ReadOnlyCollection<ConstructorInfo> constructors,
         ReadOnlyCollection<MethodInfo> methods)
-        : base (underlyingType, name, customAttributeDataProvider)
+        : base (name, customAttributeDataProvider)
     {
       Assertion.IsNotNull (fullName);
       Assertion.IsNotNull (interfaceMappingProvider);

@@ -58,14 +58,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _descriptor.Position; }
     }
 
-    public ParameterInfo UnderlyingSystemParameterInfo
-    {
-      get { return _descriptor.UnderlyingSystemInfo ?? this; }
-    }
-
     public bool IsNew
     {
-      get { return _descriptor.UnderlyingSystemInfo == null; }
+      get { return true; }
     }
 
     public bool IsModified

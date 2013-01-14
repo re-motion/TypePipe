@@ -119,11 +119,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         AddMethodAsImplicitOverride (method);
 
       foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
-        _context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
+        //_context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
       foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
         AddConstructorIfVisibleFromSubclass (constructor, initializationMembers);
       foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
-        _context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
+        //_context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);        //_context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 

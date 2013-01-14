@@ -59,7 +59,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
 
       var readOnlyParameters = parameters.ToList().AsReadOnly();
       return new MethodDescriptor (
-          null,
           name,
           attributes,
           returnParameter,
@@ -87,7 +86,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       var body = underlyingMethod.IsAbstract ? null : CreateOriginalBodyExpression (underlyingMethod, underlyingMethod.ReturnType, parameters);
 
       return new MethodDescriptor (
-          underlyingMethod,
           underlyingMethod.Name,
           attributes,
           returnParameter,
@@ -107,7 +105,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private readonly bool _containsGenericParameters;
 
     private MethodDescriptor (
-        MethodInfo underlyingMethod,
         string name,
         MethodAttributes attributes,
         ParameterDescriptor returnParameter,
@@ -118,7 +115,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         bool containsGenericParameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingMethod, name, attributes, parameters, customAttributeDataProvider, body)
+        : base (name, attributes, parameters, customAttributeDataProvider, body)
     {
       Assertion.IsNotNull (returnParameter);
       Assertion.IsNotNull (customAttributeDataProvider);

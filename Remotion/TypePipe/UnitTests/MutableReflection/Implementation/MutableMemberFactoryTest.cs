@@ -219,7 +219,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _mutableType, name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
+      //Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
       Assert.That (method.ReturnType, Is.EqualTo (returnType));

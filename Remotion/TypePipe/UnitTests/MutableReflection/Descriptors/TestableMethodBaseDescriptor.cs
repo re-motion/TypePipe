@@ -34,13 +34,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Descriptors
     }
 
     public TestableMethodBaseDescriptor (
-        TMethodBase underlyingSystemMethodBase,
         string name,
         MethodAttributes attributes,
         ReadOnlyCollection<ParameterDescriptor> parameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingSystemMethodBase, name, attributes, parameters, customAttributeDataProvider, body)
+        : base (name, attributes, parameters, customAttributeDataProvider, body)
     {
     }
   }

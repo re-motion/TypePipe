@@ -26,9 +26,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// <summary>
   /// Serves as a base for all descriptor classes.
   /// </summary>
-  /// <typeparam name="TInfo">The type of the member (or <see cref="ParameterInfo"/> which is not derived from <see cref="MemberInfo"/>).</typeparam>
-  public abstract class DescriptorBase<TInfo>
-      where TInfo: class
+  public abstract class DescriptorBase
   {
 // ReSharper disable StaticFieldInGenericType
     protected static readonly Func<ReadOnlyCollection<ICustomAttributeData>> EmptyCustomAttributeDataProvider =
@@ -45,25 +43,16 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       return () => TypePipeCustomAttributeData.GetCustomAttributes (parameter).ToList().AsReadOnly();
     }
 
-    private readonly TInfo _underlyingSystemInfo;
     private readonly string _name;
     private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
-    protected DescriptorBase (
-        TInfo underlyingInfo, string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+    protected DescriptorBase (string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
     {
-      Assertion.IsTrue (underlyingInfo == null || underlyingInfo is MemberInfo || underlyingInfo is ParameterInfo);
       // name is null for return parameters
       Assertion.IsNotNull (customAttributeDataProvider);
 
-      _underlyingSystemInfo = underlyingInfo;
       _name = name;
       _customAttributeDataProvider = customAttributeDataProvider;
-    }
-
-    public TInfo UnderlyingSystemInfo
-    {
-      get { return _underlyingSystemInfo; }
     }
 
     public string Name

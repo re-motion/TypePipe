@@ -63,14 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public ConstructorInfo UnderlyingSystemConstructorInfo
-    {
-      get { return _descriptor.UnderlyingSystemInfo ?? this; }
-    }
-
     public bool IsNew
     {
-      get { return _descriptor.UnderlyingSystemInfo == null; }
+      get { return true; }
     }
 
     public bool IsModified

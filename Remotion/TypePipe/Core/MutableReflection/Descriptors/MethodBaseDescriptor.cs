@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// <remarks>
   /// This is used as a base class for <see cref="MethodDescriptor"/> and <see cref="ConstructorDescriptor"/>.
   /// </remarks>
-  public abstract class MethodBaseDescriptor<TMethodBase> : DescriptorBase<TMethodBase>
+  public abstract class MethodBaseDescriptor<TMethodBase> : DescriptorBase
       where TMethodBase : MethodBase
   {
     protected static Expression CreateOriginalBodyExpression (
@@ -52,13 +52,12 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private readonly Expression _body;
 
     protected MethodBaseDescriptor (
-        TMethodBase underlyingMethodBase,
         string name,
         MethodAttributes attributes,
         ReadOnlyCollection<ParameterDescriptor> parameters,
         Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (underlyingMethodBase, name, customAttributeDataProvider)
+        : base (name, customAttributeDataProvider)
     {
       Assertion.IsFalse (string.IsNullOrEmpty (name));
       Assertion.IsNotNull (parameters);

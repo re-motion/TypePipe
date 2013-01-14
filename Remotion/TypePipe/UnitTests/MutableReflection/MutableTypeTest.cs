@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      Assert.That (_mutableType.UnderlyingSystemType, Is.EqualTo (_descriptor.UnderlyingSystemInfo));
+      Assert.That (_mutableType.UnderlyingSystemType, Is.EqualTo (_mutableType));
       Assert.That (_mutableType.DeclaringType, Is.EqualTo (_descriptor.DeclaringType));
       Assert.That (_mutableType.BaseType, Is.EqualTo (_descriptor.BaseType));
       Assert.That (_mutableType.Name, Is.EqualTo (_descriptor.Name));
@@ -98,7 +98,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var mutableField = _mutableType.ExistingMutableFields.Single();
 
       Assert.That (mutableField.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (mutableField.UnderlyingSystemFieldInfo, Is.EqualTo (expectedField));
     }
 
     [Test]
@@ -111,7 +110,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
       var mutableCtor = _mutableType.ExistingMutableConstructors.Single();
 
-      Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedCtor));
+      //Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedCtor));
       Assert.That (mutableCtor.DeclaringType, Is.SameAs (_mutableType));
     }
 
@@ -125,7 +124,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo (2));
       var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
 
-      Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
+      //Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
       Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
 
       // Test that the _relatedMethodFinderMock was passed to the underlying descriptor.
@@ -175,7 +174,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (allConstructors, Has.Length.EqualTo (2));
       Assert.That (allConstructors[0].DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (allConstructors[0].UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
+      //Assert.That (allConstructors[0].UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
       Assert.That (allConstructors[1], Is.SameAs (addedCtor));
     }
 
@@ -190,9 +189,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (allMethods, Has.Length.EqualTo (3));
       Assert.That (allMethods[0].DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (allMethods[0].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[0]));
+      //Assert.That (allMethods[0].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[0]));
       Assert.That (allMethods[1].DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (allMethods[1].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[1]));
+      //Assert.That (allMethods[1].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[1]));
       Assert.That (allMethods[2], Is.SameAs (addedMethod));
     }
 
@@ -339,7 +338,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _mutableType.GetMutableField (existingField);
 
-      Assert.That (result.UnderlyingSystemFieldInfo, Is.SameAs (existingField));
+      //Assert.That (result.UnderlyingSystemFieldInfo, Is.SameAs (existingField));
       Assert.That (_mutableType.ExistingMutableFields, Has.Member (result));
     }
 
@@ -369,7 +368,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _mutableType.GetMutableConstructor (existingCtor);
 
-      Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
+      //Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
       Assert.That (_mutableType.ExistingMutableConstructors, Has.Member (result));
     }
 
@@ -441,7 +440,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _mutableType.GetOrAddMutableMethod (existingMethod);
 
-      Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
+      //Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
       Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
     }
 
