@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
-using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -138,48 +137,6 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
       get { return _methods.AddedMembers; }
-    }
-
-    // TODO 5309: Remove
-    public ReadOnlyCollection<Type> ExistingInterfaces
-    {
-      get { return _existingInterfaces; }
-    }
-
-    // TODO 5309: Remove
-    public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
-    {
-      get { return _fields.ExistingDeclaredMembers; }
-    }
-
-    // TODO 5309: Remove
-    public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingMutableConstructors
-    {
-      get { return _constructors.ExistingDeclaredMembers; }
-    }
-
-    // TODO 5309: Remove
-    public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMutableMethods
-    {
-      get { return _methods.ExistingDeclaredMembers; }
-    }
-
-    // TODO 5309: Remove
-    public IEnumerable<MutableFieldInfo> AllMutableFields
-    {
-      get { return _fields.AllMutableMembers; }
-    }
-
-    // TODO 5309: Remove
-    public IEnumerable<MutableConstructorInfo> AllMutableConstructors
-    {
-      get { return _constructors.AllMutableMembers; }
-    }
-
-    // TODO 5309: Remove
-    public IEnumerable<MutableMethodInfo> AllMutableMethods
-    {
-      get { return _methods.AllMutableMembers; }
     }
 
     // TODO 5309: Remove
@@ -372,7 +329,7 @@ namespace Remotion.TypePipe.MutableReflection
     ///   <item>
     ///     Modified type
     ///     <list type="bullet">
-    ///       <item>The corresponding <see cref="MutableMethodInfo"/> from the <see cref="ExistingMutableMethods"/> collection.</item>
+    ///       <item>The corresponding <see cref="MutableMethodInfo"/> from the <see cref="AddedMethods"/> collection.</item>
     ///     </list>
     ///   </item>
     ///   <item>
@@ -444,7 +401,7 @@ namespace Remotion.TypePipe.MutableReflection
       var hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
           .Where (m => m.IsAbstract)
           .Select (m => m.GetBaseDefinition())
-          .Except (AllMutableMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
+          .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
           .Any();
 
       if (hasAbstractMethods)

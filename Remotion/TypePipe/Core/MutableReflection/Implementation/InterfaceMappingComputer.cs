@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var remainingInterfaceMethods = new HashSet<MethodInfo> (interfaceType.GetMethods());
       var explicitImplementations = new Dictionary<MethodInfo, MutableMethodInfo>();
 
-      foreach (var method in mutableType.AllMutableMethods)
+      foreach (var method in mutableType.AddedMethods)
       {
         foreach (var explicitBaseDefinition in method.AddedExplicitBaseDefinitions)
         {

@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("Field cannot be of type void.", "type");
 
       var signature = new FieldSignature (type);
-      if (declaringType.AllMutableFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
+      if (declaringType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new InvalidOperationException ("Field with equal signature already exists.");
 
       var descriptor = FieldDescriptor.Create (name, type, attributes);
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var parameterDescriptors = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
       var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
-      if (declaringType.AllMutableConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
+      if (declaringType.AddedConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var parameters = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
 
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
-      if (declaringType.AllMutableMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
+      if (declaringType.AddedMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
         throw new InvalidOperationException ("Method with equal signature already exists.");
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
@@ -205,7 +205,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
 
       var baseDefinition = method.GetBaseDefinition();
-      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AllMutableMethods);
+      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AddedMethods);
       if (existingMutableOverride != null)
       {
         isNewlyCreated = false;

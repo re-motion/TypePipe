@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.Collections;
@@ -112,18 +111,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       foreach (var method in mutableType.AddedMethods)
         _memberEmitter.AddMethod (_context, method, method.Attributes);
 
-      Assertion.IsFalse (mutableType.ExistingMutableFields.Any (c => c.IsModified));
-      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => c.IsModified))
-        WireAndAddConstructor (constructor, initializationMembers);
-      foreach (var method in mutableType.ExistingMutableMethods.Where (m => m.IsModified))
-        AddMethodAsImplicitOverride (method);
-
-      foreach (var field in mutableType.ExistingMutableFields.Where (c => !c.IsModified))
-        //_context.EmittableOperandProvider.AddMapping (field, field.UnderlyingSystemFieldInfo);
-      foreach (var constructor in mutableType.ExistingMutableConstructors.Where (c => !c.IsModified))
-        AddConstructorIfVisibleFromSubclass (constructor, initializationMembers);
-      foreach (var method in mutableType.ExistingMutableMethods.Where (m => !m.IsModified))
-        //_context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);        //_context.EmittableOperandProvider.AddMapping (method, method.UnderlyingSystemMethodInfo);
+      // TODO: Copy ctors from base class.
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
