@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="ConstructorBuilder"/> with the <see cref="IConstructorBuilder"/> interface.
   /// </summary>
-  public class ConstructorBuilderAdapter : CustomAttributeTargetBuilderBase, IConstructorBuilder
+  public class ConstructorBuilderAdapter : BuilderAdapterBase, IConstructorBuilder
   {
     private readonly ConstructorBuilder _constructorBuilder;
 

@@ -54,9 +54,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_generator.AssemblyDirectory, Is.Null);
       Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
 
-      var result = _generator.DebugInfoGenerator;
-      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
-      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (result));
+      var debugInfoGenerator = _generator.DebugInfoGenerator;
+      Assert.That (debugInfoGenerator.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (debugInfoGenerator));
     }
 
     [Test]
@@ -67,12 +67,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void IsStrongNamingEnabled ()
+    public void EmittableOperandProvider ()
     {
-      var fakeBool = BooleanObjectMother.GetRandomBoolean();
-      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (fakeBool);
+      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (false);
 
-      Assert.That (_generator.IsStrongNamingEnabled, Is.EqualTo (fakeBool));
+      var provider = _generator.EmittableOperandProvider;
+      Assert.That (provider, Is.SameAs (_generator.EmittableOperandProvider));
+      Assert.That (provider, Is.TypeOf<EmittableOperandProvider>());
+    }
+
+    [Test]
+    public void EmittableOperandProvider_StrongNaming ()
+    {
+      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (true);
+
+      var provider = _generator.EmittableOperandProvider;
+      Assert.That (provider, Is.SameAs (_generator.EmittableOperandProvider));
+      Assert.That (provider, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator>());
+      var strongNamingDecorator = (StrongNameCheckingEmittableOperandProviderDecorator) provider;
+      Assert.That (strongNamingDecorator.InnerEmittableOperandProvider, Is.TypeOf<EmittableOperandProvider>());
     }
 
     [Test]
@@ -117,12 +130,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var fakeAssemblyPath = "fake path";
       _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
+      var previousEmittableOperandProvider = _generator.EmittableOperandProvider;
 
       var result = _generator.FlushCodeToDisk();
 
       _moduleBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeAssemblyPath));
       Assert.That (_generator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
+      Assert.That (_generator.EmittableOperandProvider, Is.Not.Null.And.Not.SameAs (previousEmittableOperandProvider));
     }
 
     [Test]
@@ -144,7 +159,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (forceStrongNaming);
       _configurationProviderMock.Expect (mock => mock.KeyFilePath).Return (keyFilePath);
       _moduleBuilderFactoryMock
-          .Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, forceStrongNaming, keyFilePath))
+          .Expect (mock => mock.CreateModuleBuilder (_generator.AssemblyName, null, forceStrongNaming, keyFilePath, _generator.EmittableOperandProvider))
           .Return (_moduleBuilderMock);
 
       var fakeTypeBuilder1 = MockRepository.GenerateStub<ITypeBuilder>();
@@ -162,12 +177,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result2, Is.SameAs (fakeTypeBuilder2));
     }
 
+    [Test]
+    public void DefineType_UsesSameForceStrongNamingValueAsEmittableOperandProvider ()
+    {
+      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (true).Repeat.Once();
+      _configurationProviderMock.Stub (stub => stub.KeyFilePath).Return (null);
+      _moduleBuilderFactoryMock
+          .Expect (stub => stub.CreateModuleBuilder (_generator.AssemblyName, null, true, null, _generator.EmittableOperandProvider))
+          .Return (_moduleBuilderMock);
+      _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
+
+      Assert.That (_generator.EmittableOperandProvider, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator>());
+      _generator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
+
+      _configurationProviderMock.VerifyAllExpectations();
+    }
+
     private void DefineSomeType ()
     {
       _configurationProviderMock.Stub (stub => stub.ForceStrongNaming).Return (false);
       _configurationProviderMock.Stub (stub => stub.KeyFilePath).Return (null);
       _moduleBuilderFactoryMock
-          .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null))
+          .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null, _generator.EmittableOperandProvider))
           .Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
 

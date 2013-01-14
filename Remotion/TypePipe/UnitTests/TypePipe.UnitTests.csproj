@@ -57,7 +57,14 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
@@ -155,7 +162,6 @@
     <Compile Include="MutableReflection\Descriptors\MethodDescriptorTest.cs" />
     <Compile Include="MutableReflection\Descriptors\ParameterDescriptorTest.cs" />
     <Compile Include="MutableReflection\Descriptors\TypeDescriptorObjectMother.cs" />
-    <Compile Include="MutableReflection\MemberNotFoundExceptionTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoObjectMother.cs" />
@@ -183,9 +189,8 @@
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelperTest.cs" />
     <Compile Include="Serialization\Implementation\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\SerializationParticipantTest.cs" />
-    <Compile Include="StrongNaming\MutableTypeAnalyzerTest.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
-    <Compile Include="StrongNaming\ExpressionAnalyzingVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />

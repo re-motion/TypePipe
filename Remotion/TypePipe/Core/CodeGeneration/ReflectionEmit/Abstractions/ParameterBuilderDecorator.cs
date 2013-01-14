@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,30 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Runtime.Serialization;
-using JetBrains.Annotations;
 
-namespace Remotion.TypePipe.MutableReflection
+using Remotion.TypePipe.MutableReflection;
+
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Thrown when a requested member could not be found.
+  /// Decorates an instance of <see cref="IParameterBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
+  /// for checking strong-name compatibility.
   /// </summary>
-  [Serializable]
-  public class MemberNotFoundException : Exception
+  public class ParameterBuilderDecorator : BuilderDecoratorBase, IParameterBuilder
   {
-    public MemberNotFoundException (string message)
-        : base(message)
-    {
-    }
-
-    public MemberNotFoundException (string message, Exception innerException)
-        : base(message, innerException)
-    {
-    }
-
-    protected MemberNotFoundException ([NotNull] SerializationInfo info, StreamingContext context)
-        : base(info, context)
+    public ParameterBuilderDecorator (IParameterBuilder parameterBuilder, IEmittableOperandProvider emittableOperandProvider)
+        : base (parameterBuilder, emittableOperandProvider)
     {
     }
   }

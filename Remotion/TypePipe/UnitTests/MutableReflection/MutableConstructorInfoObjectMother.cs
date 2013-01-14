@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
     {
       underlyingConstructor = underlyingConstructor ?? ReflectionObjectMother.GetSomeConstructor();
-      declaringType = declaringType ??  MutableTypeObjectMother.CreateForExisting (underlyingConstructor.DeclaringType);
+      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExisting (underlyingConstructor.DeclaringType);
       var descriptor = ConstructorDescriptorObjectMother.CreateForExisting (underlyingConstructor);
 
       return new MutableConstructorInfo (declaringType, descriptor);

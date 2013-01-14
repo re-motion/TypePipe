@@ -22,6 +22,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ModuleBuilderFactory _factory;
 
     private string _currentDirectory;
+    private IEmittableOperandProvider _operandProviderStub;
 
     [SetUp]
     public void SetUp ()
@@ -42,12 +44,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _factory = new ModuleBuilderFactory();
 
       _currentDirectory = Environment.CurrentDirectory;
+      _operandProviderStub = MockRepository.GenerateStub<IEmittableOperandProvider>();
     }
 
     [Test]
     public void CreateModuleBuilder ()
     {
-      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
+      var result = _factory.CreateModuleBuilder (
+          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null, emittableOperandProvider: _operandProviderStub);
 
       CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory);
     }
@@ -56,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateModuleBuilder_CustomDirectory ()
     {
       var tempDirectory = Path.GetTempPath();
-      var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null);
+      var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null, _operandProviderStub);
 
       CheckDecoratedAdapterAndSaveToDiskBehavior (result, tempDirectory);
     }
@@ -64,8 +68,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
-      var result1 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
-      var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
+      var result1 = _factory.CreateModuleBuilder (
+          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null, emittableOperandProvider: _operandProviderStub);
+      var result2 = _factory.CreateModuleBuilder (
+          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty, emittableOperandProvider: _operandProviderStub);
 
       var publicKey = FallbackKey.KeyPair.PublicKey;
       CheckDecoratedAdapterAndSaveToDiskBehavior (result1, _currentDirectory, expectedPublicKey: publicKey);
@@ -76,7 +82,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateModuleBuilder_StrongNamed_ProvidedKey ()
     {
       var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\ReflectionEmit\OtherKey.snk");
-      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
+      var result = _factory.CreateModuleBuilder (
+          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath, emittableOperandProvider: _operandProviderStub);
 
       var publicKey = new StrongNameKeyPair (File.ReadAllBytes (otherKeyPath)).PublicKey;
       CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedPublicKey: publicKey);
@@ -85,7 +92,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void CheckDecoratedAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
     {
       Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
-      var decorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
+      var uniqueNamingDecorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
+
+      Assert.That (uniqueNamingDecorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderDecorator>());
+      var decorator = (ModuleBuilderDecorator) uniqueNamingDecorator.InnerModuleBuilder;
 
       Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var adapter = (ModuleBuilderAdapter) decorator.InnerModuleBuilder;

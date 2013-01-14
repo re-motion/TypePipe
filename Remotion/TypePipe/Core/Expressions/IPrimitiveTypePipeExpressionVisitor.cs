@@ -24,8 +24,8 @@ namespace Remotion.TypePipe.Expressions
   /// </summary>
   public interface IPrimitiveTypePipeExpressionVisitor
   {
-    Expression VisitThis (ThisExpression expression);
-    Expression VisitOriginalBody (OriginalBodyExpression expression);
-    Expression VisitNewDelegate (NewDelegateExpression expression);
+    Expression VisitThis (ThisExpression node);
+    Expression VisitOriginalBody (OriginalBodyExpression node);
+    Expression VisitNewDelegate (NewDelegateExpression node);
   }
 }

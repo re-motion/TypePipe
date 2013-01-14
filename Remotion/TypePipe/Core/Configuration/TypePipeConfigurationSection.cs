@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.Configuration
 
     public static readonly string ExampleConfiguration =
         "<typePipe xmlns=\"" + c_xmlNamespace + "\">" + Environment.NewLine +
-        "  <forceStrongNaming keyFilePath=\"key.snk\" />" + Environment.NewLine +
+        "  <forceStrongNaming keyFilePath=\"keyFile.snk\" />" + Environment.NewLine +
         "</typePipe>";
 
     [ConfigurationProperty ("xmlns")]

@@ -35,7 +35,5 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     FieldInfo GetEmittableField (FieldInfo field);
     ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor);
     MethodInfo GetEmittableMethod (MethodInfo method);
-
-    object GetEmittableOperand (object operand);
   }
 }

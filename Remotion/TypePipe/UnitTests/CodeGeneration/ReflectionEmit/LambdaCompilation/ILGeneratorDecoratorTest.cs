@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -55,6 +54,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) ilGeneratorFactory;
       Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.SameAs (fakeFactory));
       Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderStub));
+    }
+
+    [Test]
+    public void BeginCatchBlock ()
+    {
+      var exceptionType = ReflectionObjectMother.GetSomeType();
+      var fakeEmittableOperand = ReflectionObjectMother.GetSomeDifferentType();
+      _emittableOperandProviderStub.Stub (stub => stub.GetEmittableType (exceptionType)).Return (fakeEmittableOperand);
+
+      _innerILGeneratorMock.Expect (mock => mock.BeginCatchBlock (fakeEmittableOperand));
+
+      _decorator.BeginCatchBlock (exceptionType);
+
+      _innerILGeneratorMock.VerifyAllExpectations();
     }
 
     [Test]

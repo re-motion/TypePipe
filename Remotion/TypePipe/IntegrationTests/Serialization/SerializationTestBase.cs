@@ -202,12 +202,12 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
                     + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (ExplicitISerializableType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+          Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
       Assert.That (
           () => factory.GetAssembledType (typeof (DerivedExplicitISerializableType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+          Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
     }
-    
+
     [Test]
     public void IDeserializationCallback_CannotModifyOrOverrideOnDeserialization ()
     {
@@ -218,10 +218,10 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
                     + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (ExplicitIDeserializationCallbackType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+          Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
       Assert.That (
           () => factory.GetAssembledType (typeof (DerivedExplicitIDeserializationCallbackType)),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+          Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
     }
 
     private T CreateCyclicInstance<T> (IObjectFactory factory) where T : ReferencingSerializableType

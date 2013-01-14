@@ -90,6 +90,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           };
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
+      // TODO 5309: Remove
       if (attributes.IsSet (MethodAttributes.Static))
       {
         var method = MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddTypeInitialization (null));

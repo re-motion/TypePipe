@@ -55,9 +55,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingSystemType", underlyingSystemType);
       // Declaring type may be null (for non-nested types)
-      // Base type may be null (for type object)
+      // Base type may be null (for type object). // TODO 5309: (NOT true anymore!)
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNullOrEmpty ("namespace", @namespace);
+      // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
@@ -89,6 +89,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return null; }
     }
 
+    // TODO 5309: This
     public override Type UnderlyingSystemType
     {
       get { return _underlyingSystemType; }

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
-    private readonly Dictionary<MutableType, Type> _mappedTypes = new Dictionary<MutableType, Type> ();
+    private readonly Dictionary<MutableType, Type> _mappedTypes = new Dictionary<MutableType, Type> (new ReferenceEqualityComparer<MutableType>());
     private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo> ();
     private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo> ();
     private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo> ();
@@ -115,29 +115,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           m => GetEmittableMemberOfGenericType<MethodInfo, MethodOnTypeInstantiation> (m, mi => mi.GenericMethod, TypeBuilder.GetMethod));
     }
 
-    public object GetEmittableOperand (object operand)
-    {
-      ArgumentUtility.CheckNotNull ("operand", operand);
-
-      if (operand is Type)
-        return GetEmittableType ((Type) operand);
-      if (operand is FieldInfo)
-        return GetEmittableField ((FieldInfo) operand);
-      if (operand is ConstructorInfo)
-        return GetEmittableConstructor ((ConstructorInfo) operand);
-      if (operand is MethodInfo)
-        return GetEmittableMethod ((MethodInfo) operand);
-
-      return operand;
-    }
-
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
         where TMutable : T
         where T : MemberInfo
     {
       if (mapping.ContainsKey (key))
       {
-        var message = typeof (TMutable).Name + " is already mapped.";
+        var message = string.Format ("{0} '{1}' is already mapped.", typeof (TMutable).Name, key.Name);
         var parameterName = "mapped" + typeof (T).Name.Replace ("Info", "");
 
         throw new ArgumentException (message, parameterName);

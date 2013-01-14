@@ -58,10 +58,18 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\IInitializableObject.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\CustomAttributeTargetBuilderBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ICustomAttributeTargetBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IParameterBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
@@ -107,6 +115,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -204,7 +213,6 @@
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinder.cs" />
     <Compile Include="MutableReflection\Descriptors\ConstructorDescriptor.cs" />
-    <Compile Include="MutableReflection\MemberNotFoundException.cs" />
     <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />
     <Compile Include="MutableReflection\Descriptors\DescriptorBase.cs" />
     <Compile Include="MutableReflection\Descriptors\FieldDescriptor.cs" />
@@ -345,14 +353,9 @@
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
-    <Compile Include="StrongNaming\IMutableTypeAnalyzer.cs" />
     <Compile Include="StrongNaming\IAssemblyAnalyzer.cs" />
-    <Compile Include="StrongNaming\IExpressionAnalyzer.cs" />
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
-    <Compile Include="StrongNaming\MutableTypeAnalyzer.cs" />
-    <Compile Include="StrongNaming\StrongNameCompatibility.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
-    <Compile Include="StrongNaming\ExpressionAnalyzingVisitor.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>

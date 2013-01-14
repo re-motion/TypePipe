@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="TypeBuilder"/> with the <see cref="ITypeBuilder"/> interface.
   /// </summary>
-  public class TypeBuilderAdapter : CustomAttributeTargetBuilderBase, ITypeBuilder
+  public class TypeBuilderAdapter : BuilderAdapterBase, ITypeBuilder
   {
     private readonly TypeBuilder _typeBuilder;
 

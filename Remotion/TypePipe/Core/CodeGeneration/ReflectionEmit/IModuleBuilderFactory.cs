@@ -36,9 +36,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// on the returned <see cref="IModuleBuilder" />.</param>
     /// <param name="strongNamed">Whether or not to strong-name the generated assembly.</param>
     /// <param name="keyFilePathOrNull">The file path to the strong-name key, or <see langword="null"/> if the factory should create a temporary key.</param>
+    /// <param name="emittableOperandProvider">The emittable operand provider that will be used for the created module.</param>
     /// <returns>
     /// The created module builder.
     /// </returns>
-    IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull);
+    IModuleBuilder CreateModuleBuilder (
+        string assemblyName,
+        string assemblyDirectoryOrNull,
+        bool strongNamed,
+        string keyFilePathOrNull,
+        IEmittableOperandProvider emittableOperandProvider);
   }
 }

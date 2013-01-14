@@ -34,17 +34,43 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
+    private class ModuleContext
+    {
+      private readonly Func<bool> _forceStrongNamingFunc;
+      private bool? _forceStrongNaming;
+
+      // TODO 5057: Use Lazy<T>.
+      public ModuleContext (Func<bool> forceStrongNamingFunc)
+      {
+        _forceStrongNamingFunc = forceStrongNamingFunc;
+      }
+
+      public bool ForceStrongNaming
+      {
+        get
+        {
+          if (!_forceStrongNaming.HasValue)
+            _forceStrongNaming = _forceStrongNamingFunc();
+
+          return _forceStrongNaming.Value;
+        }
+      }
+
+      public IModuleBuilder ModuleBuilder { get; set; }
+      public IEmittableOperandProvider EmittableOperandProvider { get; set; }
+      public string AssemblyName { get; set; }
+    }
+
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
 
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
     private readonly ITypePipeConfigurationProvider _configurationProvider;
-    private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly DebugInfoGenerator _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
 
-    private IModuleBuilder _currentModuleBuilder;
     private string _assemblyDirectory;
-    private string _assemblyName;
+    private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
     public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, ITypePipeConfigurationProvider configurationProvider)
@@ -53,7 +79,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _moduleBuilderFactory = moduleBuilderFactory;
       _configurationProvider = configurationProvider;
-      _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
+
+      ResetContext();
+    }
+
+    private void ResetContext ()
+    {
+      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
     }
 
     public string AssemblyDirectory
@@ -65,24 +97,34 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       get
       {
-        if (_assemblyName == null)
+        if (_moduleContext.AssemblyName == null)
         {
           var uniqueCounterValue = Interlocked.Increment (ref s_counter);
-          _assemblyName = string.Format (c_assemblyNamePattern, uniqueCounterValue);
+          _moduleContext.AssemblyName = string.Format (c_assemblyNamePattern, uniqueCounterValue);
         }
 
-        return _assemblyName;
+        return _moduleContext.AssemblyName;
       }
-    }
-
-    public bool IsStrongNamingEnabled
-    {
-      get { return _configurationProvider.ForceStrongNaming; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
     {
       get { return _debugInfoGenerator; }
+    }
+
+    public IEmittableOperandProvider EmittableOperandProvider
+    {
+      get
+      {
+        if (_moduleContext.EmittableOperandProvider == null)
+        {
+          IEmittableOperandProvider provider = new EmittableOperandProvider();
+          _moduleContext.EmittableOperandProvider =
+              _moduleContext.ForceStrongNaming ? new StrongNameCheckingEmittableOperandProviderDecorator (provider) : provider;
+        }
+
+        return _moduleContext.EmittableOperandProvider;
+      }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
@@ -98,18 +140,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
       EnsureNoCurrentModuleBuilder ("assembly name");
 
-      _assemblyName = assemblyName;
+      _moduleContext.AssemblyName = assemblyName;
     }
 
     public string FlushCodeToDisk ()
     {
-      if (_currentModuleBuilder == null)
+      if (_moduleContext.ModuleBuilder == null)
         return null;
 
-      var assemblyPath = _currentModuleBuilder.SaveToDisk();
-
-      _currentModuleBuilder = null;
-      _assemblyName = null;
+      var assemblyPath = _moduleContext.ModuleBuilder.SaveToDisk();
+      ResetContext();
 
       return assemblyPath;
     }
@@ -120,19 +160,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("parent", parent);
 
-      if (_currentModuleBuilder == null)
+      if (_moduleContext.ModuleBuilder == null)
       {
-        var strongNamed = _configurationProvider.ForceStrongNaming;
+        var strongName = _moduleContext.ForceStrongNaming;
         var keyFilePathOrNull = _configurationProvider.KeyFilePath;
-        _currentModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, strongNamed, keyFilePathOrNull);
+
+        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (
+            AssemblyName, _assemblyDirectory, strongName, keyFilePathOrNull, EmittableOperandProvider);
       }
 
-      return _currentModuleBuilder.DefineType (name, attributes, parent);
+      return _moduleContext.ModuleBuilder.DefineType (name, attributes, parent);
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)
     {
-      if (_currentModuleBuilder != null)
+      if (_moduleContext.ModuleBuilder != null)
       {
         var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
         var message = string.Format (

@@ -19,13 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Remotion.Collections;
 using Remotion.Text;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -39,19 +37,16 @@ namespace Remotion.TypePipe.Caching
   public class TypeAssembler : ITypeAssembler
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
-    private readonly IMutableTypeAnalyzer _mutableTypeAnalyzer;
     private readonly ITypeModifier _typeModifier;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
-    public TypeAssembler (IEnumerable<IParticipant> participants, IMutableTypeAnalyzer mutableTypeAnalyzer, ITypeModifier typeModifier)
+    public TypeAssembler (IEnumerable<IParticipant> participants, ITypeModifier typeModifier)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
-      ArgumentUtility.CheckNotNull ("mutableTypeAnalyzer", mutableTypeAnalyzer);
       ArgumentUtility.CheckNotNull ("typeModifier", typeModifier);
 
       _participants = participants.ToList().AsReadOnly();
-      _mutableTypeAnalyzer = mutableTypeAnalyzer;
       _typeModifier = typeModifier;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
@@ -71,12 +66,10 @@ namespace Remotion.TypePipe.Caching
     {
       var mutableType = CreateMutableType (requestedType);
 
-      var participantCompatibilities = _participants.Select (p => Tuple.Create (p, p.ModifyType (mutableType))).ToList();
+      foreach (var participant in _participants)
+        participant.ModifyType (mutableType);
 
-      if (_typeModifier.CodeGenerator.IsStrongNamingEnabled)
-        CheckCompatibility (mutableType, participantCompatibilities);
-
-      return _typeModifier.ApplyModifications (mutableType);
+      return ApplyModificationsWithDiagnostics (mutableType);
     }
 
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
@@ -105,25 +98,31 @@ namespace Remotion.TypePipe.Caching
       return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
     }
 
-    private void CheckCompatibility (MutableType mutableType, List<Tuple<IParticipant, StrongNameCompatibility>> compatibilities)
+    private Type ApplyModificationsWithDiagnostics (MutableType mutableType)
     {
-      var incompatibleParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Incompatible).Select (t => t.Item1).ToList();
-      if (incompatibleParticipants.Count > 0)
-        throw NewInvalidOperationException ("", incompatibleParticipants);
-
-      var unknownParticipants = compatibilities.Where (t => t.Item2 == StrongNameCompatibility.Unknown).Select (t => t.Item1).ToList();
-      if (unknownParticipants.Count > 0 && !_mutableTypeAnalyzer.IsStrongNameCompatible (mutableType))
-        throw NewInvalidOperationException ("at least one of ", unknownParticipants);
+      try
+      {
+        return _typeModifier.ApplyModifications (mutableType);
+      }
+      catch (InvalidOperationException ex)
+      {
+        throw new InvalidOperationException (BuildExceptionMessage (mutableType, ex), ex);
+      }
+      catch (NotSupportedException ex)
+      {
+        throw new NotSupportedException (BuildExceptionMessage (mutableType, ex), ex);
+      }
     }
 
-    private InvalidOperationException NewInvalidOperationException (string participantMeaning, List<IParticipant> offendingParticipants)
+    private string BuildExceptionMessage (MutableType mutableType, SystemException exception)
     {
-      var participantList = SeparatedStringBuilder.Build (", ", offendingParticipants, p => string.Format ("'{0}'", p.GetType().Name));
-      var message = string.Format (
-          "Strong-naming is enabled but {0}the following participants requested incompatible type modifications: {1}.",
-          participantMeaning,
+      var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
+      return string.Format (
+          "An error occurred during code generation for '{0}': {1} "
+          + "The following participants are currently configured and may have caused the error: {2}.",
+          mutableType.Name,
+          exception.Message,
           participantList);
-      return new InvalidOperationException (message);
     }
   }
 }
