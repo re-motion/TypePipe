@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.EqualTo (baseMethod));
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.Empty);
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
 
-            Assert.That (mutableType.GetOrAddMutableMethod (baseMethod), Is.SameAs (mutableMethod));
+            Assert.That (mutableType.GetOrAddOverride (baseMethod), Is.SameAs (mutableMethod));
           });
 
       var implicitOverride = type.GetMethod (baseMethod.Name);
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var existingOverride = mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingOverride");
             Assert.That (existingOverride.BaseMethod, Is.EqualTo (baseMethod));
 
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod, Is.SameAs (existingOverride));
           });
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var implicitOverride = AddEquivalentMethod (mutableType, baseMethod, attributes);
             Assert.That (implicitOverride.BaseMethod, Is.EqualTo (baseMethod));
 
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod, Is.SameAs (implicitOverride));
           });
@@ -104,13 +104,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             explicitOverride.AddExplicitBaseDefinition (baseMethod);
             Assert.That (explicitOverride.BaseMethod, Is.Not.EqualTo (baseMethod));
 
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod, Is.SameAs (explicitOverride));
 
             var otherBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
             Assert.That (explicitOverride.BaseMethod, Is.EqualTo (otherBaseMethod));
-            Assert.That (mutableType.GetOrAddMutableMethod (otherBaseMethod), Is.SameAs (explicitOverride));
+            Assert.That (mutableType.GetOrAddOverride (otherBaseMethod), Is.SameAs (explicitOverride));
           });
     }
 
@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.Null);
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { baseMethod } ));
@@ -151,7 +151,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseBaseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseBaseMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.Null);
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { baseBaseMethod }));
@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableShadowedMethod = mutableType.GetOrAddMutableMethod (shadowedMethod);
+            var mutableShadowedMethod = mutableType.GetOrAddOverride (shadowedMethod);
 
             Assert.That (mutableShadowedMethod.BaseMethod, Is.Null);
             Assert.That (mutableShadowedMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { shadowedMethod }));
@@ -189,7 +189,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableShadowedMethod.SetBody (
                 ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable explicitly")));
 
-            var mutableShadowingMethod = mutableType.GetOrAddMutableMethod (shadowingMethod);
+            var mutableShadowingMethod = mutableType.GetOrAddOverride (shadowingMethod);
 
             Assert.That (mutableShadowingMethod.BaseMethod, Is.EqualTo (shadowingMethod));
             Assert.That (mutableShadowingMethod.AddedExplicitBaseDefinitions, Is.Empty);
@@ -223,14 +223,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBaseBase> (x => x.BaseBaseMethodOverriddenInBase());
             var overridingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseBaseMethodOverriddenInBase());
 
-            var mutableMethod = mutableType.GetOrAddMutableMethod (overriddenMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (overriddenMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.EqualTo (overridingMethod));
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.Empty);
 
             mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
 
-            Assert.That (mutableType.GetOrAddMutableMethod (overridingMethod), Is.SameAs (mutableMethod));
+            Assert.That (mutableType.GetOrAddOverride (overridingMethod), Is.SameAs (mutableMethod));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -250,7 +250,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var shadowingAttributes = MethodAttributes.NewSlot | MethodAttributes.Virtual;
             AddEquivalentMethod (mutableType, baseMethod, shadowingAttributes, ctx => Expression.Constant("Shadowing method"));
 
-            var mutableMethod = mutableType.GetOrAddMutableMethod (baseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.Null);
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { baseMethod }));
@@ -275,7 +275,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (baseMethod.IsVirtual, Is.False);
 
             Assert.That (
-                () => mutableType.GetOrAddMutableMethod (baseMethod),
+                () => mutableType.GetOrAddOverride (baseMethod),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
                     "A method declared in a base type must be virtual in order to be modified."));
           });
@@ -292,7 +292,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (baseMethod.IsFinal, Is.True);
 
             Assert.That (
-                () => mutableType.GetOrAddMutableMethod (baseMethod),
+                () => mutableType.GetOrAddOverride (baseMethod),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Cannot override final method 'DomainTypeBase.FinalVirtualBaseMethod'."));
           });
     }

@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           mutableType =>
           {
             mutableType.AddInterface (typeof (IAddedInterface));
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = mutableType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -64,10 +64,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already "
                                 + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
             Assert.That (
-                () => mutableType.GetOrAddMutableMethod (interfaceMethod1),
+                () => mutableType.GetOrAddOverride (interfaceMethod1),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod1.Name)));
             Assert.That (
-                () => mutableType.GetOrAddMutableMethod (interfaceMethod2),
+                () => mutableType.GetOrAddOverride (interfaceMethod2),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod2.Name)));
 
             // Implement the interface, otherwise the type is invalid and cannot be generated.
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = mutableType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var explicitImplementation = mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
             explicitImplementation.AddExplicitBaseDefinition (interfaceMethod);
 
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = mutableType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           mutableType =>
           {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = mutableType.GetOrAddOverride (interfaceMethod);
 
             Assert.That (method.CanSetBody, Is.False);
             Assert.That (method.BaseMethod, Is.Null);
@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var message = "Cannot override final method 'DomainTypeBase.Remotion.TypePipe.IntegrationTests.TypeAssembly."
                     + "InterfaceImplementationTest.IBaseInterface.ExplicitlyImplemented'.";
       AssembleType<DomainType> (
-          mt => Assert.That (() => mt.GetOrAddMutableMethod (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
+          mt => Assert.That (() => mt.GetOrAddOverride (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
     }
 
     [Test]
@@ -152,7 +152,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = mutableType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -173,7 +173,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = mutableType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {

@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.Serialization
         // deserialization. Existing fields will be serialized by the base ISerialization implementation. Added fields will be serialized by
         // the TypePipe (ProxySerializationEnabler).
         mutableType
-            .GetOrAddMutableMethod (s_getObjectDataMethod)
+            .GetOrAddOverride (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
                     new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithDeserializationConstructorProxy)))));

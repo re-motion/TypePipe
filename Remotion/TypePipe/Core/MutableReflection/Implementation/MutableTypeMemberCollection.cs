@@ -21,33 +21,25 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
+  // TODO update docs.
   /// <summary>
-  /// A container storing members and providing convenience properties for <see cref="ExistingDeclaredMembers"/> <see cref="ExistingBaseMembers"/>
-  /// and <see cref="AddedMembers"/>.
-  /// <see cref="GetMutableMember"/> can be used to retrieve the mutable version for a member.
   /// This class is an implementation detail of <see cref="MutableType"/>.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
-  public class MutableTypeMemberCollection<TMemberInfo, TMutableMemberInfo>
-      : IEnumerable<TMemberInfo>, IMutableMemberProvider<TMemberInfo, TMutableMemberInfo>
+  public class MutableTypeMemberCollection<TMemberInfo, TMutableMemberInfo> : IEnumerable<TMemberInfo>
       where TMemberInfo : MemberInfo
       where TMutableMemberInfo : TMemberInfo
   {
     private readonly MutableType _declaringType;
-    private readonly ReadOnlyDictionary<TMemberInfo, TMutableMemberInfo> _existingDeclaredMembers;
     private readonly ReadOnlyCollection<TMemberInfo> _existingBaseMembers;
     private readonly List<TMutableMemberInfo> _addedMembers = new List<TMutableMemberInfo>();
 
-    public MutableTypeMemberCollection (
-        MutableType declaringType,
-        IEnumerable<TMemberInfo> existingMembers,
-        Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)
+    public MutableTypeMemberCollection (MutableType declaringType,IEnumerable<TMemberInfo> existingMembers,Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("existingMembers", existingMembers);
@@ -66,18 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           baseMembers.Add (member);
       }
 
-      _existingDeclaredMembers = declaredMembers.AsReadOnly();
       _existingBaseMembers = baseMembers.AsReadOnly();
-    }
-
-    public ReadOnlyCollectionDecorator<TMutableMemberInfo> ExistingDeclaredMembers
-    {
-      get { return _existingDeclaredMembers.Values.AsReadOnly(); }
-    }
-
-    public ReadOnlyCollection<TMemberInfo> ExistingBaseMembers
-    {
-      get { return _existingBaseMembers; }
     }
 
     public ReadOnlyCollection<TMutableMemberInfo> AddedMembers
@@ -85,14 +66,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _addedMembers.AsReadOnly(); }
     }
 
-    public IEnumerable<TMutableMemberInfo> AllMutableMembers
-    {
-      get { return ExistingDeclaredMembers.Concat (AddedMembers); }
-    }
-
     public IEnumerator<TMemberInfo> GetEnumerator ()
     {
-      return AllMutableMembers.Cast<TMemberInfo>().Concat (FilterBaseMembers (_existingBaseMembers)).GetEnumerator();
+      return _addedMembers.Cast<TMemberInfo>().Concat (FilterBaseMembers (_existingBaseMembers)).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator ()
@@ -100,23 +76,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return GetEnumerator();
     }
 
-    // TODO 5309: Remove
-    public TMutableMemberInfo GetMutableMember (TMemberInfo member)
-    {
-      ArgumentUtility.CheckNotNull ("member", member);
-
-      if (member is TMutableMemberInfo)
-        return (TMutableMemberInfo) member;
-
-      return _existingDeclaredMembers.GetValueOrDefault (member);
-    }
-
     public void Add (TMutableMemberInfo mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
       // TODO 4972: Use TypeEqualityComparer (if accessible).
-      // TODO 5309: Change - should be _declaringType == mutableMember.DeclaringType
-      Assertion.IsTrue (_declaringType.UnderlyingSystemType.Equals (mutableMember.DeclaringType));
+      Assertion.IsTrue (_declaringType == mutableMember.DeclaringType);
 
       _addedMembers.Add (mutableMember);
     }

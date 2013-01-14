@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       try
       {
         mutableType
-            .GetOrAddMutableMethod (s_getObjectDataMetod)
+            .GetOrAddOverride (s_getObjectDataMetod)
             .SetBody (
                 ctx => Expression.Block (
                     typeof (void),
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       try
       {
-        mutableType.GetOrAddMutableMethod (s_onDeserializationMethod)
+        mutableType.GetOrAddOverride (s_onDeserializationMethod)
                    .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
       }
       catch (NotSupportedException exception)

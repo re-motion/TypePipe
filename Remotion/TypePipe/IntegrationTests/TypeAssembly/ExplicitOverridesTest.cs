@@ -209,7 +209,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             //Assert.That (mutableType.GetMethod ("AbstractShadowedMethod"), Is.SameAs (shadowingMethod));
             Assert.That (mutableType.IsAbstract, Is.True);
 
-            var overrideForAbstractShadowedMethod = mutableType.GetOrAddMutableMethod (shadowedMethod);
+            var overrideForAbstractShadowedMethod = mutableType.GetOrAddOverride (shadowedMethod);
             overrideForAbstractShadowedMethod.SetBody (
                 ctx =>
                 {

@@ -173,7 +173,6 @@
     <Compile Include="MutableReflection\Implementation\ICustomAttributeDataRetriever.cs" />
     <Compile Include="MutableReflection\Implementation\IInterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\Implementation\IMutableMemberFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\IMutableMemberProvider.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedEventFinder.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedPropertyFinder.cs" />

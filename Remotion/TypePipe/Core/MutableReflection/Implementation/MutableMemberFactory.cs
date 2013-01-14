@@ -174,7 +174,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("method", method);

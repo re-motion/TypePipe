@@ -223,7 +223,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var constructor = mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0)));
       constructor.SetBody (ctx => Expression.Empty ());
-      var method = mutableType.GetOrAddMutableMethod (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ModifiedMethod ()));
+      var method = mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ModifiedMethod ()));
       method.SetBody (ctx => Expression.Empty ());
 
       return Tuple.Create ((MutableFieldInfo) null, constructor, method);
@@ -234,7 +234,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var field = mutableType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.UnmodifiedField));
       var constructor = mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("")));
       var method =
-          mutableType.GetOrAddMutableMethod (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnmodifiedMethod ()));
+          mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnmodifiedMethod ()));
 
       return Tuple.Create (field, constructor, method);
     }

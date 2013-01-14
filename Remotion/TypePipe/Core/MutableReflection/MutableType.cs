@@ -289,11 +289,12 @@ namespace Remotion.TypePipe.MutableReflection
       return overrideMethod;
     }
 
+    // TODO update docs.
     /// <summary>
-    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="method"/>.
+    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="baseMethod"/>.
     /// </summary>
     /// <remarks>
-    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="method"/> this method returns the following.
+    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="baseMethod"/> this method returns the following.
     /// <list type="number">
     ///   <item>
     ///     Modified type
@@ -319,27 +320,22 @@ namespace Remotion.TypePipe.MutableReflection
     ///   </item>
     /// </list>
     /// </remarks>
-    /// <param name="method">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
+    /// <param name="baseMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
     /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="method"/>, an override for a base method or an implementation for 
+    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="baseMethod"/>, an override for a base method or an implementation for 
     /// an interface method.
     /// </returns>
-    // TODO 5309: Rename to GetOrAddOverride
-    public MutableMethodInfo GetOrAddMutableMethod (MethodInfo method)
+    public MutableMethodInfo GetOrAddOverride (MethodInfo baseMethod)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
-      Assertion.IsNotNull (method.DeclaringType);
+      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
+      Assertion.IsNotNull (baseMethod.DeclaringType);
 
-      var mutableMethod = _methods.GetMutableMember (method);
-      if (mutableMethod == null)
-      {
-        bool isNewlyCreated;
-        mutableMethod = _mutableMemberFactory.GetOrCreateMethodOverride (this, method, out isNewlyCreated);
-        if (isNewlyCreated)
-          _methods.Add (mutableMethod);
-      }
+      bool isNewlyCreated;
+      var method = _mutableMemberFactory.GetOrCreateOverride (this, baseMethod, out isNewlyCreated);
+      if (isNewlyCreated)
+        _methods.Add (method);
 
-      return mutableMethod;
+      return method;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
@@ -362,7 +358,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
       // TODO 5309: If _methods is changed to _addedMethods, change this accordingly
-      return _interfaceMappingComputer.ComputeMapping (this, _interfaceMappingProvider, _methods, interfaceType, allowPartialInterfaceMapping);
+      return _interfaceMappingComputer.ComputeMapping (this, _interfaceMappingProvider, interfaceType, allowPartialInterfaceMapping);
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()

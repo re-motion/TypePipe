@@ -29,10 +29,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public interface IInterfaceMappingComputer
   {
     InterfaceMapping ComputeMapping (
-        MutableType mutableType,
-        Func<Type, InterfaceMapping> interfacMappingProvider,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
-        Type interfaceType,
-        bool allowPartialInterfaceMapping);
+        MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType, bool allowPartialInterfaceMapping);
   }
 }

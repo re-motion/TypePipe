@@ -468,7 +468,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (fakeExistingOverride);
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, method, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_mutableType, method, out isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
@@ -526,7 +526,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
       SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
 
-      var result = _mutableMemberFactory.GetOrCreateMethodOverride (mutableType, baseMethod, out _isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (mutableType, baseMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
@@ -561,7 +561,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_mutableType, interfaceMethod, out isNewlyCreated);
 
       var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "InterfaceMethod");
       Assert.That (result, Is.SameAs (implementation));
@@ -575,7 +575,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableType.AddInterface (typeof (IAddedInterface));
 
       bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, interfaceMethod, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_mutableType, interfaceMethod, out isNewlyCreated);
 
       Assert.That (isNewlyCreated, Is.True);
       CheckMethodData (
@@ -618,7 +618,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
-      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
     }
 
     [Test]
@@ -627,7 +627,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateMethodOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
-      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, method, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -636,7 +636,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateMethodOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualBaseMethod());
-      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, method, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -650,7 +650,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
-      _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
+      _mutableMemberFactory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddMethod (
@@ -667,7 +667,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
-      var result = _mutableMemberFactory.GetOrCreateMethodOverride (_mutableType, inputMethod, out _isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (_isNewlyCreated, Is.True);

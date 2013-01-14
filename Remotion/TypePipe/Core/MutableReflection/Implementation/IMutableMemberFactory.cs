@@ -52,6 +52,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     MutableMethodInfo CreateExplicitOverride (
         MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo GetOrCreateMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
+    MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
   }
 }

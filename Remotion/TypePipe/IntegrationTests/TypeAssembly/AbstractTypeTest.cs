@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           mutableType =>
           {
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
-            var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (abstractBaseMethod);
 
             Assert.That (mutableMethod.IsAbstract, Is.True);
             mutableMethod.SetBody (ctx => Expression.Empty ());
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           mutableType =>
           {
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
-            var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
+            var mutableMethod = mutableType.GetOrAddOverride (abstractBaseMethod);
             Assert.That (mutableMethod.IsAbstract, Is.True);
           });
 

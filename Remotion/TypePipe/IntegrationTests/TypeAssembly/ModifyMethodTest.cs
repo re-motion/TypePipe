@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            var mutableMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
             mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           });
 
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
+            var mutableMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
             mutableMethod.SetBody (
                 ctx =>
                 {
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           mutableType =>
           {
             var method = typeof (DomainType).GetMethod ("ProtectedVirtualMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-            var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+            var mutableMethod = mutableType.GetOrAddOverride (method);
             mutableMethod.SetBody (
                 ctx => ExpressionHelper.StringConcat (Expression.Constant ("hello "), Expression.Call (ctx.PreviousBody, "ToString", null)));
           });
@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
         mutableType =>
         {
-          var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+          var mutableMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
           mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
         });
 
@@ -162,13 +162,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var nonVirtualMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicMethod"));
+            var nonVirtualMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicMethod"));
             Assert.That (
                 () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
                     "The body of the existing non-virtual or final method 'PublicMethod' cannot be replaced."));
 
-            var staticMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicStaticMethod"));
+            var staticMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicStaticMethod"));
             Assert.That (
                 () => staticMethod.SetBody (
                     ctx =>
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
                     "The body of the existing non-virtual or final method 'PublicStaticMethod' cannot be replaced."));
 
-            var finalMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("FinalMethod"));
+            var finalMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("FinalMethod"));
             Assert.That (
                 () => finalMethod.SetBody (ctx => Expression.Constant (7)),
                 Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (
@@ -199,12 +199,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            var mutableMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
             mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           },
           mutableType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            var mutableMethod = mutableType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
             mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
           });
 
@@ -228,7 +228,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Call (ctx.This, originalMethod, Expression.Constant(7)));
 
-            var modifiedMethod = mutableType.GetOrAddMutableMethod (originalMethod);
+            var modifiedMethod = mutableType.GetOrAddOverride (originalMethod);
             modifiedMethod.SetBody (ctx => ExpressionHelper.StringConcat(Expression.Constant ("hello "), Expression.Call (ctx.PreviousBody, "ToString", null)));
           });
 

@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       return AssembleType<DomainType> (
           mutableType =>
           {
-            var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod());
+            var mutableGetter = mutableType.GetOrAddOverride (property.GetGetMethod());
             mutableGetter.SetBody (ctx => Expression.Constant (""));
           });
     }

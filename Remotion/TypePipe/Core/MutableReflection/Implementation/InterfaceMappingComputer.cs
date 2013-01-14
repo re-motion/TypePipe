@@ -33,15 +33,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public class InterfaceMappingComputer : IInterfaceMappingComputer
   {
     public InterfaceMapping ComputeMapping (
-        MutableType mutableType,
-        Func<Type, InterfaceMapping> interfacMappingProvider,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
-        Type interfaceType,
-        bool allowPartialInterfaceMapping)
+        MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType, bool allowPartialInterfaceMapping)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
-      ArgumentUtility.CheckNotNull ("mutableMethodProvider", mutableMethodProvider);
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
       if (!interfaceType.IsInterface)
@@ -76,7 +71,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var isAddedInterface = mutableType.AddedInterfaces.Contains (interfaceType);
       return isAddedInterface
                  ? CreateForAdded (mutableType, interfaceType, explicitImplementations, allowPartialInterfaceMapping)
-                 : CreateForExisting (mutableType, interfacMappingProvider, interfaceType, explicitImplementations, mutableMethodProvider);
+                 : CreateForExisting (mutableType, interfacMappingProvider, interfaceType, explicitImplementations);
     }
 
     private InterfaceMapping CreateForAdded (
@@ -126,8 +121,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MutableType mutableType,
         Func<Type, InterfaceMapping> interfacMappingProvider,
         Type interfaceType,
-        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider)
+        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations)
     {
       var mapping = interfacMappingProvider (interfaceType);
       mapping.TargetType = mutableType;
@@ -141,7 +135,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         if (explicitImplementations.TryGetValue (interfaceMethod, out explicitImplementation))
           mapping.TargetMethods[i] = explicitImplementation;
         else
-          mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (targetMethod) ?? targetMethod;
+          // TODO Adapt tests.
+          //mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (targetMethod) ?? targetMethod;
+          mapping.TargetMethods[i] = targetMethod;
       }
 
       return mapping;

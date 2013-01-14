@@ -438,7 +438,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
       Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo>());
 
-      var result = _mutableType.GetOrAddMutableMethod (existingMethod);
+      var result = _mutableType.GetOrAddOverride (existingMethod);
 
       //Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
       Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
@@ -452,13 +452,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeOverride = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.GetOrCreateMethodOverride (
+              mock => mock.GetOrCreateOverride (
                   Arg.Is (_mutableType),
                   Arg.Is (baseMethod),
                   out Arg<bool>.Out (true).Dummy))
           .Return (fakeOverride);
 
-      var result = _mutableType.GetOrAddMutableMethod (baseMethod);
+      var result = _mutableType.GetOrAddOverride (baseMethod);
 
       Assert.That (result, Is.SameAs (fakeOverride));
       Assert.That (_mutableType.AddedMethods, Has.Member (result));
@@ -472,13 +472,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeOverride = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.GetOrCreateMethodOverride (
+              mock => mock.GetOrCreateOverride (
                   Arg.Is (_mutableType),
                   Arg.Is (baseMethod),
                   out Arg<bool>.Out (false).Dummy))
           .Return (fakeOverride);
 
-      var result = _mutableType.GetOrAddMutableMethod (baseMethod);
+      var result = _mutableType.GetOrAddOverride (baseMethod);
 
       Assert.That (result, Is.SameAs (fakeOverride));
       Assert.That (_mutableType.AddedMethods, Has.No.Member (result));

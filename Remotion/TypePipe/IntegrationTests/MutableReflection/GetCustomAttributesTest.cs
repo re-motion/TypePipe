@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckAttributeInheritance (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method ());
-      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+      var mutableMethod = mutableType.GetOrAddOverride (method);
       CheckAttributeInheritance (mutableMethod, method);
 
       // TODO 4791
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckAttributeInheritanceAllowMultiple (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod());
-      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+      var mutableMethod = mutableType.GetOrAddOverride (method);
       CheckAttributeInheritanceAllowMultiple (mutableMethod, method);
 
       // TODO 4791
@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckIsDefinedInheritance (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod ());
-      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+      var mutableMethod = mutableType.GetOrAddOverride (method);
       CheckIsDefinedInheritance (mutableMethod, method);
 
       // TODO 4791
@@ -182,7 +182,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     private IMutableInfo CreateMutableMember (MethodBase underlyingMethod)
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
-      return mutableType.GetOrAddMutableMethod ((MethodInfo) underlyingMethod);
+      return mutableType.GetOrAddOverride ((MethodInfo) underlyingMethod);
     }
 
     private void CheckAttributeInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
