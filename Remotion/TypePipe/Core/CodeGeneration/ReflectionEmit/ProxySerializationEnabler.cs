@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (needsCustomFieldSerialization)
       {
         OverrideGetObjectData (mutableType, serializedFieldMapping);
-        AdaptDeserializationConstructor (mutableType, deserializationConstructor, serializedFieldMapping);
+        AdaptDeserializationConstructor (deserializationConstructor, serializedFieldMapping);
       }
 
       if (initializationMethod != null)
@@ -105,20 +105,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private ConstructorInfo GetDeserializationConstructor (Type type)
+    private MutableConstructorInfo GetDeserializationConstructor (MutableType type)
     {
-      return type.GetConstructor (
-          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-          null,
-          new[] { typeof (SerializationInfo), typeof (StreamingContext) },
-          null);
+      var parameterTypes = new[] { typeof (SerializationInfo), typeof (StreamingContext) };
+      return type.AddedConstructors
+                 .SingleOrDefault (c => !c.IsStatic && c.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes));
     }
 
-    private void AdaptDeserializationConstructor (
-        MutableType mutableType, ConstructorInfo constructor, Tuple<string, FieldInfo>[] serializedFieldMapping)
+    private void AdaptDeserializationConstructor (MutableConstructorInfo constructor, Tuple<string, FieldInfo>[] serializedFieldMapping)
     {
-      mutableType
-          .GetMutableConstructor (constructor)
+      constructor
           .SetBody (
               ctx => Expression.Block (
                   typeof (void),

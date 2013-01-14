@@ -235,14 +235,6 @@ namespace Remotion.TypePipe.MutableReflection
       return field;
     }
 
-    // TODO 5309: Remove
-    public MutableFieldInfo GetMutableField (FieldInfo field)
-    {
-      ArgumentUtility.CheckNotNull ("field", field);
-
-      return GetMutableMemberOrThrow (_fields, field, "field");
-    }
-
     public MutableConstructorInfo AddConstructor (
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
@@ -255,14 +247,6 @@ namespace Remotion.TypePipe.MutableReflection
       _constructors.Add (constructor);
 
       return constructor;
-    }
-
-    // TODO 5309: Remove
-    public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
-    {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-
-      return GetMutableMemberOrThrow(_constructors, constructor, "constructor");
     }
 
     public MutableMethodInfo AddMethod (
@@ -450,29 +434,6 @@ namespace Remotion.TypePipe.MutableReflection
             "Type initializers (static constructors) cannot be modified via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
         throw new NotSupportedException (message);
       }
-    }
-
-    // TODO 5309: Remove
-    private TMutableMember GetMutableMemberOrThrow<TMember, TMutableMember> (
-        MutableTypeMemberCollection<TMember, TMutableMember> collection, TMember member, string memberType)
-        where TMember: MemberInfo
-        where TMutableMember: TMember
-    {
-      // TODO 4972: Use TypeEqualityComparer.
-      if (!UnderlyingSystemType.Equals (member.DeclaringType))
-      {
-        var message = string.Format ("The given {0} is declared by a different type: '{1}'.", memberType, member.DeclaringType);
-        throw new ArgumentException (message, memberType);
-      }
-
-      var mutableMember = collection.GetMutableMember (member);
-      if (mutableMember == null)
-      {
-        var message = string.Format ("The given {0} cannot be modified.", memberType);
-        throw new NotSupportedException (message);
-      }
-
-      return mutableMember;
     }
   } 
 }
