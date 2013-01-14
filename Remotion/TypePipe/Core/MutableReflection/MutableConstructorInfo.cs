@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _descriptor = descriptor;
 
-      _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
+      _parameters = null;
 
       _body = _descriptor.Body;
     }

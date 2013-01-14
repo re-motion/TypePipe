@@ -44,6 +44,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
+      Assertion.IsTrue (type != typeof (void));
 
       _declaringType = declaringType;
       _name = name;

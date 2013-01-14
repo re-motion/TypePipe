@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -33,17 +32,26 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableParameterInfo : ParameterInfo, IMutableInfo
   {
     private readonly MemberInfo _member;
-    private readonly ParameterDescriptor _descriptor;
+    private readonly int _position;
+    private readonly string _name;
+    private readonly Type _type;
+    private readonly ParameterAttributes _attributes;
 
     private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
 
-    public MutableParameterInfo (MemberInfo member, ParameterDescriptor descriptor)
+    public MutableParameterInfo (MemberInfo member, int position, string name, Type type, ParameterAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
+      Assertion.IsTrue (name != null || position == -1);
+      ArgumentUtility.CheckNotNull ("type", type);
+      Assertion.IsTrue (type != typeof (void) || position == -1);
+      Assertion.IsTrue (position >= -1);
 
       _member = member;
-      _descriptor = descriptor;
+      _position = position;
+      _name = name;
+      _type = type;
+      _attributes = attributes;
     }
 
     public override MemberInfo Member
@@ -53,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override int Position
     {
-      get { return _descriptor.Position; }
+      get { return _position; }
     }
 
     public bool IsNew
@@ -66,19 +74,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return AddedCustomAttributes.Count != 0; }
     }
 
-    public override Type ParameterType
-    {
-      get { return _descriptor.Type; }
-    }
-
     public override string Name
     {
-      get { return _descriptor.Name; }
+      get { return _name; }
+    }
+
+    public override Type ParameterType
+    {
+      get { return _type; }
     }
 
     public override ParameterAttributes Attributes
     {
-      get { return _descriptor.Attributes; }
+      get { return _attributes; }
     }
 
     public bool CanAddCustomAttributes
