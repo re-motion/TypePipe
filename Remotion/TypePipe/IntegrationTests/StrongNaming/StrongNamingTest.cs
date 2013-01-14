@@ -48,6 +48,8 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     private ConstructorInfo _unsignedCtor;
     private MethodInfo _signedMethod;
     private MethodInfo _unsignedMethod;
+    private MethodInfo _signedVarArgsMethod;
+    private MethodInfo _unsignedVarArgsMethod;
 
     public override void SetUp ()
     {
@@ -71,6 +73,9 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
       _signedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.Method());
       _unsignedMethod = _unsignedType.GetMethod ("method");
+
+      _signedVarArgsMethod = typeof (DomainType).GetMethod ("VarArgsMethod");
+      _unsignedVarArgsMethod = _unsignedType.GetMethod ("varargs");
     }
 
     [Test]
@@ -190,7 +195,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       // Emit (Opcode, MethodInfo)
       CheckStrongNamingExpression (Expression.Call (_signedMethod));
       // EmitCall (OpCode, MethodInfo)
-      // tODO review
+      CheckStrongNamingExpression (Expression.Call (_signedVarArgsMethod));
       // DeclareLocal (Type)
       CheckStrongNamingExpression (Expression.Block (new[] { Expression.Variable (_signedType) }, Expression.Empty()));
       // BeginCatchBlock (Type)
@@ -214,7 +219,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       // Emit (Opcode, MethodInfo)
       CheckStrongNamingExpressionException (Expression.Call (_unsignedMethod));
       // EmitCall (OpCode, MethodInfo)
-      // todo review
+      CheckStrongNamingExpressionException (Expression.Call (_unsignedVarArgsMethod));
       // DeclareLocal (Type)
       CheckStrongNamingExpressionException (Expression.Block (new[] { Expression.Variable (_unsignedType) }, Expression.Empty()));
       // BeginCatchBlock (Type)
@@ -321,6 +326,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       {
         typeBuilder.DefineField ("field", typeof (int), FieldAttributes.Public | FieldAttributes.Static);
         typeBuilder.DefineMethod ("method", MethodAttributes.Public | MethodAttributes.Static).GetILGenerator().Emit (OpCodes.Ret);
+        typeBuilder.DefineMethod ("varargs", MethodAttributes.Public | MethodAttributes.Static, CallingConventions.VarArgs).GetILGenerator().Emit (OpCodes.Ret);
       }
 
       return typeBuilder.CreateType();
@@ -330,6 +336,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     {
       public static int Field;
       public static void Method () { }
+      public static void VarArgsMethod (__arglist) { }
     }
     public interface IMarkerInterface { }
     public class AbcAttribute : Attribute{ public AbcAttribute (Type type) { Dev.Null = type; } }
