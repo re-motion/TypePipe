@@ -192,7 +192,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       // EmitCall (OpCode, MethodInfo)
 
       // DeclareLocal (Type)
-
+      CheckStrongNamingExpression (Expression.Block (new[] { Expression.Variable (_signedType) }, Expression.Empty()));
       // BeginCatchBlock (Type)
       // tODO review
     }
@@ -217,7 +217,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       // EmitCall (OpCode, MethodInfo)
 
       // DeclareLocal (Type)
-
+      CheckStrongNamingExpressionException (Expression.Block (new[] { Expression.Variable (_unsignedType) }, Expression.Empty ()));
       // BeginCatchBlock (Type)
       // todo review
     }
