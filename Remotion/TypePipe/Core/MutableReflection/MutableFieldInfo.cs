@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -33,23 +32,23 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableFieldInfo : FieldInfo, IMutableInfo
   {
     private readonly MutableType _declaringType;
-    private readonly FieldDescriptor _descriptor;
+    private readonly string _name;
+    private readonly Type _type;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
 
     private FieldAttributes _attributes;
 
-    public MutableFieldInfo (MutableType declaringType, FieldDescriptor descriptor)
+    public MutableFieldInfo (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
 
       _declaringType = declaringType;
-      _descriptor = descriptor;
-
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (() => CanAddCustomAttributes);
-
-      _attributes = descriptor.Attributes;
+      _name = name;
+      _type = type;
+      _attributes = attributes;
     }
 
     public override Type DeclaringType
@@ -67,14 +66,14 @@ namespace Remotion.TypePipe.MutableReflection
       get { return AddedCustomAttributes.Count != 0; }
     }
 
-    public override Type FieldType
-    {
-      get { return _descriptor.Type; }
-    }
-
     public override string Name
     {
-      get { return _descriptor.Name; }
+      get { return _name; }
+    }
+
+    public override Type FieldType
+    {
+      get { return _type; }
     }
 
     public override FieldAttributes Attributes

@@ -44,7 +44,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    // TODO 5309: Remove container, use List (probably)
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer ();
     private readonly Func<Type, InterfaceMapping> _interfacMappingProvider;
 
     private readonly List<Expression> _typeInitializations = new List<Expression>();
@@ -82,8 +83,6 @@ namespace Remotion.TypePipe.MutableReflection
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
 
-      // TODO 5309: Remove container, use List (probably)
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (() => CanAddCustomAttributes);
       _interfacMappingProvider = descriptor.InterfaceMappingProvider;
 
       _existingInterfaces = descriptor.Interfaces;
@@ -490,22 +489,19 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5309: Remove
     private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
     {
-      var descriptor = FieldDescriptor.Create (originalField);
-      return new MutableFieldInfo (this, descriptor);
+      return null;
     }
 
     // TODO 5309: Remove
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
-      var descriptor = ConstructorDescriptor.Create (originalConstructor);
-      return new MutableConstructorInfo (this, descriptor);
+      return null;
     }
 
     // TODO 5309: Remove
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
-      var descriptor = MethodDescriptor.Create (originalMethod, _relatedMethodFinder);
-      return new MutableMethodInfo (this, descriptor);
+      return null;
     }
   } 
 }

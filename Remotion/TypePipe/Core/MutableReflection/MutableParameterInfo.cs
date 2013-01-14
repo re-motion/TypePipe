@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MemberInfo _member;
     private readonly ParameterDescriptor _descriptor;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
 
     public MutableParameterInfo (MemberInfo member, ParameterDescriptor descriptor)
     {
@@ -44,8 +44,6 @@ namespace Remotion.TypePipe.MutableReflection
 
       _member = member;
       _descriptor = descriptor;
-
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (() => CanAddCustomAttributes);
     }
 
     public override MemberInfo Member

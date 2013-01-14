@@ -29,16 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MutableInfoCustomAttributeContainer
   {
-    private readonly Func<bool> _canAddCustomAttributesDecider;
-
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
-
-    public MutableInfoCustomAttributeContainer (Func<bool> canAddCustomAttributesDecider)
-    {
-      ArgumentUtility.CheckNotNull ("canAddCustomAttributesDecider", canAddCustomAttributesDecider);
-
-      _canAddCustomAttributesDecider = canAddCustomAttributesDecider;
-    }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
@@ -48,9 +39,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
-
-      if (!_canAddCustomAttributesDecider())
-        throw new NotSupportedException ("Adding custom attributes to this element is not supported.");
 
       if (GetCustomAttributeData().Any (a => a.Type == customAttributeDeclaration.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
       {

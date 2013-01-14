@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _declaringType;
     private readonly ConstructorDescriptor _descriptor;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
     private Expression _body;
@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _descriptor = descriptor;
 
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (() => CanAddCustomAttributes);
       _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
 
       _body = _descriptor.Body;
