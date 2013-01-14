@@ -43,8 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     // TODO 5309: Remove container, use List (probably)
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
-    private readonly Func<Type, InterfaceMapping> _interfaceMappingProvider;
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     // TODO remove.
     private readonly List<Expression> _typeInitializations = new List<Expression>();
@@ -57,33 +56,26 @@ namespace Remotion.TypePipe.MutableReflection
 
     private TypeAttributes _attributes;
 
+    // TODO test initializaition
     public MutableType (
-        Type declaringType,
         Type baseType,
         string name,
         string @namespace,
         string fullname,
         TypeAttributes attributes,
-        Func<Type, InterfaceMapping> interfaceMappingProvider,
         IMemberSelector memberSelector,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, declaringType, baseType, name, @namespace, fullname)
+        : base (memberSelector, null, baseType, name, @namespace, fullname)
     {
-      ArgumentUtility.CheckNotNull ("interfaceMappingProvider", interfaceMappingProvider);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
       _attributes = attributes;
-      _interfaceMappingProvider = interfaceMappingProvider;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
     }
-
-    // TODO 5309: Remove
-
-    // TODO 5309: Remove
 
     // TODO 5309: Replace with static ctor
     public ReadOnlyCollection<Expression> TypeInitializations
@@ -345,7 +337,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
       // TODO 5309: If _methods is changed to _addedMethods, change this accordingly
-      return _interfaceMappingComputer.ComputeMapping (this, _interfaceMappingProvider, interfaceType, allowPartialInterfaceMapping);
+      // BaseType.GetInterfaceMap ??
+      return _interfaceMappingComputer.ComputeMapping (this, null, interfaceType, allowPartialInterfaceMapping);
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()

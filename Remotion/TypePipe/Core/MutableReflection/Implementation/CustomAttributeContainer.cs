@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// A helper class that is used to implement custom <see cref="Attribute"/>-related members of <see cref="IMutableInfo"/> on mutable reflection
   /// objects.
   /// </summary>
-  public class MutableInfoCustomAttributeContainer
+  public class CustomAttributeContainer
   {
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 

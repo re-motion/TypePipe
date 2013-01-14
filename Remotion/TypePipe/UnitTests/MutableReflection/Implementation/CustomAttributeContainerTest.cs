@@ -24,20 +24,14 @@ using System.Linq;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class MutableInfoCustomAttributeContainerTest
+  public class CustomAttributeContainerTest
   {
-    private Func<ReadOnlyCollection<ICustomAttributeData>> _attributeProvider;
-    private bool _canAddCustomAttributes;
-
-    private MutableInfoCustomAttributeContainer _container;
+    private CustomAttributeContainer _container;
 
     [SetUp]
     public void SetUp ()
     {
-      _attributeProvider = () => { throw new Exception ("should be lazy"); };
-      _canAddCustomAttributes = true;
-
-      _container = new MutableInfoCustomAttributeContainer (() => _attributeProvider(), () => _canAddCustomAttributes);
+      _container = new CustomAttributeContainer ();
     }
 
     [Test]

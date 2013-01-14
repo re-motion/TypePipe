@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly string _name;
     private readonly Type _type;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     private FieldAttributes _attributes;
 

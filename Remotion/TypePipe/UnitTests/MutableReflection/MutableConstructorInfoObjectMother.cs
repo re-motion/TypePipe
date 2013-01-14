@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -28,27 +26,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static MutableConstructorInfo Create (
         MutableType declaringType = null,
-        MethodAttributes attributes = MethodAttributes.Family,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        MethodAttributes attributes = (MethodAttributes) 7,
+        IEnumerable<ParameterDeclaration> parameters = null,
         Expression body = null)
     {
-      return CreateForNew (declaringType, attributes, parameterDeclarations, body);
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
+      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      body = body ?? Expression.Empty();
+
+      return new MutableConstructorInfo (declaringType, attributes, parameters, body);
     }
 
+    // todo remove
     public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
     {
-      underlyingConstructor = underlyingConstructor ?? ReflectionObjectMother.GetSomeConstructor();
-      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExisting (underlyingConstructor.DeclaringType);
-      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting (underlyingConstructor);
-
-      return new MutableConstructorInfo (declaringType, descriptor);
+      return null;
     }
 
     public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
     {
-      var ctor = CreateForExisting (underlyingConstructor, declaringType);
-      MutableConstructorInfoTestHelper.ModifyConstructor (ctor);
-      return ctor;
+      return null;
     }
 
     public static MutableConstructorInfo CreateForNew (
@@ -57,10 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
     {
-      declaringType = declaringType ?? MutableTypeObjectMother.Create();
-      var descriptor = ConstructorDescriptorObjectMother.CreateForNew (attributes, parameterDeclarations, body);
-
-      return new MutableConstructorInfo (declaringType, descriptor);
+      return null;
     }
 
     public static MutableConstructorInfo CreateForNewWithParameters (MutableType declaringType, params ParameterDeclaration[] parameterDeclarations)

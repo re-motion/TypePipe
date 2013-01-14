@@ -40,7 +40,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private InterfaceMappingComputer _computer;
 
     private IInterfaceMappingProvider _interfaceMapProviderMock;
-    private IMutableMemberProvider<MethodInfo, MutableMethodInfo> _mutableMethodProviderMock;
 
     private MutableType _mutableType;
 
@@ -59,7 +58,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
 
       _interfaceMapProviderMock = MockRepository.GenerateStrictMock<IInterfaceMappingProvider>();
-      _mutableMethodProviderMock = MockRepository.GenerateStrictMock<IMutableMemberProvider<MethodInfo, MutableMethodInfo>>();
     }
 
     [Test]

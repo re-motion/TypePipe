@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
     private readonly MethodInfo _baseMethod;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
 
     private Expression _body;
@@ -63,9 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnParameter", returnParameter);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
-      // baseMethod may be null.
-      ArgumentUtility.CheckNotNull ("body", body);
-      Assertion.IsTrue ((body != null && returnParameter.Type.IsAssignableFrom (body.Type)) || attributes.IsSet (MethodAttributes.Abstract));
+      Assertion.IsTrue (baseMethod == null || baseMethod.IsVirtual);
+      Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
+      Assertion.IsTrue (body == null || returnParameter.Type.IsAssignableFrom (body.Type));
 
       // TODO: AsOneTime
       var parameterDeclaration = parameters.ConvertToCollection();

@@ -26,7 +26,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -35,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
-    private TypeDescriptor _descriptor;
     private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
     private IInterfaceMappingComputer _interfaceMappingComputerMock;
@@ -46,13 +44,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _descriptor = TypeDescriptorObjectMother.Create (typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-
-      // Use a dynamic mock because constructor passes on _relatedMethodFinderMock to UnderlyingTypeDescriptor, which calls methods on the mock.
-      // If this changes and the UnderlyingTypeDescriptor logic becomes a problem, consider injecting an ExistingMutableMemberInfoFactory instead and 
-      // stubbing that.
-      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
+      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
       _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
@@ -62,153 +55,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      Assert.That (_mutableType.UnderlyingSystemType, Is.EqualTo (_mutableType));
-      Assert.That (_mutableType.DeclaringType, Is.EqualTo (_descriptor.DeclaringType));
-      Assert.That (_mutableType.BaseType, Is.EqualTo (_descriptor.BaseType));
-      Assert.That (_mutableType.Name, Is.EqualTo (_descriptor.Name));
-      Assert.That (_mutableType.Namespace, Is.EqualTo (_descriptor.Namespace));
-      Assert.That (_mutableType.FullName, Is.EqualTo (_descriptor.FullName));
+      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
+      var name = "abc";
+      var @namespace = "def";
+      var fullname = "hij";
+      var attributes = (TypeAttributes) 7;
 
-      Assert.That (_mutableType.TypeInitializations, Is.Empty);
-      Assert.That (_mutableType.InstanceInitializations, Is.Empty);
-      Assert.That (_mutableType.AddedInterfaces, Is.Empty);
-      Assert.That (_mutableType.AddedFields, Is.Empty);
-      Assert.That (_mutableType.AddedConstructors, Is.Empty);
-      Assert.That (_mutableType.AddedMethods, Is.Empty);
-    }
+      var mutableType = new MutableType (
+          baseType, name, @namespace, fullname, attributes, _memberSelectorMock, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
-    [Test]
-    public void Initialization_Interfaces ()
-    {
-      Assert.That (_descriptor.Interfaces, Is.Not.Empty);
+      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (mutableType));
+      Assert.That (mutableType.DeclaringType, Is.Null);
+      Assert.That (mutableType.BaseType, Is.SameAs (baseType));
+      Assert.That (mutableType.Name, Is.EqualTo (name));
+      Assert.That (mutableType.Namespace, Is.EqualTo (@namespace));
+      Assert.That (mutableType.FullName, Is.EqualTo (fullname));
+      Assert.That (mutableType.Attributes, Is.EqualTo (attributes));
 
-      Assert.That (_mutableType.ExistingInterfaces, Is.EqualTo (_descriptor.Interfaces));
-      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (_descriptor.Interfaces));
-    }
-
-    [Test]
-    public void Initialization_Fields ()
-    {
-      var fields = _descriptor.Fields;
-      Assert.That (fields, Is.Not.Empty); // base field, declared field
-      var expectedField = fields.Single (m => m.Name == "Field");
-
-      Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
-      var mutableField = _mutableType.ExistingMutableFields.Single();
-
-      Assert.That (mutableField.DeclaringType, Is.SameAs (_mutableType));
-    }
-
-    [Test]
-    public void Initialization_Constructors ()
-    {
-      var ctors = _descriptor.Constructors;
-      Assert.That (ctors, Has.Count.EqualTo (1));
-      var expectedCtor = ctors.Single();
-
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Count.EqualTo (1));
-      var mutableCtor = _mutableType.ExistingMutableConstructors.Single();
-
-      //Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedCtor));
-      Assert.That (mutableCtor.DeclaringType, Is.SameAs (_mutableType));
-    }
-
-    [Test]
-    public void Initialization_Methods ()
-    {
-      var methods = _descriptor.Methods;
-      Assert.That (methods, Is.Not.Empty); // ToString(), Equals(), ...
-      var expectedMethod = methods.Single (m => m.Name == "VirtualMethod");
-
-      Assert.That (_mutableType.ExistingMutableMethods.Count, Is.EqualTo (2));
-      var mutableMethod = _mutableType.ExistingMutableMethods.Single (m => m.Name == "VirtualMethod");
-
-      //Assert.That (mutableMethod.UnderlyingSystemMethodInfo, Is.EqualTo (expectedMethod));
-      Assert.That (mutableMethod.DeclaringType, Is.SameAs (_mutableType));
-
-      // Test that the _relatedMethodFinderMock was passed to the underlying descriptor.
-      _relatedMethodFinderMock.AssertWasCalled (mock => mock.GetBaseMethod (expectedMethod));
-    }
-
-    [Test]
-    public void IsNew ()
-    {
-      var type1 = MutableTypeObjectMother.CreateForExisting();
-      //var type2 = MutableTypeObjectMother.CreateForNew();
-
-      Assert.That (type1.IsNew, Is.False);
-      //Assert.That (type2.IsNew, Is.True);
-    }
-
-    [Test]
-    [Ignore ("TODO 4744")]
-    public void IsModified ()
-    {
-      Assert.Fail ("(members, custom attributes, abstractness, ...");
-    }
-
-    [Test]
-    public void AllMutableFields ()
-    {
-      Assert.That (GetAllFields (_mutableType).ExistingBaseMembers, Is.Not.Empty);
-      Assert.That (_mutableType.ExistingMutableFields, Has.Count.EqualTo (1));
-      var existingField = _mutableType.ExistingMutableFields.Single();
-      var addedField = AddField (_mutableType, "_addedField");
-
-      var allFields = _mutableType.AllMutableFields.ToArray();
-
-      Assert.That (allFields, Has.Length.EqualTo (2));
-      Assert.That (allFields[0], Is.SameAs (existingField));
-      Assert.That (allFields[1], Is.SameAs (addedField));
-    }
-
-    [Test]
-    public void AllMutableConstructors ()
-    {
-      Assert.That (_descriptor.Constructors, Has.Count.EqualTo (1));
-      var existingCtor = _descriptor.Constructors.Single();
-      var addedCtor = AddConstructor (_mutableType, new ArgumentTestHelper (7).ParameterDeclarations); // Need different signature
-
-      var allConstructors = _mutableType.AllMutableConstructors.ToArray();
-
-      Assert.That (allConstructors, Has.Length.EqualTo (2));
-      Assert.That (allConstructors[0].DeclaringType, Is.SameAs (_mutableType));
-      //Assert.That (allConstructors[0].UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
-      Assert.That (allConstructors[1], Is.SameAs (addedCtor));
-    }
-
-    [Test]
-    public void AllMutableMethods ()
-    {
-      Assert.That (_descriptor.Methods, Is.Not.Empty);
-      var existingMethods = _descriptor.Methods;
-      var addedMethod = AddMethod (_mutableType, "NewMethod");
-
-      var allMethods = _mutableType.AllMutableMethods.ToArray();
-
-      Assert.That (allMethods, Has.Length.EqualTo (3));
-      Assert.That (allMethods[0].DeclaringType, Is.SameAs (_mutableType));
-      //Assert.That (allMethods[0].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[0]));
-      Assert.That (allMethods[1].DeclaringType, Is.SameAs (_mutableType));
-      //Assert.That (allMethods[1].UnderlyingSystemMethodInfo, Is.SameAs (existingMethods[1]));
-      Assert.That (allMethods[2], Is.SameAs (addedMethod));
-    }
-
-    [Test]
-    public void CanAddCustomAttributes ()
-    {
-      var type1 = MutableTypeObjectMother.CreateForExisting();
-      //var type2 = MutableTypeObjectMother.CreateForNew();
-
-      Assert.That (type1.CanAddCustomAttributes, Is.True);
-      //Assert.That (type2.CanAddCustomAttributes, Is.True);
+      Assert.That (mutableType.TypeInitializations, Is.Empty);
+      Assert.That (mutableType.InstanceInitializations, Is.Empty);
+      Assert.That (mutableType.AddedInterfaces, Is.Empty);
+      Assert.That (mutableType.AddedFields, Is.Empty);
+      Assert.That (mutableType.AddedConstructors, Is.Empty);
+      Assert.That (mutableType.AddedMethods, Is.Empty);
     }
 
     [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
-      Assert.That (_mutableType.CanAddCustomAttributes, Is.True);
       _mutableType.AddCustomAttribute (declaration);
 
       Assert.That (_mutableType.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
@@ -659,7 +534,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType: _mutableType,
           name: baseMethod.Name,
           attributes: baseMethod.Attributes,
-          parameterDeclarations: ParameterDeclaration.EmptyParameters,
+          parameters: ParameterDeclaration.EmptyParameters,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null))
@@ -744,7 +619,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
-      var fakeMethod = MutableMethodInfoObjectMother.Create (mutableType, name, parameterDeclarations: parameterDeclarations);
+      var fakeMethod = MutableMethodInfoObjectMother.Create (mutableType, name, parameters: parameterDeclarations);
       _mutableMemberFactoryMock
           .Stub (stub => stub.CreateMethod (null, "", 0, null, null, null)).IgnoreArguments()
           .Return (fakeMethod)

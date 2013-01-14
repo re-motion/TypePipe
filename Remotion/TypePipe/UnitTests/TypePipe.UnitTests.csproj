@@ -119,7 +119,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableInfoCustomAttributeContainerTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />
     <Compile Include="MutableReflection\Implementation\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedEventFinderTest.cs" />
@@ -133,7 +133,6 @@
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
-    <Compile Include="MutableReflection\MutableTypeIntegrationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MutableTypeMemberCollectionTest.cs" />
     <Compile Include="MutableReflection\Implementation\MutableTypeMethodCollectionTest.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtilityTest.cs" />

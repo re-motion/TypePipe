@@ -157,7 +157,7 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableInfoCustomAttributeContainer.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />

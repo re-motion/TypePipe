@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -32,7 +31,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutableConstructorInfoTest
   {
     private MutableType _declaringType;
-    private ConstructorDescriptor _descriptor;
 
     private MutableConstructorInfo _constructor;
 
@@ -40,60 +38,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _declaringType = MutableTypeObjectMother.Create();
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      _descriptor = ConstructorDescriptorObjectMother.Create (parameterDeclarations: parameters);
 
-      _constructor = Create (_descriptor);
+      _constructor = MutableConstructorInfoObjectMother.Create();
     }
 
     [Test]
     public void Initialization ()
     {
-      var ctor = new MutableConstructorInfo (_declaringType, _descriptor);
+      var declaringType = MutableTypeObjectMother.Create();
+      var attributes = (MethodAttributes) 7;
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      Assert.That (ctor.DeclaringType, Is.SameAs (_declaringType));
+      var ctor = new MutableConstructorInfo (_declaringType, attributes, parameters, body);
+
+      Assert.That (ctor.DeclaringType, Is.SameAs (declaringType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
-      Assert.That (_constructor.Body, Is.SameAs (_descriptor.Body));
-    }
 
-    [Test]
-    public void IsNew ()
-    {
-      var ctor1 = MutableConstructorInfoObjectMother.CreateForExisting();
-      var ctor2 = MutableConstructorInfoObjectMother.CreateForNew();
+      var actualParameters = ctor.GetParameters();
+      Assert.That (actualParameters, Has.Length.EqualTo (2));
+      MutableParameterInfoTest.CheckParameter (actualParameters[0], ctor, 0, parameters[0].Name, parameters[0].Type, parameters[0].Attributes);
+      MutableParameterInfoTest.CheckParameter (actualParameters[1], ctor, 1, parameters[1].Name, parameters[1].Type, parameters[1].Attributes);
+      Assert.That (ctor.MutableParameters, Is.EqualTo (actualParameters));
 
-      Assert.That (ctor1.IsNew, Is.False);
-      Assert.That (ctor2.IsNew, Is.True);
-    }
+      var paramExpressions = ctor.ParameterExpressions;
+      Assert.That (paramExpressions, Has.Count.EqualTo (2));
+      Assert.That (paramExpressions[0], Has.Property ("Name").EqualTo (parameters[0].Name).And.Property ("Type").SameAs (parameters[0].Type));
+      Assert.That (paramExpressions[1], Has.Property ("Name").EqualTo (parameters[1].Name).And.Property ("Type").SameAs (parameters[1].Type));
 
-    [Test]
-    public void IsModified_CustomAttributes ()
-    {
-      Assert.That (_constructor.IsModified, Is.False);
-      _constructor.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
-
-      Assert.That (_constructor.IsModified, Is.True);
-    }
-
-    [Test]
-    public void IsModified_Body ()
-    {
-      Assert.That (_constructor.IsModified, Is.False);
-      _constructor.SetBody (ctx => Expression.Empty());
-
-      Assert.That (_constructor.IsModified, Is.True);
-    }
-
-    [Test]
-    public void Name ()
-    {
-      Assert.That (_constructor.Name, Is.EqualTo (_descriptor.Name));
-    }
-
-    [Test]
-    public void Attributes ()
-    {
-      Assert.That (_constructor.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (ctor.Body, Is.SameAs (body));
     }
 
     [Test]
@@ -259,16 +232,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (null, 0, null, null, null), "Invoke");
       UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (0, null, null, null), "Invoke");
-    }
-
-    private MutableConstructorInfo Create (ConstructorDescriptor constructorDescriptor)
-    {
-      return new MutableConstructorInfo (_declaringType, constructorDescriptor);
-    }
-
-    private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
-    {
-      return Create (ConstructorDescriptorObjectMother.CreateForNew (parameterDeclartions: parameterDeclarations));
     }
 
     class DomainType

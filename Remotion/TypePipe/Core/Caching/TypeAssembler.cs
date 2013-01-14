@@ -99,13 +99,11 @@ namespace Remotion.TypePipe.Caching
       // TODO fullname
       // TODO attributes
       return new MutableType (
-          null,
           requestedType,
           requestedType.Name,
           requestedType.Namespace,
           requestedType.FullName,
           requestedType.Attributes,
-          requestedType.GetInterfaceMap,
           memberSelector,
           interfaceMappingComputer,
           mutableMemberFactory);

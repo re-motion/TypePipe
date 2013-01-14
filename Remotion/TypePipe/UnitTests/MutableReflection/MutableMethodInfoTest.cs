@@ -25,7 +25,6 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -35,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private MutableType _declaringType;
 
-    private MethodDescriptor _descriptor;
     private MutableMethodInfo _mutableMethod;
 
     private MutableMethodInfo _newNonVirtualMethod;
@@ -71,53 +69,42 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      Assert.That (_mutableMethod.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (_mutableMethod.Attributes, Is.EqualTo (_descriptor.Attributes));
-      Assert.That (_mutableMethod.Body, Is.SameAs (_descriptor.Body));
+      var declaringType = MutableTypeObjectMother.Create();
+      var name = "abc";
+      var attributes = (MethodAttributes) 7;
+      var returnParameter = ParameterDeclarationObjectMother.Create();
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
+      var body = ExpressionTreeObjectMother.GetSomeExpression (returnParameter.Type);
+
+      var method = new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters, baseMethod, body);
+
+      Assert.That (method.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (method.Name, Is.EqualTo (name));
+      Assert.That (method.Attributes, Is.EqualTo(attributes));
+
+      MutableParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnParameter.Type, returnParameter.Attributes);
+      Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));
+
+      var actualParameters = method.GetParameters();
+      Assert.That (actualParameters, Has.Length.EqualTo (2));
+      MutableParameterInfoTest.CheckParameter (actualParameters[0], method, 0, parameters[0].Name, parameters[0].Type, parameters[0].Attributes);
+      MutableParameterInfoTest.CheckParameter (actualParameters[1], method, 1, parameters[1].Name, parameters[1].Type, parameters[1].Attributes);
+      Assert.That (method.MutableParameters, Is.EqualTo (actualParameters));
+
+      var paramExpressions = method.ParameterExpressions;
+      Assert.That (paramExpressions, Has.Count.EqualTo (2));
+      Assert.That (paramExpressions[0], Has.Property ("Name").EqualTo (parameters[0].Name).And.Property ("Type").SameAs (parameters[0].Type));
+      Assert.That (paramExpressions[1], Has.Property ("Name").EqualTo (parameters[1].Name).And.Property ("Type").SameAs (parameters[1].Type));
+      
+      Assert.That (method.BaseMethod, Is.SameAs (baseMethod));
+      Assert.That (method.Body, Is.SameAs (body));
     }
 
     [Test]
-    public void IsNew ()
+    public void Initialization_NoBasedMethod_NoBody ()
     {
-      var method1 = MutableMethodInfoObjectMother.CreateForExisting();
-      var method2 = MutableMethodInfoObjectMother.CreateForNew();
-
-      Assert.That (method1.IsNew, Is.False);
-      Assert.That (method2.IsNew, Is.True);
-    }
-
-    [Test]
-    public void IsModified_CustomAttributes ()
-    {
-      Assert.That (_mutableMethod.IsModified, Is.False);
-      _mutableMethod.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
-
-      Assert.That (_mutableMethod.IsModified, Is.True);
-    }
-
-    [Test]
-    public void IsModified_Body ()
-    {
-      Assert.That (_mutableMethod.IsModified, Is.False);
-      _mutableMethod.SetBody (ctx => ExpressionTreeObjectMother.GetSomeExpression (_descriptor.ReturnParameter.Type));
-
-      Assert.That (_mutableMethod.IsModified, Is.True);
-    }
-
-    [Test]
-    public void IsModified_ExplicitBaseDefinition ()
-    {
-      Assert.That (_existingVirtualMethod.IsModified, Is.False);
-      var overriddenMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod());
-      _existingVirtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
-
-      Assert.That (_existingVirtualMethod.IsModified, Is.True);
-    }
-
-    [Test]
-    public void Name ()
-    {
-      Assert.That (_mutableMethod.Name, Is.EqualTo (_descriptor.Name));
+      MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Abstract, baseMethod: null, body: null);
     }
 
     [Test]
@@ -128,14 +115,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
-    }
-
-    [Test]
-    public void ReturnType ()
-    {
-      Assert.That (_descriptor.ReturnParameter.Type, Is.Not.Null);
-
-      Assert.That (_mutableMethod.ReturnType, Is.SameAs (_descriptor.ReturnParameter.Type));
     }
 
     [Test]
@@ -510,7 +489,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                            new ParameterDeclaration (typeof (int), "p1"),
                            new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
                        };
-      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameterDeclarations: parameters);
+      var methodInfo = MutableMethodInfoObjectMother.Create (returnType: typeof (string), name: "Xxx", parameters: parameters);
 
       Assert.That (methodInfo.ToString (), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
@@ -522,7 +501,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType: MutableTypeObjectMother.CreateForExisting (GetType ()),
           returnType: typeof (void),
           name: "Xxx",
-          parameterDeclarations: new[] { new ParameterDeclaration (typeof (int), "p1") });
+          parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
       Assert.That (methodInfo.ToDebugString (), Is.EqualTo (expected));
@@ -542,17 +521,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _mutableMethod.Module, "Module");
 
       UnsupportedMemberTestHelper.CheckMethod (() => _mutableMethod.Invoke (null, 0, null, null, null), "Invoke");
-    }
-
-    private MutableMethodInfo Create (MethodDescriptor descriptor)
-    {
-      return new MutableMethodInfo (_declaringType, descriptor);
-    }
-
-    private MutableMethodInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
-    {
-      var descriptor = MethodDescriptorObjectMother.CreateForNew (parameterDeclarations: parameterDeclarations);
-      return new MutableMethodInfo (_declaringType, descriptor);
     }
 
     public class DomainTypeBase

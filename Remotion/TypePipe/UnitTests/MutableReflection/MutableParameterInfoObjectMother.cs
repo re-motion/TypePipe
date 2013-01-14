@@ -15,31 +15,20 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableParameterInfoObjectMother
   {
-    private abstract class UnspecifiedType
-    {
-      public void M () { }
-// ReSharper disable UnusedParameter.Local
-      public void M2 (string unspecifiedParameter) { }
-// ReSharper restore UnusedParameter.Local
-    }
-
     public static MutableParameterInfo Create (
-        MemberInfo member = null,
-        Type parameterType = null,
-        string name = "param7",
-        ParameterAttributes attributes = ParameterAttributes.In)
+        MemberInfo member = null, int position = 7, string name = "abc", Type type = null, ParameterAttributes attributes = (ParameterAttributes) 7)
     {
-      return CreateForNew (member, parameterType, name, attributes);
+      member = member ?? ReflectionObjectMother.GetSomeMember();
+      type = type ?? ReflectionObjectMother.GetSomeType();
+
+      return new MutableParameterInfo (member, position, name, type, attributes);
     }
 
     public static MutableParameterInfo CreateForNew (
@@ -48,22 +37,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = "param7",
         ParameterAttributes attributes = ParameterAttributes.In)
     {
-      member = member ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.M());
-      parameterType = parameterType ?? typeof (UnspecifiedType);
-
-      var descriptor = ParameterDescriptorObjectMother.CreateForNew (parameterType, name, attributes);
-
-      return new MutableParameterInfo (member, descriptor);
+      return null;
     }
 
     public static MutableParameterInfo CreateForExisting (MemberInfo member = null, ParameterInfo underlyingParameter = null)
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.M2 (""));
-      underlyingParameter = underlyingParameter ?? method.GetParameters().Single();
-      var descriptor = ParameterDescriptorObjectMother.CreateForExisting (underlyingParameter);
-      member = member ?? method;
-
-      return new MutableParameterInfo (member, descriptor);
+      return null;
     }
   }
 }

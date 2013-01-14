@@ -14,30 +14,45 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
     public static MutableType Create (
-        TypeDescriptor typeDescriptor = null,
+        Type baseType = null,
+        string name = "Proxy",
+        string @namespace = "My",
+        string fullname = "My.Proxy",
+        TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
+        Func<Type, InterfaceMapping> interfaceMappingProvider = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
-      typeDescriptor = typeDescriptor ?? TypeDescriptorObjectMother.Create();
+      baseType = baseType ?? ReflectionObjectMother.GetSomeSubclassableType();
+      interfaceMappingProvider = null;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (typeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (
+          baseType,
+          name,
+          @namespace,
+          fullname,
+          attributes,
+          interfaceMappingProvider,
+          memberSelector,
+          interfaceMappingComputer,
+          mutableMemberFactory);
     }
 
     public static MutableType CreateForExisting (
@@ -47,11 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
-      var descriptor = underlyingType != null ? TypeDescriptorObjectMother.Create (underlyingType) : null;
-
-      return Create (descriptor, memberSelector, relatedMethodFinder, interfaceMappingComputer, mutableMemberFactory);
+      return null;
     }
-
-    private class UnspecifiedType { }
   }
 }

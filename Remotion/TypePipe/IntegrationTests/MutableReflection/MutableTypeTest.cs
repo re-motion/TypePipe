@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using NUnit.Framework;
@@ -21,10 +22,10 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
-  public class MutableTypeIntegrationTest
+  public class MutableTypeTest
   {
     private MutableType _mutableType;
 

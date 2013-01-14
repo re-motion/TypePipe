@@ -18,31 +18,30 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableFieldInfoObjectMother
   {
     public static MutableFieldInfo Create (
-        MutableType declaringType = null, string name = "_newField", Type type = null, FieldAttributes attributes = FieldAttributes.FieldAccessMask)
+        MutableType declaringType = null, string name = "_newField", Type type = null, FieldAttributes attributes = (FieldAttributes) 7)
     {
-      return CreateForNew (declaringType: declaringType, name: name, field: type, attributes: attributes);
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
+      type = type ?? ReflectionObjectMother.GetSomeType();
+
+      return new MutableFieldInfo (declaringType, name, type, attributes);
     }
 
+    // todo remove
     public static MutableFieldInfo CreateForNew (
         MutableType declaringType = null, string name = "_newField", Type field = null, FieldAttributes attributes = FieldAttributes.FieldAccessMask)
     {
-      return new MutableFieldInfo (
-          declaringType ?? MutableTypeObjectMother.Create(),
-          FieldDescriptorObjectMother.Create (name, field, attributes));
+      return null;
     }
 
     public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo underlyingField = null)
     {
-      return new MutableFieldInfo (
-          declaringType ?? MutableTypeObjectMother.Create(),
-          FieldDescriptorObjectMother.CreateForExisting (underlyingField));
+      return null;
     }
   }
 }

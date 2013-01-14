@@ -18,10 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
+using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -30,15 +28,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static MutableMethodInfo Create (
         MutableType declaringType = null,
         string name = "UnspecifiedMethod",
-        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
-        Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
+        MethodAttributes attributes = (MethodAttributes) 7,
+        ParameterDeclaration returnParameter = null,
+        IEnumerable<ParameterDeclaration> parameters = null,
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      return CreateForNew (declaringType, name, attributes, returnType, parameterDeclarations, baseMethod, body);
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
+      returnParameter = returnParameter ?? ParameterDeclaration.CreateReturnParameter (typeof (void));
+      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      // baseMethod stays null.
+      body = body == null && !attributes.IsSet (MethodAttributes.Abstract)
+                 ? ExpressionTreeObjectMother.GetSomeExpression (returnParameter.Type)
+                 : body;
+
+      return new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters, baseMethod, body);
     }
 
+    // tODO remove
     public static MutableMethodInfo CreateForNew (
         MutableType declaringType = null,
         string name = "UnspecifiedMethod",
@@ -48,24 +55,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      var descriptor = MethodDescriptorObjectMother.CreateForNew (
-          name, attributes, returnType, parameterDeclarations, body: body, baseMethod: baseMethod);
-
-      return new MutableMethodInfo (
-          declaringType ?? MutableTypeObjectMother.Create(),
-          descriptor);
+      return null;
     }
 
+    // TODO remove
     public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo underlyingMethod = null)
     {
-      int i;
-      underlyingMethod = underlyingMethod
-                         ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnspecifiedType obj) => obj.UnspecifiedMethod (out i, 0.7));
-      declaringType = declaringType ?? MutableTypeObjectMother.CreateForExisting (underlyingMethod.DeclaringType);
-
-      var descriptor = MethodDescriptorObjectMother.CreateForExisting (underlyingMethod);
-
-      return new MutableMethodInfo (declaringType, descriptor);
+      return null;
     }
 
     public static MutableMethodInfo CreateForExistingAndModify (MethodInfo underlyingMethod = null)
@@ -73,11 +69,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = CreateForExisting (underlyingMethod: underlyingMethod ?? ReflectionObjectMother.GetSomeModifiableMethod());
       MutableMethodInfoTestHelper.ModifyMethod (method);
       return method;
-    }
-
-    private class UnspecifiedType
-    {
-      public string UnspecifiedMethod (out int i, double d) { i = 7; Dev.Null = d; return ""; }
     }
   }
 }

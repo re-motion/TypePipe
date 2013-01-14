@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     private Expression _body;
 
