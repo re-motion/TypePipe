@@ -30,9 +30,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// Defines the characteristics of a <see cref="MethodBase"/>, i.e., a method or constructor.
   /// </summary>
   /// <typeparam name="TMethodBase">The concrete type of method (<see cref="MethodInfo"/> or <see cref="ConstructorInfo"/>).</typeparam>
-  /// <remarks>
-  /// This is used as a base class for <see cref="MethodDescriptor"/> and <see cref="ConstructorDescriptor"/>.
-  /// </remarks>
   public abstract class MethodBaseDescriptor<TMethodBase> : DescriptorBase
       where TMethodBase : MethodBase
   {

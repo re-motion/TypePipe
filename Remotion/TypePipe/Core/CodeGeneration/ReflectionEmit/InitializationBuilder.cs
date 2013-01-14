@@ -20,7 +20,6 @@ using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -39,8 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var attributes = MethodAttributes.Private | MethodAttributes.Static;
       var body = Expression.Block (typeof (void), mutableType.TypeInitializations);
-      var descriptor = ConstructorDescriptor.Create (attributes, ParameterDescriptor.EmptyParameters, body);
-      var typeInitializer = new MutableConstructorInfo (mutableType, descriptor);
+      var typeInitializer = new MutableConstructorInfo (mutableType, attributes, ParameterDeclaration.EmptyParameters, body);
 
       return typeInitializer;
     }

@@ -18,6 +18,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -89,6 +90,12 @@ namespace Remotion.TypePipe.MutableReflection
     public ParameterAttributes Attributes
     {
       get { return _attributes; }
+    }
+
+    // TODO
+    public ParameterExpression Expression
+    {
+      get { throw new NotImplementedException(); }
     }
   }
 }

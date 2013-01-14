@@ -23,7 +23,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
@@ -37,24 +36,25 @@ namespace Remotion.TypePipe.MutableReflection
   public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
   {
     private readonly MutableType _declaringType;
-    private readonly ConstructorDescriptor _descriptor;
+    private readonly MethodAttributes _attributes;
+    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
     private readonly MutableInfoCustomAttributeContainer _customAttributeContainer = new MutableInfoCustomAttributeContainer();
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
 
     private Expression _body;
 
-    public MutableConstructorInfo (MutableType declaringType, ConstructorDescriptor descriptor)
+    public MutableConstructorInfo (
+        MutableType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
-
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull ("body", body);
+      Assertion.IsTrue (body.Type == typeof (void));
+      
       _declaringType = declaringType;
-      _descriptor = descriptor;
-
-      _parameters = null;
-
-      _body = _descriptor.Body;
+      _attributes = attributes;
+      _parameters = parameters.Select ((d, i) => new MutableParameterInfo (this, i, d.Name, d.Type, d.Attributes)).ToList().AsReadOnly();
+      _body = body;
     }
 
     public override Type DeclaringType
@@ -69,17 +69,18 @@ namespace Remotion.TypePipe.MutableReflection
 
     public bool IsModified
     {
-      get { return _body != _descriptor.Body || AddedCustomAttributes.Count != 0; }
+      get { throw new Exception ("delete"); }
     }
 
     public override string Name
     {
-      get { return _descriptor.Name; }
+      // TODO test
+      get { return IsStatic ? TypeConstructorName : ConstructorName; }
     }
 
     public override MethodAttributes Attributes
     {
-      get { return _descriptor.Attributes; }
+      get { return _attributes; }
     }
 
     public override CallingConventions CallingConvention
@@ -105,7 +106,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _descriptor.Parameters.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      // TODO 
+      get { return null; }
     }
 
     public Expression Body

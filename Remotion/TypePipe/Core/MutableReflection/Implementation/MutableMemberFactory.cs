@@ -23,6 +23,7 @@ using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -96,17 +97,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new NotSupportedException (message);
       }
 
-      var parameterDescriptors = ParameterDescriptor.CreateFromDeclarations (parameterDeclarations);
-      var signature = new MethodSignature (typeof (void), parameterDescriptors.Select (pd => pd.Type), 0);
+      // TODO: test AsOnTime
+      var parameters = parameterDeclarations.ConvertToCollection();
+      var signature = new MethodSignature (typeof (void), parameters.Select (p => p.Type), 0);
       if (declaringType.AddedConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
         throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
-      var parameterExpressions = parameterDescriptors.Select (pd => pd.Expression);
+      var parameterExpressions = parameters.Select (p => p.Expression);
       var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
-      var descriptor = ConstructorDescriptor.Create (attributes, parameterDescriptors, body);
-      var constructor = new MutableConstructorInfo (declaringType, descriptor);
+      var constructor = new MutableConstructorInfo (declaringType, attributes, parameters, body);
 
       return constructor;
     }
