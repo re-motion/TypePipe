@@ -74,9 +74,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
-      Assert.That (_serializableInterfaceType.AllMutableMethods.Count (), Is.EqualTo (1));
-      var method = _serializableInterfaceType.ExistingMutableMethods.Single ();
-      Assert.That (method.IsModified, Is.False);
     }
 
     [Test]

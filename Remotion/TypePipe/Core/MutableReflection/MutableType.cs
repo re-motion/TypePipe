@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     // TODO 5309: Close 4972 as Won't fix, remove TODO comments.
@@ -381,35 +381,6 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO 5309: Remove overridden members here.
       // TODO 5309: Remove MutableTypeMethodCollection, MutableTypeMemberCollection
       return _methods;
-    }
-
-    // TODO 5309: Remove
-    public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
-    {
-      CheckBindingFlagsNotStatic (bindingAttr);
-
-      return base.GetConstructors (bindingAttr);
-    }
-
-    // TODO 5309: Remove
-    protected override ConstructorInfo GetConstructorImpl (
-        BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
-    {
-      CheckBindingFlagsNotStatic (bindingAttr);
-
-      return base.GetConstructorImpl (bindingAttr, binderOrNull, callConvention, typesOrNull, modifiersOrNull);
-    }
-
-    // TODO 5309: Remove
-    private static void CheckBindingFlagsNotStatic (BindingFlags bindingAttr)
-    {
-      if ((bindingAttr & BindingFlags.Static) == BindingFlags.Static)
-      {
-        var method = MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddTypeInitialization (null));
-        var message = string.Format (
-            "Type initializers (static constructors) cannot be modified via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
-        throw new NotSupportedException (message);
-      }
     }
   } 
 }

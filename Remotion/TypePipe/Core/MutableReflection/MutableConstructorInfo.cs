@@ -63,7 +63,6 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override string Name
     {
-      // TODO test
       get { return IsStatic ? TypeConstructorName : ConstructorName; }
     }
 
@@ -121,7 +120,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

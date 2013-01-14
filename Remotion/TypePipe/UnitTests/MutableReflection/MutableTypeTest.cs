@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
+    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
     private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
     private IInterfaceMappingComputer _interfaceMappingComputerMock;
@@ -50,6 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
       _mutableType = MutableTypeObjectMother.Create (
+          typeof (DomainType),
           memberSelector: _memberSelectorMock,
           relatedMethodFinder: _relatedMethodFinderMock,
           interfaceMappingComputer: _interfaceMappingComputerMock,
@@ -165,15 +168,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
-      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
-      var existingInterface = _descriptor.Interfaces.Single();
+      var baseInterface = typeof (DomainType).GetInterfaces().First();
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
 
       _mutableType.AddInterface (addedInterface);
-
       Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { addedInterface }));
-      Assert.That (_mutableType.ExistingInterfaces, Is.EqualTo (new[] { existingInterface }));
-      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { existingInterface, addedInterface }));
+      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { addedInterface, baseInterface }));
+
+      _mutableType.AddInterface (baseInterface); // Base interface can be re-implemented.
+      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { addedInterface, baseInterface }));
+      Assert.That (_mutableType.GetInterfaces(), Is.EqualTo (new[] { addedInterface, baseInterface }));
     }
 
     [Test]
@@ -188,8 +192,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         "Interface 'IDomainInterface' is already implemented.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
-      var existingInterface = _descriptor.Interfaces.First();
-      _mutableType.AddInterface (existingInterface);
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+
+      _mutableType.AddInterface (addedInterface);
+      _mutableType.AddInterface (addedInterface);
     }
 
     [Test]
@@ -209,18 +215,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMutableField ()
-    {
-      var existingField = _descriptor.Fields.Single (m => m.Name == "Field");
-      Assert.That (existingField, Is.Not.AssignableTo<MutableFieldInfo>());
-
-      var result = _mutableType.GetMutableField (existingField);
-
-      //Assert.That (result.UnderlyingSystemFieldInfo, Is.SameAs (existingField));
-      Assert.That (_mutableType.ExistingMutableFields, Has.Member (result));
-    }
-
-    [Test]
     public void AddConstructor ()
     {
       var attributes = (MethodAttributes) 7;
@@ -236,18 +230,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberFactoryMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (constructorFake));
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { result }));
-    }
-
-    [Test]
-    public void GetMutableConstructor ()
-    {
-      var existingCtor = _descriptor.Constructors.Single();
-      Assert.That (existingCtor, Is.Not.AssignableTo<MutableConstructorInfo>());
-
-      var result = _mutableType.GetMutableConstructor (existingCtor);
-
-      //Assert.That (result.UnderlyingSystemConstructorInfo, Is.SameAs (existingCtor));
-      Assert.That (_mutableType.ExistingMutableConstructors, Has.Member (result));
     }
 
     [Test]
@@ -311,19 +293,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddMutableMethod_ExistingMethod_UsesMemberCollection ()
-    {
-      var existingMethod = _descriptor.Methods.Single (m => m.Name == "VirtualMethod");
-      Assert.That (existingMethod, Is.Not.AssignableTo<MutableMethodInfo>());
-
-      var result = _mutableType.GetOrAddOverride (existingMethod);
-
-      //Assert.That (result.UnderlyingSystemMethodInfo, Is.SameAs (existingMethod));
-      Assert.That (_mutableType.ExistingMutableMethods, Has.Member (result));
-    }
-
-    [Test]
-    public void GetOrAddMutableMethod_BaseMethod_CreatesNewOverride ()
+    public void GetOrAddMutableMethod_CreatesNewOverride ()
     {
       var baseMethod = _descriptor.Methods.Single (m => m.Name == "ToString");
       Assert.That (baseMethod, Is.Not.AssignableTo<MutableMethodInfo>());
@@ -343,7 +313,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddMutableMethod_BaseMethod_RetrievesExistingOverride ()
+    public void GetOrAddMutableMethod_RetrievesExistingOverride ()
     {
       var baseMethod = _descriptor.Methods.Single (m => m.Name == "ToString");
       Assert.That (baseMethod, Is.Not.AssignableTo<MutableMethodInfo> ());
@@ -410,8 +380,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
-      var descriptor = TypeDescriptorObjectMother.Create (typeof (AbstractType));
-      var mutableType = MutableTypeObjectMother.Create (descriptor, _memberSelectorMock);
+      var mutableType = MutableTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
 
       var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
       var abstractMethod1 = mutableType.ExistingMutableMethods.Single (m => m.Name == "AbstractMethod1");
@@ -434,106 +403,55 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAllInterfaces ()
     {
-      Assert.That (_descriptor.Interfaces, Has.Count.EqualTo (1));
-      var existingInterface = _descriptor.Interfaces.Single ();
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType ();
+      var baseInterfaces = typeof (DomainType).GetInterfaces();
+      Assert.That (baseInterfaces, Is.Not.Empty);
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
       _mutableType.AddInterface (addedInterface);
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllInterfaces");
 
-      Assert.That (result, Is.EqualTo (new[] { existingInterface, addedInterface }));
+      Assert.That (result, Is.EqualTo (new[] { addedInterface }.Concat (baseInterfaces)));
     }
 
     [Test]
     public void GetAllFields ()
     {
-      AddField (_mutableType, "added");
-      var allFields = GetAllFields (_mutableType);
-      Assert.That (allFields.AddedMembers, Is.Not.Empty);
-      Assert.That (allFields.ExistingDeclaredMembers, Is.Not.Empty);
-      Assert.That (allFields.ExistingBaseMembers, Is.Not.Empty);
+      var baseFields = typeof (DomainType).GetFields (c_all);
+      Assert.That (baseFields, Is.Not.Empty);
+      var addedField = AddField (_mutableType);
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllFields");
 
-      Assert.That (result, Is.SameAs (allFields));
+      Assert.That (result, Is.SameAs (new[] { addedField }.Concat (baseFields)));
     }
 
     [Test]
     public void GetAllConstructors ()
     {
-      AddConstructor (_mutableType, ParameterDeclarationObjectMother.Create ());
-      var allConstructors = GetAllConstructors (_mutableType);
-      Assert.That (allConstructors.AddedMembers, Is.Not.Empty);
-      Assert.That (allConstructors.ExistingDeclaredMembers, Is.Not.Empty);
+      var baseCtors = typeof (DomainType).GetConstructors (c_all);
+      Assert.That (baseCtors, Is.Not.Empty);
+      var addedCtor = AddConstructor (_mutableType);
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllConstructors");
 
-      Assert.That (result, Is.SameAs (allConstructors));
+      Assert.That (result, Is.EqualTo (new[] { addedCtor }));
     }
 
     [Test]
     public void GetAllMethods ()
     {
-      AddMethod (_mutableType, "Added");
-      var allMethods = GetAllMethods (_mutableType);
-      Assert.That (allMethods.AddedMembers, Is.Not.Empty);
-      Assert.That (allMethods.ExistingDeclaredMembers, Is.Not.Empty);
-      Assert.That (allMethods.ExistingBaseMembers, Is.Not.Empty);
+      var baseMethods = typeof (DomainType).GetMethods (c_all);
+      var addedMethod = AddMethod (_mutableType, "Added");
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllMethods");
 
-      Assert.That (result, Is.EqualTo (allMethods));
-    }
-
-    [Test]
-    public void GetConstructors_CallBase ()
-    {
-      var fakeCtors = new[] { ReflectionObjectMother.GetSomeConstructor() };
-      _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (GetAllConstructors (_mutableType), BindingFlags.Default, _mutableType))
-          .Return (fakeCtors);
-
-      var result = _mutableType.GetConstructors (BindingFlags.Default);
-
-      Assert.That (result, Is.EqualTo (fakeCtors));
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "Type initializers (static constructors) cannot be modified via this API, use MutableType.AddTypeInitialization instead.")]
-    public void GetConstructors_ThrowsIfStatic ()
-    {
-      Dev.Null = _mutableType.GetConstructors (BindingFlags.Static);
-    }
-
-    [Test]
-    public void GetConstructorImpl ()
-    {
-      var fakeCtor = ReflectionObjectMother.GetSomeConstructor();
-      _memberSelectorMock
-          .Expect (
-              mock =>
-              mock.SelectSingleMethod (GetAllConstructors (_mutableType), Type.DefaultBinder, BindingFlags.Default, null, _mutableType, null, null))
-          .Return (fakeCtor);
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (
-          _mutableType, "GetConstructorImpl", BindingFlags.Default, null, CallingConventions.Any, null, null);
-
-      Assert.That (result, Is.SameAs (fakeCtor));
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "Type initializers (static constructors) cannot be modified via this API, use MutableType.AddTypeInitialization instead.")]
-    public void GetConstructorImpl_ThrowsIfStatic ()
-    {
-      PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetConstructorImpl", BindingFlags.Static, null, CallingConventions.Any, null, null);
+      Assert.That (result, Is.EqualTo (new[] { addedMethod }.Concat (baseMethods)));
     }
 
     [Test]
     public void GetMethods_FiltersOverriddenMethods ()
     {
-      var baseMethod = _descriptor.Methods.Single (m => m.Name == "ToString");
+      var baseMethod = typeof (DomainType).GetMethod ("ToString");
       var fakeOverride = MutableMethodInfoObjectMother.Create (
           declaringType: _mutableType,
           name: baseMethod.Name,
@@ -554,38 +472,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMutableMember_InvalidDeclaringType ()
-    {
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField (() => Type.EmptyTypes);
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new string(new char[0]));
-
-      Assert.That (
-          () => _mutableType.GetMutableField (field),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "The given field is declared by a different type: 'System.Type'.\r\nParameter name: field"));
-      Assert.That (
-          () => _mutableType.GetMutableConstructor (ctor),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "The given constructor is declared by a different type: 'System.String'.\r\nParameter name: constructor"));
-    }
-
-    [Test]
-    public void GetMutableMember_NoMapping ()
-    {
-      var fieldStub = MockRepository.GenerateStub<FieldInfo> ();
-      fieldStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
-      var ctorStub = MockRepository.GenerateStub<ConstructorInfo> ();
-      ctorStub.Stub (stub => stub.DeclaringType).Return (_mutableType);
-
-      Assert.That (
-          () => _mutableType.GetMutableField (fieldStub),
-          Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("The given field cannot be modified."));
-      Assert.That (
-          () => _mutableType.GetMutableConstructor (ctorStub),
-          Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo ("The given constructor cannot be modified."));
-    }
-
-    [Test]
     public new void ToString ()
     {
       // Note: ToString() is implemented in CustomType base class.
@@ -599,11 +485,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"DomainType\""));
     }
 
-    private MutableFieldInfo AddField (MutableType mutableType, string name)
+    private MutableFieldInfo AddField (MutableType mutableType)
     {
       Assertion.IsTrue (mutableType == _mutableType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
-      var fakeField = MutableFieldInfoObjectMother.Create (mutableType, name: name);
+      var fakeField = MutableFieldInfoObjectMother.Create (mutableType);
       _mutableMemberFactoryMock.Stub (stub => stub.CreateField (null, "", null, 0)).IgnoreArguments().Return (fakeField).Repeat.Once();
 
       return mutableType.AddField ("x", typeof (int));
@@ -630,21 +516,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Repeat.Once();
 
       return mutableType.AddMethod ("x", 0, typeof (int), ParameterDeclaration.EmptyParameters, null);
-    }
-
-    private MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> GetAllFields (MutableType mutableType)
-    {
-      return (MutableTypeMemberCollection<FieldInfo, MutableFieldInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_fields");
-    }
-
-    private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
-    {
-      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
-    }
-
-    private MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> GetAllConstructors (MutableType mutableType)
-    {
-      return (MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo>) PrivateInvoke.GetNonPublicField (mutableType, "_constructors");
     }
 
     public class DomainTypeBase

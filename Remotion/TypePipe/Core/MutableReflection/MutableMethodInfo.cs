@@ -247,7 +247,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

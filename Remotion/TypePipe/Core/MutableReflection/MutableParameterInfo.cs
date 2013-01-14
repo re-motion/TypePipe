@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -93,7 +94,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
