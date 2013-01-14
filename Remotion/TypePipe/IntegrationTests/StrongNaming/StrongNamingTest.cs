@@ -178,10 +178,10 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_Expression ()
     {
-      // VisitConstant
+      // UnemittableExpressionVisitor.VisitConstant
       CheckStrongNamingExpression (Expression.Constant (_signedType));
 
-      // Emit (Opcode, Type)
+      // ILGeneratorDecorator.Emit (Opcode, Type)
       CheckStrongNamingExpression (Expression.Convert (Expression.Constant (null), _signedType));
       // Emit (Opcode, FieldInfo)
       CheckStrongNamingExpression (Expression.Field (null, _signedField));
@@ -190,11 +190,11 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       // Emit (Opcode, MethodInfo)
       CheckStrongNamingExpression (Expression.Call (_signedMethod));
       // EmitCall (OpCode, MethodInfo)
-
+      // tODO review
       // DeclareLocal (Type)
       CheckStrongNamingExpression (Expression.Block (new[] { Expression.Variable (_signedType) }, Expression.Empty()));
       // BeginCatchBlock (Type)
-      // tODO review
+      CheckStrongNamingExpression (Expression.TryCatch (Expression.Empty(), Expression.Catch (_signedType, Expression.Empty())));
     }
 
     [Test]
@@ -202,10 +202,10 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     {
       SkipSavingAndPeVerification();
 
-      // VisitConstant
+      // UnemittableExpressionVisitor.VisitConstant
       CheckStrongNamingExpressionException (Expression.Constant (_unsignedType));
 
-      // Emit (Opcode, Type)
+      // ILGeneratorDecorator.Emit (Opcode, Type)
       CheckStrongNamingExpressionException (Expression.Convert (Expression.Constant (null), _unsignedType));
       // Emit (Opcode, FieldInfo)
       CheckStrongNamingExpressionException (Expression.Field (null, _unsignedField));
@@ -213,13 +213,12 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingExpressionException (Expression.New (_unsignedCtor));
       // Emit (Opcode, MethodInfo)
       CheckStrongNamingExpressionException (Expression.Call (_unsignedMethod));
-
       // EmitCall (OpCode, MethodInfo)
-
-      // DeclareLocal (Type)
-      CheckStrongNamingExpressionException (Expression.Block (new[] { Expression.Variable (_unsignedType) }, Expression.Empty ()));
-      // BeginCatchBlock (Type)
       // todo review
+      // DeclareLocal (Type)
+      CheckStrongNamingExpressionException (Expression.Block (new[] { Expression.Variable (_unsignedType) }, Expression.Empty()));
+      // BeginCatchBlock (Type)
+      CheckStrongNamingExpressionException (Expression.TryCatch (Expression.Empty(), Expression.Catch (_unsignedType, Expression.Empty())));
     }
 
     [Test]
