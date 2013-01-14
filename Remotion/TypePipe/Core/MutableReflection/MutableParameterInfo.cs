@@ -64,16 +64,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _position; }
     }
 
-    public bool IsNew
-    {
-      get { return true; }
-    }
-
-    public bool IsModified
-    {
-      get { return AddedCustomAttributes.Count != 0; }
-    }
-
     public override string Name
     {
       get { return _name; }
@@ -87,12 +77,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterAttributes Attributes
     {
       get { return _attributes; }
-    }
-
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695
-      get { return IsNew; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes

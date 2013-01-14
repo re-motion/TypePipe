@@ -24,7 +24,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -62,16 +61,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public bool IsNew
-    {
-      get { return true; }
-    }
-
-    public bool IsModified
-    {
-      get { throw new Exception ("delete"); }
-    }
-
     public override string Name
     {
       // TODO test
@@ -86,12 +75,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override CallingConventions CallingConvention
     {
       get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
-    }
-
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695 (existing ctors are always copied)
-      get { return true; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -115,23 +98,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body; }
     }
 
-    public bool CanSetBody
-    {
-      // TODO 4695
-      get { return IsNew || SubclassFilterUtility.IsVisibleFromSubclass (this); }
-    }
-
     public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
-      Assertion.IsFalse (IsStatic);
-
-      if (!CanSetBody)
-      {
-        // TODO 4695
-        var message = string.Format ("The body of the existing inaccessible constructor '{0}' cannot be replaced.", this);
-        throw new NotSupportedException (message);
-      }
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body, memberSelector);

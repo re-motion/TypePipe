@@ -82,16 +82,8 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO 5309: Remove
-    public bool IsNew
-    {
-      get { return false; }
-    }
 
     // TODO 5309: Remove
-    public bool IsModified
-    {
-      get { throw new NotImplementedException ("TODO 4744"); }
-    }
 
     // TODO 5309: Replace with static ctor
     public ReadOnlyCollection<Expression> TypeInitializations
@@ -125,11 +117,6 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO 5309: Remove
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695
-      get { return true; }
-    }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {

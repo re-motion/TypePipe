@@ -25,10 +25,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableInfo : ICustomAttributeDataProvider
   {
-    bool IsNew { get; }
-    bool IsModified { get; }
-
-    bool CanAddCustomAttributes { get; }
     ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes { get; }
 
     void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration);

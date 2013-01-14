@@ -85,16 +85,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public bool IsNew
-    {
-      get { return true; }
-    }
-
-    public bool IsModified
-    {
-      get { throw new Exception ("todo"); }
-    }
-
     public override string Name
     {
       get { return _name; }
@@ -155,21 +145,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _parameterExpressions; }
     }
 
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695
-      get { return CanSetBody; }
-    }
-
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
-    }
-
-    public bool CanSetBody
-    {
-      // TODO 4695
-      get { return IsNew || (IsVirtual && !IsFinal); }
     }
 
     public Expression Body
@@ -181,12 +159,6 @@ namespace Remotion.TypePipe.MutableReflection
 
         return _body;
       }
-    }
-
-    public bool CanAddExplicitBaseDefinition
-    {
-      // TODO 4695; Note that IsVirtual must always be checked here - this is not caused by the Reflection.Emit code generator, but by the CLI rules.
-      get { return IsVirtual && (IsNew || !IsFinal); }
     }
 
     /// <summary>
@@ -219,11 +191,10 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
 
-      // TODO 5309: Inline property and remove.
-      if (!CanAddExplicitBaseDefinition)
+      if (!IsVirtual)
       {
         // TODO 4695: Adapt message
-        var message = string.Format ("Cannot add an explicit base definition to the non-virtual or existing final method '{0}'.", Name);
+        var message = string.Format ("Cannot add an explicit base definition to the non-virtual method '{0}'.", Name);
         throw new NotSupportedException (message);
       }
 
@@ -253,13 +224,6 @@ namespace Remotion.TypePipe.MutableReflection
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
-
-      if (!CanSetBody)
-      {
-        // TODO 4695
-        var message = string.Format ("The body of the existing non-virtual or final method '{0}' cannot be replaced.", Name);
-        throw new NotSupportedException (message);
-      }
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic, BaseMethod, memberSelector);
