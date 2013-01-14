@@ -29,19 +29,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MutableInfoCustomAttributeContainer
   {
-    // TODO 5057: Use Lazy<T>
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> _existingCustomAttributeDatas;
     private readonly Func<bool> _canAddCustomAttributesDecider;
 
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributeDeclarations = new List<CustomAttributeDeclaration>();
 
-    public MutableInfoCustomAttributeContainer (
-        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider, Func<bool> canAddCustomAttributesDecider)
+    public MutableInfoCustomAttributeContainer (Func<bool> canAddCustomAttributesDecider)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
       ArgumentUtility.CheckNotNull ("canAddCustomAttributesDecider", canAddCustomAttributesDecider);
 
-      _existingCustomAttributeDatas = new DoubleCheckedLockingContainer<ReadOnlyCollection<ICustomAttributeData>> (customAttributeDataProvider);
       _canAddCustomAttributesDecider = canAddCustomAttributesDecider;
     }
 
@@ -68,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _addedCustomAttributeDeclarations.Cast<ICustomAttributeData>().Concat (_existingCustomAttributeDatas.Value);
+      return _addedCustomAttributeDeclarations.Cast<ICustomAttributeData>();
     }
   }
 }

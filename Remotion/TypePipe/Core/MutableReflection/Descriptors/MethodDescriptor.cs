@@ -67,7 +67,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
           isGenericMethod,
           isGenericMethodDefinition,
           containsGenericParameters,
-          EmptyCustomAttributeDataProvider,
           body);
     }
 
@@ -82,7 +81,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       var returnParameter = ParameterDescriptor.Create (underlyingMethod.ReturnParameter);
       var parameters = ParameterDescriptor.CreateFromMethodBase (underlyingMethod);
       var baseMethod = relatedMethodFinder.GetBaseMethod (underlyingMethod);
-      var customAttributeDataProvider = GetCustomAttributeProvider (underlyingMethod);
       var body = underlyingMethod.IsAbstract ? null : CreateOriginalBodyExpression (underlyingMethod, underlyingMethod.ReturnType, parameters);
 
       return new MethodDescriptor (
@@ -94,7 +92,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
           underlyingMethod.IsGenericMethod,
           underlyingMethod.IsGenericMethodDefinition,
           underlyingMethod.ContainsGenericParameters,
-          customAttributeDataProvider,
           body);
     }
 
@@ -113,12 +110,10 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         bool isGenericMethod,
         bool isGenericMethodDefinition,
         bool containsGenericParameters,
-        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (name, attributes, parameters, customAttributeDataProvider, body)
+        : base (name, attributes, parameters, body)
     {
       Assertion.IsNotNull (returnParameter);
-      Assertion.IsNotNull (customAttributeDataProvider);
       Assertion.IsTrue (body == null || returnParameter.Type.IsAssignableFrom (body.Type));
 
       _returnParameter = returnParameter;

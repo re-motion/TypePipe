@@ -35,16 +35,14 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return new FieldDescriptor (type, name, attributes, EmptyCustomAttributeDataProvider);
+      return new FieldDescriptor (type, name, attributes);
     }
 
     public static FieldDescriptor Create (FieldInfo underlyingField)
     {
       ArgumentUtility.CheckNotNull ("underlyingField", underlyingField);
 
-      var customAttributeDataProvider = GetCustomAttributeProvider (underlyingField);
-
-      return new FieldDescriptor (underlyingField.FieldType, underlyingField.Name, underlyingField.Attributes, customAttributeDataProvider);
+      return new FieldDescriptor (underlyingField.FieldType, underlyingField.Name, underlyingField.Attributes);
     }
 
     private readonly FieldAttributes _attributes;
@@ -53,9 +51,8 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private FieldDescriptor (
         Type fieldType,
         string name,
-        FieldAttributes attributes,
-        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
-      : base (name, customAttributeDataProvider)
+        FieldAttributes attributes)
+      : base (name)
     {
       Assertion.IsNotNull (fieldType);
       Assertion.IsNotNull (name);

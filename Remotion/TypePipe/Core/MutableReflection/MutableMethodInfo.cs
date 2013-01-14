@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _descriptor = descriptor;
 
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
+      _customAttributeContainer = new MutableInfoCustomAttributeContainer (() => CanAddCustomAttributes);
       _returnParameter = new MutableParameterInfo (this, descriptor.ReturnParameter);
       _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
 

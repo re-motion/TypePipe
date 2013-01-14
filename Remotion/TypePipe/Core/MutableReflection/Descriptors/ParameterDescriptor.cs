@@ -43,8 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
           parameterDeclaration.Type,
           position,
           parameterDeclaration.Name,
-          parameterDeclaration.Attributes,
-          EmptyCustomAttributeDataProvider);
+          parameterDeclaration.Attributes);
     }
 
     public static ParameterDescriptor Create (ParameterInfo underlyingParameter)
@@ -55,8 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
           underlyingParameter.ParameterType,
           underlyingParameter.Position,
           underlyingParameter.Name,
-          underlyingParameter.Attributes,
-          GetCustomAttributeProvider (underlyingParameter));
+          underlyingParameter.Attributes);
     }
 
     public static ReadOnlyCollection<ParameterDescriptor> CreateFromDeclarations (IEnumerable<ParameterDeclaration> parameterDeclarations)
@@ -82,9 +80,8 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         Type type,
         int position,
         string name,
-        ParameterAttributes attributes,
-        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
-        : base (name, customAttributeDataProvider)
+        ParameterAttributes attributes)
+        : base (name)
     {
       Assertion.IsNotNull (type, "type");
       Assertion.IsTrue (position >= -1); // -1 == return parameter

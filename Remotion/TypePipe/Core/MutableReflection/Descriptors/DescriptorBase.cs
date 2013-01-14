@@ -16,10 +16,6 @@
 // 
 
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Descriptors
 {
@@ -28,41 +24,18 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
   /// </summary>
   public abstract class DescriptorBase
   {
-// ReSharper disable StaticFieldInGenericType
-    protected static readonly Func<ReadOnlyCollection<ICustomAttributeData>> EmptyCustomAttributeDataProvider =
-        () => new ICustomAttributeData[0].ToList().AsReadOnly();
-// ReSharper restore StaticFieldInGenericType
-
-    protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (MemberInfo member)
-    {
-      return () => TypePipeCustomAttributeData.GetCustomAttributes (member).ToList().AsReadOnly();
-    }
-
-    protected static Func<ReadOnlyCollection<ICustomAttributeData>> GetCustomAttributeProvider (ParameterInfo parameter)
-    {
-      return () => TypePipeCustomAttributeData.GetCustomAttributes (parameter).ToList().AsReadOnly();
-    }
-
     private readonly string _name;
-    private readonly Func<ReadOnlyCollection<ICustomAttributeData>> _customAttributeDataProvider;
 
-    protected DescriptorBase (string name, Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider)
+    protected DescriptorBase (string name)
     {
       // name is null for return parameters
-      Assertion.IsNotNull (customAttributeDataProvider);
 
       _name = name;
-      _customAttributeDataProvider = customAttributeDataProvider;
     }
 
     public string Name
     {
       get { return _name; }
-    }
-
-    public Func<ReadOnlyCollection<ICustomAttributeData>> CustomAttributeDataProvider
-    {
-      get { return _customAttributeDataProvider; }
     }
   }
 }

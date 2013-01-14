@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableMemberFactory = mutableMemberFactory;
 
       // TODO 5309: Remove container, use List (probably)
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
+      _customAttributeContainer = new MutableInfoCustomAttributeContainer (() => CanAddCustomAttributes);
       _interfacMappingProvider = descriptor.InterfaceMappingProvider;
 
       _existingInterfaces = descriptor.Interfaces;

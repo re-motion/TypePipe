@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
 
       var readonlyParameterDeclarations = parameterDescriptors.ToList().AsReadOnly();
 
-      return new ConstructorDescriptor (attributes, readonlyParameterDeclarations, EmptyCustomAttributeDataProvider, body);
+      return new ConstructorDescriptor (attributes, readonlyParameterDeclarations, body);
     }
 
     public static ConstructorDescriptor Create (ConstructorInfo underlyingConstructor)
@@ -54,10 +54,9 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
       // If ctor visibility is FamilyOrAssembly, change it to Family because the mutated type will be put into a different assembly.
       var attributes = underlyingConstructor.Attributes.AdjustVisibilityForAssemblyBoundaries();
       var parameterDescriptors = ParameterDescriptor.CreateFromMethodBase (underlyingConstructor);
-      var customAttributeDataProvider = GetCustomAttributeProvider (underlyingConstructor);
       var body = CreateOriginalBodyExpression (underlyingConstructor, typeof (void), parameterDescriptors);
 
-      return new ConstructorDescriptor (attributes, parameterDescriptors, customAttributeDataProvider, body);
+      return new ConstructorDescriptor (attributes, parameterDescriptors, body);
     }
 
     private static string GetConstructorName (MethodAttributes attributes)
@@ -68,9 +67,8 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
     private ConstructorDescriptor (
         MethodAttributes attributes,
         ReadOnlyCollection<ParameterDescriptor> parameters,
-        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Expression body)
-        : base (GetConstructorName (attributes), attributes, parameters, customAttributeDataProvider, body)
+        : base (GetConstructorName (attributes), attributes, parameters, body)
     {
       Assertion.IsTrue (body.Type == typeof (void));
     }

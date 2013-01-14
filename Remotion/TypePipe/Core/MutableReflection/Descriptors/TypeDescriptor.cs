@@ -58,7 +58,6 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
           underlyingType.Namespace,
           underlyingType.FullName,
           underlyingType.Attributes,
-          GetCustomAttributeProvider (underlyingType),
           underlyingType.GetInterfaceMap,
           Array.AsReadOnly (underlyingType.GetInterfaces()),
           underlyingType.GetFields (c_allMembers).ToList().AsReadOnly(),
@@ -101,13 +100,12 @@ namespace Remotion.TypePipe.MutableReflection.Descriptors
         string @namespace,
         string fullName,
         TypeAttributes attributes,
-        Func<ReadOnlyCollection<ICustomAttributeData>> customAttributeDataProvider,
         Func<Type, InterfaceMapping> interfaceMappingProvider,
         ReadOnlyCollection<Type> interfaces,
         ReadOnlyCollection<FieldInfo> fields,
         ReadOnlyCollection<ConstructorInfo> constructors,
         ReadOnlyCollection<MethodInfo> methods)
-        : base (name, customAttributeDataProvider)
+        : base (name)
     {
       Assertion.IsNotNull (fullName);
       Assertion.IsNotNull (interfaceMappingProvider);
