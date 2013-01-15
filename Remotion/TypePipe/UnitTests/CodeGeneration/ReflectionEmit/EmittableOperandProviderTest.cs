@@ -43,10 +43,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _provider = new EmittableOperandProvider();
 
-      _mutableType = MutableTypeObjectMother.CreateForExisting();
-      _mutableField = MutableFieldInfoObjectMother.CreateForExisting();
-      _mutableConstructor = MutableConstructorInfoObjectMother.CreateForExisting();
-      _mutableMethod = MutableMethodInfoObjectMother.CreateForExisting();
+      _mutableType = MutableTypeObjectMother.Create();
+      _mutableField = MutableFieldInfoObjectMother.Create();
+      _mutableConstructor = MutableConstructorInfoObjectMother.Create();
+      _mutableMethod = MutableMethodInfoObjectMother.Create();
     }
 
     [Test]
@@ -56,17 +56,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckAddMapping<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _provider.GetEmittableField, _mutableField);
       CheckAddMapping<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _provider.GetEmittableConstructor, _mutableConstructor);
       CheckAddMapping<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _provider.GetEmittableMethod, _mutableMethod);
-    }
-
-    [Test]
-    public void AddMapping_ReferenceEquality ()
-    {
-      var mutableType1 = MutableTypeObjectMother.CreateForExisting();
-      var mutableType2 = MutableTypeObjectMother.CreateForExisting();
-      Assert.That (mutableType1, Is.EqualTo (mutableType2).And.Not.SameAs (mutableType2));
-      _provider.AddMapping (mutableType1, mutableType1.UnderlyingSystemType);
-
-      Assert.That (() => _provider.AddMapping (mutableType2, mutableType2.UnderlyingSystemType), Throws.Nothing);
     }
 
     [Test]
@@ -155,7 +144,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting();
+      var mutableType = MutableTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var emittableType = ReflectionObjectMother.GetSomeType();
       _provider.AddMapping (mutableType, emittableType);
 
@@ -172,7 +166,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableField_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting();
+      var mutableType = MutableTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var constructedType = typeof (StrongBox<>).MakeGenericType (mutableType);
       FieldInfo field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
 
@@ -182,7 +181,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableConstructor_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting ();
+      var mutableType = MutableTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var constructedType = typeof (List<>).MakeGenericType (mutableType);
       ConstructorInfo ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
 
@@ -192,7 +196,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableMethod_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting();
+      var mutableType = MutableTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var constructedType = typeof (List<>).MakeGenericType (mutableType);
       MethodInfo method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
 

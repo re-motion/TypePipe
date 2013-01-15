@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -55,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnParameter.Type);
 
-      var method = new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters, baseMethod, body);
+      var method = new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters.AsOneTime(), baseMethod, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.Name, Is.EqualTo (name));

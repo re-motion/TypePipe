@@ -39,6 +39,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class MutableType : CustomType, IMutableInfo
   {
+    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
@@ -50,13 +52,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly List<Expression> _instanceInitializations = new List<Expression>();
     private readonly List<Type> _addedInterfaces = new List<Type>();
-    private readonly MutableTypeMemberCollection<FieldInfo, MutableFieldInfo> _fields = null;
-    private readonly MutableTypeMemberCollection<ConstructorInfo, MutableConstructorInfo> _constructors = null;
-    private readonly MutableTypeMethodCollection _methods = null;
+    private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
+    private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
+    private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>(); 
 
     private TypeAttributes _attributes;
 
-    // TODO test initializaition
     public MutableType (
         Type baseType,
         string name,
@@ -95,17 +96,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<MutableFieldInfo> AddedFields
     {
-      get { return _fields.AddedMembers; }
+      get { return _addedFields.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
-      get { return _constructors.AddedMembers; }
+      get { return _addedConstructors.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
-      get { return _methods.AddedMembers; }
+      get { return _addedMethods.AsReadOnly(); }
     }
 
     // TODO 5309: Remove
@@ -209,7 +210,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
 
       var field = _mutableMemberFactory.CreateField (this, name, type, attributes);
-      _fields.Add (field);
+      _addedFields.Add (field);
 
       return field;
     }
@@ -223,7 +224,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameterDeclarations, bodyProvider);
-      _constructors.Add (constructor);
+      _addedConstructors.Add (constructor);
 
       return constructor;
     }
@@ -241,7 +242,7 @@ namespace Remotion.TypePipe.MutableReflection
       // bodyProvider is null for abstract methods
 
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameterDeclarations, bodyProvider);
-      _methods.Add (method);
+      _addedMethods.Add (method);
 
       return method;
     }
@@ -263,7 +264,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, overriddenMethodBaseDefinition, bodyProvider);
-      _methods.Add (overrideMethod);
+      _addedMethods.Add (overrideMethod);
 
       return overrideMethod;
     }
@@ -312,7 +313,7 @@ namespace Remotion.TypePipe.MutableReflection
       bool isNewlyCreated;
       var method = _mutableMemberFactory.GetOrCreateOverride (this, baseMethod, out isNewlyCreated);
       if (isNewlyCreated)
-        _methods.Add (method);
+        _addedMethods.Add (method);
 
       return method;
     }
@@ -365,22 +366,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      // TODO 5309: Concat here, make _fields a simple List
-      return _fields;
+      Assertion.IsNotNull (BaseType);
+      return _addedFields.Cast<FieldInfo>().Concat (BaseType.GetFields (c_all));
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      // TODO 5309: Concat here, make _constructors a simple List
-      return _constructors;
+      return _addedConstructors.Cast<ConstructorInfo>();
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      // TODO 5309: Concat here, make _methods a simple List
       // TODO 5309: Remove overridden members here.
       // TODO 5309: Remove MutableTypeMethodCollection, MutableTypeMemberCollection
-      return _methods;
+
+      Assertion.IsNotNull (BaseType);
+      return _addedMethods.Cast<MethodInfo>().Concat (BaseType.GetMethods (c_all));
     }
   } 
 }

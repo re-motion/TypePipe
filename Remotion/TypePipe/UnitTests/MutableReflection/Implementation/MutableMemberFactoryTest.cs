@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
@@ -522,8 +522,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (
-          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod),
+          memberSelector: null,
+          relatedMethodFinder: _relatedMethodFinderMock,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
 
       var result = _mutableMemberFactory.GetOrCreateOverride (mutableType, baseMethod, out _isNewlyCreated);

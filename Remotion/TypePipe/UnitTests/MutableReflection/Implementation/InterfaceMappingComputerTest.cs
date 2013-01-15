@@ -56,7 +56,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _computer = new InterfaceMappingComputer();
 
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (
+          typeof (DomainType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
 
       _interfaceMapProviderMock = MockRepository.GenerateStrictMock<IInterfaceMappingProvider>();
     }
@@ -112,7 +117,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_CandidateOrder ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType), memberSelectorMock);
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (DomainType),
+          memberSelector: memberSelectorMock,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
 
       var baseMethod = typeof (DomainType).GetMethods().Single (m => m.Name == "Method22" && m.DeclaringType == typeof (DomainTypeBase));
       var methods = GetAllMethods (mutableType).ToArray();

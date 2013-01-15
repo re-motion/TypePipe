@@ -51,15 +51,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           interfaceMappingComputer,
           mutableMemberFactory);
     }
-
-    public static MutableType CreateForExisting (
-        Type underlyingType = null,
-        IMemberSelector memberSelector = null,
-        IRelatedMethodFinder relatedMethodFinder = null,
-        IInterfaceMappingComputer interfaceMappingComputer = null,
-        IMutableMemberFactory mutableMemberFactory = null)
-    {
-      return null;
-    }
   }
 }

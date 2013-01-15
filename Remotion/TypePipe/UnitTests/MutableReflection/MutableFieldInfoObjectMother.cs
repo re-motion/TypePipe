@@ -31,17 +31,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       return new MutableFieldInfo (declaringType, name, type, attributes);
     }
-
-    // todo remove
-    public static MutableFieldInfo CreateForNew (
-        MutableType declaringType = null, string name = "_newField", Type field = null, FieldAttributes attributes = FieldAttributes.FieldAccessMask)
-    {
-      return null;
-    }
-
-    public static MutableFieldInfo CreateForExisting (MutableType declaringType = null, FieldInfo underlyingField = null)
-    {
-      return null;
-    }
   }
 }

@@ -67,15 +67,14 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       Assertion.IsTrue (body == null || returnParameter.Type.IsAssignableFrom (body.Type));
 
-      // TODO: AsOneTime
-      var parameterDeclaration = parameters.ConvertToCollection();
+      var parameterDeclarations = parameters.ConvertToCollection();
 
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
       _returnParameter = new MutableParameterInfo (this, -1, returnParameter.Name, returnParameter.Type, returnParameter.Attributes);
-      _parameters = parameterDeclaration.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
-      _parameterExpressions = parameterDeclaration.Select (p => p.Expression).ToList().AsReadOnly();
+      _parameters = parameterDeclarations.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = parameterDeclarations.Select (p => p.Expression).ToList().AsReadOnly();
       _baseMethod = baseMethod;
       _body = body;
     }

@@ -21,7 +21,9 @@ using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -44,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var ctor = new MutableConstructorInfo (declaringType, attributes, parameters, body);
+      var ctor = new MutableConstructorInfo (declaringType, attributes, parameters.AsOneTime(), body);
 
       Assert.That (ctor.DeclaringType, Is.SameAs (declaringType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
@@ -138,7 +140,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = MutableTypeObjectMother.CreateForExisting (GetType ());
+      var declaringType = MutableTypeObjectMother.Create (
+          GetType (),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (declaringType, new ParameterDeclaration (typeof (int), "p1"));
 
       var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";

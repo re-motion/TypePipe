@@ -470,14 +470,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public new void ToString ()
     {
       // Note: ToString() is implemented in CustomType base class.
-      Assert.That (_mutableType.ToString(), Is.EqualTo ("DomainType"));
+      Assert.That (_mutableType.ToString(), Is.EqualTo ("Proxy"));
     }
 
     [Test]
     public void ToDebugString ()
     {
       // Note: ToDebugString() is implemented in CustomType base class.
-      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"DomainType\""));
+      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"Proxy\""));
     }
 
     private MutableFieldInfo AddField (MutableType mutableType)

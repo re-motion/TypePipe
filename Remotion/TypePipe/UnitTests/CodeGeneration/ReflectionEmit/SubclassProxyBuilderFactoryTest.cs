@@ -52,7 +52,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder ()
     {
       var underlyingType = typeof (SubclassableType);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
+      var mutableType = MutableTypeObjectMother.Create (
+          underlyingType,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
@@ -98,7 +103,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder_AbstractType ()
     {
       var underlyingType = typeof (AbstractType);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
+      var mutableType = MutableTypeObjectMother.Create (
+          underlyingType,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       Assert.That (mutableType.IsAbstract, Is.True);
 
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract;
@@ -115,7 +125,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder_SerializableType ()
     {
       var underlyingType = typeof (SerializableType);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (underlyingType);
+      var mutableType = MutableTypeObjectMother.Create (
+          underlyingType,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       Assert.That (mutableType.IsSerializable, Is.True);
 
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Serializable;

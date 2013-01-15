@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         IMethodTrampolineProvider methodTrampolineProvider = null)
     {
       return new MemberEmitterContext (
-          mutableType ?? MutableTypeObjectMother.CreateForExisting(),
+          mutableType ?? MutableTypeObjectMother.Create(),
           typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
           emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>(),

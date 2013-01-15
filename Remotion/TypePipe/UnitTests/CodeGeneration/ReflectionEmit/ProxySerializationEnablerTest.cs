@@ -28,6 +28,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -57,12 +58,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enabler = new ProxySerializationEnabler (_serializableFieldFinderMock);
 
-      _someType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
-      _serializableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
-      _serializableInterfaceType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceType));
-      _deserializationCallbackType = MutableTypeObjectMother.CreateForExisting (typeof (DeserializationCallbackType));
-      _serializableInterfaceWithDeserializationCallbackType =
-          MutableTypeObjectMother.CreateForExisting (typeof (SerializableWithDeserializationCallbackType));
+      _someType = MutableTypeObjectMother.Create (
+          typeof (SomeType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      _serializableType = MutableTypeObjectMother.Create (
+          typeof (SerializableType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      _serializableInterfaceType = MutableTypeObjectMother.Create (
+          typeof (SerializableInterfaceType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      _deserializationCallbackType = MutableTypeObjectMother.Create (
+          typeof (DeserializationCallbackType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      _serializableInterfaceWithDeserializationCallbackType = MutableTypeObjectMother.Create (
+          typeof (SerializableWithDeserializationCallbackType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
@@ -221,7 +246,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (SerializableInterfaceMissingCtorType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       StubFilterWithSerializedFields (mutableType);
       var oldCtorBody = mutableType.AddedConstructors.Single().Body;
 
@@ -237,7 +267,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectData ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ExplicitSerializableInterfaceType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (ExplicitSerializableInterfaceType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       StubFilterWithSerializedFields (mutableType);
 
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
@@ -249,7 +284,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectDataInBase ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedExplicitSerializableInterfaceType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (DerivedExplicitSerializableInterfaceType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       StubFilterWithSerializedFields (mutableType);
 
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
@@ -261,7 +301,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectData ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (ExplicitDeserializationCallbackType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (ExplicitDeserializationCallbackType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       StubFilterWithNoSerializedFields ();
 
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
@@ -273,7 +318,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectDataInBase ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DerivedExplicitDeserializationCallbackType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (DerivedExplicitDeserializationCallbackType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       StubFilterWithNoSerializedFields ();
 
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);

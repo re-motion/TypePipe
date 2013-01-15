@@ -21,6 +21,8 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -50,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
+      var mutableType = MutableTypeObjectMother.Create (typeof (SerializableType));
 
       _participant.ModifyType (mutableType);
 
@@ -105,7 +107,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (SomeType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
 
       _participant.ModifyType (mutableType);
 

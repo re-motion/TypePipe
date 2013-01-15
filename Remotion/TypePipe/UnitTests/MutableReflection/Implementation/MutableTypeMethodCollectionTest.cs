@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _declaringType = MutableTypeObjectMother.Create (typeof (DomainType));
       Func<MethodInfo, MutableMethodInfo> mutableMemberProvider = m => MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: m);
 
       _collection = new MutableTypeMethodCollection (_declaringType, typeof (DomainType).GetMethods(), mutableMemberProvider);

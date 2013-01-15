@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _provider = new MethodTrampolineProvider (_memberEmitterMock);
 
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (typeof (DomainType));
       _context = MemberEmitterContextObjectMother.GetSomeContext (_mutableType);
     }
 

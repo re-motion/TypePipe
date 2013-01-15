@@ -138,7 +138,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod ()
     {
       var method = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
+          MutableTypeObjectMother.Create (
+              typeof (DomainType),
+              memberSelector: null,
+              relatedMethodFinder: null,
+              interfaceMappingComputer: null,
+              mutableMemberFactory: null),
           "Method",
           MethodAttributes.Virtual,
           typeof (string),
@@ -186,7 +191,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod_Abstract ()
     {
       var method = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
+          MutableTypeObjectMother.Create (
+              typeof (DomainType),
+              memberSelector: null,
+              relatedMethodFinder: null,
+              interfaceMappingComputer: null,
+              mutableMemberFactory: null),
           "AbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),

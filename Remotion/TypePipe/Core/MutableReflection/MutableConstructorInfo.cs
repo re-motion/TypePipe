@@ -25,6 +25,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -37,6 +38,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _declaringType;
     private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
@@ -49,10 +51,13 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("body", body);
       Assertion.IsTrue (body.Type == typeof (void));
-      
+
+      var parameterDeclarations = parameters.ConvertToCollection();
+
       _declaringType = declaringType;
       _attributes = attributes;
-      _parameters = parameters.Select ((d, i) => new MutableParameterInfo (this, i, d.Name, d.Type, d.Attributes)).ToList().AsReadOnly();
+      _parameters = parameterDeclarations.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = parameterDeclarations.Select (p => Expression.Parameter (p.Type, p.Name)).ToList().AsReadOnly();
       _body = body;
     }
 
@@ -88,8 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      // TODO 
-      get { return null; }
+      get { return _parameterExpressions; }
     }
 
     public Expression Body

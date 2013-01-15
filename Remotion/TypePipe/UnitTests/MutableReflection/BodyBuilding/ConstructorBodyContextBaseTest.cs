@@ -41,7 +41,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.CreateForExisting (typeof (ClassWithConstructor));
+      _declaringType = MutableTypeObjectMother.Create (
+          typeof (ClassWithConstructor),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 

@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string fullName)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      // Declaring type may be null (for non-nested types)
-      // Base type may be null (for type object). // TODO 5309: (NOT true anymore!)
+      // Declaring type may be null (for non-nested types).
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);

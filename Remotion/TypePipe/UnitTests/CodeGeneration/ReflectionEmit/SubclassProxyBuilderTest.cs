@@ -21,7 +21,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -61,7 +60,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
 
       _mockRepository = new MockRepository();
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (
+          typeof (DomainType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       _typeBuilderMock = _mockRepository.StrictMock<ITypeBuilder>();
       _debugInfoGeneratorStub = _mockRepository.Stub<DebugInfoGenerator>();
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider>();
@@ -177,7 +181,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Build_EmptyTypeInitializations ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (EmptyType));
+      var mutableType = MutableTypeObjectMother.Create (
+          typeof (EmptyType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var defaultCtor = mutableType.AddedConstructors.Single();
       var builder = CreateSubclassProxyBuilder (mutableType);
 

@@ -110,8 +110,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       foreach (var method in mutableType.AddedMethods)
         _memberEmitter.AddMethod (_context, method, method.Attributes);
 
-      // TODO: Copy ctors from base class.
-
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
