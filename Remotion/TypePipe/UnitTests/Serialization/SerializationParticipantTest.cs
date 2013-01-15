@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -77,18 +78,18 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableInterfaceType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceType));
-      var method = mutableType.ExistingMutableMethods.Single();
-      var oldBody = method.Body;
+      var mutableType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType));
+      var baseMethod = mutableType.GetMethod ("GetObjectData");
 
       _participant.ModifyType (mutableType);
 
       Assert.That (mutableType.AddedInterfaces, Is.Empty);
-      Assert.That (mutableType.AddedMethods, Is.Empty);
+      Assert.That (mutableType.AddedMethods, Has.Length.EqualTo (1));
 
+      var method = mutableType.AddedMethods.Single();
       var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (
-          oldBody,
+          Expression.Call (new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
           Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithDeserializationConstructorProxy))),
           Expression.Call (
               serializationInfo,
@@ -109,7 +110,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _participant.ModifyType (mutableType);
 
       Assert.That (mutableType.AddedInterfaces, Is.Empty);
-      Assert.That (mutableType.AllMutableMethods, Is.Empty);
+      Assert.That (mutableType.AddedMethods, Is.Empty);
     }
 
     public class SomeType { }

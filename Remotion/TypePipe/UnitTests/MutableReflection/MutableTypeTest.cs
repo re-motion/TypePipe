@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -295,8 +296,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_CreatesNewOverride ()
     {
-      var baseMethod = _descriptor.Methods.Single (m => m.Name == "ToString");
-      Assert.That (baseMethod, Is.Not.AssignableTo<MutableMethodInfo>());
+      var baseMethod = typeof (DomainType).GetMethod ("ToString");
       var fakeOverride = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (
@@ -315,8 +315,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetOrAddMutableMethod_RetrievesExistingOverride ()
     {
-      var baseMethod = _descriptor.Methods.Single (m => m.Name == "ToString");
-      Assert.That (baseMethod, Is.Not.AssignableTo<MutableMethodInfo> ());
+      var baseMethod = typeof (DomainType).GetMethod ("ToString");
       var fakeOverride = MutableMethodInfoObjectMother.Create (_mutableType);
       _mutableMemberFactoryMock
           .Expect (
@@ -337,9 +336,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _interfaceMappingComputerMock
-          .Expect (mock => mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, GetAllMethods (_mutableType), interfaceType, false))
-          .Return (fakeResult);
+      _interfaceMappingComputerMock.Expect (mock => mock.ComputeMapping (_mutableType, null, interfaceType, false)).Return (fakeResult);
 
       var result = _mutableType.GetInterfaceMap (interfaceType);
 
@@ -353,11 +350,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceType = typeof (IDomainInterface);
       var allowPartial = BooleanObjectMother.GetRandomBoolean();
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _interfaceMappingComputerMock
-          .Expect (
-              mock =>
-              mock.ComputeMapping (_mutableType, _descriptor.InterfaceMappingProvider, GetAllMethods (_mutableType), interfaceType, allowPartial))
-          .Return (fakeResult);
+      _interfaceMappingComputerMock.Expect (mock => mock.ComputeMapping (_mutableType, null, interfaceType, allowPartial)).Return (fakeResult);
 
       var result = _mutableType.GetInterfaceMap (interfaceType, allowPartial);
 
@@ -374,22 +367,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _mutableType)).Return (fakeMethods).Repeat.Times (2);
 
       Assert.That (_mutableType.IsAbstract, Is.True);
-      Assert.That (_mutableType.Attributes, Is.EqualTo (_descriptor.Attributes | TypeAttributes.Abstract));
+      Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract));
     }
 
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
       var mutableType = MutableTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
+      Assert.That (mutableType.IsAbstract, Is.True);
 
       var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
-      var abstractMethod1 = mutableType.ExistingMutableMethods.Single (m => m.Name == "AbstractMethod1");
-      var abstractMethod2 = mutableType.ExistingMutableMethods.Single (m => m.Name == "AbstractMethod2");
+      var abstractMethod1 = mutableType.GetMethod ("AbstractMethod1");
+      var abstractMethod2 = mutableType.GetMethod ("AbstractMethod2");
       Assert.That (abstractMethod1, Is.Not.EqualTo (abstractMethodBaseDefinition));
       Assert.That (abstractMethod1.GetBaseDefinition(), Is.EqualTo (abstractMethodBaseDefinition));
 
       mutableType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
-      mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod").AddExplicitBaseDefinition (abstractMethod2);
+      mutableType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
+                 .AddExplicitBaseDefinition (abstractMethod2);
 
       var allMethods = GetAllMethods (mutableType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -397,7 +392,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (mutableType.IsAbstract, Is.False);
       Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
-      Assert.That (mutableType.Attributes, Is.EqualTo (descriptor.Attributes & ~TypeAttributes.Abstract));
+      Assert.That (mutableType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
     }
 
     [Test]
@@ -518,6 +513,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return mutableType.AddMethod ("x", 0, typeof (int), ParameterDeclaration.EmptyParameters, null);
     }
 
+    private IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)
+    {
+      return (IEnumerable<MethodInfo>) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetAllMethods");
+    }
+
     public class DomainTypeBase
     {
       public int BaseField;
@@ -550,8 +550,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public override abstract void AbstractMethod1 ();
       public abstract void AbstractMethod2 ();
-
-      public virtual void ExistingMethod () { }
     }
   }
 }

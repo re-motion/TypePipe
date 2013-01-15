@@ -26,6 +26,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -79,45 +80,39 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_SerializableInterfaceType_SerializedFields ()
     {
-      var getObjectDataMethod = _serializableInterfaceType.ExistingMutableMethods.Single();
-      var deserializationCtor = _serializableInterfaceType.AllMutableConstructors.Single();
-      Assert.That (getObjectDataMethod.IsModified, Is.False);
-      Assert.That (deserializationCtor.IsModified, Is.False);
-      var oldMethodBody = getObjectDataMethod.Body;
-      var oldCtorBody = deserializationCtor.Body;
-      var addedField = _serializableInterfaceType.AddField ("input field", typeof (int));
+      var getObjectDataMethod = _serializableInterfaceType.GetMethod ("GetObjectData");
+      var deserializationCtor = _serializableInterfaceType.AddedConstructors.Single();
+      var dummyField = _serializableInterfaceType.AddField ("input field", typeof (int));
 
       var fakeFieldType = ReflectionObjectMother.GetSomeType();
       FieldInfo fakeField = MutableFieldInfoObjectMother.Create (_serializableInterfaceType, type: fakeFieldType);
       var fakeMapping = new[] { Tuple.Create ("fake key", fakeField) };
       _serializableFieldFinderMock
-          .Expect (mock => mock.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { addedField })))
+          .Expect (mock => mock.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.List.Equal (new[] { dummyField })))
           .Return (fakeMapping);
 
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
       _serializableFieldFinderMock.VerifyAllExpectations();
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
-      Assert.That (_serializableInterfaceType.AllMutableMethods.Count(), Is.EqualTo (1));
-      Assert.That (_serializableInterfaceType.AllMutableConstructors, Is.EqualTo (new[] { deserializationCtor }));
-      Assert.That (getObjectDataMethod.IsModified, Is.True);
-      Assert.That (deserializationCtor.IsModified, Is.True);
+      Assert.That (_serializableInterfaceType.AddedMethods, Has.Count.EqualTo (1));
 
+      var method = _serializableInterfaceType.AddedMethods.Single();
       var expectedMethodBody = Expression.Block (
           typeof (void),
-          oldMethodBody,
+          Expression.Call (new NonVirtualCallMethodInfoAdapter (getObjectDataMethod), method.ParameterExpressions.Cast<Expression>()),
           Expression.Call (
-              getObjectDataMethod.ParameterExpressions[0],
+              method.ParameterExpressions[0],
               "AddValue",
               Type.EmptyTypes,
               Expression.Constant ("fake key"),
               Expression.Field (new ThisExpression (_serializableInterfaceType), fakeField)));
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, getObjectDataMethod.Body);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
 
       var getValue = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
       var expectedCtorBody = Expression.Block (
           typeof (void),
-          oldCtorBody,
+          Expression.Call (new NonVirtualCallMethodInfoAdapter (new ConstructorAsMethodInfoAdapter (deserializationCtor))),
           Expression.Assign (
               Expression.Field (new ThisExpression (_serializableInterfaceType), fakeField),
               Expression.Convert (
@@ -135,7 +130,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _enabler.MakeSerializable (_someType, _someInitializationMethod);
 
       Assert.That (_someType.AddedInterfaces, Is.Empty);
-      Assert.That (_someType.AllMutableMethods, Is.Empty);
+      Assert.That (_someType.AddedMethods, Is.Empty);
     }
 
     [Test]
@@ -146,7 +141,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _enabler.MakeSerializable (_someType, initializationMethod: null);
 
       Assert.That (_someType.AddedInterfaces, Is.Empty);
-      Assert.That (_someType.AllMutableMethods, Is.Empty);
+      Assert.That (_someType.AddedMethods, Is.Empty);
     }
 
     [Test]
@@ -154,12 +149,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableType, parameterDeclarations: ParameterDeclaration.EmptyParameters, returnType: typeof (void));
+          _serializableType,
+          parameters: ParameterDeclaration.EmptyParameters,
+          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)));
 
       _enabler.MakeSerializable (_serializableType, initMethod);
 
       Assert.That (_serializableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IDeserializationCallback) }));
-      Assert.That (_serializableType.AllMutableMethods.Count (), Is.EqualTo (1));
+      Assert.That (_serializableType.AddedMethods, Has.Count.EqualTo (1));
 
       var method = _serializableType.AddedMethods.Single();
       Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.IDeserializationCallback.OnDeserialization"));
@@ -173,15 +170,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _deserializationCallbackType, parameterDeclarations: ParameterDeclaration.EmptyParameters, returnType: typeof (void));
-      var method = _deserializationCallbackType.ExistingMutableMethods.Single (x => x.Name == "OnDeserialization");
-      var oldBody = method.Body;
+          _deserializationCallbackType,
+          parameters: ParameterDeclaration.EmptyParameters,
+          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_deserializationCallbackType, initMethod);
 
-      Assert.That (_deserializationCallbackType.AllMutableMethods.Count(), Is.EqualTo (1));
+      Assert.That (_deserializationCallbackType.AddedMethods, Has.Count.EqualTo (1));
+      var method = _deserializationCallbackType.AddedMethods.Single();
       var expectedBody = Expression.Block (
-          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_deserializationCallbackType), initMethod));
+          typeof (void),
+          Expression.Call (new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
+          MethodCallExpression.Call (new ThisExpression (_deserializationCallbackType), initMethod));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -202,15 +203,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
           _serializableInterfaceWithDeserializationCallbackType,
-          parameterDeclarations: ParameterDeclaration.EmptyParameters,
-          returnType: typeof (void));
-      var method = _serializableInterfaceWithDeserializationCallbackType.ExistingMutableMethods.Single (x => x.Name == "OnDeserialization");
-      var oldBody = method.Body;
+          parameters: ParameterDeclaration.EmptyParameters,
+          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableWithDeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackType, initMethod);
 
+      Assert.That (_serializableInterfaceWithDeserializationCallbackType.AddedMethods, Has.Count.EqualTo (1));
+      var method = _serializableInterfaceWithDeserializationCallbackType.AddedMethods.Single();
       var expectedBody = Expression.Block (
-          typeof (void), oldBody, MethodCallExpression.Call (new ThisExpression (_serializableInterfaceWithDeserializationCallbackType), initMethod));
+          typeof (void),
+          Expression.Call (new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
+          MethodCallExpression.Call (new ThisExpression (_serializableInterfaceWithDeserializationCallbackType), initMethod));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -219,13 +223,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceMissingCtorType));
       StubFilterWithSerializedFields (mutableType);
+      var oldCtorBody = mutableType.AddedConstructors.Single().Body;
 
       _enabler.MakeSerializable (mutableType, _someInitializationMethod);
 
-      var method = mutableType.AllMutableMethods.Single();
-      var ctor = mutableType.AllMutableConstructors.Single();
-      Assert.That (method.IsModified, Is.False);
-      Assert.That (ctor.IsModified, Is.False);
+      Assert.That (mutableType.AddedConstructors.Single().Body, Is.SameAs (oldCtorBody));
+      Assert.That (mutableType.AddedMethods, Is.Empty);
     }
 
     [Test]

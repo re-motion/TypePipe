@@ -245,8 +245,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       var methodToCopy = MutableMethodInfoObjectMother.Create (
           declaringType: _declaringType,
-          returnType: typeof (int),
-          parameterDeclarations: new[] { new ParameterDeclaration (typeof (int), "i") });
+          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (int)),
+          parameters: new[] { new ParameterDeclaration (typeof (int), "i") });
       methodToCopy.SetBody (ctx => ctx.Parameters[0]);
       var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
 

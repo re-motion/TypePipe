@@ -20,7 +20,6 @@ using System.Runtime.CompilerServices;
 using Remotion.Collections;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
@@ -124,18 +123,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitter.AddConstructor (_context, constructor);
     }
 
+    // TODO this must be done at proxyType creation
     private void AddConstructorIfVisibleFromSubclass (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
       // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
       if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         WireAndAddConstructor (constructor, initializationMembers);
-    }
-
-    private void AddMethodAsImplicitOverride (MutableMethodInfo method)
-    {
-      // Modified methods are added as implicit method overrides for the underlying method.
-      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (method);
-      _memberEmitter.AddMethod (_context, method, attributes);
     }
   }
 }

@@ -115,9 +115,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var modifiedMembers = GetModifiedMembers (_mutableType);
       var unmodifiedMembers = GetUnmodifiedMembers (_mutableType);
 
-      var internalConstructor =
-          _mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (true)));
-      Assert.That (internalConstructor.IsAssembly, Is.True);
+      //var internalConstructor =
+      //    _mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (true)));
+      //Assert.That (internalConstructor.IsAssembly, Is.True);
 
       var buildActionCalled = false;
       _builder.MemberEmitterContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
@@ -171,14 +171,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mockRepository.VerifyAll();
       Assert.That (result, Is.SameAs (fakeType));
 
-      _memberEmitterMock.AssertWasNotCalled (mock => mock.AddConstructor (_context, internalConstructor));
+      //_memberEmitterMock.AssertWasNotCalled (mock => mock.AddConstructor (_context, internalConstructor));
     }
 
     [Test]
     public void Build_EmptyTypeInitializations ()
     {
       var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (EmptyType));
-      var defaultCtor = mutableType.AllMutableConstructors.Single();
+      var defaultCtor = mutableType.AddedConstructors.Single();
       var builder = CreateSubclassProxyBuilder (mutableType);
 
       _initializationBuilderMock.Expect (mock => mock.CreateTypeInitializer (mutableType)).Return (null);
@@ -221,22 +221,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetModifiedMembers (MutableType mutableType)
     {
-      var constructor = mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0)));
-      constructor.SetBody (ctx => Expression.Empty ());
-      var method = mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ModifiedMethod ()));
-      method.SetBody (ctx => Expression.Empty ());
-
-      return Tuple.Create ((MutableFieldInfo) null, constructor, method);
+      return null;
     }
 
     private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetUnmodifiedMembers (MutableType mutableType)
     {
-      var field = mutableType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.UnmodifiedField));
-      var constructor = mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("")));
-      var method =
-          mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnmodifiedMethod ()));
-
-      return Tuple.Create (field, constructor, method);
+      return null;
     }
 
     // ReSharper disable UnusedParameter.Local

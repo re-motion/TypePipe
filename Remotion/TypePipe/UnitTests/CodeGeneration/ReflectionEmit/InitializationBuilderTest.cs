@@ -155,24 +155,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void WireConstructorWithInitialization_Null ()
     {
       var constructor = MutableConstructorInfoObjectMother.Create();
+      var oldBody = constructor.Body;
 
       _builder.WireConstructorWithInitialization (constructor, initializationMembers: null, proxySerializationEnabler:_proxySerializationEnablerMock);
 
       _proxySerializationEnablerMock.AssertWasNotCalled (mock => mock.IsDeserializationConstructor (constructor));
-      Assert.That (constructor.IsModified, Is.False);
+      Assert.That (constructor.Body, Is.SameAs (oldBody));
     }
 
     [Test]
     public void WireConstructorWithInitialization_DeserializationConstructor ()
     {
       var constructor = MutableConstructorInfoObjectMother.Create();
+      var oldBody = constructor.Body;
       var initializationMembers = new Tuple<FieldInfo, MethodInfo> (null, null);
       _proxySerializationEnablerMock.Expect (x => x.IsDeserializationConstructor (constructor)).Return (true);
       
       _builder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnablerMock);
 
       _proxySerializationEnablerMock.VerifyAllExpectations();
-      Assert.That (constructor.IsModified, Is.False);
+      Assert.That (constructor.Body, Is.SameAs (oldBody));
     }
   }
 }

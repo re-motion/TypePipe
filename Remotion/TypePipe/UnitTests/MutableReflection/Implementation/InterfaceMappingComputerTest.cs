@@ -79,9 +79,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
                   InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2, _existingInterfaceMethod3 },
                   TargetMethods = new[] { implicitImplementation1, null /* not used */, implicitImplementation3 }
               });
-      _mutableMethodProviderMock.Expect (mock => mock.GetMutableMember (implicitImplementation1)).Return (fakeImplementation1);
-      _mutableMethodProviderMock.Expect (mock => mock.GetMutableMember (implicitImplementation3)).Return (null);
-      // MutableMethodProvider returns null for base methods.
 
       CallComputeMappingAndCheckResult (
           _mutableType,
@@ -95,7 +92,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
-      var explicitImplementation = _mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
+      var explicitImplementation = _mutableType.AddMethod (
+          "UnrelatedMethod", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
       explicitImplementation.AddExplicitBaseDefinition (_addedInterfaceMethod1);
       var implicitImplementation2 = _mutableType.GetMethod ("Method22", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
       var implicitImplementation3 = _mutableType.GetMethod ("Method23");
@@ -153,7 +151,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_NotFullyImplemented_Throws ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IDisposable), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
     }
 
     [Test]
@@ -177,22 +175,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_Candidates_Throws ()
     {
       _mutableType.AddInterface (typeof (IImplementationCandidates));
-      _computer.ComputeMapping (
-          _mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IImplementationCandidates), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IImplementationCandidates), false);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type passed must be an interface.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NoInterfaceType ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (object), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (object), false);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interface not found.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NotImplemented ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, typeof (IDisposable), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
     }
 
     private MutableMethodInfo CreateVirtualMethod (MutableType mutableType)
@@ -208,10 +205,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     // Tuple means: 1) interface method, 2) implementation method
     private void CallComputeMappingAndCheckResult (MutableType mutableType, Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
     {
-      var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Get, _mutableMethodProviderMock, interfaceType, true);
+      var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Get, interfaceType, true);
 
       _interfaceMapProviderMock.VerifyAllExpectations();
-      _mutableMethodProviderMock.VerifyAllExpectations();
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       // Order matters for "expectedMapping".

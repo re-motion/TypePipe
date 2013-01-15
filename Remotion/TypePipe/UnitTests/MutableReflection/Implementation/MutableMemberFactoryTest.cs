@@ -464,7 +464,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var fakeExistingOverride = MutableMethodInfoObjectMother.Create ();
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AllMutableMethods)))
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AddedMethods)))
           .Return (fakeExistingOverride);
 
       bool isNewlyCreated;
@@ -563,7 +563,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       bool isNewlyCreated;
       var result = _mutableMemberFactory.GetOrCreateOverride (_mutableType, interfaceMethod, out isNewlyCreated);
 
-      var implementation = _mutableType.AllMutableMethods.Single (m => m.Name == "InterfaceMethod");
+      var implementation = _mutableType.AddedMethods.Single (m => m.Name == "InterfaceMethod");
       Assert.That (result, Is.SameAs (implementation));
       Assert.That (isNewlyCreated, Is.False);
     }
@@ -720,7 +720,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       typeToStartSearchForMostDerivedOverride = typeToStartSearchForMostDerivedOverride ?? typeof (DomainTypeBase);
 
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (mutableType.AllMutableMethods)))
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (mutableType.AddedMethods)))
           .Return (null);
       _relatedMethodFinderMock
           .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equal (GetAllMethods (mutableType))))
@@ -756,7 +756,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private MethodInfo GetBaseMethod (MutableType mutableType, string name)
     {
-      return GetAllMethods (mutableType).ExistingBaseMembers.Single (mi => mi.Name == name);
+      return mutableType.BaseType.GetMethod (name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
     private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
