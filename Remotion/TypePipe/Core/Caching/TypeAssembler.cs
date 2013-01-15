@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.Caching
 
     public Type AssembleType (Type requestedType)
     {
-      var proxyType = CreateMutableType (requestedType);
+      var proxyType = CreateProxyType (requestedType);
 
       foreach (var participant in _participants)
         participant.ModifyType (proxyType);
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.Caching
     }
 
     // TODO Create this method with injected ProxyTypeFactory.
-    private ProxyType CreateMutableType (Type requestedType)
+    private ProxyType CreateProxyType (Type requestedType)
     {
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();

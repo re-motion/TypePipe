@@ -227,7 +227,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     }
 
     [Test]
-    public void ForceStrongName_Signature_MutableType ()
+    public void ForceStrongName_Signature_ProxyType ()
     {
       Action<ProxyType> action = mt => mt.AddField ("Field", mt);
 
@@ -235,7 +235,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     }
 
     [Test]
-    public void ForceStrongName_Expression_MutableType ()
+    public void ForceStrongName_Expression_ProxyType ()
     {
       Action<ProxyType> action =
           proxyType =>

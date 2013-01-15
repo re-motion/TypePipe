@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
               + "time, not at runtime." + Environment.NewLine
               + "To embed a reference to a generated method or type, construct the ConstantExpression as follows: "
               + "Expression.Constant (myMutableMethod, typeof (MethodInfo)) or "
-              + "Expression.Constant (myMutableType, typeof (Type))." + Environment.NewLine
+              + "Expression.Constant (myProxyType, typeof (Type))." + Environment.NewLine
               + "To embed a reference to another reflection object, embed a method call to the Reflection APIs, like this: " + Environment.NewLine
               + "Expression.Call (" + Environment.NewLine
               + "    Expression.Constant (myMutableField.DeclaringType, typeof (Type))," + Environment.NewLine

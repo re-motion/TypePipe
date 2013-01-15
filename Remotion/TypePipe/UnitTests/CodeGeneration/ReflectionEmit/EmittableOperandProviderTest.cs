@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
+    public void GetEmittableType_GenericType_ProxyTypeGenericParameter ()
     {
       var proxyType = ProxyTypeObjectMother.Create (
           null,
@@ -159,12 +159,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = _provider.GetEmittableType (constructedType);
 
-      var mutableTypeGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
-      Assert.That (mutableTypeGenericArgument, Is.SameAs (emittableType));
+      var proxyTypeGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
+      Assert.That (proxyTypeGenericArgument, Is.SameAs (emittableType));
     }
 
     [Test]
-    public void GetEmittableField_GenericTypeDeclaringType_MutableTypeGenericParameter ()
+    public void GetEmittableField_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
       var proxyType = ProxyTypeObjectMother.Create (
           null,
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void GetEmittableConstructor_GenericTypeDeclaringType_MutableTypeGenericParameter ()
+    public void GetEmittableConstructor_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
       var proxyType = ProxyTypeObjectMother.Create (
           null,
@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void GetEmittableMethod_GenericTypeDeclaringType_MutableTypeGenericParameter ()
+    public void GetEmittableMethod_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
       var proxyType = ProxyTypeObjectMother.Create (
           null,
@@ -253,8 +253,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = getEmittableFunc (provider, member);
 
-      var mutableTypeGenericArgument = result.DeclaringType.GetGenericArguments().Single();
-      Assert.That (mutableTypeGenericArgument, Is.SameAs (emittableType));
+      var proxyTypeGenericArgument = result.DeclaringType.GetGenericArguments().Single();
+      Assert.That (proxyTypeGenericArgument, Is.SameAs (emittableType));
     }
   }
 }
