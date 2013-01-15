@@ -87,7 +87,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type UnderlyingSystemType
     {
-      get { return this; }
+      // TODO HACK!
+      get { return _baseType; }
     }
 
     public override Type DeclaringType

@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -50,12 +51,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableType));
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
 
       _participant.ModifyType (proxyType);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
-      Assert.That (proxyType.AddedConstructors, Is.Empty);
+      Assert.That (proxyType.AddedConstructors, Has.Count.EqualTo (1));
       var method = proxyType.AddedMethods.Single();
 
       var serializationInfo = method.ParameterExpressions[0];
@@ -66,8 +67,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               serializationInfo,
               "AddValue",
               Type.EmptyTypes,
-              Expression.Constant ("<tp>underlyingType"),
-              Expression.Constant (typeof (SerializableType).AssemblyQualifiedName)),
+              Expression.Constant ("<tp>baseType"),
+              Expression.Constant (typeof (SomeType).AssemblyQualifiedName)),
           Expression.Call (
               serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)),
           Expression.Call (
@@ -78,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableInterfaceType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType));
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
       var baseMethod = proxyType.GetMethod ("GetObjectData");
 
       _participant.ModifyType (proxyType);
@@ -95,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               serializationInfo,
               "AddValue",
               Type.EmptyTypes,
-              Expression.Constant ("<tp>underlyingType"),
+              Expression.Constant ("<tp>baseType"),
               Expression.Constant (typeof (SerializableInterfaceType).AssemblyQualifiedName)),
           Expression.Call (
               serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)));
@@ -120,10 +121,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
     public class SomeType { }
 
-    [Serializable]
-    public class SerializableType { }
-
-    [Serializable]
     class SerializableInterfaceType : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }

@@ -46,12 +46,12 @@ namespace Remotion.TypePipe.Serialization
   public class SerializationParticipant : IParticipant
   {
     public const string SerializationKeyPrefix = "<tp>";
-    public const string UnderlyingTypeKey = SerializationKeyPrefix + "underlyingType";
+    public const string BaseTypeKey = SerializationKeyPrefix + "baseType";
     public const string FactoryIdentifierKey = SerializationKeyPrefix + "factoryIdentifier";
 
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
-    private static readonly MethodInfo s_addFieldValueMethod =
+    private static readonly MethodInfo s_addFieldValuesMethod =
         MemberInfoFromExpressionUtility.GetMethod (() => ReflectionSerializationHelper.AddFieldValues (null, null));
 
     private readonly string _factoryIdentifier;
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.Serialization
             ctx => Expression.Block (
                 typeof (void),
                 CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithoutDeserializationConstructorProxy))
-                    .Concat (Expression.Call (s_addFieldValueMethod, ctx.Parameters[0], ctx.This))));
+                    .Concat (Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This))));
       }
     }
 
@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.Serialization
       return new Expression[]
              {
                  Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (serializationSurrogateType)),
-                 CreateAddValueExpression (serializationInfo, UnderlyingTypeKey, context.DeclaringType.UnderlyingSystemType.AssemblyQualifiedName),
+                 CreateAddValueExpression (serializationInfo, BaseTypeKey, context.DeclaringType.BaseType.AssemblyQualifiedName),
                  CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, _factoryIdentifier)
              };
     }
