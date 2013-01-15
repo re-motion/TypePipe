@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.OverriddenProperty);
-      //var mutableProperty = mutableType.AllMutableProperties.Single();
+      //var mutableProperty = ProxyType.AllMutableProperties.Single();
       //CheckAttributes (mutableProperty, property);
 
       // TODO 4791
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var @event = type.GetEvents().Single();
-      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //var mutableEvent = ProxyType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
 
       // TODO 4791
@@ -123,12 +123,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
-      //var mutableProperty = mutableType.GetMutableProperty(property);
+      //var mutableProperty = ProxyType.GetMutableProperty(property);
       //CheckAttributes (mutableEvent, @event);
 
       // TODO 4791
       //var @event = type.GetEvents().Single ...
-      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //var mutableEvent = ProxyType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
     }
 
@@ -170,12 +170,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
-      //var mutableProperty = mutableType.GetMutableProperty(property);
+      //var mutableProperty = ProxyType.GetMutableProperty(property);
       //CheckIsDefinedInheritance (mutableEvent, @event);
 
       // TODO 4791
       //var @event = type.GetEvents().Single ...
-      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //var mutableEvent = ProxyType.AllMutableEvents().Single();
       //CheckIsDefinedInheritance (mutableEvent, @event);
     }
 

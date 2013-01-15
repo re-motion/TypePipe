@@ -28,16 +28,16 @@ using System.Linq;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a <see cref="Type"/>, which allows to add or modify members.
+  /// Represents a subclass proxy type <see cref="Type"/>, which allows overriding base members and the addition of new members and custom attributes.
   /// </summary>
   /// <remarks>
   ///   <para>
   ///     TODO 4972: Update docs to use TypeEqualityComparer.
-  ///     OBSOLETE: When an instance of a <see cref="MutableType"/> is to be compared for equality with another <see cref="Type"/> instance, the
+  ///     OBSOLETE: When an instance of a <see cref="ProxyType"/> is to be compared for equality with another <see cref="Type"/> instance, the
   ///     IsEquivalentTo method should be used rather than comparing via <see cref="object.Equals(object)"/>.
   ///   </para>
   /// </remarks>
-  public class MutableType : CustomType, IMutableInfo
+  public class ProxyType : CustomType, IMutableInfo
   {
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private TypeAttributes _attributes;
 
-    public MutableType (
+    public ProxyType (
         Type baseType,
         string name,
         string @namespace,

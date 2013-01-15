@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class UnemittableExpressionVisitorTest
   {
-    private MutableType _mutableType;
+    private ProxyType _proxyType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMethodTrampolineProvider _methodTrampolineProvider;
     private MemberEmitterContext _context;
@@ -44,11 +44,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.Create(typeof(DomainType));
+      _proxyType = MutableTypeObjectMother.Create(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
       _context = MemberEmitterContextObjectMother.GetSomeContext (
-          _mutableType, emittableOperandProvider: _emittableOperandProviderMock, methodTrampolineProvider: _methodTrampolineProvider);
+          _proxyType, emittableOperandProvider: _emittableOperandProviderMock, methodTrampolineProvider: _methodTrampolineProvider);
 
       _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (_context);
     }
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), MatchType = MessageMatch.StartsWith, ExpectedMessage =
-        "It is not supported to have a ConstantExpression of type 'MutableType' because instances of 'MutableType' exist only at " +
+        "It is not supported to have a ConstantExpression of type 'ProxyType' because instances of 'ProxyType' exist only at " +
         "code generation time, not at runtime.")]
     public void VisitConstant_NotAssignableValue ()
     {
@@ -127,17 +127,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expression = Expression.Lambda<Func<int, string, double>> (body, parameters);
 
       var fakeBody = Expression.Call (
-          ExpressionTreeObjectMother.GetSomeThisExpression (_mutableType), new NonVirtualCallMethodInfoAdapter (method), parameters);
+          ExpressionTreeObjectMother.GetSomeThisExpression (_proxyType), new NonVirtualCallMethodInfoAdapter (method), parameters);
       _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
 
       var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
       _methodTrampolineProvider.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
 
-      var thisClosure = Expression.Parameter (_mutableType, "thisClosure");
+      var thisClosure = Expression.Parameter (_proxyType, "thisClosure");
       var expectedTree =
           Expression.Block (
               new[] { thisClosure },
-              Expression.Assign (thisClosure, new ThisExpression (_mutableType)),
+              Expression.Assign (thisClosure, new ThisExpression (_proxyType)),
               Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, fakeTrampolineMethod, parameters), parameters));
       var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _visitorPartialMock
@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Action<MethodInfo> checkMethodInCallExpressionAction =
           methodInfo => Assert.That (methodInfo, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethod").SameAs (methodBase));
 
-      CheckVisitOriginalBodyForInstanceMethod (_mutableType, expression, arguments, checkMethodInCallExpressionAction);
+      CheckVisitOriginalBodyForInstanceMethod (_proxyType, expression, arguments, checkMethodInCallExpressionAction);
     }
 
     [Test]
@@ -192,7 +192,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         Assert.That (constructorAsMethodInfoAdapter.AdaptedConstructor, Is.SameAs (methodBase));
       };
 
-      CheckVisitOriginalBodyForInstanceMethod (_mutableType, expression, arguments, checkMethodInCallExpressionAction);
+      CheckVisitOriginalBodyForInstanceMethod (_proxyType, expression, arguments, checkMethodInCallExpressionAction);
     }
 
     [Test]
@@ -216,14 +216,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckVisitOriginalBodyForInstanceMethod (
-        MutableType thisMutableType,
+        ProxyType thisProxyType,
         OriginalBodyExpression expression,
         Expression[] expectedMethodCallArguments,
         Action<MethodInfo> checkMethodInCallExpressionAction)
     {
       CheckVisitOriginalBody (expression, expectedMethodCallArguments, methodCallExpression =>
       {
-        Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (thisMutableType));
+        Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().With.Property ("Type").SameAs (thisProxyType));
 
         checkMethodInCallExpressionAction (methodCallExpression.Method);
       });

@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     public void NoStrongName_Default ()
     {
       // Could be strong-named, but isn't - the default is to output assemblies without strong name.
-      Action<MutableType> action = mt => mt.AddField ("f", _signedType);
+      Action<ProxyType> action = mt => mt.AddField ("f", _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void NoStrongName_UnsignedType ()
     {
-      Action<MutableType> action = mt => mt.AddField ("f", _unsignedType);
+      Action<ProxyType> action = mt => mt.AddField ("f", _unsignedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName ()
     {
-      Action<MutableType> action = mt => mt.AddField ("f", _signedType);
+      Action<ProxyType> action = mt => mt.AddField ("f", _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
     }
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_CustomKey ()
     {
-      Action<MutableType> action = mt => mt.AddField ("f", _signedType);
+      Action<ProxyType> action = mt => mt.AddField ("f", _signedType);
 
       var keyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"StrongNaming\OtherKey.snk");
       var customKey = new StrongNameKeyPair (File.ReadAllBytes (keyPath));
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_Signature_MutableType ()
     {
-      Action<MutableType> action = mt => mt.AddField ("Field", mt);
+      Action<ProxyType> action = mt => mt.AddField ("Field", mt);
 
       CheckStrongNaming (action, forceStrongNaming: true);
     }
@@ -237,7 +237,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_Expression_MutableType ()
     {
-      Action<MutableType> action =
+      Action<ProxyType> action =
           mutableType =>
           {
             var expression = Expression.New (mutableType);
@@ -251,7 +251,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNaming (
-        Action<MutableType> participantAction,
+        Action<ProxyType> participantAction,
         bool forceStrongNaming = true,
         string keyFilePath = null,
         StrongNameKeyPair expectedKey = null,
@@ -281,7 +281,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNamingException (Action<MutableType> participantAction, Type requestedType = null, int stackFramesToSkip = 0)
+    private void CheckStrongNamingException (Action<ProxyType> participantAction, Type requestedType = null, int stackFramesToSkip = 0)
     {
       requestedType = requestedType ?? typeof (DomainType);
       var participant = CreateParticipant (participantAction);

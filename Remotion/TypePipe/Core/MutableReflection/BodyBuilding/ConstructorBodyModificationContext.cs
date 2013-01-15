@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly Expression _previousBody;
 
     public ConstructorBodyModificationContext (
-        MutableType declaringType,
+        ProxyType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
         IMemberSelector memberSelector)

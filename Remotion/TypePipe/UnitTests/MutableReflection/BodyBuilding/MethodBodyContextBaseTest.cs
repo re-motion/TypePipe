@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class MethodBodyContextBaseTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private ParameterExpression[] _parameters;
     private bool _isStatic;
     private MethodInfo _baseMethod;

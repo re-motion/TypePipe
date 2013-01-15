@@ -69,19 +69,19 @@ namespace Remotion.TypePipe.Serialization
       get { return null; }
     }
 
-    public void ModifyType (MutableType mutableType)
+    public void ModifyType (ProxyType proxyType)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      if (!mutableType.IsSerializable)
+      if (!proxyType.IsSerializable)
         return;
 
-      if (mutableType.IsAssignableTo (typeof (ISerializable)))
+      if (proxyType.IsAssignableTo (typeof (ISerializable)))
       {
         // If the mutable type already implements ISerializable, we only need to extend the implementation to include the metadata required for 
         // deserialization. Existing fields will be serialized by the base ISerialization implementation. Added fields will be serialized by
         // the TypePipe (ProxySerializationEnabler).
-        mutableType
+        proxyType
             .GetOrAddOverride (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
@@ -94,9 +94,9 @@ namespace Remotion.TypePipe.Serialization
         // cannot take care of serializing the added fields, and we thus have to serialize both existing and added fields ourselves via 
         // ReflectionHelper.AddFieldValues.
 
-        mutableType.AddInterface (typeof (ISerializable));
+        proxyType.AddInterface (typeof (ISerializable));
 
-        mutableType.AddExplicitOverride (
+        proxyType.AddExplicitOverride (
             s_getObjectDataMethod,
             ctx => Expression.Block (
                 typeof (void),

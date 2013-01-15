@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.PerformanceTests
       var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
       var typeModifierStub = MockRepository.GenerateStub<ITypeModifier>();
-      typeModifierStub.Stub (stub => stub.ApplyModifications (Arg<MutableType>.Is.Anything)).Return (typeof (DomainType));
+      typeModifierStub.Stub (stub => stub.ApplyModifications (Arg<ProxyType>.Is.Anything)).Return (typeof (DomainType));
       typeModifierStub.Stub (stub => stub.CodeGenerator).Return (MockRepository.GenerateStub<ICodeGenerator>());
 
       var serviceLocator = new DefaultServiceLocator();

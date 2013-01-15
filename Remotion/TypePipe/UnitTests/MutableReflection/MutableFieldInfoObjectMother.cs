@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableFieldInfoObjectMother
   {
     public static MutableFieldInfo Create (
-        MutableType declaringType = null, string name = "_newField", Type type = null, FieldAttributes attributes = (FieldAttributes) 7)
+        ProxyType declaringType = null, string name = "_newField", Type type = null, FieldAttributes attributes = (FieldAttributes) 7)
     {
       declaringType = declaringType ?? MutableTypeObjectMother.Create();
       type = type ?? ReflectionObjectMother.GetSomeType();

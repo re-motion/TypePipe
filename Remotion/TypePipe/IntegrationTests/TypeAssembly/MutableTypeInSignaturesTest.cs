@@ -108,10 +108,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       }
     }
 
-    private CustomAttributeDeclaration CreateAttribute (MutableType mutableType)
+    private CustomAttributeDeclaration CreateAttribute (ProxyType proxyType)
     {
       var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (null));
-      return new CustomAttributeDeclaration (attributeCtor, new object[] { mutableType });
+      return new CustomAttributeDeclaration (attributeCtor, new object[] { proxyType });
     }
 
     public class DomainType { }

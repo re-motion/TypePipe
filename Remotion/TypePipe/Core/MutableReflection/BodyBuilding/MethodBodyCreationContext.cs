@@ -24,11 +24,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// <summary>
   /// Provides access to expressions needed for building the bodies of added methods. 
   /// </summary>
-  /// <seealso cref="MutableType.AddMethod"/>
+  /// <seealso cref="ProxyType.AddMethod"/>
   public class MethodBodyCreationContext : MethodBodyContextBase
   {
     public MethodBodyCreationContext (
-        MutableType declaringType,
+        ProxyType declaringType,
         IEnumerable<ParameterExpression> parameterExpressions,
         bool isStatic,
         MethodInfo baseMethod,

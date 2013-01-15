@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class BodyContextBaseTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private IMemberSelector _memberSelectorMock;
 
     private BodyContextBase _staticContext;

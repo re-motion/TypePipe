@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier>();
 
-      MutableType mutableType = null;
+      ProxyType proxyType = null;
       var fakeResult = ReflectionObjectMother.GetSomeType();
 
       using (mockRepository.Ordered())
@@ -80,12 +80,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         participantMock1
-            .Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => mt.UnderlyingSystemType == _requestedType)))
-            .WhenCalled (mi => mutableType = (MutableType) mi.Arguments[0]);
-        participantMock2.Expect (mock => mock.ModifyType (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))));
+            .Expect (mock => mock.ModifyType (Arg<ProxyType>.Matches (mt => mt.UnderlyingSystemType == _requestedType)))
+            .WhenCalled (mi => proxyType = (ProxyType) mi.Arguments[0]);
+        participantMock2.Expect (mock => mock.ModifyType (Arg<ProxyType>.Matches (mt => ReferenceEquals (mt, proxyType))));
 
         typeModifierMock
-            .Expect (mock => mock.ApplyModifications (Arg<MutableType>.Matches (mt => ReferenceEquals (mt, mutableType))))
+            .Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Matches (mt => ReferenceEquals (mt, proxyType))))
             .Return (fakeResult);
       }
       mockRepository.ReplayAll();
@@ -95,8 +95,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var result = typeAssembler.AssembleType (_requestedType);
 
       mockRepository.VerifyAll();
-      Assert.That (mutableType, Is.Not.Null);
-      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (_requestedType));
+      Assert.That (proxyType, Is.Not.Null);
+      Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (_requestedType));
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
@@ -106,9 +106,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<MutableType>.Is.Anything)).Throw (exception1);
-      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<MutableType>.Is.Anything)).Throw (exception2);
-      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<MutableType>.Is.Anything)).Throw (exception3);
+      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception1);
+      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception2);
+      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (_typeModifierMock, MockRepository.GenerateStub<IParticipant>());
 
       var expectedMessageRegex = "An error occurred during code generation for 'Object': blub "

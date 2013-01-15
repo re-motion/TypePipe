@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableConstructorInfoObjectMother
   {
     public static MutableConstructorInfo Create (
-        MutableType declaringType = null,
+        ProxyType declaringType = null,
         MethodAttributes attributes = (MethodAttributes) 7,
         IEnumerable<ParameterDeclaration> parameters = null,
         Expression body = null)
@@ -38,18 +38,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     // todo remove
-    public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
+    public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null, ProxyType declaringType = null)
     {
       return null;
     }
 
-    public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo underlyingConstructor = null, MutableType declaringType = null)
+    public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo underlyingConstructor = null, ProxyType declaringType = null)
     {
       return null;
     }
 
     public static MutableConstructorInfo CreateForNew (
-        MutableType declaringType = null,
+        ProxyType declaringType = null,
         MethodAttributes attributes = MethodAttributes.Family,
         IEnumerable<ParameterDeclaration> parameterDeclarations = null,
         Expression body = null)
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return null;
     }
 
-    public static MutableConstructorInfo CreateForNewWithParameters (MutableType declaringType, params ParameterDeclaration[] parameterDeclarations)
+    public static MutableConstructorInfo CreateForNewWithParameters (ProxyType declaringType, params ParameterDeclaration[] parameterDeclarations)
     {
       return CreateForNew (declaringType, parameterDeclarations: parameterDeclarations);
     }

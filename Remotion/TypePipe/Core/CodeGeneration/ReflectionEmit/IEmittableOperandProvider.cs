@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface IEmittableOperandProvider
   {
-    void AddMapping (MutableType mappedType, Type emittableType);
+    void AddMapping (ProxyType mappedType, Type emittableType);
     void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField);
     void AddMapping (MutableConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor);
     void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod);

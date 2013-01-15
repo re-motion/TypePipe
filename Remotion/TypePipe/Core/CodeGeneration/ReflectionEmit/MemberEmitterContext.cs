@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MemberEmitterContext
   {
-    private readonly MutableType _mutableType;
+    private readonly ProxyType _proxyType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
@@ -41,27 +41,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public MemberEmitterContext (
-        MutableType mutableType,
+        ProxyType proxyType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
         IEmittableOperandProvider emittableOperandProvider,
         IMethodTrampolineProvider methodTrampolineProvider)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
 
-      _mutableType = mutableType;
+      _proxyType = proxyType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
       _methodTrampolineProvider = methodTrampolineProvider;
     }
 
-    public MutableType MutableType
+    public ProxyType ProxyType
     {
-      get { return _mutableType; }
+      get { return _proxyType; }
     }
 
     [CLSCompliant (false)]

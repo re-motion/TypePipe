@@ -27,22 +27,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Serves as a factory for mutable members.
   /// </summary>
   /// <remarks>
-  /// This interface is an implementation detail of <see cref="MutableType"/>.
+  /// This interface is an implementation detail of <see cref="ProxyType"/>.
   /// </remarks>
   public interface IMutableMemberFactory
   {
-    Expression CreateInitialization (MutableType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider);
+    Expression CreateInitialization (ProxyType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider);
 
-    MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
+    MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes);
 
     MutableConstructorInfo CreateConstructor (
-        MutableType declaringType,
+        ProxyType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateMethod (
-        MutableType declaringType,
+        ProxyType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -50,8 +50,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateExplicitOverride (
-        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
+        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
+    MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo method, out bool isNewlyCreated);
   }
 }

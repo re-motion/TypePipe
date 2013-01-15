@@ -273,10 +273,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (addedMethod.Invoke (null, new object[] { -8 }), Is.EqualTo (-8));
     }
 
-    private void CheckAddMethodThrows (MutableType mutableType, string name, Type returnType, Expression body, string exceptionMessage)
+    private void CheckAddMethodThrows (ProxyType proxyType, string name, Type returnType, Expression body, string exceptionMessage)
     {
       Assert.That (
-          () => mutableType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.EmptyParameters, ctx => body),
+          () => proxyType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.EmptyParameters, ctx => body),
           Throws.InvalidOperationException.With.Message.EqualTo (exceptionMessage));
     }
 

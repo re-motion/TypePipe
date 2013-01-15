@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               ParameterDeclaration.EmptyParameters,
               ctx =>
               {
-                Assert.That (mutableType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<MutableType>());
+                Assert.That (mutableType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<ProxyType>());
                 Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
 
                 return Expression.Constant (mutableType.UnderlyingSystemType);

@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
-    public static MutableType CreateForExisting (Type underlyingType)
+    public static ProxyType CreateForExisting (Type underlyingType)
     {
       var underlyingTypeDescriptor = TypeDescriptor.Create (underlyingType);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var interfaceMappingHelper = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
+      return new ProxyType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
     }
   }
 }

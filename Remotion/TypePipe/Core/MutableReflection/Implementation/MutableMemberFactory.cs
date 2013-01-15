@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     public Expression CreateInitialization (
-        MutableType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider)
+        ProxyType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
     }
 
-    public MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     public MutableConstructorInfo CreateConstructor (
-        MutableType declaringType,
+        ProxyType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
@@ -90,9 +90,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // TODO 5309: Remove
       if (attributes.IsSet (MethodAttributes.Static))
       {
-        var method = MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddTypeInitialization (null));
+        var method = MemberInfoFromExpressionUtility.GetMethod ((ProxyType obj) => obj.AddTypeInitialization (null));
         var message = string.Format (
-            "Type initializers (static constructors) cannot be added via this API, use {0}.{1} instead.", typeof (MutableType).Name, method.Name);
+            "Type initializers (static constructors) cannot be added via this API, use {0}.{1} instead.", typeof (ProxyType).Name, method.Name);
         throw new NotSupportedException (message);
       }
 
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     public MutableMethodInfo CreateMethod (
-        MutableType declaringType,
+        ProxyType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     public MutableMethodInfo CreateExplicitOverride (
-        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
+        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
@@ -174,7 +174,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo method, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("method", method);
@@ -227,7 +227,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
-        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
+        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
     {
       Assertion.IsTrue (bodyProviderOrNull != null || overriddenMethodBaseDefinition.IsAbstract);
 
@@ -243,7 +243,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return method;
     }
 
-    private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
+    private MethodInfo GetOrCreateImplementationMethod (ProxyType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
     {
       var interfaceMap = declaringType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
       var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
@@ -263,8 +263,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
               "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
               + "Use {1}.{2} to create an explicit implementation.",
               ifcMethod.Name,
-              typeof (MutableType).Name,
-              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null, null)).Name);
+              typeof (ProxyType).Name,
+              MemberInfoFromExpressionUtility.GetMethod ((ProxyType obj) => obj.AddExplicitOverride (null, null)).Name);
           throw new InvalidOperationException (message);
         }
       }

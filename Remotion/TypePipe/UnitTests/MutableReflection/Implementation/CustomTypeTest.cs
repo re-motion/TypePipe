@@ -340,10 +340,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Dev.Null = _customType.IsAssignableFrom (null);
 
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new MethodInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new ConstructorInfo[0]);
       _memberSelectorMock
           .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))

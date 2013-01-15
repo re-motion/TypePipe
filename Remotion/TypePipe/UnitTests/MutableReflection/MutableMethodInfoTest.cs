@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableMethodInfoTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
 
     private MutableMethodInfo _method;
     private MutableMethodInfo _virtualMethod;

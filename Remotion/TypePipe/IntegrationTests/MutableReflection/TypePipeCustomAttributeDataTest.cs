@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       //var returnParameter = method.ReturnParameter;
       var parameter = (MutableParameterInfo) method.GetParameters ().Single ();
       // TODO 4791
-      //var property = mutableType.GetProperties().Single();
+      //var property = ProxyType.GetProperties().Single();
       // TODO 4791
       //var getter = property.GetGetMethod();
       // TODO 4791
@@ -129,9 +129,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       // TODO 4791
       //var setter = property.GetGetMethod();
       // TODO 4791
-      //var @event = mutableType.GetEvents().Single();
+      //var @event = ProxyType.GetEvents().Single();
       // TODO 4791
-      //var nestedType = mutableType.GetNestedTypes().Single();
+      //var nestedType = ProxyType.GetNestedTypes().Single();
       // TODO 4791
       // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
 

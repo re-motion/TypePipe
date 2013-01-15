@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
   {
-    private readonly MutableType _declaringType;
+    private readonly ProxyType _declaringType;
     private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
     private Expression _body;
 
     public MutableConstructorInfo (
-        MutableType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
+        ProxyType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);

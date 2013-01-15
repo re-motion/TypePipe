@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           mutableType =>
           {
-            var message = "Type initializers (static constructors) cannot be modified via this API, use MutableType.AddTypeInitialization instead.";
+            var message = "Type initializers (static constructors) cannot be modified via this API, use ProxyType.AddTypeInitialization instead.";
             var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
             Assert.That (() => mutableType.TypeInitializer, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (
                 () => mutableType.AddConstructor (MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "Type initializers (static constructors) cannot be added via this API, use MutableType.AddTypeInitialization instead."));
+                    "Type initializers (static constructors) cannot be added via this API, use ProxyType.AddTypeInitialization instead."));
           });
     }
 

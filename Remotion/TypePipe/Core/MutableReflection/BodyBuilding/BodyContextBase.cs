@@ -32,11 +32,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class BodyContextBase
   {
-    private readonly MutableType _declaringType;
+    private readonly ProxyType _declaringType;
     private readonly bool _isStatic;
     private readonly IMemberSelector _memberSelector;
 
-    protected BodyContextBase (MutableType declaringType, bool isStatic, IMemberSelector memberSelector)
+    protected BodyContextBase (ProxyType declaringType, bool isStatic, IMemberSelector memberSelector)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _memberSelector = memberSelector;
     }
 
-    public MutableType DeclaringType
+    public ProxyType DeclaringType
     {
       get { return _declaringType; }
     }

@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   [TestFixture]
   public class MutableTypeTest
   {
-    private MutableType _mutableType;
+    private ProxyType _proxyType;
 
     private MutableFieldInfo _publicField;
     private MutableConstructorInfo _publicConstructorWithOverloadEmpty;
@@ -39,62 +39,62 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _proxyType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
 
-      _publicField = _mutableType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
-      _publicConstructorWithOverloadEmpty =_mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
-      _publicConstructorWithOverloadInt = _mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0)));
-      _publicMethod = _mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0)));
-      _publicMethodWithOverloadEmpty = _mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload ()));
-      _publicMethodWithOverloadInt = _mutableType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1)));
+      _publicField = _proxyType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
+      _publicConstructorWithOverloadEmpty =_proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
+      _publicConstructorWithOverloadInt = _proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0)));
+      _publicMethod = _proxyType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0)));
+      _publicMethodWithOverloadEmpty = _proxyType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload ()));
+      _publicMethodWithOverloadInt = _proxyType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1)));
     }
 
     [Test]
     public void GetField_Name ()
     {
-      var result = _mutableType.GetField ("PublicField");
+      var result = _proxyType.GetField ("PublicField");
       Assert.That (result, Is.SameAs (_publicField));
     }
 
     [Test]
     public void GetField_Name_NonMatchingName ()
     {
-      var result = _mutableType.GetField ("DoesNotExist");
+      var result = _proxyType.GetField ("DoesNotExist");
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetField_NameAndBindingFlags ()
     {
-      var result = _mutableType.GetField ("PublicField", BindingFlags.Public | BindingFlags.Instance);
+      var result = _proxyType.GetField ("PublicField", BindingFlags.Public | BindingFlags.Instance);
       Assert.That (result, Is.SameAs (_publicField));
     }
 
     [Test]
     public void GetField_NameAndBindingFlags_NonMatchingName ()
     {
-      var result = _mutableType.GetField ("DoesNotExist", BindingFlags.Public | BindingFlags.Instance);
+      var result = _proxyType.GetField ("DoesNotExist", BindingFlags.Public | BindingFlags.Instance);
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetField_NameAndBindingFlags_NonMatchingBindingFlags ()
     {
-      var result = _mutableType.GetField ("PublicField", BindingFlags.NonPublic | BindingFlags.Instance);
+      var result = _proxyType.GetField ("PublicField", BindingFlags.NonPublic | BindingFlags.Instance);
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetConstructor_Types ()
     {
-      var result = _mutableType.GetConstructor (new[] { typeof (int) });
+      var result = _proxyType.GetConstructor (new[] { typeof (int) });
       Assert.That (result, Is.SameAs (_publicConstructorWithOverloadInt));
     }
 
     [Test]
     public void GetConstructor_Types_NonMatchingTypes ()
     {
-      var result = _mutableType.GetConstructor (new[] { typeof (string) });
+      var result = _proxyType.GetConstructor (new[] { typeof (string) });
       Assert.That (result, Is.Null);
     }
 
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
-      var result = _mutableType.GetConstructor (bindingFlags, binderMock, callConvention, types, parameterModifiers);
+      var result = _proxyType.GetConstructor (bindingFlags, binderMock, callConvention, types, parameterModifiers);
 
       binderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetConstructor_BindingFlagsAndTypesAndCallingConvention_NonMatchingBindingFlags ()
     {
-      var negativeResultDueToBindingFlags = _mutableType.GetConstructor (
+      var negativeResultDueToBindingFlags = _proxyType.GetConstructor (
           BindingFlags.NonPublic | BindingFlags.Instance,
           Type.DefaultBinder,
           CallingConventions.Any,
@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Ignore ("TODO 4836")]
     public void GetConstructor_BindingFlagsAndTypesAndCallingConvention_NonMatchingCallingConvention ()
     {
-      var negativeResultDueToCallingConvention = _mutableType.GetConstructor (
+      var negativeResultDueToCallingConvention = _proxyType.GetConstructor (
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
           CallingConventions.Standard,
@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetConstructor_BindingFlagsAndTypesAndCallingConvention_NonMatchingTypes ()
     {
-      var negativeResultDueToTypes = _mutableType.GetConstructor (
+      var negativeResultDueToTypes = _proxyType.GetConstructor (
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
           CallingConventions.Any,
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
-      var result = _mutableType.GetConstructor (bindingFlags, binderMock, types, parameterModifiers);
+      var result = _proxyType.GetConstructor (bindingFlags, binderMock, types, parameterModifiers);
 
       binderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -175,7 +175,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetConstructor_BindingFlagsAndTypes_NonMatchingBindingFlags ()
     {
-      var negativeResultDueToBindingFlags = _mutableType.GetConstructor (
+      var negativeResultDueToBindingFlags = _proxyType.GetConstructor (
           BindingFlags.NonPublic | BindingFlags.Instance,
           Type.DefaultBinder,
           new[] { typeof (int) },
@@ -186,7 +186,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetConstructor_BindingFlagsAndTypes_NonMatchingTypes ()
     {
-      var negativeResultDueToTypes = _mutableType.GetConstructor (
+      var negativeResultDueToTypes = _proxyType.GetConstructor (
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
           new[] { typeof (string) },
@@ -197,77 +197,77 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_Name ()
     {
-      var result = _mutableType.GetMethod ("PublicMethod");
+      var result = _proxyType.GetMethod ("PublicMethod");
       Assert.That (result, Is.SameAs (_publicMethod));
     }
 
     [Test]
     public void GetMethod_Name_NonMatchingName ()
     {
-      var result = _mutableType.GetMethod ("DoesNotExist");
+      var result = _proxyType.GetMethod ("DoesNotExist");
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetMethod_NameAndBindingFlags ()
     {
-      var result = _mutableType.GetMethod ("PublicMethod", BindingFlags.Public | BindingFlags.Instance);
+      var result = _proxyType.GetMethod ("PublicMethod", BindingFlags.Public | BindingFlags.Instance);
       Assert.That (result, Is.SameAs (_publicMethod));
     }
 
     [Test]
     public void GetMethod_NameAndBindingFlags_NonMatchingName ()
     {
-      var result = _mutableType.GetMethod ("DoesNotExist", BindingFlags.Public | BindingFlags.Instance);
+      var result = _proxyType.GetMethod ("DoesNotExist", BindingFlags.Public | BindingFlags.Instance);
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetMethod_NameAndBindingFlags_NonMatchingBindingFlags ()
     {
-      var result = _mutableType.GetMethod ("PublicMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+      var result = _proxyType.GetMethod ("PublicMethod", BindingFlags.NonPublic | BindingFlags.Instance);
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetMethod_NameAndTypes ()
     {
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", new[] { typeof (int) });
+      var result = _proxyType.GetMethod ("PublicMethodWithOverload", new[] { typeof (int) });
       Assert.That (result, Is.SameAs (_publicMethodWithOverloadInt));
     }
 
     [Test]
     public void GetMethod_NameAndTypes_NonMatchingName ()
     {
-      var result = _mutableType.GetMethod ("DoesNotExist", new[] { typeof (int) });
+      var result = _proxyType.GetMethod ("DoesNotExist", new[] { typeof (int) });
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetMethod_NameAndTypes_NonMatchingTypes ()
     {
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", new[] { typeof (string) });
+      var result = _proxyType.GetMethod ("PublicMethodWithOverload", new[] { typeof (string) });
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetMethod_NameAndTypesAndParameterModifiers ()
     {
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", new[] { typeof (int) }, new[] { new ParameterModifier (1) });
+      var result = _proxyType.GetMethod ("PublicMethodWithOverload", new[] { typeof (int) }, new[] { new ParameterModifier (1) });
       Assert.That (result, Is.SameAs (_publicMethodWithOverloadInt));
     }
 
     [Test]
     public void GetMethod_NameAndTypesAndParameterModifiers_NonMatchingName ()
     {
-      var result = _mutableType.GetMethod ("DoesNotExist", new[] { typeof (int) }, new[] { new ParameterModifier (1) });
+      var result = _proxyType.GetMethod ("DoesNotExist", new[] { typeof (int) }, new[] { new ParameterModifier (1) });
       Assert.That (result, Is.Null);
     }
 
     [Test]
     public void GetMethod_NameAndTypesAndParameterModifiers_NonMatchingTypes ()
     {
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", new[] { typeof (string) }, new[] { new ParameterModifier (1) });
+      var result = _proxyType.GetMethod ("PublicMethodWithOverload", new[] { typeof (string) }, new[] { new ParameterModifier (1) });
       Assert.That (result, Is.Null);
     }
 
@@ -284,7 +284,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var fakeResult = ReflectionObjectMother.GetSomeMethod();
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, callConvention, types, parameterModifiers);
+      var result = _proxyType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, callConvention, types, parameterModifiers);
 
       binderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -302,7 +302,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var fakeResult = ReflectionObjectMother.GetSomeMethod ();
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, types, parameterModifiers);
+      var result = _proxyType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, types, parameterModifiers);
 
       binderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -311,7 +311,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_NameAndBindingFlagsAndTypes_NonMatchingName ()
     {
-      var negativeResultDueToBindingFlags = _mutableType.GetMethod (
+      var negativeResultDueToBindingFlags = _proxyType.GetMethod (
           "DoesNotExist",
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
@@ -323,7 +323,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_NameAndBindingFlagsAndTypes_NonMatchingBindingFlags ()
     {
-      var negativeResultDueToBindingFlags = _mutableType.GetMethod (
+      var negativeResultDueToBindingFlags = _proxyType.GetMethod (
           "PublicMethodWithOverload",
           BindingFlags.NonPublic | BindingFlags.Instance,
           Type.DefaultBinder,
@@ -335,7 +335,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_NameAndBindingFlagsAndTypes_NonMatchingTypes ()
     {
-      var negativeResultDueToTypes = _mutableType.GetMethod (
+      var negativeResultDueToTypes = _proxyType.GetMethod (
           "PublicMethodWithOverload",
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
@@ -347,7 +347,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_NameAndBindingFlagsAndTypesAndCallingConvention_NonMatchingName ()
     {
-      var negativeResultDueToBindingFlags = _mutableType.GetMethod (
+      var negativeResultDueToBindingFlags = _proxyType.GetMethod (
           "DoesNotExist",
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
@@ -360,7 +360,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_NameAndBindingFlagsAndTypesAndCallingConvention_NonMatchingBindingFlags ()
     {
-      var negativeResultDueToBindingFlags = _mutableType.GetMethod (
+      var negativeResultDueToBindingFlags = _proxyType.GetMethod (
           "PublicMethodWithOverload",
           BindingFlags.NonPublic | BindingFlags.Instance,
           Type.DefaultBinder,
@@ -374,7 +374,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Ignore ("TODO 4836")]
     public void GetMethod_NameAndBindingFlagsAndTypesAndCallingConvention_NonMatchingCallingConvention ()
     {
-      var negativeResultDueToCallingConvention = _mutableType.GetMethod (
+      var negativeResultDueToCallingConvention = _proxyType.GetMethod (
           "PublicMethodWithOverload",
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,
@@ -387,7 +387,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetMethod_NameAndBindingFlagsAndTypesAndCallingConvention_NonMatchingTypes ()
     {
-      var negativeResultDueToTypes = _mutableType.GetMethod (
+      var negativeResultDueToTypes = _proxyType.GetMethod (
           "PublicMethodWithOverload",
           BindingFlags.Public | BindingFlags.Instance,
           Type.DefaultBinder,

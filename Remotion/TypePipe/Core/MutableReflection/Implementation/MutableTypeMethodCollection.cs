@@ -23,12 +23,12 @@ using System.Reflection;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A container storing methods for <see cref="MutableType"/>. See also <see cref="MutableTypeMemberCollection{TMemberInfo,TMutableMemberInfo}"/>.
+  /// A container storing methods for <see cref="ProxyType"/>. See also <see cref="MutableTypeMemberCollection{TMemberInfo,TMutableMemberInfo}"/>.
   /// </summary>
   public class MutableTypeMethodCollection : MutableTypeMemberCollection<MethodInfo, MutableMethodInfo>
   {
     public MutableTypeMethodCollection (
-        MutableType declaringType, IEnumerable<MethodInfo> existingMembers, Func<MethodInfo, MutableMethodInfo> mutableMemberProvider)
+        ProxyType declaringType, IEnumerable<MethodInfo> existingMembers, Func<MethodInfo, MutableMethodInfo> mutableMemberProvider)
         : base (declaringType, existingMembers, mutableMemberProvider)
     {
     }

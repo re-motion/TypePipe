@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
-    public InitializationBodyContext (MutableType declaringType, bool isStatic, IMemberSelector memberSelector)
+    public InitializationBodyContext (ProxyType declaringType, bool isStatic, IMemberSelector memberSelector)
         : base (declaringType, isStatic, memberSelector)
     {
     }

@@ -28,6 +28,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     ICodeGenerator CodeGenerator { get; }
 
-    ISubclassProxyBuilder CreateBuilder (MutableType mutableType);
+    ISubclassProxyBuilder CreateBuilder (ProxyType proxyType);
   }
 }

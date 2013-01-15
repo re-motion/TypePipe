@@ -42,13 +42,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _builderFactory.CodeGenerator; }
     }
 
-    public Type ApplyModifications (MutableType mutableType)
+    public Type ApplyModifications (ProxyType proxyType)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      var builder = _builderFactory.CreateBuilder (mutableType);
+      var builder = _builderFactory.CreateBuilder (proxyType);
 
-      return builder.Build (mutableType);
+      return builder.Build (proxyType);
     }
   }
 }

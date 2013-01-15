@@ -22,7 +22,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Defines an interface for code generation components which perform the modifications recorded by an <see cref="MutableType"/>.
+  /// Defines an interface for code generation components which perform the modifications recorded by an <see cref="ProxyType"/>.
   /// </summary>
   [ConcreteImplementation (typeof (TypeModifier))]
   // TODO 5309: Rename to CreateProxy
@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.CodeGeneration
     /// Generates a proxy type based on the data specified by the participants.
     /// </summary>
     /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
-    /// <param name="mutableType">The mutable type.</param>
+    /// <param name="proxyType">The mutable type.</param>
     /// <returns>The generated proxy type.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    Type ApplyModifications (MutableType mutableType);
+    Type ApplyModifications (ProxyType proxyType);
   }
 }

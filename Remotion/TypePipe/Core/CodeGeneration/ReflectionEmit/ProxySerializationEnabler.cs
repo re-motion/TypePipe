@@ -48,35 +48,35 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _serializableFieldFinder = serializableFieldFinder;
     }
 
-    public void MakeSerializable (MutableType mutableType, MethodInfo initializationMethod)
+    public void MakeSerializable (ProxyType proxyType, MethodInfo initializationMethod)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       // initializationMethod may be null
 
       // Existing fields are always serialized by the standard .NET serialization or by an implementation of ISerializable on the underlying type.
       // Added fields are also serialized by the standard .NET serialization, unless the mutable type implements ISerializable. In that case,
       // we need to extend the ISerializable implementation to include the added fields.
       
-      var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (mutableType.AddedFields.Cast<FieldInfo> ()).ToArray ();
-      var deserializationConstructor = GetDeserializationConstructor (mutableType);
+      var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (proxyType.AddedFields.Cast<FieldInfo> ()).ToArray ();
+      var deserializationConstructor = GetDeserializationConstructor (proxyType);
 
       // If the underlying type implements ISerializable but has no deserialization constructor, we can't implement ISerializable correctly, so
       // we don't even try. (SerializationParticipant relies on this behavior.)
       var needsCustomFieldSerialization =
-          serializedFieldMapping.Length != 0 && mutableType.IsAssignableTo (typeof (ISerializable)) && deserializationConstructor != null;
+          serializedFieldMapping.Length != 0 && proxyType.IsAssignableTo (typeof (ISerializable)) && deserializationConstructor != null;
 
       if (needsCustomFieldSerialization)
       {
-        OverrideGetObjectData (mutableType, serializedFieldMapping);
+        OverrideGetObjectData (proxyType, serializedFieldMapping);
         AdaptDeserializationConstructor (deserializationConstructor, serializedFieldMapping);
       }
 
       if (initializationMethod != null)
       {
-        if (mutableType.IsAssignableTo (typeof (IDeserializationCallback)))
-          OverrideOnDeserialization (mutableType, initializationMethod);
-        else if (mutableType.IsSerializable)
-          ExplicitlyImplementOnDeserialization (mutableType, initializationMethod);
+        if (proxyType.IsAssignableTo (typeof (IDeserializationCallback)))
+          OverrideOnDeserialization (proxyType, initializationMethod);
+        else if (proxyType.IsSerializable)
+          ExplicitlyImplementOnDeserialization (proxyType, initializationMethod);
       }
     }
 
@@ -85,11 +85,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return constructor.GetParameters ().Select (x => x.ParameterType).SequenceEqual (new[] { typeof (SerializationInfo), typeof (StreamingContext) });
     }
 
-    private void OverrideGetObjectData (MutableType mutableType, Tuple<string, FieldInfo>[] serializedFieldMapping)
+    private void OverrideGetObjectData (ProxyType proxyType, Tuple<string, FieldInfo>[] serializedFieldMapping)
     {
       try
       {
-        mutableType
+        proxyType
             .GetOrAddOverride (s_getObjectDataMetod)
             .SetBody (
                 ctx => Expression.Block (
@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private MutableConstructorInfo GetDeserializationConstructor (MutableType type)
+    private MutableConstructorInfo GetDeserializationConstructor (ProxyType type)
     {
       var parameterTypes = new[] { typeof (SerializationInfo), typeof (StreamingContext) };
       return type.AddedConstructors
@@ -121,11 +121,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                   new[] { ctx.PreviousBody }.Concat (BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
 
-    private static void OverrideOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
+    private static void OverrideOnDeserialization (ProxyType proxyType, MethodInfo initializationMethod)
     {
       try
       {
-        mutableType.GetOrAddOverride (s_onDeserializationMethod)
+        proxyType.GetOrAddOverride (s_onDeserializationMethod)
                    .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
       }
       catch (NotSupportedException exception)
@@ -137,10 +137,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private static void ExplicitlyImplementOnDeserialization (MutableType mutableType, MethodInfo initializationMethod)
+    private static void ExplicitlyImplementOnDeserialization (ProxyType proxyType, MethodInfo initializationMethod)
     {
-      mutableType.AddInterface (typeof (IDeserializationCallback));
-      mutableType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
+      proxyType.AddInterface (typeof (IDeserializationCallback));
+      proxyType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
     }
 
     private IEnumerable<Expression> BuildFieldSerializationExpressions (

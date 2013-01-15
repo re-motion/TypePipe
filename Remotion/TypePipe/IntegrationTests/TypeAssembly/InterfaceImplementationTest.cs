@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableType.AddInterface (typeof (IInvalidCandidates));
 
             var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already "
-                                + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
+                                + "exists. Use ProxyType.AddExplicitOverride to create an explicit implementation.";
             Assert.That (
                 () => mutableType.GetOrAddOverride (interfaceMethod1),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod1.Name)));

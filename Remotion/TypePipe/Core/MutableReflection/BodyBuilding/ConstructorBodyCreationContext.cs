@@ -23,11 +23,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// <summary>
   /// Provides access to expressions needed for building the bodies of added constructors. 
   /// </summary>
-  /// <seealso cref="MutableType.AddConstructor"/>
+  /// <seealso cref="ProxyType.AddConstructor"/>
   public class ConstructorBodyCreationContext : ConstructorBodyContextBase
   {
     public ConstructorBodyCreationContext (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
+        ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
       : base (declaringType, parameterExpressions, memberSelector)
     {
     }

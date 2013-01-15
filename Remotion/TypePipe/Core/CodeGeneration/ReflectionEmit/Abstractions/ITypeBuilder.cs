@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   [CLSCompliant (false)]
   public interface ITypeBuilder : ICustomAttributeTargetBuilder
   {
-    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type);
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ProxyType type);
 
     void AddInterfaceImplementation (Type interfaceType);
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);

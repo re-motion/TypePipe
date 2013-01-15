@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class ConstructorBodyModificationContextTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
     private IMemberSelector _memberSelector;

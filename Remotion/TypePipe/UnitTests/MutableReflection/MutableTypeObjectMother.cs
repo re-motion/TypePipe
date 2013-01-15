@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableTypeObjectMother
   {
-    public static MutableType Create (
+    public static ProxyType Create (
         Type baseType = null,
         string name = "Proxy",
         string @namespace = "My",
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new MutableType (
+      return new ProxyType (
           baseType,
           name,
           @namespace,

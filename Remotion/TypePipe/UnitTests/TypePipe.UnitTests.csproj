@@ -158,7 +158,7 @@
     <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoTest.cs" />
     <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
-    <Compile Include="MutableReflection\MutableTypeTest.cs" />
+    <Compile Include="MutableReflection\ProxyTypeTest.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\UnsupportedMemberTestHelper.cs" />

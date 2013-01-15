@@ -43,11 +43,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     
     private ProxySerializationEnabler _enabler;
 
-    private MutableType _someType;
-    private MutableType _serializableInterfaceType;
-    private MutableType _serializableType;
-    private MutableType _deserializationCallbackType;
-    private MutableType _serializableInterfaceWithDeserializationCallbackType;
+    private ProxyType _someType;
+    private ProxyType _serializableInterfaceType;
+    private ProxyType _serializableType;
+    private ProxyType _deserializationCallbackType;
+    private ProxyType _serializableInterfaceWithDeserializationCallbackType;
 
     private MethodInfo _someInitializationMethod;
 
@@ -346,7 +346,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (new Tuple<string, FieldInfo>[0]);
     }
 
-    private void StubFilterWithSerializedFields (MutableType declaringType)
+    private void StubFilterWithSerializedFields (ProxyType declaringType)
     {
       _serializableFieldFinderMock
           .Stub (stub => stub.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))

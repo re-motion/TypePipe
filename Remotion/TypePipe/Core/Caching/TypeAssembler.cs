@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.Caching
     }
 
     // TODO Create this method with injected ProxyTypeFactory.
-    private MutableType CreateMutableType (Type requestedType)
+    private ProxyType CreateMutableType (Type requestedType)
     {
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.Caching
       // TODO name = xxxProxyYY
       // TODO fullname
       // TODO attributes
-      return new MutableType (
+      return new ProxyType (
           requestedType,
           requestedType.Name,
           requestedType.Namespace,
@@ -109,29 +109,29 @@ namespace Remotion.TypePipe.Caching
           mutableMemberFactory);
     }
 
-    private Type ApplyModificationsWithDiagnostics (MutableType mutableType)
+    private Type ApplyModificationsWithDiagnostics (ProxyType proxyType)
     {
       try
       {
-        return _typeModifier.ApplyModifications (mutableType);
+        return _typeModifier.ApplyModifications (proxyType);
       }
       catch (InvalidOperationException ex)
       {
-        throw new InvalidOperationException (BuildExceptionMessage (mutableType, ex), ex);
+        throw new InvalidOperationException (BuildExceptionMessage (proxyType, ex), ex);
       }
       catch (NotSupportedException ex)
       {
-        throw new NotSupportedException (BuildExceptionMessage (mutableType, ex), ex);
+        throw new NotSupportedException (BuildExceptionMessage (proxyType, ex), ex);
       }
     }
 
-    private string BuildExceptionMessage (MutableType mutableType, SystemException exception)
+    private string BuildExceptionMessage (ProxyType proxyType, SystemException exception)
     {
       var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
       return string.Format (
           "An error occurred during code generation for '{0}': {1} "
           + "The following participants are currently configured and may have caused the error: {2}.",
-          mutableType.Name,
+          proxyType.Name,
           exception.Message,
           participantList);
     }

@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   public abstract class ConstructorBodyContextBase : MethodBaseBodyContextBase
   {
     protected ConstructorBodyContextBase (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
+        ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
         : base (declaringType, parameterExpressions, false, memberSelector)
     {
     }

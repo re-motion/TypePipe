@@ -27,9 +27,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyBuilder"/>.</remarks>
   public interface IInitializationBuilder
   {
-    MutableConstructorInfo CreateTypeInitializer (MutableType mutableType);
+    MutableConstructorInfo CreateTypeInitializer (ProxyType proxyType);
 
-    Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType);
+    Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (ProxyType proxyType);
 
     void WireConstructorWithInitialization (
         MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler);

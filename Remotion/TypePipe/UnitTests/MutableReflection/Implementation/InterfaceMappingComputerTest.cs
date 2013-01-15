@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private IInterfaceMappingProvider _interfaceMapProviderMock;
 
-    private MutableType _mutableType;
+    private ProxyType _proxyType;
 
     private readonly MethodInfo _existingInterfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.Method11());
     private readonly MethodInfo _existingInterfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.Method12());
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _computer = new InterfaceMappingComputer();
 
-      _mutableType = MutableTypeObjectMother.Create (
+      _proxyType = MutableTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ComputeMapping_ExistingInterface ()
     {
-      var explicitImplementation = CreateVirtualMethod(_mutableType);
+      var explicitImplementation = CreateVirtualMethod(_proxyType);
       explicitImplementation.AddExplicitBaseDefinition (_existingInterfaceMethod2);
       var implicitImplementation1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method11());
       var implicitImplementation3 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method13());
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               });
 
       CallComputeMappingAndCheckResult (
-          _mutableType,
+          _proxyType,
           typeof (IExistingInterface),
           Tuple.Create (_existingInterfaceMethod1, (MethodInfo) fakeImplementation1),
           Tuple.Create (_existingInterfaceMethod2, (MethodInfo) explicitImplementation),
@@ -96,17 +96,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ComputeMapping_AddedInterface ()
     {
-      _mutableType.AddInterface (typeof (IAddedInterface));
-      var explicitImplementation = _mutableType.AddMethod (
+      _proxyType.AddInterface (typeof (IAddedInterface));
+      var explicitImplementation = _proxyType.AddMethod (
           "UnrelatedMethod", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
       explicitImplementation.AddExplicitBaseDefinition (_addedInterfaceMethod1);
-      var implicitImplementation2 = _mutableType.GetMethod ("Method22", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-      var implicitImplementation3 = _mutableType.GetMethod ("Method23");
-      Assert.That (implicitImplementation2.DeclaringType, Is.SameAs (_mutableType));
+      var implicitImplementation2 = _proxyType.GetMethod ("Method22", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+      var implicitImplementation3 = _proxyType.GetMethod ("Method23");
+      Assert.That (implicitImplementation2.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (implicitImplementation3.DeclaringType, Is.SameAs (typeof (DomainTypeBase)));
 
       CallComputeMappingAndCheckResult (
-          _mutableType,
+          _proxyType,
           typeof (IAddedInterface),
           Tuple.Create (_addedInterfaceMethod1, (MethodInfo) explicitImplementation),
           Tuple.Create (_addedInterfaceMethod2, implicitImplementation2),
@@ -149,10 +149,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ComputeMapping_AddedInterface_NotFullyImplemented_AllowPartial ()
     {
-      _mutableType.AddInterface (typeof (IDisposable));
+      _proxyType.AddInterface (typeof (IDisposable));
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose ());
 
-      CallComputeMappingAndCheckResult (_mutableType, typeof (IDisposable), Tuple.Create (interfaceMethod, (MethodInfo) null));
+      CallComputeMappingAndCheckResult (_proxyType, typeof (IDisposable), Tuple.Create (interfaceMethod, (MethodInfo) null));
     }
 
     [Test]
@@ -160,19 +160,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: 'Dispose'.")]
     public void ComputeMapping_AddedInterface_NotFullyImplemented_Throws ()
     {
-      _mutableType.AddInterface (typeof (IDisposable));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
+      _proxyType.AddInterface (typeof (IDisposable));
+      _computer.ComputeMapping (_proxyType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
     }
 
     [Test]
     public void ComputeMapping_AddedInterface_Candidates_AllowPartial ()
     {
-      _mutableType.AddInterface (typeof (IImplementationCandidates));
+      _proxyType.AddInterface (typeof (IImplementationCandidates));
       var interfaceMethod1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IImplementationCandidates obj) => obj.NonPublicMethod());
       var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IImplementationCandidates obj) => obj.NonVirtualMethod());
 
       CallComputeMappingAndCheckResult (
-          _mutableType,
+          _proxyType,
           typeof (IImplementationCandidates),
           Tuple.Create (interfaceMethod1, (MethodInfo) null),
           Tuple.Create (interfaceMethod2, (MethodInfo) null));
@@ -184,42 +184,42 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "'NonPublicMethod', 'NonVirtualMethod'.")]
     public void ComputeMapping_AddedInterface_Candidates_Throws ()
     {
-      _mutableType.AddInterface (typeof (IImplementationCandidates));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IImplementationCandidates), false);
+      _proxyType.AddInterface (typeof (IImplementationCandidates));
+      _computer.ComputeMapping (_proxyType, _interfaceMapProviderMock.Get, typeof (IImplementationCandidates), false);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type passed must be an interface.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NoInterfaceType ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (object), false);
+      _computer.ComputeMapping (_proxyType, _interfaceMapProviderMock.Get, typeof (object), false);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interface not found.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NotImplemented ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
+      _computer.ComputeMapping (_proxyType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
     }
 
-    private MutableMethodInfo CreateVirtualMethod (MutableType mutableType)
+    private MutableMethodInfo CreateVirtualMethod (ProxyType proxyType)
     {
-      return mutableType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      return proxyType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
     }
 
-    private MutableTypeMethodCollection GetAllMethods (MutableType mutableType)
+    private MutableTypeMethodCollection GetAllMethods (ProxyType proxyType)
     {
-      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (mutableType, "_methods");
+      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (proxyType, "_methods");
     }
 
     // Tuple means: 1) interface method, 2) implementation method
-    private void CallComputeMappingAndCheckResult (MutableType mutableType, Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
+    private void CallComputeMappingAndCheckResult (ProxyType proxyType, Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
     {
-      var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Get, interfaceType, true);
+      var mapping = _computer.ComputeMapping (proxyType, _interfaceMapProviderMock.Get, interfaceType, true);
 
       _interfaceMapProviderMock.VerifyAllExpectations();
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
-      Assert.That (mapping.TargetType, Is.SameAs (mutableType));
+      Assert.That (mapping.TargetType, Is.SameAs (proxyType));
       // Order matters for "expectedMapping".
       Assert.That (mapping.InterfaceMethods.Zip (mapping.TargetMethods), Is.EquivalentTo (expectedMapping));
     }

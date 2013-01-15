@@ -27,14 +27,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public static class MemberEmitterContextObjectMother
   {
     public static MemberEmitterContext GetSomeContext (
-        MutableType mutableType = null,
+        ProxyType proxyType = null,
         ITypeBuilder typeBuilder = null,
         DebugInfoGenerator debugInfoGenerator = null,
         IEmittableOperandProvider emittableOperandProvider = null,
         IMethodTrampolineProvider methodTrampolineProvider = null)
     {
       return new MemberEmitterContext (
-          mutableType ?? MutableTypeObjectMother.Create(),
+          proxyType ?? MutableTypeObjectMother.Create(),
           typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
           emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>(),

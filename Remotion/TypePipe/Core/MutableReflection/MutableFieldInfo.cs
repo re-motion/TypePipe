@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableFieldInfo : FieldInfo, IMutableInfo
   {
-    private readonly MutableType _declaringType;
+    private readonly ProxyType _declaringType;
     private readonly string _name;
     private readonly Type _type;
 
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private FieldAttributes _attributes;
 
-    public MutableFieldInfo (MutableType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

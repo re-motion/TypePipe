@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Visit inner nodes in order to replace OriginalBodyExpressions with ThisExpressions.
       var body = Visit (node.Body);
 
-      var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
+      var thisClosureVariable = Expression.Variable (_context.ProxyType, "thisClosure");
       Func<Expression, Expression> lambdaPreparer = expr =>
       {
         if (expr is ThisExpression)
@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var newLambda = node.Update (newBody, node.Parameters);
       var block = Expression.Block (
           new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, new ThisExpression (_context.MutableType)),
+          Expression.Assign (thisClosureVariable, new ThisExpression (_context.ProxyType)),
           newLambda);
 
       return Visit (block);
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("node", node);
 
       var methodBase = node.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.MutableType);
+      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.ProxyType);
       var methodRepresentingOriginalBody = NonVirtualCallMethodInfoAdapter.Adapt (methodBase);
 
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, node.Arguments);

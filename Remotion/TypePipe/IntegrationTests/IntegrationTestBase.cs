@@ -91,10 +91,10 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
+    protected static IParticipant CreateParticipant (Action<ProxyType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
-      participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
+      participantStub.Stub (stub => stub.ModifyType (Arg<ProxyType>.Is.Anything)).Do (typeModification);
 
       return participantStub;
     }

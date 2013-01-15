@@ -20,7 +20,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="IParameterBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
+  /// Decorates an instance of <see cref="IParameterBuilder"/> to allow <see cref="ProxyType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
   public class ParameterBuilderDecorator : BuilderDecoratorBase, IParameterBuilder

@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   [TestFixture]
   public class MutableTypeMethodCollectionTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
 
     private MutableTypeMethodCollection _collection;
 

@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   // TODO update docs.
   /// <summary>
-  /// This class is an implementation detail of <see cref="MutableType"/>.
+  /// This class is an implementation detail of <see cref="ProxyType"/>.
   /// </summary>
   /// <typeparam name="TMemberInfo">The type of the existing member infos.</typeparam>
   /// <typeparam name="TMutableMemberInfo">The type of the mutable member infos.</typeparam>
@@ -35,11 +35,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       where TMemberInfo : MemberInfo
       where TMutableMemberInfo : TMemberInfo
   {
-    private readonly MutableType _declaringType;
+    private readonly ProxyType _declaringType;
     private readonly ReadOnlyCollection<TMemberInfo> _existingBaseMembers;
     private readonly List<TMutableMemberInfo> _addedMembers = new List<TMutableMemberInfo>();
 
-    public MutableTypeMemberCollection (MutableType declaringType,IEnumerable<TMemberInfo> existingMembers,Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)
+    public MutableTypeMemberCollection (ProxyType declaringType,IEnumerable<TMemberInfo> existingMembers,Func<TMemberInfo, TMutableMemberInfo> mutableMemberProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("existingMembers", existingMembers);

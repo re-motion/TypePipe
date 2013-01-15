@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
-    private readonly MutableType _declaringType;
+    private readonly ProxyType _declaringType;
     private readonly string _name;
     private MethodAttributes _attributes;
     private readonly MutableParameterInfo _returnParameter;
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
     private Expression _body;
 
     public MutableMethodInfo (
-        MutableType declaringType,
+        ProxyType declaringType,
         string name,
         MethodAttributes attributes,
         ParameterDeclaration returnParameter,

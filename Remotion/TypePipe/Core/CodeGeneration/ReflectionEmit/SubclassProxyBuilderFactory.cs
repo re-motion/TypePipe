@@ -43,19 +43,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _codeGenerator; }
     }
 
-    public ISubclassProxyBuilder CreateBuilder (MutableType mutableType)
+    public ISubclassProxyBuilder CreateBuilder (ProxyType proxyType)
     {
       // TODO: just use attributes of type
       var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      if (mutableType.IsAbstract)
+      if (proxyType.IsAbstract)
         typeAttributes |= TypeAttributes.Abstract;
-      if (mutableType.IsSerializable)
+      if (proxyType.IsSerializable)
         typeAttributes |= TypeAttributes.Serializable;
 
-      var typeBuilder = _codeGenerator.DefineType (mutableType.FullName, typeAttributes, mutableType.UnderlyingSystemType);
+      var typeBuilder = _codeGenerator.DefineType (proxyType.FullName, typeAttributes, proxyType.UnderlyingSystemType);
 
       var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
-      typeBuilder.RegisterWith (emittableOperandProvider, mutableType);
+      typeBuilder.RegisterWith (emittableOperandProvider, proxyType);
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpressionPreparer(), ilGeneratorFactory);
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           memberEmitter,
           initalizationBuilder,
           proxySerializationEnabler,
-          mutableType,
+          proxyType,
           typeBuilder,
           _codeGenerator.DebugInfoGenerator,
           emittableOperandProvider,

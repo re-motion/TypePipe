@@ -334,7 +334,7 @@
     <Compile Include="MutableReflection\MutableFieldInfo.cs" />
     <Compile Include="MutableReflection\MutableMethodInfo.cs" />
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
-    <Compile Include="MutableReflection\MutableType.cs" />
+    <Compile Include="MutableReflection\ProxyType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="IParticipant.cs" />
     <Compile Include="ObjectFactory.cs" />

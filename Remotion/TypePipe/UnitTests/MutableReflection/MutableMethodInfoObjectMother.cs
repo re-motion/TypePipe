@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableMethodInfoObjectMother
   {
     public static MutableMethodInfo Create (
-        MutableType declaringType = null,
+        ProxyType declaringType = null,
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = (MethodAttributes) 7,
         ParameterDeclaration returnParameter = null,
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     // tODO remove
     public static MutableMethodInfo CreateForNew (
-        MutableType declaringType = null,
+        ProxyType declaringType = null,
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
         Type returnType = null,
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     // TODO remove
-    public static MutableMethodInfo CreateForExisting (MutableType declaringType = null, MethodInfo underlyingMethod = null)
+    public static MutableMethodInfo CreateForExisting (ProxyType declaringType = null, MethodInfo underlyingMethod = null)
     {
       return null;
     }

@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private IProxySerializationEnabler _proxySerializationEnablerMock;
 
     private MockRepository _mockRepository;
-    private MutableType _mutableType;
+    private ProxyType _proxyType;
     private ITypeBuilder _typeBuilderMock;
     private DebugInfoGenerator _debugInfoGeneratorStub;
     private IEmittableOperandProvider _emittableOperandProviderMock;
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
 
       _mockRepository = new MockRepository();
-      _mutableType = MutableTypeObjectMother.Create (
+      _proxyType = MutableTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider>();
       _methodTrampolineProviderMock = _mockRepository.StrictMock<IMethodTrampolineProvider>();
 
-      _builder = CreateSubclassProxyBuilder (_mutableType, _debugInfoGeneratorStub);
+      _builder = CreateSubclassProxyBuilder (_proxyType, _debugInfoGeneratorStub);
       _context = _builder.MemberEmitterContext;
 
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_builder.InitializationBuilder, Is.SameAs (_initializationBuilderMock));
       Assert.That (_builder.ProxySerializationEnabler, Is.SameAs (_proxySerializationEnablerMock));
 
-      Assert.That (_context.MutableType, Is.SameAs (_mutableType));
+      Assert.That (_context.ProxyType, Is.SameAs (_proxyType));
       Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
       Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization_NullDebugInfoGenerator ()
     {
-      var builder = CreateSubclassProxyBuilder (_mutableType, debugInfoGenerator: null);
+      var builder = CreateSubclassProxyBuilder (_proxyType, debugInfoGenerator: null);
       Assert.That (builder.MemberEmitterContext.DebugInfoGenerator, Is.Null);
     }
 
@@ -106,21 +106,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var typeInitialization = ExpressionTreeObjectMother.GetSomeExpression();
       var instanceInitialization = ExpressionTreeObjectMother.GetSomeExpression();
-      _mutableType.AddTypeInitialization (ctx => typeInitialization);
-      _mutableType.AddInstanceInitialization (ctx => instanceInitialization);
+      _proxyType.AddTypeInitialization (ctx => typeInitialization);
+      _proxyType.AddInstanceInitialization (ctx => instanceInitialization);
 
       var customAttributeDeclaration = CustomAttributeDeclarationObjectMother.Create();
-      _mutableType.AddCustomAttribute (customAttributeDeclaration);
+      _proxyType.AddCustomAttribute (customAttributeDeclaration);
 
       var addedInterface = typeof (IDisposable);
-      _mutableType.AddInterface (addedInterface);
+      _proxyType.AddInterface (addedInterface);
 
-      var addedMembers = GetAddedMembers (_mutableType);
-      var modifiedMembers = GetModifiedMembers (_mutableType);
-      var unmodifiedMembers = GetUnmodifiedMembers (_mutableType);
+      var addedMembers = GetAddedMembers (_proxyType);
+      var modifiedMembers = GetModifiedMembers (_proxyType);
+      var unmodifiedMembers = GetUnmodifiedMembers (_proxyType);
 
       //var internalConstructor =
-      //    _mutableType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (true)));
+      //    _proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (true)));
       //Assert.That (internalConstructor.IsAssembly, Is.True);
 
       var buildActionCalled = false;
@@ -131,12 +131,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       {
         var fakeTypeInitializer = MutableConstructorInfoObjectMother.Create();
 
-        _initializationBuilderMock.Expect (mock => mock.CreateTypeInitializer (_mutableType)).Return (fakeTypeInitializer);
+        _initializationBuilderMock.Expect (mock => mock.CreateTypeInitializer (_proxyType)).Return (fakeTypeInitializer);
         _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, fakeTypeInitializer));
 
-        _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
+        _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (_proxyType)).Return (_fakeInitializationMembers);
 
-        _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
+        _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_proxyType, _fakeInitializationMethod));
 
         _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttributeDeclaration));
 
@@ -170,7 +170,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       }
       _mockRepository.ReplayAll();
 
-      var result = _builder.Build (_mutableType);
+      var result = _builder.Build (_proxyType);
 
       _mockRepository.VerifyAll();
       Assert.That (result, Is.SameAs (fakeType));
@@ -205,35 +205,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mockRepository.VerifyAll();
     }
 
-    private SubclassProxyBuilder CreateSubclassProxyBuilder (MutableType mutableType, DebugInfoGenerator debugInfoGenerator = null)
+    private SubclassProxyBuilder CreateSubclassProxyBuilder (ProxyType proxyType, DebugInfoGenerator debugInfoGenerator = null)
     {
       return new SubclassProxyBuilder (
           _memberEmitterMock,
           _initializationBuilderMock,
           _proxySerializationEnablerMock,
-          mutableType,
+          proxyType,
           _typeBuilderMock,
           debugInfoGenerator,
           _emittableOperandProviderMock,
           _methodTrampolineProviderMock);
     }
 
-    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetAddedMembers (MutableType mutableType)
+    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetAddedMembers (ProxyType proxyType)
     {
-      var field = mutableType.AddField ("_field", typeof (int));
-      var constructor = mutableType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
-      var method = mutableType.AddMethod (
+      var field = proxyType.AddField ("_field", typeof (int));
+      var constructor = proxyType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
+      var method = proxyType.AddMethod (
           "Method", MethodAttributes.Family, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
 
       return Tuple.Create (field, constructor, method);
     }
 
-    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetModifiedMembers (MutableType mutableType)
+    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetModifiedMembers (ProxyType proxyType)
     {
       return null;
     }
 
-    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetUnmodifiedMembers (MutableType mutableType)
+    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetUnmodifiedMembers (ProxyType proxyType)
     {
       return null;
     }
