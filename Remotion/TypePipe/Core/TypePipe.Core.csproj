@@ -158,6 +158,8 @@
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
+    <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />
