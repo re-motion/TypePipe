@@ -36,16 +36,19 @@ namespace Remotion.TypePipe.Caching
   public class TypeAssembler : ITypeAssembler
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
+    private readonly IProxyTypeModelFactory _proxyTypeModelFactory;
     private readonly ITypeModifier _typeModifier;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
-    public TypeAssembler (IEnumerable<IParticipant> participants, ITypeModifier typeModifier)
+    public TypeAssembler (IEnumerable<IParticipant> participants, IProxyTypeModelFactory proxyTypeModelFactory, ITypeModifier typeModifier)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
+      ArgumentUtility.CheckNotNull ("proxyTypeModelFactory", proxyTypeModelFactory);
       ArgumentUtility.CheckNotNull ("typeModifier", typeModifier);
 
       _participants = participants.ToList().AsReadOnly();
+      _proxyTypeModelFactory = proxyTypeModelFactory;
       _typeModifier = typeModifier;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
@@ -63,7 +66,7 @@ namespace Remotion.TypePipe.Caching
 
     public Type AssembleType (Type requestedType)
     {
-      var proxyType = CreateProxyType (requestedType);
+      var proxyType = _proxyTypeModelFactory.CreateProxyType (requestedType);
 
       foreach (var participant in _participants)
         participant.ModifyType (proxyType);
@@ -84,29 +87,6 @@ namespace Remotion.TypePipe.Caching
         compoundKey[i + offset] = _cacheKeyProviders[i].GetCacheKey (requestedType);
 
       return compoundKey;
-    }
-
-    // TODO Create this method with injected ProxyTypeFactory.
-    private ProxyType CreateProxyType (Type requestedType)
-    {
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var relatedMethodFinder = new RelatedMethodFinder();
-      var interfaceMappingComputer = new InterfaceMappingComputer();
-      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
-
-      // TODO test.
-      // TODO name = xxxProxyYY
-      // TODO fullname
-      // TODO attributes
-      return new ProxyType (
-          requestedType,
-          requestedType.Name,
-          requestedType.Namespace,
-          requestedType.FullName,
-          requestedType.Attributes,
-          memberSelector,
-          interfaceMappingComputer,
-          mutableMemberFactory);
     }
 
     private Type ApplyModificationsWithDiagnostics (ProxyType proxyType)

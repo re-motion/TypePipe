@@ -20,6 +20,9 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.Serialization;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
@@ -27,6 +30,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   [TestFixture]
   public class TypeAssemblerTest
   {
+    private IProxyTypeModelFactory _proxyTypeModelFactoryMock;
     private ITypeModifier _typeModifierMock;
     
     private Type _requestedType;
@@ -34,6 +38,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [SetUp]
     public void SetUp ()
     {
+      _proxyTypeModelFactoryMock = MockRepository.GenerateStrictMock<IProxyTypeModelFactory>();
       _typeModifierMock = MockRepository.GenerateStrictMock<ITypeModifier>();
 
       _requestedType = typeof (object);
@@ -48,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { participantStub, participantWithCacheProviderStub };
-      var typeAssembler = new TypeAssembler (participants.AsOneTime(), _typeModifierMock);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime(), _proxyTypeModelFactoryMock, _typeModifierMock);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -58,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
       _typeModifierMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
-      var typeAssembler = CreateTypeAssembler (_typeModifierMock);
+      var typeAssembler = CreateTypeAssembler();
 
       Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
@@ -69,50 +74,46 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var mockRepository = new MockRepository();
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
+      var proxyTypeModelFactoryMock = mockRepository.StrictMock<IProxyTypeModelFactory>();
       var typeModifierMock = mockRepository.StrictMock<ITypeModifier>();
 
-      ProxyType proxyType = null;
       var fakeResult = ReflectionObjectMother.GetSomeType();
-
       using (mockRepository.Ordered())
       {
         participantMock1.Expect (mock => mock.PartialCacheKeyProvider);
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
-        participantMock1
-            .Expect (mock => mock.ModifyType (Arg<ProxyType>.Matches (mt => mt.UnderlyingSystemType == _requestedType)))
-            .WhenCalled (mi => proxyType = (ProxyType) mi.Arguments[0]);
-        participantMock2.Expect (mock => mock.ModifyType (Arg<ProxyType>.Matches (mt => ReferenceEquals (mt, proxyType))));
+        var fakeProxyType = ProxyTypeObjectMother.Create();
+        proxyTypeModelFactoryMock.Expect (mock => mock.CreateProxyType (_requestedType)).Return (fakeProxyType);
+        participantMock1.Expect (mock => mock.ModifyType (fakeProxyType));
+        participantMock2.Expect (mock => mock.ModifyType (fakeProxyType));
 
-        typeModifierMock
-            .Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Matches (mt => ReferenceEquals (mt, proxyType))))
-            .Return (fakeResult);
+        typeModifierMock.Expect (mock => mock.ApplyModifications (fakeProxyType)).Return (fakeResult);
       }
       mockRepository.ReplayAll();
 
-      var typeAssembler = CreateTypeAssembler (typeModifierMock, participants: new[] { participantMock1, participantMock2 });
+      var typeAssembler = CreateTypeAssembler (proxyTypeModelFactoryMock, typeModifierMock, participants: new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.AssembleType (_requestedType);
 
       mockRepository.VerifyAll();
-      Assert.That (proxyType, Is.Not.Null);
-      Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (_requestedType));
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
+      _proxyTypeModelFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (ProxyTypeObjectMother.Create (name: "ProxyName"));
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
       _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception1);
       _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception2);
       _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception3);
-      var typeAssembler = CreateTypeAssembler (_typeModifierMock, MockRepository.GenerateStub<IParticipant>());
+      var typeAssembler = CreateTypeAssembler (participants: new SerializationParticipant ("dummy"));
 
-      var expectedMessageRegex = "An error occurred during code generation for 'Object': blub "
-                                 + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
+      var expectedMessageRegex = "An error occurred during code generation for 'ProxyName': blub "
+                                 + @"The following participants are currently configured and may have caused the error: 'SerializationParticipant'\.";
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType),
           Throws.InvalidOperationException.With.InnerException.SameAs (exception1).And.With.Message.Matches (expectedMessageRegex));
@@ -135,11 +136,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       Assert.That (result, Is.EqualTo (new object[] { null, null, null, requestedType, 1, "2" }));
     }
 
-    private TypeAssembler CreateTypeAssembler (ITypeModifier typeModifier = null, params IParticipant[] participants)
+    private TypeAssembler CreateTypeAssembler (
+        IProxyTypeModelFactory proxyTypeModelFactory = null, ITypeModifier typeModifier = null, params IParticipant[] participants)
     {
-      typeModifier = typeModifier ?? MockRepository.GenerateStub<ITypeModifier>();
+      proxyTypeModelFactory = proxyTypeModelFactory ?? _proxyTypeModelFactoryMock;
+      typeModifier = typeModifier ?? _typeModifierMock;
 
-      return new TypeAssembler (participants.AsOneTime(), typeModifier);
+      return new TypeAssembler (participants.AsOneTime(), proxyTypeModelFactory, typeModifier);
     }
 
     private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)
