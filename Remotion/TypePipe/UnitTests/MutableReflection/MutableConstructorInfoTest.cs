@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = MutableTypeObjectMother.Create();
+      var declaringType = ProxyTypeObjectMother.Create();
       var attributes = (MethodAttributes) 7;
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = MutableTypeObjectMother.Create (
+      var declaringType = ProxyTypeObjectMother.Create (
           GetType (),
           memberSelector: null,
           relatedMethodFinder: null,

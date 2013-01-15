@@ -22,7 +22,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
-  public static class MutableTypeObjectMother
+  public static class ProxyTypeObjectMother
   {
     public static ProxyType CreateForExisting (Type underlyingType)
     {

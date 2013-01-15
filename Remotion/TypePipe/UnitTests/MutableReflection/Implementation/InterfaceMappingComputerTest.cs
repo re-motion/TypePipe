@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _computer = new InterfaceMappingComputer();
 
-      _proxyType = MutableTypeObjectMother.Create (
+      _proxyType = ProxyTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_CandidateOrder ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: memberSelectorMock,
           relatedMethodFinder: null,

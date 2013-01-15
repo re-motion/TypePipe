@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void MutableReflection ()
     {
-      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (DomainType));
       var field = proxyType.AllMutableFields.Single ();
       var constructor = proxyType.AllMutableConstructors.Single ();
       var method = proxyType.AllMutableMethods.Single (x => x.Name == "Method");

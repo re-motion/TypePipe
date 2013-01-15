@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications ()
     {
-      var proxyType = MutableTypeObjectMother.Create();
+      var proxyType = ProxyTypeObjectMother.Create();
       var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder>();
       var fakeType = ReflectionObjectMother.GetSomeType();
 

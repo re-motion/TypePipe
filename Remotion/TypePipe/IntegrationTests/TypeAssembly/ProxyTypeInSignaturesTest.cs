@@ -27,7 +27,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  public class MutableTypeInSignaturesTest : TypeAssemblerIntegrationTestBase
+  public class ProxyTypeInSignaturesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void CustomAttributes ()

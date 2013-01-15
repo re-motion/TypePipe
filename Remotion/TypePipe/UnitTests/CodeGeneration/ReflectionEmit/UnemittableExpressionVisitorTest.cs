@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = MutableTypeObjectMother.Create(typeof(DomainType));
+      _proxyType = ProxyTypeObjectMother.Create(typeof(DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
       _context = MemberEmitterContextObjectMother.GetSomeContext (
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         "code generation time, not at runtime.")]
     public void VisitConstant_NotAssignableValue ()
     {
-      var proxyType = MutableTypeObjectMother.Create();
+      var proxyType = ProxyTypeObjectMother.Create();
       var expression = Expression.Constant (proxyType);
       _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (proxyType)).Return (typeof (int));
 

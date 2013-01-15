@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableType ()
     {
-      var proxyType = MutableTypeObjectMother.Create (typeof (SerializableType));
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableType));
 
       _participant.ModifyType (proxyType);
 
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableInterfaceType ()
     {
-      var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType));
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType));
       var baseMethod = proxyType.GetMethod ("GetObjectData");
 
       _participant.ModifyType (proxyType);
@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (SomeType),
           memberSelector: null,
           relatedMethodFinder: null,

@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MethodInfo baseMethod = null,
         Expression body = null)
     {
-      declaringType = declaringType ?? MutableTypeObjectMother.Create();
+      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       returnParameter = returnParameter ?? ParameterDeclaration.CreateReturnParameter (typeof (void));
       parameters = parameters ?? ParameterDeclaration.EmptyParameters;
       // baseMethod stays null.

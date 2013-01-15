@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create (
+      _declaringType = ProxyTypeObjectMother.Create (
           typeof (ClassWithConstructor),
           memberSelector: null,
           relatedMethodFinder: null,

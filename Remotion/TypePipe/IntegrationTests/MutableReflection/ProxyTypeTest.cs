@@ -25,7 +25,7 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
-  public class MutableTypeTest
+  public class ProxyTypeTest
   {
     private ProxyType _proxyType;
 
@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (DomainType));
 
       _publicField = _proxyType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
       _publicConstructorWithOverloadEmpty =_proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));

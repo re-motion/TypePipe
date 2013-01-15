@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (DomainType));
 
       _existingBaseInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingBaseInterface obj) => obj.MethodOnExistingBaseInterface());
       _existingInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.MethodOnExistingInterface());
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod_Explicit ()
     {
-      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
       var implementation = GetExplicitImplementation (proxyType, _existingInterfaceMethod);
 
       CheckGetInterfaceMap (proxyType, _existingInterfaceMethod, implementation);
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void AddedInterface_ExistingMethod ()
     {
-      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
       proxyType.AddInterface (typeof (IAddedInterface));
       var implementation = proxyType.GetMethod ("MethodOnAddedInterface");
 

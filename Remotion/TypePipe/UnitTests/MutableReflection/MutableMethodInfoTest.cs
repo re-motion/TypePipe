@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create (typeof (DomainType));
+      _declaringType = ProxyTypeObjectMother.Create (typeof (DomainType));
 
       _method = MutableMethodInfoObjectMother.Create (_declaringType, "NonVirtualMethod");
       _virtualMethod = MutableMethodInfoObjectMother.Create (_declaringType, attributes: MethodAttributes.Virtual);
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = MutableTypeObjectMother.Create();
+      var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7;
       var returnParameter = ParameterDeclarationObjectMother.Create();
@@ -226,7 +226,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody ()
     {
-      var declaringType = MutableTypeObjectMother.Create();
+      var declaringType = ProxyTypeObjectMother.Create();
       var attribtes = (MethodAttributes) 7;
       var returnParameter = ParameterDeclaration.CreateReturnParameter (typeof (object));
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -315,7 +315,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToDebugString ()
     {
       var method = MutableMethodInfoObjectMother.Create (
-          declaringType: MutableTypeObjectMother.Create (GetType()),
+          declaringType: ProxyTypeObjectMother.Create (GetType()),
           returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)),
           name: "Xxx",
           parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });

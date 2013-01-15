@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
+      _declaringType = ProxyTypeObjectMother.Create();
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();

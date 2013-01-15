@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _provider = new EmittableOperandProvider();
 
-      _proxyType = MutableTypeObjectMother.Create();
+      _proxyType = ProxyTypeObjectMother.Create();
       _mutableField = MutableFieldInfoObjectMother.Create();
       _mutableConstructor = MutableConstructorInfoObjectMother.Create();
       _mutableMethod = MutableMethodInfoObjectMother.Create();
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType ()
     {
-      var proxyType = MutableTypeObjectMother.Create();
+      var proxyType = ProxyTypeObjectMother.Create();
       _provider.AddMapping (proxyType, ReflectionObjectMother.GetSomeType());
 
       var constructedType = typeof (List<>).MakeGenericType (proxyType);
@@ -144,7 +144,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableField_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableConstructor_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
@@ -196,7 +196,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableMethod_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,

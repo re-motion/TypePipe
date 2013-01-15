@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var proxyType = MutableTypeObjectMother.CreateForExisting (type);
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (type);
       CheckAttributeInheritance (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method ());
@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var proxyType = MutableTypeObjectMother.CreateForExisting (type);
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (type);
       CheckAttributeInheritanceAllowMultiple (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod());
@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void IsDefined_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var proxyType = MutableTypeObjectMother.CreateForExisting (type);
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (type);
       CheckIsDefinedInheritance (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod ());
@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     private IMutableInfo CreateMutableMember (MethodBase underlyingMethod)
     {
-      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
+      var proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
       return proxyType.GetOrAddOverride ((MethodInfo) underlyingMethod);
     }
 

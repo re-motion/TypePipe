@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder ()
     {
       var underlyingType = typeof (SubclassableType);
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           underlyingType,
           memberSelector: null,
           relatedMethodFinder: null,
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder_AbstractType ()
     {
       var underlyingType = typeof (AbstractType);
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           underlyingType,
           memberSelector: null,
           relatedMethodFinder: null,
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateBuilder_SerializableType ()
     {
       var underlyingType = typeof (SerializableType);
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           underlyingType,
           memberSelector: null,
           relatedMethodFinder: null,

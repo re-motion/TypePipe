@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
+      _declaringType = ProxyTypeObjectMother.Create();
       _memberSelectorStub = MockRepository.GenerateStrictMock<IMemberSelector>();
       _isStatic = BooleanObjectMother.GetRandomBoolean();
 

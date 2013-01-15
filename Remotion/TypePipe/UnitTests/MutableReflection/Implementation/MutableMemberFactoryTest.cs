@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = MutableTypeObjectMother.Create (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
@@ -522,7 +522,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (DerivedAbstractTypeLeavesAbstractBaseMethod),
           memberSelector: null,
           relatedMethodFinder: _relatedMethodFinderMock,

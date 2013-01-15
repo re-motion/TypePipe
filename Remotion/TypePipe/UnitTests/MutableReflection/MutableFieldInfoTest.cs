@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = MutableTypeObjectMother.Create();
+      var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var type = ReflectionObjectMother.GetSomeType();
       var attributes = (FieldAttributes) 7;

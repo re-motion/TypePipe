@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
 
       _mockRepository = new MockRepository();
-      _proxyType = MutableTypeObjectMother.Create (
+      _proxyType = ProxyTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Build_EmptyTypeInitializations ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (EmptyType),
           memberSelector: null,
           relatedMethodFinder: null,

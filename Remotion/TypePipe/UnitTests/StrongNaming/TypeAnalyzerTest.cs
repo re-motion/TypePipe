@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNamed_CacheUsesReferenceEquality ()
     {
       var type = typeof (object);
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           type,
           memberSelector: null,
           relatedMethodFinder: null,

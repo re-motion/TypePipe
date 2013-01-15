@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public static Type GetSomeTypeBuilderInstantiation ()
     {
-      var type = typeof (UnspecifiedType<>).MakeGenericType (MutableTypeObjectMother.Create (
+      var type = typeof (UnspecifiedType<>).MakeGenericType (ProxyTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,

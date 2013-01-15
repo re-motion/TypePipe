@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IEnumerable<ParameterDeclaration> parameters = null,
         Expression body = null)
     {
-      declaringType = declaringType ?? MutableTypeObjectMother.Create();
+      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       parameters = parameters ?? ParameterDeclaration.EmptyParameters;
       body = body ?? Expression.Empty();
 

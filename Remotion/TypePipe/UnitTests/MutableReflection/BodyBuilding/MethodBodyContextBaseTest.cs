@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
+      _declaringType = ProxyTypeObjectMother.Create();
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _baseMethod = ReflectionObjectMother.GetSomeMethod();

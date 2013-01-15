@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void DelegatingMembers ()
     {
-      var proxyType = MutableTypeObjectMother.Create();
+      var proxyType = ProxyTypeObjectMother.Create();
       var mutableField = MutableFieldInfoObjectMother.Create();
       var mutableConstructor = MutableConstructorInfoObjectMother.Create();
       var mutableMethod = MutableMethodInfoObjectMother.Create();

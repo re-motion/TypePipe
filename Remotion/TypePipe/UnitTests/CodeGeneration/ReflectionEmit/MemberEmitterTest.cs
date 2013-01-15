@@ -141,7 +141,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod ()
     {
       var method = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.Create (
+          ProxyTypeObjectMother.Create (
               typeof (DomainType),
               memberSelector: null,
               relatedMethodFinder: null,
@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod_Abstract ()
     {
       var method = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.Create (
+          ProxyTypeObjectMother.Create (
               typeof (DomainType),
               memberSelector: null,
               relatedMethodFinder: null,

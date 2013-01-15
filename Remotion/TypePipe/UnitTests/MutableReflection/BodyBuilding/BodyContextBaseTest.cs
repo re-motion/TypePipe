@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create (typeof (DomainType));
+      _declaringType = ProxyTypeObjectMother.Create (typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
       _staticContext = new TestableBodyContextBase (_declaringType, true, _memberSelectorMock);
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'Object' has no base type.")]
     public void GetBaseCall_Name_Params_NoBaseType ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (object),
           memberSelector: null,
           relatedMethodFinder: null,

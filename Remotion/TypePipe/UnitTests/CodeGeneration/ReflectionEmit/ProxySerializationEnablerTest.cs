@@ -58,31 +58,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enabler = new ProxySerializationEnabler (_serializableFieldFinderMock);
 
-      _someType = MutableTypeObjectMother.Create (
+      _someType = ProxyTypeObjectMother.Create (
           typeof (SomeType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      _serializableType = MutableTypeObjectMother.Create (
+      _serializableType = ProxyTypeObjectMother.Create (
           typeof (SerializableType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      _serializableInterfaceType = MutableTypeObjectMother.Create (
+      _serializableInterfaceType = ProxyTypeObjectMother.Create (
           typeof (SerializableInterfaceType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      _deserializationCallbackType = MutableTypeObjectMother.Create (
+      _deserializationCallbackType = ProxyTypeObjectMother.Create (
           typeof (DeserializationCallbackType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      _serializableInterfaceWithDeserializationCallbackType = MutableTypeObjectMother.Create (
+      _serializableInterfaceWithDeserializationCallbackType = ProxyTypeObjectMother.Create (
           typeof (SerializableWithDeserializationCallbackType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -246,7 +246,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (SerializableInterfaceMissingCtorType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -267,7 +267,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectData ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (ExplicitSerializableInterfaceType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -284,7 +284,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectDataInBase ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (DerivedExplicitSerializableInterfaceType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -301,7 +301,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectData ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (ExplicitDeserializationCallbackType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -318,7 +318,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectDataInBase ()
     {
-      var proxyType = MutableTypeObjectMother.Create (
+      var proxyType = ProxyTypeObjectMother.Create (
           typeof (DerivedExplicitDeserializationCallbackType),
           memberSelector: null,
           relatedMethodFinder: null,

@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder = new InitializationBuilder();
 
       _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
-      _proxyType = MutableTypeObjectMother.Create();
+      _proxyType = ProxyTypeObjectMother.Create();
     }
 
     [Test]

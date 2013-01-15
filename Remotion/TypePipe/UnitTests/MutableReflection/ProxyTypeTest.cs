@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
-      _proxyType = MutableTypeObjectMother.Create (
+      _proxyType = ProxyTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: _memberSelectorMock,
           relatedMethodFinder: _relatedMethodFinderMock,
@@ -371,7 +371,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
-      var proxyType = MutableTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
+      var proxyType = ProxyTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
       Assert.That (proxyType.IsAbstract, Is.True);
 
       var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
