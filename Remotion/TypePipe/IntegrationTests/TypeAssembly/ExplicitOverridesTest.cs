@@ -33,9 +33,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
+            var mutableMethodInfo = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   return ctx.PreviousBody;
                 });
 
-            var allMethods = mutableType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var allMethods = proxyType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.That (allMethods, Has.Member (typeof (B).GetMethod ("OverridableMethod")));
             Assert.That (allMethods, Has.Member (mutableMethodInfo));
           });
@@ -80,9 +80,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
+            var mutableMethodInfo = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 typeof (string),
@@ -105,9 +105,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
       var otherOverriddenMetod = GetDeclaredMethod (typeof (A), "OverridableMethodWithSameSignature");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
+            var mutableMethodInfo = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
@@ -136,9 +136,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var overridingMethod = mutableType.ExistingMutableMethods.Single(m => m.Name == "UnrelatedMethod");
+            var overridingMethod = proxyType.ExistingMutableMethods.Single(m => m.Name == "UnrelatedMethod");
             overridingMethod.AddExplicitBaseDefinition (overriddenMethod);
             Assert.That (overridingMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { overriddenMethod }));
           });
@@ -155,9 +155,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var overriddenShadowingMethod = GetDeclaredMethod (typeof (B), "MethodShadowedByB");
 
       var type = AssembleType<C> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodShadowedByB",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenShadowingMethod));
                   return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" implicitly overridden"));
                 });
-            var overrideForShadowedMethod = mutableType.AddMethod (
+            var overrideForShadowedMethod = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
@@ -193,9 +193,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var shadowedMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractShadowedMethod());
 
       var type = AssembleType<AbstractType> (
-          mutableType =>
+          proxyType =>
           {
-            /*var shadowingMethod = */mutableType.AddMethod (
+            /*var shadowingMethod = */proxyType.AddMethod (
                 "AbstractShadowedMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 typeof (string),
@@ -207,9 +207,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 });
             // TODO 5059: Uncomment
             //Assert.That (ProxyType.GetMethod ("AbstractShadowedMethod"), Is.SameAs (shadowingMethod));
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
 
-            var overrideForAbstractShadowedMethod = mutableType.GetOrAddOverride (shadowedMethod);
+            var overrideForAbstractShadowedMethod = proxyType.GetOrAddOverride (shadowedMethod);
             overrideForAbstractShadowedMethod.SetBody (
                 ctx =>
                 {
@@ -217,7 +217,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.HasPreviousBody, Is.False);
                   return Expression.Constant ("override");
                 });
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       var instance = (AbstractType) Activator.CreateInstance (type, nonPublic: true);

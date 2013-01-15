@@ -246,19 +246,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (SerializableInterfaceMissingCtorType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      StubFilterWithSerializedFields (mutableType);
-      var oldCtorBody = mutableType.AddedConstructors.Single().Body;
+      StubFilterWithSerializedFields (proxyType);
+      var oldCtorBody = proxyType.AddedConstructors.Single().Body;
 
-      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
 
-      Assert.That (mutableType.AddedConstructors.Single().Body, Is.SameAs (oldCtorBody));
-      Assert.That (mutableType.AddedMethods, Is.Empty);
+      Assert.That (proxyType.AddedConstructors.Single().Body, Is.SameAs (oldCtorBody));
+      Assert.That (proxyType.AddedMethods, Is.Empty);
     }
 
     [Test]
@@ -267,15 +267,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectData ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (ExplicitSerializableInterfaceType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      StubFilterWithSerializedFields (mutableType);
+      StubFilterWithSerializedFields (proxyType);
 
-      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
     }
 
     [Test]
@@ -284,15 +284,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectDataInBase ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (DerivedExplicitSerializableInterfaceType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      StubFilterWithSerializedFields (mutableType);
+      StubFilterWithSerializedFields (proxyType);
 
-      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
     }
 
     [Test]
@@ -301,7 +301,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectData ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (ExplicitDeserializationCallbackType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -309,7 +309,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           mutableMemberFactory: null);
       StubFilterWithNoSerializedFields ();
 
-      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
     }
 
     [Test]
@@ -318,7 +318,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectDataInBase ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (DerivedExplicitDeserializationCallbackType),
           memberSelector: null,
           relatedMethodFinder: null,
@@ -326,7 +326,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           mutableMemberFactory: null);
       StubFilterWithNoSerializedFields ();
 
-      _enabler.MakeSerializable (mutableType, _someInitializationMethod);
+      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
     }
 
     [Test]

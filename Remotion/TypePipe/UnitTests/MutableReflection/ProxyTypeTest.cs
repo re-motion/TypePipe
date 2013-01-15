@@ -69,23 +69,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fullname = "hij";
       var attributes = (TypeAttributes) 7;
 
-      var mutableType = new ProxyType (
+      var proxyType = new ProxyType (
           baseType, name, @namespace, fullname, attributes, _memberSelectorMock, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
-      Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (mutableType));
-      Assert.That (mutableType.DeclaringType, Is.Null);
-      Assert.That (mutableType.BaseType, Is.SameAs (baseType));
-      Assert.That (mutableType.Name, Is.EqualTo (name));
-      Assert.That (mutableType.Namespace, Is.EqualTo (@namespace));
-      Assert.That (mutableType.FullName, Is.EqualTo (fullname));
-      Assert.That (mutableType.Attributes, Is.EqualTo (attributes));
+      Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (proxyType));
+      Assert.That (proxyType.DeclaringType, Is.Null);
+      Assert.That (proxyType.BaseType, Is.SameAs (baseType));
+      Assert.That (proxyType.Name, Is.EqualTo (name));
+      Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
+      Assert.That (proxyType.FullName, Is.EqualTo (fullname));
+      Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
 
-      Assert.That (mutableType.TypeInitializations, Is.Empty);
-      Assert.That (mutableType.InstanceInitializations, Is.Empty);
-      Assert.That (mutableType.AddedInterfaces, Is.Empty);
-      Assert.That (mutableType.AddedFields, Is.Empty);
-      Assert.That (mutableType.AddedConstructors, Is.Empty);
-      Assert.That (mutableType.AddedMethods, Is.Empty);
+      Assert.That (proxyType.TypeInitializations, Is.Empty);
+      Assert.That (proxyType.InstanceInitializations, Is.Empty);
+      Assert.That (proxyType.AddedInterfaces, Is.Empty);
+      Assert.That (proxyType.AddedFields, Is.Empty);
+      Assert.That (proxyType.AddedConstructors, Is.Empty);
+      Assert.That (proxyType.AddedMethods, Is.Empty);
     }
 
     [Test]
@@ -371,26 +371,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
-      var mutableType = MutableTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
-      Assert.That (mutableType.IsAbstract, Is.True);
+      var proxyType = MutableTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
+      Assert.That (proxyType.IsAbstract, Is.True);
 
       var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
-      var abstractMethod1 = mutableType.GetMethod ("AbstractMethod1");
-      var abstractMethod2 = mutableType.GetMethod ("AbstractMethod2");
+      var abstractMethod1 = proxyType.GetMethod ("AbstractMethod1");
+      var abstractMethod2 = proxyType.GetMethod ("AbstractMethod2");
       Assert.That (abstractMethod1, Is.Not.EqualTo (abstractMethodBaseDefinition));
       Assert.That (abstractMethod1.GetBaseDefinition(), Is.EqualTo (abstractMethodBaseDefinition));
 
-      mutableType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
-      mutableType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
+      proxyType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
+      proxyType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
                  .AddExplicitBaseDefinition (abstractMethod2);
 
-      var allMethods = GetAllMethods (mutableType);
+      var allMethods = GetAllMethods (proxyType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, mutableType)).Return (allMethods).Repeat.Times (2);
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, proxyType)).Return (allMethods).Repeat.Times (2);
 
-      Assert.That (mutableType.IsAbstract, Is.False);
-      Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
-      Assert.That (mutableType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
+      Assert.That (proxyType.IsAbstract, Is.False);
+      Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
+      Assert.That (proxyType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
     }
 
     [Test]

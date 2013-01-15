@@ -72,11 +72,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      CheckAttributeInheritance (mutableType, type);
+      var proxyType = MutableTypeObjectMother.CreateForExisting (type);
+      CheckAttributeInheritance (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method ());
-      var mutableMethod = mutableType.GetOrAddOverride (method);
+      var mutableMethod = proxyType.GetOrAddOverride (method);
       CheckAttributeInheritance (mutableMethod, method);
 
       // TODO 4791
@@ -114,11 +114,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      CheckAttributeInheritanceAllowMultiple (mutableType, type);
+      var proxyType = MutableTypeObjectMother.CreateForExisting (type);
+      CheckAttributeInheritanceAllowMultiple (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod());
-      var mutableMethod = mutableType.GetOrAddOverride (method);
+      var mutableMethod = proxyType.GetOrAddOverride (method);
       CheckAttributeInheritanceAllowMultiple (mutableMethod, method);
 
       // TODO 4791
@@ -161,11 +161,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void IsDefined_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DerivedClass);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      CheckIsDefinedInheritance (mutableType, type);
+      var proxyType = MutableTypeObjectMother.CreateForExisting (type);
+      CheckIsDefinedInheritance (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod ());
-      var mutableMethod = mutableType.GetOrAddOverride (method);
+      var mutableMethod = proxyType.GetOrAddOverride (method);
       CheckIsDefinedInheritance (mutableMethod, method);
 
       // TODO 4791
@@ -181,8 +181,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     private IMutableInfo CreateMutableMember (MethodBase underlyingMethod)
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
-      return mutableType.GetOrAddOverride ((MethodInfo) underlyingMethod);
+      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
+      return proxyType.GetOrAddOverride ((MethodInfo) underlyingMethod);
     }
 
     private void CheckAttributeInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)

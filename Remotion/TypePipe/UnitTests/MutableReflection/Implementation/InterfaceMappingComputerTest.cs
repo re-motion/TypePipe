@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_CandidateOrder ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (DomainType),
           memberSelector: memberSelectorMock,
           relatedMethodFinder: null,
@@ -126,20 +126,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           mutableMemberFactory: null);
 
       var baseMethod = typeof (DomainType).GetMethods().Single (m => m.Name == "Method22" && m.DeclaringType == typeof (DomainTypeBase));
-      var methods = GetAllMethods (mutableType).ToArray();
+      var methods = GetAllMethods (proxyType).ToArray();
       var baseMethodIndex = Array.IndexOf (methods, baseMethod);
       // Change sequence so that base method comes at start.
       var mixedMethods = methods.Skip (baseMethodIndex).Concat (methods.Take (baseMethodIndex)).ToArray();
       Assert.That (mixedMethods[0], Is.SameAs (baseMethod));
       Assert.That (mixedMethods, Is.EquivalentTo (methods));
 
-      mutableType.AddInterface (typeof (IAddedInterface));
+      proxyType.AddInterface (typeof (IAddedInterface));
       memberSelectorMock
-          .Expect (mock => mock.SelectMethods (GetAllMethods (mutableType), BindingFlags.Public | BindingFlags.Instance, mutableType))
+          .Expect (mock => mock.SelectMethods (GetAllMethods (proxyType), BindingFlags.Public | BindingFlags.Instance, proxyType))
           .Return (mixedMethods);
 
       CallComputeMappingAndCheckResult (
-          mutableType,
+          proxyType,
           typeof (IAddedInterface),
           Tuple.Create (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
           Tuple.Create (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),

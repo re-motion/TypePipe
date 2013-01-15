@@ -238,12 +238,12 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     public void ForceStrongName_Expression_MutableType ()
     {
       Action<ProxyType> action =
-          mutableType =>
+          proxyType =>
           {
-            var expression = Expression.New (mutableType);
+            var expression = Expression.New (proxyType);
             // TODO 4778
             var usableExpression = Expression.Convert (expression, typeof (DomainType));
-            mutableType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
+            proxyType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
           };
 
       CheckStrongNaming (action, forceStrongNaming: true);

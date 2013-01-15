@@ -32,16 +32,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void NewMembers ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var field = mutableType.AddField ("Field", typeof (int), FieldAttributes.Public);
-            var constructor = mutableType.AllMutableConstructors.Single();
+            var field = proxyType.AddField ("Field", typeof (int), FieldAttributes.Public);
+            var constructor = proxyType.AllMutableConstructors.Single();
             var parameters = new[] { new ParameterDeclaration (typeof (int), "p") };
-            var method = mutableType.AddMethod ("Method", MethodAttributes.Public, typeof (int), parameters, ctx => Expression.Constant (7));
+            var method = proxyType.AddMethod ("Method", MethodAttributes.Public, typeof (int), parameters, ctx => Expression.Constant (7));
             var parameter = method.MutableParameters.Single ();
             var returnParameter = method.MutableReturnParameter;
 
-            AddCustomAttributes (mutableType);
+            AddCustomAttributes (proxyType);
             AddCustomAttributes (field);
             AddCustomAttributes (constructor);
             AddCustomAttributes (method);

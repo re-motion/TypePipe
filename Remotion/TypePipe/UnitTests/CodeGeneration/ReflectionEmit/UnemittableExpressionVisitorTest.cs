@@ -87,9 +87,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         "code generation time, not at runtime.")]
     public void VisitConstant_NotAssignableValue ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
-      var expression = Expression.Constant (mutableType);
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (mutableType)).Return (typeof (int));
+      var proxyType = MutableTypeObjectMother.Create();
+      var expression = Expression.Constant (proxyType);
+      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (proxyType)).Return (typeof (int));
 
       ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
     }

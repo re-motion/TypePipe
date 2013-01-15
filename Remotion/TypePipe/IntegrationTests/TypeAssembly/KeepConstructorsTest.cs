@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           GetCtorSignatures (typeof (DomainType)),
           Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
 
-      var type = AssembleType<DomainType> (mutableType => { });
+      var type = AssembleType<DomainType> (proxyType => { });
 
       Assert.That (type, Is.Not.SameAs (typeof (DomainType))); // no shortcut for zero modifications (yet)
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ConstructorWithOutAndRefParameters ()
     {
-      var type = AssembleType<DomainTypeWithWeirdCtor> (mutableType => { });
+      var type = AssembleType<DomainTypeWithWeirdCtor> (proxyType => { });
 
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(Int32 ByRef, System.String ByRef)" }));
       

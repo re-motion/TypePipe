@@ -50,14 +50,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void ApplyModifications ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
+      var proxyType = MutableTypeObjectMother.Create();
       var builderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder>();
       var fakeType = ReflectionObjectMother.GetSomeType();
 
-      _subclassProxyBuilderFactoryMock.Expect (mock => mock.CreateBuilder (mutableType)).Return (builderMock);
-      builderMock.Expect (mock => mock.Build (mutableType)).Return (fakeType);
+      _subclassProxyBuilderFactoryMock.Expect (mock => mock.CreateBuilder (proxyType)).Return (builderMock);
+      builderMock.Expect (mock => mock.Build (proxyType)).Return (fakeType);
 
-      var result = _typeModifier.ApplyModifications (mutableType);
+      var result = _typeModifier.ApplyModifications (proxyType);
 
       _subclassProxyBuilderFactoryMock.VerifyAllExpectations();
       builderMock.VerifyAllExpectations();

@@ -26,7 +26,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization

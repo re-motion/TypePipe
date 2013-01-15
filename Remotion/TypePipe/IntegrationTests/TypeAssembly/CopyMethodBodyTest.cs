@@ -33,12 +33,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void FromInstanceMethod_WithOriginalBodyExpression ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
             Assert.That (methodToCopy.Body, Is.TypeOf<OriginalBodyExpression>());
 
-            var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            var method = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
             method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
@@ -52,14 +52,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void FromInstanceMetod_WithoutOriginalBodyExpression ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
             methodToCopy.SetBody (ctx => Expression.Add (ctx.Parameters[0], ctx.Parameters[1]));
             // TODO: better assert -> make sure that OriginalBodyExpression is not contained in, instead of simple typeof check
             Assert.That (methodToCopy.Body, Is.Not.TypeOf<OriginalBodyExpression>());
 
-            var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            var method = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
             method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
@@ -73,10 +73,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void FromInstanceMetod_ModifyingOriginalBodyDoesNotAffectCopiedBody ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
-            var method = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            var method = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
             method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
             methodToCopy.SetBody (ctx => Expression.Add (ctx.Parameters[0], ctx.Parameters[1]));
           });
@@ -93,12 +93,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void FromStaticMetod_ToNewStaticMethod ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Multiply");
+            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Multiply");
             Assert.That (methodToCopy.IsStatic, Is.True);
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "StaticMethod",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
@@ -116,10 +116,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void FromInstanceMethod_ToConstructor ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var methodToCopy = mutableType.ExistingMutableMethods.Single (m => m.Name == "Add");
-            mutableType.AddConstructor (
+            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            proxyType.AddConstructor (
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Block (

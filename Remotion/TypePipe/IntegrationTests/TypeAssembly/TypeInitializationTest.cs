@@ -42,19 +42,19 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (DomainType.StaticField, Is.Null);
 
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.TypeInitializations, Is.Empty);
+            Assert.That (proxyType.TypeInitializations, Is.Empty);
 
             var initializationExpression = Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc"));
-            mutableType.AddTypeInitialization (
+            proxyType.AddTypeInitialization (
                 ctx =>
                 {
                   Assert.That (ctx.IsStatic, Is.True);
                   return initializationExpression;
                 });
 
-            Assert.That (mutableType.TypeInitializations, Is.EqualTo (new[] { initializationExpression }));
+            Assert.That (proxyType.TypeInitializations, Is.EqualTo (new[] { initializationExpression }));
           });
 
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
@@ -65,11 +65,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AddedField ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var field = mutableType.AddField ("s_field", typeof (string), FieldAttributes.Public | FieldAttributes.Static);
+            var field = proxyType.AddField ("s_field", typeof (string), FieldAttributes.Public | FieldAttributes.Static);
             var initializationExpression = Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc"));
-            mutableType.AddTypeInitialization (ctx => initializationExpression);
+            proxyType.AddTypeInitialization (ctx => initializationExpression);
           });
 
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
@@ -95,18 +95,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void TypeInitializer ()
     {
       AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var message = "Type initializers (static constructors) cannot be modified via this API, use ProxyType.AddTypeInitialization instead.";
             var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
-            Assert.That (() => mutableType.TypeInitializer, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
-            Assert.That (() => mutableType.GetConstructors (bindingFlags), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+            Assert.That (() => proxyType.TypeInitializer, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+            Assert.That (() => proxyType.GetConstructors (bindingFlags), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
             Assert.That (
-                () => mutableType.GetConstructor (bindingFlags, null, Type.EmptyTypes, null),
+                () => proxyType.GetConstructor (bindingFlags, null, Type.EmptyTypes, null),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
             Assert.That (
-                () => mutableType.AddConstructor (MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null),
+                () => proxyType.AddConstructor (MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null),
                 Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
                     "Type initializers (static constructors) cannot be added via this API, use ProxyType.AddTypeInitialization instead."));
           });

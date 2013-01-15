@@ -63,12 +63,12 @@ namespace Remotion.TypePipe.Caching
 
     public Type AssembleType (Type requestedType)
     {
-      var mutableType = CreateMutableType (requestedType);
+      var proxyType = CreateMutableType (requestedType);
 
       foreach (var participant in _participants)
-        participant.ModifyType (mutableType);
+        participant.ModifyType (proxyType);
 
-      return ApplyModificationsWithDiagnostics (mutableType);
+      return ApplyModificationsWithDiagnostics (proxyType);
     }
 
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)

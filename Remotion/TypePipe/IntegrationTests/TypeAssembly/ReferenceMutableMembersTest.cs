@@ -31,17 +31,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Constant_UnderlyingSystemType ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "NewMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (Type),
               ParameterDeclaration.EmptyParameters,
               ctx =>
               {
-                Assert.That (mutableType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<ProxyType>());
-                Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
+                Assert.That (proxyType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<ProxyType>());
+                Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
 
-                return Expression.Constant (mutableType.UnderlyingSystemType);
+                return Expression.Constant (proxyType.UnderlyingSystemType);
               }));
 
       var result = type.InvokeMember ("NewMethod", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
@@ -53,12 +53,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Constant_MutableFieldAndMutableMethod ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var newMutableField = mutableType.AddField ("_newField", typeof (string));
-            var existingMutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            var newMutableField = proxyType.AddField ("_newField", typeof (string));
+            var existingMutableMethod = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "NewMethod",
                 MethodAttributes.Public,
                 typeof (void),

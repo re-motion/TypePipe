@@ -75,10 +75,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var targetMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((BaseType obj) => obj.VirtualMethod());
 
       var type = AssembleType<DerivedType> (
-          mutableType =>
+          proxyType =>
           {
-            var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
-            var targetProviderMethod = mutableType.AllMutableMethods.Single (m => m.Name == "SideEffectMethod");
+            var createDelegateMethod = proxyType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
+            var targetProviderMethod = proxyType.AllMutableMethods.Single (m => m.Name == "SideEffectMethod");
             createDelegateMethod.SetBody (
                 ctx =>
                 {
@@ -102,9 +102,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         string expectedFieldValue = null)
     {
       var type = AssembleType<DerivedType> (
-          mutableType =>
+          proxyType =>
           {
-            var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
+            var createDelegateMethod = proxyType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
             createDelegateMethod.SetBody (ctx => Expression.NewDelegate (delegateType, ctx.This, targetMethod));
           });
 
@@ -120,9 +120,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private void CheckStaticDelegateInstantiation (Type delegateType, MethodInfo targetMethod, string expectedReturnValue)
     {
       var type = AssembleType<DerivedType> (
-          mutableType =>
+          proxyType =>
           {
-            var createDelegateMethod = mutableType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
+            var createDelegateMethod = proxyType.AllMutableMethods.Single (m => m.Name == "CreateDelegate");
             createDelegateMethod.SetBody (ctx => Expression.NewDelegate (delegateType, null, targetMethod));
           });
 

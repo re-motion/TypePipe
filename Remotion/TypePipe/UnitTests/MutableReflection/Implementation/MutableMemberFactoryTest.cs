@@ -522,15 +522,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (DerivedAbstractTypeLeavesAbstractBaseMethod),
           memberSelector: null,
           relatedMethodFinder: _relatedMethodFinderMock,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, mutableType, typeof (AbstractTypeWithOneMethod));
+      SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, proxyType, typeof (AbstractTypeWithOneMethod));
 
-      var result = _mutableMemberFactory.GetOrCreateOverride (mutableType, baseMethod, out _isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (proxyType, baseMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result.BaseMethod, Is.SameAs (baseMethod));

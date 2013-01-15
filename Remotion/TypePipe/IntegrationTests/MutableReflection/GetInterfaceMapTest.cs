@@ -69,10 +69,10 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod_Explicit ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
-      var implementation = GetExplicitImplementation (mutableType, _existingInterfaceMethod);
+      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
+      var implementation = GetExplicitImplementation (proxyType, _existingInterfaceMethod);
 
-      CheckGetInterfaceMap (mutableType, _existingInterfaceMethod, implementation);
+      CheckGetInterfaceMap (proxyType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
@@ -97,11 +97,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void AddedInterface_ExistingMethod ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
-      mutableType.AddInterface (typeof (IAddedInterface));
-      var implementation = mutableType.GetMethod ("MethodOnAddedInterface");
+      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (OtherDomainType));
+      proxyType.AddInterface (typeof (IAddedInterface));
+      var implementation = proxyType.GetMethod ("MethodOnAddedInterface");
 
-      CheckGetInterfaceMap (mutableType, _addedInterfaceMethod, implementation);
+      CheckGetInterfaceMap (proxyType, _addedInterfaceMethod, implementation);
     }
 
     [Test]

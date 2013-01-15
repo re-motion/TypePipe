@@ -32,9 +32,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethod");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
+            var mutableMethodInfo = proxyType.AddMethod (
                 "OverridableMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.AddedExplicitBaseDefinitions, Is.Empty);
 
-            var methods = mutableType.GetMethods();
+            var methods = proxyType.GetMethods();
             Assert.That (methods.Where (mi => mi.Name == "OverridableMethod"), Is.EqualTo (new[] { mutableMethodInfo }));
             Assert.That (methods, Has.No.Member (typeof (B).GetMethod ("OverridableMethod")));
           });
@@ -69,9 +69,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableMethodWithParameters");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
+            var mutableMethodInfo = proxyType.AddMethod (
                 "OverridableMethodWithParameters",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
 
-            var methods = mutableType.GetMethods();
+            var methods = proxyType.GetMethods();
             Assert.That (methods.Where (mi => mi.Name == "OverridableMethodWithParameters"), Is.EqualTo (new[] { mutableMethodInfo }));
             Assert.That (methods, Has.No.Member (typeof (B).GetMethod ("OverridableMethodWithParameters")));
           });
@@ -106,9 +106,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");
       var type = AssembleType<B> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.ExistingMutableMethods.Single (m => m.Name == "MethodOverriddenByB");
+            var mutableMethodInfo = proxyType.ExistingMutableMethods.Single (m => m.Name == "MethodOverriddenByB");
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
             mutableMethodInfo.SetBody(ctx =>
@@ -139,9 +139,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var overriddenMethodInB = GetDeclaredMethod (typeof (B), "MethodOverriddenByB");
 
       var type = AssembleType<C> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethodInfo = mutableType.AddMethod (
+            var mutableMethodInfo = proxyType.AddMethod (
                 "MethodOverriddenByB",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),

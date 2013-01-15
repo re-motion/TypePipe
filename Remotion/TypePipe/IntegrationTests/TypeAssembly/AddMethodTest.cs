@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var name = "PublicStaticMethodWithOutParameter";
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               name,
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void StaticMethodCannotUseThis ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "StaticMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var name = "InstanceMethod";
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               name,
               MethodAttributes.Public,
               typeof (void),
@@ -111,23 +111,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodsWithReturnValue ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodWithExactResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant ("return value"));
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodWithBoxingConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant (7));
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodWithReferenceConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
@@ -148,25 +148,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodsWithInvalidReturnValue ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var exceptionMessagePart = "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.";
             CheckAddMethodThrows (
-                mutableType,
+                proxyType,
                 "MethodWithPotentiallyDangerousValueConversion",
                 typeof (int),
                 Expression.Constant (7L),
                 "Type 'System.Int64' cannot be implicitly converted to type 'System.Int32'. " + exceptionMessagePart);
 
             CheckAddMethodThrows (
-                mutableType,
+                proxyType,
                 "MethodWithPotentiallyDangerousReferenceConversion",
                 typeof (string),
                 Expression.Constant (null, typeof (object)),
                 "Type 'System.Object' cannot be implicitly converted to type 'System.String'. " + exceptionMessagePart);
 
             CheckAddMethodThrows (
-                mutableType,
+                proxyType,
                 "MethodWithInvalidResultType",
                 typeof (int),
                 Expression.Constant ("string"),
@@ -182,16 +182,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodUsingMutableMethodInBody ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method1 = mutableType.AddMethod (
+            var method1 = proxyType.AddMethod (
                 "Method1",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant (7));
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "Method2",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
@@ -208,11 +208,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodUsingExistingMembers ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var existingField = mutableType.ExistingMutableFields.Single (f => f.Name == "ExistingField");
-            var existingMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod");
-            mutableType.AddMethod (
+            var existingField = proxyType.ExistingMutableFields.Single (f => f.Name == "ExistingField");
+            var existingMethod = proxyType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod");
+            proxyType.AddMethod (
                 "AddedMethod",
                 MethodAttributes.Public,
                 typeof (string),
@@ -244,16 +244,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       //   return Method1 (i - 1);
       // }
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method1 = mutableType.AddMethod (
+            var method1 = proxyType.AddMethod (
                 "Method1",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Throw (Expression.Constant (new NotImplementedException()), typeof (int)));
 
-            var method2 = mutableType.AddMethod (
+            var method2 = proxyType.AddMethod (
                 "Method2",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),

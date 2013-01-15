@@ -113,10 +113,10 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void MutableReflection ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
-      var field = mutableType.AllMutableFields.Single ();
-      var constructor = mutableType.AllMutableConstructors.Single ();
-      var method = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+      var proxyType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
+      var field = proxyType.AllMutableFields.Single ();
+      var constructor = proxyType.AllMutableConstructors.Single ();
+      var method = proxyType.AllMutableMethods.Single (x => x.Name == "Method");
       // TODO 4793
       //var returnParameter = method.ReturnParameter;
       var parameter = (MutableParameterInfo) method.GetParameters ().Single ();
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
 
       CheckAbcAttribute (
-          TypePipeCustomAttributeData.GetCustomAttributes (mutableType), CustomAttributeData.GetCustomAttributes (mutableType.UnderlyingSystemType));
+          TypePipeCustomAttributeData.GetCustomAttributes (proxyType), CustomAttributeData.GetCustomAttributes (proxyType.UnderlyingSystemType));
       CheckAbcAttribute (
           TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (field.UnderlyingSystemFieldInfo));
       CheckAbcAttribute (

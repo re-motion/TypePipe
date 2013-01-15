@@ -181,26 +181,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Build_EmptyTypeInitializations ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           typeof (EmptyType),
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      var defaultCtor = mutableType.AddedConstructors.Single();
-      var builder = CreateSubclassProxyBuilder (mutableType);
+      var defaultCtor = proxyType.AddedConstructors.Single();
+      var builder = CreateSubclassProxyBuilder (proxyType);
 
-      _initializationBuilderMock.Expect (mock => mock.CreateTypeInitializer (mutableType)).Return (null);
+      _initializationBuilderMock.Expect (mock => mock.CreateTypeInitializer (proxyType)).Return (null);
       // No call to AddConstructor for because of null type initializer.
-      _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (mutableType)).Return (null);
-      _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType, null));
+      _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (proxyType)).Return (null);
+      _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (proxyType, null));
       // Copied default constructor.
       _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (defaultCtor, null, _proxySerializationEnablerMock));
       _memberEmitterMock.Expect (mock => mock.AddConstructor (builder.MemberEmitterContext, defaultCtor));
       _typeBuilderMock.Expect (mock => mock.CreateType());
       _mockRepository.ReplayAll();
 
-      builder.Build (mutableType);
+      builder.Build (proxyType);
 
       _mockRepository.VerifyAll();
     }

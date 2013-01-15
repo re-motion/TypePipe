@@ -130,31 +130,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
-      _provider.AddMapping (mutableType, ReflectionObjectMother.GetSomeType());
+      var proxyType = MutableTypeObjectMother.Create();
+      _provider.AddMapping (proxyType, ReflectionObjectMother.GetSomeType());
 
-      var constructedType = typeof (List<>).MakeGenericType (mutableType);
-      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { mutableType }));
+      var constructedType = typeof (List<>).MakeGenericType (proxyType);
+      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
 
       _provider.GetEmittableType (constructedType);
 
-      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { mutableType }));
+      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
     }
 
     [Test]
     public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
       var emittableType = ReflectionObjectMother.GetSomeType();
-      _provider.AddMapping (mutableType, emittableType);
+      _provider.AddMapping (proxyType, emittableType);
 
       // Test recursion: List<Func<mt xxx>> as TypeBuilderInstantiation
-      var constructedType = typeof (List<>).MakeGenericType (typeof (Func<>).MakeGenericType (mutableType));
+      var constructedType = typeof (List<>).MakeGenericType (typeof (Func<>).MakeGenericType (proxyType));
       Assert.That (constructedType.IsRuntimeType(), Is.False);
 
       var result = _provider.GetEmittableType (constructedType);
@@ -166,46 +166,46 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableField_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      var constructedType = typeof (StrongBox<>).MakeGenericType (mutableType);
+      var constructedType = typeof (StrongBox<>).MakeGenericType (proxyType);
       FieldInfo field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, f) => p.GetEmittableField (f), mutableType, field);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, f) => p.GetEmittableField (f), proxyType, field);
     }
 
     [Test]
     public void GetEmittableConstructor_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      var constructedType = typeof (List<>).MakeGenericType (mutableType);
+      var constructedType = typeof (List<>).MakeGenericType (proxyType);
       ConstructorInfo ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, c) => p.GetEmittableConstructor (c), mutableType, ctor);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, c) => p.GetEmittableConstructor (c), proxyType, ctor);
     }
 
     [Test]
     public void GetEmittableMethod_GenericTypeDeclaringType_MutableTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.Create (
+      var proxyType = MutableTypeObjectMother.Create (
           null,
           memberSelector: null,
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      var constructedType = typeof (List<>).MakeGenericType (mutableType);
+      var constructedType = typeof (List<>).MakeGenericType (proxyType);
       MethodInfo method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, m) => p.GetEmittableMethod (m), mutableType, method);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, m) => p.GetEmittableMethod (m), proxyType, method);
     }
 
     private void CheckAddMapping<TMutable, T> (

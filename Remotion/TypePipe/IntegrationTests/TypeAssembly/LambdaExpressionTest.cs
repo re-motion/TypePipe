@@ -29,9 +29,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void InvokeLambda ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "InvokeLambda");
+            var method = proxyType.AllMutableMethods.Single (m => m.Name == "InvokeLambda");
             method.SetBody (ctx => Expression.Invoke (Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), ctx.PreviousBody))));
           });
 
@@ -45,9 +45,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_NoClosure ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
+            var method = proxyType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
             method.SetBody (ctx => Expression.Lambda (Expression.Field (ctx.This, "Field")));
           });
 
@@ -62,9 +62,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_StaticClosure ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
+            var method = proxyType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
             method.SetBody (ctx => Expression.Lambda (ctx.Parameters[0]));
           });
 
@@ -79,9 +79,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_InstanceClosure ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
+            var method = proxyType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
             var variable = Expression.Variable (typeof (int));
             method.SetBody (
                 ctx => Expression.Block (
@@ -101,9 +101,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_InstanceClosure_BaseCall ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
+            var method = proxyType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
             method.SetBody (
                 ctx =>
                 Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), Expression.Invoke (ctx.PreviousBody))));

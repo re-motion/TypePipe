@@ -33,17 +33,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void CustomAttributes ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddCustomAttribute (CreateAttribute (mutableType));
-            mutableType.AddField ("Field", typeof (int), FieldAttributes.Public).AddCustomAttribute (CreateAttribute (mutableType));
-            var ctor = mutableType.AddConstructor (
+            proxyType.AddCustomAttribute (CreateAttribute (proxyType));
+            proxyType.AddField ("Field", typeof (int), FieldAttributes.Public).AddCustomAttribute (CreateAttribute (proxyType));
+            var ctor = proxyType.AddConstructor (
                 MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => ctx.GetConstructorCall());
-            ctor.AddCustomAttribute (CreateAttribute (mutableType));
-            ctor.MutableParameters.Single().AddCustomAttribute (CreateAttribute (mutableType));
-            mutableType
+            ctor.AddCustomAttribute (CreateAttribute (proxyType));
+            ctor.MutableParameters.Single().AddCustomAttribute (CreateAttribute (proxyType));
+            proxyType
                 .AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
-                .AddCustomAttribute (CreateAttribute (mutableType));
+                .AddCustomAttribute (CreateAttribute (proxyType));
             // TODO 4675: Add attribute to property
             // TODO 4676: Add attribute to event
           });

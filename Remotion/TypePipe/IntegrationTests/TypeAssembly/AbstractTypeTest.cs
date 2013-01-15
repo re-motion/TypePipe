@@ -32,10 +32,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void NoChanges_BecomesConcrete ()
     {
       var type = AssembleType<AbstractTypeWithoutMethods> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -47,12 +47,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ImplementPartially_RemainsAbstract ()
     {
       var type = AssembleType<AbstractTypeWithTwoMethods> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method1");
+            var mutableMethod = proxyType.AllMutableMethods.Single (x => x.Name == "Method1");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -62,14 +62,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AddAbstractMethod_BecomesAbstract ()
     {
       var type = AssembleType<ConcreteType> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
 
-            var mutableMethod = mutableType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
+            var mutableMethod = proxyType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
             Assert.That (mutableMethod.IsAbstract, Is.True);
 
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -79,14 +79,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ImplementFully_BecomesConcrete ()
     {
       var type = AssembleType<AbstractTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
 
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+            var mutableMethod = proxyType.AllMutableMethods.Single (x => x.Name == "Method");
             mutableMethod.SetBody (ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -96,18 +96,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ImplementFully_AbstractBaseType_AddMethod_BecomesConcrete ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "Method",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (void),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -117,16 +117,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
-            var mutableMethod = mutableType.GetOrAddOverride (abstractBaseMethod);
+            var mutableMethod = proxyType.GetOrAddOverride (abstractBaseMethod);
 
             Assert.That (mutableMethod.IsAbstract, Is.True);
             mutableMethod.SetBody (ctx => Expression.Empty ());
             Assert.That (mutableMethod.IsAbstract, Is.False);
 
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -136,10 +136,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Override_LeaveAbstract_ResultsInValidCode ()
     {
       var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
-            var mutableMethod = mutableType.GetOrAddOverride (abstractBaseMethod);
+            var mutableMethod = proxyType.GetOrAddOverride (abstractBaseMethod);
             Assert.That (mutableMethod.IsAbstract, Is.True);
           });
 
@@ -151,9 +151,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var message = "An abstract method has no body.";
       AssembleType<AbstractTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+            var mutableMethod = proxyType.AllMutableMethods.Single (x => x.Name == "Method");
 
             Assert.That (() => mutableMethod.Body, Throws.InvalidOperationException.With.Message.EqualTo (message));
             mutableMethod.SetBody (
@@ -170,9 +170,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void BaseCallForAbstractMethod_Throws ()
     {
       AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.AllMutableMethods.Single();
+            var mutableMethod = proxyType.AllMutableMethods.Single();
             mutableMethod.SetBody (
                 ctx =>
                 {

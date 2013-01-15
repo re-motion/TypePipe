@@ -31,10 +31,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ModifyExistingConstructor ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
-            var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
+            var mutableCtor = proxyType.GetMutableConstructor (existingCtor);
             mutableCtor.SetBody (
                 ctx => Expression.Block (
                     ctx.GetPreviousBodyWithArguments (ExpressionHelper.StringConcat (ctx.Parameters[0], Expression.Constant (" cd"))),
@@ -52,14 +52,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ModifyAddedConstructor ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               ParameterDeclaration.EmptyParameters,
               ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
-          mutableType =>
+          proxyType =>
           {
-            var addedCtor = mutableType.GetConstructor (Type.EmptyTypes);
-            var mutableCtor = mutableType.GetMutableConstructor (addedCtor);
+            var addedCtor = proxyType.GetConstructor (Type.EmptyTypes);
+            var mutableCtor = proxyType.GetMutableConstructor (addedCtor);
             mutableCtor.SetBody (ctx => ctx.GetConstructorCall (Expression.Constant ("modified added")));
           });
 
@@ -72,14 +72,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AddedCtor_DelegatesTo_ModifiedExistingCtor ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               ParameterDeclaration.EmptyParameters,
               ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
-          mutableType =>
+          proxyType =>
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
-            var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
+            var mutableCtor = proxyType.GetMutableConstructor (existingCtor);
              mutableCtor.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Constant ("modified existing")));
           });
 
@@ -92,14 +92,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ModifiedExistingCtor_DelegatesTo_AddedCtor ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               ParameterDeclaration.EmptyParameters,
               ctx => ctx.GetConstructorCall (Expression.Constant("added"))),
-          mutableType =>
+          proxyType =>
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string), typeof(string) });
-            var mutableCtor = mutableType.GetMutableConstructor (existingCtor);
+            var mutableCtor = proxyType.GetMutableConstructor (existingCtor);
             mutableCtor.SetBody (
                 ctx => Expression.Block (
                     ctx.GetConstructorCall(),

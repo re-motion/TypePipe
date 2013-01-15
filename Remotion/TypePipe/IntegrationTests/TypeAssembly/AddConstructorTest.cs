@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Standard ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public, 
               new[] { new ParameterDeclaration (typeof (int), "i") }, 
               context => Expression.Block (
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ParameterMetadataAndOutParameter ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               new[] { new ParameterDeclaration (typeof (int), "i"), new ParameterDeclaration (typeof (string).MakeByRefType (), "s", ParameterAttributes.Out) },
               context =>

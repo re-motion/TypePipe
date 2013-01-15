@@ -32,10 +32,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodWithManyArguments ("", "", "", "", "", "", "", "", ""));
 
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var abcdefghi = methodWithManyArguments.GetParameters().Select ((p, i) => "" + (char) ('a' + i)).Select (Expression.Constant);
-            mutableType
+            proxyType
                 .AllMutableMethods
                 .Single (m => m.Name == "Method")
                 .SetBody (ctx => Expression.Call (ctx.This, methodWithManyArguments, abcdefghi.Cast<Expression>().ToArray()));

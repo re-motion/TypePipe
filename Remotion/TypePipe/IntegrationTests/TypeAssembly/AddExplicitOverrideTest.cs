@@ -29,9 +29,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var explicitOverride = mutableType.AddExplicitOverride (
+            var explicitOverride = proxyType.AddExplicitOverride (
                 method, ctx => ExpressionHelper.StringConcat (ctx.GetBaseCall (method), Expression.Constant (" explicitly overridden")));
             Assert.That (explicitOverride.BaseMethod, Is.Null);
           });
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void InterfaceMethod_AlreadyExplicitlyImplemented ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.ExplicitlyImplemented());
-      AssembleType<DomainType> (mutableType => mutableType.AddExplicitOverride (method, ctx => Expression.Empty()));
+      AssembleType<DomainType> (proxyType => proxyType.AddExplicitOverride (method, ctx => Expression.Empty()));
     }
 
     public class DomainTypeBase

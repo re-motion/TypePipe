@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ClosedGenericType_AddMethod ()
     {
       var type = AssembleType<DomainType<string>> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "AnotherMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (int),
@@ -49,9 +49,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ClosedGenericType_ReplaceBodyOfMethodWithGenericParameter ()
     {
       var type = AssembleType<DomainType<string>> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            var mutableMethod = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
             mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" test")));
           });
 

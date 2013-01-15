@@ -31,9 +31,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ExistingMethodWithGenericParameters ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "GenericMethod");
+            var mutableMethod = proxyType.ExistingMutableMethods.Single (m => m.Name == "GenericMethod");
             Assert.That (mutableMethod.IsGenericMethod, Is.True);
             Assert.That (mutableMethod.IsGenericMethodDefinition, Is.True);
             var genericParameters = mutableMethod.GetGenericArguments ();
