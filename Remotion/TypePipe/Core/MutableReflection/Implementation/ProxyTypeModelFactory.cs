@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _counter++;
       var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
       var fullname = string.IsNullOrEmpty (baseType.Namespace) ? name : string.Format ("{0}.{1}", baseType.Namespace, name);
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsSerializable ? TypeAttributes.Serializable : 0);
 
       var proxyType = new ProxyType (
           baseType, name, baseType.Namespace, fullname, attributes, memberSelector, interfaceMappingComputer, mutableMemberFactory);

@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
@@ -24,6 +25,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class ProxyTypeObjectMother
   {
+    private static readonly ProxyTypeModelFactory s_factory = new ProxyTypeModelFactory();
+
     public static ProxyType Create (
         Type baseType = null,
         string name = "Proxy",
@@ -41,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      return new ProxyType (
+      var proxyType = new ProxyType (
           baseType,
           name,
           @namespace,
@@ -50,6 +53,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           memberSelector,
           interfaceMappingComputer,
           mutableMemberFactory);
+
+      CopyConstructors (baseType, proxyType);
+
+      return proxyType;
+    }
+
+    private static void CopyConstructors (Type baseType, ProxyType proxyType)
+    {
+      PrivateInvoke.InvokeNonPublicMethod (s_factory, "CopyConstructors", baseType, proxyType);
     }
   }
 }

@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   {
     public static ProxyType CreateForExisting (Type underlyingType)
     {
+      // TODO Use ProxyTypeModelFactoryTest to copy ctors
       var underlyingTypeDescriptor = TypeDescriptor.Create (underlyingType);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();

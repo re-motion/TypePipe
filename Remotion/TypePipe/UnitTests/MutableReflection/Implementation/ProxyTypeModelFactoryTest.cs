@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
@@ -35,22 +34,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     private ProxyTypeModelFactory _factory;
 
-    private Type _baseType;
+    private Type _domainType;
 
     [SetUp]
     public void SetUp ()
     {
       _factory = new ProxyTypeModelFactory();
 
-      _baseType = typeof (DomainType);
+      _domainType = typeof (DomainType);
     }
 
     [Test]
     public void CreateProxy ()
     {
-      var result = _factory.CreateProxyType (_baseType);
+      var result = _factory.CreateProxyType (_domainType);
 
-      Assert.That (result.BaseType, Is.SameAs (_baseType));
+      Assert.That (result.BaseType, Is.SameAs (_domainType));
       Assert.That (result.Name, Is.EqualTo (@"DomainType_Proxy1"));
       Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (result.FullName, Is.EqualTo (@"Remotion.TypePipe.UnitTests.MutableReflection.Implementation.DomainType_Proxy1"));
@@ -60,8 +59,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_UniqueNames ()
     {
-      var result1 = _factory.CreateProxyType (_baseType);
-      var result2 = _factory.CreateProxyType (_baseType);
+      var result1 = _factory.CreateProxyType (_domainType);
+      var result2 = _factory.CreateProxyType (_domainType);
 
       Assert.That (result1.Name, Is.Not.EqualTo (result2.Name));
     }
@@ -81,9 +80,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateProxy_Serializable ()
+    {
+      var result = _factory.CreateProxyType (typeof (SerializableType));
+
+      Assert.That (result.IsSerializable, Is.True);
+    }
+
+    [Test]
     public void CreateProxy_CopiesAccessibleInstanceConstructors ()
     {
-      var result = _factory.CreateProxyType (_baseType);
+      var result = _factory.CreateProxyType (_domainType);
 
       Assert.That (result.AddedConstructors, Has.Count.EqualTo (1));
 
@@ -108,5 +115,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       protected internal DomainType (int i) { Dev.Null = i; }
       internal DomainType (string inaccessible) { Dev.Null = inaccessible; }
     }
+
+    [Serializable]
+    public class SerializableType { }
   }
 }
