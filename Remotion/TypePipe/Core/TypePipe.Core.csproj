@@ -202,8 +202,6 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtility.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableTypeMemberCollection.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableTypeMethodCollection.cs" />
     <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedPropertyFinder.cs" />

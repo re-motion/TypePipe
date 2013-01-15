@@ -91,9 +91,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddConstructor ()
     {
-      var constructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
-          new ParameterDeclaration (typeof (string), "p1", ParameterAttributes.In),
-          new ParameterDeclaration (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out));
+      var constructor = MutableConstructorInfoObjectMother.Create (
+          parameters: new[]
+                      {
+                          new ParameterDeclaration (typeof (string), "p1", ParameterAttributes.In),
+                          new ParameterDeclaration (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out)
+                      });
       var expectedAttributes = constructor.Attributes;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
 

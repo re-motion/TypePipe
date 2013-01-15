@@ -146,10 +146,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           relatedMethodFinder: null,
           interfaceMappingComputer: null,
           mutableMemberFactory: null);
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (declaringType, new ParameterDeclaration (typeof (int), "p1"));
+      var ctor = MutableConstructorInfoObjectMother.Create (declaringType, parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
-      Assert.That (ctorInfo.ToDebugString (), Is.EqualTo (expected));
+      Assert.That (ctor.ToDebugString (), Is.EqualTo (expected));
     }
 
     [Test]

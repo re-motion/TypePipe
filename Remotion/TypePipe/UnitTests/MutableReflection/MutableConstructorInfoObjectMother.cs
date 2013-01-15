@@ -56,15 +56,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       return null;
     }
-
-    public static MutableConstructorInfo CreateForNewWithParameters (ProxyType declaringType, params ParameterDeclaration[] parameterDeclarations)
-    {
-      return CreateForNew (declaringType, parameterDeclarations: parameterDeclarations);
-    }
-
-    public static MutableConstructorInfo CreateForNewWithParameters (params ParameterDeclaration[] parameterDeclarations)
-    {
-      return CreateForNewWithParameters (null, parameterDeclarations);
-    }
   }
 }

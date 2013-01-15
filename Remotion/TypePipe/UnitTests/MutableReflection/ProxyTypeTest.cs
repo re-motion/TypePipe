@@ -116,18 +116,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
 
-      var underlyingSystemType = _proxyType.UnderlyingSystemType;
-      Assert.That (underlyingSystemType, Is.Not.SameAs (_proxyType));
-      Assert.That (_proxyType.IsAssignableTo (underlyingSystemType), Is.True);
+      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (_proxyType));
 
-      Assert.That (_proxyType.BaseType, Is.SameAs (typeof (DomainTypeBase)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
+      Assert.That (_proxyType.BaseType, Is.SameAs (typeof (DomainType)));
+      Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
 
       Assertion.IsNotNull (_proxyType.BaseType); // For ReSharper...
-      Assert.That (_proxyType.BaseType.BaseType, Is.SameAs (typeof (object)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (object)), Is.True);
+      Assert.That (_proxyType.BaseType.BaseType, Is.SameAs (typeof (DomainTypeBase)));
+      Assert.That (_proxyType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
 
-      Assert.That (underlyingSystemType.GetInterfaces(), Has.Member (typeof (IDomainInterface)));
+      Assert.That (typeof (DomainType).GetInterfaces(), Has.Member (typeof (IDomainInterface)));
       Assert.That (_proxyType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
 
       Assert.That (_proxyType.GetInterfaces(), Has.No.Member (typeof (IDisposable)));
@@ -494,7 +492,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assertion.IsTrue (proxyType == _proxyType, "Consider adding a parameter for _mutableMemberFactoryMock");
 
-      var fakeCtor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (proxyType, parameterDeclarations);
+      var fakeCtor = MutableConstructorInfoObjectMother.Create (proxyType, parameters: parameterDeclarations);
       _mutableMemberFactoryMock.Stub (stub => stub.CreateConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor).Repeat.Once();
 
       return proxyType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => null);

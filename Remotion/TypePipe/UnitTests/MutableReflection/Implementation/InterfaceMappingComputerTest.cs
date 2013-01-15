@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -207,9 +208,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return proxyType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
     }
 
-    private MutableTypeMethodCollection GetAllMethods (ProxyType proxyType)
+    private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
     {
-      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (proxyType, "_methods");
+      return (IEnumerable<MethodInfo>) PrivateInvoke.GetNonPublicField (proxyType, "_methods");
     }
 
     // Tuple means: 1) interface method, 2) implementation method

@@ -367,6 +367,7 @@ namespace Remotion.TypePipe.MutableReflection
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
       Assertion.IsNotNull (BaseType);
+
       return _addedFields.Cast<FieldInfo>().Concat (BaseType.GetFields (c_all));
     }
 
@@ -377,11 +378,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      // TODO 5309: Remove overridden members here.
-      // TODO 5309: Remove MutableTypeMethodCollection, MutableTypeMemberCollection
-
       Assertion.IsNotNull (BaseType);
-      return _addedMethods.Cast<MethodInfo>().Concat (BaseType.GetMethods (c_all));
+
+      var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
+      var filteredBaseMethods = BaseType.GetMethods (c_all).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
+
+      return _addedMethods.Cast<MethodInfo>().Concat (filteredBaseMethods);
     }
   } 
 }

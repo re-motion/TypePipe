@@ -763,9 +763,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return proxyType.BaseType.GetMethod (name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
-    private MutableTypeMethodCollection GetAllMethods (ProxyType proxyType)
+    private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
     {
-      return (MutableTypeMethodCollection) PrivateInvoke.GetNonPublicField (proxyType, "_methods");
+      return (IEnumerable<MethodInfo>) PrivateInvoke.GetNonPublicField (proxyType, "_methods");
     }
 
     public class A
