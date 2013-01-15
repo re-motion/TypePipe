@@ -64,21 +64,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetPreviousBodyWithArguments_Params ()
+    public void PreviousBodyWithArguments_Params ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      var invokedBody = _context.GetPreviousBodyWithArguments (arg1, arg2);
+      var invokedBody = _context.PreviousBodyWithArguments (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
     [Test]
-    public void GetPreviousBodyWithArguments_Enumerable ()
+    public void PreviousBodyWithArguments_Enumerable ()
     {
-      var invokedBody = _context.GetPreviousBodyWithArguments (_parameters.Cast<Expression> ().AsOneTime ());
+      var invokedBody = _context.PreviousBodyWithArguments (_parameters.Cast<Expression> ().AsOneTime ());
 
       var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);

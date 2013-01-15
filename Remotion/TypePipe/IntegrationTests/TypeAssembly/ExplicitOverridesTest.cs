@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (overriddenMethod), Expression.Constant (" explicitly overridden"));
                 });
             mutableMethodInfo.AddExplicitBaseDefinition (overriddenMethod);
             Assert.That (mutableMethodInfo.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { overriddenMethod }));
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
-                ctx => ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden")));
+                ctx => ExpressionHelper.StringConcat (ctx.CallBase (overriddenMethod), Expression.Constant (" explicitly overridden")));
 
             mutableMethodInfo.AddExplicitBaseDefinition (overriddenMethod);
           });
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenMethod), Expression.Constant (" explicitly overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (overriddenMethod), Expression.Constant (" explicitly overridden"));
                 });
             mutableMethodInfo.AddExplicitBaseDefinition (overriddenMethod);
             mutableMethodInfo.AddExplicitBaseDefinition (otherOverriddenMetod);
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenShadowingMethod));
-                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" implicitly overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod), Expression.Constant (" implicitly overridden"));
                 });
             var overrideForShadowedMethod = proxyType.AddMethod (
                 "DifferentName",
@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (overriddenShadowedMethod), Expression.Constant (" explicitly overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (overriddenShadowedMethod), Expression.Constant (" explicitly overridden"));
                 });
             overrideForShadowedMethod.AddExplicitBaseDefinition (overriddenShadowedMethod);
           });

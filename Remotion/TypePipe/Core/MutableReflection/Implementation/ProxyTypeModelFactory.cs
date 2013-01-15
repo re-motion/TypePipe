@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         proxyType.AddConstructor (
             ctor.Attributes,
             ParameterDeclaration.CreateForEquivalentSignature (ctor),
-            ctx => ctx.GetBaseConstructorCall (ctx.Parameters.Cast<Expression>()));
+            ctx => ctx.CallBaseConstructor (ctx.Parameters.Cast<Expression>()));
       }
     }
   }

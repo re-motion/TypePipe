@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             var explicitOverride = proxyType.AddExplicitOverride (
-                method, ctx => ExpressionHelper.StringConcat (ctx.GetBaseCall (method), Expression.Constant (" explicitly overridden")));
+                method, ctx => ExpressionHelper.StringConcat (ctx.CallBase (method), Expression.Constant (" explicitly overridden")));
             Assert.That (explicitOverride.BaseMethod, Is.Null);
           });
 

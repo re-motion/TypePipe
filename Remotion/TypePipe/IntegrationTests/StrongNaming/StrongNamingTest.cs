@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       // Base type is DomainType which is signed.
       CheckStrongNaming (mt => mt.AddInterface (_signedInterfaceType));
       CheckStrongNaming (mt => mt.AddField ("f", _signedType));
-      CheckStrongNaming (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.GetThisConstructorCall()));
+      CheckStrongNaming (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor()));
       CheckStrongNaming (mt => mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType)));
       // Properties and Events: event type, property type, property index parameter
       // TODO 4675
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNaming (mt => mt.AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (mt => mt.AddField ("f", _signedType).AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (mt => mt.AddConstructor (
-              0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.GetThisConstructorCall ()).AddCustomAttribute (_signedAttribute));
+              0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor ()).AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (
           mt =>
           {
@@ -151,7 +151,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingException (mt => { }, requestedType: _unsignedType);
       CheckStrongNamingException (mt => mt.AddInterface (_unsignedInterfaceType));
       CheckStrongNamingException (mt => mt.AddField ("f", _unsignedType));
-      CheckStrongNamingException (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.GetThisConstructorCall()));
+      CheckStrongNamingException (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.CallThisConstructor()));
       CheckStrongNamingException (mt => mt.AddMethod ("m", 0, _unsignedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_unsignedType)));
       CheckStrongNamingException (mt => mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => Expression.Default (_signedType)));
       // Properties and Events: event type, property type, property index parameter
@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingException (mt => mt.AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (mt => mt.AddField ("f", _signedType).AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (mt => mt.AddConstructor (
-              0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.GetThisConstructorCall ()).AddCustomAttribute (_unsignedAttribute));
+              0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor ()).AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (
           mt =>
           mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))

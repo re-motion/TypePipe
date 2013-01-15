@@ -67,15 +67,15 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get { return _isStatic; }
     }
 
-    public MethodCallExpression GetBaseCall (string baseMethod, params Expression[] arguments)
+    public MethodCallExpression CallBase (string baseMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseCall (baseMethod, (IEnumerable<Expression>) arguments);
+      return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public MethodCallExpression GetBaseCall (string baseMethod, IEnumerable<Expression> arguments)
+    public MethodCallExpression CallBase (string baseMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -101,18 +101,18 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new ArgumentException (message, "baseMethod");
       }
 
-      return GetBaseCall (baseMethodInfo, argumentsCollection);
+      return CallBase (baseMethodInfo, argumentsCollection);
     }
 
-    public MethodCallExpression GetBaseCall (MethodInfo baseMethod, params Expression[] arguments)
+    public MethodCallExpression CallBase (MethodInfo baseMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseCall (baseMethod, (IEnumerable<Expression>) arguments);
+      return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public MethodCallExpression GetBaseCall (MethodInfo baseMethod, IEnumerable<Expression> arguments)
+    public MethodCallExpression CallBase (MethodInfo baseMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -125,15 +125,15 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
     }
 
-    public Expression GetCopiedMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
+    public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetCopiedMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
+      return CopyMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetCopiedMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
+    public Expression CopyMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);

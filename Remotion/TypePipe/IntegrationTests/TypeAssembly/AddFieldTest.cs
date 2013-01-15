@@ -117,7 +117,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (string), "arg") },
                 ctx =>
-                Expression.Block (ctx.GetThisConstructorCall (), Expression.Assign (Expression.Field (ctx.This, fieldInfo), ctx.Parameters[0]))
+                Expression.Block (ctx.CallThisConstructor (), Expression.Assign (Expression.Field (ctx.This, fieldInfo), ctx.Parameters[0]))
                 );
           },
           proxyType =>

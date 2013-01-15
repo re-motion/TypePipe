@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod), Expression.Constant (" overridden"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.HasBaseMethod, Is.True);
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
                   return ExpressionHelper.StringConcat (
-                      ctx.GetBaseCall (ctx.BaseMethod, ctx.Parameters.Cast<Expression>()), Expression.Constant (" overridden"));
+                      ctx.CallBase (ctx.BaseMethod, ctx.Parameters.Cast<Expression>()), Expression.Constant (" overridden"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
                   Assert.That (ctx.BaseMethod, Is.EqualTo(overriddenMethodInB));
-                  return ExpressionHelper.StringConcat (ctx.GetBaseCall (ctx.BaseMethod), Expression.Constant (" overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod), Expression.Constant (" overridden"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethodInB));
             Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethodInA));

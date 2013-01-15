@@ -43,14 +43,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     }
 
     // TODO TEST
-    public Expression GetBaseConstructorCall (params Expression[] arguments)
+    public Expression CallBaseConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseConstructorCall ((IEnumerable<Expression>) arguments);
+      return CallBaseConstructor ((IEnumerable<Expression>) arguments);
     }
     
-    public Expression GetBaseConstructorCall (IEnumerable<Expression> arguments)
+    public Expression CallBaseConstructor (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
@@ -67,15 +67,15 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return new OriginalBodyExpression (constructor, typeof (void), args);
     }
 
-    public Expression GetThisConstructorCall (params Expression[] arguments)
+    public Expression CallThisConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetThisConstructorCall (((IEnumerable<Expression>) arguments));
+      return CallThisConstructor (((IEnumerable<Expression>) arguments));
     }
 
     // TODO TEST
-    public Expression GetThisConstructorCall (IEnumerable<Expression> arguments)
+    public Expression CallThisConstructor (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 

@@ -213,7 +213,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var bodyProviderOrNull =
           baseMethod.IsAbstract
               ? null
-              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.GetBaseCall (baseMethod, ctx.Parameters.Cast<Expression>()));
+              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);

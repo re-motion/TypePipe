@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
-                ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+                ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
       var method = type.GetMethod ("StaticMethod");
@@ -123,8 +123,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Block (
-                    ctx.GetThisConstructorCall(),
-                    ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0])));
+                    ctx.CallThisConstructor(),
+                    ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type, new object[] { 7 });

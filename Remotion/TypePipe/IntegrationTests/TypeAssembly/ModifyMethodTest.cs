@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+            mutableMethod.SetBody (ctx => ctx.PreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   return Expression.Block (
                       new[] { tempLocal },
                       Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
-                      ctx.GetPreviousBodyWithArguments (tempLocal, ctx.Parameters[1]),
+                      ctx.PreviousBodyWithArguments (tempLocal, ctx.Parameters[1]),
                       Expression.Assign (ctx.Parameters[1], ExpressionHelper.StringConcat (ctx.Parameters[1], Expression.Constant (" test"))),
                       Expression.Assign (ctx.Parameters[0], tempLocal));
                 });
@@ -147,7 +147,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         proxyType =>
         {
           var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-          mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+          mutableMethod.SetBody (ctx => ctx.PreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
         });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -200,12 +200,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+            mutableMethod.SetBody (ctx => ctx.PreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           },
           proxyType =>
           {
             var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
+            mutableMethod.SetBody (ctx => ctx.PreviousBodyWithArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);

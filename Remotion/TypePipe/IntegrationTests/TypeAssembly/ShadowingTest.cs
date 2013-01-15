@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                       Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
 
                   return ExpressionHelper.StringConcat (
-                      ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
+                      ctx.CallBase ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.HasBaseMethod, Is.False);
 
                   return ExpressionHelper.StringConcat (
-                      ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
+                      ctx.CallBase ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));

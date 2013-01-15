@@ -60,11 +60,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetConstructorCall ()
+    public void CallThisConstructor ()
     {
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
 
-      var result = _context.GetThisConstructorCall (argumentExpressions);
+      var result = _context.CallThisConstructor (argumentExpressions);
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result;
@@ -90,10 +90,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     [ExpectedException (typeof (MissingMemberException), ExpectedMessage =
         "Could not find a public instance constructor with signature (System.Int32, System.Int32) on type 'ClassWithConstructor'.")]
-    public void GetConstructorCall_NoMatchingConstructor ()
+    public void CallThisConstructor_NoMatchingConstructor ()
     {
       var argumentExpressions = new ArgumentTestHelper (7, 8).Expressions;
-      _context.GetThisConstructorCall (argumentExpressions);
+      _context.CallThisConstructor (argumentExpressions);
     }
 
     private class ClassWithConstructor
