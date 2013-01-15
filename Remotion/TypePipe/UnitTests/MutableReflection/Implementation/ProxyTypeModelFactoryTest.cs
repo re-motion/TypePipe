@@ -70,8 +70,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.FullName, Is.EqualTo (@"abc_Proxy1"));
     }
 
-    public class DomainType
-    {
-    }
+    public class DomainType { }
   }
 }

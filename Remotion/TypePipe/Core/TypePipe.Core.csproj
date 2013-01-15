@@ -120,7 +120,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
     <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />

@@ -83,7 +83,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\TypeModifierTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactoryTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecoratorTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
     <Compile Include="Caching\ConstructorFinderTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
