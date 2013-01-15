@@ -17,11 +17,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.Text;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
@@ -31,37 +34,72 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class ConstructorBodyContextBase : MethodBaseBodyContextBase
   {
+    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
     protected ConstructorBodyContextBase (
         ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
         : base (declaringType, parameterExpressions, false, memberSelector)
     {
     }
 
-    public Expression GetConstructorCall (params Expression[] arguments)
+    // TODO TEST
+    public Expression GetBaseConstructorCall (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetConstructorCall (((IEnumerable<Expression>) arguments));
+      return GetBaseConstructorCall ((IEnumerable<Expression>) arguments);
+    }
+    
+    public Expression GetBaseConstructorCall (IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      var args = arguments.ConvertToCollection ();
+      var constructor = GetConstructor (DeclaringType.BaseType, args);
+      if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
+        throw new MemberAccessException ("The given constructor is not visible from the proxy type.");
+
+      // TODO fails because TypeUtils.IsValidInstanceType(method, instanceType)
+      // which uses dest.IsAssignableFrom(src)
+      // dest -> DomainType, src -> Proxy
+      //return CallConstructor (constructor, args);
+
+      return new OriginalBodyExpression (constructor, typeof (void), args);
     }
 
-    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
+    public Expression GetThisConstructorCall (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      var argumentCollection = arguments.ConvertToCollection();
+      return GetThisConstructorCall (((IEnumerable<Expression>) arguments));
+    }
 
-      var argumentTypes = argumentCollection.Select (e => e.Type).ToArray();
-      var constructor = DeclaringType.GetConstructor (argumentTypes);
+    // TODO TEST
+    public Expression GetThisConstructorCall (IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      var args = arguments.ConvertToCollection();
+      return CallConstructor (GetConstructor (DeclaringType, args), args);
+    }
+
+    private static ConstructorInfo GetConstructor (Type type, ICollection<Expression> arguments)
+    {
+      var argumentTypes = arguments.Select (e => e.Type).ToArray();
+      var constructor = type.GetConstructor (c_allInstanceMembers, null, argumentTypes, null);
       if (constructor == null)
       {
-        var message = String.Format ("Could not find a public instance constructor with signature ({0}) on type '{1}'.",
-                                     SeparatedStringBuilder.Build (", ", argumentTypes), DeclaringType);
+        var message = String.Format (
+            "Could not find an instance constructor with signature ({0}) on type '{1}'.", SeparatedStringBuilder.Build (", ", argumentTypes), type);
         throw new MissingMemberException (message);
       }
+      return constructor;
+    }
 
-      var adapter = NonVirtualCallMethodInfoAdapter.Adapt (constructor);
-
-      return Expression.Call (This, adapter, argumentCollection);
+    // TODO does not work for base ctors ....
+    private Expression CallConstructor (ConstructorInfo constructor, ICollection<Expression> arguments)
+    {
+      return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (constructor), arguments);
     }
   }
 }

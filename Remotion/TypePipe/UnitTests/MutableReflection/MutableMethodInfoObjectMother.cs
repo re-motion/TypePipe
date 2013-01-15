@@ -29,20 +29,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         ProxyType declaringType = null,
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = (MethodAttributes) 7,
-        ParameterDeclaration returnParameter = null,
+        Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null,
         MethodInfo baseMethod = null,
         Expression body = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
-      returnParameter = returnParameter ?? ParameterDeclaration.CreateReturnParameter (typeof (void));
+      returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.EmptyParameters;
       // baseMethod stays null.
-      body = body == null && !attributes.IsSet (MethodAttributes.Abstract)
-                 ? ExpressionTreeObjectMother.GetSomeExpression (returnParameter.Type)
-                 : body;
+      body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
 
-      return new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, returnType, parameters, baseMethod, body);
     }
 
     // tODO remove

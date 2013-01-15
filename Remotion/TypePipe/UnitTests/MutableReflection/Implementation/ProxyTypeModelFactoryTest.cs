@@ -17,9 +17,16 @@
 
 using System;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -28,31 +35,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     private ProxyTypeModelFactory _factory;
 
+    private Type _baseType;
+
     [SetUp]
     public void SetUp ()
     {
       _factory = new ProxyTypeModelFactory();
+
+      _baseType = typeof (DomainType);
     }
 
     [Test]
     public void CreateProxy ()
     {
-      var baseType = typeof (DomainType);
+      var result = _factory.CreateProxyType (_baseType);
 
-      var proxyType = _factory.CreateProxyType (baseType);
-
-      Assert.That (proxyType.BaseType, Is.SameAs (baseType));
-      Assert.That (proxyType.Name, Is.EqualTo (@"DomainType_Proxy1"));
-      Assert.That (proxyType.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
-      Assert.That (proxyType.FullName, Is.EqualTo (@"Remotion.TypePipe.UnitTests.MutableReflection.Implementation.DomainType_Proxy1"));
-      Assert.That (proxyType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      Assert.That (result.BaseType, Is.SameAs (_baseType));
+      Assert.That (result.Name, Is.EqualTo (@"DomainType_Proxy1"));
+      Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
+      Assert.That (result.FullName, Is.EqualTo (@"Remotion.TypePipe.UnitTests.MutableReflection.Implementation.DomainType_Proxy1"));
+      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
     }
 
     [Test]
     public void CreateProxy_UniqueNames ()
     {
-      var result1 = _factory.CreateProxyType (typeof (DomainType));
-      var result2 = _factory.CreateProxyType (typeof (DomainType));
+      var result1 = _factory.CreateProxyType (_baseType);
+      var result2 = _factory.CreateProxyType (_baseType);
 
       Assert.That (result1.Name, Is.Not.EqualTo (result2.Name));
     }
@@ -63,6 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var baseTypeStub = MockRepository.GenerateStub<Type>();
       baseTypeStub.Stub (stub => stub.Name).Return ("abc");
       baseTypeStub.Stub (stub => stub.Namespace).Return (null);
+      baseTypeStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
 
       var result = _factory.CreateProxyType (baseTypeStub);
 
@@ -70,6 +80,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.FullName, Is.EqualTo (@"abc_Proxy1"));
     }
 
-    public class DomainType { }
+    [Test]
+    public void CreateProxy_CopiesAccessibleInstanceConstructors ()
+    {
+      var result = _factory.CreateProxyType (_baseType);
+
+      Assert.That (result.AddedConstructors, Has.Count.EqualTo (1));
+
+      var ctor = result.AddedConstructors.Single();
+      Assert.That (ctor.IsStatic, Is.False);
+      Assert.That (ctor.IsFamilyOrAssembly, Is.True);
+
+      var parameters = ctor.GetParameters();
+      Assert.That (parameters, Has.Length.EqualTo (1));
+      Assert.That (parameters[0].ParameterType, Is.SameAs (typeof (int)));
+      Assert.That (parameters[0].Name, Is.EqualTo ("i"));
+
+      var baseCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
+      var expectedBody = new OriginalBodyExpression (baseCtor, typeof (void), ctor.ParameterExpressions.Cast<Expression>());
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
+    }
+
+    public class DomainType
+    {
+      static DomainType() { }
+
+      protected internal DomainType (int i) { Dev.Null = i; }
+      internal DomainType (string inaccessible) { Dev.Null = inaccessible; }
+    }
   }
 }

@@ -174,9 +174,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableType,
-          parameters: ParameterDeclaration.EmptyParameters,
-          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)));
+          _serializableType, returnType: typeof (void), parameters: ParameterDeclaration.EmptyParameters);
 
       _enabler.MakeSerializable (_serializableType, initMethod);
 
@@ -195,9 +193,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _deserializationCallbackType,
-          parameters: ParameterDeclaration.EmptyParameters,
-          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)));
+          _deserializationCallbackType, returnType: typeof (void), parameters: ParameterDeclaration.EmptyParameters);
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_deserializationCallbackType, initMethod);
@@ -227,9 +223,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableInterfaceWithDeserializationCallbackType,
-          parameters: ParameterDeclaration.EmptyParameters,
-          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)));
+          _serializableInterfaceWithDeserializationCallbackType, returnType: typeof (void), parameters: ParameterDeclaration.EmptyParameters);
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableWithDeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackType, initMethod);

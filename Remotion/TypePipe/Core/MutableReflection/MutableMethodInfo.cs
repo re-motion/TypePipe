@@ -54,27 +54,27 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        ParameterDeclaration returnParameter,
+        Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnParameter", returnParameter);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       Assertion.IsTrue (baseMethod == null || baseMethod.IsVirtual);
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
-      Assertion.IsTrue (body == null || returnParameter.Type.IsAssignableFrom (body.Type));
+      Assertion.IsTrue (body == null || returnType.IsAssignableFrom (body.Type));
 
-      var parameterDeclarations = parameters.ConvertToCollection();
+      var paras = parameters.ConvertToCollection();
 
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
-      _returnParameter = new MutableParameterInfo (this, -1, returnParameter.Name, returnParameter.Type, returnParameter.Attributes);
-      _parameters = parameterDeclarations.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
-      _parameterExpressions = parameterDeclarations.Select (p => p.Expression).ToList().AsReadOnly();
+      _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.Retval);
+      _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
       _baseMethod = baseMethod;
       _body = body;
     }

@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
 
-      var result = _context.GetConstructorCall (argumentExpressions);
+      var result = _context.GetThisConstructorCall (argumentExpressions);
 
       Assert.That (result, Is.AssignableTo<MethodCallExpression>());
       var methodCallExpression = (MethodCallExpression) result;
@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void GetConstructorCall_NoMatchingConstructor ()
     {
       var argumentExpressions = new ArgumentTestHelper (7, 8).Expressions;
-      _context.GetConstructorCall (argumentExpressions);
+      _context.GetThisConstructorCall (argumentExpressions);
     }
 
     private class ClassWithConstructor

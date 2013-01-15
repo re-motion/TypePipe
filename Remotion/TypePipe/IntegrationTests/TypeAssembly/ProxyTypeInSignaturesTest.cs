@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             proxyType.AddCustomAttribute (CreateAttribute (proxyType));
             proxyType.AddField ("Field", typeof (int), FieldAttributes.Public).AddCustomAttribute (CreateAttribute (proxyType));
             var ctor = proxyType.AddConstructor (
-                MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => ctx.GetConstructorCall());
+                MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => ctx.GetThisConstructorCall());
             ctor.AddCustomAttribute (CreateAttribute (proxyType));
             ctor.MutableParameters.Single().AddCustomAttribute (CreateAttribute (proxyType));
             proxyType

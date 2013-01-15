@@ -51,18 +51,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7;
-      var returnParameter = ParameterDeclarationObjectMother.Create();
+      var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
-      var body = ExpressionTreeObjectMother.GetSomeExpression (returnParameter.Type);
+      var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      var method = new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters.AsOneTime(), baseMethod, body);
+      var method = new MutableMethodInfo (declaringType, name, attributes, returnType, parameters.AsOneTime(), baseMethod, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 
-      MutableParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnParameter.Type, returnParameter.Attributes);
+      MutableParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.Retval);
       Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));
 
       var actualParameters = method.GetParameters();
@@ -228,10 +228,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var declaringType = ProxyTypeObjectMother.Create();
       var attribtes = (MethodAttributes) 7;
-      var returnParameter = ParameterDeclaration.CreateReturnParameter (typeof (object));
+      var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeMethod();
-      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, returnParameter, parameters, baseMethod);
+      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, returnType, parameters, baseMethod);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
@@ -247,7 +247,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       method.SetBody (bodyProvider);
 
-      var expectedBody = Expression.Convert (fakeBody, returnParameter.Type);
+      var expectedBody = Expression.Convert (fakeBody, returnType);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -300,13 +300,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      var returnParameter = ParameterDeclaration.CreateReturnParameter (typeof (string));
-      var parameters = new[]
-                       {
-                           new ParameterDeclaration (typeof (int), "p1"),
-                           new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
-                       };
-      var method = MutableMethodInfoObjectMother.Create (name: "Xxx", returnParameter: returnParameter, parameters: parameters);
+      var parameters =
+          new[]
+          {
+              new ParameterDeclaration (typeof (int), "p1"),
+              new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
+          };
+      var method = MutableMethodInfoObjectMother.Create (name: "Xxx", returnType: typeof (string), parameters: parameters);
 
       Assert.That (method.ToString(), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
@@ -316,8 +316,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = MutableMethodInfoObjectMother.Create (
           declaringType: ProxyTypeObjectMother.Create (GetType()),
-          returnParameter: ParameterDeclaration.CreateReturnParameter (typeof (void)),
           name: "Xxx",
+          returnType: typeof (void),
           parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"MutableMethodInfoTest\"";

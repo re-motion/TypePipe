@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               ParameterDeclaration.EmptyParameters,
-              ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
+              ctx => ctx.GetThisConstructorCall (Expression.Constant ("added"))),
           proxyType =>
           {
             var addedCtor = proxyType.GetConstructor (Type.EmptyTypes);
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               ParameterDeclaration.EmptyParameters,
-              ctx => ctx.GetConstructorCall (Expression.Constant ("added"))),
+              ctx => ctx.GetThisConstructorCall (Expression.Constant ("added"))),
           proxyType =>
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string) });
@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               ParameterDeclaration.EmptyParameters,
-              ctx => ctx.GetConstructorCall (Expression.Constant("added"))),
+              ctx => ctx.GetThisConstructorCall (Expression.Constant("added"))),
           proxyType =>
           {
             var existingCtor = typeof (DomainType).GetConstructor (new[] { typeof (string), typeof(string) });

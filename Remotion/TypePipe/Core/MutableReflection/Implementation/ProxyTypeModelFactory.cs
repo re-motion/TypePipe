@@ -16,8 +16,11 @@
 // 
 
 using System;
+using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -47,15 +50,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var fullname = string.IsNullOrEmpty (baseType.Namespace) ? name : string.Format ("{0}.{1}", baseType.Namespace, name);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
 
-      return new ProxyType (
-          baseType,
-          name,
-          baseType.Namespace,
-          fullname,
-          attributes,
-          memberSelector,
-          interfaceMappingComputer,
-          mutableMemberFactory);
+      var proxyType = new ProxyType (
+          baseType, name, baseType.Namespace, fullname, attributes, memberSelector, interfaceMappingComputer, mutableMemberFactory);
+
+      CopyConstructors (baseType, proxyType);
+
+      return proxyType;
+    }
+
+    private void CopyConstructors (Type baseType, ProxyType proxyType)
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var accessibleInstanceCtors = baseType.GetConstructors (bindingFlags).Where (SubclassFilterUtility.IsVisibleFromSubclass);
+      foreach (var ctor in accessibleInstanceCtors)
+      {
+        proxyType.AddConstructor (
+            ctor.Attributes,
+            ParameterDeclaration.CreateForEquivalentSignature (ctor),
+            ctx => ctx.GetBaseConstructorCall (ctx.Parameters.Cast<Expression>()));
+      }
     }
   }
 }

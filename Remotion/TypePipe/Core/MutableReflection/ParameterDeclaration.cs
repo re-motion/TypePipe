@@ -47,16 +47,10 @@ namespace Remotion.TypePipe.MutableReflection
       return methodBase.GetParameters().Select (CreateEquivalent).ToList().AsReadOnly();
     }
 
-    public static ParameterDeclaration CreateReturnParameter (Type type)
-    {
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      return new ParameterDeclaration (type);
-    }
-
     private readonly Type _type;
     private readonly string _name;
     private readonly ParameterAttributes _attributes;
+    private readonly ParameterExpression _expression;
 
     public ParameterDeclaration (Type type, string name, ParameterAttributes attributes = ParameterAttributes.None)
     {
@@ -69,12 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
       _type = type;
       _name = name;
       _attributes = attributes;
-    }
-
-    // Constructor used for return parameters.
-    private ParameterDeclaration (Type type)
-    {
-      _type = type;
+      _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
     }
 
     public Type Type
@@ -92,10 +81,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _attributes; }
     }
 
-    // TODO
     public ParameterExpression Expression
     {
-      get { throw new NotImplementedException(); }
+      get { return _expression; }
     }
   }
 }

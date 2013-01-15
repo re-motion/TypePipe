@@ -52,12 +52,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("body", body);
       Assertion.IsTrue (body.Type == typeof (void));
 
-      var parameterDeclarations = parameters.ConvertToCollection();
+      var paras = parameters.ConvertToCollection();
 
       _declaringType = declaringType;
       _attributes = attributes;
-      _parameters = parameterDeclarations.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
-      _parameterExpressions = parameterDeclarations.Select (p => Expression.Parameter (p.Type, p.Name)).ToList().AsReadOnly();
+      _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
       _body = body;
     }
 

@@ -82,9 +82,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var invalidAttributes =
           new[]
           {
-              MethodAttributes.Abstract, MethodAttributes.HideBySig, MethodAttributes.PinvokeImpl,
-              MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
+              MethodAttributes.Abstract, MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject,
+              MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
           };
+      // TODO : removed hidebysig
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
       // TODO 5309: Remove
@@ -153,13 +154,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
-      var returnParameter = ParameterDeclaration.CreateReturnParameter (returnType);
       var parameterExpressions = parameters.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (declaringType, parameterExpressions, isStatic, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var method = new MutableMethodInfo (declaringType, name, attributes, returnParameter, parameters, baseMethod, body);
+      var method = new MutableMethodInfo (declaringType, name, attributes, returnType, parameters, baseMethod, body);
 
       return method;
     }

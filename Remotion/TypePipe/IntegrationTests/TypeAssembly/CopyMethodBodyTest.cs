@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Block (
-                    ctx.GetConstructorCall(),
+                    ctx.GetThisConstructorCall(),
                     ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0])));
           });
 
