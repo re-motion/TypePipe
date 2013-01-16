@@ -90,7 +90,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var method = proxyType.AddedMethods.Single();
       var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (
-          Expression.Call (new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
+          Expression.Call (
+              new ThisExpression (proxyType), new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
           Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithDeserializationConstructorProxy))),
           Expression.Call (
               serializationInfo,

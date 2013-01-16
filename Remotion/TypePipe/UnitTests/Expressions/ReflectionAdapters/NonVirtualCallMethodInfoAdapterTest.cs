@@ -16,29 +16,14 @@
 // 
 
 using System;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.Expressions.ReflectionAdapters
 {
   [TestFixture]
   public class NonVirtualCallMethodInfoAdapterTest
   {
-    public static void CheckEquals (MethodBase expectedWrappedMethodBase, NonVirtualCallMethodInfoAdapter actual)
-    {
-      ArgumentUtility.CheckNotNull ("expectedWrappedMethodBase", expectedWrappedMethodBase);
-      ArgumentUtility.CheckNotNull ("actual", actual);
-
-      Assert.That (
-          expectedWrappedMethodBase == actual
-          || expectedWrappedMethodBase == actual.AdaptedMethod
-          || (actual.AdaptedMethod as ConstructorAsMethodInfoAdapter != null
-              && expectedWrappedMethodBase == ((ConstructorAsMethodInfoAdapter) actual.AdaptedMethod).AdaptedConstructor),
-          Is.True);
-    }
-
     [Test]
     public void Adapt_Method ()
     {

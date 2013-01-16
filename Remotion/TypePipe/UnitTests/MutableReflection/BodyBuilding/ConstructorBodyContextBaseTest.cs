@@ -28,6 +28,7 @@ using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions.ReflectionAdapters;
 using Rhino.Mocks;
 
@@ -68,7 +69,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var result = _context.CallBaseConstructor (arguments.AsOneTime());
 
       var expectedCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (""));
-      CheckNonVirtualCtorCall (expectedCtor, arguments, result);
+      var expected = Expression.Call (new ThisExpression (_declaringType), NonVirtualCallMethodInfoAdapter.Adapt (expectedCtor), arguments);
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
     [Test]
@@ -86,7 +88,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var result = _context.CallThisConstructor (arguments.AsOneTime());
 
       var expectedCtor = _declaringType.AddedConstructors.Single();
-      CheckNonVirtualCtorCall (expectedCtor, arguments, result);
+      var expected = Expression.Call (new ThisExpression (_declaringType), NonVirtualCallMethodInfoAdapter.Adapt (expectedCtor), arguments);
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
     [Test]
@@ -109,14 +112,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (
           () => _staticContext.CallThisConstructor (arguments),
           Throws.InvalidOperationException.With.Message.EqualTo ("Cannot call other constructor from type initializer."));
-    }
-
-    private void CheckNonVirtualCtorCall (ConstructorInfo expectedCtor, Expression[] expectedArguments, MethodCallExpression actual)
-    {
-      Assert.That (actual.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_declaringType));
-      Assert.That (actual.Arguments, Is.EqualTo (expectedArguments));
-      Assert.That (actual.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
-      NonVirtualCallMethodInfoAdapterTest.CheckEquals (expectedCtor, (NonVirtualCallMethodInfoAdapter) actual.Method);
     }
 
     class DomainType
