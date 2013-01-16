@@ -31,10 +31,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public ConstructorBodyModificationContext (
         ProxyType declaringType,
+        bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);
 

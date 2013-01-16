@@ -104,7 +104,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = parameters.Select (p => p.Expression);
-      var context = new ConstructorBodyCreationContext (declaringType, parameterExpressions, _memberSelector);
+      // TODO xxx test isstatic
+      var context = new ConstructorBodyCreationContext (declaringType, false, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
       var constructor = new MutableConstructorInfo (declaringType, attributes, parameters, body);

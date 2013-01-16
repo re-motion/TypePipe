@@ -21,7 +21,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.Text;
-using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.ReflectionEmit;
@@ -37,41 +36,42 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
     protected ConstructorBodyContextBase (
-        ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, false, memberSelector)
+        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
     }
 
-    // TODO xxx TEST
-    public Expression CallBaseConstructor (params Expression[] arguments)
+    public MethodCallExpression CallBaseConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       return CallBaseConstructor ((IEnumerable<Expression>) arguments);
     }
-    
-    public Expression CallBaseConstructor (IEnumerable<Expression> arguments)
+
+    public MethodCallExpression CallBaseConstructor (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic();
 
       var args = arguments.ConvertToCollection ();
       var constructor = GetConstructor (DeclaringType.BaseType, args);
       if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
-        throw new MemberAccessException ("The given constructor is not visible from the proxy type.");
+        throw new MemberAccessException ("The matching constructor is not visible from the proxy type.");
 
       return CallConstructor (constructor, args);
     }
 
-    public Expression CallThisConstructor (params Expression[] arguments)
+    public MethodCallExpression CallThisConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
       return CallThisConstructor (((IEnumerable<Expression>) arguments));
     }
 
-    public Expression CallThisConstructor (IEnumerable<Expression> arguments)
+    public MethodCallExpression CallThisConstructor (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic();
 
       var args = arguments.ConvertToCollection();
       return CallConstructor (GetConstructor (DeclaringType, args), args);
@@ -84,15 +84,22 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (constructor == null)
       {
         var message = String.Format (
-            "Could not find an instance constructor with signature ({0}) on type '{1}'.", SeparatedStringBuilder.Build (", ", argumentTypes), type);
+            "Could not find an instance constructor with signature ({0}) on type '{1}'.", SeparatedStringBuilder.Build (", ", argumentTypes), type.Name);
         throw new MissingMemberException (message);
       }
+
       return constructor;
     }
 
-    private Expression CallConstructor (ConstructorInfo constructor, ICollection<Expression> arguments)
+    private MethodCallExpression CallConstructor (ConstructorInfo constructor, ICollection<Expression> arguments)
     {
       return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (constructor), arguments);
+    }
+
+    private void EnsureNotStatic ()
+    {
+      if (IsStatic)
+        throw new InvalidOperationException ("Cannot call other constructor from type initializer.");
     }
   }
 }

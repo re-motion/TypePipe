@@ -27,8 +27,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   public class ConstructorBodyCreationContext : ConstructorBodyContextBase
   {
     public ConstructorBodyCreationContext (
-        ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-      : base (declaringType, parameterExpressions, memberSelector)
+        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
+      : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
     }
   }

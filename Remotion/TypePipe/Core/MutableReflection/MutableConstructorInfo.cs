@@ -106,7 +106,8 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body, memberSelector);
+      // todo xxx test isstatic
+      var context = new ConstructorBodyModificationContext (_declaringType, IsStatic, ParameterExpressions, _body, memberSelector);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 

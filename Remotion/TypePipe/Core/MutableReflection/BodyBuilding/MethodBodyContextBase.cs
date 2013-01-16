@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         bool isStatic,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
       // Base method may be null
       _baseMethod = baseMethod;

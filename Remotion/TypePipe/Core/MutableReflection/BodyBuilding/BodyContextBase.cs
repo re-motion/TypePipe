@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       CheckNotAbstract (baseMethod);
       // TODO: Check if really base call!
 
-      return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
+      return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (baseMethod), arguments);
     }
 
     public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
