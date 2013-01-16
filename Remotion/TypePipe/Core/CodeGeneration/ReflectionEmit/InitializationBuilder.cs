@@ -29,20 +29,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class InitializationBuilder : IInitializationBuilder
   {
-    public MutableConstructorInfo CreateTypeInitializer (ProxyType proxyType)
-    {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
-
-      if (proxyType.TypeInitializations.Count == 0)
-        return null;
-
-      var attributes = MethodAttributes.Private | MethodAttributes.Static;
-      var body = Expression.Block (typeof (void), proxyType.TypeInitializations);
-      var typeInitializer = new MutableConstructorInfo (proxyType, attributes, ParameterDeclaration.EmptyParameters, body);
-
-      return typeInitializer;
-    }
-
     public Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (ProxyType proxyType)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);

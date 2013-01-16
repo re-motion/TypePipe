@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
         Assert.That (
             adapter1.AdaptedMethod == adapter2.AdaptedMethod
             || (ctorAdapter1 != null && ctorAdapter2 != null && ctorAdapter1.AdaptedConstructor == ctorAdapter2.AdaptedConstructor),
-            Is.True);
+            Is.True, "Adapted MethodInfo is not equal (non-virtual or ctor).");
       }
       else
         Assert.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));

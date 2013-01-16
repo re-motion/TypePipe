@@ -88,9 +88,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      var typeInitializer = _initializationBuilder.CreateTypeInitializer (proxyType);
-      if (typeInitializer != null)
-        _memberEmitter.AddConstructor (_context, typeInitializer);
+      if (proxyType.MutableTypeInitializer != null)
+        _memberEmitter.AddConstructor (_context, proxyType.MutableTypeInitializer);
 
       var initializationMembers = _initializationBuilder.CreateInstanceInitializationMembers (proxyType);
       var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;

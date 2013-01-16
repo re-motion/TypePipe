@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
-      baseType = baseType ?? ReflectionObjectMother.GetSomeSubclassableType();
+      baseType = baseType ?? typeof (UnspecifiedType);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
@@ -63,5 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       PrivateInvoke.InvokeNonPublicMethod (s_factory, "CopyConstructors", baseType, proxyType);
     }
+
+    private class UnspecifiedType { }
   }
 }

@@ -49,33 +49,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void CreateTypeInitializer ()
-    {
-      var expression = ExpressionTreeObjectMother.GetSomeExpression();
-      _proxyType.AddTypeInitialization (ctx => expression);
-
-      var result = _builder.CreateTypeInitializer (_proxyType);
-
-      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
-      Assert.That (result.Name, Is.EqualTo (".cctor"));
-      Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Static));
-      Assert.That (result.GetParameters(), Is.Empty);
-      Assert.That (result.Body, Is.InstanceOf<BlockExpression>());
-
-      var blockExpression = (BlockExpression) result.Body;
-      Assert.That (blockExpression.Type, Is.EqualTo (typeof (void)));
-      Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { expression }));
-    }
-
-    [Test]
-    public void CreateTypeInitializer_Empty ()
-    {
-      var result = _builder.CreateTypeInitializer (_proxyType);
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
     public void CreateInstanceInitializationMembers ()
     {
       var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();

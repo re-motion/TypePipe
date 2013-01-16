@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           typeof (void),
           Expression.Call (
               new ThisExpression (_serializableInterfaceType),
-              new NonVirtualCallMethodInfoAdapter (getObjectDataMethod),
+              NonVirtualCallMethodInfoAdapter.Adapt (getObjectDataMethod),
               method.ParameterExpressions.Cast<Expression>()),
           Expression.Call (
               method.ParameterExpressions[0],
@@ -115,7 +115,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var getValue = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
       var expectedCtorBody = Expression.Block (
           typeof (void),
-          Expression.Call (new NonVirtualCallMethodInfoAdapter (new ConstructorAsMethodInfoAdapter (deserializationCtor))),
+          Expression.Call (
+              new ThisExpression (_serializableInterfaceType),
+              NonVirtualCallMethodInfoAdapter.Adapt (deserializationCtor),
+              deserializationCtor.ParameterExpressions.Cast<Expression>()),
           Expression.Assign (
               Expression.Field (new ThisExpression (_serializableInterfaceType), fakeField),
               Expression.Convert (

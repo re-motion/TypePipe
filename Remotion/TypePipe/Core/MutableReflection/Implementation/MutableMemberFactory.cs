@@ -85,23 +85,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
               MethodAttributes.Abstract, MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject,
               MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
           };
-      // TODO : removed hidebysig
+      // TODO xxx test: removed hidebysig
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
-      // TODO 5309: Remove
-      if (attributes.IsSet (MethodAttributes.Static))
-      {
-        var method = MemberInfoFromExpressionUtility.GetMethod ((ProxyType obj) => obj.AddTypeInitialization (null));
-        var message = string.Format (
-            "Type initializers (static constructors) cannot be added via this API, use {0}.{1} instead.", typeof (ProxyType).Name, method.Name);
-        throw new NotSupportedException (message);
-      }
+      // TODO xxx test: check that parameterDecls are empty when attributes contain static
+      
 
       // TODO: test AsOnTime
       var parameters = parameterDeclarations.ConvertToCollection();
       var signature = new MethodSignature (typeof (void), parameters.Select (p => p.Type), 0);
-      if (declaringType.AddedConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
-        throw new InvalidOperationException ("Constructor with equal signature already exists.");
+      // TODO xxx test: static in signature (or via name)
+      //if (declaringType.AddedConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
+      //  throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = parameters.Select (p => p.Expression);
       // TODO xxx test isstatic

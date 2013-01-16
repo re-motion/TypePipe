@@ -54,9 +54,10 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
-    private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>(); 
+    private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>();
 
     private TypeAttributes _attributes;
+    private MutableConstructorInfo _typeInitializer;
 
     public ProxyType (
         Type baseType,
@@ -76,6 +77,11 @@ namespace Remotion.TypePipe.MutableReflection
       _attributes = attributes;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
+    }
+
+    public MutableConstructorInfo MutableTypeInitializer
+    {
+      get { return _typeInitializer; }
     }
 
     // TODO 5309: Replace with static ctor
@@ -99,6 +105,13 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedFields.AsReadOnly(); }
     }
 
+    // TODO xxx : mutableTypeInitializer
+    /// <summary>
+    /// Gets the added instance constructors. Use <see cref="MutableTypeInitializer"/> to retrieve the static constructor.
+    /// </summary>
+    /// <value>
+    /// The added constructors.
+    /// </value>
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly(); }
@@ -108,8 +121,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       get { return _addedMethods.AsReadOnly(); }
     }
-
-    // TODO 5309: Remove
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
@@ -141,6 +152,14 @@ namespace Remotion.TypePipe.MutableReflection
       return UnderlyingSystemType.Equals (other)
              || other.IsAssignableFrom (BaseType)
              || GetInterfaces ().Any (other.IsAssignableFrom);
+    }
+
+    // TODO xxx test
+    public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
+    {
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+
+      return AddConstructor (MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider);
     }
 
     // TODO 5309: Remove, replace with static ctor
@@ -224,7 +243,11 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameterDeclarations, bodyProvider);
-      _addedConstructors.Add (constructor);
+      // TODO xxx test: is static type initializer
+      if (constructor.IsStatic)
+        _typeInitializer = constructor;
+      else
+        _addedConstructors.Add (constructor);
 
       return constructor;
     }
