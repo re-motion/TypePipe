@@ -399,7 +399,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private MutableMethodInfo[] GetDeclaredMutableMethods (Type type)
     {
-      return GetDeclaredMethods (type).Select (m => MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: m)).ToArray();
+      return null;
     }
 
     // ReSharper disable UnusedMember.Local

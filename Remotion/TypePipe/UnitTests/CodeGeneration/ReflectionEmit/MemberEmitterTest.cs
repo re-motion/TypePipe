@@ -140,13 +140,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMethod ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForNew (
-          ProxyTypeObjectMother.Create (
-              typeof (DomainType),
-              memberSelector: null,
-              relatedMethodFinder: null,
-              interfaceMappingComputer: null,
-              mutableMemberFactory: null),
+      var method = MutableMethodInfoObjectMother.Create (
+          null, //ProxyTypeObjectMother.Create (typeof (DomainType)),
           "Method",
           MethodAttributes.Virtual,
           typeof (string),
@@ -193,13 +188,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMethod_Abstract ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForNew (
-          ProxyTypeObjectMother.Create (
-              typeof (DomainType),
-              memberSelector: null,
-              relatedMethodFinder: null,
-              interfaceMappingComputer: null,
-              mutableMemberFactory: null),
+      var method = MutableMethodInfoObjectMother.Create (
+          //ProxyTypeObjectMother.Create (typeof (DomainType)),
+          null,
           "AbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),

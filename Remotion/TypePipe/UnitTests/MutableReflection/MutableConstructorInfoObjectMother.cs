@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -35,26 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       body = body ?? Expression.Empty();
 
       return new MutableConstructorInfo (declaringType, attributes, parameters, body);
-    }
-
-    // todo remove
-    public static MutableConstructorInfo CreateForExisting (ConstructorInfo underlyingConstructor = null, ProxyType declaringType = null)
-    {
-      return null;
-    }
-
-    public static MutableConstructorInfo CreateForExistingAndModify (ConstructorInfo underlyingConstructor = null, ProxyType declaringType = null)
-    {
-      return null;
-    }
-
-    public static MutableConstructorInfo CreateForNew (
-        ProxyType declaringType = null,
-        MethodAttributes attributes = MethodAttributes.Family,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
-        Expression body = null)
-    {
-      return null;
     }
   }
 }

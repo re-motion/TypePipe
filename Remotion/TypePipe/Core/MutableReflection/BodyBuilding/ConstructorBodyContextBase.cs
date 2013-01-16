@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
     }
 
-    // TODO TEST
+    // TODO xxx TEST
     public Expression CallBaseConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -59,12 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         throw new MemberAccessException ("The given constructor is not visible from the proxy type.");
 
-      // TODO fails because TypeUtils.IsValidInstanceType(method, instanceType)
-      // which uses dest.IsAssignableFrom(src)
-      // dest -> DomainType, src -> Proxy
-      //return CallConstructor (constructor, args);
-
-      return new OriginalBodyExpression (constructor, typeof (void), args);
+      return CallConstructor (constructor, args);
     }
 
     public Expression CallThisConstructor (params Expression[] arguments)
@@ -74,7 +69,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return CallThisConstructor (((IEnumerable<Expression>) arguments));
     }
 
-    // TODO TEST
     public Expression CallThisConstructor (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -96,7 +90,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return constructor;
     }
 
-    // TODO does not work for base ctors ....
     private Expression CallConstructor (ConstructorInfo constructor, ICollection<Expression> arguments)
     {
       return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (constructor), arguments);

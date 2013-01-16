@@ -100,8 +100,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
     public void Body_ThrowsForAbstractMethod ()
     {
-      var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
-      var method = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: abstractMethod);
+      var method = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Abstract);
 
       Dev.Null = method.Body;
     }

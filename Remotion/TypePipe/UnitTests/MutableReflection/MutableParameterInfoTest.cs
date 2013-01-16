@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (parameter.Position, Is.EqualTo (expectedPosition));
       Assert.That (parameter.Name, Is.EqualTo (expectedName));
       Assert.That (parameter.ParameterType, Is.SameAs (expectedType));
-      Assert.That (parameter.Attributes, Is.SameAs (expectedAttributes));
+      Assert.That (parameter.Attributes, Is.EqualTo (expectedAttributes));
     }
 
     private MutableParameterInfo _parameter;

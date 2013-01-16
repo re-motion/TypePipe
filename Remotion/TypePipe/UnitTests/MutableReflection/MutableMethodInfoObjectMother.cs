@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -41,32 +42,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
 
       return new MutableMethodInfo (declaringType, name, attributes, returnType, parameters, baseMethod, body);
-    }
-
-    // tODO remove
-    public static MutableMethodInfo CreateForNew (
-        ProxyType declaringType = null,
-        string name = "UnspecifiedMethod",
-        MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.HideBySig,
-        Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameterDeclarations = null,
-        MethodInfo baseMethod = null,
-        Expression body = null)
-    {
-      return null;
-    }
-
-    // TODO remove
-    public static MutableMethodInfo CreateForExisting (ProxyType declaringType = null, MethodInfo underlyingMethod = null)
-    {
-      return null;
-    }
-
-    public static MutableMethodInfo CreateForExistingAndModify (MethodInfo underlyingMethod = null)
-    {
-      var method = CreateForExisting (underlyingMethod: underlyingMethod ?? ReflectionObjectMother.GetSomeModifiableMethod());
-      MutableMethodInfoTestHelper.ModifyMethod (method);
-      return method;
     }
   }
 }

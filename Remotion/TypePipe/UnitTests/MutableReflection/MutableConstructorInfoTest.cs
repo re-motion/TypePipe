@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
 
@@ -35,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _constructor = MutableConstructorInfoObjectMother.Create();
+      _constructor = MutableConstructorInfoObjectMother.Create (parameters: ParameterDeclarationObjectMother.CreateMultiple (2));
     }
 
     [Test]
@@ -140,16 +139,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = ProxyTypeObjectMother.Create (
-          GetType (),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var declaringType = ProxyTypeObjectMother.Create (name: "Abc");
       var ctor = MutableConstructorInfoObjectMother.Create (declaringType, parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
-      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
-      Assert.That (ctor.ToDebugString (), Is.EqualTo (expected));
+      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"Abc\"";
+      Assert.That (ctor.ToDebugString(), Is.EqualTo (expected));
     }
 
     [Test]

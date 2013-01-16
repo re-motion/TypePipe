@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -63,7 +64,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void This ()
     {
-      Assert.That (_instanceContext.This, Is.TypeOf<ThisExpression>());
       Assert.That (_instanceContext.This.Type, Is.SameAs (_declaringType));
     }
 
@@ -101,12 +101,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'Object' has no base type.")]
     public void CallBase_Name_Params_NoBaseType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (object),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (typeof (object));
       var context = new TestableBodyContextBase (proxyType, false, _memberSelectorMock);
 
       context.CallBase ("DoesNotExist");
@@ -212,37 +207,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void CopyMethodBody_Params ()
+    public void CopyMethodBody ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
-      CopyMethodBodyAndCheckOriginalBodyExpression (_instanceContext, method);
-    }
+      CopyMethodBodyAndCheckResult (_instanceContext, 0 /* instance */);
+      CopyMethodBodyAndCheckResult (_instanceContext, MethodAttributes.Static);
+      CopyMethodBodyAndCheckResult (_staticContext, MethodAttributes.Static);
 
-    [Test]
-    public void CopyMethodBody_FromStaticToInstance ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.StaticMetod (7));
-      CopyMethodBodyAndCheckOriginalBodyExpression (_instanceContext, method);
-    }
-
-    [Test]
-    [ExpectedException(typeof(ArgumentException),
-        ExpectedMessage = "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod")]
-    public void CopyMethodBody_FromInstanceToStatic ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
-      CopyMethodBodyAndCheckOriginalBodyExpression (_staticContext, method);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The specified method is declared by a different type 'UnrelatedType'.\r\nParameter name: otherMethod")]
-    public void CopyMethodBody_Params_DeclaredByUnrelatedType ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.UnrelatedMethod (7));
-      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: method);
-
-      _instanceContext.CopyMethodBody (methodToCopy);
+      Assert.That (
+          () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create()),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod"));
+      Assert.That (
+          () => _instanceContext.CopyMethodBody (MutableMethodInfoObjectMother.Create()),
+          Throws.ArgumentException.With.Message.EqualTo (
+              "The specified method is declared by a different type 'UnrelatedType'.\r\nParameter name: otherMethod"));
     }
 
     [Test]
@@ -265,17 +243,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (method));
     }
 
-    private void CopyMethodBodyAndCheckOriginalBodyExpression (BodyContextBase context, MethodInfo method)
+    private void CopyMethodBodyAndCheckResult (BodyContextBase context, MethodAttributes methodAttributes)
     {
-      var methodToCopy = MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: method);
-      var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      var parameter = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var body = Expression.Block (parameter[0].Expression, parameter[1].Expression);
+      var methodToCopy = MutableMethodInfoObjectMother.Create (attributes: methodAttributes, parameters: parameter, body: body);
+      var arguments = parameter.Select (p => ExpressionTreeObjectMother.GetSomeExpression (p.Type)).ToArray();
 
-      var result = context.CopyMethodBody (methodToCopy, argument);
+      var result = context.CopyMethodBody (methodToCopy, arguments.AsOneTime());
 
-      Assert.That (result, Is.TypeOf<OriginalBodyExpression> ());
-      var originalBodyExpression = (OriginalBodyExpression) result;
-      Assert.That (originalBodyExpression.MethodBase, Is.SameAs (method));
-      Assert.That (originalBodyExpression.Arguments, Is.EqualTo (new[] { argument }));
+      var expectedBody = Expression.Block (arguments[0], arguments[1]);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
     }
 
 // ReSharper disable UnusedMember.Local
