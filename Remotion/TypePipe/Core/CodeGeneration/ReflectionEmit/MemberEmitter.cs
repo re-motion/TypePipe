@@ -93,8 +93,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
       DefineCustomAttributes (methodBuilder, method);
-      DefineParameters (methodBuilder, method);
       DefineParameter (methodBuilder, method.MutableReturnParameter);
+      DefineParameters (methodBuilder, method);
 
       if (!method.IsAbstract)
       {
