@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateField_ThrowsIfAlreadyExist ()
     {
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.IntField);
+      var field = _proxyType.AddField ("Field", typeof (int));
 
       Assert.That (
           () => _mutableMemberFactory.CreateField (_proxyType, "OtherName", field.FieldType, 0),
@@ -160,9 +160,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateConstructor_ThrowsForInvalidMethodAttributes ()
     {
       const string message = "The following MethodAttributes are not supported for constructors: " +
-                             "Abstract, HideBySig, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
+                             "Abstract, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
       Assert.That (() => AddConstructor (_proxyType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddConstructor (_proxyType, MethodAttributes.HideBySig), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => AddConstructor (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => AddConstructor (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => AddConstructor (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
@@ -170,11 +169,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "Type initializers (static constructors) cannot be added via this API, use ProxyType.AddTypeInitialization instead.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameters")]
     public void CreateConstructor_ThrowsIfStaticAndNonEmptyParameters ()
     {
-      _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, ctx => null);
+      _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null);
     }
 
     [Test]
@@ -219,7 +218,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _proxyType, name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_proxyType));
-      //Assert.That (method.UnderlyingSystemMethodInfo, Is.SameAs (method));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
       Assert.That (method.ReturnType, Is.EqualTo (returnType));
@@ -229,7 +227,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (returnParameter.Position, Is.EqualTo (-1));
       Assert.That (returnParameter.Name, Is.Null);
       Assert.That (returnParameter.ParameterType, Is.SameAs (returnType));
-      Assert.That (returnParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
+      Assert.That (returnParameter.Attributes, Is.EqualTo (ParameterAttributes.Retval));
 
       Assert.That (method.BaseMethod, Is.Null);
       Assert.That (method.IsGenericMethod, Is.False);
@@ -390,8 +388,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateMethod_ThrowsIfAlreadyExists ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod());
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
+      var method = _proxyType.AddMethod ("Method", 0, typeof (void), ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider);
 
       Assert.That (
           () => _mutableMemberFactory.CreateMethod (
@@ -405,7 +403,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (
           () => _mutableMemberFactory.CreateMethod (
-              _proxyType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
+              _proxyType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (3), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
@@ -765,7 +763,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
     {
-      return (IEnumerable<MethodInfo>) PrivateInvoke.GetNonPublicField (proxyType, "_methods");
+      return (IEnumerable<MethodInfo>) PrivateInvoke.InvokeNonPublicMethod (proxyType, "GetAllMethods");
     }
 
     public class A
@@ -799,8 +797,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     public class DomainType : DomainTypeBase, IDomainInterface
     {
-      public int IntField;
-
       public void InterfaceMethod () { }
       public void InvalidCandidate () { } // Not virtual.
     }

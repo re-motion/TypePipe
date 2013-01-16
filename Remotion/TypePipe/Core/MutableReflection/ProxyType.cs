@@ -235,14 +235,12 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public MutableConstructorInfo AddConstructor (
-        MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
-        Func<ConstructorBodyCreationContext, Expression> bodyProvider)
+        MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameterDeclarations, bodyProvider);
+      var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameters, bodyProvider);
       // TODO xxx test: is static type initializer
       if (constructor.IsStatic)
         _typeInitializer = constructor;
@@ -256,15 +254,15 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
-      // bodyProvider is null for abstract methods
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      // bodyProvider is null for abstract methods.
 
-      var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameters, bodyProvider);
       _addedMethods.Add (method);
 
       return method;

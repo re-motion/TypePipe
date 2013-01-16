@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     MutableConstructorInfo CreateConstructor (
         ProxyType declaringType,
         MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateMethod (

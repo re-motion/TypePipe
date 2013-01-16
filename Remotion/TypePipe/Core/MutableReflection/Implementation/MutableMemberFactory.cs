@@ -72,11 +72,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public MutableConstructorInfo CreateConstructor (
         ProxyType declaringType,
         MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var invalidAttributes =
@@ -85,25 +85,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
               MethodAttributes.Abstract, MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject,
               MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
           };
-      // TODO xxx test: removed hidebysig
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
-      // TODO xxx test: check that parameterDecls are empty when attributes contain static
-      
+      var paras = parameters.ConvertToCollection();
+      if (attributes.IsSet (MethodAttributes.Static) && paras.Count != 0)
+        throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameters");
 
       // TODO: test AsOnTime
-      var parameters = parameterDeclarations.ConvertToCollection();
-      var signature = new MethodSignature (typeof (void), parameters.Select (p => p.Type), 0);
+      
+      var signature = new MethodSignature (typeof (void), paras.Select (p => p.Type), 0);
       // TODO xxx test: static in signature (or via name)
       //if (declaringType.AddedConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
       //  throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
-      var parameterExpressions = parameters.Select (p => p.Expression);
+      var parameterExpressions = paras.Select (p => p.Expression);
       // TODO xxx test isstatic
       var context = new ConstructorBodyCreationContext (declaringType, false, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
-      var constructor = new MutableConstructorInfo (declaringType, attributes, parameters, body);
+      var constructor = new MutableConstructorInfo (declaringType, attributes, paras, body);
 
       return constructor;
     }
