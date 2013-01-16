@@ -62,10 +62,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     [Test]
     public void GetRealObject ()
     {
-      var underlyingType = ReflectionObjectMother.GetSomeType();
+      var baseType = ReflectionObjectMother.GetSomeType();
       var context = new StreamingContext ((StreamingContextStates) 8);
 
-      _info.AddValue ("<tp>underlyingType", underlyingType.AssemblyQualifiedName);
+      _info.AddValue ("<tp>baseType", baseType.AssemblyQualifiedName);
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
       var fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory>();
@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _createRealObjectAssertions = (factory, type, ctx) =>
       {
         Assert.That (factory, Is.SameAs (fakeObjectFactory));
-        Assert.That (type, Is.SameAs (underlyingType));
+        Assert.That (type, Is.SameAs (baseType));
         Assert.That (ctx, Is.EqualTo (context).And.Not.EqualTo (_context));
 
         return fakeInstance;
@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
         ExpectedMessage = "Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, ")]
     public void GetRealObject_UnderlyingTypeNotFound ()
     {
-      _info.AddValue ("<tp>underlyingType", "UnknownType");
+      _info.AddValue ("<tp>baseType", "UnknownType");
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
       _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
