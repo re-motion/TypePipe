@@ -359,9 +359,9 @@ namespace Remotion.TypePipe.MutableReflection
     public InterfaceMapping GetInterfaceMap (Type interfaceType, bool allowPartialInterfaceMapping)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      Assertion.IsNotNull (BaseType);
 
-      // TODO 5309: If _methods is changed to _addedMethods, change this accordingly
-      // BaseType.GetInterfaceMap ??
+      // TODO xxx: test
       return _interfaceMappingComputer.ComputeMapping (this, BaseType.GetInterfaceMap, interfaceType, allowPartialInterfaceMapping);
     }
 

@@ -75,10 +75,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void Initialization_Null ()
     {
       var customType = new TestableCustomType (
-          _memberSelectorMock, declaringType: null, baseType: null, name: _name, @namespace: _namespace, fullName: _fullName);
+          _memberSelectorMock, declaringType: null, baseType: _baseType, name: _name, @namespace: _namespace, fullName: _fullName);
 
       Assert.That (customType.DeclaringType, Is.Null);
-      Assert.That (customType.BaseType, Is.Null);
     }
 
     [Test]

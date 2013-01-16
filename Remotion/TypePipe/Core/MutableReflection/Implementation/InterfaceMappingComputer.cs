@@ -75,14 +75,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     private InterfaceMapping CreateForAdded (
-        ProxyType proxyType,
-        Type interfaceType,
-        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations,
-        bool allowPartialInterfaceMapping)
+        ProxyType proxyType, Type interfaceType, Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations, bool allowPartialInterfaceMapping)
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
-      var candidates = proxyType
-          .GetMethods (BindingFlags.Public | BindingFlags.Instance)
+      var methodInfos = proxyType.GetMethods (BindingFlags.Public | BindingFlags.Instance).Where (m => m.IsVirtual).ToArray();
+      var candidates = methodInfos
           .Where (m => m.IsVirtual)
           .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods().ToArray();
@@ -110,6 +107,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MethodInfo mostDerived = null;
       foreach (var method in candidates)
       {
+        // TODO 5309
+        // todo xxx: HACK! find better option
+        if (method is MutableMethodInfo)
+          return method;
+
         if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
           mostDerived = method;
       }
@@ -135,8 +137,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         if (explicitImplementations.TryGetValue (interfaceMethod, out explicitImplementation))
           mapping.TargetMethods[i] = explicitImplementation;
         else
-          // TODO Adapt tests.
-          //mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (targetMethod) ?? targetMethod;
           mapping.TargetMethods[i] = targetMethod;
       }
 
