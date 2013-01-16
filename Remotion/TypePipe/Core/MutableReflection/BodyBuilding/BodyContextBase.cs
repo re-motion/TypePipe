@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -79,25 +80,19 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
+      Assertion.IsNotNull (_declaringType.BaseType);
       EnsureNotStatic ();
 
-      var baseType = _declaringType.BaseType;
-      if (baseType == null)
-      {
-        var message = string.Format ("Type '{0}' has no base type.", _declaringType);
-        throw new InvalidOperationException (message);
-      }
-
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseTypeMethods = baseType.GetMethods (bindingFlags);
+      var baseTypeMethods = _declaringType.BaseType.GetMethods (bindingFlags);
       var argumentsCollection = arguments.ConvertToCollection();
       var argumentTypes = argumentsCollection.Select (a => a.Type).ToArray();
       var baseMethodInfo = _memberSelector.SelectSingleMethod (
-          baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, null);
+          baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, modifiersOrNull: null);
 
       if (baseMethodInfo == null)
       {
-        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", baseMethod, baseType);
+        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", baseMethod, _declaringType.BaseType);
         throw new ArgumentException (message, "baseMethod");
       }
 
@@ -165,8 +160,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     private void CheckVisibility (MethodInfo baseMethod)
     {
-      if (!baseMethod.IsPublic && !baseMethod.IsFamilyOrAssembly && !baseMethod.IsFamily)
-        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", "baseMethod");
+      if (!SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
+      {
+        var message = string.Format (
+            "Matching base method '{0}.{1}' is not accessible from proxy type.", baseMethod.DeclaringType.Name, baseMethod.Name);
+        throw new MemberAccessException (message);
+      }
     }
 
     private void CheckNotAbstract (MethodInfo baseMethod)

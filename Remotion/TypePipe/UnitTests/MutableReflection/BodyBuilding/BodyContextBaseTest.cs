@@ -17,8 +17,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.Expressions;
@@ -35,36 +37,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class BodyContextBaseTest
   {
-    private ProxyType _declaringType;
+    private ProxyType _proxyType;
     private IMemberSelector _memberSelectorMock;
 
     private BodyContextBase _staticContext;
-    private BodyContextBase _instanceContext;
+    private BodyContextBase _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _staticContext = new TestableBodyContextBase (_declaringType, true, _memberSelectorMock);
-      _instanceContext = new TestableBodyContextBase (_declaringType, false, _memberSelectorMock);
+      _staticContext = new TestableBodyContextBase (_proxyType, true, _memberSelectorMock);
+      _context = new TestableBodyContextBase (_proxyType, false, _memberSelectorMock);
     }
 
     [Test]
     public void Initialization ()
     {
       var isStatic = BooleanObjectMother.GetRandomBoolean();
-      var context = new TestableBodyContextBase (_declaringType, isStatic, _memberSelectorMock);
+      var context = new TestableBodyContextBase (_proxyType, isStatic, _memberSelectorMock);
 
-      Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (context.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (context.IsStatic, Is.EqualTo (isStatic));
     }
 
     [Test]
     public void This ()
     {
-      Assert.That (_instanceContext.This.Type, Is.SameAs (_declaringType));
+      Assert.That (_context.This.Type, Is.SameAs (_proxyType));
     }
 
     [Test]
@@ -77,50 +79,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void CallBase_Name_Params ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
+      var baseMethods = typeof (DomainType).GetMethods (bindingFlags);
       var arguments = new ArgumentTestHelper (7);
-      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FakeBaseMethod (1));
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
       _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _declaringType, arguments.Types, null))
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _proxyType, arguments.Types, null))
           .Return (fakeBaseMethod);
 
-      var result = _instanceContext.CallBase ("Method", arguments.Expressions.AsOneTime());
+      var result = _context.CallBase ("Method", arguments.Expressions.AsOneTime());
 
-      Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
-      var thisExpression = (ThisExpression) result.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_declaringType));
-
-      Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
-      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (fakeBaseMethod));
-
-      Assert.That (result.Arguments, Is.EqualTo (arguments.Expressions));
-    }
-
-    [Test]
-    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Type 'Object' has no base type.")]
-    public void CallBase_Name_Params_NoBaseType ()
-    {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (object));
-      var context = new TestableBodyContextBase (proxyType, false, _memberSelectorMock);
-
-      context.CallBase ("DoesNotExist");
+      var expected = Expression.Call (new ThisExpression (_proxyType), NonVirtualCallMethodInfoAdapter.Adapt (fakeBaseMethod), arguments.Expressions);
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Instance method 'Foo' could not be found on base type "
-        + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+DomainTypeBase'.\r\nParameter name: baseMethod")]    
+        + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+DomainType'.\r\nParameter name: baseMethod")]    
     public void CallBase_Name_Params_NoMatchingMethod ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseMethods = typeof (DomainTypeBase).GetMethods (bindingFlags);
+      var baseMethods = typeof (DomainType).GetMethods (bindingFlags);
       var arguments = new ArgumentTestHelper (7);
       _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _declaringType, arguments.Types, null))
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _proxyType, arguments.Types, null))
           .Return (null);
 
-      _instanceContext.CallBase ("Foo", arguments.Expressions);
+      _context.CallBase ("Foo", arguments.Expressions);
     }
 
     [Test]
@@ -131,8 +116,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: baseMethod")]
+    [ExpectedException (typeof (MemberAccessException), ExpectedMessage =
+        "Matching base method 'DomainType.InternalMethod' is not accessible from proxy type.")]
     public void CallBase_Name_Params_DisallowedVisibility ()
     {
       var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
@@ -140,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
           .Expect (mock => mock.SelectSingleMethod<MethodInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
           .Return (internalMethod);
 
-      _instanceContext.CallBase ("InternalMethod");
+      _context.CallBase ("InternalMethod");
     }
 
     [Test]
@@ -149,11 +134,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
       var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
 
-      var result = _instanceContext.CallBase (method, arguments.AsOneTime());
+      var result = _context.CallBase (method, arguments.AsOneTime());
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
       var thisExpression = (ThisExpression) result.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_declaringType));
+      Assert.That (thisExpression.Type, Is.SameAs (_proxyType));
 
       CheckBaseCallMethodInfo (method, result);
 
@@ -173,7 +158,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void CallBase_MethodInfo_Params_StaticMethodInfo ()
     {
       var method = ReflectionObjectMother.GetSomeStaticMethod();
-      _instanceContext.CallBase (method);
+      _context.CallBase (method);
     }
 
     [Test]
@@ -182,56 +167,56 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var protectedMethod = typeof (DomainType).GetMethod ("ProtectedMethod", BindingFlags.NonPublic | BindingFlags.Instance);
       var protectedInternalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod ());
 
-      var result1 = _instanceContext.CallBase (protectedMethod);
-      var result2 = _instanceContext.CallBase (protectedInternalMethod);
+      var result1 = _context.CallBase (protectedMethod);
+      var result2 = _context.CallBase (protectedInternalMethod);
 
       CheckBaseCallMethodInfo(protectedMethod, result1);
       CheckBaseCallMethodInfo(protectedInternalMethod, result2);
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Can only call public, protected, or protected internal methods.\r\nParameter name: baseMethod")]
+    [ExpectedException (typeof (MemberAccessException), ExpectedMessage =
+        "Matching base method 'DomainType.InternalMethod' is not accessible from proxy type.")]
     public void CallBase_MethodInfo_Params_DisallowedVisibility ()
     {
-      var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
-      _instanceContext.CallBase (internalMethod);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
+      _context.CallBase (method);
     }
     
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call on abstract method.\r\nParameter name: baseMethod")]
     public void CallBase_MethodInfo_Abstract_Throws ()
     {
-      var abstractMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractType obj) => obj.Method());
-      _instanceContext.CallBase (abstractMethod);
+      var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
+      _context.CallBase (abstractMethod);
     }
 
     [Test]
     public void CopyMethodBody ()
     {
-      CopyMethodBodyAndCheckResult (_instanceContext, 0 /* instance */);
-      CopyMethodBodyAndCheckResult (_instanceContext, MethodAttributes.Static);
+      CopyMethodBodyAndCheckResult (_context, 0 /* instance */);
+      CopyMethodBodyAndCheckResult (_context, MethodAttributes.Static);
       CopyMethodBodyAndCheckResult (_staticContext, MethodAttributes.Static);
 
       Assert.That (
-          () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create()),
+          () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create (_proxyType)),
           Throws.ArgumentException.With.Message.EqualTo (
               "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod"));
       Assert.That (
-          () => _instanceContext.CopyMethodBody (MutableMethodInfoObjectMother.Create()),
+          () => _context.CopyMethodBody (MutableMethodInfoObjectMother.Create (ProxyTypeObjectMother.Create (name: "Abc"))),
           Throws.ArgumentException.With.Message.EqualTo (
-              "The specified method is declared by a different type 'UnrelatedType'.\r\nParameter name: otherMethod"));
+              "The specified method is declared by a different type 'Abc'.\r\nParameter name: otherMethod"));
     }
 
     [Test]
     public void CopyMethodBody_Enumerable ()
     {
       var methodToCopy = MutableMethodInfoObjectMother.Create (
-          declaringType: _declaringType, returnType: typeof (int), parameters: new[] { new ParameterDeclaration (typeof (int), "i") });
+          declaringType: _proxyType, returnType: typeof (int), parameters: new[] { new ParameterDeclaration (typeof (int), "i") });
       methodToCopy.SetBody (ctx => ctx.Parameters[0]);
       var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
 
-      var result = _instanceContext.CopyMethodBody (methodToCopy, new[] { argument }.AsOneTime());
+      var result = _context.CopyMethodBody (methodToCopy, new[] { argument }.AsOneTime());
 
       Assert.That (result, Is.SameAs (argument));
     }
@@ -246,42 +231,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private void CopyMethodBodyAndCheckResult (BodyContextBase context, MethodAttributes methodAttributes)
     {
       var parameter = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var body = Expression.Block (parameter[0].Expression, parameter[1].Expression);
-      var methodToCopy = MutableMethodInfoObjectMother.Create (attributes: methodAttributes, parameters: parameter, body: body);
+      var constantBodyPart = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
+      var body = Expression.Block (parameter[0].Expression, parameter[1].Expression, constantBodyPart);
+      var methodToCopy = MutableMethodInfoObjectMother.Create (
+          declaringType: _proxyType, attributes: methodAttributes, returnType: typeof (int), parameters: parameter, body: body);
       var arguments = parameter.Select (p => ExpressionTreeObjectMother.GetSomeExpression (p.Type)).ToArray();
 
       var result = context.CopyMethodBody (methodToCopy, arguments.AsOneTime());
 
-      var expectedBody = Expression.Block (arguments[0], arguments[1]);
+      var expectedBody = Expression.Block (arguments[0], arguments[1], constantBodyPart);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
     }
 
-// ReSharper disable UnusedMember.Local
-// ReSharper disable UnusedParameter.Local
-    private class DomainTypeBase { }
-
-    private class DomainType : DomainTypeBase
+    private class DomainType
     {
-      public void Method (int i) { }
-      public void StaticMetod (int i) { }
+      public void Method (int i) { Dev.Null = i; }
 
-      public void FakeBaseMethod (int i) { }
-
-      protected void ProtectedMethod () { }
+      [UsedImplicitly] protected void ProtectedMethod () { }
       protected internal void ProtectedInternalMethod () { }
       internal void InternalMethod () { }
     }
-
-    private abstract class AbstractType
-    {
-      public abstract void Method ();
-    }
-
-    private class UnrelatedType
-    {
-      public void UnrelatedMethod (int i) { }
-    }
-// ReSharper restore UnusedParameter.Local
-// ReSharper restore UnusedMember.Local
   }
 }
