@@ -51,17 +51,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateBuilder ()
     {
-      var underlyingType = typeof (SubclassableType);
-      var proxyType = ProxyTypeObjectMother.Create (
-          underlyingType,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var baseType = ReflectionObjectMother.GetSomeType();
+      var proxyType = ProxyTypeObjectMother.Create (baseType, fullName: "My.AbcProxy", attributes: (TypeAttributes) 7);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType)).Return (typeBuilderMock);
+      _codeGeneratorMock.Expect (mock => mock.DefineType ("My.AbcProxy", (TypeAttributes) 7, baseType)).Return (typeBuilderMock);
       var fakeEmittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
       var fakeDebugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
       _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (fakeEmittableOperandProvider);
@@ -98,60 +92,5 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var methodTrampolineProvider = (MethodTrampolineProvider) context.MethodTrampolineProvider;
       Assert.That (methodTrampolineProvider.MemberEmitter, Is.SameAs (memberEmitter));
     }
-
-    [Test]
-    public void CreateBuilder_AbstractType ()
-    {
-      var underlyingType = typeof (AbstractType);
-      var proxyType = ProxyTypeObjectMother.Create (
-          underlyingType,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      Assert.That (proxyType.IsAbstract, Is.True);
-
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract;
-      _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType));
-      _codeGeneratorMock.Stub (stub => stub.EmittableOperandProvider).Return (MockRepository.GenerateStub<IEmittableOperandProvider>());
-      _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
-
-      _factory.CreateBuilder (proxyType);
-
-      _codeGeneratorMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void CreateBuilder_SerializableType ()
-    {
-      var underlyingType = typeof (SerializableType);
-      var proxyType = ProxyTypeObjectMother.Create (
-          underlyingType,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      Assert.That (proxyType.IsSerializable, Is.True);
-
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Serializable;
-      _codeGeneratorMock.Expect (mock => mock.DefineType (underlyingType.FullName, attributes, underlyingType));
-      _codeGeneratorMock.Stub (stub => stub.EmittableOperandProvider).Return (MockRepository.GenerateStub<IEmittableOperandProvider>());
-      _codeGeneratorMock.Stub (stub => stub.DebugInfoGenerator).Return (MockRepository.GenerateStub<DebugInfoGenerator>());
-
-      _factory.CreateBuilder (proxyType);
-
-      _codeGeneratorMock.VerifyAllExpectations();
-    }
-
-    class SubclassableType { }
-
-    abstract class AbstractType
-    {
-      // Abstract method is needed, otherwise the mutable type is concrete right away.
-      public abstract void Method ();
-    }
-
-    [Serializable]
-    class SerializableType { }
   }
 }

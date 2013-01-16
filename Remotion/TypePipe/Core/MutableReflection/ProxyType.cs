@@ -62,12 +62,12 @@ namespace Remotion.TypePipe.MutableReflection
         Type baseType,
         string name,
         string @namespace,
-        string fullname,
+        string fullName,
         TypeAttributes attributes,
         IMemberSelector memberSelector,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, null, baseType, name, @namespace, fullname)
+        : base (memberSelector, null, baseType, name, @namespace, fullName)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);

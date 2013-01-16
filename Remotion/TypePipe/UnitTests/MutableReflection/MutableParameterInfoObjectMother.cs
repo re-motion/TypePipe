@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -29,20 +30,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       type = type ?? ReflectionObjectMother.GetSomeType();
 
       return new MutableParameterInfo (member, position, name, type, attributes);
-    }
-
-    public static MutableParameterInfo CreateForNew (
-        MemberInfo member = null,
-        Type parameterType = null,
-        string name = "param7",
-        ParameterAttributes attributes = ParameterAttributes.In)
-    {
-      return null;
-    }
-
-    public static MutableParameterInfo CreateForExisting (MemberInfo member = null, ParameterInfo underlyingParameter = null)
-    {
-      return null;
     }
   }
 }

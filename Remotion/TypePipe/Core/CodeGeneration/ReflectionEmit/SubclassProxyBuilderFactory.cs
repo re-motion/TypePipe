@@ -45,14 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ISubclassProxyBuilder CreateBuilder (ProxyType proxyType)
     {
-      // TODO: just use attributes of type
-      var typeAttributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
-      if (proxyType.IsAbstract)
-        typeAttributes |= TypeAttributes.Abstract;
-      if (proxyType.IsSerializable)
-        typeAttributes |= TypeAttributes.Serializable;
-
-      var typeBuilder = _codeGenerator.DefineType (proxyType.FullName, typeAttributes, proxyType.UnderlyingSystemType);
+      var typeBuilder = _codeGenerator.DefineType (proxyType.FullName, proxyType.Attributes, proxyType.BaseType);
 
       var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
       typeBuilder.RegisterWith (emittableOperandProvider, proxyType);
