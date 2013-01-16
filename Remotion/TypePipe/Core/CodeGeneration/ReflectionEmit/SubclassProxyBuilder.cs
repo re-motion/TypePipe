@@ -14,13 +14,13 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.Collections;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -119,14 +119,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
       _memberEmitter.AddConstructor (_context, constructor);
-    }
-
-    // TODO this must be done at proxyType creation
-    private void AddConstructorIfVisibleFromSubclass (MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
-    {
-      // Ctors must be explicitly copied, because subclasses do not inherit the ctors from their base class.
-      if (SubclassFilterUtility.IsVisibleFromSubclass (constructor))
-        WireAndAddConstructor (constructor, initializationMembers);
     }
   }
 }

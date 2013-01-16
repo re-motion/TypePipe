@@ -109,19 +109,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxyType.AddTypeInitialization (ctx => typeInitialization);
       _proxyType.AddInstanceInitialization (ctx => instanceInitialization);
 
-      var customAttributeDeclaration = CustomAttributeDeclarationObjectMother.Create();
-      _proxyType.AddCustomAttribute (customAttributeDeclaration);
+      var customAttribute = CustomAttributeDeclarationObjectMother.Create();
+      _proxyType.AddCustomAttribute (customAttribute);
 
-      var addedInterface = typeof (IDisposable);
-      _proxyType.AddInterface (addedInterface);
+      var @interface = typeof (IDisposable);
+      _proxyType.AddInterface (@interface);
 
-      var addedMembers = GetAddedMembers (_proxyType);
-      var modifiedMembers = GetModifiedMembers (_proxyType);
-      var unmodifiedMembers = GetUnmodifiedMembers (_proxyType);
-
-      //var internalConstructor =
-      //    _proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (true)));
-      //Assert.That (internalConstructor.IsAssembly, Is.True);
+      var field = _proxyType.AddField ("_field", typeof (int));
+      var constructor = _proxyType.AddedConstructors.Single();
+      var method = _proxyType.AddMethod (
+          "Method", (MethodAttributes) 7, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
 
       var buildActionCalled = false;
       _builder.MemberEmitterContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
@@ -138,33 +135,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
         _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_proxyType, _fakeInitializationMethod));
 
-        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttributeDeclaration));
+        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
 
-        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (addedInterface));
+        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
 
-        _memberEmitterMock.Expect (mock => mock.AddField (_context, addedMembers.Item1));
+        _memberEmitterMock.Expect (mock => mock.AddField (_context, field));
         _initializationBuilderMock.Expect (
-            mock => mock.WireConstructorWithInitialization (addedMembers.Item2, _fakeInitializationMembers, _proxySerializationEnablerMock));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, addedMembers.Item2));
-        _memberEmitterMock.Expect (mock => mock.AddMethod (_context, addedMembers.Item3, addedMembers.Item3.Attributes));
-
-        _initializationBuilderMock.Expect (
-            mock => mock.WireConstructorWithInitialization (modifiedMembers.Item2, _fakeInitializationMembers, _proxySerializationEnablerMock));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, modifiedMembers.Item2));
-        var expectedAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig;
-        _memberEmitterMock.Expect (mock => mock.AddMethod (_context, modifiedMembers.Item3, expectedAttributes));
-
-        //_emittableOperandProviderMock.Expect (mock => mock.AddMapping (unmodifiedMembers.Item1, unmodifiedMembers.Item1.UnderlyingSystemFieldInfo));
-        _initializationBuilderMock.Expect (
-            mock => mock.WireConstructorWithInitialization (unmodifiedMembers.Item2, _fakeInitializationMembers, _proxySerializationEnablerMock));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, unmodifiedMembers.Item2));
-        //_emittableOperandProviderMock.Expect (mock => mock.AddMapping (unmodifiedMembers.Item3, unmodifiedMembers.Item3.UnderlyingSystemMethodInfo))
-        //                             .WhenCalled (x => Assert.That (buildActionCalled, Is.False));
+            mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
+        _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor));
+        _memberEmitterMock.Expect (mock => mock.AddMethod (_context, method, method.Attributes));
 
         // PostDeclarationsActionManager.ExecuteAllActions() cannot setup expectations.
 
         _typeBuilderMock
-            .Expect (mock => mock.CreateType ())
+            .Expect (mock => mock.CreateType())
             .Return (fakeType)
             .WhenCalled (mi => Assert.That (buildActionCalled, Is.True));
       }
@@ -174,19 +158,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _mockRepository.VerifyAll();
       Assert.That (result, Is.SameAs (fakeType));
-
-      //_memberEmitterMock.AssertWasNotCalled (mock => mock.AddConstructor (_context, internalConstructor));
     }
 
     [Test]
     public void Build_EmptyTypeInitializations ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (EmptyType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (typeof (EmptyType));
       var defaultCtor = proxyType.AddedConstructors.Single();
       var builder = CreateSubclassProxyBuilder (proxyType);
 
@@ -218,40 +195,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           _methodTrampolineProviderMock);
     }
 
-    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetAddedMembers (ProxyType proxyType)
-    {
-      var field = proxyType.AddField ("_field", typeof (int));
-      var constructor = proxyType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
-      var method = proxyType.AddMethod (
-          "Method", MethodAttributes.Family, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
+    class DomainType { }
 
-      return Tuple.Create (field, constructor, method);
-    }
-
-    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetModifiedMembers (ProxyType proxyType)
-    {
-      return null;
-    }
-
-    private Tuple<MutableFieldInfo, MutableConstructorInfo, MutableMethodInfo> GetUnmodifiedMembers (ProxyType proxyType)
-    {
-      return null;
-    }
-
-    // ReSharper disable UnusedParameter.Local
-    public class DomainType
-    {
-      internal DomainType (bool notVisibleFormSubclass) { }
-
-      public string UnmodifiedField;
-
-      public DomainType (int modified) { }
-      public DomainType (string unmodified) { }
-
-      public virtual void ModifiedMethod () { }
-      public void UnmodifiedMethod () { }
-    }
-
-    public class EmptyType { }
+    class EmptyType { }
   }
 }
