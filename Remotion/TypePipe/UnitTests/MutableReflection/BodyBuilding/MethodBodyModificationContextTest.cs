@@ -53,8 +53,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new MethodBodyModificationContext (_declaringType, _parameters.AsOneTime(), _previousBody, _isStatic, _baseMethod, _memberSelector);
-      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _parameters, null, _isStatic, _baseMethod, _memberSelector);
+      _context = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters.AsOneTime(), _previousBody, _baseMethod, _memberSelector);
+      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters, null, _baseMethod, _memberSelector);
     }
 
     [Test]

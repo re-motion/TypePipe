@@ -29,11 +29,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   {
     public MethodBodyCreationContext (
         ProxyType declaringType,
-        IEnumerable<ParameterExpression> parameterExpressions,
         bool isStatic,
+        IEnumerable<ParameterExpression> parameterExpressions,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, baseMethod, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, baseMethod, memberSelector)
     {
     }
   }

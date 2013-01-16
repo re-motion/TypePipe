@@ -33,12 +33,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public MethodBodyModificationContext (
         ProxyType declaringType,
+        bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
-        bool isStatic,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, baseMethod, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, baseMethod, memberSelector)
     {
       // previousBody is null for abstract methods.
       _previousBody = previousBody;
