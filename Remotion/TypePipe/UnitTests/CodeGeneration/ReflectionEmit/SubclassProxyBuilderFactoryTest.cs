@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateBuilder ()
     {
-      var baseType = ReflectionObjectMother.GetSomeType();
+      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var proxyType = ProxyTypeObjectMother.Create (baseType, fullName: "My.AbcProxy", attributes: (TypeAttributes) 7);
 
       var typeBuilderMock = MockRepository.GenerateMock<ITypeBuilder>();

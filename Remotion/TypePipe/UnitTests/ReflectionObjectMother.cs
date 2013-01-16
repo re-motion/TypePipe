@@ -177,6 +177,13 @@ namespace Remotion.TypePipe.UnitTests
       return method;
     }
 
+    public static MethodInfo GetSomeBaseDefinition ()
+    {
+      var method = GetRandomElement (s_instanceMethod).GetBaseDefinition();
+      Assertion.IsTrue (method == method.GetBaseDefinition());
+      return method;
+    }
+
     public static MethodInfo GetSomeFinalMethod ()
     {
       var method = GetRandomElement (s_finalMethods);
