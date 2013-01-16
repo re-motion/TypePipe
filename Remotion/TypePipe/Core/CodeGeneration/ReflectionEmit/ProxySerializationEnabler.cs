@@ -53,14 +53,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       // initializationMethod may be null
 
-      // Existing fields are always serialized by the standard .NET serialization or by an implementation of ISerializable on the underlying type.
+      // Existing fields are always serialized by the standard .NET serialization or by an implementation of ISerializable on the base type.
       // Added fields are also serialized by the standard .NET serialization, unless the mutable type implements ISerializable. In that case,
       // we need to extend the ISerializable implementation to include the added fields.
       
       var serializedFieldMapping = _serializableFieldFinder.GetSerializableFieldMapping (proxyType.AddedFields.Cast<FieldInfo> ()).ToArray ();
       var deserializationConstructor = GetDeserializationConstructor (proxyType);
 
-      // If the underlying type implements ISerializable but has no deserialization constructor, we can't implement ISerializable correctly, so
+      // If the base type implements ISerializable but has no deserialization constructor, we can't implement ISerializable correctly, so
       // we don't even try. (SerializationParticipant relies on this behavior.)
       var needsCustomFieldSerialization =
           serializedFieldMapping.Length != 0 && proxyType.IsAssignableTo (typeof (ISerializable)) && deserializationConstructor != null;

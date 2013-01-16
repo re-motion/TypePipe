@@ -339,7 +339,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 5309: If _methods is changed to _addedMethods, change this accordingly
       // BaseType.GetInterfaceMap ??
-      return _interfaceMappingComputer.ComputeMapping (this, null, interfaceType, allowPartialInterfaceMapping);
+      return _interfaceMappingComputer.ComputeMapping (this, BaseType.GetInterfaceMap, interfaceType, allowPartialInterfaceMapping);
     }
 
     protected override TypeAttributes GetAttributeFlagsImpl ()

@@ -28,7 +28,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -58,36 +57,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enabler = new ProxySerializationEnabler (_serializableFieldFinderMock);
 
-      _someType = ProxyTypeObjectMother.Create (
-          typeof (SomeType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      _serializableType = ProxyTypeObjectMother.Create (
-          typeof (SerializableType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      _serializableInterfaceType = ProxyTypeObjectMother.Create (
-          typeof (SerializableInterfaceType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      _deserializationCallbackType = ProxyTypeObjectMother.Create (
-          typeof (DeserializationCallbackType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      _serializableInterfaceWithDeserializationCallbackType = ProxyTypeObjectMother.Create (
-          typeof (SerializableWithDeserializationCallbackType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      _someType = ProxyTypeObjectMother.Create (typeof (SomeType));
+      _serializableType = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
+      _serializableInterfaceType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType));
+      _deserializationCallbackType = ProxyTypeObjectMother.Create (typeof (DeserializationCallbackType));
+      _serializableInterfaceWithDeserializationCallbackType = ProxyTypeObjectMother.Create (typeof (SerializableWithDeserializationCallbackType));
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
@@ -100,6 +74,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _enabler.MakeSerializable (_serializableInterfaceType, _someInitializationMethod);
 
       Assert.That (_serializableInterfaceType.AddedInterfaces, Is.Empty);
+      Assert.That (_serializableInterfaceType.AddedMethods, Is.Empty);
     }
 
     [Test]
@@ -125,7 +100,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = _serializableInterfaceType.AddedMethods.Single();
       var expectedMethodBody = Expression.Block (
           typeof (void),
-          Expression.Call (new NonVirtualCallMethodInfoAdapter (getObjectDataMethod), method.ParameterExpressions.Cast<Expression>()),
+          Expression.Call (
+              new ThisExpression (_serializableInterfaceType),
+              new NonVirtualCallMethodInfoAdapter (getObjectDataMethod),
+              method.ParameterExpressions.Cast<Expression>()),
           Expression.Call (
               method.ParameterExpressions[0],
               "AddValue",
@@ -170,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializableType_SerializableType_WithInitializations ()
+    public void MakeSerializable_SerializableType_WithInitializations ()
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
@@ -189,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializableType_DeserializationCallbackType_WithInitializations ()
+    public void MakeSerializable_DeserializationCallbackType_WithInitializations ()
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
@@ -202,13 +180,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = _deserializationCallbackType.AddedMethods.Single();
       var expectedBody = Expression.Block (
           typeof (void),
-          Expression.Call (new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
+          Expression.Call (
+              new ThisExpression (_deserializationCallbackType),
+              new NonVirtualCallMethodInfoAdapter (baseMethod),
+              method.ParameterExpressions.Cast<Expression>()),
           MethodCallExpression.Call (new ThisExpression (_deserializationCallbackType), initMethod));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
-    public void MakeSerializableType_SerializableWithDeserializationCallbackType ()
+    public void MakeSerializable_SerializableWithDeserializationCallbackType ()
     {
       StubFilterWithNoSerializedFields();
 
@@ -219,7 +200,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void MakeSerializableType_SerializableWithDeserializationCallbackType_WithInitializations ()
+    public void MakeSerializable_SerializableWithDeserializationCallbackType_WithInitializations ()
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
@@ -232,7 +213,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = _serializableInterfaceWithDeserializationCallbackType.AddedMethods.Single();
       var expectedBody = Expression.Block (
           typeof (void),
-          Expression.Call (new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
+          Expression.Call (
+              new ThisExpression (_serializableInterfaceWithDeserializationCallbackType),
+              new NonVirtualCallMethodInfoAdapter (baseMethod),
+              method.ParameterExpressions.Cast<Expression>()),
           MethodCallExpression.Call (new ThisExpression (_serializableInterfaceWithDeserializationCallbackType), initMethod));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
@@ -355,15 +339,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    [Serializable]
-    class SerializableType { }
-
     class DeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
     }
 
-    [Serializable]
     class SerializableWithDeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
