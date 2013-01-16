@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
@@ -104,7 +105,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (parameters[0].Name, Is.EqualTo ("i"));
 
       var baseCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
-      var expectedBody = new OriginalBodyExpression (baseCtor, typeof (void), ctor.ParameterExpressions.Cast<Expression>());
+      var expectedBody = Expression.Call (
+          new ThisExpression (result), NonVirtualCallMethodInfoAdapter.Adapt (baseCtor), ctor.ParameterExpressions.Cast<Expression>());
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
     }
 
