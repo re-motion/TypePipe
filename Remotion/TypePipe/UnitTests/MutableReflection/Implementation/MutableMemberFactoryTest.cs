@@ -41,20 +41,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     private MutableMemberFactory _mutableMemberFactory;
 
-    private ProxyType _proxyType;
-    private IMemberSelector _memberSelectorMock;
     private IRelatedMethodFinder _relatedMethodFinderMock;
 
+    private ProxyType _proxyType;
     private bool _isNewlyCreated;
 
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
-      _mutableMemberFactory = new MutableMemberFactory (_memberSelectorMock, _relatedMethodFinderMock);
+      _mutableMemberFactory = new MutableMemberFactory (memberSelectorMock, _relatedMethodFinderMock);
+
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
     }
 
     [Test]
@@ -321,7 +321,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (method, Is.Not.Null.And.Not.EqualTo (baseMethod));
       Assert.That (method.BaseMethod, Is.Null);
-      Assert.That (method.GetBaseDefinition (), Is.SameAs (method));
+      Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
     }
 
     [Test]
@@ -558,18 +558,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest.A.OverrideHierarchy",
           MethodAttributes.Private,
           MethodAttributes.NewSlot);
-    }
-
-    [Test]
-    public void GetOrCreateMethodOverride_InterfaceMethod_ExistingImplementation ()
-    {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
-
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
-
-      var implementation = _proxyType.AddedMethods.Single (m => m.Name == "InterfaceMethod");
-      Assert.That (result, Is.SameAs (implementation));
-      Assert.That (_isNewlyCreated, Is.False);
     }
 
     [Test]
