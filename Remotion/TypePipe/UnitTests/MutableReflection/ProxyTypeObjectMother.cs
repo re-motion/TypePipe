@@ -36,7 +36,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
-        IMutableMemberFactory mutableMemberFactory = null)
+        IMutableMemberFactory mutableMemberFactory = null,
+        bool skipConstructorCopying = false)
     {
       baseType = baseType ?? typeof (UnspecifiedType);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
@@ -54,7 +55,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           interfaceMappingComputer,
           mutableMemberFactory);
 
-      CopyConstructors (baseType, proxyType);
+      if (!skipConstructorCopying)
+        CopyConstructors (baseType, proxyType);
 
       return proxyType;
     }

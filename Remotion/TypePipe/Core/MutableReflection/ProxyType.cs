@@ -213,8 +213,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      // TODO 5309: Should only check _addedInterfaces for duplicates
-      if (GetInterfaces ().Contains (interfaceType))
+      if (_addedInterfaces.Contains (interfaceType))
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
         throw new ArgumentException (message, "interfaceType");
@@ -381,7 +380,6 @@ namespace Remotion.TypePipe.MutableReflection
     {
       Assertion.IsNotNull (BaseType);
 
-      // TODO test.
       return _addedInterfaces.Concat (BaseType.GetInterfaces()).Distinct();
     }
 

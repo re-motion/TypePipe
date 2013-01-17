@@ -57,7 +57,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           memberSelector: _memberSelectorMock,
           relatedMethodFinder: _relatedMethodFinderMock,
           interfaceMappingComputer: _interfaceMappingComputerMock,
-          mutableMemberFactory: _mutableMemberFactoryMock);
+          mutableMemberFactory: _mutableMemberFactoryMock,
+          skipConstructorCopying: true);
     }
 
     [Test]
@@ -72,14 +73,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var proxyType = new ProxyType (
           baseType, name, @namespace, fullname, attributes, _memberSelectorMock, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
-      Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (proxyType));
+      Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (baseType));
       Assert.That (proxyType.DeclaringType, Is.Null);
       Assert.That (proxyType.BaseType, Is.SameAs (baseType));
       Assert.That (proxyType.Name, Is.EqualTo (name));
       Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
       Assert.That (proxyType.FullName, Is.EqualTo (fullname));
-      Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
 
+      Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
       Assert.That (proxyType.TypeInitializations, Is.Empty);
       Assert.That (proxyType.InstanceInitializations, Is.Empty);
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
@@ -95,9 +96,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _proxyType.AddCustomAttribute (declaration);
 
       Assert.That (_proxyType.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
-
-      Assert.That (
-          _proxyType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute), typeof (AbcAttribute) }));
+      Assert.That (_proxyType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
     }
 
     [Test]
@@ -116,7 +115,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
 
-      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (_proxyType));
+      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
 
       Assert.That (_proxyType.BaseType, Is.SameAs (typeof (DomainType)));
       Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
@@ -167,7 +166,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface ()
     {
-      var baseInterface = typeof (DomainType).GetInterfaces().First();
+      var baseInterface = typeof (DomainType).GetInterfaces().Single();
       var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
 
       _proxyType.AddInterface (addedInterface);
@@ -188,13 +187,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Interface 'IDomainInterface' is already implemented.\r\nParameter name: interfaceType")]
+        "Interface 'IDisposable' is already implemented.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfAlreadyImplemented ()
     {
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-
-      _proxyType.AddInterface (addedInterface);
-      _proxyType.AddInterface (addedInterface);
+      _proxyType.AddInterface (typeof (IDisposable));
+      _proxyType.AddInterface (typeof (IDisposable));
     }
 
     [Test]
@@ -334,7 +331,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _interfaceMappingComputerMock.Expect (mock => mock.ComputeMapping (_proxyType, null, interfaceType, false)).Return (fakeResult);
+      _interfaceMappingComputerMock
+          .Expect (mock => mock.ComputeMapping (_proxyType, typeof (DomainType).GetInterfaceMap, interfaceType, false))
+          .Return (fakeResult);
 
       var result = _proxyType.GetInterfaceMap (interfaceType);
 
@@ -348,7 +347,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceType = typeof (IDomainInterface);
       var allowPartial = BooleanObjectMother.GetRandomBoolean();
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _interfaceMappingComputerMock.Expect (mock => mock.ComputeMapping (_proxyType, null, interfaceType, allowPartial)).Return (fakeResult);
+      _interfaceMappingComputerMock
+          .Expect (mock => mock.ComputeMapping (_proxyType, typeof (DomainType).GetInterfaceMap, interfaceType, allowPartial))
+          .Return (fakeResult);
 
       var result = _proxyType.GetInterfaceMap (interfaceType, allowPartial);
 
@@ -362,10 +363,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var allMethods = GetAllMethods (_proxyType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var fakeMethods = new[] { ReflectionObjectMother.GetSomeAbstractMethod() };
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, _proxyType)).Return (fakeMethods).Repeat.Times (2);
+      _memberSelectorMock
+          .Expect (mock => mock.SelectMethods (Arg<IEnumerable<MethodInfo>>.List.Equal (allMethods), Arg.Is (bindingFlags), Arg.Is ((_proxyType))))
+          .Return (fakeMethods).Repeat.Times (2);
 
       Assert.That (_proxyType.IsAbstract, Is.True);
       Assert.That (_proxyType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract));
+      _memberSelectorMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -407,6 +411,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAllInterfaces_Distinct ()
+    {
+      Assert.Fail();
+    }
+
+    [Test]
     public void GetAllFields ()
     {
       var baseFields = typeof (DomainType).GetFields (c_all);
@@ -415,7 +425,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyType, "GetAllFields");
 
-      Assert.That (result, Is.SameAs (new[] { addedField }.Concat (baseFields)));
+      Assert.That (result, Is.EqualTo (new[] { addedField }.Concat (baseFields)));
     }
 
     [Test]
@@ -523,7 +533,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public string ExplicitOverrideTarget (double d) { return ""; }
     }
 
-    [Abc]
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public int Field;
@@ -536,8 +545,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public interface IDomainInterface { }
 
     private class UnrelatedType { }
-
-    public class AbcAttribute : Attribute { }
 
     abstract class AbstractTypeBase
     {
