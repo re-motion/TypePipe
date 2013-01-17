@@ -36,6 +36,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      if (baseMethod != null)
+        attributes = attributes.Set (MethodAttributes.Virtual);
       returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.EmptyParameters;
       // baseMethod stays null.

@@ -346,7 +346,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetOverride_EqualBaseDefinition ()
     {
-      var baseDefinition = ReflectionObjectMother.GetSomeBaseDefinition();
+      var baseDefinition = ReflectionObjectMother.GetSomeVirtualMethod().GetBaseDefinition();
       var candidate = MutableMethodInfoObjectMother.Create (baseMethod: baseDefinition);
 
       var result = _finder.GetOverride (baseDefinition, new[] { candidate });

@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
-      var attributes = (MethodAttributes) 7;
+      var attributes = (MethodAttributes) 7 | MethodAttributes.Virtual;
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
@@ -226,10 +226,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetBody ()
     {
       var declaringType = ProxyTypeObjectMother.Create();
-      var attribtes = (MethodAttributes) 7;
+      var attribtes = MethodAttributes.Virtual; // Methods which have a base method must be virtual.
       var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var baseMethod = ReflectionObjectMother.GetSomeMethod();
+      var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod(); // Base method must be virtual.
       var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, returnType, parameters, baseMethod);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
@@ -314,12 +314,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToDebugString ()
     {
       var method = MutableMethodInfoObjectMother.Create (
-          declaringType: ProxyTypeObjectMother.Create (GetType()),
+          declaringType: ProxyTypeObjectMother.Create (name: "AbcProxy"),
           name: "Xxx",
           returnType: typeof (void),
           parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
-      var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"MutableMethodInfoTest\"";
+      var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"AbcProxy\"";
       Assert.That (method.ToDebugString(), Is.EqualTo (expected));
     }
 
