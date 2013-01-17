@@ -87,16 +87,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           };
       CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
 
+      var isStatic = attributes.IsSet (MethodAttributes.Static);
       var paras = parameters.ConvertToCollection();
-      if (attributes.IsSet (MethodAttributes.Static) && paras.Count != 0)
+      if (isStatic && paras.Count != 0)
         throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameters");
 
-      // TODO: test AsOnTime
-      
       var signature = new MethodSignature (typeof (void), paras.Select (p => p.Type), 0);
-      // TODO xxx test: static in signature (or via name)
-      //if (declaringType.AddedConstructors.Any (ctor => signature.Equals (MethodSignature.Create (ctor))))
-      //  throw new InvalidOperationException ("Constructor with equal signature already exists.");
+      if (declaringType.AddedConstructors.Any (ctor => ctor.IsStatic == isStatic && MethodSignature.Create (ctor).Equals (signature)))
+        throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = paras.Select (p => p.Expression);
       // TODO xxx test isstatic
@@ -143,7 +141,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var parameters = parameterDeclarations.ConvertToCollection();
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
-      if (declaringType.AddedMethods.Any (m => m.Name == name && signature.Equals (MethodSignature.Create (m))))
+      if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal signature already exists.");
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;

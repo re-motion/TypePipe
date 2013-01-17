@@ -124,11 +124,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateConstructor ()
     {
       var attributes = MethodAttributes.Public;
-      var parameterDeclarations = new[]
-                                  {
-                                      ParameterDeclarationObjectMother.Create (typeof (string), "param1"),
-                                      ParameterDeclarationObjectMother.Create (typeof (int), "param2")
-                                  };
+      var parameters =
+          new[]
+          {
+              ParameterDeclarationObjectMother.Create (typeof (string), "param1"),
+              ParameterDeclarationObjectMother.Create (typeof (int), "param2")
+          };
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx =>
       {
@@ -139,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeBody;
       };
 
-      var constructor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, parameterDeclarations.AsOneTime(), bodyProvider);
+      var constructor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, parameters.AsOneTime(), bodyProvider);
 
       Assert.That (constructor.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (constructor.Name, Is.EqualTo (".ctor"));
@@ -147,8 +148,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var expectedParameterInfos =
           new[]
           {
-              new { ParameterType = parameterDeclarations[0].Type },
-              new { ParameterType = parameterDeclarations[1].Type }
+              new { ParameterType = parameters[0].Type },
+              new { ParameterType = parameters[1].Type }
           };
       var actualParameterInfos = constructor.GetParameters ().Select (pi => new { pi.ParameterType });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
@@ -180,14 +181,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateConstructor_ThrowsIfAlreadyExists ()
     {
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty ();
+      var parametersForEquivalentSignature = ParameterDeclaration.CreateForEquivalentSignature (ctor);
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
 
       Assert.That (
           () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, ParameterDeclaration.CreateForEquivalentSignature (ctor), bodyProvider),
+          () =>
+          _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, parametersForEquivalentSignature, bodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, parametersForEquivalentSignature, bodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Constructor with equal signature already exists."));
     }
 
@@ -197,11 +204,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "Method";
       var attributes = MethodAttributes.Public;
       var returnType = typeof (IComparable);
-      var parameterDeclarations = new[]
-                                  {
-                                      ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
-                                      ParameterDeclarationObjectMother.Create (typeof (string), "franz")
-                                  };
+      var parameterDeclarations =
+          new[]
+          {
+              ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
+              ParameterDeclarationObjectMother.Create (typeof (string), "franz")
+          };
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx =>
       {
