@@ -465,10 +465,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateMethodOverride_ExistingOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ToString());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString());
       Assert.That (method, Is.Not.EqualTo (baseDefinition));
 
-      var fakeExistingOverride = MutableMethodInfoObjectMother.Create ();
+      var fakeExistingOverride = MutableMethodInfoObjectMother.Create();
       _relatedMethodFinderMock
           .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_proxyType.AddedMethods)))
           .Return (fakeExistingOverride);
@@ -585,18 +585,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetOrCreateMethodOverride_InterfaceMethod_OverrideImplementationInBase ()
     {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.BaseInterfaceMethod (7));
-      var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseInterfaceMethod (7));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod (7));
+      var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod (7));
 
       CallAndCheckGetOrAddMethod (
           implementation,
           interfaceMethod,
           implementation,
           false,
-          "baseInterfaceMethodOnDomainTypeBase",
+          "interfaceMethodOnDomainType",
           implementation,
           new MethodInfo[0],
-          "BaseInterfaceMethod",
+          "InterfaceMethod",
           MethodAttributes.Public,
           MethodAttributes.ReuseSlot);
     }
@@ -627,7 +627,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "A method declared in a base type must be virtual in order to be modified.")]
     public void GetOrCreateMethodOverride_NonVirtualMethod ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.NonVirtualBaseMethod());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualBaseMethod());
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
@@ -773,24 +773,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       public override void OverrideHierarchy (int ccc) { }
     }
 
-    public class DomainTypeBase : C, IBaseInterface
+    public class DomainType : C, IDomainInterface
     {
-      public virtual void BaseInterfaceMethod (int baseInterfaceMethodOnDomainTypeBase) { }
+      public virtual void InterfaceMethod (int interfaceMethodOnDomainType) { }
       public void NonVirtualBaseMethod () { }
     }
 
-    public class DomainType : DomainTypeBase, IDomainInterface
-    {
-      public void InterfaceMethod () { }
-    }
-
-    public interface IBaseInterface
-    {
-      void BaseInterfaceMethod (int parameterName);
-    }
     public interface IDomainInterface
     {
-      void InterfaceMethod ();
+      void InterfaceMethod (int i);
     }
     public interface IAddedInterface
     {
