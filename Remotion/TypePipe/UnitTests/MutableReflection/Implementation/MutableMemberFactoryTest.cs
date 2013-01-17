@@ -528,12 +528,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
       var proxyType = ProxyTypeObjectMother.Create (
-          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod),
-          memberSelector: null,
-          relatedMethodFinder: _relatedMethodFinderMock,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, proxyType, typeof (AbstractTypeWithOneMethod));
+          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
+      SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, proxyType);
 
       var result = _mutableMemberFactory.GetOrCreateOverride (proxyType, baseMethod, out _isNewlyCreated);
 
@@ -717,21 +713,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     private void SetupExpectationsForGetOrAddMethod (
-        MethodInfo baseDefinition,
-        MethodInfo baseMethod,
-        bool isBaseDefinitionShadowed,
-        MethodInfo fakeBaseMethod,
-        ProxyType proxyType = null,
-        Type typeToStartSearchForMostDerivedOverride = null)
+        MethodInfo baseDefinition, MethodInfo baseMethod, bool isBaseDefinitionShadowed, MethodInfo fakeBaseMethod, ProxyType proxyType = null)
     {
       proxyType = proxyType ?? _proxyType;
-      typeToStartSearchForMostDerivedOverride = typeToStartSearchForMostDerivedOverride ?? typeof (DomainType);
 
       _relatedMethodFinderMock
           .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (proxyType.AddedMethods)))
           .Return (null);
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeToStartSearchForMostDerivedOverride))
+          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, proxyType.BaseType))
           .Return (baseMethod);
       _relatedMethodFinderMock
           .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equal (GetAllMethods (proxyType))))
