@@ -372,9 +372,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       const string message = "The following MethodAttributes are not supported for methods: " +
                              "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
-      Assert.That (() => AddMethod (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddMethod (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddMethod (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -473,12 +473,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_proxyType.AddedMethods)))
           .Return (fakeExistingOverride);
 
-      bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
-      Assert.That (isNewlyCreated, Is.False);
+      Assert.That (_isNewlyCreated, Is.False);
     }
 
     [Test]
@@ -570,12 +569,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod());
 
-      bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
 
       var implementation = _proxyType.AddedMethods.Single (m => m.Name == "InterfaceMethod");
       Assert.That (result, Is.SameAs (implementation));
-      Assert.That (isNewlyCreated, Is.False);
+      Assert.That (_isNewlyCreated, Is.False);
     }
 
     [Test]
@@ -584,10 +582,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
       _proxyType.AddInterface (typeof (IAddedInterface));
 
-      bool isNewlyCreated;
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out isNewlyCreated);
+      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
 
-      Assert.That (isNewlyCreated, Is.True);
+      Assert.That (_isNewlyCreated, Is.True);
       CheckMethodData (
           result,
           "AddedInterfaceMethod",
@@ -627,6 +624,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateMethodOverride_InterfaceMethod_InvalidCandidate ()
     {
       _proxyType.AddInterface (typeof (IAddedInterface));
+      _proxyType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
     }
@@ -679,7 +677,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
 
-      _relatedMethodFinderMock.VerifyAllExpectations ();
+      _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (_isNewlyCreated, Is.True);
 
       CheckMethodData (
@@ -727,18 +725,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Type typeToStartSearchForMostDerivedOverride = null)
     {
       proxyType = proxyType ?? _proxyType;
-      typeToStartSearchForMostDerivedOverride = typeToStartSearchForMostDerivedOverride ?? typeof (DomainTypeBase);
+      typeToStartSearchForMostDerivedOverride = typeToStartSearchForMostDerivedOverride ?? typeof (DomainType);
 
       _relatedMethodFinderMock
           .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (proxyType.AddedMethods)))
           .Return (null);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equal (GetAllMethods (proxyType))))
-          .Return (isBaseDefinitionShadowed);
-      _relatedMethodFinderMock
           .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, typeToStartSearchForMostDerivedOverride))
           .Return (baseMethod);
-      // Needed for AddMethod (will only be called for implicit overrides)
+      _relatedMethodFinderMock
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equal (GetAllMethods (proxyType))))
+          .Return (isBaseDefinitionShadowed);
+      // Needed for CreateMethod (will only be called for implicit overrides)
       if (!isBaseDefinitionShadowed)
       {
         _relatedMethodFinderMock
@@ -753,7 +751,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           proxyType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
     }
 
-    private MethodInfo AddMethod (ProxyType proxyType, MethodAttributes attributes)
+    private MethodInfo CreateMethod (ProxyType proxyType, MethodAttributes attributes)
     {
       return _mutableMemberFactory.CreateMethod (
           proxyType,
@@ -761,7 +759,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           attributes,
           typeof (void),
           ParameterDeclaration.EmptyParameters,
-          ctx => Expression.Empty ());
+          ctx => Expression.Empty());
     }
 
     private MethodInfo GetBaseMethod (ProxyType proxyType, string name)
@@ -806,7 +804,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public void InterfaceMethod () { }
-      public void InvalidCandidate () { } // Not virtual.
     }
 
     public interface IBaseInterface
