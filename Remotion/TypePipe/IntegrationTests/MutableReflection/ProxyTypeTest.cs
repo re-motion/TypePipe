@@ -17,7 +17,9 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
@@ -29,24 +31,24 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   {
     private ProxyType _proxyType;
 
-    private MutableFieldInfo _publicField;
-    private MutableConstructorInfo _publicConstructorWithOverloadEmpty;
-    private MutableConstructorInfo _publicConstructorWithOverloadInt;
-    private MutableMethodInfo _publicMethod;
-    private MutableMethodInfo _publicMethodWithOverloadEmpty;
-    private MutableMethodInfo _publicMethodWithOverloadInt;
+    private FieldInfo _publicField;
+    private ConstructorInfo _publicConstructorWithOverloadEmpty;
+    private ConstructorInfo _publicConstructorWithOverloadInt;
+    private MethodInfo _publicMethod;
+    private MethodInfo _publicMethodWithOverloadEmpty;
+    private MethodInfo _publicMethodWithOverloadInt;
 
     [SetUp]
     public void SetUp ()
     {
       _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
 
-      _publicField = _proxyType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
-      _publicConstructorWithOverloadEmpty =_proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));
-      _publicConstructorWithOverloadInt = _proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0)));
-      _publicMethod = _proxyType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0)));
-      _publicMethodWithOverloadEmpty = _proxyType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload ()));
-      _publicMethodWithOverloadInt = _proxyType.GetOrAddOverride (NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1)));
+      _publicField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField);
+      _publicConstructorWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      _publicConstructorWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0));
+      _publicMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0));
+      _publicMethodWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload());
+      _publicMethodWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1));
     }
 
     [Test]
@@ -113,8 +115,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
-      var candidates = new[] { _publicConstructorWithOverloadEmpty, _publicConstructorWithOverloadInt };
-      var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
+      var candidates = new MethodBase[] { _publicConstructorWithOverloadEmpty, _publicConstructorWithOverloadInt };
+      var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object ());
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
       var result = _proxyType.GetConstructor (bindingFlags, binderMock, callConvention, types, parameterModifiers);
@@ -168,8 +170,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
-      var candidates = new[] { _publicConstructorWithOverloadEmpty, _publicConstructorWithOverloadInt };
-      var fakeResult = ReflectionObjectMother.GetSomeConstructor ();
+      var candidates = new MethodBase[] { _publicConstructorWithOverloadEmpty, _publicConstructorWithOverloadInt };
+      var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object());
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
       var result = _proxyType.GetConstructor (bindingFlags, binderMock, types, parameterModifiers);
@@ -281,13 +283,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetMethod_NameAndBindingFlagsAndTypesAndCallingConvention ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var binderMock = MockRepository.GenerateStrictMock<Binder>();
       var callConvention = CallingConventions.Any;
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
-      var candidates = new[] { _publicMethodWithOverloadEmpty, _publicMethodWithOverloadInt };
-      var fakeResult = ReflectionObjectMother.GetSomeMethod();
+      var candidates = new MethodBase[] { _publicMethodWithOverloadEmpty, _publicMethodWithOverloadInt };
+      var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
       var result = _proxyType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, callConvention, types, parameterModifiers);
@@ -304,8 +306,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
-      var candidates = new[] { _publicMethodWithOverloadEmpty, _publicMethodWithOverloadInt };
-      var fakeResult = ReflectionObjectMother.GetSomeMethod ();
+      var candidates = new MethodBase[] { _publicMethodWithOverloadEmpty, _publicMethodWithOverloadInt };
+      var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
       var result = _proxyType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, types, parameterModifiers);
@@ -405,14 +407,14 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     public class DomainType
     {
-      public int PublicField;
+      [UsedImplicitly] public int PublicField;
 
       public DomainType () { }
-      public DomainType (int i) { }
+      public DomainType (int i) { Dev.Null = i; }
 
-      public void PublicMethod (int i) { }
+      public void PublicMethod (int i) { Dev.Null = i; }
       public void PublicMethodWithOverload () { }
-      public void PublicMethodWithOverload (int i) { }
+      public void PublicMethodWithOverload (int i) { Dev.Null = i; }
     }
   }
 }
