@@ -375,7 +375,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (AbstractType), memberSelector: _memberSelectorMock);
+      var proxyType = ProxyTypeObjectMother.Create (typeof (AbstractType));
       Assert.That (proxyType.IsAbstract, Is.True);
 
       var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
@@ -385,12 +385,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (abstractMethod1.GetBaseDefinition(), Is.EqualTo (abstractMethodBaseDefinition));
 
       proxyType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
-      proxyType.AddMethod ("m", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
-                 .AddExplicitBaseDefinition (abstractMethod2);
-
-      var allMethods = GetAllMethods (proxyType);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (allMethods, bindingFlags, proxyType)).Return (allMethods).Repeat.Times (2);
+      proxyType.AddMethod (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
 
       Assert.That (proxyType.IsAbstract, Is.False);
       Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
@@ -413,7 +408,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAllInterfaces_Distinct ()
     {
-      Assert.Fail();
+      var baseInterface = typeof (DomainType).GetInterfaces().Single();
+      _proxyType.AddInterface (baseInterface);
+
+      Assert.That (_proxyType.GetInterfaces().Count (ifc => ifc == baseInterface), Is.EqualTo (1));
     }
 
     [Test]
