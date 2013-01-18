@@ -45,15 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      var proxyType = new ProxyType (
+      var proxyType = new ProxyType (memberSelector,
           baseType,
-          name,
-          @namespace,
-          fullName,
-          attributes,
-          memberSelector,
-          interfaceMappingComputer,
-          mutableMemberFactory);
+          name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
 
       if (!skipConstructorCopying)
         CopyConstructors (baseType, proxyType);

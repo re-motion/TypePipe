@@ -106,6 +106,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void SetBody_Static ()
+    {
+      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      Func<ConstructorBodyModificationContext, Expression> bodyProvider = ctx =>
+      {
+        Assert.That (ctx.IsStatic, Is.True);
+        return Expression.Empty();
+      };
+
+      typeInitializer.SetBody (bodyProvider);
+    }
+
+    [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));

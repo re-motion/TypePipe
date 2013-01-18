@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5309: Remove container, use List (probably)
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
-    // TODO remove.
+    // TODO xxx remove.
     private readonly List<Expression> _typeInitializations = new List<Expression>();
 
     private readonly List<Expression> _instanceInitializations = new List<Expression>();
@@ -60,17 +60,16 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableConstructorInfo _typeInitializer;
 
     public ProxyType (
+        IMemberSelector memberSelector,
         Type baseType,
         string name,
         string @namespace,
         string fullName,
         TypeAttributes attributes,
-        IMemberSelector memberSelector,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
         : base (memberSelector, null, baseType, name, @namespace, fullName)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 

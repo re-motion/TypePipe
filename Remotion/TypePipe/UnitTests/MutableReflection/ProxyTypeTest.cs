@@ -70,8 +70,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fullname = "hij";
       var attributes = (TypeAttributes) 7;
 
-      var proxyType = new ProxyType (
-          baseType, name, @namespace, fullname, attributes, _memberSelectorMock, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+      var proxyType = new ProxyType (_memberSelectorMock, baseType, name, @namespace, fullname, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
       Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (baseType));
       Assert.That (proxyType.DeclaringType, Is.Null);
