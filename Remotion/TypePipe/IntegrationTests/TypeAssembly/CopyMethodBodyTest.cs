@@ -16,12 +16,12 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.Expressions;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -29,17 +29,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class CopyMethodBodyTest : TypeAssemblerIntegrationTestBase
   {
+    private MethodInfo _add;
+    private MethodInfo _method;
+    private MethodInfo _multiply;
+
+    public override void SetUp ()
+    {
+      base.SetUp ();
+
+      _add = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Add (7, 8));
+      _method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
+      _multiply = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.Multiply (7, 8));
+    }
+
     [Test]
-    public void FromInstanceMethod_WithOriginalBodyExpression ()
+    public void FromInstanceMethod ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
-            Assert.That (methodToCopy.Body, Is.TypeOf<OriginalBodyExpression>());
-
-            var method = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            var methodToCopy = proxyType.GetOrAddOverride (_add);
+            var method = proxyType.GetOrAddOverride (_method);
+            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -49,35 +60,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void FromInstanceMetod_WithoutOriginalBodyExpression ()
-    {
-      var type = AssembleType<DomainType> (
-          proxyType =>
-          {
-            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
-            methodToCopy.SetBody (ctx => Expression.Add (ctx.Parameters[0], ctx.Parameters[1]));
-            // TODO: better assert -> make sure that OriginalBodyExpression is not contained in, instead of simple typeof check
-            Assert.That (methodToCopy.Body, Is.Not.TypeOf<OriginalBodyExpression>());
-
-            var method = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
-          });
-
-      var instance = (DomainType) Activator.CreateInstance (type);
-
-      Assert.That (instance.Method (7), Is.EqualTo (14));
-      Assert.That (instance.AddWasCalled, Is.False);
-    }
-
-    [Test]
     public void FromInstanceMetod_ModifyingOriginalBodyDoesNotAffectCopiedBody ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
-            var method = proxyType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            method.SetBody (ctx => ctx.GetCopiedMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+            var methodToCopy = proxyType.GetOrAddOverride (_add);
+            var method = proxyType.GetOrAddOverride (_method);
+            method.SetBody (ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
             methodToCopy.SetBody (ctx => Expression.Add (ctx.Parameters[0], ctx.Parameters[1]));
           });
 
@@ -95,7 +85,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Multiply");
+            var methodToCopy = proxyType.GetOrAddOverride (_multiply);
             Assert.That (methodToCopy.IsStatic, Is.True);
 
             proxyType.AddMethod (
@@ -118,7 +108,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var methodToCopy = proxyType.ExistingMutableMethods.Single (m => m.Name == "Add");
+            var methodToCopy = proxyType.GetOrAddOverride (_add);
             proxyType.AddConstructor (
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (int), "i") },
@@ -132,6 +122,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AddWasCalled, Is.True);
     }
 
+    [UsedImplicitly]
     public class DomainType
     {
       public bool AddWasCalled { get; private set; }
