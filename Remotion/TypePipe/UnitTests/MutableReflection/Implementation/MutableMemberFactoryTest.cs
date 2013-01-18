@@ -133,28 +133,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx =>
       {
+        Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
+        Assert.That (ctx.IsStatic, Is.False);
         Assert.That (ctx.Parameters.Select (p => p.Type), Is.EqualTo (new[] { typeof (string), typeof (int) }));
         Assert.That (ctx.Parameters.Select (p => p.Name), Is.EqualTo (new[] { "param1", "param2" }));
-        Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
 
         return fakeBody;
       };
 
-      var constructor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, parameters.AsOneTime(), bodyProvider);
+      var ctor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, parameters.AsOneTime(), bodyProvider);
 
-      Assert.That (constructor.DeclaringType, Is.SameAs (_proxyType));
-      Assert.That (constructor.Name, Is.EqualTo (".ctor"));
-      Assert.That (constructor.Attributes, Is.EqualTo (attributes));
+      Assert.That (ctor.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (ctor.Name, Is.EqualTo (".ctor"));
+      Assert.That (ctor.Attributes, Is.EqualTo (attributes));
       var expectedParameterInfos =
           new[]
           {
               new { ParameterType = parameters[0].Type },
               new { ParameterType = parameters[1].Type }
           };
-      var actualParameterInfos = constructor.GetParameters ().Select (pi => new { pi.ParameterType });
+      var actualParameterInfos = ctor.GetParameters ().Select (pi => new { pi.ParameterType });
       Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
       var expectedBody = Expression.Block (typeof (void), fakeBody);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, constructor.Body);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
+    }
+
+    [Test]
+    public void CreateConstructor_Static ()
+    {
+      var attributes = MethodAttributes.Static;
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx =>
+      {
+        Assert.That (ctx.IsStatic, Is.True);
+        return Expression.Empty();
+      };
+
+      var ctor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, ParameterDeclaration.EmptyParameters, bodyProvider);
+
+      Assert.That (ctor.IsStatic, Is.True);
     }
 
     [Test]

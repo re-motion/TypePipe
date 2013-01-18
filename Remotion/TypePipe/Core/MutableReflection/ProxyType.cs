@@ -358,7 +358,6 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
       Assertion.IsNotNull (BaseType);
 
-      // TODO xxx: test
       return _interfaceMappingComputer.ComputeMapping (this, BaseType.GetInterfaceMap, interfaceType, allowPartialInterfaceMapping);
     }
 
