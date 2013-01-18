@@ -44,10 +44,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
-    // TODO 5309: Remove container, use List (probably)
-    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
-
-    private readonly List<Expression> _instanceInitializations = new List<Expression>();
+    private readonly CustomAttributeContainer _customAttributes = new CustomAttributeContainer();
+    private readonly List<Expression> _initializations = new List<Expression>();
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
@@ -82,7 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<Expression> InstanceInitializations
     {
-      get { return _instanceInitializations.AsReadOnly(); }
+      get { return _initializations.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -113,14 +111,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
-      get { return _customAttributeContainer.AddedCustomAttributes; }
+      get { return _customAttributes.AddedCustomAttributes; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
+      _customAttributes.AddCustomAttribute (customAttributeDeclaration);
 
       if (customAttributeDeclaration.Type == typeof (SerializableAttribute))
         _attributes |= TypeAttributes.Serializable;
@@ -128,7 +126,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
+      return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     // TODO 5309: Close 4972 as Won't fix, remove TODO comments.
@@ -174,7 +172,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
       var initialization = _mutableMemberFactory.CreateInitialization (this, initializationProvider);
-      _instanceInitializations.Add (initialization);
+      _initializations.Add (initialization);
     }
 
     public void AddInterface (Type interfaceType)
