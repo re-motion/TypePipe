@@ -25,7 +25,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> and other expressions that can not be emitted by 
+  /// Replaces occurences of <see cref="ConstantExpression"/> that contain mutable members and other expressions that can not be emitted by 
   /// our customized <see cref="LambdaCompiler"/>.
   /// </summary>
   public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
@@ -94,19 +94,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           newLambda);
 
       return Visit (block);
-    }
-
-    protected override Expression VisitOriginalBody (OriginalBodyExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      var methodBase = node.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.ProxyType);
-      var methodRepresentingOriginalBody = NonVirtualCallMethodInfoAdapter.Adapt (methodBase);
-
-      var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, node.Arguments);
-
-      return Visit (baseCall);
     }
 
     private object GetEmittableValue (object value)

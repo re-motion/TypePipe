@@ -52,13 +52,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return node;
     }
 
-    public Expression VisitOriginalBody (OriginalBodyExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      throw NewNotSupportedMustBeReplacedBeforeCodeGenerationException (node);
-    }
-
     public Expression VisitNewDelegate (NewDelegateExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
@@ -81,12 +74,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _ilGenerator.Emit (OpCodes.Newobj, constructorInfo);
 
       return node;
-    }
-
-    private NotSupportedException NewNotSupportedMustBeReplacedBeforeCodeGenerationException (IPrimitiveTypePipeExpression expression)
-    {
-      var message = string.Format ("{0} must be replaced before code generation.", expression.GetType().Name);
-      return new NotSupportedException (message);
     }
   }
 }

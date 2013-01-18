@@ -40,12 +40,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return new ThisExpression (type ?? ReflectionObjectMother.GetSomeType());
     }
 
-    public static OriginalBodyExpression GetSomeOriginalBodyExpression ()
-    {
-      var method = ReflectionObjectMother.GetSomeMethod();
-      return new OriginalBodyExpression (method, method.ReturnType, Enumerable.Empty<Expression>());
-    }
-
     public static NewDelegateExpression GetSomeNewDelegateExpression ()
     {
       var delegateType = typeof (Func<int, object, string>);

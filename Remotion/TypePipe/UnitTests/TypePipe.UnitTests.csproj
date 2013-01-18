@@ -99,7 +99,6 @@
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\ExpressionVisitorTestHelper.cs" />
-    <Compile Include="Expressions\OriginalBodyExpressionTest.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorBaseTest.cs" />
