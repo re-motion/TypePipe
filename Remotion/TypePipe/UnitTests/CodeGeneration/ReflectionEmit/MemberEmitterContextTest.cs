@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class MemberEmitterContextTest
   {
-    private MemberEmitterContext _context;
+    private CodeGenerationContext _context;
 
     [SetUp]
     public void SetUp ()

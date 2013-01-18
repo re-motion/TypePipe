@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class InitializationBuilder : IInitializationBuilder
   {
-    public Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (ProxyType proxyType)
+    public Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (ProxyType proxyType)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 

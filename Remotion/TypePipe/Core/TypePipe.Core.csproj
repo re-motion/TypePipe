@@ -79,7 +79,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
-    <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorOnTypeInstantiation.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldOnTypeInstantiation.cs" />
@@ -94,8 +93,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ISubclassProxyBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ICodeGenerationContextFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
@@ -113,13 +112,13 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextFactory.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
     <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />
@@ -212,7 +211,6 @@
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinder.cs" />
     <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
     <Compile Include="Dlr\Actions\CallInfo.cs" />

@@ -17,7 +17,6 @@
 using System;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -25,12 +24,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Creates <see cref="SubclassProxyBuilder"/> instances.
   /// </summary>
-  public class SubclassProxyBuilderFactory : ISubclassProxyBuilderFactory
+  public class CodeGenerationContextFactory : ICodeGenerationContextFactory
   {
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
 
     [CLSCompliant(false)]
-    public SubclassProxyBuilderFactory (IReflectionEmitCodeGenerator codeGenerator)
+    public CodeGenerationContextFactory (IReflectionEmitCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
@@ -42,7 +41,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _codeGenerator; }
     }
 
-    public ISubclassProxyBuilder CreateBuilder (ProxyType proxyType)
+    public CodeGenerationContext CreateContext (ProxyType proxyType)
     {
       var typeBuilder = _codeGenerator.DefineType (proxyType.FullName, proxyType.Attributes, proxyType.BaseType);
 
@@ -51,21 +50,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpressionPreparer(), ilGeneratorFactory);
-      var initalizationBuilder = new InitializationBuilder();
-      var serializableFieldFilter = new SerializableFieldFinder();
-      var proxySerializationEnabler = new ProxySerializationEnabler(serializableFieldFilter);
 
       var methodTrampolineProvider = new MethodTrampolineProvider (memberEmitter);
 
-      return new SubclassProxyBuilder (
-          memberEmitter,
-          initalizationBuilder,
-          proxySerializationEnabler,
-          proxyType,
-          typeBuilder,
-          _codeGenerator.DebugInfoGenerator,
-          emittableOperandProvider,
-          methodTrampolineProvider);
+      return new CodeGenerationContext (proxyType, typeBuilder, _codeGenerator.DebugInfoGenerator, emittableOperandProvider, methodTrampolineProvider);
     }
   }
 }

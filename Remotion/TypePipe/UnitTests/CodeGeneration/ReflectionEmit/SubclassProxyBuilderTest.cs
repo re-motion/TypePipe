@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -33,21 +34,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class SubclassProxyBuilderTest
   {
+    private MockRepository _mockRepository;
+
+    private ICodeGenerationContextFactory _codeGenerationContextFactoryMock;
     private IMemberEmitter _memberEmitterMock;
     private IInitializationBuilder _initializationBuilderMock;
     private IProxySerializationEnabler _proxySerializationEnablerMock;
 
-    private MockRepository _mockRepository;
-    private ProxyType _proxyType;
+    private SubclassProxyBuilder _builder;
+
+    // Context members
     private ITypeBuilder _typeBuilderMock;
-    private DebugInfoGenerator _debugInfoGeneratorStub;
+    private DebugInfoGenerator _debugInfoGeneratorMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMethodTrampolineProvider _methodTrampolineProviderMock;
 
-    private SubclassProxyBuilder _builder;
-
-    private MemberEmitterContext _context;
-
+    private ProxyType _proxyType;
+    private CodeGenerationContext _fakeContext;
     private FieldInfo _fakeInitializationField;
     private MethodInfo _fakeInitializationMethod;
     private Tuple<FieldInfo, MethodInfo> _fakeInitializationMembers;
@@ -55,91 +58,69 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter> ();
-      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder>();
-      _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
-
       _mockRepository = new MockRepository();
-      _proxyType = ProxyTypeObjectMother.Create();
+
+      _codeGenerationContextFactoryMock = _mockRepository.StrictMock<ICodeGenerationContextFactory>();
+      _memberEmitterMock = _mockRepository.StrictMock<IMemberEmitter>();
+      _initializationBuilderMock = _mockRepository.StrictMock<IInitializationBuilder>();
+      _proxySerializationEnablerMock = _mockRepository.StrictMock<IProxySerializationEnabler>();
+
       _typeBuilderMock = _mockRepository.StrictMock<ITypeBuilder>();
-      _debugInfoGeneratorStub = _mockRepository.Stub<DebugInfoGenerator>();
+      _debugInfoGeneratorMock = _mockRepository.StrictMock<DebugInfoGenerator>();
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider>();
       _methodTrampolineProviderMock = _mockRepository.StrictMock<IMethodTrampolineProvider>();
 
       _builder = new SubclassProxyBuilder (
-          _memberEmitterMock,
-          _initializationBuilderMock,
-          _proxySerializationEnablerMock,
-          _proxyType,
-          _typeBuilderMock,
-          _debugInfoGeneratorStub,
-          _emittableOperandProviderMock,
-          _methodTrampolineProviderMock);
-      _context = _builder.MemberEmitterContext;
+          _codeGenerationContextFactoryMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
 
+      _proxyType = ProxyTypeObjectMother.Create();
+      _fakeContext = new CodeGenerationContext (
+          _proxyType, _typeBuilderMock, _debugInfoGeneratorMock, _emittableOperandProviderMock, _methodTrampolineProviderMock);
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
       _fakeInitializationMethod = ReflectionObjectMother.GetSomeMethod();
       _fakeInitializationMembers = Tuple.Create (_fakeInitializationField, _fakeInitializationMethod);
     }
 
     [Test]
-    public void Initialization ()
+    public void CodeGenerator ()
     {
-      Assert.That (_builder.MemberEmitter, Is.SameAs (_memberEmitterMock));
-      Assert.That (_builder.InitializationBuilder, Is.SameAs (_initializationBuilderMock));
-      Assert.That (_builder.ProxySerializationEnabler, Is.SameAs (_proxySerializationEnablerMock));
+      var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
+      _codeGenerationContextFactoryMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+      _mockRepository.ReplayAll();
 
-      Assert.That (_context.ProxyType, Is.SameAs (_proxyType));
-      Assert.That (_context.TypeBuilder, Is.SameAs (_typeBuilderMock));
-      Assert.That (_context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorStub));
-      Assert.That (_context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
-      Assert.That (_context.MethodTrampolineProvider, Is.SameAs (_methodTrampolineProviderMock));
-      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
-    }
-
-    [Test]
-    public void Initialization_NullDebugInfoGenerator ()
-    {
-      var builder = new SubclassProxyBuilder (
-          _memberEmitterMock,
-          _initializationBuilderMock,
-          _proxySerializationEnablerMock,
-          _proxyType,
-          _typeBuilderMock,
-          null,
-          _emittableOperandProviderMock,
-          _methodTrampolineProviderMock);
-      Assert.That (builder.MemberEmitterContext.DebugInfoGenerator, Is.Null);
+      Assert.That (_builder.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
 
     [Test]
     public void Build ()
     {
       var typeInitializer = _proxyType.AddTypeInitializer (ctx => Expression.Empty());
-      
-      var instanceInitialization = ExpressionTreeObjectMother.GetSomeExpression();
+
+      var instanceInitialization = ExpressionTreeObjectMother.GetSomeExpression ();
       _proxyType.AddInitialization (ctx => instanceInitialization);
 
-      var customAttribute = CustomAttributeDeclarationObjectMother.Create();
+      var customAttribute = CustomAttributeDeclarationObjectMother.Create ();
       _proxyType.AddCustomAttribute (customAttribute);
 
       var @interface = typeof (IDisposable);
       _proxyType.AddInterface (@interface);
 
       var field = _proxyType.AddField ("_field", typeof (int));
-      var constructor = _proxyType.AddedConstructors.Single();
+      var constructor = _proxyType.AddedConstructors.Single ();
       var method = _proxyType.AddMethod (
           "Method", (MethodAttributes) 7, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
 
       var buildActionCalled = false;
-      _builder.MemberEmitterContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
+      _fakeContext.PostDeclarationsActionManager.AddAction (() => buildActionCalled = true);
       var fakeType = ReflectionObjectMother.GetSomeType();
 
       using (_mockRepository.Ordered())
       {
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, typeInitializer));
+        _codeGenerationContextFactoryMock.Expect (mock => mock.CreateContext (_proxyType)).Return (_fakeContext);
 
-        _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (_proxyType)).Return (_fakeInitializationMembers);
+        _memberEmitterMock.Expect (mock => mock.AddConstructor (_fakeContext, typeInitializer));
+
+        _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_proxyType)).Return (_fakeInitializationMembers);
 
         _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_proxyType, _fakeInitializationMethod));
 
@@ -147,11 +128,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
 
-        _memberEmitterMock.Expect (mock => mock.AddField (_context, field));
+        _memberEmitterMock.Expect (mock => mock.AddField (_fakeContext, field));
         _initializationBuilderMock.Expect (
             mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, constructor));
-        _memberEmitterMock.Expect (mock => mock.AddMethod (_context, method, method.Attributes));
+        _memberEmitterMock.Expect (mock => mock.AddConstructor (_fakeContext, constructor));
+        _memberEmitterMock.Expect (mock => mock.AddMethod (_fakeContext, method, method.Attributes));
 
         // PostDeclarationsActionManager.ExecuteAllActions() cannot setup expectations.
 
@@ -169,16 +150,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void Build_NoInitializations ()
+    public void Build_NoTypeInitializer_NoInitializations ()
     {
       var defaultCtor = _proxyType.AddedConstructors.Single();
 
+      _codeGenerationContextFactoryMock.Expect (mock => mock.CreateContext (_proxyType)).Return (_fakeContext);
       // No call to AddConstructor for because of null type initializer.
-      _initializationBuilderMock.Expect (mock => mock.CreateInstanceInitializationMembers (_proxyType)).Return (null);
+      _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_proxyType)).Return (null);
       _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_proxyType, null));
       // Copied default constructor.
       _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (defaultCtor, null, _proxySerializationEnablerMock));
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (_context, defaultCtor));
+      _memberEmitterMock.Expect (mock => mock.AddConstructor (_fakeContext, defaultCtor));
       _typeBuilderMock.Expect (mock => mock.CreateType());
       _mockRepository.ReplayAll();
 

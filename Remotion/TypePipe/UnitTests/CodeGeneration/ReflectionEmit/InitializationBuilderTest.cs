@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
       _proxyType.AddInitialization (ctx => initExpression);
 
-      var result = _builder.CreateInstanceInitializationMembers (_proxyType);
+      var result = _builder.CreateInitializationMembers (_proxyType);
 
       var counter = (MutableFieldInfo) result.Item1;
       var initMethod = (MutableMethodInfo) result.Item2;
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateInstanceInitializationMembers_Empty ()
     {
-      var result = _builder.CreateInstanceInitializationMembers (_proxyType);
+      var result = _builder.CreateInitializationMembers (_proxyType);
 
       Assert.That (result, Is.Null);
       Assert.That (_proxyType.AddedInterfaces, Is.Empty);

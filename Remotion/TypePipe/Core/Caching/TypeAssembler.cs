@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
-  /// <see cref="ITypeModifier"/>.
+  /// <see cref="ISubclassProxyBuilder"/>.
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ICacheKeyProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
@@ -37,19 +37,20 @@ namespace Remotion.TypePipe.Caching
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IProxyTypeModelFactory _proxyTypeModelFactory;
-    private readonly ITypeModifier _typeModifier;
+    private readonly ISubclassProxyBuilder _subclassProxyBuilder;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
-    public TypeAssembler (IEnumerable<IParticipant> participants, IProxyTypeModelFactory proxyTypeModelFactory, ITypeModifier typeModifier)
+    public TypeAssembler (
+        IEnumerable<IParticipant> participants, IProxyTypeModelFactory proxyTypeModelFactory, ISubclassProxyBuilder subclassProxyBuilder)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("proxyTypeModelFactory", proxyTypeModelFactory);
-      ArgumentUtility.CheckNotNull ("typeModifier", typeModifier);
+      ArgumentUtility.CheckNotNull ("subclassProxyBuilder", subclassProxyBuilder);
 
       _participants = participants.ToList().AsReadOnly();
       _proxyTypeModelFactory = proxyTypeModelFactory;
-      _typeModifier = typeModifier;
+      _subclassProxyBuilder = subclassProxyBuilder;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
@@ -61,7 +62,7 @@ namespace Remotion.TypePipe.Caching
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _typeModifier.CodeGenerator; }
+      get { return _subclassProxyBuilder.CodeGenerator; }
     }
 
     public Type AssembleType (Type requestedType)
@@ -93,7 +94,7 @@ namespace Remotion.TypePipe.Caching
     {
       try
       {
-        return _typeModifier.ApplyModifications (proxyType);
+        return _subclassProxyBuilder.Build (proxyType);
       }
       catch (InvalidOperationException ex)
       {

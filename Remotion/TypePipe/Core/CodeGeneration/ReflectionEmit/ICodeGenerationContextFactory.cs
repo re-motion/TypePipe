@@ -14,16 +14,21 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for classes building a subclass proxy.
+  /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
   /// </summary>
-  public interface ISubclassProxyBuilder
+  [ConcreteImplementation (typeof (CodeGenerationContextFactory))]
+  public interface ICodeGenerationContextFactory
   {
-    Type Build (ProxyType proxyType);
+    ICodeGenerator CodeGenerator { get; }
+
+    CodeGenerationContext CreateContext (ProxyType proxyType);
   }
 }

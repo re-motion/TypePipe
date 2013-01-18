@@ -28,18 +28,18 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class SubclassProxyBuilderFactoryTest
+  public class CodeGenerationContextFactoryTest
   {
     private IReflectionEmitCodeGenerator _codeGeneratorMock;
 
-    private SubclassProxyBuilderFactory _factory;
+    private CodeGenerationContextFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
       _codeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
 
-      _factory = new SubclassProxyBuilderFactory (_codeGeneratorMock);
+      _factory = new CodeGenerationContextFactory (_codeGeneratorMock);
     }
 
     [Test]
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void CreateBuilder ()
+    public void CreateContext ()
     {
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var proxyType = ProxyTypeObjectMother.Create (baseType, fullName: "My.AbcProxy", attributes: (TypeAttributes) 7);
@@ -62,35 +62,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       typeBuilderMock.Expect (mock => mock.RegisterWith (fakeEmittableOperandProvider, proxyType));
       _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (fakeDebugInfoGenerator);
 
-      var result = _factory.CreateBuilder (proxyType);
+      var result = _factory.CreateContext (proxyType);
 
       _codeGeneratorMock.VerifyAllExpectations();
       typeBuilderMock.VerifyAllExpectations();
-      Assert.That (result, Is.TypeOf<SubclassProxyBuilder>());
-      var builder = (SubclassProxyBuilder) result;
 
-      var context = builder.MemberEmitterContext;
-      Assert.That (context.ProxyType, Is.SameAs (proxyType));
-      Assert.That (context.TypeBuilder, Is.SameAs (typeBuilderMock));
-      Assert.That (context.DebugInfoGenerator, Is.SameAs (fakeDebugInfoGenerator));
-      Assert.That (context.EmittableOperandProvider, Is.SameAs (fakeEmittableOperandProvider));
-      Assert.That (context.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider>());
-      Assert.That (context.PostDeclarationsActionManager.Actions, Is.Empty);
+      Assert.That (result.ProxyType, Is.SameAs (proxyType));
+      Assert.That (result.TypeBuilder, Is.SameAs (typeBuilderMock));
+      Assert.That (result.DebugInfoGenerator, Is.SameAs (fakeDebugInfoGenerator));
+      Assert.That (result.EmittableOperandProvider, Is.SameAs (fakeEmittableOperandProvider));
+      Assert.That (result.TrampolineMethods, Is.Empty);
+      Assert.That (result.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider>());
+      Assert.That (result.PostDeclarationsActionManager.Actions, Is.Empty);
 
-      Assert.That (builder.InitializationBuilder, Is.TypeOf<InitializationBuilder>());
-      Assert.That (builder.ProxySerializationEnabler, Is.TypeOf<ProxySerializationEnabler>());
-      Assert.That (builder.MemberEmitter, Is.TypeOf<MemberEmitter>());
-      var memberEmitter = (MemberEmitter) builder.MemberEmitter;
-
+      var methodTrampolineProvider = (MethodTrampolineProvider) result.MethodTrampolineProvider;
+      var memberEmitter = (MemberEmitter) methodTrampolineProvider.MemberEmitter;
       Assert.That (memberEmitter.ExpressionPreparer, Is.TypeOf<ExpressionPreparer>());
       Assert.That (memberEmitter.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
-      var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) memberEmitter.ILGeneratorFactory;
 
+      var ilGeneratorDecoratorFactory = (ILGeneratorDecoratorFactory) memberEmitter.ILGeneratorFactory;
       Assert.That (ilGeneratorDecoratorFactory.InnerFactory, Is.TypeOf<OffsetTrackingILGeneratorFactory>());
       Assert.That (ilGeneratorDecoratorFactory.EmittableOperandProvider, Is.SameAs (fakeEmittableOperandProvider));
-
-      var methodTrampolineProvider = (MethodTrampolineProvider) context.MethodTrampolineProvider;
-      Assert.That (methodTrampolineProvider.MemberEmitter, Is.SameAs (memberEmitter));
     }
   }
 }

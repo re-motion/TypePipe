@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   public class TypeAssemblerTest
   {
     private IProxyTypeModelFactory _proxyTypeModelFactoryMock;
-    private ITypeModifier _typeModifierMock;
+    private ISubclassProxyBuilder _subclassProxyBuilderMock;
     
     private Type _requestedType;
 
@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void SetUp ()
     {
       _proxyTypeModelFactoryMock = MockRepository.GenerateStrictMock<IProxyTypeModelFactory>();
-      _typeModifierMock = MockRepository.GenerateStrictMock<ITypeModifier>();
+      _subclassProxyBuilderMock = MockRepository.GenerateStrictMock<ISubclassProxyBuilder> ();
 
       _requestedType = typeof (object);
     }
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { participantStub, participantWithCacheProviderStub };
-      var typeAssembler = new TypeAssembler (participants.AsOneTime(), _proxyTypeModelFactoryMock, _typeModifierMock);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime (), _proxyTypeModelFactoryMock, _subclassProxyBuilderMock);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void CodeGenerator ()
     {
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
-      _typeModifierMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+      _subclassProxyBuilderMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
       var typeAssembler = CreateTypeAssembler();
 
       Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var proxyTypeModelFactoryMock = mockRepository.StrictMock<IProxyTypeModelFactory>();
-      var typeModifierMock = mockRepository.StrictMock<ITypeModifier>();
+      var subclassProxyBuilderMock = mockRepository.StrictMock<ISubclassProxyBuilder>();
 
       var fakeResult = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
@@ -88,11 +88,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock1.Expect (mock => mock.ModifyType (fakeProxyType));
         participantMock2.Expect (mock => mock.ModifyType (fakeProxyType));
 
-        typeModifierMock.Expect (mock => mock.ApplyModifications (fakeProxyType)).Return (fakeResult);
+        subclassProxyBuilderMock.Expect (mock => mock.Build (fakeProxyType)).Return (fakeResult);
       }
       mockRepository.ReplayAll();
 
-      var typeAssembler = CreateTypeAssembler (proxyTypeModelFactoryMock, typeModifierMock, participants: new[] { participantMock1, participantMock2 });
+      var typeAssembler = CreateTypeAssembler (
+          proxyTypeModelFactoryMock, subclassProxyBuilderMock, participants: new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.AssembleType (_requestedType);
 
@@ -107,9 +108,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception1);
-      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception2);
-      _typeModifierMock.Expect (mock => mock.ApplyModifications (Arg<ProxyType>.Is.Anything)).Throw (exception3);
+      _subclassProxyBuilderMock.Expect (mock => mock.Build (Arg<ProxyType>.Is.Anything)).Throw (exception1);
+      _subclassProxyBuilderMock.Expect (mock => mock.Build (Arg<ProxyType>.Is.Anything)).Throw (exception2);
+      _subclassProxyBuilderMock.Expect (mock => mock.Build (Arg<ProxyType>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (participants: new SerializationParticipant ("dummy"));
 
       var expectedMessageRegex = "An error occurred during code generation for 'ProxyName': blub "
@@ -137,12 +138,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     private TypeAssembler CreateTypeAssembler (
-        IProxyTypeModelFactory proxyTypeModelFactory = null, ITypeModifier typeModifier = null, params IParticipant[] participants)
+        IProxyTypeModelFactory proxyTypeModelFactory = null, ISubclassProxyBuilder subclassProxyBuilder = null, params IParticipant[] participants)
     {
       proxyTypeModelFactory = proxyTypeModelFactory ?? _proxyTypeModelFactoryMock;
-      typeModifier = typeModifier ?? _typeModifierMock;
+      subclassProxyBuilder = subclassProxyBuilder ?? _subclassProxyBuilderMock;
 
-      return new TypeAssembler (participants.AsOneTime(), proxyTypeModelFactory, typeModifier);
+      return new TypeAssembler (participants.AsOneTime(), proxyTypeModelFactory, subclassProxyBuilder);
     }
 
     private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)

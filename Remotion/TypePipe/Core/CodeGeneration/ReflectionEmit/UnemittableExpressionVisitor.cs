@@ -30,9 +30,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
-    private readonly MemberEmitterContext _context;
+    private readonly CodeGenerationContext _context;
 
-    public UnemittableExpressionVisitor (MemberEmitterContext context)
+    public UnemittableExpressionVisitor (CodeGenerationContext context)
     {
       ArgumentUtility.CheckNotNull ("context", context);
 
@@ -75,6 +75,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         if (methodCall != null && methodCall.Method is NonVirtualCallMethodInfoAdapter)
         {
           var method = ((NonVirtualCallMethodInfoAdapter) methodCall.Method).AdaptedMethod;
+          // MethodTrampolineProvider cannot be injected via ctor as this would cause a cyclic dependency.
           var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
           return Expression.Call (thisClosureVariable, trampolineMethod, methodCall.Arguments);
         }

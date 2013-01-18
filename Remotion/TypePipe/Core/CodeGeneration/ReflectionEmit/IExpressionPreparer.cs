@@ -24,6 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface IExpressionPreparer
   {
-    Expression PrepareBody (MemberEmitterContext context, Expression body);
+    Expression PrepareBody (CodeGenerationContext context, Expression body);
   }
 }

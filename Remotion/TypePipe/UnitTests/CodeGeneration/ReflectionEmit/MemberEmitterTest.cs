@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _typeBuilderMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
 
-    private MemberEmitterContext _context;
+    private CodeGenerationContext _context;
 
     private Expression _fakeBody;
 

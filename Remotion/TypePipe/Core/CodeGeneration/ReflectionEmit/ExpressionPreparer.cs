@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ExpressionPreparer : IExpressionPreparer
   {
-    public Expression PrepareBody (MemberEmitterContext context, Expression body)
+    public Expression PrepareBody (CodeGenerationContext context, Expression body)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("body", body);

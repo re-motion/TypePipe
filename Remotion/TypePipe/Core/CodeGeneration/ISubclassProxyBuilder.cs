@@ -14,20 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
+  /// Defines an interface for classes building a subclass proxy.
   /// </summary>
-  [ConcreteImplementation (typeof (SubclassProxyBuilderFactory))]
-  public interface ISubclassProxyBuilderFactory
+  public interface ISubclassProxyBuilder
   {
     ICodeGenerator CodeGenerator { get; }
 
-    ISubclassProxyBuilder CreateBuilder (ProxyType proxyType);
+    /// <summary>
+    /// Generates a proxy type based on the data specified by the participants.
+    /// </summary>
+    /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
+    /// <param name="proxyType">The proxy model type.</param>
+    /// <returns>The generated proxy type.</returns>
+    /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
+    /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
+    Type Build (ProxyType proxyType);
   }
 }

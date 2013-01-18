@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MethodTrampolineProvider _provider;
 
     private ProxyType _proxyType;
-    private MemberEmitterContext _context;
+    private CodeGenerationContext _context;
 
     [SetUp]
     public void SetUp ()

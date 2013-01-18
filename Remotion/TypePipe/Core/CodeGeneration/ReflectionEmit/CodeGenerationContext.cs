@@ -25,9 +25,9 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// This class holds information needed by <see cref="IMemberEmitter"/> instances to emit members.
+  /// This class holds information needed by the code generation.
   /// </summary>
-  public class MemberEmitterContext
+  public class CodeGenerationContext
   {
     private readonly ProxyType _proxyType;
     private readonly ITypeBuilder _typeBuilder;
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
 
     [CLSCompliant (false)]
-    public MemberEmitterContext (
+    public CodeGenerationContext (
         ProxyType proxyType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
@@ -80,14 +80,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _emittableOperandProvider; }
     }
 
-    public IMethodTrampolineProvider MethodTrampolineProvider
-    {
-      get { return _methodTrampolineProvider; }
-    }
-
     public IDictionary<MethodInfo, MethodInfo> TrampolineMethods
     {
       get { return _trampolineMethods; }
+    }
+
+    // This property exists only to break a cyclic dependency.
+    public IMethodTrampolineProvider MethodTrampolineProvider
+    {
+      get { return _methodTrampolineProvider; }
     }
 
     public DeferredActionManager PostDeclarationsActionManager

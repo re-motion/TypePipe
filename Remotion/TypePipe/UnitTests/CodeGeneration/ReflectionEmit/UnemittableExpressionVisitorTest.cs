@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ProxyType _proxyType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMethodTrampolineProvider _methodTrampolineProvider;
-    private MemberEmitterContext _context;
+    private CodeGenerationContext _context;
 
     private UnemittableExpressionVisitor _visitorPartialMock;
 
