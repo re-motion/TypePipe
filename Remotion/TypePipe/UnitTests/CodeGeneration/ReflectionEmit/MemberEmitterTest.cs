@@ -151,7 +151,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
           });
 
-      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
+      var overriddenMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
       method.AddExplicitBaseDefinition (overriddenMethod);
 
       var expectedAttributes = MethodAttributes.HideBySig;

@@ -82,21 +82,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void PreviousBodyWithArguments_Params ()
+    public void InvokePreviousBodyWithArguments_Params ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      var invokedBody = _context.PreviousBodyWithArguments (arg1, arg2);
+      var invokedBody = _context.InvokePreviousBodyWithArguments (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
     [Test]
-    public void PreviousBodyWithArguments_Enumerable ()
+    public void InvokePreviousBodyWithArguments_Enumerable ()
     {
-      var invokedBody = _context.PreviousBodyWithArguments (_parameters.Cast<Expression> ().AsOneTime ());
+      var invokedBody = _context.InvokePreviousBodyWithArguments (_parameters.Cast<Expression> ().AsOneTime ());
 
       var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
@@ -104,9 +104,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
-    public void PreviousBodyWithArguments_Params_ThrowsForNoPreviousBody ()
+    public void InvokePreviousBodyWithArguments_Params_ThrowsForNoPreviousBody ()
     {
-      _contextWithoutPreviousBody.PreviousBodyWithArguments();
+      _contextWithoutPreviousBody.InvokePreviousBodyWithArguments();
     }
   }
 }

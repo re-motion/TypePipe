@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (() => ctx.PreviousBody, Throws.InvalidOperationException.With.Message.EqualTo (message));
-                  Assert.That (() => ctx.PreviousBodyWithArguments(), Throws.InvalidOperationException.With.Message.EqualTo (message));
+                  Assert.That (() => ctx.InvokePreviousBodyWithArguments(), Throws.InvalidOperationException.With.Message.EqualTo (message));
                   Assert.That (
                       () => ctx.CallBase (abstractBaseMethod),
                       Throws.ArgumentException.With.Message.EqualTo ("Cannot perform base call on abstract method.\r\nParameter name: baseMethod"));

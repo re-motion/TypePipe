@@ -43,12 +43,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
 
-      _publicField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField);
+      _publicField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.PublicField);
       _publicConstructorWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       _publicConstructorWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0));
-      _publicMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethod (0));
-      _publicMethodWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload());
-      _publicMethodWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.PublicMethodWithOverload (1));
+      _publicMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethod (0));
+      _publicMethodWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethodWithOverload());
+      _publicMethodWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethodWithOverload (1));
     }
 
     [Test]
