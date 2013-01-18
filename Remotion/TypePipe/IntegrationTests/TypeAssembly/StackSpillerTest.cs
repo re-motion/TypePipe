@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       // This reference + 9 arguments = 10.
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      var result = method.Invoke (instance, new object[0]);
+      var result = method.Invoke (instance, null);
 
       Assert.That (result, Is.EqualTo ("abcdefghi"));
     }
