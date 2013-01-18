@@ -15,12 +15,14 @@
 // under the License.
 // 
 using System;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Defines an interface for classes creating a <see cref="ProxyType"/> model for the given base type.
   /// </summary>
+  [ConcreteImplementation (typeof (ProxyTypeModelFactory))]
   public interface IProxyTypeModelFactory
   {
     ProxyType CreateProxyType (Type baseType);
