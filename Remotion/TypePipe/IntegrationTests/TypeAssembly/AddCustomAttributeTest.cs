@@ -68,8 +68,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private void AddCustomAttributes (IMutableInfo mutableInfo)
     {
-      Assert.That (mutableInfo.CanAddCustomAttributes, Is.True);
-
       mutableInfo.AddCustomAttribute (CreateSingleAttribute());
       Assert.That (
           () => mutableInfo.AddCustomAttribute (CreateSingleAttribute ()),

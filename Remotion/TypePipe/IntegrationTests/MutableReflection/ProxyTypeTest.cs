@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.CreateForExisting (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
 
       _publicField = _proxyType.GetMutableField (NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType dt) => dt.PublicField));
       _publicConstructorWithOverloadEmpty =_proxyType.GetMutableConstructor (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType()));

@@ -83,7 +83,7 @@
     <Compile Include="TypeAssembly\ProxyTypeInSignaturesTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
-    <Compile Include="TypeAssembly\TypeInitializationTest.cs" />
+    <Compile Include="TypeAssembly\TypeInitializerTest.cs" />
     <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />
     <Compile Include="TypeAssembly\DelegateInstantiationTest.cs" />
     <Compile Include="MutableReflection\GetCustomAttributesTest.cs" />

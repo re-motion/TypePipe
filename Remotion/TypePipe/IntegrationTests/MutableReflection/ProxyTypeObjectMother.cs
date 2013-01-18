@@ -17,23 +17,20 @@
 
 using System;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   public static class ProxyTypeObjectMother
   {
-    public static ProxyType CreateForExisting (Type underlyingType)
-    {
-      // TODO Use ProxyTypeModelFactoryTest to copy ctors
-      var underlyingTypeDescriptor = TypeDescriptor.Create (underlyingType);
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var relatedMethodFinder = new RelatedMethodFinder();
-      var interfaceMappingHelper = new InterfaceMappingComputer();
-      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
+    private static readonly ProxyTypeModelFactory s_proxyTypeModelFactory = new ProxyTypeModelFactory();
 
-      return new ProxyType (underlyingTypeDescriptor, memberSelector, relatedMethodFinder, interfaceMappingHelper, mutableMemberFactory);
+    public static ProxyType Create (Type baseType)
+    {
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+
+      return s_proxyTypeModelFactory.CreateProxyType (baseType);
     }
   }
 }

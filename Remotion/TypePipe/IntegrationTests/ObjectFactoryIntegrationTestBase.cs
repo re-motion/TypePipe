@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var participantProviders = participants.Select (p => (Func<object>) (() => p));
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
-      var typeModifier = CreateTypeModifier (testName);
+      var typeModifier = CreateSubclassProxyBuilder (testName);
 
       var serviceLocator = new DefaultServiceLocator();
       serviceLocator.Register (typeof (ITypeModifier), () => typeModifier);
