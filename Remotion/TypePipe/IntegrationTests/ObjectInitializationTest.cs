@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests
           {
             Assert.That (proxyType.InstanceInitializations, Is.Empty);
 
-            proxyType.AddInstanceInitialization (
+            proxyType.AddInitialization (
                 ctx =>
                 {
                   Assert.That (ctx.IsStatic, Is.False);

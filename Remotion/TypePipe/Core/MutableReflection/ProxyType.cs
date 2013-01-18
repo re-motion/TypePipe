@@ -47,9 +47,6 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5309: Remove container, use List (probably)
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
-    // TODO xxx remove.
-    private readonly List<Expression> _typeInitializations = new List<Expression>();
-
     private readonly List<Expression> _instanceInitializations = new List<Expression>();
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
@@ -81,12 +78,6 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableConstructorInfo MutableTypeInitializer
     {
       get { return _typeInitializer; }
-    }
-
-    // TODO 5309: Replace with static ctor
-    public ReadOnlyCollection<Expression> TypeInitializations
-    {
-      get { return _typeInitializations.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<Expression> InstanceInitializations
@@ -153,30 +144,12 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
-    // TODO xxx test
+    // TODO move to extension class
     public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       return AddConstructor (MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider);
-    }
-
-    // TODO 5309: Remove, replace with static ctor
-    /// <summary>
-    /// Adds static initialization code to the type.
-    /// The initialization code is guaranteed to be executed exactly once sometime before the statically-initilized members are accessed.
-    /// </summary>
-    /// <remarks>
-    /// The exact time when the initialization code runs is not defined.
-    /// </remarks>
-    /// <param name="initializationProvider">A provider returning a type initialization.</param>
-    /// <seealso cref="TypeInitializations"/>
-    public void AddTypeInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
-    {
-      ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
-
-      var initialization = _mutableMemberFactory.CreateInitialization (this, true, initializationProvider);
-      _typeInitializations.Add (initialization);
     }
 
     /// <summary>
@@ -197,11 +170,11 @@ namespace Remotion.TypePipe.MutableReflection
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>
     /// <seealso cref="InstanceInitializations"/>
-    public void AddInstanceInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
+    public void AddInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var initialization = _mutableMemberFactory.CreateInitialization (this, false, initializationProvider);
+      var initialization = _mutableMemberFactory.CreateInitialization (this, initializationProvider);
       _instanceInitializations.Add (initialization);
     }
 

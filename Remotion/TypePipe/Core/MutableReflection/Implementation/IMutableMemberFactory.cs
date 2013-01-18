@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </remarks>
   public interface IMutableMemberFactory
   {
-    Expression CreateInitialization (ProxyType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider);
+    Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider);
 
     MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes);
 

@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateInstanceInitializationMembers ()
     {
       var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
-      _proxyType.AddInstanceInitialization (ctx => initExpression);
+      _proxyType.AddInitialization (ctx => initExpression);
 
       var result = _builder.CreateInstanceInitializationMembers (_proxyType);
 

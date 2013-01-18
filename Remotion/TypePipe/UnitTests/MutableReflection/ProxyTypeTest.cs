@@ -80,7 +80,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.FullName, Is.EqualTo (fullname));
 
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
-      Assert.That (proxyType.TypeInitializations, Is.Empty);
       Assert.That (proxyType.InstanceInitializations, Is.Empty);
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedFields, Is.Empty);
@@ -135,28 +134,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddTypeInitialization ()
+    public void AddInitialization ()
     {
       Func<InitializationBodyContext, Expression> initializationProvider = ctx => null;
 
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateInitialization (_proxyType, true, initializationProvider)).Return (fakeExpression);
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateInitialization (_proxyType, initializationProvider)).Return (fakeExpression);
 
-      _proxyType.AddTypeInitialization (initializationProvider);
-
-      _mutableMemberFactoryMock.VerifyAllExpectations();
-      Assert.That (_proxyType.TypeInitializations, Is.EqualTo (new[] { fakeExpression }));
-    }
-
-    [Test]
-    public void AddInstanceInitialization ()
-    {
-      Func<InitializationBodyContext, Expression> initializationProvider = ctx => null;
-
-      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateInitialization (_proxyType, false, initializationProvider)).Return (fakeExpression);
-
-      _proxyType.AddInstanceInitialization (initializationProvider);
+      _proxyType.AddInitialization (initializationProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (_proxyType.InstanceInitializations, Is.EqualTo (new[] { fakeExpression }));

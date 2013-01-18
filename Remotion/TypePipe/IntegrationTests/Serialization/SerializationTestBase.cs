@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           {
             var stringField = proxyType.GetField ("String");
 
-            proxyType.AddInstanceInitialization (
+            proxyType.AddInitialization (
                 ctx =>
                 Expression.AddAssign (
                     Expression.Field (ctx.This, stringField),

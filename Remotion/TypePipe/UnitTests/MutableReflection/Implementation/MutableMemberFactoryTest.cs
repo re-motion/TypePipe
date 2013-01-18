@@ -60,16 +60,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateInitialization ()
     {
-      var isStatic = BooleanObjectMother.GetRandomBoolean();
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
 
       var result = _mutableMemberFactory.CreateInitialization (
           _proxyType,
-          isStatic,
           ctx =>
           {
             Assert.That (ctx.DeclaringType, Is.SameAs (_proxyType));
-            Assert.That (ctx.IsStatic, Is.EqualTo (isStatic));
+            Assert.That (ctx.IsStatic, Is.False);
 
             return fakeExpression;
           });
@@ -81,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
     public void CreateInitialization_NullBody ()
     {
-      _mutableMemberFactory.CreateInitialization (_proxyType, false, ctx => null);
+      _mutableMemberFactory.CreateInitialization (_proxyType, ctx => null);
     }
 
     [Test]

@@ -43,13 +43,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _relatedMethodFinder = relatedMethodFinder;
     }
 
-    public Expression CreateInitialization (
-        ProxyType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider)
+    public Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (declaringType, isStatic, _memberSelector);
+      var context = new InitializationBodyContext (declaringType, _memberSelector);
       return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
     }
 

@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var typeInitializer = _proxyType.AddTypeInitializer (ctx => Expression.Empty());
       
       var instanceInitialization = ExpressionTreeObjectMother.GetSomeExpression();
-      _proxyType.AddInstanceInitialization (ctx => instanceInitialization);
+      _proxyType.AddInitialization (ctx => instanceInitialization);
 
       var customAttribute = CustomAttributeDeclarationObjectMother.Create();
       _proxyType.AddCustomAttribute (customAttribute);
