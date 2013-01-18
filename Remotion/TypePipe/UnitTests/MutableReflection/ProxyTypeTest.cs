@@ -134,6 +134,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddTypeInitializer ()
+    {
+      Assert.That (_proxyType.MutableTypeInitializer, Is.Null);
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
+      var typeInitializerFake = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      _mutableMemberFactoryMock
+          .Expect (
+              mock => mock.CreateConstructor (
+                  _proxyType, MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider))
+          .Return (typeInitializerFake);
+
+      var result = _proxyType.AddTypeInitializer (bodyProvider);
+
+      Assert.That (result, Is.SameAs (typeInitializerFake));
+      Assert.That (_proxyType.AddedConstructors, Is.Empty);
+      Assert.That (_proxyType.MutableTypeInitializer, Is.SameAs (typeInitializerFake));
+    }
+
+    [Test]
     public void AddInitialization ()
     {
       Func<InitializationBodyContext, Expression> initializationProvider = ctx => null;
@@ -232,21 +251,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var name = "Method";
       var attributes = MethodAttributes.Public;
       var returnType = ReflectionObjectMother.GetSomeType();
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeMethod = MutableMethodInfoObjectMother.Create(_proxyType);
       _mutableMemberFactoryMock
-          .Expect (
-              mock => mock.CreateMethod (
-                  Arg.Is (_proxyType),
-                  Arg.Is (name),
-                  Arg.Is (attributes),
-                  Arg.Is (returnType),
-                  Arg.Is (parameterDeclarations),
-                  Arg.Is (bodyProvider)))
+          .Expect (mock => mock.CreateMethod (_proxyType, name, attributes, returnType, parameters, bodyProvider))
           .Return (fakeMethod);
 
-      var result = _proxyType.AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var result = _proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeMethod));

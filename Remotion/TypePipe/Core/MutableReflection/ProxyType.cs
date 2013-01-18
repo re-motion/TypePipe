@@ -141,7 +141,6 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
-    // TODO move to extension class
     public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
@@ -238,15 +237,14 @@ namespace Remotion.TypePipe.MutableReflection
       return method;
     }
 
-    public MutableMethodInfo AddAbstractMethod (
-        string name, MethodAttributes attributes, Type returnType, IEnumerable<ParameterDeclaration> parameterDeclarations)
+    public MutableMethodInfo AddAbstractMethod (string name, MethodAttributes attributes, Type returnType, IEnumerable<ParameterDeclaration> parameters)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
 
       attributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
-      return AddMethod (name, attributes, returnType, parameterDeclarations, bodyProvider: null);
+      return AddMethod (name, attributes, returnType, parameters, bodyProvider: null);
     }
 
     public MutableMethodInfo AddExplicitOverride (MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
