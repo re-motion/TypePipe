@@ -50,6 +50,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
+    public void TypeInitializer ()
+    {
+      Assert.Fail();
+    }
+
+    [Test]
     public void GetField_Name ()
     {
       var result = _proxyType.GetField ("PublicField");

@@ -198,18 +198,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void AddConstructor ()
     {
       var attributes = (MethodAttributes) 7;
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
-      var constructorFake = MutableConstructorInfoObjectMother.Create (_proxyType);
+      var constructorFake = MutableConstructorInfoObjectMother.Create();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateConstructor (_proxyType, attributes, parameterDeclarations, bodyProvider))
+          .Expect (mock => mock.CreateConstructor (_proxyType, attributes, parameters, bodyProvider))
           .Return (constructorFake);
 
-      var result = _proxyType.AddConstructor (attributes, parameterDeclarations, bodyProvider);
+      var result = _proxyType.AddConstructor (attributes, parameters, bodyProvider);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations ();
+      _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (constructorFake));
       Assert.That (_proxyType.AddedConstructors, Is.EqualTo (new[] { result }));
+    }
+
+    [Test]
+    public void AddConstructor_Static ()
+    {
+      Assert.That (_proxyType.MutableTypeInitializer, Is.Null);
+      var typeInitializerFake = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateConstructor (null, 0, null, null)).IgnoreArguments().Return (typeInitializerFake);
+
+      var result = _proxyType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+
+      Assert.That (result, Is.SameAs (typeInitializerFake));
+      Assert.That (_proxyType.AddedConstructors, Is.Empty);
+      Assert.That (_proxyType.MutableTypeInitializer, Is.SameAs (typeInitializerFake));
     }
 
     [Test]

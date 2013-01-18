@@ -95,7 +95,6 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedFields.AsReadOnly(); }
     }
 
-    // TODO xxx : mutableTypeInitializer
     /// <summary>
     /// Gets the added instance constructors. Use <see cref="MutableTypeInitializer"/> to retrieve the static constructor.
     /// </summary>
@@ -212,9 +211,11 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameters, bodyProvider);
-      // TODO xxx test: is static type initializer
       if (constructor.IsStatic)
+      {
+        Assertion.IsNull (_typeInitializer);
         _typeInitializer = constructor;
+      }
       else
         _addedConstructors.Add (constructor);
 
