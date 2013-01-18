@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using System.Linq;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
@@ -50,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod ()
     {
-      var implementation = _proxyType.ExistingMutableMethods.Single (m => m.Name == "MethodOnExistingInterface");
+      var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingInterface());
 
       CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, implementation);
     }

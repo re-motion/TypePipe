@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -61,22 +60,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void BaseMethodWithExistingOverride ()
-    {
-      AssembleType<DomainType> (
-          proxyType =>
-          {
-            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
-            var existingOverride = proxyType.ExistingMutableMethods.Single (m => m.Name == "ExistingOverride");
-            Assert.That (existingOverride.BaseMethod, Is.EqualTo (baseMethod));
-
-            var mutableMethod = proxyType.GetOrAddOverride (baseMethod);
-
-            Assert.That (mutableMethod, Is.SameAs (existingOverride));
-          });
-    }
-
-    [Test]
     public void BaseMethodWithAddedImplicitOverride ()
     {
       AssembleType<DomainType> (
@@ -99,8 +82,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           proxyType =>
           {
-            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.BaseMethod ());
-            var explicitOverride = proxyType.ExistingMutableMethods.Single (m => m.Name == "ExistingOverride");
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
+            var overrideMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExistingOverride());
+            var explicitOverride = proxyType.GetOrAddOverride (overrideMethod);
             explicitOverride.AddExplicitBaseDefinition (baseMethod);
             Assert.That (explicitOverride.BaseMethod, Is.Not.EqualTo (baseMethod));
 

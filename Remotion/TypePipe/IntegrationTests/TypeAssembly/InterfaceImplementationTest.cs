@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -104,7 +103,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var explicitImplementation = proxyType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnrelatedMethod());
+            var explicitImplementation = proxyType.GetOrAddOverride (baseMethod);
             explicitImplementation.AddExplicitBaseDefinition (interfaceMethod);
 
             var method = proxyType.GetOrAddOverride (interfaceMethod);
