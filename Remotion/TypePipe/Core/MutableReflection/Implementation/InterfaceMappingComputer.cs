@@ -107,8 +107,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MethodInfo mostDerived = null;
       foreach (var method in candidates)
       {
-        // TODO 5309
-        // todo xxx: HACK! find better option
+        // TODO 5309 : HAACK!
         if (method is MutableMethodInfo)
           return method;
 

@@ -24,7 +24,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IOwnCustomAttributeDataProvider : System.Reflection.ICustomAttributeProvider
   {
-    // TODO 5309: replace with: AddedCustomAttributes
     IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
   }
 }
