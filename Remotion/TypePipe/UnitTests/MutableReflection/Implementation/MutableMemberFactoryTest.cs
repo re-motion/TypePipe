@@ -629,7 +629,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of this type's class hierarchy: 'String'.\r\nParameter name: method")]
+        "Method is declared by a type outside of the proxy base class hierarchy: 'String'.\r\nParameter name: baseMethod")]
     public void GetOrCreateMethodOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
@@ -637,8 +637,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "A method declared in a base type must be virtual in order to be modified.")]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Only virtual methods can be overridden.")]
     public void GetOrCreateMethodOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualBaseMethod());

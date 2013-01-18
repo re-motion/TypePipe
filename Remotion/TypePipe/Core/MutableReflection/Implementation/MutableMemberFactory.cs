@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
-      CheckForInvalidAttributes ("baseMethod", invalidAttributes, attributes);
+      CheckForInvalidAttributes ("method", invalidAttributes, attributes);
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
@@ -176,12 +176,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!proxyType.UnderlyingSystemType.Equals (baseMethod.DeclaringType) && !proxyType.IsAssignableTo (baseMethod.DeclaringType))
       {
         // todo yyy: based baseMethod CANNOT be declared on proxy type
-        var message = string.Format ("Method is declared by a type outside of this type's base class hierarchy: '{0}'.", baseMethod.DeclaringType.Name);
+        var message = string.Format (
+            "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", baseMethod.DeclaringType.Name);
         throw new ArgumentException (message, "baseMethod");
       }
 
       if (!baseMethod.IsVirtual)
-        throw new NotSupportedException ("A baseMethod declared in a base type must be virtual in order to be modified.");
+        throw new NotSupportedException ("Only virtual methods can be overridden.");
 
       if (baseMethod.DeclaringType.IsInterface)
       {
@@ -253,7 +254,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         catch (InvalidOperationException)
         {
           var message = string.Format (
-              "Interface baseMethod '{0}' cannot be implemented because a baseMethod with equal name and signature already exists. "
+              "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
               + "Use {1}.{2} to create an explicit implementation.",
               ifcMethod.Name,
               typeof (ProxyType).Name,
@@ -273,7 +274,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (overridenMethod.IsFinal)
       {
         Assertion.IsNotNull (overridenMethod.DeclaringType);
-        var message = string.Format ("Cannot override final baseMethod '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
+        var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }
     }
