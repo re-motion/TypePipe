@@ -102,37 +102,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void ModifyExistingOverride ()
-    {
-      var overriddenMethod = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");
-      var type = AssembleType<B> (
-          proxyType =>
-          {
-            var mutableMethodInfo = proxyType.ExistingMutableMethods.Single (m => m.Name == "MethodOverriddenByB");
-            Assert.That (mutableMethodInfo.BaseMethod, Is.EqualTo (overriddenMethod));
-            Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
-            mutableMethodInfo.SetBody(ctx =>
-                {
-                  Assert.That (ctx.HasBaseMethod, Is.True);
-                  Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  return ExpressionHelper.StringConcat (
-                      ExpressionHelper.StringConcat (Expression.Constant ("Base: "), ctx.GetBaseCall (ctx.BaseMethod)),
-                      ExpressionHelper.StringConcat (Expression.Constant (", previous body: "), ctx.PreviousBody));
-                });
-          });
-
-      var instance = (B) Activator.CreateInstance (type);
-      var method = GetDeclaredMethod (type, "MethodOverriddenByB");
-
-      Assert.That (method.IsPublic, Is.True);
-      Assert.That (method.Name, Is.EqualTo ("MethodOverriddenByB"));
-
-      var result = method.Invoke (instance, null);
-      Assert.That (result, Is.EqualTo ("Base: A, previous body: B"));
-      Assert.That (instance.MethodOverriddenByB(), Is.EqualTo ("Base: A, previous body: B"));
-    }
-
-    [Test]
     public void OverrideOverride ()
     {
       var overriddenMethodInA = GetDeclaredMethod (typeof (A), "MethodOverriddenByB");

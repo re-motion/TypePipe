@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -138,7 +137,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<B> (
           proxyType =>
           {
-            var overridingMethod = proxyType.ExistingMutableMethods.Single(m => m.Name == "UnrelatedMethod");
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.UnrelatedMethod());
+            var overridingMethod = proxyType.GetOrAddOverride (baseMethod);
             overridingMethod.AddExplicitBaseDefinition (overriddenMethod);
             Assert.That (overridingMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { overriddenMethod }));
           });
