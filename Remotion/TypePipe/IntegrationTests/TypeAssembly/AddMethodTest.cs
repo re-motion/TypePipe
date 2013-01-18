@@ -18,8 +18,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -179,7 +181,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void MethodUsingMutableMethodInBody ()
+    public void MethodUsingAddedMethodInBody ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -205,21 +207,21 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void MethodUsingExistingMembers ()
+    public void MethodUsingBaseMembers ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var existingField = proxyType.ExistingMutableFields.Single (f => f.Name == "ExistingField");
-            var existingMethod = proxyType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod");
+            var baseField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.ExistingField);
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExistingMethod());
             proxyType.AddMethod (
                 "AddedMethod",
                 MethodAttributes.Public,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Block (
-                    Expression.Assign (Expression.Field (ctx.This, existingField), Expression.Constant ("blah")),
-                    Expression.Call (ctx.This, existingMethod)));
+                    Expression.Assign (Expression.Field (ctx.This, baseField), Expression.Constant ("blah")),
+                    Expression.Call (ctx.This, baseMethod)));
           });
 
       var addedMethod = type.GetMethod ("AddedMethod");
@@ -282,7 +284,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType
     {
-      public string ExistingField;
+      [UsedImplicitly] public string ExistingField;
 
       public string SettableProperty { get; set; }
 
