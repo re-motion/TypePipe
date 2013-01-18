@@ -43,18 +43,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _relatedMethodFinder = relatedMethodFinder;
     }
 
-    public Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
+    public Expression CreateInitialization (ProxyType proxyType, Func<InitializationBodyContext, Expression> initializationProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (declaringType, _memberSelector);
+      var context = new InitializationBodyContext (proxyType, _memberSelector);
       return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
     }
 
-    public MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo CreateField (ProxyType proxyType, string name, Type type, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
@@ -62,19 +62,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("Field cannot be of type void.", "type");
 
       var signature = new FieldSignature (type);
-      if (declaringType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
+      if (proxyType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new InvalidOperationException ("Field with equal signature already exists.");
 
-      return new MutableFieldInfo (declaringType, name, type, attributes);
+      return new MutableFieldInfo (proxyType, name, type, attributes);
     }
 
     public MutableConstructorInfo CreateConstructor (
-        ProxyType declaringType,
+        ProxyType proxyType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
@@ -92,34 +92,34 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameters");
 
       var signature = new MethodSignature (typeof (void), paras.Select (p => p.Type), 0);
-      if (declaringType.AddedConstructors.Any (ctor => ctor.IsStatic == isStatic && MethodSignature.Create (ctor).Equals (signature)))
+      if (proxyType.AddedConstructors.Any (ctor => ctor.IsStatic == isStatic && MethodSignature.Create (ctor).Equals (signature)))
         throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = paras.Select (p => p.Expression);
-      var context = new ConstructorBodyCreationContext (declaringType, isStatic, parameterExpressions, _memberSelector);
+      var context = new ConstructorBodyCreationContext (proxyType, isStatic, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
-      var constructor = new MutableConstructorInfo (declaringType, attributes, paras, body);
+      var constructor = new MutableConstructorInfo (proxyType, attributes, paras, body);
 
       return constructor;
     }
 
     public MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        ProxyType proxyType,
         string name,
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameterDeclarations,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
       // bodyProvider is null for abstract methods
 
       // TODO : virtual and static is an invalid combination
-      // TODO : if it is an implicit method override, it needs the same visibility (or more public visibility?)!
+      // TODO : if it is an implicit baseMethod override, it needs the same visibility (or more public visibility?)!
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
       if (!isAbstract && bodyProvider == null)
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
 
       var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
-      CheckForInvalidAttributes ("method", invalidAttributes, attributes);
+      CheckForInvalidAttributes ("baseMethod", invalidAttributes, attributes);
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
@@ -139,60 +139,61 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var parameters = parameterDeclarations.ConvertToCollection();
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
-      if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
+      if (proxyType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal signature already exists.");
 
-      var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
+      var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, proxyType.BaseType) : null;
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
       var parameterExpressions = parameters.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, baseMethod, _memberSelector);
+      var context = new MethodBodyCreationContext (proxyType, isStatic, parameterExpressions, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var method = new MutableMethodInfo (declaringType, name, attributes, returnType, parameters, baseMethod, body);
+      var method = new MutableMethodInfo (proxyType, name, attributes, returnType, parameters, baseMethod, body);
 
       return method;
     }
 
     public MutableMethodInfo CreateExplicitOverride (
-        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
+        ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
+      return PrivateCreateExplicitOverrideAllowAbstract (proxyType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo method, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (ProxyType proxyType, MethodInfo baseMethod, out bool isNewlyCreated)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("method", method);
-      Assertion.IsNotNull (method.DeclaringType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
+      Assertion.IsNotNull (baseMethod.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
-      if (!declaringType.UnderlyingSystemType.Equals (method.DeclaringType) && !declaringType.IsAssignableTo (method.DeclaringType))
+      if (!proxyType.UnderlyingSystemType.Equals (baseMethod.DeclaringType) && !proxyType.IsAssignableTo (baseMethod.DeclaringType))
       {
-        var message = string.Format ("Method is declared by a type outside of this type's class hierarchy: '{0}'.", method.DeclaringType.Name);
-        throw new ArgumentException (message, "method");
+        // todo yyy: based baseMethod CANNOT be declared on proxy type
+        var message = string.Format ("Method is declared by a type outside of this type's base class hierarchy: '{0}'.", baseMethod.DeclaringType.Name);
+        throw new ArgumentException (message, "baseMethod");
       }
 
-      if (!method.IsVirtual)
-        throw new NotSupportedException ("A method declared in a base type must be virtual in order to be modified.");
+      if (!baseMethod.IsVirtual)
+        throw new NotSupportedException ("A baseMethod declared in a base type must be virtual in order to be modified.");
 
-      if (method.DeclaringType.IsInterface)
+      if (baseMethod.DeclaringType.IsInterface)
       {
-        method = GetOrCreateImplementationMethod (declaringType, method, out isNewlyCreated);
-        if (method is MutableMethodInfo)
-          return (MutableMethodInfo) method;
+        baseMethod = GetOrCreateImplementationMethod (proxyType, baseMethod, out isNewlyCreated);
+        if (baseMethod is MutableMethodInfo)
+          return (MutableMethodInfo) baseMethod;
 
-        Assertion.IsTrue (method.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
+        Assertion.IsTrue (baseMethod.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
       }
 
-      var baseDefinition = method.GetBaseDefinition();
-      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AddedMethods);
+      var baseDefinition = baseMethod.GetBaseDefinition();
+      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, proxyType.AddedMethods);
       if (existingMutableOverride != null)
       {
         isNewlyCreated = false;
@@ -200,26 +201,26 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
       isNewlyCreated = true;
 
-      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
-      CheckNotFinalForOverride (baseMethod);
+      var overrideBaseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, proxyType.BaseType);
+      CheckNotFinalForOverride (overrideBaseMethod);
       var bodyProviderOrNull =
-          baseMethod.IsAbstract
+          overrideBaseMethod.IsAbstract
               ? null
-              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (baseMethod, ctx.Parameters.Cast<Expression>()));
+              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (overrideBaseMethod, ctx.Parameters.Cast<Expression>()));
 
-      var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      var methods = proxyType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
       if (needsExplicitOverride)
-        return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProviderOrNull);
+        return PrivateCreateExplicitOverrideAllowAbstract (proxyType, baseDefinition, bodyProviderOrNull);
 
-      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (overrideBaseMethod);
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseDefinition);
 
-      return CreateMethod (declaringType, baseMethod.Name, attributes, baseMethod.ReturnType, parameters, bodyProviderOrNull);
+      return CreateMethod (proxyType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
-        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
+        ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
     {
       Assertion.IsTrue (bodyProviderOrNull != null || overriddenMethodBaseDefinition.IsAbstract);
 
@@ -229,15 +230,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         attributes = attributes.Unset (MethodAttributes.Abstract);
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (overriddenMethodBaseDefinition);
 
-      var method = CreateMethod (declaringType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProviderOrNull);
+      var method = CreateMethod (proxyType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProviderOrNull);
       method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
 
       return method;
     }
 
-    private MethodInfo GetOrCreateImplementationMethod (ProxyType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
+    private MethodInfo GetOrCreateImplementationMethod (ProxyType proxyType, MethodInfo ifcMethod, out bool isNewlyCreated)
     {
-      var interfaceMap = declaringType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
+      var interfaceMap = proxyType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
       var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
       var implementation = interfaceMap.TargetMethods[index];
 
@@ -247,12 +248,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         try
         {
           isNewlyCreated = true;
-          return CreateMethod (declaringType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
+          return CreateMethod (proxyType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
         }
         catch (InvalidOperationException)
         {
           var message = string.Format (
-              "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
+              "Interface baseMethod '{0}' cannot be implemented because a baseMethod with equal name and signature already exists. "
               + "Use {1}.{2} to create an explicit implementation.",
               ifcMethod.Name,
               typeof (ProxyType).Name,
@@ -272,7 +273,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (overridenMethod.IsFinal)
       {
         Assertion.IsNotNull (overridenMethod.DeclaringType);
-        var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
+        var message = string.Format ("Cannot override final baseMethod '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }
     }
