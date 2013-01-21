@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,24 +14,24 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Reflection;
-using Remotion.Collections;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection;
+using Microsoft.Scripting.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Helps with building initializations for a <see cref="ProxyType"/>.
+  /// An implementation of <see cref="IExpressionPreparer"/> that just returns the body.
   /// </summary>
-  /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyCreator"/>.</remarks>
-  [ConcreteImplementation (typeof (InitializationBuilder))]
-  public interface IInitializationBuilder
+  public class NullExpressionPreparer : IExpressionPreparer
   {
-    Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (ProxyType proxyType);
+    public Expression PrepareBody (CodeGenerationContext context, Expression body)
+    {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("body", body);
 
-    void WireConstructorWithInitialization (
-        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler);
+      return body;
+    }
   }
 }

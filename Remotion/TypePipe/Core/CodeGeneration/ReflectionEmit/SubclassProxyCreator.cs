@@ -25,42 +25,53 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Implements <see cref="ISubclassProxyBuilder"/> by building a subclass proxy using <see cref="ITypeBuilder"/> and related interfaces.
-  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="Build"/> method.
+  /// Implements <see cref="ISubclassProxyCreator"/> by building a subclass proxy using <see cref="ITypeBuilder"/> and related interfaces.
+  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="CreateProxy"/> method.
   /// </summary>
-  public class SubclassProxyBuilder : ISubclassProxyBuilder
+  public class SubclassProxyCreator : ISubclassProxyCreator
   {
-    private readonly ICodeGenerationContextFactory _codeGenerationContextFactory;
+    private readonly IReflectionEmitCodeGenerator _codeGenerator;
+    private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
-    public SubclassProxyBuilder (
-        ICodeGenerationContextFactory codeGenerationContextFactory,
+    [CLSCompliant (false)]
+    public SubclassProxyCreator (
+        IReflectionEmitCodeGenerator codeGenerator,
+        IMemberEmitterFactory memberEmitterFactory,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {
-      ArgumentUtility.CheckNotNull ("codeGenerationContextFactory", codeGenerationContextFactory);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
+      ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
-      _codeGenerationContextFactory = codeGenerationContextFactory;
+      _codeGenerator = codeGenerator;
+      _memberEmitterFactory = memberEmitterFactory;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _codeGenerationContextFactory.CodeGenerator; }
+      get { return _codeGenerator; }
     }
 
-    public Type Build (ProxyType proxyType)
+    public Type CreateProxy (ProxyType proxyType)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      var context = _codeGenerationContextFactory.CreateContext (proxyType);
+      var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
+      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (emittableOperandProvider);
+
+      var typeBuilder = _codeGenerator.DefineType (proxyType.FullName, proxyType.Attributes, proxyType.BaseType);
+      typeBuilder.RegisterWith (emittableOperandProvider, proxyType);
+
+      var context = new CodeGenerationContext (proxyType, typeBuilder, _codeGenerator.DebugInfoGenerator, emittableOperandProvider);
 
       if (proxyType.MutableTypeInitializer != null)
-        context.MemberEmitter.AddConstructor (context, proxyType.MutableTypeInitializer);
+        memberEmitter.AddConstructor (context, proxyType.MutableTypeInitializer);
 
       var initializationMembers = _initializationBuilder.CreateInitializationMembers (proxyType);
       var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
@@ -68,28 +79,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _proxySerializationEnabler.MakeSerializable (proxyType, initializationMethod);
 
       foreach (var customAttribute in proxyType.AddedCustomAttributes)
-        context.TypeBuilder.SetCustomAttribute (customAttribute);
+        typeBuilder.SetCustomAttribute (customAttribute);
 
       foreach (var ifc in proxyType.AddedInterfaces)
-        context.TypeBuilder.AddInterfaceImplementation (ifc);
+        typeBuilder.AddInterfaceImplementation (ifc);
 
       foreach (var field in proxyType.AddedFields)
-        context.MemberEmitter.AddField (context, field);
+        memberEmitter.AddField (context, field);
       foreach (var ctor in proxyType.AddedConstructors)
-        WireAndAddConstructor (context, ctor, initializationMembers);
+        WireAndAddConstructor (memberEmitter, context, ctor, initializationMembers);
       foreach (var method in proxyType.AddedMethods)
-        context.MemberEmitter.AddMethod (context, method, method.Attributes);
+        memberEmitter.AddMethod (context, method, method.Attributes);
 
       context.PostDeclarationsActionManager.ExecuteAllActions();
 
-      return context.TypeBuilder.CreateType();
+      return typeBuilder.CreateType();
     }
 
     private void WireAndAddConstructor (
-        CodeGenerationContext context, MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
+        IMemberEmitter member, CodeGenerationContext context, MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
       _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
-      context.MemberEmitter.AddConstructor (context, constructor);
+      member.AddConstructor (context, constructor);
     }
   }
 }

@@ -25,8 +25,8 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Defines an interface for classes building a subclass proxy.
   /// </summary>
-  [ConcreteImplementation (typeof (SubclassProxyBuilder))]
-  public interface ISubclassProxyBuilder
+  [ConcreteImplementation (typeof (SubclassProxyCreator))]
+  public interface ISubclassProxyCreator
   {
     ICodeGenerator CodeGenerator { get; }
 
@@ -38,6 +38,6 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <returns>The generated proxy type.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    Type Build (ProxyType proxyType);
+    Type CreateProxy (ProxyType proxyType);
   }
 }

@@ -17,18 +17,15 @@
 
 using System;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for <see cref="ISubclassProxyBuilder"/> factories.
+  /// Defines an interface for <see cref="IMemberEmitter"/> factories.
   /// </summary>
-  [ConcreteImplementation (typeof (CodeGenerationContextFactory))]
-  public interface ICodeGenerationContextFactory
+  [ConcreteImplementation (typeof (MemberEmitterFactory))]
+  public interface IMemberEmitterFactory
   {
-    ICodeGenerator CodeGenerator { get; }
-
-    CodeGenerationContext CreateContext (ProxyType proxyType);
+    IMemberEmitter CreateMemberEmitter (IEmittableOperandProvider emittableOperandProvider);
   }
 }

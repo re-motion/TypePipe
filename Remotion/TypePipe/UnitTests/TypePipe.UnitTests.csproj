@@ -80,8 +80,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitorTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyCreatorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
     <Compile Include="Caching\ConstructorFinderTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />

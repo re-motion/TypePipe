@@ -30,14 +30,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         ProxyType proxyType = null,
         ITypeBuilder typeBuilder = null,
         DebugInfoGenerator debugInfoGenerator = null,
-        IMemberEmitter memberEmitter = null,
         IEmittableOperandProvider emittableOperandProvider = null)
     {
       return new CodeGenerationContext (
           proxyType ?? ProxyTypeObjectMother.Create(),
           typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
-          memberEmitter ?? MockRepository.GenerateStub<IMemberEmitter>(),
           emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>());
     }
   }

@@ -28,6 +28,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private static int s_counter;
 
+    public static MutableFieldInfo AddField (
+        this ProxyType proxyType, string name = null, Type type = null, FieldAttributes attributes = FieldAttributes.Private)
+    {
+      name = name ?? "Field_" + ++s_counter;
+      type = type ?? typeof (int);
+
+      return proxyType.AddField (name, type, attributes);
+    }
+
+    public static MutableConstructorInfo AddConstructor (
+        this ProxyType proxyType,
+        MethodAttributes attributes = MethodAttributes.Public,
+        IEnumerable<ParameterDeclaration> parameters = null,
+        Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
+    {
+      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
+
+      return proxyType.AddConstructor (attributes, parameters, bodyProvider);
+    }
+
     public static MutableMethodInfo AddMethod (
         this ProxyType proxyType,
         string name = null,

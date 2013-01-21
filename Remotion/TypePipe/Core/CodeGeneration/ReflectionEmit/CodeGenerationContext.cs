@@ -32,7 +32,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ProxyType _proxyType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
-    private readonly IMemberEmitter _memberEmitter;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly DeferredActionManager _postDeclarationsActionManager = new DeferredActionManager();
 
@@ -41,11 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public CodeGenerationContext (
-        ProxyType proxyType,
-        ITypeBuilder typeBuilder,
-        DebugInfoGenerator debugInfoGeneratorOrNull,
-        IMemberEmitter memberEmitter,
-        IEmittableOperandProvider emittableOperandProvider)
+        ProxyType proxyType, ITypeBuilder typeBuilder, DebugInfoGenerator debugInfoGeneratorOrNull, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
@@ -54,7 +49,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _proxyType = proxyType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
-      _memberEmitter = memberEmitter;
       _emittableOperandProvider = emittableOperandProvider;
     }
 
@@ -72,12 +66,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public DebugInfoGenerator DebugInfoGenerator
     {
       get { return _debugInfoGenerator; }
-    }
-
-    // This property exists only to break a cyclic dependency.
-    public IMemberEmitter MemberEmitter
-    {
-      get { return _memberEmitter; }
     }
 
     public IEmittableOperandProvider EmittableOperandProvider

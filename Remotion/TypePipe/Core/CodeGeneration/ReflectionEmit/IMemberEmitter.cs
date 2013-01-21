@@ -21,7 +21,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Defines an interface for classes emitting members for mutable reflection objects. Used by <see cref="SubclassProxyBuilder"/>.
+  /// Defines an interface for classes emitting members for mutable reflection objects. Used by <see cref="SubclassProxyCreator"/>.
   /// </summary>
   public interface IMemberEmitter
   {

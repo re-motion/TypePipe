@@ -32,20 +32,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class MethodTrampolineProviderTest
   {
+    private IMemberEmitter _memberEmitterMock;
+
     private MethodTrampolineProvider _provider;
 
     private ProxyType _proxyType;
-    private IMemberEmitter _memberEmitterMock;
     private CodeGenerationContext _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _provider = new MethodTrampolineProvider();
+      _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
+
+      _provider = new MethodTrampolineProvider (_memberEmitterMock);
 
       _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
-      _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
-      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType, memberEmitter: _memberEmitterMock);
+      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType);
     }
 
     [Test]
