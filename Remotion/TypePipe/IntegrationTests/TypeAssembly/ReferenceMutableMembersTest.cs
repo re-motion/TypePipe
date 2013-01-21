@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType
     {
-      public string Method () { return "base method"; }
+      public virtual string Method () { return "base method"; }
     }
   }
 }

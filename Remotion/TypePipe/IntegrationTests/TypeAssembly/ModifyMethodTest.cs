@@ -16,12 +16,12 @@
 // 
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -159,31 +159,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ModifyingNonVirtualAndStaticAndFinalMethods_Throws ()
     {
+      var nonVirtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethod());
+      var staticMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.PublicStaticMethod());
+      var finalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FinalMethod());
+
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var nonVirtualMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicMethod"));
+            var message = "Only virtual methods can be overridden.";
             Assert.That (
-                () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "The body of the existing non-virtual or final method 'PublicMethod' cannot be replaced."));
+                () => proxyType.GetOrAddOverride (nonVirtualMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
 
-            var staticMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicStaticMethod"));
             Assert.That (
-                () => staticMethod.SetBody (
-                    ctx =>
-                    {
-                      Assert.That (ctx.IsStatic, Is.True);
-                      return Expression.Constant (8);
-                    }),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "The body of the existing non-virtual or final method 'PublicStaticMethod' cannot be replaced."));
+                () => proxyType.GetOrAddOverride (staticMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
 
-            var finalMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("FinalMethod"));
             Assert.That (
-                () => finalMethod.SetBody (ctx => Expression.Constant (7)),
-                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (
-                    "The body of the existing non-virtual or final method 'FinalMethod' cannot be replaced."));
+                () => proxyType.GetOrAddOverride (finalMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Cannot override final method 'DomainType.FinalMethod'."));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -246,14 +240,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType : DomainTypeBase
     {
-      public virtual string PublicVirtualMethod(int i)
+      public virtual string PublicVirtualMethod (int i)
       {
-        return i.ToString();
+        return "" + i;
       }
 
       protected virtual string ProtectedVirtualMethod (double d)
       {
-        return d.ToString (CultureInfo.InvariantCulture);
+        return "" + d;
       }
 
       public string CallsOriginalMethod (int i)

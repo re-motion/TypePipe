@@ -77,6 +77,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedDelegateTargetMethod, expectedReturnValue: "derived");
     }
 
+    [Ignore ("TODO 5354")]
     [Test]
     public void CreateVirtualFunc_PreventsMultipleExecutionOfSideEffects ()
     {

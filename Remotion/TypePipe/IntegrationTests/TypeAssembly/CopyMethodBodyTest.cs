@@ -80,23 +80,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void FromStaticMetod_ToNewStaticMethod ()
+    public void FromStaticMetod_ToStaticMethod ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var methodToCopy = proxyType.GetOrAddOverride (_multiply);
-            Assert.That (methodToCopy.IsStatic, Is.True);
+            var methodToCopy = proxyType.AddMethod (
+                "from",
+                MethodAttributes.Static,
+                typeof (int),
+                new[] { new ParameterDeclaration (typeof (int), "i") },
+                ctx => Expression.Call (_multiply, ctx.Parameters[0], ctx.Parameters[0]));
 
             proxyType.AddMethod (
-                "StaticMethod",
+                "to",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
-                ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0], ctx.Parameters[0]));
+                ctx => ctx.CopyMethodBody (methodToCopy, ctx.Parameters[0]));
           });
 
-      var method = type.GetMethod ("StaticMethod");
+      var method = type.GetMethod ("to");
 
       var result = method.Invoke (null, new object[] { 7 });
       Assert.That (result, Is.EqualTo (49));

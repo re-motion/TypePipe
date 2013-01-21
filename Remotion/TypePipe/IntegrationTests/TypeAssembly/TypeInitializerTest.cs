@@ -87,7 +87,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var type = AssembleType<DomainType> (
           p => p.AddTypeInitializer (ctx => Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("abc")))),
-          p => p.MutableTypeInitializer.SetBody (ctx => Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("def")))));
+          p => p.MutableTypeInitializer.SetBody (
+              ctx => Expression.Block (
+                  ctx.PreviousBody, Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("def"))))));
 
       RuntimeHelpers.RunClassConstructor (type.TypeHandle);
       Assert.That (DomainType.StaticField, Is.EqualTo ("abcdef"));
