@@ -249,7 +249,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (returnParameter.Position, Is.EqualTo (-1));
       Assert.That (returnParameter.Name, Is.Null);
       Assert.That (returnParameter.ParameterType, Is.SameAs (returnType));
-      Assert.That (returnParameter.Attributes, Is.EqualTo (ParameterAttributes.Retval));
+      Assert.That (returnParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
 
       Assert.That (method.BaseMethod, Is.Null);
       Assert.That (method.IsGenericMethod, Is.False);

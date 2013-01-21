@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       SetupDefineCustomAttribute (methodBuilderMock, method);
-      var returnParameterBuilderMock = SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.Retval);
+      var returnParameterBuilderMock = SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None);
       SetupDefineCustomAttribute (returnParameterBuilderMock, method.MutableReturnParameter);
       var parameterBuilderMock = SetupDefineParameter (methodBuilderMock, 1, "i", ParameterAttributes.Reserved3);
       SetupDefineCustomAttribute (parameterBuilderMock, method.MutableParameters[0]);
@@ -201,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineMethod ("AbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
-      SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: ParameterAttributes.Retval);
+      SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: ParameterAttributes.None);
 
       _emitter.AddMethod (_context, method, MethodAttributes.Abstract);
 

@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.MutableReflection
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
-      _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.Retval);
+      _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
       _baseMethod = baseMethod;

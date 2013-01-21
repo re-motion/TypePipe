@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 
-      MutableParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.Retval);
+      MutableParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.None);
       Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));
 
       var actualParameters = method.GetParameters();
