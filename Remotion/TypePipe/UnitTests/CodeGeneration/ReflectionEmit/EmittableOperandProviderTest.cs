@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var emittableType = ReflectionObjectMother.GetSomeType();
       _provider.AddMapping (proxyType, emittableType);
 
-      // Test recursion: List<Func<mt xxx>> as TypeBuilderInstantiation
+      // Test recursion: List<Func<pt xxx>> as TypeBuilderInstantiation
       var constructedType = typeof (List<>).MakeGenericType (typeof (Func<>).MakeGenericType (proxyType));
       Assert.That (constructedType.IsRuntimeType(), Is.False);
 

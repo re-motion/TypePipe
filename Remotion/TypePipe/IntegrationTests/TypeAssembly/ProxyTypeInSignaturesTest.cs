@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void Field ()
     {
-      var type = AssembleType<DomainType> (mt => mt.AddField ("Field", mt, FieldAttributes.Public));
+      var type = AssembleType<DomainType> (p => p.AddField ("Field", p, FieldAttributes.Public));
 
       var field = type.GetField ("Field");
       Assert.That (field.FieldType, Is.SameAs (type));
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Constructor ()
     {
       var type = AssembleType<DomainType> (
-          mt => mt.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (mt, "p") }, ctx => Expression.Empty()));
+          p => p.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (p, "param") }, ctx => Expression.Empty()));
 
       var constructor = type.GetConstructor (new[] { type });
       Assert.That (constructor, Is.Not.Null);
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Method ()
     {
       var type = AssembleType<DomainType> (
-          mt => mt.AddMethod ("Method", MethodAttributes.Public, mt, new[] { new ParameterDeclaration (mt, "p") }, ctx => Expression.Default (mt)));
+          p => p.AddMethod ("Method", MethodAttributes.Public, p, new[] { new ParameterDeclaration (p, "p") }, ctx => Expression.Default (p)));
 
       var method = type.GetMethod ("Method");
       Assert.That (method.ReturnType, Is.SameAs (type));

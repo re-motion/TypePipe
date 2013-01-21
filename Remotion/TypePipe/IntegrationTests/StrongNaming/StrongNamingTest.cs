@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     public void NoStrongName_Default ()
     {
       // Could be strong-named, but isn't - the default is to output assemblies without strong name.
-      Action<ProxyType> action = mt => mt.AddField ("f", _signedType);
+      Action<ProxyType> action = p => p.AddField ("f", _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void NoStrongName_UnsignedType ()
     {
-      Action<ProxyType> action = mt => mt.AddField ("f", _unsignedType);
+      Action<ProxyType> action = p => p.AddField ("f", _unsignedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName ()
     {
-      Action<ProxyType> action = mt => mt.AddField ("f", _signedType);
+      Action<ProxyType> action = p => p.AddField ("f", _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
     }
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_CustomKey ()
     {
-      Action<ProxyType> action = mt => mt.AddField ("f", _signedType);
+      Action<ProxyType> action = p => p.AddField ("f", _signedType);
 
       var keyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"StrongNaming\OtherKey.snk");
       var customKey = new StrongNameKeyPair (File.ReadAllBytes (keyPath));
@@ -117,23 +117,23 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     public void ForceStrongName_Signature ()
     {
       // Base type is DomainType which is signed.
-      CheckStrongNaming (mt => mt.AddInterface (_signedInterfaceType));
-      CheckStrongNaming (mt => mt.AddField ("f", _signedType));
-      CheckStrongNaming (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor()));
-      CheckStrongNaming (mt => mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType)));
+      CheckStrongNaming (p => p.AddInterface (_signedInterfaceType));
+      CheckStrongNaming (p => p.AddField ("f", _signedType));
+      CheckStrongNaming (p => p.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor()));
+      CheckStrongNaming (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType)));
       // Properties and Events: event type, property type, property index parameter
       // TODO 4675
       // TODO 4676
 
       // Attributes
-      CheckStrongNaming (mt => mt.AddCustomAttribute (_signedAttribute));
-      CheckStrongNaming (mt => mt.AddField ("f", _signedType).AddCustomAttribute (_signedAttribute));
-      CheckStrongNaming (mt => mt.AddConstructor (
+      CheckStrongNaming (p => p.AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (p => p.AddField ("f", _signedType).AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (p => p.AddConstructor (
               0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor ()).AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (
-          mt =>
+          p =>
           {
-            var method = mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType));
+            var method = p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType));
             method.AddCustomAttribute (_signedAttribute);
             method.MutableReturnParameter.AddCustomAttribute (_signedAttribute);
             method.MutableParameters.Single().AddCustomAttribute (_signedAttribute);
@@ -148,32 +148,32 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     {
       SkipSavingAndPeVerification();
 
-      CheckStrongNamingException (mt => { }, requestedType: _unsignedType); // Requested type will be parent.
-      CheckStrongNamingException (mt => mt.AddInterface (_unsignedInterfaceType));
-      CheckStrongNamingException (mt => mt.AddField ("f", _unsignedType));
-      CheckStrongNamingException (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.CallThisConstructor()));
-      CheckStrongNamingException (mt => mt.AddMethod ("m", 0, _unsignedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_unsignedType)));
-      CheckStrongNamingException (mt => mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => Expression.Default (_signedType)));
+      CheckStrongNamingException (p => { }, requestedType: _unsignedType); // Requested type will be parent.
+      CheckStrongNamingException (p => p.AddInterface (_unsignedInterfaceType));
+      CheckStrongNamingException (p => p.AddField ("f", _unsignedType));
+      CheckStrongNamingException (p => p.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.CallThisConstructor()));
+      CheckStrongNamingException (p => p.AddMethod ("m", 0, _unsignedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_unsignedType)));
+      CheckStrongNamingException (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => Expression.Default (_signedType)));
       // Properties and Events: event type, property type, property index parameter
       // TODO 4675
       // TODO 4676
 
       // Attributes
-      CheckStrongNamingException (mt => mt.AddCustomAttribute (_unsignedAttribute));
-      CheckStrongNamingException (mt => mt.AddField ("f", _signedType).AddCustomAttribute (_unsignedAttribute));
-      CheckStrongNamingException (mt => mt.AddConstructor (
+      CheckStrongNamingException (p => p.AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (p => p.AddField ("f", _signedType).AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (p => p.AddConstructor (
               0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor ()).AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (
-          mt =>
-          mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
+          p =>
+          p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
             .AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (
-          mt =>
-          mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
+          p =>
+          p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
             .MutableReturnParameter.AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (
-          mt =>
-          mt.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
+          p =>
+          p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
             .MutableParameters.Single().AddCustomAttribute (_unsignedAttribute));
       // Attributes on properties and events.
       // TODO 4675
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_Signature_ProxyType ()
     {
-      Action<ProxyType> action = mt => mt.AddField ("Field", mt);
+      Action<ProxyType> action = p => p.AddField ("Field", p);
 
       CheckStrongNaming (action, forceStrongNaming: true);
     }
@@ -277,7 +277,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpression (Expression methodBody)
     {
-      CheckStrongNaming (mt => mt.AddMethod ("m", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => methodBody), forceStrongNaming: true);
+      CheckStrongNaming (p => p.AddMethod ("m", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => methodBody), forceStrongNaming: true);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -297,7 +297,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpressionException (Expression methodBody)
     {
-      CheckStrongNamingException (mt => mt.AddMethod ("m", ctx => methodBody));
+      CheckStrongNamingException (p => p.AddMethod ("m", ctx => methodBody));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]

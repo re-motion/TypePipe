@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var message = "Cannot override final method 'DomainTypeBase.Remotion.TypePipe.IntegrationTests.TypeAssembly."
                     + "InterfaceImplementationTest.IBaseInterface.ExplicitlyImplemented'.";
       AssembleType<DomainType> (
-          mt => Assert.That (() => mt.GetOrAddOverride (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
+          p => Assert.That (() => p.GetOrAddOverride (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
     }
 
     [Test]
