@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -360,7 +361,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      return _addedConstructors.Cast<ConstructorInfo>();
+      return _typeInitializer != null
+                 ? _addedConstructors.Cast<ConstructorInfo>().Concat (_typeInitializer)
+                 : _addedConstructors.Cast<ConstructorInfo>();
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()

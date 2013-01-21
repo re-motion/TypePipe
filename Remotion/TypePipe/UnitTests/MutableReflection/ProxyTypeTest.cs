@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private IMutableMemberFactory _mutableMemberFactoryMock;
 
     private ProxyType _proxyType;
+    private ProxyType _proxyTypeWithoutMocks;
 
     [SetUp]
     public void SetUp ()
@@ -59,6 +60,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           interfaceMappingComputer: _interfaceMappingComputerMock,
           mutableMemberFactory: _mutableMemberFactoryMock,
           skipConstructorCopying: true);
+
+      _proxyTypeWithoutMocks = ProxyTypeObjectMother.Create (typeof (DomainType), skipConstructorCopying: true);
     }
 
     [Test]
@@ -429,9 +432,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseFields = typeof (DomainType).GetFields (c_all);
       Assert.That (baseFields, Is.Not.Empty);
-      var addedField = AddField (_proxyType);
+      var addedField = _proxyTypeWithoutMocks.AddField ("field", typeof (int));
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyType, "GetAllFields");
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllFields");
 
       Assert.That (result, Is.EqualTo (new[] { addedField }.Concat (baseFields)));
     }
@@ -441,20 +444,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseCtors = typeof (DomainType).GetConstructors (c_all);
       Assert.That (baseCtors, Is.Not.Empty);
-      var addedCtor = AddConstructor (_proxyType);
+      var addedCtor = _proxyTypeWithoutMocks.AddConstructor();
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyType, "GetAllConstructors");
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllConstructors");
 
       Assert.That (result, Is.EqualTo (new[] { addedCtor }));
+    }
+
+    [Test]
+    public void GetAllConstructors_TypeInitializer ()
+    {
+      var addedTypeInitializer = _proxyTypeWithoutMocks.AddConstructor (MethodAttributes.Static);
+      var addedCtor = _proxyTypeWithoutMocks.AddConstructor();
+
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllConstructors");
+
+      Assert.That (result, Is.EqualTo (new[] { addedCtor, addedTypeInitializer }));
     }
 
     [Test]
     public void GetAllMethods ()
     {
       var baseMethods = typeof (DomainType).GetMethods (c_all);
-      var addedMethod = AddMethod (_proxyType, "Added");
+      var addedMethod = _proxyTypeWithoutMocks.AddMethod();
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyType, "GetAllMethods");
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllMethods");
 
       Assert.That (result, Is.EqualTo (new[] { addedMethod }.Concat (baseMethods)));
     }
@@ -494,39 +508,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       // Note: ToDebugString() is implemented in CustomType base class.
       Assert.That (_proxyType.ToDebugString(), Is.EqualTo ("ProxyType = \"Proxy\""));
-    }
-
-    private MutableFieldInfo AddField (ProxyType proxyType)
-    {
-      Assertion.IsTrue (proxyType == _proxyType, "Consider adding a parameter for _mutableMemberFactoryMock");
-
-      var fakeField = MutableFieldInfoObjectMother.Create (proxyType);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateField (null, "", null, 0)).IgnoreArguments().Return (fakeField).Repeat.Once();
-
-      return proxyType.AddField ("x", typeof (int));
-    }
-
-    private MutableConstructorInfo AddConstructor (ProxyType proxyType, params ParameterDeclaration[] parameterDeclarations)
-    {
-      Assertion.IsTrue (proxyType == _proxyType, "Consider adding a parameter for _mutableMemberFactoryMock");
-
-      var fakeCtor = MutableConstructorInfoObjectMother.Create (proxyType, parameters: parameterDeclarations);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateConstructor (null, 0, null, null)).IgnoreArguments().Return (fakeCtor).Repeat.Once();
-
-      return proxyType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => null);
-    }
-
-    private MutableMethodInfo AddMethod (ProxyType proxyType, string name, params ParameterDeclaration[] parameterDeclarations)
-    {
-      Assertion.IsTrue (proxyType == _proxyType, "Consider adding a parameter for _mutableMemberFactoryMock");
-
-      var fakeMethod = MutableMethodInfoObjectMother.Create (proxyType, name, parameters: parameterDeclarations);
-      _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateMethod (null, "", 0, null, null, null)).IgnoreArguments()
-          .Return (fakeMethod)
-          .Repeat.Once();
-
-      return proxyType.AddMethod ("x", 0, typeof (int), ParameterDeclaration.EmptyParameters, null);
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
