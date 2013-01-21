@@ -18,11 +18,13 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
@@ -32,8 +34,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     private ProxyType _proxyType;
 
     private FieldInfo _publicField;
-    private ConstructorInfo _publicConstructorWithOverloadEmpty;
-    private ConstructorInfo _publicConstructorWithOverloadInt;
     private MethodInfo _publicMethod;
     private MethodInfo _publicMethodWithOverloadEmpty;
     private MethodInfo _publicMethodWithOverloadInt;
@@ -44,8 +44,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
 
       _publicField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.PublicField);
-      _publicConstructorWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      _publicConstructorWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (0));
       _publicMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethod (0));
       _publicMethodWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethodWithOverload());
       _publicMethodWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethodWithOverload (1));
@@ -54,7 +52,10 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void TypeInitializer ()
     {
-      Assert.Fail();
+      Assert.That (_proxyType.TypeInitializer, Is.Null);
+
+      _proxyType.AddTypeInitializer (ctx => Expression.Empty());
+      Assert.That (_proxyType.TypeInitializer, Is.Not.Null);
     }
 
     [Test]
@@ -96,7 +97,10 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetConstructor_Types ()
     {
       var result = _proxyType.GetConstructor (new[] { typeof (int) });
-      Assert.That (result, Is.SameAs (_publicConstructorWithOverloadInt));
+
+      var expectedCtor =
+          _proxyType.AddedConstructors.Single (c => c.MutableParameters.Select (p => p.ParameterType).SequenceEqual (new[] { typeof (int) }));
+      Assert.That (result, Is.SameAs (expectedCtor));
     }
 
     [Test]
@@ -115,7 +119,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
-      var candidates = new MethodBase[] { _publicConstructorWithOverloadEmpty, _publicConstructorWithOverloadInt };
+      var candidates = _proxyType.AddedConstructors.Cast<MethodBase>().ToArray();
+      Assert.That (candidates, Is.Not.Empty);
       var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object ());
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 
@@ -170,7 +175,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
-      var candidates = new MethodBase[] { _publicConstructorWithOverloadEmpty, _publicConstructorWithOverloadInt };
+      var candidates = _proxyType.AddedConstructors.Cast<MethodBase>().ToArray();
+      Assert.That (candidates, Is.Not.Empty);
       var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object());
       binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
 

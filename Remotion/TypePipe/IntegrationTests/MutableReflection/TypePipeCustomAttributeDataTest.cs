@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       // TODO 4791
       // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
 
-      AddAbcAttribute (proxyType, "type");
+      AddAbcAttribute (proxyType, "class");
       AddAbcAttribute (typeInitializer, "type initializer");
       AddAbcAttribute (field, "field");
       AddAbcAttribute (ctor, "constructor");
