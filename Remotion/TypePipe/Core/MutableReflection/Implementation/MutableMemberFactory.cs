@@ -173,9 +173,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsNotNull (baseMethod.DeclaringType);
 
       // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
-      if (!proxyType.UnderlyingSystemType.Equals (baseMethod.DeclaringType) && !proxyType.IsAssignableTo (baseMethod.DeclaringType))
+      if (!proxyType.UnderlyingSystemType.Equals (baseMethod.DeclaringType)
+          && !proxyType.IsAssignableTo (baseMethod.DeclaringType)
+          || baseMethod.DeclaringType == proxyType)
       {
-        // todo yyy: based baseMethod CANNOT be declared on proxy type
         var message = string.Format (
             "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", baseMethod.DeclaringType.Name);
         throw new ArgumentException (message, "baseMethod");

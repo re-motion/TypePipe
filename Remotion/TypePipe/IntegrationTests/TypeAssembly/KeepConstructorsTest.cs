@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance = ctor.Invoke (parameters);
 
       Assert.That (instance, Is.Not.Null);
-      Assert.That (instance.GetType (), Is.SameAs (type));
+      Assert.That (instance.GetType(), Is.SameAs (type));
       Assert.That (parameters[0], Is.EqualTo (88));
       Assert.That (parameters[1], Is.EqualTo ("in and out"));
     }

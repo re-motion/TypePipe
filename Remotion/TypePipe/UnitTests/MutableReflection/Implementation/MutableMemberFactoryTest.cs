@@ -476,7 +476,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_ExistingOverride ()
+    public void GetOrCreateOverride_ExistingOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ToString());
@@ -489,19 +489,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
 
-      _relatedMethodFinderMock.VerifyAllExpectations ();
+      _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
       Assert.That (_isNewlyCreated, Is.False);
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_BaseMethod_ImplicitOverride ()
+    public void GetOrCreateOverride_BaseMethod_ImplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
 
-      CallAndCheckGetOrAddMethod (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           inputMethod,
           baseMethod,
@@ -515,7 +515,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
+    public void GetOrCreateOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
       var inputMethod = baseDefinition;
@@ -523,7 +523,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (baseMethod.IsFamilyOrAssembly, Is.True);
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
 
-      CallAndCheckGetOrAddMethod (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           inputMethod,
           baseMethod,
@@ -537,7 +537,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_BaseMethod_ImplicitOverride_Abstract ()
+    public void GetOrCreateOverride_BaseMethod_ImplicitOverride_Abstract ()
     {
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
@@ -554,14 +554,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_ShadowedBaseMethod_ExplicitOverride ()
+    public void GetOrCreateOverride_ShadowedBaseMethod_ExplicitOverride ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
 
-      CallAndCheckGetOrAddMethod (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           inputMethod,
           baseMethod,
@@ -575,7 +575,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_InterfaceMethod_AddImplementation ()
+    public void GetOrCreateOverride_InterfaceMethod_AddImplementation ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
       _proxyType.AddInterface (typeof (IAddedInterface));
@@ -597,12 +597,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOrCreateMethodOverride_InterfaceMethod_OverrideImplementationInBase ()
+    public void GetOrCreateOverride_InterfaceMethod_OverrideImplementationInBase ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod (7));
       var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod (7));
 
-      CallAndCheckGetOrAddMethod (
+      CallAndCheckGetOrAddOverride (
           implementation,
           interfaceMethod,
           implementation,
@@ -619,7 +619,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
         + "Use ProxyType.AddExplicitOverride to create an explicit implementation.")]
-    public void GetOrCreateMethodOverride_InterfaceMethod_InvalidCandidate ()
+    public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
     {
       _proxyType.AddInterface (typeof (IAddedInterface));
       _proxyType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
@@ -630,15 +630,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Method is declared by a type outside of the proxy base class hierarchy: 'String'.\r\nParameter name: baseMethod")]
-    public void GetOrCreateMethodOverride_UnrelatedDeclaringType ()
+    public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim());
+      _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: baseMethod")]
+    public void GetOrCreateOverride_DeclaredOnProxyType ()
+    {
+      var method = _proxyType.AddMethod ("method", ctx => Expression.Empty());
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Only virtual methods can be overridden.")]
-    public void GetOrCreateMethodOverride_NonVirtualMethod ()
+    public void GetOrCreateOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualBaseMethod());
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
@@ -646,7 +655,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void GetOrCreateMethodOverride_FinalBaseMethod ()
+    public void GetOrCreateOverride_FinalBaseMethod ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
       var inputMethod = baseDefinition;
@@ -658,7 +667,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
     }
 
-    private void CallAndCheckGetOrAddMethod (
+    private void CallAndCheckGetOrAddOverride (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
         MethodInfo baseMethod,
