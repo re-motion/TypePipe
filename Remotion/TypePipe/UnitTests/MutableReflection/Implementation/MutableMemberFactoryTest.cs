@@ -289,9 +289,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateMethod_Shadowing_NonVirtual ()
     {
-      var baseMethod = GetBaseMethod (_proxyType, "ToString");
-      Assert.That (baseMethod, Is.Not.Null);
-      Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
+      var shadowedMethod = _proxyType.GetMethod ("ToString");
+      Assert.That (shadowedMethod, Is.Not.Null);
+      Assert.That (shadowedMethod.DeclaringType, Is.SameAs (typeof (object)));
 
       var nonVirtualAttributes = (MethodAttributes) 0;
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx =>
@@ -307,17 +307,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           ParameterDeclaration.EmptyParameters,
           bodyProvider);
 
-      Assert.That (method, Is.Not.Null.And.Not.EqualTo (baseMethod));
+      Assert.That (method, Is.Not.Null.And.Not.EqualTo (shadowedMethod));
       Assert.That (method.BaseMethod, Is.Null);
-      Assert.That (method.GetBaseDefinition (), Is.SameAs (method));
+      Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
     }
 
     [Test]
     public void CreateMethod_Shadowing_VirtualAndNewSlot ()
     {
-      var baseMethod = GetBaseMethod (_proxyType, "ToString");
-      Assert.That (baseMethod, Is.Not.Null);
-      Assert.That (baseMethod.DeclaringType, Is.SameAs (typeof (object)));
+      var shadowedMethod = _proxyType.GetMethod ("ToString");
+      Assert.That (shadowedMethod, Is.Not.Null);
+      Assert.That (shadowedMethod.DeclaringType, Is.SameAs (typeof (object)));
 
       var nonVirtualAttributes = MethodAttributes.Virtual | MethodAttributes.NewSlot;
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx =>
@@ -333,7 +333,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           ParameterDeclaration.EmptyParameters,
           bodyProvider);
 
-      Assert.That (method, Is.Not.Null.And.Not.EqualTo (baseMethod));
+      Assert.That (method, Is.Not.Null.And.Not.EqualTo (shadowedMethod));
       Assert.That (method.BaseMethod, Is.Null);
       Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
     }
@@ -751,11 +751,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           typeof (void),
           ParameterDeclaration.EmptyParameters,
           ctx => Expression.Empty());
-    }
-
-    private MethodInfo GetBaseMethod (ProxyType proxyType, string name)
-    {
-      return proxyType.BaseType.GetMethod (name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
