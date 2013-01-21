@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -50,7 +49,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var fullname = string.IsNullOrEmpty (baseType.Namespace) ? name : string.Format ("{0}.{1}", baseType.Namespace, name);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsSerializable ? TypeAttributes.Serializable : 0);
 
-      var proxyType = new ProxyType (memberSelector, baseType, name, baseType.Namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
+      var proxyType = new ProxyType (
+          memberSelector, baseType, name, baseType.Namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
 
       CopyConstructors (baseType, proxyType);
 

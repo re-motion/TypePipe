@@ -22,7 +22,6 @@ using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 

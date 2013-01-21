@@ -40,7 +40,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class ProxyType : CustomType, IMutableInfo
   {
-    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+    private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
 
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
@@ -68,6 +69,15 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
+      Assertion.IsTrue (baseType.IsRuntimeType());
+
+      if (CanNotBeSubclassed (baseType))
+      {
+        throw new ArgumentException (
+            "Proxied type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+            + "a generic parameter, contain generic parameters and must have an accessible constructor.",
+            "baseType");
+      }
 
       _attributes = attributes;
       _interfaceMappingComputer = interfaceMappingComputer;
@@ -356,7 +366,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       Assertion.IsNotNull (BaseType);
 
-      return _addedFields.Cast<FieldInfo>().Concat (BaseType.GetFields (c_all));
+      return _addedFields.Cast<FieldInfo>().Concat (BaseType.GetFields (c_allMembers));
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
@@ -371,9 +381,23 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (BaseType);
 
       var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
-      var filteredBaseMethods = BaseType.GetMethods (c_all).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
+      var filteredBaseMethods = BaseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
 
       return _addedMethods.Cast<MethodInfo>().Concat (filteredBaseMethods);
+    }
+
+    private static bool CanNotBeSubclassed (Type type)
+    {
+      return type.IsSealed
+             || type.IsInterface
+             || typeof (Delegate).IsAssignableFrom (type)
+             || type.ContainsGenericParameters
+             || !HasAccessibleConstructor (type);
+    }
+
+    private static bool HasAccessibleConstructor (Type type)
+    {
+      return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any();
     }
   } 
 }

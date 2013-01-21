@@ -25,7 +25,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -69,15 +68,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_NullNamespace ()
     {
-      var baseTypeStub = MockRepository.GenerateStub<Type>();
-      baseTypeStub.Stub (stub => stub.Name).Return ("abc");
-      baseTypeStub.Stub (stub => stub.Namespace).Return (null);
-      baseTypeStub.Stub (stub => stub.GetConstructors (Arg<BindingFlags>.Is.Anything)).Return (new ConstructorInfo[0]);
-
-      var result = _factory.CreateProxyType (baseTypeStub);
+      var result = _factory.CreateProxyType (typeof (NullNamespaceType));
 
       Assert.That (result.Namespace, Is.Null);
-      Assert.That (result.FullName, Is.EqualTo (@"abc_Proxy1"));
+      Assert.That (result.FullName, Is.EqualTo ("NullNamespaceType_Proxy1"));
     }
 
     [Test]
@@ -122,3 +116,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public class SerializableType { }
   }
 }
+
+class NullNamespaceType { }

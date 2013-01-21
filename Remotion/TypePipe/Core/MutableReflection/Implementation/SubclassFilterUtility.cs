@@ -14,15 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 
-namespace Remotion.TypePipe.MutableReflection.ReflectionEmit
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Determines if a member is visible from a dervied type.
   /// </summary>
-  // TODO 4695 : Remove this class and replace with code generation dependent strategy.
   public static class SubclassFilterUtility
   {
     public static bool IsVisibleFromSubclass (FieldInfo fieldInfo)

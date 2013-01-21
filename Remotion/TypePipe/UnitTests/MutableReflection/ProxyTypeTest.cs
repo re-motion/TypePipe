@@ -73,7 +73,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fullname = "hij";
       var attributes = (TypeAttributes) 7;
 
-      var proxyType = new ProxyType (_memberSelectorMock, baseType, name, @namespace, fullname, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+      var proxyType = new ProxyType (
+          _memberSelectorMock, baseType, name, @namespace, fullname, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
       Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (baseType));
       Assert.That (proxyType.DeclaringType, Is.Null);
@@ -88,6 +89,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.AddedFields, Is.Empty);
       Assert.That (proxyType.AddedConstructors, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
+    }
+
+    [Test]
+    public void Initialization_ThrowsIfUnderlyingTypeCannotBeSubclassed ()
+    {
+      var msg = "Proxied type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+                + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
+      // sealed
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // interface
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // value type
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // enum
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // delegate
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // open generics
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // closed generics
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (List<int>)), Throws.Nothing);
+      // generic parameter
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (List<>).GetGenericArguments ().Single ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // array
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int).MakeArrayType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // by ref
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int).MakeByRefType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // pointer
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      // no accessible ctor
+      Assert.That (() => ProxyTypeObjectMother.Create (typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
     }
 
     [Test]
@@ -544,6 +577,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public override abstract void AbstractMethod1 ();
       public abstract void AbstractMethod2 ();
+    }
+
+    private class TypeWithoutAccessibleConstructor
+    {
+      internal TypeWithoutAccessibleConstructor () { }
     }
   }
 }

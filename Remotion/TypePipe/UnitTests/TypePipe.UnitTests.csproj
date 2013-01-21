@@ -132,7 +132,7 @@
     <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
     <Compile Include="MutableReflection\ProxyTypeTestExtensions.cs" />
-    <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\SubclassFilterUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />

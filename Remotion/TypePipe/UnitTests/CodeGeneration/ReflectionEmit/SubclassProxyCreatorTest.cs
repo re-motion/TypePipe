@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateProxy ()
     {
-      var baseType = ReflectionObjectMother.GetSomeType();
+      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var fullName = "AbcProxy";
       var attributes = (TypeAttributes) 7;
       var proxyType = ProxyTypeObjectMother.Create (baseType, fullName: fullName, attributes: attributes, skipConstructorCopying: true);

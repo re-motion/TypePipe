@@ -14,15 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.ReflectionEmit
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
   public class SubclassFilterUtilityTest
