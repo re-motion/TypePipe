@@ -79,22 +79,19 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void BaseMethodWithAddedExplicitOverride ()
     {
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
+      var baseOverrideMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.ExistingOverride());
+      var overrideMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExistingOverride());
+
       AssembleType<DomainType> (
           proxyType =>
           {
-            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseMethod());
-            var overrideMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExistingOverride());
             var explicitOverride = proxyType.GetOrAddOverride (overrideMethod);
             explicitOverride.AddExplicitBaseDefinition (baseMethod);
-            Assert.That (explicitOverride.BaseMethod, Is.Not.EqualTo (baseMethod));
 
-            var mutableMethod = proxyType.GetOrAddOverride (baseMethod);
-
-            Assert.That (mutableMethod, Is.SameAs (explicitOverride));
-
-            var otherBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.ExistingOverride ());
-            Assert.That (explicitOverride.BaseMethod, Is.EqualTo (otherBaseMethod));
-            Assert.That (proxyType.GetOrAddOverride (otherBaseMethod), Is.SameAs (explicitOverride));
+            Assert.That (explicitOverride.BaseMethod, Is.Not.EqualTo (baseMethod).And.EqualTo (overrideMethod));
+            Assert.That (proxyType.GetOrAddOverride (baseMethod), Is.SameAs (explicitOverride));
+            Assert.That (proxyType.GetOrAddOverride (baseOverrideMethod), Is.SameAs (explicitOverride));
           });
     }
 
@@ -255,13 +252,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           proxyType =>
           {
-            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.NonVirtualBaseMethod ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.NonVirtualBaseMethod());
             Assert.That (baseMethod.IsVirtual, Is.False);
 
             Assert.That (
                 () => proxyType.GetOrAddOverride (baseMethod),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "A method declared in a base type must be virtual in order to be modified."));
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Only virtual methods can be overridden."));
           });
     }
 

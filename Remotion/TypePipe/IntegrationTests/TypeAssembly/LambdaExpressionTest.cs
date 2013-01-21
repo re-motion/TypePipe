@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var method = proxyType.GetOrAddOverride (_invokeLambda);
+            var method = proxyType.GetOrAddOverride (_returnLambda);
             var variable = Expression.Variable (typeof (int));
             method.SetBody (
                 ctx => Expression.Block (
@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_InstanceClosure_BaseCall ()
     {
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (_invokeLambda)
+          p => p.GetOrAddOverride (_returnLambda)
                 .SetBody (ctx => Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), Expression.Invoke (ctx.PreviousBody)))));
 
       var instance = (DomainType) Activator.CreateInstance (type);
