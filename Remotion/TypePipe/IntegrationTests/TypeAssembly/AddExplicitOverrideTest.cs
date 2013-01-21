@@ -37,7 +37,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
-
       Assert.That (instance.BaseMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod explicitly overridden"));
     }
 
@@ -45,20 +44,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void InterfaceMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
-      var type = AssembleType<DomainType> (mt => mt.AddExplicitOverride (method, ctx => Expression.Constant ("explicitly implemented")));
+
+      var type = AssembleType<DomainType> (p => p.AddExplicitOverride (method, ctx => Expression.Constant ("explicitly implemented")));
 
       var instance = Activator.CreateInstance (type);
-
       Assert.That (((DomainType) instance).Method(), Is.EqualTo ("DomainType.Method"));
       Assert.That (((IDomainInterface) instance).Method(), Is.EqualTo ("explicitly implemented"));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Method with equal signature already exists.")]
     public void InterfaceMethod_AlreadyExplicitlyImplemented ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.ExplicitlyImplemented());
-      AssembleType<DomainType> (proxyType => proxyType.AddExplicitOverride (method, ctx => Expression.Empty()));
+
+      var type = AssembleType<DomainType> (p => p.AddExplicitOverride (method, ctx => Expression.Constant ("new explicit impl")));
+
+      var instance = Activator.CreateInstance (type);
+      Assert.That (((IDomainInterface) instance).ExplicitlyImplemented(), Is.EqualTo ("new explicit impl"));
     }
 
     public class DomainTypeBase
@@ -75,13 +77,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainType.Method";
       }
-      void IDomainInterface.ExplicitlyImplemented () { }
+      string IDomainInterface.ExplicitlyImplemented () { return "DomainType.ExplicitlyImplemented"; }
     }
 
     public interface IDomainInterface
     {
       string Method ();
-      void ExplicitlyImplemented ();
+      string ExplicitlyImplemented ();
     }
   }
 }

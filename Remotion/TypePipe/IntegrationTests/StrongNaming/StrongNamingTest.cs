@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     {
       SkipSavingAndPeVerification();
 
-      CheckStrongNamingException (mt => { }, requestedType: _unsignedType);
+      CheckStrongNamingException (mt => { }, requestedType: _unsignedType); // Requested type will be parent.
       CheckStrongNamingException (mt => mt.AddInterface (_unsignedInterfaceType));
       CheckStrongNamingException (mt => mt.AddField ("f", _unsignedType));
       CheckStrongNamingException (mt => mt.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.CallThisConstructor()));
@@ -287,16 +287,17 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       var participant = CreateParticipant (participantAction);
       var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip + 1, forceStrongNaming: true);
 
-      var messageRegex = "An error occurred during code generation for '.*Type': Strong-naming is enabled but a participant used the type "
-                         + "'UnsignedType' which comes from the unsigned assembly 'testAssembly'. The following participants are currently "
-                         + @"configured and may have caused the error: 'IParticipantProxy.*'\.";
+      var messageRegex = "An error occurred during code generation for '" + requestedType.Name + "_Proxy1': "
+                         + "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned "
+                         + "assembly 'testAssembly'. The following participants are"
+                         + @" currently configured and may have caused the error: 'IParticipantProxy.*'\.";
       Assert.That (() => objectFactory.GetAssembledType (requestedType), Throws.InvalidOperationException.With.Message.Matches (messageRegex));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpressionException (Expression methodBody)
     {
-      CheckStrongNamingException (mt => mt.AddMethod ("m", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => methodBody));
+      CheckStrongNamingException (mt => mt.AddMethod ("m", ctx => methodBody));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
