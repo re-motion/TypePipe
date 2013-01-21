@@ -232,6 +232,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    public void MethodUsingBaseMethodWithOutAndRefParameters ()
+    {
+      var type = AssembleType<DomainType> (
+          p => p.AddMethod (
+              "AddedMethod",
+              MethodAttributes.Public,
+              typeof (void),
+              new[]
+              { new ParameterDeclaration (typeof (int).MakeByRefType(), "i"), new ParameterDeclaration (typeof (string).MakeByRefType(), "s") },
+              ctx => ctx.CallBase ("MethodWithOutAndRefParameters", ctx.Parameters.Cast<Expression>())));
+      // Use overload which takes the name of the base method to test manual method selection.
+
+      var addedMethod = type.GetMethod ("AddedMethod");
+      var instance = Activator.CreateInstance (type);
+      var arguments = new object[] { 0, "hello" };
+
+      addedMethod.Invoke (instance, arguments);
+
+      Assert.That (arguments, Is.EqualTo (new object[] { 7, "hello abc" }));
+    }
+
+    [Test]
     public void MethodsRequiringForwardDeclarations ()
     {
       // public static int Method1 (int i)
@@ -291,6 +313,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public string ExistingMethod ()
       {
         return ExistingField;
+      }
+
+      public void MethodWithOutAndRefParameters (out int i, ref string s)
+      {
+        i = 7;
+        s += " abc";
       }
     }
   }
