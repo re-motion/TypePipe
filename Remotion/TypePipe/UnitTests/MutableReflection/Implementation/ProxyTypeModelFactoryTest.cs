@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var ctor = result.AddedConstructors.Single();
       Assert.That (ctor.IsStatic, Is.False);
-      Assert.That (ctor.IsFamilyOrAssembly, Is.True);
+      Assert.That (ctor.IsFamily, Is.True);
 
       var parameters = ctor.GetParameters();
       Assert.That (parameters, Has.Length.EqualTo (1));

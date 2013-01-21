@@ -59,12 +59,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private void CopyConstructors (Type baseType, ProxyType proxyType)
     {
+      // TODO yyy: out and ref parameters?!
+
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var accessibleInstanceCtors = baseType.GetConstructors (bindingFlags).Where (SubclassFilterUtility.IsVisibleFromSubclass);
       foreach (var ctor in accessibleInstanceCtors)
       {
         proxyType.AddConstructor (
-            ctor.Attributes,
+            ctor.Attributes.AdjustVisibilityForAssemblyBoundaries(),
             ParameterDeclaration.CreateForEquivalentSignature (ctor),
             ctx => ctx.CallBaseConstructor (ctx.Parameters.Cast<Expression>()));
       }
