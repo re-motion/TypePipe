@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -33,22 +32,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class MethodTrampolineProviderTest
   {
-    private IMemberEmitter _memberEmitterMock;
-
     private MethodTrampolineProvider _provider;
 
     private ProxyType _proxyType;
+    private IMemberEmitter _memberEmitterMock;
     private CodeGenerationContext _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
-
-      _provider = new MethodTrampolineProvider (_memberEmitterMock);
+      _provider = new MethodTrampolineProvider();
 
       _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
-      _context = MemberEmitterContextObjectMother.GetSomeContext (_proxyType);
+      _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
+      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType, memberEmitter: _memberEmitterMock);
     }
 
     [Test]

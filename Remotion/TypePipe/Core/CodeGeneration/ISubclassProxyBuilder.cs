@@ -16,6 +16,8 @@
 // 
 
 using System;
+using Remotion.ServiceLocation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -23,6 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Defines an interface for classes building a subclass proxy.
   /// </summary>
+  [ConcreteImplementation (typeof (SubclassProxyBuilder))]
   public interface ISubclassProxyBuilder
   {
     ICodeGenerator CodeGenerator { get; }

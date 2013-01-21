@@ -22,14 +22,14 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class MemberEmitterContextTest
+  public class CodeGenerationContextTest
   {
     private CodeGenerationContext _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _context = MemberEmitterContextObjectMother.GetSomeContext ();
+      _context = CodeGenerationContextObjectMother.GetSomeContext();
     }
 
     [Test]
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void TrampolineMethods_MemberInfoEqualityComparer ()
     {
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
-      var method2 = typeof (MemberEmitterContextTest).GetMethod ("ToString");
+      var method2 = typeof (CodeGenerationContextTest).GetMethod ("ToString");
       Assert.That (method1, Is.Not.SameAs (method2));
 
       _context.TrampolineMethods.Add (method1, null);

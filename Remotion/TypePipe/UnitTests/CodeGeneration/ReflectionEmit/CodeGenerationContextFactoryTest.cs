@@ -72,11 +72,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result.DebugInfoGenerator, Is.SameAs (fakeDebugInfoGenerator));
       Assert.That (result.EmittableOperandProvider, Is.SameAs (fakeEmittableOperandProvider));
       Assert.That (result.TrampolineMethods, Is.Empty);
-      Assert.That (result.MethodTrampolineProvider, Is.TypeOf<MethodTrampolineProvider>());
+      Assert.That (result.MemberEmitter, Is.TypeOf<MemberEmitter>());
       Assert.That (result.PostDeclarationsActionManager.Actions, Is.Empty);
 
-      var methodTrampolineProvider = (MethodTrampolineProvider) result.MethodTrampolineProvider;
-      var memberEmitter = (MemberEmitter) methodTrampolineProvider.MemberEmitter;
+      var memberEmitter = (MemberEmitter) result.MemberEmitter;
       Assert.That (memberEmitter.ExpressionPreparer, Is.TypeOf<ExpressionPreparer>());
       Assert.That (memberEmitter.ILGeneratorFactory, Is.TypeOf<ILGeneratorDecoratorFactory>());
 

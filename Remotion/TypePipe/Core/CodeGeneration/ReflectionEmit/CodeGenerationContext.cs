@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly ProxyType _proxyType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
+    private readonly IMemberEmitter _memberEmitter;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
-    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
     private readonly DeferredActionManager _postDeclarationsActionManager = new DeferredActionManager();
 
     private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
@@ -44,19 +44,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         ProxyType proxyType,
         ITypeBuilder typeBuilder,
         DebugInfoGenerator debugInfoGeneratorOrNull,
-        IEmittableOperandProvider emittableOperandProvider,
-        IMethodTrampolineProvider methodTrampolineProvider)
+        IMemberEmitter memberEmitter,
+        IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
 
       _proxyType = proxyType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
+      _memberEmitter = memberEmitter;
       _emittableOperandProvider = emittableOperandProvider;
-      _methodTrampolineProvider = methodTrampolineProvider;
     }
 
     public ProxyType ProxyType
@@ -75,6 +74,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
+    // This property exists only to break a cyclic dependency.
+    public IMemberEmitter MemberEmitter
+    {
+      get { return _memberEmitter; }
+    }
+
     public IEmittableOperandProvider EmittableOperandProvider
     {
       get { return _emittableOperandProvider; }
@@ -83,12 +88,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IDictionary<MethodInfo, MethodInfo> TrampolineMethods
     {
       get { return _trampolineMethods; }
-    }
-
-    // This property exists only to break a cyclic dependency.
-    public IMethodTrampolineProvider MethodTrampolineProvider
-    {
-      get { return _methodTrampolineProvider; }
     }
 
     public DeferredActionManager PostDeclarationsActionManager

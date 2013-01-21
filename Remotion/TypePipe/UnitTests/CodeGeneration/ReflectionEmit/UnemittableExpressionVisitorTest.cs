@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private ProxyType _proxyType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
-    private IMethodTrampolineProvider _methodTrampolineProvider;
+    private IMethodTrampolineProvider _methodTrampolineProviderMock;
     private CodeGenerationContext _context;
 
     private UnemittableExpressionVisitor _visitorPartialMock;
@@ -42,13 +42,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create(typeof(DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _methodTrampolineProvider = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
-      _context = MemberEmitterContextObjectMother.GetSomeContext (
-          _proxyType, emittableOperandProvider: _emittableOperandProviderMock, methodTrampolineProvider: _methodTrampolineProvider);
+      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType, emittableOperandProvider: _emittableOperandProviderMock);
+      _methodTrampolineProviderMock = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
 
-      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (_context);
+      _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (_context, _methodTrampolineProviderMock);
     }
 
     [Test]
@@ -129,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
 
       var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
-      _methodTrampolineProvider.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
+      _methodTrampolineProviderMock.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
 
       var thisClosure = Expression.Parameter (_proxyType, "thisClosure");
       var expectedTree =

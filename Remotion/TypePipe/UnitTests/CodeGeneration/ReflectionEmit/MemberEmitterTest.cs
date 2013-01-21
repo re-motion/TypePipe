@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _context = MemberEmitterContextObjectMother.GetSomeContext (
+      _context = CodeGenerationContextObjectMother.GetSomeContext (
           typeBuilder: _typeBuilderMock, emittableOperandProvider: _emittableOperandProviderMock);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();

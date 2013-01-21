@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("body", body);
 
-      return new UnemittableExpressionVisitor (context).Visit (body);
+      return new UnemittableExpressionVisitor (context, new MethodTrampolineProvider()).Visit (body);
     }
   }
 }

@@ -37,7 +37,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MockRepository _mockRepository;
 
     private ICodeGenerationContextFactory _codeGenerationContextFactoryMock;
-    private IMemberEmitter _memberEmitterMock;
     private IInitializationBuilder _initializationBuilderMock;
     private IProxySerializationEnabler _proxySerializationEnablerMock;
 
@@ -46,8 +45,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     // Context members
     private ITypeBuilder _typeBuilderMock;
     private DebugInfoGenerator _debugInfoGeneratorMock;
+    private IMemberEmitter _memberEmitterMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
-    private IMethodTrampolineProvider _methodTrampolineProviderMock;
 
     private ProxyType _proxyType;
     private CodeGenerationContext _fakeContext;
@@ -68,14 +67,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock = _mockRepository.StrictMock<ITypeBuilder>();
       _debugInfoGeneratorMock = _mockRepository.StrictMock<DebugInfoGenerator>();
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider>();
-      _methodTrampolineProviderMock = _mockRepository.StrictMock<IMethodTrampolineProvider>();
 
-      _builder = new SubclassProxyBuilder (
-          _codeGenerationContextFactoryMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+      _builder = new SubclassProxyBuilder (_codeGenerationContextFactoryMock, _initializationBuilderMock, _proxySerializationEnablerMock);
 
       _proxyType = ProxyTypeObjectMother.Create();
       _fakeContext = new CodeGenerationContext (
-          _proxyType, _typeBuilderMock, _debugInfoGeneratorMock, _emittableOperandProviderMock, _methodTrampolineProviderMock);
+          _proxyType, _typeBuilderMock, _debugInfoGeneratorMock, _memberEmitterMock, _emittableOperandProviderMock);
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
       _fakeInitializationMethod = ReflectionObjectMother.GetSomeMethod();
       _fakeInitializationMembers = Tuple.Create (_fakeInitializationField, _fakeInitializationMethod);

@@ -51,9 +51,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
       var memberEmitter = new MemberEmitter (new ExpressionPreparer(), ilGeneratorFactory);
 
-      var methodTrampolineProvider = new MethodTrampolineProvider (memberEmitter);
-
-      return new CodeGenerationContext (proxyType, typeBuilder, _codeGenerator.DebugInfoGenerator, emittableOperandProvider, methodTrampolineProvider);
+      return new CodeGenerationContext (proxyType, typeBuilder, _codeGenerator.DebugInfoGenerator, memberEmitter, emittableOperandProvider);
     }
   }
 }

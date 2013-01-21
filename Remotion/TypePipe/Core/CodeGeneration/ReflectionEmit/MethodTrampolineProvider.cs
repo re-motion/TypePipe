@@ -30,20 +30,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks>This class is used by <see cref="UnemittableExpressionVisitor"/>.</remarks>
   public class MethodTrampolineProvider : IMethodTrampolineProvider
   {
-    private readonly IMemberEmitter _memberEmitter;
-
-    public MethodTrampolineProvider (IMemberEmitter memberEmitter)
-    {
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
-
-      _memberEmitter = memberEmitter;
-    }
-
-    public IMemberEmitter MemberEmitter
-    {
-      get { return _memberEmitter; }
-    }
-
     public MethodInfo GetNonVirtualCallTrampoline (CodeGenerationContext context, MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("context", context);
@@ -70,7 +56,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           parameters,
           ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
 
-      _memberEmitter.AddMethod (context, trampoline, trampoline.Attributes);
+      context.MemberEmitter.AddMethod (context, trampoline, trampoline.Attributes);
 
       return trampoline;
     }

@@ -31,12 +31,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
     private readonly CodeGenerationContext _context;
+    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
 
-    public UnemittableExpressionVisitor (CodeGenerationContext context)
+    public UnemittableExpressionVisitor (CodeGenerationContext context, IMethodTrampolineProvider methodTrampolineProvider)
     {
       ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
 
       _context = context;
+      _methodTrampolineProvider = methodTrampolineProvider;
     }
 
     protected internal override Expression VisitConstant (ConstantExpression node)
@@ -75,8 +78,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         if (methodCall != null && methodCall.Method is NonVirtualCallMethodInfoAdapter)
         {
           var method = ((NonVirtualCallMethodInfoAdapter) methodCall.Method).AdaptedMethod;
-          // MethodTrampolineProvider cannot be injected via ctor as this would cause a cyclic dependency.
-          var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
+          var trampolineMethod = _methodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
           return Expression.Call (thisClosureVariable, trampolineMethod, methodCall.Arguments);
         }
 

@@ -24,21 +24,21 @@ using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
-  public static class MemberEmitterContextObjectMother
+  public static class CodeGenerationContextObjectMother
   {
     public static CodeGenerationContext GetSomeContext (
         ProxyType proxyType = null,
         ITypeBuilder typeBuilder = null,
         DebugInfoGenerator debugInfoGenerator = null,
-        IEmittableOperandProvider emittableOperandProvider = null,
-        IMethodTrampolineProvider methodTrampolineProvider = null)
+        IMemberEmitter memberEmitter = null,
+        IEmittableOperandProvider emittableOperandProvider = null)
     {
       return new CodeGenerationContext (
           proxyType ?? ProxyTypeObjectMother.Create(),
           typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
           debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
-          emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>(),
-          methodTrampolineProvider ?? MockRepository.GenerateStub<IMethodTrampolineProvider>());
+          memberEmitter ?? MockRepository.GenerateStub<IMemberEmitter>(),
+          emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>());
     }
   }
 }

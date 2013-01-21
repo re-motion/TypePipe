@@ -31,23 +31,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class SubclassProxyBuilder : ISubclassProxyBuilder
   {
     private readonly ICodeGenerationContextFactory _codeGenerationContextFactory;
-    private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     public SubclassProxyBuilder (
         ICodeGenerationContextFactory codeGenerationContextFactory,
-        IMemberEmitter memberEmitter,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("codeGenerationContextFactory", codeGenerationContextFactory);
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
-      
+
       _codeGenerationContextFactory = codeGenerationContextFactory;
-      _memberEmitter = memberEmitter;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
     }
@@ -64,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var context = _codeGenerationContextFactory.CreateContext (proxyType);
 
       if (proxyType.MutableTypeInitializer != null)
-        _memberEmitter.AddConstructor (context, proxyType.MutableTypeInitializer);
+        context.MemberEmitter.AddConstructor (context, proxyType.MutableTypeInitializer);
 
       var initializationMembers = _initializationBuilder.CreateInitializationMembers (proxyType);
       var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
@@ -78,11 +74,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         context.TypeBuilder.AddInterfaceImplementation (ifc);
 
       foreach (var field in proxyType.AddedFields)
-        _memberEmitter.AddField (context, field);
+        context.MemberEmitter.AddField (context, field);
       foreach (var ctor in proxyType.AddedConstructors)
         WireAndAddConstructor (context, ctor, initializationMembers);
       foreach (var method in proxyType.AddedMethods)
-        _memberEmitter.AddMethod (context, method, method.Attributes);
+        context.MemberEmitter.AddMethod (context, method, method.Attributes);
 
       context.PostDeclarationsActionManager.ExecuteAllActions();
 
@@ -93,7 +89,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         CodeGenerationContext context, MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
       _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
-      _memberEmitter.AddConstructor (context, constructor);
+      context.MemberEmitter.AddConstructor (context, constructor);
     }
   }
 }
