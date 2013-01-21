@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (
           () => _mutableMemberFactory.CreateField (_proxyType, field.Name, field.FieldType, 0),
-          Throws.InvalidOperationException.With.Message.EqualTo ("Field with equal signature already exists."));
+          Throws.InvalidOperationException.With.Message.EqualTo ("Field with equal name and signature already exists."));
     }
 
     [Test]
@@ -431,7 +431,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _mutableMemberFactory.CreateMethod (
               _proxyType, method.Name, 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
-          Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal signature already exists."));
+          Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
 
     [Test]

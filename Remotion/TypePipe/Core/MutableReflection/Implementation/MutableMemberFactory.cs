@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var signature = new FieldSignature (type);
       if (proxyType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
-        throw new InvalidOperationException ("Field with equal signature already exists.");
+        throw new InvalidOperationException ("Field with equal name and signature already exists.");
 
       return new MutableFieldInfo (proxyType, name, type, attributes);
     }
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var parameters = parameterDeclarations.ConvertToCollection();
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
       if (proxyType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
-        throw new InvalidOperationException ("Method with equal signature already exists.");
+        throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, proxyType.BaseType) : null;
       if (baseMethod != null)
