@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("overrideCandidates", overrideCandidates);
-      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition ());
+      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition());
 
       return overrideCandidates.SingleOrDefault (
           m => m.GetBaseDefinition().Equals (baseDefinition)

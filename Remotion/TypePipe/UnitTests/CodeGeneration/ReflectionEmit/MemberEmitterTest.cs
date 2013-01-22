@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ITypeBuilder _typeBuilderMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
 
-    private MemberEmitterContext _context;
+    private CodeGenerationContext _context;
 
     private Expression _fakeBody;
 
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _context = MemberEmitterContextObjectMother.GetSomeContext (
+      _context = CodeGenerationContextObjectMother.GetSomeContext (
           typeBuilder: _typeBuilderMock, emittableOperandProvider: _emittableOperandProviderMock);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
@@ -91,9 +91,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddConstructor ()
     {
-      var constructor = MutableConstructorInfoObjectMother.CreateForNewWithParameters (
-          new ParameterDeclaration (typeof (string), "p1", ParameterAttributes.In),
-          new ParameterDeclaration (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out));
+      var constructor = MutableConstructorInfoObjectMother.Create (
+          parameters: new[]
+                      {
+                          new ParameterDeclaration (typeof (string), "p1", ParameterAttributes.In),
+                          new ParameterDeclaration (typeof (int).MakeByRefType(), "p2", ParameterAttributes.Out)
+                      });
       var expectedAttributes = constructor.Attributes;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
 
@@ -137,18 +140,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMethod ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
+      var method = MutableMethodInfoObjectMother.Create (
+          ProxyTypeObjectMother.Create (typeof (DomainType)),
           "Method",
           MethodAttributes.Virtual,
           typeof (string),
           new[]
           {
-              new ParameterDeclaration (typeof (int), "i", ParameterAttributes.None),
-              new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Retval)
+              new ParameterDeclaration (typeof (int), "i", ParameterAttributes.Reserved3),
+              new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
           });
 
-      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
+      var overriddenMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
       method.AddExplicitBaseDefinition (overriddenMethod);
 
       var expectedAttributes = MethodAttributes.HideBySig;
@@ -161,11 +165,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       SetupDefineCustomAttribute (methodBuilderMock, method);
-      var parameterBuilderMock = SetupDefineParameter (methodBuilderMock, 1, "i", ParameterAttributes.None);
-      SetupDefineCustomAttribute (parameterBuilderMock, method.MutableParameters[0]);
-      SetupDefineParameter (methodBuilderMock, 2, "d", ParameterAttributes.Retval);
-      var returnParameterBuilderMock = SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: 0);
+      var returnParameterBuilderMock = SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None);
       SetupDefineCustomAttribute (returnParameterBuilderMock, method.MutableReturnParameter);
+      var parameterBuilderMock = SetupDefineParameter (methodBuilderMock, 1, "i", ParameterAttributes.Reserved3);
+      SetupDefineCustomAttribute (parameterBuilderMock, method.MutableParameters[0]);
+      SetupDefineParameter (methodBuilderMock, 2, "d", ParameterAttributes.Out);
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
@@ -185,8 +189,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMethod_Abstract ()
     {
-      var method = MutableMethodInfoObjectMother.CreateForNew (
-          MutableTypeObjectMother.CreateForExisting (typeof (DomainType)),
+      var method = MutableMethodInfoObjectMother.Create (
+          null,
           "AbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),
@@ -197,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Expect (mock => mock.DefineMethod ("AbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
-      SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: 0);
+      SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: ParameterAttributes.None);
 
       _emitter.AddMethod (_context, method, MethodAttributes.Abstract);
 

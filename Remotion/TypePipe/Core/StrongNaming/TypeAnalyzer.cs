@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// </summary>
   public class TypeAnalyzer : ITypeAnalyzer
   {
-    private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool> (new ReferenceEqualityComparer<Type>());
+    private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool>();
 
     private readonly IAssemblyAnalyzer _assemblyAnalyzer;
 

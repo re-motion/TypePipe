@@ -18,8 +18,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -32,7 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var name = "PublicStaticMethodWithOutParameter";
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               name,
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
@@ -60,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void StaticMethodCannotUseThis ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "StaticMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
@@ -81,7 +83,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var name = "InstanceMethod";
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               name,
               MethodAttributes.Public,
               typeof (void),
@@ -111,23 +113,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodsWithReturnValue ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodWithExactResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant ("return value"));
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodWithBoxingConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant (7));
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "MethodWithReferenceConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
@@ -148,25 +150,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodsWithInvalidReturnValue ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var exceptionMessagePart = "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.";
             CheckAddMethodThrows (
-                mutableType,
+                proxyType,
                 "MethodWithPotentiallyDangerousValueConversion",
                 typeof (int),
                 Expression.Constant (7L),
                 "Type 'System.Int64' cannot be implicitly converted to type 'System.Int32'. " + exceptionMessagePart);
 
             CheckAddMethodThrows (
-                mutableType,
+                proxyType,
                 "MethodWithPotentiallyDangerousReferenceConversion",
                 typeof (string),
                 Expression.Constant (null, typeof (object)),
                 "Type 'System.Object' cannot be implicitly converted to type 'System.String'. " + exceptionMessagePart);
 
             CheckAddMethodThrows (
-                mutableType,
+                proxyType,
                 "MethodWithInvalidResultType",
                 typeof (int),
                 Expression.Constant ("string"),
@@ -179,19 +181,19 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void MethodUsingMutableMethodInBody ()
+    public void MethodUsingAddedMethodInBody ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method1 = mutableType.AddMethod (
+            var method1 = proxyType.AddMethod (
                 "Method1",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Constant (7));
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "Method2",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
@@ -205,21 +207,21 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void MethodUsingExistingMembers ()
+    public void MethodUsingBaseMembers ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var existingField = mutableType.ExistingMutableFields.Single (f => f.Name == "ExistingField");
-            var existingMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "ExistingMethod");
-            mutableType.AddMethod (
+            var baseField = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.ExistingField);
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExistingMethod());
+            proxyType.AddMethod (
                 "AddedMethod",
                 MethodAttributes.Public,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Block (
-                    Expression.Assign (Expression.Field (ctx.This, existingField), Expression.Constant ("blah")),
-                    Expression.Call (ctx.This, existingMethod)));
+                    Expression.Assign (Expression.Field (ctx.This, baseField), Expression.Constant ("blah")),
+                    Expression.Call (ctx.This, baseMethod)));
           });
 
       var addedMethod = type.GetMethod ("AddedMethod");
@@ -227,6 +229,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var result = addedMethod.Invoke (instance, null);
 
       Assert.That (result, Is.EqualTo ("blah"));
+    }
+
+    [Test]
+    public void MethodUsingBaseMethodWithOutAndRefParameters ()
+    {
+      var type = AssembleType<DomainType> (
+          p => p.AddMethod (
+              "AddedMethod",
+              MethodAttributes.Public,
+              typeof (void),
+              new[]
+              { new ParameterDeclaration (typeof (int).MakeByRefType(), "i"), new ParameterDeclaration (typeof (string).MakeByRefType(), "s") },
+              ctx => ctx.CallBase ("MethodWithOutAndRefParameters", ctx.Parameters.Cast<Expression>())));
+      // Use overload which takes the name of the base method to test manual method selection.
+
+      var addedMethod = type.GetMethod ("AddedMethod");
+      var instance = Activator.CreateInstance (type);
+      var arguments = new object[] { 0, "hello" };
+
+      addedMethod.Invoke (instance, arguments);
+
+      Assert.That (arguments, Is.EqualTo (new object[] { 7, "hello abc" }));
     }
 
     [Test]
@@ -244,16 +268,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       //   return Method1 (i - 1);
       // }
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method1 = mutableType.AddMethod (
+            var method1 = proxyType.AddMethod (
                 "Method1",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
                 new[] { new ParameterDeclaration (typeof (int), "i") },
                 ctx => Expression.Throw (Expression.Constant (new NotImplementedException()), typeof (int)));
 
-            var method2 = mutableType.AddMethod (
+            var method2 = proxyType.AddMethod (
                 "Method2",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),
@@ -273,22 +297,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (addedMethod.Invoke (null, new object[] { -8 }), Is.EqualTo (-8));
     }
 
-    private void CheckAddMethodThrows (MutableType mutableType, string name, Type returnType, Expression body, string exceptionMessage)
+    private void CheckAddMethodThrows (ProxyType proxyType, string name, Type returnType, Expression body, string exceptionMessage)
     {
       Assert.That (
-          () => mutableType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.EmptyParameters, ctx => body),
+          () => proxyType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.EmptyParameters, ctx => body),
           Throws.InvalidOperationException.With.Message.EqualTo (exceptionMessage));
     }
 
     public class DomainType
     {
-      public string ExistingField;
+      [UsedImplicitly] public string ExistingField;
 
       public string SettableProperty { get; set; }
 
       public string ExistingMethod ()
       {
         return ExistingField;
+      }
+
+      public void MethodWithOutAndRefParameters (out int i, ref string s)
+      {
+        i = 7;
+        s += " abc";
       }
     }
   }

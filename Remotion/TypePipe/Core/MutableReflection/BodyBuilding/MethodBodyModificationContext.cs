@@ -32,13 +32,13 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly Expression _previousBody;
 
     public MethodBodyModificationContext (
-        MutableType declaringType,
+        ProxyType declaringType,
+        bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression previousBody,
-        bool isStatic,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, baseMethod, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, baseMethod, memberSelector)
     {
       // previousBody is null for abstract methods.
       _previousBody = previousBody;
@@ -59,14 +59,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         return _previousBody; }
     }
 
-    public Expression GetPreviousBodyWithArguments (params Expression[] arguments)
+    public Expression InvokePreviousBodyWithArguments (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetPreviousBodyWithArguments ((IEnumerable<Expression>) arguments);
+      return InvokePreviousBodyWithArguments ((IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetPreviousBodyWithArguments (IEnumerable<Expression> arguments)
+    public Expression InvokePreviousBodyWithArguments (IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 

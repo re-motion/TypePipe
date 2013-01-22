@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       Assert.That (typeof (DomainType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
 
-      var type = AssembleType<DomainType> (mutableType => mutableType.AddInterface (typeof (IMarkerInterface)));
+      var type = AssembleType<DomainType> (proxyType => proxyType.AddInterface (typeof (IMarkerInterface)));
 
       Assert.That (type.GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface), typeof (IMarkerInterface) }));
     }
@@ -41,10 +41,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = GetDeclaredMethod (typeof (IInterfaceWithMethod), "Method");
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddInterface (typeof (IInterfaceWithMethod));
-            var mutableMethodInfo = mutableType.AddMethod (
+            proxyType.AddInterface (typeof (IInterfaceWithMethod));
+            var mutableMethodInfo = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),

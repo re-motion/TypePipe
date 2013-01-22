@@ -19,6 +19,7 @@ using System.Collections;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
@@ -130,6 +131,18 @@ namespace Remotion.TypePipe.UnitTests.Expressions
             CheckAreEqualProperties (property, elementType1, list1[i], list2[i], expected, actual);
           }
         }
+      }
+      else if (value1 is NonVirtualCallMethodInfoAdapter && value2 is NonVirtualCallMethodInfoAdapter)
+      {
+        var adapter1 = (NonVirtualCallMethodInfoAdapter) value1;
+        var adapter2 = (NonVirtualCallMethodInfoAdapter) value2;
+        var ctorAdapter1 = adapter1.AdaptedMethod as ConstructorAsMethodInfoAdapter;
+        var ctorAdapter2 = adapter2.AdaptedMethod as ConstructorAsMethodInfoAdapter;
+
+        Assert.That (
+            adapter1.AdaptedMethod == adapter2.AdaptedMethod
+            || (ctorAdapter1 != null && ctorAdapter2 != null && ctorAdapter1.AdaptedConstructor == ctorAdapter2.AdaptedConstructor),
+            Is.True, "Adapted MethodInfo is not equal (non-virtual or ctor).");
       }
       else
         Assert.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));

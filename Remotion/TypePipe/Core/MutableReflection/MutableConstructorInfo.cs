@@ -23,10 +23,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.MutableReflection.ReflectionEmit;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -36,26 +35,30 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
   {
-    private readonly MutableType _declaringType;
-    private readonly ConstructorDescriptor _descriptor;
-
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly ProxyType _declaringType;
+    private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     private Expression _body;
 
-    public MutableConstructorInfo (MutableType declaringType, ConstructorDescriptor descriptor)
+    public MutableConstructorInfo (
+        ProxyType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull ("body", body);
+      Assertion.IsTrue (body.Type == typeof (void));
+
+      var paras = parameters.ConvertToCollection();
 
       _declaringType = declaringType;
-      _descriptor = descriptor;
-
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
-      _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
-
-      _body = _descriptor.Body;
+      _attributes = attributes;
+      _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
+      _body = body;
     }
 
     public override Type DeclaringType
@@ -63,40 +66,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public ConstructorInfo UnderlyingSystemConstructorInfo
-    {
-      get { return _descriptor.UnderlyingSystemInfo ?? this; }
-    }
-
-    public bool IsNew
-    {
-      get { return _descriptor.UnderlyingSystemInfo == null; }
-    }
-
-    public bool IsModified
-    {
-      get { return _body != _descriptor.Body || AddedCustomAttributes.Count != 0; }
-    }
-
     public override string Name
     {
-      get { return _descriptor.Name; }
+      get { return IsStatic ? TypeConstructorName : ConstructorName; }
     }
 
     public override MethodAttributes Attributes
     {
-      get { return _descriptor.Attributes; }
+      get { return _attributes; }
     }
 
     public override CallingConventions CallingConvention
     {
       get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
-    }
-
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695 (existing ctors are always copied)
-      get { return true; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -111,7 +93,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _descriptor.Parameters.Select (pd => pd.Expression).ToList().AsReadOnly(); }
+      get { return _parameterExpressions; }
     }
 
     public Expression Body
@@ -119,26 +101,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _body; }
     }
 
-    public bool CanSetBody
-    {
-      // TODO 4695
-      get { return IsNew || SubclassFilterUtility.IsVisibleFromSubclass (this); }
-    }
-
     public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
-      Assertion.IsFalse (IsStatic);
-
-      if (!CanSetBody)
-      {
-        // TODO 4695
-        var message = string.Format ("The body of the existing inaccessible constructor '{0}' cannot be replaced.", this);
-        throw new NotSupportedException (message);
-      }
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new ConstructorBodyModificationContext (_declaringType, ParameterExpressions, _body, memberSelector);
+      var context = new ConstructorBodyModificationContext (_declaringType, IsStatic, ParameterExpressions, _body, memberSelector);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 
@@ -156,7 +124,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

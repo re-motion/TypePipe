@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.Text;
@@ -31,37 +31,73 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class ConstructorBodyContextBase : MethodBaseBodyContextBase
   {
+    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
     protected ConstructorBodyContextBase (
-        MutableType declaringType, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, false, memberSelector)
+        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
     }
 
-    public Expression GetConstructorCall (params Expression[] arguments)
+    public MethodCallExpression CallBaseConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetConstructorCall (((IEnumerable<Expression>) arguments));
+      return CallBaseConstructor ((IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetConstructorCall (IEnumerable<Expression> arguments)
+    public MethodCallExpression CallBaseConstructor (IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic();
+
+      var args = arguments.ConvertToCollection();
+      var constructor = GetConstructor (DeclaringType.BaseType, args);
+      if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
+        throw new MemberAccessException ("The matching constructor is not visible from the proxy type.");
+
+      return CallConstructor (constructor, args);
+    }
+
+    public MethodCallExpression CallThisConstructor (params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      var argumentCollection = arguments.ConvertToCollection();
+      return CallThisConstructor (((IEnumerable<Expression>) arguments));
+    }
 
-      var argumentTypes = argumentCollection.Select (e => e.Type).ToArray();
-      var constructor = DeclaringType.GetConstructor (argumentTypes);
+    public MethodCallExpression CallThisConstructor (IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      EnsureNotStatic();
+
+      var args = arguments.ConvertToCollection();
+      return CallConstructor (GetConstructor (DeclaringType, args), args);
+    }
+
+    private static ConstructorInfo GetConstructor (Type type, ICollection<Expression> arguments)
+    {
+      var argumentTypes = BodyContextUtility.GetArgumentTypes (arguments);
+      var constructor = type.GetConstructor (c_allInstanceMembers, null, argumentTypes, null);
       if (constructor == null)
       {
-        var message = String.Format ("Could not find a public instance constructor with signature ({0}) on type '{1}'.",
-                                     SeparatedStringBuilder.Build (", ", argumentTypes), DeclaringType);
+        var message = String.Format (
+            "Could not find an instance constructor with signature ({0}) on type '{1}'.", SeparatedStringBuilder.Build (", ", argumentTypes), type.Name);
         throw new MissingMemberException (message);
       }
 
-      var adapter = NonVirtualCallMethodInfoAdapter.Adapt (constructor);
+      return constructor;
+    }
 
-      return Expression.Call (This, adapter, argumentCollection);
+    private MethodCallExpression CallConstructor (ConstructorInfo constructor, ICollection<Expression> arguments)
+    {
+      return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (constructor), arguments);
+    }
+
+    private void EnsureNotStatic ()
+    {
+      if (IsStatic)
+        throw new InvalidOperationException ("Cannot call other constructor from type initializer.");
     }
   }
 }

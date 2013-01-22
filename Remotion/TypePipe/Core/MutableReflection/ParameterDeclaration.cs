@@ -18,6 +18,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -26,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Holds all values required to declare a method, constructor, or property parameter.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="MutableType"/> when declaring methods, constructors, or indexed properties.
+  /// This is used by <see cref="ProxyType"/> when declaring methods, constructors, or indexed properties.
   /// </remarks>
   public class ParameterDeclaration
   {
@@ -46,16 +47,10 @@ namespace Remotion.TypePipe.MutableReflection
       return methodBase.GetParameters().Select (CreateEquivalent).ToList().AsReadOnly();
     }
 
-    public static ParameterDeclaration CreateReturnParameter (Type type)
-    {
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      return new ParameterDeclaration (type);
-    }
-
     private readonly Type _type;
     private readonly string _name;
     private readonly ParameterAttributes _attributes;
+    private readonly ParameterExpression _expression;
 
     public ParameterDeclaration (Type type, string name, ParameterAttributes attributes = ParameterAttributes.None)
     {
@@ -68,12 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
       _type = type;
       _name = name;
       _attributes = attributes;
-    }
-
-    // Constructor used for return parameters.
-    private ParameterDeclaration (Type type)
-    {
-      _type = type;
+      _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
     }
 
     public Type Type
@@ -89,6 +79,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ParameterAttributes Attributes
     {
       get { return _attributes; }
+    }
+
+    public ParameterExpression Expression
+    {
+      get { return _expression; }
     }
   }
 }

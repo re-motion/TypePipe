@@ -20,6 +20,7 @@ using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -32,21 +33,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodWithManyArguments ("", "", "", "", "", "", "", "", ""));
 
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var abcdefghi = methodWithManyArguments.GetParameters().Select ((p, i) => "" + (char) ('a' + i)).Select (Expression.Constant);
-            mutableType
-                .AllMutableMethods
-                .Single (m => m.Name == "Method")
-                .SetBody (ctx => Expression.Call (ctx.This, methodWithManyArguments, abcdefghi.Cast<Expression>().ToArray()));
+            proxyType.AddMethod (
+                "Method",
+                returnType: typeof (string),
+                bodyProvider: ctx => Expression.Call (ctx.This, methodWithManyArguments, abcdefghi.Cast<Expression>()));
           });
 
-      var modifiedMethodBody = type.GetMethod ("Method").GetMethodBody();
+      var method = type.GetMethod ("Method");
+      var modifiedMethodBody = method.GetMethodBody();
       Assert.That (modifiedMethodBody.MaxStackSize, Is.EqualTo (10));
-      // This reference + 9 arguments = 10
+      // This reference + 9 arguments = 10.
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      var result = instance.Method();
+      var result = method.Invoke (instance, null);
 
       Assert.That (result, Is.EqualTo ("abcdefghi"));
     }
@@ -56,11 +58,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public string MethodWithManyArguments (string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8, string s9)
       {
         return s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9;
-      }
-
-      public virtual string Method ()
-      {
-        return "";
       }
     }
   }

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _memberEmitter; }
     }
 
-    public MethodInfo GetNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method)
+    public MethodInfo GetNonVirtualCallTrampoline (CodeGenerationContext context, MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
@@ -60,10 +60,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return trampoline;
     }
 
-    private MethodInfo CreateNonVirtualCallTrampoline (MemberEmitterContext context, MethodInfo method, string trampolineName)
+    private MethodInfo CreateNonVirtualCallTrampoline (CodeGenerationContext context, MethodInfo method, string trampolineName)
     {
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
-      var trampoline = context.MutableType.AddMethod (
+      var trampoline = context.ProxyType.AddMethod (
           trampolineName,
           MethodAttributes.Private,
           method.ReturnType,

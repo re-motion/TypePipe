@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Defines an interface for classes providing methods for investigating method overrides.
-  /// This is used by <see cref="MutableType"/>.
+  /// This is used by <see cref="ProxyType"/>.
   /// </summary>
   public interface IRelatedMethodFinder
   {

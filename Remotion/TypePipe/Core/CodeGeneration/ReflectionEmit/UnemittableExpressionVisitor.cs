@@ -25,18 +25,21 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Replaces all occurences of <see cref="OriginalBodyExpression"/> and other expressions that can not be emitted by 
+  /// Replaces occurences of <see cref="ConstantExpression"/> that contain mutable members and other expressions that can not be emitted by 
   /// our customized <see cref="LambdaCompiler"/>.
   /// </summary>
   public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
-    private readonly MemberEmitterContext _context;
+    private readonly CodeGenerationContext _context;
+    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
 
-    public UnemittableExpressionVisitor (MemberEmitterContext context)
+    public UnemittableExpressionVisitor (CodeGenerationContext context, IMethodTrampolineProvider methodTrampolineProvider)
     {
       ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
 
       _context = context;
+      _methodTrampolineProvider = methodTrampolineProvider;
     }
 
     protected internal override Expression VisitConstant (ConstantExpression node)
@@ -65,7 +68,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Visit inner nodes in order to replace OriginalBodyExpressions with ThisExpressions.
       var body = Visit (node.Body);
 
-      var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
+      var thisClosureVariable = Expression.Variable (_context.ProxyType, "thisClosure");
       Func<Expression, Expression> lambdaPreparer = expr =>
       {
         if (expr is ThisExpression)
@@ -75,7 +78,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         if (methodCall != null && methodCall.Method is NonVirtualCallMethodInfoAdapter)
         {
           var method = ((NonVirtualCallMethodInfoAdapter) methodCall.Method).AdaptedMethod;
-          var trampolineMethod = _context.MethodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
+          var trampolineMethod = _methodTrampolineProvider.GetNonVirtualCallTrampoline (_context, method);
           return Expression.Call (thisClosureVariable, trampolineMethod, methodCall.Arguments);
         }
 
@@ -89,23 +92,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var newLambda = node.Update (newBody, node.Parameters);
       var block = Expression.Block (
           new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, new ThisExpression (_context.MutableType)),
+          Expression.Assign (thisClosureVariable, new ThisExpression (_context.ProxyType)),
           newLambda);
 
       return Visit (block);
-    }
-
-    protected override Expression VisitOriginalBody (OriginalBodyExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      var methodBase = node.MethodBase;
-      var thisExpression = methodBase.IsStatic ? null : new ThisExpression (_context.MutableType);
-      var methodRepresentingOriginalBody = NonVirtualCallMethodInfoAdapter.Adapt (methodBase);
-
-      var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, node.Arguments);
-
-      return Visit (baseCall);
     }
 
     private object GetEmittableValue (object value)
@@ -132,7 +122,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
               + "time, not at runtime." + Environment.NewLine
               + "To embed a reference to a generated method or type, construct the ConstantExpression as follows: "
               + "Expression.Constant (myMutableMethod, typeof (MethodInfo)) or "
-              + "Expression.Constant (myMutableType, typeof (Type))." + Environment.NewLine
+              + "Expression.Constant (myProxyType, typeof (Type))." + Environment.NewLine
               + "To embed a reference to another reflection object, embed a method call to the Reflection APIs, like this: " + Environment.NewLine
               + "Expression.Call (" + Environment.NewLine
               + "    Expression.Constant (myMutableField.DeclaringType, typeof (Type))," + Environment.NewLine

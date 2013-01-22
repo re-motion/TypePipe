@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _ilGeneratorFactory; }
     }
 
-    public void AddField (MemberEmitterContext context, MutableFieldInfo field)
+    public void AddField (CodeGenerationContext context, MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("field", field);
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       DefineCustomAttributes (fieldBuilder, field);
     }
 
-    public void AddConstructor (MemberEmitterContext context, MutableConstructorInfo constructor)
+    public void AddConstructor (CodeGenerationContext context, MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("constructor", constructor);
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
     }
 
-    public void AddMethod (MemberEmitterContext context, MutableMethodInfo method, MethodAttributes attributes)
+    public void AddMethod (CodeGenerationContext context, MutableMethodInfo method, MethodAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
@@ -93,8 +93,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
       DefineCustomAttributes (methodBuilder, method);
-      DefineParameters (methodBuilder, method);
       DefineParameter (methodBuilder, method.MutableReturnParameter);
+      DefineParameters (methodBuilder, method);
 
       if (!method.IsAbstract)
       {
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     private Action CreateBodyBuildAction (
-        MemberEmitterContext context,
+        CodeGenerationContext context,
         IMethodBaseBuilder methodBuilder,
         IEnumerable<ParameterExpression> parameterExpressions,
         Expression unpreparedBody)
@@ -144,7 +144,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       };
     }
 
-    private Action CreateExplicitOverrideBuildAction (MemberEmitterContext context, MutableMethodInfo overridingMethod)
+    private Action CreateExplicitOverrideBuildAction (CodeGenerationContext context, MutableMethodInfo overridingMethod)
     {
       return () =>
       {

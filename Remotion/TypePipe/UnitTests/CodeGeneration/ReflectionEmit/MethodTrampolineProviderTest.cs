@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -37,8 +36,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private MethodTrampolineProvider _provider;
 
-    private MutableType _mutableType;
-    private MemberEmitterContext _context;
+    private ProxyType _proxyType;
+    private CodeGenerationContext _context;
 
     [SetUp]
     public void SetUp ()
@@ -47,8 +46,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _provider = new MethodTrampolineProvider (_memberEmitterMock);
 
-      _mutableType = MutableTypeObjectMother.CreateForExisting (typeof (DomainType));
-      _context = MemberEmitterContextObjectMother.GetSomeContext (_mutableType);
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType);
     }
 
     [Test]
@@ -65,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _memberEmitterMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (mutableMethod));
-      Assert.That (_mutableType.AddedMethods, Has.Member (result));
+      Assert.That (_proxyType.AddedMethods, Has.Member (result));
 
       var name = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
       Assert.That (result.Name, Is.EqualTo (name));
@@ -87,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (mutableMethod.Body, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = ((MethodCallExpression) mutableMethod.Body);
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_mutableType));
+      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_proxyType));
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethod").SameAs (method));
       Assert.That (methodCallExpression.Arguments, Is.EqualTo (mutableMethod.ParameterExpressions));
     }

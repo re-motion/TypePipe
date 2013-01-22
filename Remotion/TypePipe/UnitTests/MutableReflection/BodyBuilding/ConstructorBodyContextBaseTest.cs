@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -26,6 +28,7 @@ using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
@@ -33,70 +36,109 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class ConstructorBodyContextBaseTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private ParameterExpression[] _parameters;
-    private IMemberSelector _memberSelectorMock;
 
     private ConstructorBodyContextBase _context;
+    private ConstructorBodyContextBase _staticContext;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.CreateForExisting (typeof (ClassWithConstructor));
+      _declaringType = ProxyTypeObjectMother.Create (typeof (DomainType), name: "Domain_Proxy");
       _parameters = new[] { Expression.Parameter (typeof (string)) };
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var memberSelectorStub = MockRepository.GenerateStub<IMemberSelector>();
 
-      _context = new TestableConstructorBodyContextBase (_declaringType, _parameters.AsOneTime(), _memberSelectorMock);
+      _context = new TestableConstructorBodyContextBase (_declaringType, false, _parameters.AsOneTime(), memberSelectorStub);
+      _staticContext = new TestableConstructorBodyContextBase (_declaringType, true, _parameters.AsOneTime(), memberSelectorStub);
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_context.IsStatic, Is.False);
+      Assert.That (_staticContext.IsStatic, Is.True);
     }
 
     [Test]
-    public void GetConstructorCall ()
+    public void CallBaseConstructor ()
     {
-      var argumentExpressions = new ArgumentTestHelper ("string").Expressions;
+      var arguments = new ArgumentTestHelper ("string").Expressions;
 
-      var result = _context.GetConstructorCall (argumentExpressions);
+      var result = _context.CallBaseConstructor (arguments.AsOneTime());
 
-      Assert.That (result, Is.AssignableTo<MethodCallExpression>());
-      var methodCallExpression = (MethodCallExpression) result;
-
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>());
-      var thisExpression = (ThisExpression) methodCallExpression.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_declaringType));
-
-      Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
-      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.TypeOf<ConstructorAsMethodInfoAdapter>());
-      var constructorAsMethodInfoAdapter = (ConstructorAsMethodInfoAdapter) nonVirtualCallMethodInfoAdapter.AdaptedMethod;
-
-      Assert.That (constructorAsMethodInfoAdapter.AdaptedConstructor, Is.TypeOf<MutableConstructorInfo>());
-      var mutableCtor = (MutableConstructorInfo) constructorAsMethodInfoAdapter.AdaptedConstructor;
-      var expectedUnderlyingCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ClassWithConstructor (null));
-      Assert.That (mutableCtor.UnderlyingSystemConstructorInfo, Is.EqualTo (expectedUnderlyingCtor));
-
-      Assert.That (methodCallExpression.Arguments, Is.EqualTo (argumentExpressions));
+      var expectedCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (""));
+      CheckConstructorCall (expectedCtor, arguments, result);
     }
 
     [Test]
-    [ExpectedException (typeof (MissingMemberException), ExpectedMessage =
-        "Could not find a public instance constructor with signature (System.Int32, System.Int32) on type 'ClassWithConstructor'.")]
-    public void GetConstructorCall_NoMatchingConstructor ()
+    [ExpectedException (typeof (MemberAccessException), ExpectedMessage = "The matching constructor is not visible from the proxy type.")]
+    public void CallBaseConstructor_NotVisibleFromProxy ()
     {
-      var argumentExpressions = new ArgumentTestHelper (7, 8).Expressions;
-      _context.GetConstructorCall (argumentExpressions);
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      Assert.That (ctor, Is.Not.Null);
+
+      _context.CallBaseConstructor();
     }
 
-    private class ClassWithConstructor
+    [Test]
+    public void CallThisConstructor ()
     {
-      public ClassWithConstructor (string s)
-      {
-        Dev.Null = s;
-      }
+      var arguments = new ArgumentTestHelper ("string").Expressions;
+
+      var result = _context.CallThisConstructor (arguments.AsOneTime());
+
+      var expectedCtor = _declaringType.AddedConstructors.Single (c => c.GetParameters().Single().ParameterType == typeof (string));
+      CheckConstructorCall (expectedCtor, arguments, result);
+    }
+
+    [Test]
+    public void CallXXXConstructor_ByRefParams ()
+    {
+      var argument = new Expression[] { Expression.Parameter (typeof (int).MakeByRefType()) };
+
+      var result1 = _context.CallBaseConstructor (argument);
+      var result2 = _context.CallThisConstructor (argument);
+
+      var baseCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (out Dev<int>.Dummy));
+      var thisCtor = _declaringType.AddedConstructors.Single (c => c.GetParameters().Single().ParameterType == typeof (int).MakeByRefType());
+      CheckConstructorCall (baseCtor, argument, result1);
+      CheckConstructorCall (thisCtor, argument, result2);
+    }
+
+    [Test]
+    public void CallXXXConstructor_Exceptions ()
+    {
+      var arguments = new ArgumentTestHelper (7, "8").Expressions;
+
+      Assert.That (
+          () => _context.CallBaseConstructor (arguments),
+          Throws.TypeOf<MissingMemberException>()
+                .With.Message.EqualTo ("Could not find an instance constructor with signature (System.Int32, System.String) on type 'DomainType'."));
+      Assert.That (
+          () => _context.CallThisConstructor (arguments),
+          Throws.TypeOf<MissingMemberException> ()
+                .With.Message.EqualTo ("Could not find an instance constructor with signature (System.Int32, System.String) on type 'Domain_Proxy'."));
+
+      Assert.That (
+          () => _staticContext.CallBaseConstructor (arguments),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Cannot call other constructor from type initializer."));
+      Assert.That (
+          () => _staticContext.CallThisConstructor (arguments),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Cannot call other constructor from type initializer."));
+    }
+
+    private void CheckConstructorCall (ConstructorInfo expectedConstructor, Expression[] arguments, MethodCallExpression actualCall)
+    {
+      var expected = Expression.Call (new ThisExpression (_declaringType), NonVirtualCallMethodInfoAdapter.Adapt (expectedConstructor), arguments);
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, actualCall);
+    }
+
+    class DomainType
+    {
+      public DomainType (string s) { Dev.Null = s; }
+      internal DomainType () { }
+      public DomainType (out int i) { i = 7; }
     }
   }
 }

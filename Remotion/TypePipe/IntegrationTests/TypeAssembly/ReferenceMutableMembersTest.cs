@@ -16,10 +16,10 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -31,17 +31,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Constant_UnderlyingSystemType ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "NewMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (Type),
               ParameterDeclaration.EmptyParameters,
               ctx =>
               {
-                Assert.That (mutableType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<MutableType>());
-                Assert.That (mutableType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
+                Assert.That (proxyType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<ProxyType>());
+                Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
 
-                return Expression.Constant (mutableType.UnderlyingSystemType);
+                return Expression.Constant (proxyType.UnderlyingSystemType);
               }));
 
       var result = type.InvokeMember ("NewMethod", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
@@ -53,12 +53,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Constant_MutableFieldAndMutableMethod ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var newMutableField = mutableType.AddField ("_newField", typeof (string));
-            var existingMutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
+            var addedField = proxyType.AddField ("_newField", typeof (string));
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
+            var addedMethod = proxyType.GetOrAddOverride (baseMethod);
 
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "NewMethod",
                 MethodAttributes.Public,
                 typeof (void),
@@ -70,9 +71,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                     // TODO 4907
                     // TODO: ctx.GetMutableFieldReference (newMutableField),
                     Expression.Call (
-                        Expression.Constant (newMutableField.DeclaringType, typeof (Type)),
+                        Expression.Constant (addedField.DeclaringType, typeof (Type)),
                         typeof (Type).GetMethod ("GetField", new[] { typeof (string), typeof (BindingFlags) }),
-                        Expression.Constant (newMutableField.Name),
+                        Expression.Constant (addedField.Name),
                         Expression.Constant (BindingFlags.Instance | BindingFlags.NonPublic)),
                     //Expression.Constant (newMutableField),
                     "SetValue",
@@ -81,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                     Expression.Call (
                         // 4907
                         // TODO: ctx.GetMutableMethodReference (existingMutableMethod),
-                        Expression.Constant (existingMutableMethod, typeof (MethodInfo)),
+                        Expression.Constant (addedMethod, typeof (MethodInfo)),
                         "Invoke",
                         Type.EmptyTypes,
                         ctx.This,
@@ -96,15 +97,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       Assert.That (field.GetValue (instance), Is.Null);
       method.Invoke (instance, null);
-      Assert.That (field.GetValue (instance), Is.EqualTo ("existing method"));
+      Assert.That (field.GetValue (instance), Is.EqualTo ("base method"));
     }
 
     public class DomainType
     {
-      public string Method ()
-      {
-        return "existing method";
-      }
+      public virtual string Method () { return "base method"; }
     }
   }
 }

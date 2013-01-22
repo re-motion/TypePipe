@@ -36,19 +36,19 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
+    protected Type AssembleType<T> (params Action<ProxyType>[] participantActions)
     {
       return AssembleType (typeof (T), participantActions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType (Type requestedType, params Action<MutableType>[] participantActions)
+    protected Type AssembleType (Type requestedType, params Action<ProxyType>[] participantActions)
     {
       return AssembleType (requestedType, participantActions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType (Type requestedType, IEnumerable<Action<MutableType>> participantActions, int stackFramesToSkip)
+    protected Type AssembleType (Type requestedType, IEnumerable<Action<ProxyType>> participantActions, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       return AssembleType (testName, requestedType, participantActions);
@@ -69,12 +69,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     protected MutableMethodInfo AddEquivalentMethod (
-        MutableType mutableType,
+        ProxyType proxyType,
         MethodInfo template,
         MethodAttributes adjustedAttributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
-      return mutableType.AddMethod (
+      return proxyType.AddMethod (
           template.Name,
           adjustedAttributes,
           template.ReturnType,
@@ -82,11 +82,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
     }
 
-    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<MutableType>> participantActions)
+    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ProxyType>> participantActions)
     {
       var participants = participantActions.Select (CreateParticipant).AsOneTime();
-      var typeModifier = CreateTypeModifier (testName);
-      var typeAssembler = new TypeAssembler (participants, typeModifier);
+      var proxyTypeModelFactory = new ProxyTypeModelFactory();
+      var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
+      var typeAssembler = new TypeAssembler (participants, proxyTypeModelFactory, subclassProxyBuilder);
 
       return typeAssembler.AssembleType (requestedType);
     }

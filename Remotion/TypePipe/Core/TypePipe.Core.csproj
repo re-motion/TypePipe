@@ -76,10 +76,10 @@
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\NullExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
-    <Compile Include="CodeGeneration\ITypeModifier.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorOnTypeInstantiation.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldOnTypeInstantiation.cs" />
@@ -94,8 +94,8 @@
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilder.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ISubclassProxyBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ISubclassProxyCreator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitterFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ConstructorBuilderForLambdaCompiler.cs" />
@@ -113,14 +113,13 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IMethodBuilderForLambdaCompiler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterContext.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilderFactory.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\UniqueNamingModuleBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
     <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />
@@ -134,7 +133,6 @@
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />
     <Compile Include="Expressions\NewDelegateExpression.cs" />
-    <Compile Include="Expressions\OriginalBodyExpression.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapter.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorAdapter.cs" />
@@ -148,7 +146,7 @@
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyCreator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
@@ -157,7 +155,10 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableInfoCustomAttributeContainer.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
+    <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
+    <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />
@@ -173,7 +174,6 @@
     <Compile Include="MutableReflection\Implementation\ICustomAttributeDataRetriever.cs" />
     <Compile Include="MutableReflection\Implementation\IInterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\Implementation\IMutableMemberFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\IMutableMemberProvider.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedEventFinder.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedPropertyFinder.cs" />
@@ -203,24 +203,14 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtility.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableTypeMemberCollection.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableTypeMethodCollection.cs" />
-    <Compile Include="MutableReflection\ReflectionEmit\SubclassFilterUtility.cs" />
+    <Compile Include="MutableReflection\Implementation\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinder.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedPropertyFinder.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGenerator.cs" />
     <Compile Include="MutableReflection\TypeExtensions.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeData.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinder.cs" />
-    <Compile Include="MutableReflection\Descriptors\ConstructorDescriptor.cs" />
     <Compile Include="MutableReflection\NamedArgumentDeclaration.cs" />
-    <Compile Include="MutableReflection\Descriptors\DescriptorBase.cs" />
-    <Compile Include="MutableReflection\Descriptors\FieldDescriptor.cs" />
-    <Compile Include="MutableReflection\Descriptors\MethodBaseDescriptor.cs" />
-    <Compile Include="MutableReflection\Descriptors\MethodDescriptor.cs" />
-    <Compile Include="MutableReflection\Descriptors\ParameterDescriptor.cs" />
-    <Compile Include="MutableReflection\Descriptors\TypeDescriptor.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\TypeModifier.cs" />
     <Compile Include="Dlr\Actions\BinaryOperationBinder.cs" />
     <Compile Include="Dlr\Actions\BindingRestrictions.cs" />
     <Compile Include="Dlr\Actions\CallInfo.cs" />
@@ -342,7 +332,7 @@
     <Compile Include="MutableReflection\MutableFieldInfo.cs" />
     <Compile Include="MutableReflection\MutableMethodInfo.cs" />
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
-    <Compile Include="MutableReflection\MutableType.cs" />
+    <Compile Include="MutableReflection\ProxyType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="IParticipant.cs" />
     <Compile Include="ObjectFactory.cs" />

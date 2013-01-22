@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     private IMemberSelector _memberSelectorMock;
 
-    private Type _underlyingSystemType;
     private Type _declaringType;
     private Type _baseType;
     private string _name;
@@ -47,14 +46,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _underlyingSystemType = ReflectionObjectMother.GetSomeType();
       _declaringType = ReflectionObjectMother.GetSomeType();
       _baseType = ReflectionObjectMother.GetSomeType();
       _name = "type name";
       _namespace = "namespace";
       _fullName = "full type name";
 
-      _customType = new TestableCustomType (_memberSelectorMock, _underlyingSystemType, _declaringType, _baseType, _name, _namespace, _fullName);
+      _customType = new TestableCustomType (_memberSelectorMock, _declaringType, _baseType, _name, _namespace, _fullName);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
@@ -66,7 +64,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization ()
     {
-      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (_underlyingSystemType));
       Assert.That (_customType.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_customType.BaseType, Is.SameAs (_baseType));
       Assert.That (_customType.Name, Is.EqualTo (_name));
@@ -78,10 +75,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void Initialization_Null ()
     {
       var customType = new TestableCustomType (
-          _memberSelectorMock, _underlyingSystemType, declaringType: null, baseType: null, name: _name, @namespace: _namespace, fullName: _fullName);
+          _memberSelectorMock, declaringType: null, baseType: _baseType, name: _name, @namespace: _namespace, fullName: _fullName);
 
       Assert.That (customType.DeclaringType, Is.Null);
-      Assert.That (customType.BaseType, Is.Null);
     }
 
     [Test]
@@ -343,10 +339,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Dev.Null = _customType.IsAssignableFrom (null);
 
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new MethodInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new ConstructorInfo[0]);
       _memberSelectorMock
           .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))

@@ -22,7 +22,7 @@ namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// This interface provides a cache key for a <see cref="IParticipant"/> depending on the requested type.
-  /// Implementations should return non-equal cache keys if the participant applies different modifications to the <see cref="MutableType"/>.
+  /// Implementations should return non-equal cache keys if the participant applies different modifications to the <see cref="ProxyType"/>.
   /// This might depend on participant configuation, context and user options.
   /// However, a cache key should not encode the requested type itself, as this is already handled by the pipeline caching facilities.
   /// </summary>

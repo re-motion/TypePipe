@@ -32,11 +32,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class BodyContextBase
   {
-    private readonly MutableType _declaringType;
+    private readonly ProxyType _declaringType;
     private readonly bool _isStatic;
     private readonly IMemberSelector _memberSelector;
 
-    protected BodyContextBase (MutableType declaringType, bool isStatic, IMemberSelector memberSelector)
+    protected BodyContextBase (ProxyType declaringType, bool isStatic, IMemberSelector memberSelector)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _memberSelector = memberSelector;
     }
 
-    public MutableType DeclaringType
+    public ProxyType DeclaringType
     {
       get { return _declaringType; }
     }
@@ -67,52 +67,46 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get { return _isStatic; }
     }
 
-    public MethodCallExpression GetBaseCall (string baseMethod, params Expression[] arguments)
+    public MethodCallExpression CallBase (string baseMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseCall (baseMethod, (IEnumerable<Expression>) arguments);
+      return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public MethodCallExpression GetBaseCall (string baseMethod, IEnumerable<Expression> arguments)
+    public MethodCallExpression CallBase (string baseMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
-      EnsureNotStatic ();
+      Assertion.IsNotNull (_declaringType.BaseType);
+      EnsureNotStatic();
 
-      var baseType = _declaringType.BaseType;
-      if (baseType == null)
-      {
-        var message = string.Format ("Type '{0}' has no base type.", _declaringType);
-        throw new InvalidOperationException (message);
-      }
-
+      var args = arguments.ConvertToCollection();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseTypeMethods = baseType.GetMethods (bindingFlags);
-      var argumentsCollection = arguments.ConvertToCollection();
-      var argumentTypes = argumentsCollection.Select (a => a.Type).ToArray();
+      var baseTypeMethods = _declaringType.BaseType.GetMethods (bindingFlags);
+      var argumentTypes = BodyContextUtility.GetArgumentTypes (args);
       var baseMethodInfo = _memberSelector.SelectSingleMethod (
-          baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, null);
+          baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, modifiersOrNull: null);
 
       if (baseMethodInfo == null)
       {
-        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", baseMethod, baseType);
+        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", baseMethod, _declaringType.BaseType);
         throw new ArgumentException (message, "baseMethod");
       }
 
-      return GetBaseCall (baseMethodInfo, argumentsCollection);
+      return CallBase (baseMethodInfo, args);
     }
 
-    public MethodCallExpression GetBaseCall (MethodInfo baseMethod, params Expression[] arguments)
+    public MethodCallExpression CallBase (MethodInfo baseMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetBaseCall (baseMethod, (IEnumerable<Expression>) arguments);
+      return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public MethodCallExpression GetBaseCall (MethodInfo baseMethod, IEnumerable<Expression> arguments)
+    public MethodCallExpression CallBase (MethodInfo baseMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -122,18 +116,18 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       CheckNotAbstract (baseMethod);
       // TODO: Check if really base call!
 
-      return Expression.Call (This, new NonVirtualCallMethodInfoAdapter (baseMethod), arguments);
+      return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (baseMethod), arguments);
     }
 
-    public Expression GetCopiedMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
+    public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      return GetCopiedMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
+      return CopyMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
     }
 
-    public Expression GetCopiedMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
+    public Expression CopyMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
     {
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
@@ -165,8 +159,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     private void CheckVisibility (MethodInfo baseMethod)
     {
-      if (!baseMethod.IsPublic && !baseMethod.IsFamilyOrAssembly && !baseMethod.IsFamily)
-        throw new ArgumentException ("Can only call public, protected, or protected internal methods.", "baseMethod");
+      if (!SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
+      {
+        var message = string.Format (
+            "Matching base method '{0}.{1}' is not accessible from proxy type.", baseMethod.DeclaringType.Name, baseMethod.Name);
+        throw new MemberAccessException (message);
+      }
     }
 
     private void CheckNotAbstract (MethodInfo baseMethod)

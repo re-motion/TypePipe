@@ -91,10 +91,10 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
+    protected static IParticipant CreateParticipant (Action<ProxyType> typeModification)
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
-      participantStub.Stub (stub => stub.ModifyType (Arg<MutableType>.Is.Anything)).Do (typeModification);
+      participantStub.Stub (stub => stub.ModifyType (Arg<ProxyType>.Is.Anything)).Do (typeModification);
 
       return participantStub;
     }
@@ -108,15 +108,15 @@ namespace Remotion.TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected ITypeModifier CreateTypeModifier (string assemblyName)
+    protected ISubclassProxyCreator CreateSubclassProxyBuilder (string assemblyName)
     {
-      var typeModifier = SafeServiceLocator.Current.GetInstance<ITypeModifier>();
+      var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ISubclassProxyCreator>();
 
-      _codeGenerator = typeModifier.CodeGenerator;
+      _codeGenerator = subclassProxyBuilder.CodeGenerator;
       _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
       _codeGenerator.SetAssemblyName (assemblyName);
 
-      return typeModifier;
+      return subclassProxyBuilder;
     }
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)

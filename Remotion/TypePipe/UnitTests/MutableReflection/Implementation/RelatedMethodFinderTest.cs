@@ -344,62 +344,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetOverride_VirtualMethodShadowingBaseMethod ()
+    public void GetOverride_EqualBaseDefinition ()
     {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.VirtualMethodShadowingBaseMethod ());
-      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
+      var baseDefinition = ReflectionObjectMother.GetSomeVirtualMethod().GetBaseDefinition();
+      var candidate = MutableMethodInfoObjectMother.Create (baseMethod: baseDefinition);
 
-      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
+      var result = _finder.GetOverride (baseDefinition, new[] { candidate });
+
+      Assert.That (result, Is.SameAs (candidate));
+    }
+
+    [Test]
+    public void GetOverride_AddedExplicitBaseDefinition ()
+    {
+      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnrelatedMethod());
+      var candidate = MutableMethodInfoObjectMother.Create (ProxyTypeObjectMother.Create (typeof (DomainType)), attributes: MethodAttributes.Virtual);
+      Assert.That (_finder.GetOverride (baseDefinition, new[] { candidate }), Is.Null);
+      candidate.AddExplicitBaseDefinition (baseDefinition);
+
+      var result = _finder.GetOverride (baseDefinition, new[] { candidate });
+
+      Assert.That (result, Is.SameAs (candidate));
+    }
+
+    [Test]
+    public void GetOverride_NoMatch ()
+    {
+      var baseDefinition = ReflectionObjectMother.GetSomeBaseDefinition();
+      var candidate = MutableMethodInfoObjectMother.Create();
+
+      var result = _finder.GetOverride (baseDefinition, new[] { candidate });
 
       Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetOverride_OverridingMethod ()
-    {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.OverridingMethod());
-      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
-
-      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
-
-      var expected = overrideCandidates.Single (m => m.Name == "OverridingMethod");
-      Assert.That (result, Is.SameAs (expected));
-    }
-
-    [Test]
-    public void GetOverride_OverridingShadowingMethod ()
-    {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBaseBase obj) => obj.OverridingShadowingMethod());
-      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
-
-      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
-
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetOverride_UnrelatedMethod_ExplicitOverride ()
-    {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainTypeBase obj) => obj.BaseTypeMethod());
-      var overrideCandidates = GetDeclaredMutableMethods (typeof (DomainType));
-
-      Assert.That (_finder.GetOverride (baseDefinition, overrideCandidates), Is.Null);
-      var explicitOverride = overrideCandidates.Single (m => m.Name == "DerivedTypeMethod");
-      explicitOverride.AddExplicitBaseDefinition (baseDefinition);
-
-      var result = _finder.GetOverride (baseDefinition, overrideCandidates);
-
-      Assert.That (result, Is.SameAs (explicitOverride));
     }
 
     private MethodInfo[] GetDeclaredMethods (Type type)
     {
       return type.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-    }
-
-    private MutableMethodInfo[] GetDeclaredMutableMethods (Type type)
-    {
-      return GetDeclaredMethods (type).Select (m => MutableMethodInfoObjectMother.CreateForExisting (underlyingMethod: m)).ToArray();
     }
 
     // ReSharper disable UnusedMember.Local

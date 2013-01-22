@@ -27,10 +27,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsRuntimeType ()
     {
       var runtimeType = typeof (int);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (object));
+      var proxyType = ProxyTypeObjectMother.Create (typeof (object));
 
       Assert.That (runtimeType.IsRuntimeType(), Is.True);
-      Assert.That (mutableType.IsRuntimeType(), Is.False);
+      Assert.That (proxyType.IsRuntimeType(), Is.False);
     }
   }
 }

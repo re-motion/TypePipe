@@ -27,22 +27,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Serves as a factory for mutable members.
   /// </summary>
   /// <remarks>
-  /// This interface is an implementation detail of <see cref="MutableType"/>.
+  /// This interface is an implementation detail of <see cref="ProxyType"/>.
   /// </remarks>
   public interface IMutableMemberFactory
   {
-    Expression CreateInitialization (MutableType declaringType, bool isStatic, Func<InitializationBodyContext, Expression> initializationProvider);
+    Expression CreateInitialization (ProxyType proxyType, Func<InitializationBodyContext, Expression> initializationProvider);
 
-    MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
+    MutableFieldInfo CreateField (ProxyType proxyType, string name, Type type, FieldAttributes attributes);
 
     MutableConstructorInfo CreateConstructor (
-        MutableType declaringType,
+        ProxyType proxyType,
         MethodAttributes attributes,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateMethod (
-        MutableType declaringType,
+        ProxyType proxyType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -50,8 +50,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateExplicitOverride (
-        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
+        ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo GetOrCreateMethodOverride (MutableType declaringType, MethodInfo method, out bool isNewlyCreated);
+    MutableMethodInfo GetOrCreateOverride (ProxyType proxyType, MethodInfo baseMethod, out bool isNewlyCreated);
   }
 }

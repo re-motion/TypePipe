@@ -92,11 +92,11 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.String);
       var participant = CreateParticipant (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.InstanceInitializations, Is.Empty);
+            Assert.That (proxyType.InstanceInitializations, Is.Empty);
 
-            mutableType.AddInstanceInitialization (
+            proxyType.AddInitialization (
                 ctx =>
                 {
                   Assert.That (ctx.IsStatic, Is.False);
@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.IntegrationTests
                   return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
                 });
 
-            Assert.That (mutableType.InstanceInitializations, Is.Not.Empty);
+            Assert.That (proxyType.InstanceInitializations, Is.Not.Empty);
           });
 
       return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1);

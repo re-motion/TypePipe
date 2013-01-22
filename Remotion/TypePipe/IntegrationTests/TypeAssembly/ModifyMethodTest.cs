@@ -16,12 +16,12 @@
 // 
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -33,10 +33,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ExistingPublicVirtualMethod_PreviousBodyWithModifiedArguments ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+            var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            mutableMethod.SetBody (ctx => ctx.InvokePreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -49,9 +49,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MethodWithOutAndRefParameters ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
+            var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("MethodWithOutAndRefParameters"));
             mutableMethod.SetBody (
                 ctx =>
                 {
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   return Expression.Block (
                       new[] { tempLocal },
                       Expression.Assign (tempLocal, Expression.Multiply (ctx.Parameters[0], Expression.Constant (3))),
-                      ctx.GetPreviousBodyWithArguments (tempLocal, ctx.Parameters[1]),
+                      ctx.InvokePreviousBodyWithArguments (tempLocal, ctx.Parameters[1]),
                       Expression.Assign (ctx.Parameters[1], ExpressionHelper.StringConcat (ctx.Parameters[1], Expression.Constant (" test"))),
                       Expression.Assign (ctx.Parameters[0], tempLocal));
                 });
@@ -78,10 +78,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ExistingProtectedVirtualMethod_PreviousBody ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var method = typeof (DomainType).GetMethod ("ProtectedVirtualMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-            var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+            var mutableMethod = proxyType.GetOrAddOverride (method);
             mutableMethod.SetBody (
                 ctx => ExpressionHelper.StringConcat (Expression.Constant ("hello "), Expression.Call (ctx.PreviousBody, "ToString", null)));
           });
@@ -96,15 +96,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void SetBodyOfAddedMethod_Virtual ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "AddedMethod",
               MethodAttributes.Public | MethodAttributes.Virtual,
               typeof (int),
               ParameterDeclaration.EmptyParameters,
               ctx => Expression.Constant (7)),
-          mutableType =>
+          proxyType =>
           {
-            var addedMethod = mutableType.AddedMethods.Single();
+            var addedMethod = proxyType.AddedMethods.Single();
             Assert.That (addedMethod.IsVirtual, Is.True);
             addedMethod.SetBody (ctx => Expression.Add (ctx.PreviousBody, Expression.Constant (1)));
           });
@@ -120,15 +120,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void SetBodyOfAddedMethod_NonVirtual ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "AddedMethod",
               MethodAttributes.Public,
               typeof (int),
               ParameterDeclaration.EmptyParameters,
               ctx => Expression.Constant (7)),
-          mutableType =>
+          proxyType =>
           {
-            var addedMethod = mutableType.AddedMethods.Single();
+            var addedMethod = proxyType.AddedMethods.Single();
             Assert.That (addedMethod.IsVirtual, Is.False);
             addedMethod.SetBody (ctx => Expression.Add (ctx.PreviousBody, Expression.Constant (1)));
           });
@@ -144,10 +144,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void CallsToOriginalMethod_InvokeNewBody ()
     {
       var type = AssembleType<DomainType> (
-        mutableType =>
+        proxyType =>
         {
-          var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-          mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+          var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+          mutableMethod.SetBody (ctx => ctx.InvokePreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
         });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -159,31 +159,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ModifyingNonVirtualAndStaticAndFinalMethods_Throws ()
     {
+      var nonVirtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethod());
+      var staticMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.PublicStaticMethod());
+      var finalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.FinalMethod());
+
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var nonVirtualMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicMethod"));
+            var message = "Only virtual methods can be overridden.";
             Assert.That (
-                () => nonVirtualMethod.SetBody (ctx => Expression.Constant (7)),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "The body of the existing non-virtual or final method 'PublicMethod' cannot be replaced."));
+                () => proxyType.GetOrAddOverride (nonVirtualMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
 
-            var staticMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicStaticMethod"));
             Assert.That (
-                () => staticMethod.SetBody (
-                    ctx =>
-                    {
-                      Assert.That (ctx.IsStatic, Is.True);
-                      return Expression.Constant (8);
-                    }),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (
-                    "The body of the existing non-virtual or final method 'PublicStaticMethod' cannot be replaced."));
+                () => proxyType.GetOrAddOverride (staticMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
 
-            var finalMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("FinalMethod"));
             Assert.That (
-                () => finalMethod.SetBody (ctx => Expression.Constant (7)),
-                Throws.TypeOf<NotSupportedException> ().With.Message.EqualTo (
-                    "The body of the existing non-virtual or final method 'FinalMethod' cannot be replaced."));
+                () => proxyType.GetOrAddOverride (finalMethod),
+                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Cannot override final method 'DomainType.FinalMethod'."));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -197,15 +191,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ChainPreviousBodyInvocations ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
+            var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            mutableMethod.SetBody (ctx => ctx.InvokePreviousBodyWithArguments (Expression.Multiply (Expression.Constant (2), ctx.Parameters[0])));
           },
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.GetOrAddMutableMethod (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
-            mutableMethod.SetBody (ctx => ctx.GetPreviousBodyWithArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
+            var mutableMethod = proxyType.GetOrAddOverride (typeof (DomainType).GetMethod ("PublicVirtualMethod"));
+            mutableMethod.SetBody (ctx => ctx.InvokePreviousBodyWithArguments (Expression.Add (Expression.Constant (2), ctx.Parameters[0])));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -218,17 +212,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AddedMethodCallsModfiedMethod ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
             var originalMethod = typeof (DomainType).GetMethod ("PublicVirtualMethod");
-            mutableType.AddMethod (
+            proxyType.AddMethod (
                 "AddedMethod",
                 MethodAttributes.Public,
                 typeof (string),
                 ParameterDeclaration.EmptyParameters,
                 ctx => Expression.Call (ctx.This, originalMethod, Expression.Constant(7)));
 
-            var modifiedMethod = mutableType.GetOrAddMutableMethod (originalMethod);
+            var modifiedMethod = proxyType.GetOrAddOverride (originalMethod);
             modifiedMethod.SetBody (ctx => ExpressionHelper.StringConcat(Expression.Constant ("hello "), Expression.Call (ctx.PreviousBody, "ToString", null)));
           });
 
@@ -246,14 +240,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType : DomainTypeBase
     {
-      public virtual string PublicVirtualMethod(int i)
+      public virtual string PublicVirtualMethod (int i)
       {
-        return i.ToString();
+        return "" + i;
       }
 
       protected virtual string ProtectedVirtualMethod (double d)
       {
-        return d.ToString (CultureInfo.InvariantCulture);
+        return "" + d;
       }
 
       public string CallsOriginalMethod (int i)

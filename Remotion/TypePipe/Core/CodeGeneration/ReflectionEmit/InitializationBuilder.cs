@@ -20,7 +20,6 @@ using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -30,37 +29,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class InitializationBuilder : IInitializationBuilder
   {
-    public MutableConstructorInfo CreateTypeInitializer (MutableType mutableType)
+    public Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (ProxyType proxyType)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      if (mutableType.TypeInitializations.Count == 0)
+      if (proxyType.InstanceInitializations.Count == 0)
         return null;
 
-      var attributes = MethodAttributes.Private | MethodAttributes.Static;
-      var body = Expression.Block (typeof (void), mutableType.TypeInitializations);
-      var descriptor = ConstructorDescriptor.Create (attributes, ParameterDescriptor.EmptyParameters, body);
-      var typeInitializer = new MutableConstructorInfo (mutableType, descriptor);
+      proxyType.AddInterface (typeof (IInitializableObject));
 
-      return typeInitializer;
-    }
-
-    public Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType)
-    {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-
-      if (mutableType.InstanceInitializations.Count == 0)
-        return null;
-
-      mutableType.AddInterface (typeof (IInitializableObject));
-
-      var counter = mutableType.AddField ("<tp>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+      var counter = proxyType.AddField ("<tp>_ctorRunCounter", typeof (int), FieldAttributes.Private);
       var nonSerializedCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
       counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      var body = Expression.Block (interfaceMethod.ReturnType, mutableType.InstanceInitializations);
-      var initializationMethod = mutableType.AddExplicitOverride (interfaceMethod, ctx => body);
+      var body = Expression.Block (interfaceMethod.ReturnType, proxyType.InstanceInitializations);
+      var initializationMethod = proxyType.AddExplicitOverride (interfaceMethod, ctx => body);
 
       return Tuple.Create<FieldInfo, MethodInfo> (counter, initializationMethod);
     }

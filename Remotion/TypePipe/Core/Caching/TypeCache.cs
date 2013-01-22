@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.Caching
   /// Retrieves the generated type or its constructors for the requested type from the cache or delegates to the contained
   /// <see cref="ITypeAssembler"/> instance.
   /// </summary>
+  /// <remarks>This class ensures a single threaded-environment for all downstream implementation classes.</remarks>
   public class TypeCache : ITypeCache
   {
     private readonly object _lock = new object();

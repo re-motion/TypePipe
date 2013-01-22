@@ -16,10 +16,12 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -49,14 +51,13 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableType));
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
 
-      _participant.ModifyType (mutableType);
+      _participant.ModifyType (proxyType);
 
-      Assert.That (mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
-      Assert.That (mutableType.AllMutableMethods.Count(), Is.EqualTo (1));
-      Assert.That (mutableType.AddedConstructors, Is.Empty);
-      var method = mutableType.AddedMethods.Single();
+      Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
+      Assert.That (proxyType.AddedConstructors, Has.Count.EqualTo (1));
+      var method = proxyType.AddedMethods.Single();
 
       var serializationInfo = method.ParameterExpressions[0];
       var expectedMethodBody = Expression.Block (
@@ -66,36 +67,37 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               serializationInfo,
               "AddValue",
               Type.EmptyTypes,
-              Expression.Constant ("<tp>underlyingType"),
-              Expression.Constant (typeof (SerializableType).AssemblyQualifiedName)),
+              Expression.Constant ("<tp>baseType"),
+              Expression.Constant (typeof (SomeType).AssemblyQualifiedName)),
           Expression.Call (
               serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)),
           Expression.Call (
-              typeof (ReflectionSerializationHelper), "AddFieldValues", Type.EmptyTypes, serializationInfo, new ThisExpression (mutableType)));
+              typeof (ReflectionSerializationHelper), "AddFieldValues", Type.EmptyTypes, serializationInfo, new ThisExpression (proxyType)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
     }
 
     [Test]
     public void ModifyType_SerializableInterfaceType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SerializableInterfaceType));
-      var method = mutableType.ExistingMutableMethods.Single();
-      var oldBody = method.Body;
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
+      var baseMethod = proxyType.GetMethod ("GetObjectData");
 
-      _participant.ModifyType (mutableType);
+      _participant.ModifyType (proxyType);
 
-      Assert.That (mutableType.AddedInterfaces, Is.Empty);
-      Assert.That (mutableType.AddedMethods, Is.Empty);
+      Assert.That (proxyType.AddedInterfaces, Is.Empty);
+      Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
 
+      var method = proxyType.AddedMethods.Single();
       var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (
-          oldBody,
+          Expression.Call (
+              new ThisExpression (proxyType), new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
           Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithDeserializationConstructorProxy))),
           Expression.Call (
               serializationInfo,
               "AddValue",
               Type.EmptyTypes,
-              Expression.Constant ("<tp>underlyingType"),
+              Expression.Constant ("<tp>baseType"),
               Expression.Constant (typeof (SerializableInterfaceType).AssemblyQualifiedName)),
           Expression.Call (
               serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)));
@@ -105,20 +107,21 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (SomeType));
+      var proxyType = ProxyTypeObjectMother.Create (
+          typeof (SomeType),
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
 
-      _participant.ModifyType (mutableType);
+      _participant.ModifyType (proxyType);
 
-      Assert.That (mutableType.AddedInterfaces, Is.Empty);
-      Assert.That (mutableType.AllMutableMethods, Is.Empty);
+      Assert.That (proxyType.AddedInterfaces, Is.Empty);
+      Assert.That (proxyType.AddedMethods, Is.Empty);
     }
 
     public class SomeType { }
 
-    [Serializable]
-    public class SerializableType { }
-
-    [Serializable]
     class SerializableInterfaceType : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }

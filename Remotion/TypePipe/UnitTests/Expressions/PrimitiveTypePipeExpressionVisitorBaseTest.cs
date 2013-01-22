@@ -35,12 +35,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           mock => PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitThis (mock, thisExpression),
           visitor => visitor.VisitThis (thisExpression));
 
-      var originalBodyExpression = ExpressionTreeObjectMother.GetSomeOriginalBodyExpression();
-      CheckDefaultVisitImplementation (
-          originalBodyExpression,
-          mock => PrimitiveTypePipeExpressionVisitorTestHelper.CallVisitOriginalBody (mock, originalBodyExpression),
-          visitor => visitor.VisitOriginalBody (originalBodyExpression));
-
       var newDelegateExpression = ExpressionTreeObjectMother.GetSomeNewDelegateExpression ();
       CheckDefaultVisitImplementation (
           newDelegateExpression,
@@ -56,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
 
-      var visitorBaseMock = MockRepository.GenerateStrictMock <PrimitiveTypePipeExpressionVisitorBase> ();
+      var visitorBaseMock = MockRepository.GenerateStrictMock<PrimitiveTypePipeExpressionVisitorBase>();
       visitorBaseMock
           .Expect (expectedVisitMethod)
           .CallOriginalMethod (OriginalCallOptions.CreateExpectation);
@@ -64,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
           .Expect (mock => ExpressionVisitorTestHelper.CallVisitExtension(mock, expression))
           .Return (fakeResult);
 
-      var result = invokedMethod ((IPrimitiveTypePipeExpressionVisitor) visitorBaseMock);
+      var result = invokedMethod (visitorBaseMock);
 
       visitorBaseMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));

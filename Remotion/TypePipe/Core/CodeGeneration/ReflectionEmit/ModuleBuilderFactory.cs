@@ -54,9 +54,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
       var adapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
       var decorator = new ModuleBuilderDecorator (adapter, emittableOperandProvider);
-      var uniqueNamingDecorator = new UniqueNamingModuleBuilderDecorator (decorator);
 
-      return uniqueNamingDecorator;
+      return decorator;
     }
 
     private StrongNameKeyPair GetKeyPair (string keyFilePathOrNull)

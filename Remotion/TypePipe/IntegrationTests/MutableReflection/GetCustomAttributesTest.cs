@@ -18,6 +18,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
@@ -29,26 +30,30 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   public class GetCustomAttributesTest
   {
     [Test]
-    [Domain ("")]
     public void GetCustomAttributes_AttributeInstantiation_NoFilter ()
     {
-      var mutableMember = CreateMutableMember (MethodBase.GetCurrentMethod ());
+      var attr1 = CreateAttribute<TestAttribute> (new object[0]);
+      var attr2 = CreateAttribute<DomainAttribute> (new object[] { "" });
+      var mutableInfo = CreateMutableInfo (attr1, attr2);
 
-      var attributes = mutableMember.GetCustomAttributes (false);
+      var attributes = mutableInfo.GetCustomAttributes (false);
 
       var attributeTypes = attributes.Select (a => a.GetType());
       Assert.That (attributeTypes, Is.EquivalentTo (new[] { typeof (TestAttribute), typeof (DomainAttribute) }));
     }
 
     [Test]
-    [Domain (new object[] { "ctorArg", 7, null, typeof (double), MyEnum.B, new[] { 1, 2 } },
-        Field = "named arg",
-        Property = new object[] { "named arg", 8, typeof (int), MyEnum.C, new[] { 3, 4 } })]
-    public void GetCustomAttributes_AttributeInstantiation ()
+    public virtual void GetCustomAttributes_AttributeInstantiation ()
     {
-      var mutableMember = CreateMutableMember (MethodBase.GetCurrentMethod());
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainAttribute obj) => obj.Field);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainAttribute obj) => obj.Property);
+      var attr = CreateAttribute<DomainAttribute> (
+          new object[] { new object[] { "ctorArg", 7, null, typeof (double), MyEnum.B, new[] { 1, 2 } } },
+          new NamedArgumentDeclaration (field, "named arg"),
+          new NamedArgumentDeclaration (property, new object[] { "named arg", 8, typeof (int), MyEnum.C, new[] { 3, 4 } }));
+      var mutableInfo = CreateMutableInfo (attr);
 
-      var attributes = mutableMember.GetCustomAttributes (typeof (DomainAttribute), false);
+      var attributes = mutableInfo.GetCustomAttributes (typeof (DomainAttribute), false);
 
       var attribute = (DomainAttribute) attributes.Single();
       Assert.That (attribute.CtorArg, Is.EqualTo (new object[] { "ctorArg", 7, null, typeof (double), MyEnum.B, new[] { 1, 2 } }));
@@ -57,12 +62,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    [InheritableAllowMultiple ("2"), InheritableAllowMultiple ("1")]
     public void GetCustomAttributes_AttributeInstantiation_AllowMultiple ()
     {
-      var mutableMember = CreateMutableMember (MethodBase.GetCurrentMethod ());
+      var attr1 = CreateAttribute<InheritableAllowMultipleAttribute> (new object[] { "1" });
+      var attr2 = CreateAttribute<InheritableAllowMultipleAttribute> (new object[] { "2" });
+      var mutableInfo = CreateMutableInfo (attr2, attr1); // mix order.
 
-      var attributes = mutableMember.GetCustomAttributes (typeof (InheritableAllowMultipleAttribute), false);
+      var attributes = mutableInfo.GetCustomAttributes (typeof (InheritableAllowMultipleAttribute), false);
 
       var attributeCtorArgs = attributes.Cast<InheritableAllowMultipleAttribute>().Select (a => a.CtorArg);
       Assert.That (attributeCtorArgs, Is.EquivalentTo (new[] { "1", "2" }));
@@ -71,17 +77,17 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetCustomAttributes_Inheritance_BehavesLikeReflection ()
     {
-      var type = typeof (DerivedClass);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      CheckAttributeInheritance (mutableType, type);
+      var type = typeof (DomainType);
+      var proxyType = ProxyTypeObjectMother.Create (type);
+      CheckAttributeInheritance (proxyType, type);
 
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.Method ());
-      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
+      var mutableMethod = proxyType.GetOrAddOverride (method);
       CheckAttributeInheritance (mutableMethod, method);
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.OverriddenProperty);
-      //var mutableProperty = mutableType.AllMutableProperties.Single();
+      //var mutableProperty = ProxyType.AllMutableProperties.Single();
       //CheckAttributes (mutableProperty, property);
 
       // TODO 4791
@@ -96,7 +102,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var @event = type.GetEvents().Single();
-      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //var mutableEvent = ProxyType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
 
       // TODO 4791
@@ -113,22 +119,22 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
-      var type = typeof (DerivedClass);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      CheckAttributeInheritanceAllowMultiple (mutableType, type);
+      var type = typeof (DomainType);
+      var proxyType = ProxyTypeObjectMother.Create (type);
+      CheckAttributeInheritanceAllowMultiple (proxyType);
 
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod());
-      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
-      CheckAttributeInheritanceAllowMultiple (mutableMethod, method);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AllowMultipleMethod());
+      var mutableMethod = proxyType.GetOrAddOverride (method);
+      CheckAttributeInheritanceAllowMultiple (mutableMethod);
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
-      //var mutableProperty = mutableType.GetMutableProperty(property);
+      //var mutableProperty = ProxyType.GetMutableProperty(property);
       //CheckAttributes (mutableEvent, @event);
 
       // TODO 4791
       //var @event = type.GetEvents().Single ...
-      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //var mutableEvent = ProxyType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
     }
 
@@ -136,14 +142,14 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_ArrayType_BehavesLikeReflection ()
     {
       var member = MethodBase.GetCurrentMethod();
-      var mutableMember = CreateMutableMember (member);
+      var mutableInfo = CreateMutableInfo();
       var inherit = BooleanObjectMother.GetRandomBoolean();
 
       var expectedType1 = member.GetCustomAttributes (inherit).GetType();
-      Assert.That (mutableMember.GetCustomAttributes (inherit), Is.TypeOf (expectedType1));
+      Assert.That (mutableInfo.GetCustomAttributes (inherit), Is.TypeOf (expectedType1));
 
-      var expectedType2 = member.GetCustomAttributes (typeof (BaseAttribute), inherit).GetType ();
-      Assert.That (mutableMember.GetCustomAttributes (typeof (BaseAttribute), inherit),Is.TypeOf (expectedType2));
+      var expectedType2 = member.GetCustomAttributes (typeof (BaseAttribute), inherit).GetType();
+      Assert.That (mutableInfo.GetCustomAttributes (typeof (BaseAttribute), inherit), Is.TypeOf (expectedType2));
     }
 
     [Test]
@@ -160,29 +166,39 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void IsDefined_Inheritance_BehavesLikeReflection ()
     {
-      var type = typeof (DerivedClass);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
-      CheckIsDefinedInheritance (mutableType, type);
+      var type = typeof (DomainType);
+      var proxyType = ProxyTypeObjectMother.Create (type);
+      CheckIsDefinedInheritance (proxyType);
 
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DerivedClass obj) => obj.AllowMultipleMethod ());
-      var mutableMethod = mutableType.GetOrAddMutableMethod (method);
-      CheckIsDefinedInheritance (mutableMethod, method);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
+      var mutableMethod = proxyType.GetOrAddOverride (method);
+      CheckIsDefinedInheritance (mutableMethod);
 
       // TODO 4791
-      //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
-      //var mutableProperty = mutableType.GetMutableProperty(property);
+      //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.Property);
+      //var mutableProperty = ProxyType.GetMutableProperty(property);
       //CheckIsDefinedInheritance (mutableEvent, @event);
 
       // TODO 4791
       //var @event = type.GetEvents().Single ...
-      //var mutableEvent = mutableType.AllMutableEvents().Single();
+      //var mutableEvent = ProxyType.AllMutableEvents().Single();
       //CheckIsDefinedInheritance (mutableEvent, @event);
     }
 
-    private IMutableInfo CreateMutableMember (MethodBase underlyingMethod)
+    private CustomAttributeDeclaration CreateAttribute<T> (object[] ctorArgs, params NamedArgumentDeclaration[] namedArguments)
+        where T : Attribute
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting (typeof (GetCustomAttributesTest));
-      return mutableType.GetOrAddMutableMethod ((MethodInfo) underlyingMethod);
+      var ctor = typeof (T).GetConstructors().Single();
+      return new CustomAttributeDeclaration (ctor, ctorArgs, namedArguments);
+    }
+
+    private IMutableInfo CreateMutableInfo (params CustomAttributeDeclaration[] customAttributes)
+    {
+      var member = new MutableFieldInfo (ProxyTypeObjectMother.Create (GetType()), "member", typeof (int), FieldAttributes.Private);
+      foreach (var customAttriubte in customAttributes)
+        member.AddCustomAttribute (customAttriubte);
+
+      return member;
     }
 
     private void CheckAttributeInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
@@ -197,32 +213,26 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (typeComparer));
     }
 
-    private void CheckAttributeInheritanceAllowMultiple (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
+    private void CheckAttributeInheritanceAllowMultiple (IMutableInfo mutableInfo)
     {
-      var filterType = typeof (AllowMultipleBaseAttribute);
-      var actualNonInheritableAttributes = (AllowMultipleBaseAttribute[]) ownAttributeDataProvider.GetCustomAttributes (filterType, false);
-      var actualInheritableAttributes = (AllowMultipleBaseAttribute[]) ownAttributeDataProvider.GetCustomAttributes (filterType, true);
-      var expectedNonInheritableAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, false);
-      var expectedInheritableAttributes = (AllowMultipleBaseAttribute[]) attributeProvider.GetCustomAttributes (filterType, true);
+      mutableInfo.AddCustomAttribute (CreateAttribute<InheritableAllowMultipleAttribute> (new object[] { "derived1" }));
+      mutableInfo.AddCustomAttribute (CreateAttribute<NonInheritableAllowMultipleAttribute> (new object[] { "derived2" }));
 
-      Comparison<AllowMultipleBaseAttribute> multipleAttributeComparer = (a, b) => a.CtorArg == b.CtorArg ? 0 : -1;
-      Assert.That (actualNonInheritableAttributes, Is.EqualTo (expectedNonInheritableAttributes).Using (multipleAttributeComparer));
-      Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (multipleAttributeComparer));
+      var filterType = typeof (AllowMultipleBaseAttribute);
+      var actualAttributes = (AllowMultipleBaseAttribute[]) mutableInfo.GetCustomAttributes (filterType, true);
+
+      Assert.That (actualAttributes.Select (a => a.CtorArg), Is.EquivalentTo (new[] { "derived1", "derived2", "base1" }));
     }
 
-    private void CheckIsDefinedInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider, ICustomAttributeProvider attributeProvider)
+    private void CheckIsDefinedInheritance (IOwnCustomAttributeDataProvider ownAttributeDataProvider)
     {
-      Assert.That (
-          ownAttributeDataProvider.IsDefined (typeof (InheritableAttribute), true),
-          Is.EqualTo (attributeProvider.IsDefined (typeof (InheritableAttribute), true)));
-      Assert.That (
-          ownAttributeDataProvider.IsDefined (typeof (NonInheritableAttribute), true),
-          Is.EqualTo (attributeProvider.IsDefined (typeof (NonInheritableAttribute), true)));
+      Assert.That (ownAttributeDataProvider.IsDefined (typeof (InheritableAttribute), true), Is.True);
+      Assert.That (ownAttributeDataProvider.IsDefined (typeof (NonInheritableAttribute), true), Is.False);
     }
 
     [Inheritable, NonInheritable]
-    [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
-    class BaseClass
+    [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")]
+    public class DomainType
     {
       [Inheritable, NonInheritable]
       public virtual void Method () { }
@@ -235,54 +245,29 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public virtual event EventHandler Event { [Inheritable, NonInheritable] add { } [Inheritable, NonInheritable] remove { } }
       // ReSharper restore ValueParameterNotUsed
 
-      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")]
       public virtual void AllowMultipleMethod () { }
 
-      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")]
       public virtual string AllowMultipleProperty
       {
-        [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")] get;
-        [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")] set;
+        [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")] get;
+        [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")] set;
       }
 
       // ReSharper disable ValueParameterNotUsed
-      [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")]
+      [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")]
       public virtual event EventHandler AllowMultipleEvent
       {
-        [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")] add { }
-        [InheritableAllowMultiple ("base"), InheritableNonMultiple ("base")] remove { }
+        [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")] add { }
+        [InheritableAllowMultiple ("base1"), NonInheritableAllowMultiple ("base2")] remove { }
       }
       // ReSharper restore ValueParameterNotUsed
     }
 
-    [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
-    class DerivedClass : BaseClass
+    public class DomainAttribute : Attribute
     {
-      public override void Method () { }
-      public override string Property { get; set; }
-      public override event EventHandler Event;
-
-      [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
-      public override void AllowMultipleMethod () { }
-
-      [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
-      public override string AllowMultipleProperty
-      {
-        [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")] get;
-        [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")] set;
-      }
-
-      [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")]
-      public override event EventHandler AllowMultipleEvent
-      {
-        [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")] add { }
-        [InheritableAllowMultiple ("derived"), InheritableNonMultiple ("derived")] remove { }
-      }
-    }
-
-    class DomainAttribute : Attribute
-    {
-      public string Field;
+      [UsedImplicitly] public string Field;
 
       public DomainAttribute (object ctorArg)
       {
@@ -293,40 +278,40 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public object Property { get; set; }
     }
 
-    enum MyEnum { A, B, C }
+    public enum MyEnum { A, B, C }
 
     [Derived]
     void IsDefinedMemberWithDerivedAttribute () { }
 
-    class BaseAttribute : Attribute { }
-    class DerivedAttribute : BaseAttribute, IDerivedAttributeInterface { }
+    public class BaseAttribute : Attribute { }
+    public class DerivedAttribute : BaseAttribute, IDerivedAttributeInterface { }
     interface IDerivedAttributeInterface { }
-    class UnrelatedAttribute : Attribute { }
+    public class UnrelatedAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true)]
-    class InheritableAttribute : Attribute { }
+    public  class InheritableAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, Inherited = false)]
-    class NonInheritableAttribute : Attribute { }
+    public class NonInheritableAttribute : Attribute { }
 
     [AttributeUsage (AttributeTargets.All, AllowMultiple = true)]
-    abstract class AllowMultipleBaseAttribute : Attribute
+    public abstract class AllowMultipleBaseAttribute : Attribute
     {
-      public AllowMultipleBaseAttribute (string arg) { CtorArg = arg; }
+      protected AllowMultipleBaseAttribute (string arg) { CtorArg = arg; }
 
       public string CtorArg { get; private set; }
     }
 
     [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = true)]
-    class InheritableAllowMultipleAttribute : AllowMultipleBaseAttribute
+    public class InheritableAllowMultipleAttribute : AllowMultipleBaseAttribute
     {
       public InheritableAllowMultipleAttribute (string arg) : base(arg) { }
     }
 
-    [AttributeUsage (AttributeTargets.All, Inherited = true, AllowMultiple = true)]
-    class InheritableNonMultipleAttribute : AllowMultipleBaseAttribute
+    [AttributeUsage (AttributeTargets.All, Inherited = false, AllowMultiple = true)]
+    public class NonInheritableAllowMultipleAttribute : AllowMultipleBaseAttribute
     {
-      public InheritableNonMultipleAttribute (string arg) : base(arg) { }
+      public NonInheritableAllowMultipleAttribute (string arg) : base(arg) { }
     }
   }
 }

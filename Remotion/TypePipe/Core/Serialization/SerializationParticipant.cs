@@ -26,7 +26,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
@@ -47,12 +46,12 @@ namespace Remotion.TypePipe.Serialization
   public class SerializationParticipant : IParticipant
   {
     public const string SerializationKeyPrefix = "<tp>";
-    public const string UnderlyingTypeKey = SerializationKeyPrefix + "underlyingType";
+    public const string BaseTypeKey = SerializationKeyPrefix + "baseType";
     public const string FactoryIdentifierKey = SerializationKeyPrefix + "factoryIdentifier";
 
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
-    private static readonly MethodInfo s_addFieldValueMethod =
+    private static readonly MethodInfo s_addFieldValuesMethod =
         MemberInfoFromExpressionUtility.GetMethod (() => ReflectionSerializationHelper.AddFieldValues (null, null));
 
     private readonly string _factoryIdentifier;
@@ -69,20 +68,20 @@ namespace Remotion.TypePipe.Serialization
       get { return null; }
     }
 
-    public void ModifyType (MutableType mutableType)
+    public void ModifyType (ProxyType proxyType)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      if (!mutableType.IsSerializable)
+      if (!proxyType.IsSerializable)
         return;
 
-      if (mutableType.IsAssignableTo (typeof (ISerializable)))
+      if (proxyType.IsAssignableTo (typeof (ISerializable)))
       {
         // If the mutable type already implements ISerializable, we only need to extend the implementation to include the metadata required for 
         // deserialization. Existing fields will be serialized by the base ISerialization implementation. Added fields will be serialized by
         // the TypePipe (ProxySerializationEnabler).
-        mutableType
-            .GetOrAddMutableMethod (s_getObjectDataMethod)
+        proxyType
+            .GetOrAddOverride (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
                     new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithDeserializationConstructorProxy)))));
@@ -94,14 +93,14 @@ namespace Remotion.TypePipe.Serialization
         // cannot take care of serializing the added fields, and we thus have to serialize both existing and added fields ourselves via 
         // ReflectionHelper.AddFieldValues.
 
-        mutableType.AddInterface (typeof (ISerializable));
+        proxyType.AddInterface (typeof (ISerializable));
 
-        mutableType.AddExplicitOverride (
+        proxyType.AddExplicitOverride (
             s_getObjectDataMethod,
             ctx => Expression.Block (
                 typeof (void),
                 CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithoutDeserializationConstructorProxy))
-                    .Concat (Expression.Call (s_addFieldValueMethod, ctx.Parameters[0], ctx.This))));
+                    .Concat (Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This))));
       }
     }
 
@@ -111,7 +110,7 @@ namespace Remotion.TypePipe.Serialization
       return new Expression[]
              {
                  Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (serializationSurrogateType)),
-                 CreateAddValueExpression (serializationInfo, UnderlyingTypeKey, context.DeclaringType.UnderlyingSystemType.AssemblyQualifiedName),
+                 CreateAddValueExpression (serializationInfo, BaseTypeKey, context.DeclaringType.BaseType.AssemblyQualifiedName),
                  CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, _factoryIdentifier)
              };
     }

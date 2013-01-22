@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private EmittableOperandProvider _provider;
 
-    private MutableType _mutableType;
+    private ProxyType _proxyType;
     private MutableFieldInfo _mutableField;
     private MutableConstructorInfo _mutableConstructor;
     private MutableMethodInfo _mutableMethod;
@@ -43,37 +43,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _provider = new EmittableOperandProvider();
 
-      _mutableType = MutableTypeObjectMother.CreateForExisting();
-      _mutableField = MutableFieldInfoObjectMother.CreateForExisting();
-      _mutableConstructor = MutableConstructorInfoObjectMother.CreateForExisting();
-      _mutableMethod = MutableMethodInfoObjectMother.CreateForExisting();
+      _proxyType = ProxyTypeObjectMother.Create();
+      _mutableField = MutableFieldInfoObjectMother.Create();
+      _mutableConstructor = MutableConstructorInfoObjectMother.Create();
+      _mutableMethod = MutableMethodInfoObjectMother.Create();
     }
 
     [Test]
     public void AddMapping ()
     {
-      CheckAddMapping<MutableType, Type> (_provider.AddMapping, _provider.GetEmittableType, _mutableType);
+      CheckAddMapping<ProxyType, Type> (_provider.AddMapping, _provider.GetEmittableType, _proxyType);
       CheckAddMapping<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _provider.GetEmittableField, _mutableField);
       CheckAddMapping<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _provider.GetEmittableConstructor, _mutableConstructor);
       CheckAddMapping<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _provider.GetEmittableMethod, _mutableMethod);
     }
 
     [Test]
-    public void AddMapping_ReferenceEquality ()
-    {
-      var mutableType1 = MutableTypeObjectMother.CreateForExisting();
-      var mutableType2 = MutableTypeObjectMother.CreateForExisting();
-      Assert.That (mutableType1, Is.EqualTo (mutableType2).And.Not.SameAs (mutableType2));
-      _provider.AddMapping (mutableType1, mutableType1.UnderlyingSystemType);
-
-      Assert.That (() => _provider.AddMapping (mutableType2, mutableType2.UnderlyingSystemType), Throws.Nothing);
-    }
-
-    [Test]
     public void AddMapping_Twice ()
     {
-      CheckAddMappingTwiceThrows<MutableType, Type> (
-          _provider.AddMapping, _mutableType, "MutableType '{memberName}' is already mapped.\r\nParameter name: mappedType");
+      CheckAddMappingTwiceThrows<ProxyType, Type> (
+          _provider.AddMapping, _proxyType, "ProxyType '{memberName}' is already mapped.\r\nParameter name: mappedType");
       CheckAddMappingTwiceThrows<MutableFieldInfo, FieldInfo> (
           _provider.AddMapping, _mutableField, "MutableFieldInfo '{memberName}' is already mapped.\r\nParameter name: mappedField");
       CheckAddMappingTwiceThrows<MutableConstructorInfo, ConstructorInfo> (
@@ -90,12 +79,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructorBuilder = ReflectionEmitObjectMother.GetSomeConstructorBuilder();
       var methodBuilder = ReflectionEmitObjectMother.GetSomeMethodBuilder();
 
-      _provider.AddMapping (_mutableType, typeBuilder);
+      _provider.AddMapping (_proxyType, typeBuilder);
       _provider.AddMapping (_mutableField, fieldBuilder);
       _provider.AddMapping (_mutableConstructor, constructorBuilder);
       _provider.AddMapping (_mutableMethod, methodBuilder);
 
-      Assert.That (_provider.GetEmittableType (_mutableType), Is.SameAs (typeBuilder));
+      Assert.That (_provider.GetEmittableType (_proxyType), Is.SameAs (typeBuilder));
       Assert.That (_provider.GetEmittableField (_mutableField), Is.SameAs (fieldBuilder));
       Assert.That (_provider.GetEmittableConstructor (_mutableConstructor), Is.SameAs (constructorBuilder));
       Assert.That (_provider.GetEmittableMethod (_mutableMethod), Is.SameAs (methodBuilder));
@@ -104,10 +93,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableXXX_RuntimeInfos ()
     {
-      var type = _mutableType.UnderlyingSystemType;
-      var field = _mutableField.UnderlyingSystemFieldInfo;
-      var ctor = _mutableConstructor.UnderlyingSystemConstructorInfo;
-      var method = _mutableMethod.UnderlyingSystemMethodInfo;
+      var type = ReflectionObjectMother.GetSomeType();
+      var field = ReflectionObjectMother.GetSomeField();
+      var ctor = ReflectionObjectMother.GetSomeConstructor();
+      var method = ReflectionObjectMother.GetSomeMethod();
 
       Assert.That (_provider.GetEmittableType (type), Is.SameAs (type));
       Assert.That (_provider.GetEmittableField (field), Is.SameAs (field));
@@ -132,7 +121,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableXXX_NoMapping ()
     {
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableType, _mutableType);
+      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableType, _proxyType);
       CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableField, _mutableField);
       CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableConstructor, _mutableConstructor);
       CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableMethod, _mutableMethod);
@@ -141,62 +130,82 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
-      _provider.AddMapping (mutableType, ReflectionObjectMother.GetSomeType());
+      var proxyType = ProxyTypeObjectMother.Create();
+      _provider.AddMapping (proxyType, ReflectionObjectMother.GetSomeType());
 
-      var constructedType = typeof (List<>).MakeGenericType (mutableType);
-      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { mutableType }));
+      var constructedType = typeof (List<>).MakeGenericType (proxyType);
+      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
 
       _provider.GetEmittableType (constructedType);
 
-      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { mutableType }));
+      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
     }
 
     [Test]
-    public void GetEmittableType_GenericType_MutableTypeGenericParameter ()
+    public void GetEmittableType_GenericType_ProxyTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting();
+      var proxyType = ProxyTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
       var emittableType = ReflectionObjectMother.GetSomeType();
-      _provider.AddMapping (mutableType, emittableType);
+      _provider.AddMapping (proxyType, emittableType);
 
-      // Test recursion: List<Func<mt xxx>> as TypeBuilderInstantiation
-      var constructedType = typeof (List<>).MakeGenericType (typeof (Func<>).MakeGenericType (mutableType));
+      // Test recursion: List<Func<pt xxx>> as TypeBuilderInstantiation
+      var constructedType = typeof (List<>).MakeGenericType (typeof (Func<>).MakeGenericType (proxyType));
       Assert.That (constructedType.IsRuntimeType(), Is.False);
 
       var result = _provider.GetEmittableType (constructedType);
 
-      var mutableTypeGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
-      Assert.That (mutableTypeGenericArgument, Is.SameAs (emittableType));
+      var proxyTypeGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
+      Assert.That (proxyTypeGenericArgument, Is.SameAs (emittableType));
     }
 
     [Test]
-    public void GetEmittableField_GenericTypeDeclaringType_MutableTypeGenericParameter ()
+    public void GetEmittableField_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting();
-      var constructedType = typeof (StrongBox<>).MakeGenericType (mutableType);
+      var proxyType = ProxyTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      var constructedType = typeof (StrongBox<>).MakeGenericType (proxyType);
       FieldInfo field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, f) => p.GetEmittableField (f), mutableType, field);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, f) => p.GetEmittableField (f), proxyType, field);
     }
 
     [Test]
-    public void GetEmittableConstructor_GenericTypeDeclaringType_MutableTypeGenericParameter ()
+    public void GetEmittableConstructor_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting ();
-      var constructedType = typeof (List<>).MakeGenericType (mutableType);
+      var proxyType = ProxyTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      var constructedType = typeof (List<>).MakeGenericType (proxyType);
       ConstructorInfo ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, c) => p.GetEmittableConstructor (c), mutableType, ctor);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, c) => p.GetEmittableConstructor (c), proxyType, ctor);
     }
 
     [Test]
-    public void GetEmittableMethod_GenericTypeDeclaringType_MutableTypeGenericParameter ()
+    public void GetEmittableMethod_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
-      var mutableType = MutableTypeObjectMother.CreateForExisting();
-      var constructedType = typeof (List<>).MakeGenericType (mutableType);
+      var proxyType = ProxyTypeObjectMother.Create (
+          null,
+          memberSelector: null,
+          relatedMethodFinder: null,
+          interfaceMappingComputer: null,
+          mutableMemberFactory: null);
+      var constructedType = typeof (List<>).MakeGenericType (proxyType);
       MethodInfo method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
 
-      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, m) => p.GetEmittableMethod (m), mutableType, method);
+      CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument (_provider, (p, m) => p.GetEmittableMethod (m), proxyType, method);
     }
 
     private void CheckAddMapping<TMutable, T> (
@@ -236,16 +245,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private static void CheckGetEmittableMemberOnTypeBuilderInstantiationWithOneGenericArgument<T> (
-        EmittableOperandProvider provider, Func<EmittableOperandProvider, T, T> getEmittableFunc, MutableType mutableTypeWithMapping, T member)
+        EmittableOperandProvider provider, Func<EmittableOperandProvider, T, T> getEmittableFunc, ProxyType proxyTypeWithMapping, T member)
         where T : MemberInfo
     {
       var emittableType = ReflectionEmitObjectMother.GetSomeTypeBuilderInstantiation();
-      provider.AddMapping (mutableTypeWithMapping, emittableType);
+      provider.AddMapping (proxyTypeWithMapping, emittableType);
 
       var result = getEmittableFunc (provider, member);
 
-      var mutableTypeGenericArgument = result.DeclaringType.GetGenericArguments().Single();
-      Assert.That (mutableTypeGenericArgument, Is.SameAs (emittableType));
+      var proxyTypeGenericArgument = result.DeclaringType.GetGenericArguments().Single();
+      Assert.That (proxyTypeGenericArgument, Is.SameAs (emittableType));
     }
   }
 }

@@ -24,15 +24,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Creates <see cref="InterfaceMapping"/>s based on the provided data.
   /// </summary>
   /// <remarks>
-  /// This interface is an implementation detail of <see cref="MutableType"/>.
+  /// This interface is an implementation detail of <see cref="ProxyType"/>.
   /// </remarks>
   public interface IInterfaceMappingComputer
   {
     InterfaceMapping ComputeMapping (
-        MutableType mutableType,
-        Func<Type, InterfaceMapping> interfacMappingProvider,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
-        Type interfaceType,
-        bool allowPartialInterfaceMapping);
+        ProxyType proxyType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType, bool allowPartialInterfaceMapping);
   }
 }

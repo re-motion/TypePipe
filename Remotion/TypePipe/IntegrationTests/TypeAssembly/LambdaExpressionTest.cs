@@ -16,24 +16,34 @@
 // 
 
 using System;
-using System.Linq;
+using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class LambdaExpressionTest : TypeAssemblerIntegrationTestBase
   {
+    private MethodInfo _invokeLambda;
+    private MethodInfo _returnLambda;
+
+    public override void SetUp ()
+    {
+      base.SetUp ();
+
+      _invokeLambda = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InvokeLambda (7));
+      _returnLambda = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ReturnLambda (7));
+    }
+
     [Test]
     public void InvokeLambda ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "InvokeLambda");
-            method.SetBody (ctx => Expression.Invoke (Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), ctx.PreviousBody))));
-          });
+          p => p.GetOrAddOverride (_invokeLambda)
+                .SetBody (ctx => Expression.Invoke (Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), ctx.PreviousBody)))));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var result = instance.InvokeLambda (3);
@@ -45,11 +55,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_NoClosure ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
-            method.SetBody (ctx => Expression.Lambda (Expression.Field (ctx.This, "Field")));
-          });
+          p => p.GetOrAddOverride (_returnLambda).SetBody (ctx => Expression.Lambda (Expression.Field (ctx.This, "Field"))));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var lambda = instance.ReturnLambda (-7);
@@ -61,12 +67,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ReturnLambda_StaticClosure ()
     {
-      var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
-            method.SetBody (ctx => Expression.Lambda (ctx.Parameters[0]));
-          });
+      var type = AssembleType<DomainType> (p => p.GetOrAddOverride (_returnLambda).SetBody (ctx => Expression.Lambda (ctx.Parameters[0])));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var lambda = instance.ReturnLambda (7);
@@ -79,9 +80,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_InstanceClosure ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
+            var method = proxyType.GetOrAddOverride (_returnLambda);
             var variable = Expression.Variable (typeof (int));
             method.SetBody (
                 ctx => Expression.Block (
@@ -101,13 +102,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ReturnLambda_InstanceClosure_BaseCall ()
     {
       var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.AllMutableMethods.Single (m => m.Name == "ReturnLambda");
-            method.SetBody (
-                ctx =>
-                Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), Expression.Invoke (ctx.PreviousBody))));
-          });
+          p => p.GetOrAddOverride (_returnLambda)
+                .SetBody (ctx => Expression.Lambda (Expression.Add (Expression.Field (ctx.This, "Field"), Expression.Invoke (ctx.PreviousBody)))));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var lambda = instance.ReturnLambda (3);
@@ -118,7 +114,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType
     {
-      public int Field = 1;
+      [UsedImplicitly] public readonly int Field = 1;
 
       public virtual int InvokeLambda (int x)
       {

@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// Defines a common interface for <see cref="MethodBuilder"/> and <see cref="ConstructorBuilder"/> to be used by <see cref="LambdaCompiler"/>.
   /// </summary>
   /// <remarks>
-  /// This class is internal because it should only be used from <see cref="TypeModifier"/> and <see cref="SubclassProxyBuilder"/>.
+  /// This interface is internal because it is only used to hack up the <see cref="LambdaCompiler"/>.
   /// </remarks>
   internal interface IMethodBuilderForLambdaCompiler
   {
