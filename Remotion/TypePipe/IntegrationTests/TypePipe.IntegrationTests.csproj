@@ -62,6 +62,7 @@
     <Compile Include="CachingTest.cs" />
     <Compile Include="FlushGeneratedCodeTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
+    <Compile Include="MutableReflection\IsAssignableFromTest.cs" />
     <Compile Include="MutableReflection\ProxyTypeTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
