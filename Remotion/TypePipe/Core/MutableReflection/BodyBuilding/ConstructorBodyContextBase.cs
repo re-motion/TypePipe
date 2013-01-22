@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
@@ -52,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic();
 
-      var args = arguments.ConvertToCollection ();
+      var args = arguments.ConvertToCollection();
       var constructor = GetConstructor (DeclaringType.BaseType, args);
       if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         throw new MemberAccessException ("The matching constructor is not visible from the proxy type.");
@@ -78,7 +77,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     private static ConstructorInfo GetConstructor (Type type, ICollection<Expression> arguments)
     {
-      var argumentTypes = arguments.Select (e => e.Type).ToArray();
+      var argumentTypes = BodyContextUtility.GetArgumentTypes (arguments);
       var constructor = type.GetConstructor (c_allInstanceMembers, null, argumentTypes, null);
       if (constructor == null)
       {

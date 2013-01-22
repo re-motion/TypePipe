@@ -83,12 +83,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var arguments = new ArgumentTestHelper (7);
       var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
       _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Method", _proxyType, arguments.Types, null))
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "blub", _proxyType, arguments.Types, null))
           .Return (fakeBaseMethod);
 
-      var result = _context.CallBase ("Method", arguments.Expressions.AsOneTime());
+      var result = _context.CallBase ("blub", arguments.Expressions.AsOneTime());
 
+      _memberSelectorMock.VerifyAllExpectations();
       var expected = Expression.Call (new ThisExpression (_proxyType), NonVirtualCallMethodInfoAdapter.Adapt (fakeBaseMethod), arguments.Expressions);
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+    }
+
+    [Test]
+    public void CallBase_Name_Params_ByRefParam ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var baseMethods = typeof (DomainType).GetMethods (bindingFlags);
+      var argumentTypes = new[] { typeof (int).MakeByRefType() };
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodWithByRefParam (ref Dev<int>.Dummy));
+      _memberSelectorMock
+          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "bla", _proxyType, argumentTypes, null))
+          .Return (fakeBaseMethod);
+
+      var argument = Expression.Parameter (typeof (int).MakeByRefType());
+      var result = _context.CallBase ("bla", argument);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      var expected = Expression.Call (new ThisExpression (_proxyType), NonVirtualCallMethodInfoAdapter.Adapt (fakeBaseMethod), argument);
       ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
@@ -246,6 +266,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private class DomainType
     {
       public void Method (int i) { Dev.Null = i; }
+      public void MethodWithByRefParam (ref int i) { i++; }
 
       [UsedImplicitly] protected void ProtectedMethod () { }
       protected internal void ProtectedInternalMethod () { }

@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var arguments =
           new Expression[] { Expression.Constant (""), Expression.Parameter (typeof (double)), Expression.Parameter (typeof (int).MakeByRefType()) };
 
-      var result = BodyContextUtility.GetArgumentTypes (arguments);
+      var result = BodyContextUtility.GetArgumentTypes (arguments.AsOneTime());
 
       Assert.That (result, Is.EqualTo (new[] { typeof (string), typeof (double), typeof (int).MakeByRefType() }));
     }

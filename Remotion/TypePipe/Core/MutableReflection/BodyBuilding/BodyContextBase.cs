@@ -82,10 +82,10 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       Assertion.IsNotNull (_declaringType.BaseType);
       EnsureNotStatic();
 
+      var args = arguments.ConvertToCollection();
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var baseTypeMethods = _declaringType.BaseType.GetMethods (bindingFlags);
-      var args = arguments.ConvertToCollection();
-      var argumentTypes = args.Select (a => a.Type).ToArray();
+      var argumentTypes = BodyContextUtility.GetArgumentTypes (args);
       var baseMethodInfo = _memberSelector.SelectSingleMethod (
           baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, modifiersOrNull: null);
 

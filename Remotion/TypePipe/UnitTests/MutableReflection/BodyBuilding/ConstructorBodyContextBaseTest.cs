@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -67,14 +68,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var result = _context.CallBaseConstructor (arguments.AsOneTime());
 
       var expectedCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (""));
-      var expected = Expression.Call (new ThisExpression (_declaringType), NonVirtualCallMethodInfoAdapter.Adapt (expectedCtor), arguments);
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+      CheckConstructorCall (expectedCtor, arguments, result);
     }
 
     [Test]
     [ExpectedException (typeof (MemberAccessException), ExpectedMessage = "The matching constructor is not visible from the proxy type.")]
     public void CallBaseConstructor_NotVisibleFromProxy ()
     {
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
+      Assert.That (ctor, Is.Not.Null);
+
       _context.CallBaseConstructor();
     }
 
@@ -85,9 +88,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var result = _context.CallThisConstructor (arguments.AsOneTime());
 
-      var expectedCtor = _declaringType.AddedConstructors.Single();
-      var expected = Expression.Call (new ThisExpression (_declaringType), NonVirtualCallMethodInfoAdapter.Adapt (expectedCtor), arguments);
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+      var expectedCtor = _declaringType.AddedConstructors.Single (c => c.GetParameters().Single().ParameterType == typeof (string));
+      CheckConstructorCall (expectedCtor, arguments, result);
+    }
+
+    [Test]
+    public void CallXXXConstructor_ByRefParams ()
+    {
+      var argument = new Expression[] { Expression.Parameter (typeof (int).MakeByRefType()) };
+
+      var result1 = _context.CallBaseConstructor (argument);
+      var result2 = _context.CallThisConstructor (argument);
+
+      var baseCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (out Dev<int>.Dummy));
+      var thisCtor = _declaringType.AddedConstructors.Single (c => c.GetParameters().Single().ParameterType == typeof (int).MakeByRefType());
+      CheckConstructorCall (baseCtor, argument, result1);
+      CheckConstructorCall (thisCtor, argument, result2);
     }
 
     [Test]
@@ -112,10 +128,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
           Throws.InvalidOperationException.With.Message.EqualTo ("Cannot call other constructor from type initializer."));
     }
 
+    private void CheckConstructorCall (ConstructorInfo expectedConstructor, Expression[] arguments, MethodCallExpression actualCall)
+    {
+      var expected = Expression.Call (new ThisExpression (_declaringType), NonVirtualCallMethodInfoAdapter.Adapt (expectedConstructor), arguments);
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, actualCall);
+    }
+
     class DomainType
     {
       public DomainType (string s) { Dev.Null = s; }
       internal DomainType () { }
+      public DomainType (out int i) { i = 7; }
     }
   }
 }
