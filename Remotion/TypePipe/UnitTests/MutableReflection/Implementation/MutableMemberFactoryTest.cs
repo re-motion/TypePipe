@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.ObjectMothers;
@@ -734,7 +735,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, proxyType.BaseType))
           .Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equal (GetAllMethods (proxyType))))
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (proxyType))))
           .Return (isBaseDefinitionShadowed);
       // Needed for CreateMethod (will only be called for implicit overrides)
       if (!isBaseDefinitionShadowed)
