@@ -61,6 +61,13 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return body.Replace (replacements);
     }
 
+    public static Type[] GetArgumentTypes (IEnumerable<Expression> arguments)
+    {
+      ArgumentUtility.CheckNotNull ("arguments", arguments);
+
+      return arguments.Select (GetArgumentType).ToArray();
+    }
+
     private static Expression EnsureCorrectType (Expression expression, Type type, int argumentIndex, string parameterName)
     {
       try
@@ -72,6 +79,15 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         var message = String.Format ("The argument at index {0} has an invalid type: {1}", argumentIndex, ex.Message);
         throw new ArgumentException (message, parameterName, ex);
       }
+    }
+
+    private static Type GetArgumentType (Expression argument)
+    {
+      var parameter = argument as ParameterExpression;
+      if (parameter != null && parameter.IsByRef)
+        return parameter.Type.MakeByRefType();
+
+      return argument.Type;
     }
   }
 }

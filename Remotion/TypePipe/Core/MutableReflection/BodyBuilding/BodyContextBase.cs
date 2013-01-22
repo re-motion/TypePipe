@@ -80,12 +80,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       Assertion.IsNotNull (_declaringType.BaseType);
-      EnsureNotStatic ();
+      EnsureNotStatic();
 
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var baseTypeMethods = _declaringType.BaseType.GetMethods (bindingFlags);
-      var argumentsCollection = arguments.ConvertToCollection();
-      var argumentTypes = argumentsCollection.Select (a => a.Type).ToArray();
+      var args = arguments.ConvertToCollection();
+      var argumentTypes = args.Select (a => a.Type).ToArray();
       var baseMethodInfo = _memberSelector.SelectSingleMethod (
           baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, modifiersOrNull: null);
 
@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new ArgumentException (message, "baseMethod");
       }
 
-      return CallBase (baseMethodInfo, argumentsCollection);
+      return CallBase (baseMethodInfo, args);
     }
 
     public MethodCallExpression CallBase (MethodInfo baseMethod, params Expression[] arguments)
