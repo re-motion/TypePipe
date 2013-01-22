@@ -23,6 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
+  [Ignore("TODO 5365")]
   [TestFixture]
   public class UnderlyingSystemTypeProviderTest
   {
