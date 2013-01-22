@@ -19,12 +19,12 @@ using System;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  /// <summary>
-  /// Defines an interface for classes that provide <see cref="Type"/> objects that can be returned from 
+  // <summary>
+  // Defines an interface for classes that provide <see cref="Type"/> objects that can be returned from 
   // TODO 5365 comment and watch for XML error.
   // the <see cref="ProxyType.UnderlyingSystemType"/> property.
-  /// </summary>
-  /// <remarks>This interface is an implementation detail of <see cref="ProxyType"/>.</remarks>
+  // </summary>
+  // <remarks>This interface is an implementation detail of <see cref="ProxyType"/>.</remarks>
   public interface IUnderlyingSystemTypeProvider
   {
     Type GetUnderlyingSystemType (ProxyType proxyType);
