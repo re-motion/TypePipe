@@ -208,6 +208,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
 
+      // TODO 5309: Inline property and remove.
       if (!CanAddExplicitBaseDefinition)
       {
         // TODO 4695: Adapt message

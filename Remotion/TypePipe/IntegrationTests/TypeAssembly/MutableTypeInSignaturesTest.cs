@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -43,9 +44,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             mutableType
                 .AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
                 .AddCustomAttribute (CreateAttribute (mutableType));
+            // TODO 4675: Add attribute to property
+            // TODO 4676: Add attribute to event
           });
 
       var constructor = type.GetConstructor (new[] { typeof (int) });
+      Assertion.IsNotNull (constructor);
 
       CheckCustomAttribute (type, type);
       CheckCustomAttribute (type.GetField ("Field"), type);

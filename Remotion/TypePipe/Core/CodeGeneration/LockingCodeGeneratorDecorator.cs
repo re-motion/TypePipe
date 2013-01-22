@@ -54,15 +54,6 @@ namespace Remotion.TypePipe.CodeGeneration
       }
     }
 
-    public bool IsStrongNamingEnabled
-    {
-      get
-      {
-        lock (_lockObject)
-          return _innerCodeGenerator.IsStrongNamingEnabled;
-      }
-    }
-
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
       lock (_lockObject)

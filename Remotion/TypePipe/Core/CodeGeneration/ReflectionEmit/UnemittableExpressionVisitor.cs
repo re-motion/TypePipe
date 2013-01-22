@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
@@ -45,7 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (node.Value == null)
         return base.VisitConstant (node);
 
-      var emittableValue = _context.EmittableOperandProvider.GetEmittableOperand (node.Value);
+      var emittableValue = GetEmittableValue (node.Value);
       if (emittableValue != node.Value)
       {
         if (!node.Type.IsInstanceOfType (emittableValue))
@@ -105,6 +106,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var baseCall = Expression.Call (thisExpression, methodRepresentingOriginalBody, node.Arguments);
 
       return Visit (baseCall);
+    }
+
+    private object GetEmittableValue (object value)
+    {
+      var operandProvider = _context.EmittableOperandProvider;
+
+      if (value is Type)
+        return operandProvider.GetEmittableType ((Type) value);
+      if (value is FieldInfo)
+        return operandProvider.GetEmittableField ((FieldInfo) value);
+      if (value is ConstructorInfo)
+        return operandProvider.GetEmittableConstructor ((ConstructorInfo) value);
+      if (value is MethodInfo)
+        return operandProvider.GetEmittableMethod ((MethodInfo) value);
+
+      return value;
     }
 
     private NotSupportedException NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)

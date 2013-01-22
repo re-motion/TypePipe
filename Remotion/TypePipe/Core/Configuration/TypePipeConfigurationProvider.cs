@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.Configuration
 
     public TypePipeConfigurationProvider ()
     {
-      _section = (TypePipeConfigurationSection) ConfigurationManager.GetSection ("typepipe") ?? new TypePipeConfigurationSection();
+      _section = (TypePipeConfigurationSection) ConfigurationManager.GetSection ("typePipe") ?? new TypePipeConfigurationSection();
     }
 
     public bool ForceStrongNaming

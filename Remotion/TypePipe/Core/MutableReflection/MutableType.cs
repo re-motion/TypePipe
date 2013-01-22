@@ -84,6 +84,7 @@ namespace Remotion.TypePipe.MutableReflection
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
 
+      // TODO 5309: Remove container, use List (probably)
       _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
       _interfacMappingProvider = descriptor.InterfaceMappingProvider;
 
@@ -97,16 +98,19 @@ namespace Remotion.TypePipe.MutableReflection
       _attributes = descriptor.Attributes;
     }
 
+    // TODO 5309: Remove
     public bool IsNew
     {
       get { return false; }
     }
 
+    // TODO 5309: Remove
     public bool IsModified
     {
       get { throw new NotImplementedException ("TODO 4744"); }
     }
 
+    // TODO 5309: Replace with static ctor
     public ReadOnlyCollection<Expression> TypeInitializations
     {
       get { return _typeInitializations.AsReadOnly(); }
@@ -137,41 +141,49 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _methods.AddedMembers; }
     }
 
+    // TODO 5309: Remove
     public ReadOnlyCollection<Type> ExistingInterfaces
     {
       get { return _existingInterfaces; }
     }
 
+    // TODO 5309: Remove
     public ReadOnlyCollectionDecorator<MutableFieldInfo> ExistingMutableFields
     {
       get { return _fields.ExistingDeclaredMembers; }
     }
 
+    // TODO 5309: Remove
     public ReadOnlyCollectionDecorator<MutableConstructorInfo> ExistingMutableConstructors
     {
       get { return _constructors.ExistingDeclaredMembers; }
     }
 
+    // TODO 5309: Remove
     public ReadOnlyCollectionDecorator<MutableMethodInfo> ExistingMutableMethods
     {
       get { return _methods.ExistingDeclaredMembers; }
     }
 
+    // TODO 5309: Remove
     public IEnumerable<MutableFieldInfo> AllMutableFields
     {
       get { return _fields.AllMutableMembers; }
     }
 
+    // TODO 5309: Remove
     public IEnumerable<MutableConstructorInfo> AllMutableConstructors
     {
       get { return _constructors.AllMutableMembers; }
     }
 
+    // TODO 5309: Remove
     public IEnumerable<MutableMethodInfo> AllMutableMethods
     {
       get { return _methods.AllMutableMembers; }
     }
 
+    // TODO 5309: Remove
     public bool CanAddCustomAttributes
     {
       // TODO 4695
@@ -198,6 +210,7 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributeContainer.GetCustomAttributeData();
     }
 
+    // TODO 5309: Close 4972 as Won't fix, remove TODO comments.
     // TODO 4972: Replace usages with TypeEqualityComparer.
     public bool IsAssignableTo (Type other)
     {
@@ -209,6 +222,7 @@ namespace Remotion.TypePipe.MutableReflection
              || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
+    // TODO 5309: Remove, replace with static ctor
     /// <summary>
     /// Adds static initialization code to the type.
     /// The initialization code is guaranteed to be executed exactly once sometime before the statically-initilized members are accessed.
@@ -259,7 +273,8 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      if (GetInterfaces().Contains (interfaceType))
+      // TODO 5309: Should only check _addedInterfaces for duplicates
+      if (GetInterfaces ().Contains (interfaceType))
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
         throw new ArgumentException (message, "interfaceType");
@@ -279,6 +294,7 @@ namespace Remotion.TypePipe.MutableReflection
       return field;
     }
 
+    // TODO 5309: Remove
     public MutableFieldInfo GetMutableField (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
@@ -300,6 +316,7 @@ namespace Remotion.TypePipe.MutableReflection
       return constructor;
     }
 
+    // TODO 5309: Remove
     public MutableConstructorInfo GetMutableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
@@ -382,6 +399,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="method"/>, an override for a base method or an implementation for 
     /// an interface method.
     /// </returns>
+    // TODO 5309: Rename to GetOrAddOverride
     public MutableMethodInfo GetOrAddMutableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
@@ -418,6 +436,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
+      // TODO 5309: If _methods is changed to _addedMethods, change this accordingly
       return _interfaceMappingComputer.ComputeMapping (this, _interfacMappingProvider, _methods, interfaceType, allowPartialInterfaceMapping);
     }
 
@@ -442,19 +461,25 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
+      // TODO 5309: Concat here, make _fields a simple List
       return _fields;
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
+      // TODO 5309: Concat here, make _constructors a simple List
       return _constructors;
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
+      // TODO 5309: Concat here, make _methods a simple List
+      // TODO 5309: Remove overridden members here.
+      // TODO 5309: Remove MutableTypeMethodCollection, MutableTypeMemberCollection
       return _methods;
     }
 
+    // TODO 5309: Remove
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
     {
       CheckBindingFlagsNotStatic (bindingAttr);
@@ -462,6 +487,7 @@ namespace Remotion.TypePipe.MutableReflection
       return base.GetConstructors (bindingAttr);
     }
 
+    // TODO 5309: Remove
     protected override ConstructorInfo GetConstructorImpl (
         BindingFlags bindingAttr, Binder binderOrNull, CallingConventions callConvention, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
@@ -470,6 +496,7 @@ namespace Remotion.TypePipe.MutableReflection
       return base.GetConstructorImpl (bindingAttr, binderOrNull, callConvention, typesOrNull, modifiersOrNull);
     }
 
+    // TODO 5309: Remove
     private static void CheckBindingFlagsNotStatic (BindingFlags bindingAttr)
     {
       if ((bindingAttr & BindingFlags.Static) == BindingFlags.Static)
@@ -481,6 +508,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
     }
 
+    // TODO 5309: Remove
     private TMutableMember GetMutableMemberOrThrow<TMember, TMutableMember> (
         MutableTypeMemberCollection<TMember, TMutableMember> collection, TMember member, string memberType)
         where TMember: MemberInfo
@@ -503,18 +531,21 @@ namespace Remotion.TypePipe.MutableReflection
       return mutableMember;
     }
 
+    // TODO 5309: Remove
     private MutableFieldInfo CreateExistingMutableField (FieldInfo originalField)
     {
       var descriptor = FieldDescriptor.Create (originalField);
       return new MutableFieldInfo (this, descriptor);
     }
 
+    // TODO 5309: Remove
     private MutableConstructorInfo CreateExistingMutableConstructor (ConstructorInfo originalConstructor)
     {
       var descriptor = ConstructorDescriptor.Create (originalConstructor);
       return new MutableConstructorInfo (this, descriptor);
     }
 
+    // TODO 5309: Remove
     private MutableMethodInfo CreateExistingMutableMethod (MethodInfo originalMethod)
     {
       var descriptor = MethodDescriptor.Create (originalMethod, _relatedMethodFinder);

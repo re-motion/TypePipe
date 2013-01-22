@@ -100,6 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return GetEnumerator();
     }
 
+    // TODO 5309: Remove
     public TMutableMemberInfo GetMutableMember (TMemberInfo member)
     {
       ArgumentUtility.CheckNotNull ("member", member);
@@ -114,6 +115,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
       // TODO 4972: Use TypeEqualityComparer (if accessible).
+      // TODO 5309: Change - should be _declaringType == mutableMember.DeclaringType
       Assertion.IsTrue (_declaringType.UnderlyingSystemType.Equals (mutableMember.DeclaringType));
 
       _addedMembers.Add (mutableMember);

@@ -17,20 +17,26 @@
 
 using System;
 using System.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.StrongNaming
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// TODO
+  /// A decorator that checks operands for strong-name compatibility.
   /// </summary>
-  public class StrongNamingEmittableOperandProviderDecorator : IEmittableOperandProvider
+  /// <remarks>
+  /// Uses an instance <see cref="ITypeAnalyzer"/> retrieved via the <see cref="SafeServiceLocator"/>.
+  /// </remarks>
+  public class StrongNameCheckingEmittableOperandProviderDecorator : IEmittableOperandProvider
   {
+    private readonly ITypeAnalyzer _typeAnalyzer = SafeServiceLocator.Current.GetInstance<ITypeAnalyzer>();
+
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
-    public StrongNamingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider)
+    public StrongNameCheckingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
@@ -64,27 +70,60 @@ namespace Remotion.TypePipe.StrongNaming
 
     public Type GetEmittableType (Type type)
     {
-      return _emittableOperandProvider.GetEmittableType (type);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      var emittableType = _emittableOperandProvider.GetEmittableType (type);
+      CheckStrongNameCompatibility (emittableType);
+
+      return emittableType;
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
-      return _emittableOperandProvider.GetEmittableField (field);
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      var emittableField = _emittableOperandProvider.GetEmittableField (field);
+      CheckStrongNameCompatibility (emittableField.DeclaringType);
+
+      return emittableField;
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
-      return _emittableOperandProvider.GetEmittableConstructor (constructor);
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      var emittableConstructor = _emittableOperandProvider.GetEmittableConstructor (constructor);
+      CheckStrongNameCompatibility (emittableConstructor.DeclaringType);
+
+      return emittableConstructor;
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
-      return _emittableOperandProvider.GetEmittableMethod (method);
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
+
+      CheckStrongNameCompatibility (emittableMethod.DeclaringType);
+      if (emittableMethod.IsGenericMethod)
+      {
+        foreach (var genericArgument in emittableMethod.GetGenericArguments())
+          CheckStrongNameCompatibility (genericArgument);
+      }
+
+      return emittableMethod;
     }
 
-    public object GetEmittableOperand (object operand)
+    private void CheckStrongNameCompatibility (Type type)
     {
-      return _emittableOperandProvider.GetEmittableOperand (operand);
+      if (!_typeAnalyzer.IsStrongNamed (type))
+      {
+        var message = string.Format (
+            "Strong-naming is enabled but a participant used the type '{0}' which comes from the unsigned assembly '{1}'.",
+            type.FullName,
+            type.Assembly.GetName().Name);
+        throw new InvalidOperationException (message);
+      }
     }
   }
 }

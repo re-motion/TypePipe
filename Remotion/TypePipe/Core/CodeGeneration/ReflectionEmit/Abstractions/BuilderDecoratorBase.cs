@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
-      var emittableConstructorArguments = customAttributeDeclaration.ConstructorArguments.Select (MakeEmittable).ToArray();
+      var emittableConstructorArguments = customAttributeDeclaration.ConstructorArguments.Select (MakeAttributeArgumentEmittable).ToArray();
       var emittableNamedArguments = customAttributeDeclaration.NamedArguments.Select (MakeEmittable).ToArray();
       var emittableDeclaration = new CustomAttributeDeclaration (
           customAttributeDeclaration.Constructor, emittableConstructorArguments, emittableNamedArguments);
@@ -52,26 +52,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _customAttributeTargetBuilder.SetCustomAttribute (emittableDeclaration);
     }
 
-    private object MakeEmittable (object obj)
+    private object MakeAttributeArgumentEmittable (object argumentValue)
     {
-      var type = obj as Type;
+      var type = argumentValue as Type;
       if (type != null)
         return _emittableOperandProvider.GetEmittableType (type);
 
-      var array = obj as Array;
+      var array = argumentValue as Array;
       if (array != null)
       {
         for (int i = 0; i < array.Length; i++)
-          array.SetValue (MakeEmittable (array.GetValue (i)), i);
+          array.SetValue (MakeAttributeArgumentEmittable (array.GetValue (i)), i);
       }
 
-      return obj;
+      return argumentValue;
     }
 
     private NamedArgumentDeclaration MakeEmittable (ICustomAttributeNamedArgument customAttributeNamedArgument)
     {
       var member = customAttributeNamedArgument.MemberInfo;
-      var emittableValue = MakeEmittable (customAttributeNamedArgument.Value);
+      var emittableValue = MakeAttributeArgumentEmittable (customAttributeNamedArgument.Value);
 
       return member is FieldInfo
                  ? new NamedArgumentDeclaration ((FieldInfo) member, emittableValue)

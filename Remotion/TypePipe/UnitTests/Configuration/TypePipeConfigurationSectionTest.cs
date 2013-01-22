@@ -17,6 +17,7 @@
 
 using System;
 using System.Configuration;
+using System.IO;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Configuration;
 using Remotion.TypePipe.Configuration;
@@ -38,6 +39,9 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     public void ExampleConfiguration ()
     {
       DeserializeSection (TypePipeConfigurationSection.ExampleConfiguration);
+
+      Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.True);
+      Assert.That (_section.ForceStrongNaming.KeyFilePath, Is.EqualTo ("keyFile.snk"));
     }
 
     [Test]
@@ -69,7 +73,8 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     private void DeserializeSection (string xmlFragment)
     {
       xmlFragment = xmlFragment.Replace ("{xmlns}", "xmlns=\"" + _section.XmlNamespace + "\"");
-      ConfigurationHelper.DeserializeSection (_section, xmlFragment, "Configuration/TypePipeConfigurationSchema.xsd");
+      var xsdPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"Configuration\TypePipeConfigurationSchema.xsd");
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment, xsdPath);
     }
   }
 }
