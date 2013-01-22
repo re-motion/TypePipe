@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
-    // TODO 5309: Close 4972 as Won't fix, remove TODO comments.
+    // TODO 5354: Close 4972 as Won't fix, remove TODO comments.
     // TODO 4972: Replace usages with TypeEqualityComparer.
     public bool IsAssignableTo (Type other)
     {
