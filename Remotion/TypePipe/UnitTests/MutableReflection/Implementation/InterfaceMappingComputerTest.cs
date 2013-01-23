@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _computer = new InterfaceMappingComputer();
 
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
 
       _interfaceMapProviderMock = MockRepository.GenerateStrictMock<IInterfaceMappingProvider>();
     }
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_CandidateOrder ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType), memberSelector: memberSelectorMock);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType), memberSelector: memberSelectorMock);
       AddMethod (proxyType, "Method21", MethodAttributes.Public | MethodAttributes.Virtual);
 
       // TODO 5059: fix (use simple GetMethods with name)

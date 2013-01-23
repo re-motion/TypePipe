@@ -51,14 +51,15 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), attributes: TypeAttributes.Serializable);
 
       _participant.ModifyType (proxyType);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
-      Assert.That (proxyType.AddedConstructors, Has.Count.EqualTo (1));
-      var method = proxyType.AddedMethods.Single();
+      Assert.That (proxyType.AddedConstructors, Is.Empty);
+      Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
 
+      var method = proxyType.AddedMethods.Single();
       var serializationInfo = method.ParameterExpressions[0];
       var expectedMethodBody = Expression.Block (
           typeof (void),
@@ -107,12 +108,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (SomeType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), memberSelector: null);
 
       _participant.ModifyType (proxyType);
 

@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
       _staticContext = new TestableBodyContextBase (_proxyType, true, _memberSelectorMock);

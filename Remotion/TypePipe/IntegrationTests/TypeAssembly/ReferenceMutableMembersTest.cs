@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   public class ReferenceMutableMembersTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void Constant_UnderlyingSystemType ()
+    public void Constant_ProxyType ()
     {
       var type = AssembleType<DomainType> (
           proxyType => proxyType.AddMethod (
@@ -39,14 +39,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               ctx =>
               {
                 Assert.That (proxyType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<ProxyType>());
-                Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
 
-                return Expression.Constant (proxyType.UnderlyingSystemType);
+                return Expression.Constant (proxyType, typeof (Type));
               }));
 
       var result = type.InvokeMember ("NewMethod", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
 
-      Assert.That (result, Is.SameAs (typeof (DomainType)));
+      Assert.That (result, Is.SameAs (type));
     }
 
     [Test]

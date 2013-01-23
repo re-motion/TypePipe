@@ -21,7 +21,6 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
-  [Ignore("TODO 5363")]
   [TestFixture]
   public class IsAssignableFromTest
   {
@@ -94,9 +93,23 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (typeof (DomainType).Equals ((object) _proxyType), Is.False);
     }
 
-    class DomainType : IDomainInterface { }
-    interface IDomainInterface { }
-    interface IAddedInterface { }
-    class UnrelatedType { }
+    [Test]
+    public new void GetHashCode ()
+    {
+      var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+
+      var result = _proxyType.GetHashCode();
+
+      Assert.That (_proxyType.GetHashCode(), Is.EqualTo (result));
+      Assert.That (proxyType.GetHashCode(), Is.Not.EqualTo (result));
+
+      _proxyType.AddInterface (typeof (IDisposable));
+      Assert.That (_proxyType.GetHashCode(), Is.EqualTo (result), "Hash code must not change.");
+    }
+
+    public class DomainType : IDomainInterface { }
+    public interface IDomainInterface { }
+    public interface IAddedInterface { }
+    public class UnrelatedType { }
   }
 }

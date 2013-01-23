@@ -29,7 +29,7 @@ using System.Linq;
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   [TestFixture]
-  public class ProxyTypeTest
+  public class ProxyTypeMemberSelectionTest
   {
     private ProxyType _proxyType;
 

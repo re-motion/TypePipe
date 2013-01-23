@@ -41,6 +41,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
+      var underlyingSystemTypeProvider = new UnderlyingSystemTypeFactory();
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
@@ -50,7 +51,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsSerializable ? TypeAttributes.Serializable : 0);
 
       var proxyType = new ProxyType (
-          memberSelector, baseType, name, baseType.Namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
+          memberSelector,
+          underlyingSystemTypeProvider,
+          baseType,
+          name, baseType.Namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
 
       CopyConstructors (baseType, proxyType);
 

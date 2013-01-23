@@ -117,4 +117,4 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   }
 }
 
-class NullNamespaceType { }
+public class NullNamespaceType { }

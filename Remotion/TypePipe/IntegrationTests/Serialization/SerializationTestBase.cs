@@ -198,7 +198,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       SkipSavingAndPeVerification();
       var factory = CreateObjectFactoryForSerialization (CreateFieldAddingParticipant);
 
-      var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+      var message = "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
                     + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (ExplicitISerializableType)),
@@ -214,7 +214,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       SkipSavingAndPeVerification();
       var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant);
 
-      var message = "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+      var message = "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
                     + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (ExplicitIDeserializationCallbackType)),

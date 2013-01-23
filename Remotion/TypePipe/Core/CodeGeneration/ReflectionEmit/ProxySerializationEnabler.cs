@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       catch (NotSupportedException exception)
       {
         throw new NotSupportedException (
-            "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+            "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
             + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.",
             exception);
       }
@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       catch (NotSupportedException exception)
       {
         throw new NotSupportedException (
-            "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+            "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
             + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.",
             exception);
       }

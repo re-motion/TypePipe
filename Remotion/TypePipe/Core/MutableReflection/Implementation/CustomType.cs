@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
     private readonly IMemberSelector _memberSelector;
+    private readonly IUnderlyingSystemTypeFactory _underlyingSystemTypeFactory;
 
     private readonly Type _declaringType;
     private readonly Type _baseType;
@@ -42,8 +44,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _namespace;
     private readonly string _fullName;
 
+    private Type _underlyingSystemType;
+
     protected CustomType (
         IMemberSelector memberSelector,
+        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
         Type declaringType,
         Type baseType,
         string name,
@@ -51,6 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string fullName)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
       // Declaring type may be null (for non-nested types).
       ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -59,6 +65,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _memberSelector = memberSelector;
+      _underlyingSystemTypeFactory = underlyingSystemTypeFactory;
       _declaringType = declaringType;
       _baseType = baseType;
       _name = name;
@@ -85,12 +92,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return null; }
     }
 
-    public override Type UnderlyingSystemType
-    {
-      // TODO 5354 HACK!
-      get { return _baseType; }
-    }
-
     public override Type DeclaringType
     {
       get { return _declaringType; }
@@ -114,6 +115,28 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override string FullName
     {
       get { return _fullName; }
+    }
+
+    // tODO 5365
+    //[Obsolete ("Do not use this property in client code.", error: true)]
+    public override Type UnderlyingSystemType
+    {
+      get { return _underlyingSystemType ?? (_underlyingSystemType = _underlyingSystemTypeFactory.CreateUnderlyingSystemType (this)); }
+    }
+
+    /// <summary>
+    /// Derivatives of <see cref="CustomType"/> use reference equality.
+    /// </summary>
+    public override bool Equals (object o)
+    {
+      return this == o;
+    }
+
+    // public bool Equals (Type o) in System.Type will work as intended.
+
+    public override int GetHashCode ()
+    {
+      return RuntimeHelpers.GetHashCode (this);
     }
 
     public override Type GetElementType ()
@@ -181,6 +204,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
       return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
+    }
+
+    protected void InvalidateUnderlyingSystemType ()
+    {
+      _underlyingSystemType = null;
     }
 
     protected override ConstructorInfo GetConstructorImpl (

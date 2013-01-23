@@ -68,8 +68,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod_Explicit ()
     {
+      var implementation = GetExplicitImplementation (typeof (OtherDomainType), _existingInterfaceMethod);
       var proxyType = ProxyTypeObjectMother.Create (typeof (OtherDomainType));
-      var implementation = GetExplicitImplementation (proxyType, _existingInterfaceMethod);
 
       CheckGetInterfaceMap (proxyType, _existingInterfaceMethod, implementation);
     }
@@ -189,12 +189,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       return explicitImplementation;
     }
 
-    class DomainTypeBase : IExistingBaseInterface
+    public class DomainTypeBase : IExistingBaseInterface
     {
       public void MethodOnExistingBaseInterface () { }
       public virtual void MethodOnOtherAddedInterface () { }
     }
-    class DomainType : DomainTypeBase, IExistingInterface
+    public class DomainType : DomainTypeBase, IExistingInterface
     {
       public void MethodOnExistingInterface () { }
       public void AdditionalMethodOnExistingInterface () { }
@@ -206,7 +206,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public void NonVirtualMethod () { }
       public static void StaticMethod () { }
     }
-    class OtherDomainType : IExistingInterface
+    public class OtherDomainType : IExistingInterface
     {
       void IExistingInterface.MethodOnExistingInterface () { }
       public void AdditionalMethodOnExistingInterface () { }
@@ -214,25 +214,25 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public virtual void ExistingMethodMatchingAddedInterfaceMethod () { }
     }
 
-    interface IExistingBaseInterface
+    public interface IExistingBaseInterface
     {
       void MethodOnExistingBaseInterface ();
     }
-    interface IExistingInterface
+    public interface IExistingInterface
     {
       void MethodOnExistingInterface ();
       void AdditionalMethodOnExistingInterface ();
     }
-    interface IAddedInterface
+    public interface IAddedInterface
     {
       void MethodOnAddedInterface ();
       void ExistingMethodMatchingAddedInterfaceMethod ();
     }
-    interface IOtherAddedInterface
+    public interface IOtherAddedInterface
     {
       void MethodOnOtherAddedInterface ();
     }
-    interface IImplementationCandidates
+    public interface IImplementationCandidates
     {
       void PublicVirtualMethod ();
       void NonPublicMethod ();

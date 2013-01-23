@@ -59,9 +59,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _someProxy = ProxyTypeObjectMother.Create (typeof (SomeType));
       _serializableProxy = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
-      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType));
+      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: true);
       _deserializationCallbackProxy = ProxyTypeObjectMother.Create (typeof (DeserializationCallbackType));
-      _serializableInterfaceWithDeserializationCallbackProxy = ProxyTypeObjectMother.Create (typeof (SerializableWithDeserializationCallbackType));
+      _serializableInterfaceWithDeserializationCallbackProxy =
+          ProxyTypeObjectMother.Create (baseType: typeof (SerializableWithDeserializationCallbackType), attributes: TypeAttributes.Serializable);
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
@@ -227,33 +228,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (SerializableInterfaceMissingCtorType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SerializableInterfaceType), copyCtorsFromBase: false);
       StubFilterWithSerializedFields (proxyType);
-      var oldCtorBody = proxyType.AddedConstructors.Single().Body;
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
 
-      Assert.That (proxyType.AddedConstructors.Single().Body, Is.SameAs (oldCtorBody));
+      Assert.That (proxyType.AddedConstructors, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
     }
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+        "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectData ()
+    public void MakeSerializable_ISerializable_SerializedFields_CannotOverrideGetObjectData ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (ExplicitSerializableInterfaceType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), copyCtorsFromBase: true);
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
@@ -261,50 +251,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
-        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_ISerializable_SerializedFields_CannotModifyGetObjectDataInBase ()
-    {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (DerivedExplicitSerializableInterfaceType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      StubFilterWithSerializedFields (proxyType);
-
-      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+        "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectData ()
+    public void MakeSerializable_IDeserializationCallback_CannotOverrideGetObjectData ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (ExplicitDeserializationCallbackType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
-      StubFilterWithNoSerializedFields ();
-
-      _enabler.MakeSerializable (proxyType, _someInitializationMethod);
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-        + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_IDeserializationCallback_CannotModifyGetObjectDataInBase ()
-    {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (DerivedExplicitDeserializationCallbackType),
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (typeof (ExplicitDeserializationCallbackType));
       StubFilterWithNoSerializedFields ();
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
@@ -352,25 +303,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       public virtual void OnDeserialization (object sender) { }
     }
 
-    class SerializableInterfaceMissingCtorType : ISerializable
-    {
-      public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
-    }
-
     class ExplicitSerializableInterfaceType : ISerializable
     {
       public ExplicitSerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
-    }
-    class DerivedExplicitSerializableInterfaceType : ExplicitSerializableInterfaceType
-    {
-      public DerivedExplicitSerializableInterfaceType (SerializationInfo info, StreamingContext context) : base (info, context) { }
     }
 
     class ExplicitDeserializationCallbackType : IDeserializationCallback
     {
       void IDeserializationCallback.OnDeserialization (object sender) { }
     }
-    class DerivedExplicitDeserializationCallbackType : ExplicitDeserializationCallbackType { }
   }
 }

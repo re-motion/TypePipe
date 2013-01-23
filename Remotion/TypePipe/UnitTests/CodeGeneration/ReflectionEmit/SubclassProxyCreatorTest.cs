@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
@@ -85,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var fullName = "AbcProxy";
       var attributes = (TypeAttributes) 7;
-      var proxyType = ProxyTypeObjectMother.Create (baseType, fullName: fullName, attributes: attributes, skipConstructorCopying: true);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: baseType, fullName: fullName, attributes: attributes);
 
       var typeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
 
@@ -160,20 +159,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Build_NoTypeInitializer_NoInitializations ()
     {
       var proxyType = ProxyTypeObjectMother.Create();
-      var defaultCtor = proxyType.AddedConstructors.Single();
+      Assert.That (proxyType.MutableTypeInitializer, Is.Null);
 
       _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (_emittableOperandProviderMock);
       _memberEmitterFactoryMock.Expect (mock => mock.CreateMemberEmitter (_emittableOperandProviderMock)).Return (_memberEmitterMock);
       _codeGeneratorMock.Expect (mock => mock.DefineType (proxyType.FullName, proxyType.Attributes, proxyType.BaseType)).Return (_typeBuilderMock);
       _typeBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, proxyType));
       _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
-
       // No call to AddConstructor for because of null type initializer.
       _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (proxyType)).Return (null);
       _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (proxyType, null));
-      // Copied default constructor.
-      _initializationBuilderMock.Expect (mock => mock.WireConstructorWithInitialization (defaultCtor, null, _proxySerializationEnablerMock));
-      _memberEmitterMock.Expect (mock => mock.AddConstructor (Arg<CodeGenerationContext>.Is.Anything, Arg.Is (defaultCtor)));
       _typeBuilderMock.Expect (mock => mock.CreateType());
       _mockRepository.ReplayAll();
 

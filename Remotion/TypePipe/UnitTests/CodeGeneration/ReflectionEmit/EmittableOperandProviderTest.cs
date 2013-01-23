@@ -144,12 +144,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableType_GenericType_ProxyTypeGenericParameter ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          null,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: null, memberSelector: null);
       var emittableType = ReflectionObjectMother.GetSomeType();
       _provider.AddMapping (proxyType, emittableType);
 
@@ -166,12 +161,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableField_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          null,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: null, memberSelector: null);
       var constructedType = typeof (StrongBox<>).MakeGenericType (proxyType);
       FieldInfo field = new FieldOnTypeInstantiation (constructedType, typeof (StrongBox<>).GetField ("Value"));
 
@@ -181,12 +171,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableConstructor_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          null,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: null, memberSelector: null);
       var constructedType = typeof (List<>).MakeGenericType (proxyType);
       ConstructorInfo ctor = new ConstructorOnTypeInstantiation (constructedType, typeof (List<>).GetConstructor (Type.EmptyTypes));
 
@@ -196,12 +181,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableMethod_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          null,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: null, memberSelector: null);
       var constructedType = typeof (List<>).MakeGenericType (proxyType);
       MethodInfo method = new MethodOnTypeInstantiation (constructedType, typeof (List<>).GetMethod ("Add"));
 

@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var counter = MutableFieldInfoObjectMother.Create (_proxyType, type: typeof (int));
       var initMethod = MutableMethodInfoObjectMother.Create (_proxyType);
       var initializationMembers = Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
-      var constructor = MutableConstructorInfoObjectMother.Create();
+      var constructor = MutableConstructorInfoObjectMother.Create (_proxyType);
       var oldBody = constructor.Body;
 
       _proxySerializationEnablerMock.Expect (mock => mock.IsDeserializationConstructor (constructor)).Return (false);

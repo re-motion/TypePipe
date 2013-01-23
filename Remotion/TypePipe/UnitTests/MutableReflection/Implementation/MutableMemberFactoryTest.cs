@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _mutableMemberFactory = new MutableMemberFactory (memberSelectorMock, _relatedMethodFinderMock);
 
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }
 
     [Test]
@@ -195,21 +195,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateConstructor_ThrowsIfAlreadyExists ()
     {
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
-      var parametersForEquivalentSignature = ParameterDeclaration.CreateForEquivalentSignature (ctor);
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
+      _proxyType.AddConstructor (parameters: ParameterDeclaration.EmptyParameters);
 
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
       Assert.That (
           () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
           () =>
-          _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, parametersForEquivalentSignature, bodyProvider),
+          _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, parametersForEquivalentSignature, bodyProvider),
+          () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, ParameterDeclaration.EmptyParameters, bodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Constructor with equal signature already exists."));
     }
 
@@ -543,7 +542,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.Abstract), Is.True);
       var proxyType = ProxyTypeObjectMother.Create (
-          typeof (DerivedAbstractTypeLeavesAbstractBaseMethod), relatedMethodFinder: _relatedMethodFinderMock);
+          baseType: typeof (DerivedAbstractTypeLeavesAbstractBaseMethod));
       SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, proxyType);
 
       var result = _mutableMemberFactory.GetOrCreateOverride (proxyType, baseMethod, out _isNewlyCreated);

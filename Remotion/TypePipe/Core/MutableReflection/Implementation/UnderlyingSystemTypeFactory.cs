@@ -17,36 +17,54 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IUnderlyingSystemTypeProvider"/> by creating new runtime types from <see cref="TypeBuilder"/> objects.
+  /// Implements <see cref="IUnderlyingSystemTypeFactory"/> by creating new runtime types from <see cref="TypeBuilder"/> objects.
   /// </summary>
   /// <remarks>
   /// This class is used behind the <see cref="TypeCache"/>, therefore the incrementation of the <see cref="_counter"/> field does not need to be
   /// guarded.
   /// </remarks>
-  public class UnderlyingSystemTypeProvider : IUnderlyingSystemTypeProvider
+  public class UnderlyingSystemTypeFactory : IUnderlyingSystemTypeFactory
   {
-    private readonly ICache<Tuple<string, Type, HashSet<Type>>, Type> _cache = CacheFactory.Create<Tuple<string, Type, HashSet<Type>>, Type>();
+    private class Comparer : IEqualityComparer<Tuple<string, Type, HashSet<Type>>>
+    {
+      public bool Equals (Tuple<string, Type, HashSet<Type>> x, Tuple<string, Type, HashSet<Type>> y)
+      {
+        return EqualityUtility.Equals (x.Item1, y.Item1)
+               && EqualityUtility.Equals (x.Item2, y.Item2)
+               && x.Item3.SetEquals (y.Item3);
+      }
+
+      public int GetHashCode (Tuple<string, Type, HashSet<Type>> obj)
+      {
+        // TODO
+        return 7;
+      }
+    }
+
+    private readonly ICache<Tuple<string, Type, HashSet<Type>>, Type> _cache =
+        CacheFactory.Create<Tuple<string, Type, HashSet<Type>>, Type> (new Comparer());
 
     private ModuleBuilder _moduleBuilder;
     private int _counter;
 
-    public Type GetUnderlyingSystemType (ProxyType proxyType)
+    public Type CreateUnderlyingSystemType (CustomType customType)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("customType", customType);
+      Assertion.IsNotNull (customType.BaseType);
 
       // tODO: think about: re-implemented interfaces, maybe skip them.
-      var addedInterfaces = new HashSet<Type> (proxyType.AddedInterfaces);
-      var key = Tuple.Create (proxyType.Name, proxyType.BaseType, addedInterfaces);
+      var addedInterfaces = customType.GetInterfaces().Except (customType.BaseType.GetInterfaces());
+      var key = Tuple.Create (customType.FullName, customType.BaseType, new HashSet<Type> (addedInterfaces));
 
       return _cache.GetOrCreateValue (key, CreateUnderlyingSystemType);
     }
@@ -62,50 +80,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var interfaces = key.Item3.ToArray();
 
       var typeBuilder = _moduleBuilder.DefineType (name, attributes, baseType, interfaces);
-      ImplementInterfaces (typeBuilder, interfaces);
+      AddDummyConstructor (typeBuilder);
 
       return typeBuilder.CreateType();
     }
 
     private ModuleBuilder CreateModuleBuilder ()
     {
-      var assemblyName = new AssemblyName ("UnderlyingSystemTypeProvider");
+      var assemblyName = new AssemblyName ("UnderlyingSystemTypeFactory");
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
 
       return moduleBuilder;
     }
 
-    private void ImplementInterfaces (TypeBuilder typeBuilder, IEnumerable<Type> interfaces)
+    private void AddDummyConstructor (TypeBuilder typeBuilder)
     {
-      // todo: two interfaces defining equal members
-      foreach (var ifc in interfaces)
-      {
-        // tODO methods that belong to interfaces and events?
-        foreach (var method in ifc.GetMethods())
-          DefineMethod (typeBuilder, method);
-
-        foreach (var property in ifc.GetProperties())
-          DefineProperty (typeBuilder, property);
-
-        foreach (var @event in ifc.GetEvents())
-          DefineEvent (typeBuilder, @event);
-      }
-    }
-
-    private void DefineMethod (TypeBuilder typeBuilder, MethodInfo method)
-    {
-      var parameterTypes = method.GetParameters().Select (p => p.ParameterType).ToArray();
-      typeBuilder.DefineMethod (method.Name, method.Attributes, method.ReturnType, parameterTypes);
-    }
-
-    private void DefineProperty (TypeBuilder typeBuilder, PropertyInfo property)
-    {
-      throw new NotImplementedException();
-    }
-
-    private void DefineEvent (TypeBuilder typeBuilder, EventInfo @event)
-    {
+      var ctorBuilder = typeBuilder.DefineConstructor (MethodAttributes.Public, CallingConventions.HasThis, Type.EmptyTypes);
+      ctorBuilder.GetILGenerator().Emit (OpCodes.Ret);
     }
   }
 }

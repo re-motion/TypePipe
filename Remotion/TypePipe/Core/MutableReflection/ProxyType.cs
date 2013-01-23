@@ -58,6 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ProxyType (
         IMemberSelector memberSelector,
+        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
         Type baseType,
         string name,
         string @namespace,
@@ -65,12 +66,14 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, null, baseType, name, @namespace, fullName)
+        : base (memberSelector, underlyingSystemTypeFactory, null, baseType, name, @namespace, fullName)
     {
+      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
       Assertion.IsTrue (baseType.IsRuntimeType());
 
+      // TODO (maybe): check that baseType.IsVisible
       if (CanNotBeSubclassed (baseType))
       {
         throw new ArgumentException (
@@ -192,6 +195,8 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
+      // TODO : check that interface is visible
+
       if (_addedInterfaces.Contains (interfaceType))
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
@@ -199,6 +204,7 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       _addedInterfaces.Add (interfaceType);
+      InvalidateUnderlyingSystemType();
     }
 
     public MutableFieldInfo AddField (string name, Type type, FieldAttributes attributes = FieldAttributes.Private)

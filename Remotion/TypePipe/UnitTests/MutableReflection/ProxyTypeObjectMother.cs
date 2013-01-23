@@ -20,6 +20,7 @@ using System.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -34,23 +35,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string fullName = "My.Proxy",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
         IMemberSelector memberSelector = null,
+        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null,
-        bool skipConstructorCopying = false)
+        bool copyCtorsFromBase = false)
     {
       baseType = baseType ?? typeof (UnspecifiedType);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
+      underlyingSystemTypeFactory = underlyingSystemTypeFactory ?? CreateUnderlyingSystemTypeProviderStub (baseType);
+
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
-      var proxyType = new ProxyType (memberSelector, baseType, name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
+      var proxyType = new ProxyType (
+          memberSelector,
+          underlyingSystemTypeFactory,
+          baseType,
+          name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
 
-      if (!skipConstructorCopying)
+      if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
 
       return proxyType;
+    }
+
+    // tODO 5365 remove
+    private static IUnderlyingSystemTypeFactory CreateUnderlyingSystemTypeProviderStub (Type baseType)
+    {
+      var underlyingSystemTypeProviderStub = MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>();
+      underlyingSystemTypeProviderStub.Stub (stub => stub.CreateUnderlyingSystemType (Arg<ProxyType>.Is.Anything)).Return (baseType);
+      // Workaround to be able to use RhinoMock expectations.
+
+      return underlyingSystemTypeProviderStub;
     }
 
     private static void CopyConstructors (Type baseType, ProxyType proxyType)

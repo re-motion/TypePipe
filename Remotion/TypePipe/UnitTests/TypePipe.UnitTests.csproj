@@ -114,6 +114,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\CustomTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />
@@ -128,7 +129,7 @@
     <Compile Include="MutableReflection\Implementation\CustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
-    <Compile Include="MutableReflection\Implementation\UnderlyingSystemTypeProviderTest.cs" />
+    <Compile Include="MutableReflection\Implementation\UnderlyingSystemTypeFactoryTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />

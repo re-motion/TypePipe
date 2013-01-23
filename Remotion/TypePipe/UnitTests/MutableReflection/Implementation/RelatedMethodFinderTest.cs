@@ -358,7 +358,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOverride_AddedExplicitBaseDefinition ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnrelatedMethod());
-      var candidate = MutableMethodInfoObjectMother.Create (ProxyTypeObjectMother.Create (typeof (DomainType)), attributes: MethodAttributes.Virtual);
+      var candidate = MutableMethodInfoObjectMother.Create (ProxyTypeObjectMother.Create (baseType: typeof (DomainType)), attributes: MethodAttributes.Virtual);
       Assert.That (_finder.GetOverride (baseDefinition, new[] { candidate }), Is.Null);
       candidate.AddExplicitBaseDefinition (baseDefinition);
 

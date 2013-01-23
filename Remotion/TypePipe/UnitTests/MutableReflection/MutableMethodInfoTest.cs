@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _declaringType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
 
       _method = MutableMethodInfoObjectMother.Create (_declaringType, "NonVirtualMethod");
       _virtualMethod = MutableMethodInfoObjectMother.Create (_declaringType, attributes: MethodAttributes.Virtual);

@@ -79,12 +79,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public static Type GetSomeTypeBuilderInstantiation ()
     {
-      var type = typeof (UnspecifiedType<>).MakeGenericType (ProxyTypeObjectMother.Create (
-          null,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null));
+      var type = typeof (UnspecifiedType<>).MakeGenericType (ProxyTypeObjectMother.Create (baseType: null, memberSelector: null));
       Assertion.IsTrue (type.GetType().FullName == "System.Reflection.Emit.TypeBuilderInstantiation");
       return type;
     }

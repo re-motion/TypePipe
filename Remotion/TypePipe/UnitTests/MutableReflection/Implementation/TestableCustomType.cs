@@ -27,12 +27,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     public TestableCustomType (
         IMemberSelector memberSelector,
+        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
         Type declaringType,
         Type baseType,
         string name,
         string @namespace,
         string fullName)
-        : base (memberSelector, declaringType, baseType, name, @namespace, fullName)
+        : base (memberSelector, underlyingSystemTypeFactory, declaringType, baseType, name, @namespace, fullName)
     {
     }
 

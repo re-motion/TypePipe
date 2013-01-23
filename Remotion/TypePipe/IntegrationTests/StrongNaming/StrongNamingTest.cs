@@ -321,7 +321,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       var assemblyName = "testAssembly";
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
-      var typeBuilder = moduleBuilder.DefineType ("UnsignedType", attributes);
+      var typeBuilder = moduleBuilder.DefineType ("UnsignedType", attributes | TypeAttributes.Public);
 
       if (attributes == TypeAttributes.Class)
       {

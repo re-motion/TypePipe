@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void IsRuntimeType ()
     {
       var runtimeType = typeof (int);
-      var proxyType = ProxyTypeObjectMother.Create (typeof (object));
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (object));
 
       Assert.That (runtimeType.IsRuntimeType(), Is.True);
       Assert.That (proxyType.IsRuntimeType(), Is.False);

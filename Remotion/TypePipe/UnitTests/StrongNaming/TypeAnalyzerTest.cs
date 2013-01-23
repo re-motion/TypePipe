@@ -76,12 +76,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNamed_CacheUsesReferenceEquality ()
     {
       var type = typeof (object);
-      var proxyType = ProxyTypeObjectMother.Create (
-          type,
-          memberSelector: null,
-          relatedMethodFinder: null,
-          interfaceMappingComputer: null,
-          mutableMemberFactory: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: type, memberSelector: null);
       _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
       _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (proxyType.Assembly)).Return (true);
 

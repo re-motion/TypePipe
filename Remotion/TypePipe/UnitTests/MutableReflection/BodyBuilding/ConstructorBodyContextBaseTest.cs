@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create (typeof (DomainType), name: "Domain_Proxy");
+      _declaringType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType), name: "Domain_Proxy", copyCtorsFromBase: true);
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       var memberSelectorStub = MockRepository.GenerateStub<IMemberSelector>();
 

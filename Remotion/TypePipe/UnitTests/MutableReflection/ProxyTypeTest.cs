@@ -38,7 +38,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private IMemberSelector _memberSelectorMock;
-    private IRelatedMethodFinder _relatedMethodFinderMock;
     private IInterfaceMappingComputer _interfaceMappingComputerMock;
     private IMutableMemberFactory _mutableMemberFactoryMock;
 
@@ -49,19 +48,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
       _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
       _proxyType = ProxyTypeObjectMother.Create (
-          typeof (DomainType),
+          baseType: typeof (DomainType),
           memberSelector: _memberSelectorMock,
-          relatedMethodFinder: _relatedMethodFinderMock,
           interfaceMappingComputer: _interfaceMappingComputerMock,
-          mutableMemberFactory: _mutableMemberFactoryMock,
-          skipConstructorCopying: true);
+          mutableMemberFactory: _mutableMemberFactoryMock);
 
-      _proxyTypeWithoutMocks = ProxyTypeObjectMother.Create (typeof (DomainType), skipConstructorCopying: true);
+      _proxyTypeWithoutMocks = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }
 
     [Test]
@@ -74,9 +70,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (TypeAttributes) 7;
 
       var proxyType = new ProxyType (
-          _memberSelectorMock, baseType, name, @namespace, fullname, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+          _memberSelectorMock,
+          MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>(),
+          baseType,
+          name,
+          @namespace,
+          fullname,
+          attributes,
+          _interfaceMappingComputerMock,
+          _mutableMemberFactoryMock);
 
-      Assert.That (proxyType.UnderlyingSystemType, Is.SameAs (baseType));
       Assert.That (proxyType.DeclaringType, Is.Null);
       Assert.That (proxyType.BaseType, Is.SameAs (baseType));
       Assert.That (proxyType.Name, Is.EqualTo (name));
@@ -97,30 +100,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var msg = "Proxied type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
                 + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
       // sealed
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // interface
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // value type
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // enum
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // delegate
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // open generics
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg));
       // closed generics
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (List<int>)), Throws.Nothing);
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (List<int>)), Throws.Nothing);
       // generic parameter
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (List<>).GetGenericArguments ().Single ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (List<>).GetGenericArguments ().Single ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // array
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int).MakeArrayType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int).MakeArrayType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // by ref
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int).MakeByRefType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int).MakeByRefType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // pointer
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // no accessible ctor
-      Assert.That (() => ProxyTypeObjectMother.Create (typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
+      Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
     }
 
     [Test]
@@ -218,6 +221,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddInterface_InvalidatesUnderlyingSystemType ()
+    {
+      var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingSystemTypeFactory>();
+      var proxyType = ProxyTypeObjectMother.Create (underlyingSystemTypeFactory: underlyingSystemTypeFactoryMock);
+      underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (proxyType)).Return (ReflectionObjectMother.GetSomeType());
+
+      Dev.Null = proxyType.UnderlyingSystemType; // Retrieves underlying type, cache result.
+      Dev.Null = proxyType.UnderlyingSystemType; // Cache hit.
+
+      underlyingSystemTypeFactoryMock.VerifyAllExpectations ();
+
+      underlyingSystemTypeFactoryMock.BackToRecord ();
+      underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (proxyType)).Return (ReflectionObjectMother.GetSomeType ());
+      underlyingSystemTypeFactoryMock.Replay ();
+
+      proxyType.AddInterface (ReflectionObjectMother.GetSomeInterfaceType ()); // Invalidates cache.
+      Dev.Null = proxyType.UnderlyingSystemType; // Retrieves new underlying type.
+
+      underlyingSystemTypeFactoryMock.VerifyAllExpectations();
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type must be an interface.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfNotAnInterface ()
     {
@@ -244,7 +269,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = _proxyType.AddField (name, type, attributes);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations ();
+      _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeField));
       Assert.That (_proxyType.AddedFields, Is.EqualTo (new[] { result }));
     }
@@ -255,15 +280,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (MethodAttributes) 7;
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
-      var constructorFake = MutableConstructorInfoObjectMother.Create();
+      var fakeConstructor = MutableConstructorInfoObjectMother.Create();
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateConstructor (_proxyType, attributes, parameters, bodyProvider))
-          .Return (constructorFake);
+          .Return (fakeConstructor);
 
       var result = _proxyType.AddConstructor (attributes, parameters, bodyProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (constructorFake));
+      Assert.That (result, Is.SameAs (fakeConstructor));
       Assert.That (_proxyType.AddedConstructors, Is.EqualTo (new[] { result }));
     }
 
@@ -421,7 +446,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_NonAbstract ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (AbstractType));
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (AbstractType));
       Assert.That (proxyType.IsAbstract, Is.True);
 
       var abstractMethodBaseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase obj) => obj.AbstractMethod1());
@@ -552,7 +577,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public int BaseField;
 
-      public string ExplicitOverrideTarget (double d) { return ""; }
+      public string ExplicitOverrideTarget (double d) { return "" + d; }
     }
 
     public class DomainType : DomainTypeBase, IDomainInterface
