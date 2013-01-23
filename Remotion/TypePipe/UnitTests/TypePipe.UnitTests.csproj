@@ -114,7 +114,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
-    <Compile Include="MutableReflection\CustomTypeObjectMother.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />

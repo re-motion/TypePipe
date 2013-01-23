@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    [Ignore ("TODO 5354")]
     public void SameType_NonEqualCacheKey ()
     {
       var count = 1;

@@ -19,10 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   public static class CustomTypeObjectMother
   {
