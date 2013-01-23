@@ -29,9 +29,14 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A custom type that re-implements parts of the reflection API.
-  /// Other classes may derive from this class to inherit this implementation.
+  /// A custom type that re-implements parts of the reflection API. Other classes may derive from this class to inherit the implementation.
+  /// Note that the equality members <see cref="Equals(object)"/>, <see cref="Equals(System.Type)"/> and <see cref="GetHashCode"/> are implemented for
+  /// reference equality.
   /// </summary>
+  /// <remarks>
+  /// Avoid using the members <see cref="UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/>.
+  /// Use <see cref="CustomType.IsAssignableTo"/> instead.
+  /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
@@ -117,6 +122,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _fullName; }
     }
 
+    /// <summary>
+    /// Returns a dummy representation of the underlying system type. Do not use the returned type for any kind of analysis. Accessing this property
+    /// may cause significant overhead. It is only implemented as internal parts of <see cref="System.Reflection"/> depend on it.
+    /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="IsAssignableTo"/> instead.
+    /// </summary>
+    /// <returns> A dummy representation of the underlying system type for the Type.</returns>
     public override Type UnderlyingSystemType
     {
       get
@@ -132,14 +143,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     /// <summary>
-    /// Derivatives of <see cref="CustomType"/> use reference equality.
+    /// Implements reference equality for <see cref="CustomType"/> derivatives.
     /// </summary>
     public override bool Equals (object other)
     {
       return this == other;
     }
 
-    // Hidden method 'Equals (Type type)' in System.Type will work as intended, but slower (it depends on UnderlyingSystemType).
+    /// <summary>
+    /// Implements reference equality for <see cref="CustomType"/> derivatives. The method which is hidden by this method,
+    /// i.e., <see cref="Type.Equals(System.Type)"/> in class <see cref="Type"/>, still works as intended but is slower as it accesses
+    /// the <see cref="UnderlyingSystemType"/> property.
+    /// </summary>
     public new bool Equals (Type type)
     {
       // ReSharper disable PossibleUnintendedReferenceComparison
@@ -147,11 +162,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // ReSharper restore PossibleUnintendedReferenceComparison
     }
 
+    /// <summary>
+    /// Returns a hash code based on reference equality.
+    /// </summary>
     public override int GetHashCode ()
     {
       return RuntimeHelpers.GetHashCode (this);
     }
 
+    /// <summary>
+    /// Determines whether an instance of the current <see cref="Type"/> can be assigned to an instance of the specified type.
+    /// Use this as an replacement for <see cref="Type.IsAssignableFrom"/>.
+    /// </summary>
+    /// <param name="type">The type to compare with the current type. </param>
+    /// <returns><c>true</c> if this type is "assignable to" the specified type; <c>false</c> otherwise.</returns>
     public bool IsAssignableTo (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
