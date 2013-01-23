@@ -28,7 +28,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 using Rhino.Mocks;
 using Remotion.Development.RhinoMocks.UnitTesting;
 
@@ -147,29 +146,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
 
       Assert.That (_proxyType.IsSerializable, Is.True);
-    }
-
-    [Test]
-    public void IsAssignableTo ()
-    {
-      Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
-
-      Assert.That (_proxyType.BaseType, Is.SameAs (typeof (DomainType)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
-
-      Assertion.IsNotNull (_proxyType.BaseType); // For ReSharper...
-      Assert.That (_proxyType.BaseType.BaseType, Is.SameAs (typeof (DomainTypeBase)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
-
-      Assert.That (typeof (DomainType).GetInterfaces(), Has.Member (typeof (IDomainInterface)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
-
-      Assert.That (_proxyType.GetInterfaces(), Has.No.Member (typeof (IDisposable)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDisposable)), Is.False);
-      _proxyType.AddInterface (typeof (IDisposable));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDisposable)), Is.True);
-
-      Assert.That (_proxyType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
     }
 
     [Test]
@@ -596,8 +572,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public void NonVirtualMethod () { }
     }
-
-    public class UnrelatedType { }
 
     public abstract class AbstractTypeBase
     {

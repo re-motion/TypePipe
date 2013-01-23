@@ -47,9 +47,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void IsAssignableFrom ()
     {
+      Assert.That (_proxyType.IsAssignableFrom (_proxyType), Is.True);
       Assert.That (typeof (object).IsAssignableFrom (_proxyType), Is.True);
       Assert.That (typeof (DomainType).IsAssignableFrom (_proxyType), Is.True);
-      Assert.That (_proxyType.IsAssignableFrom (_proxyType), Is.True);
       Assert.That (_proxyType.IsAssignableFrom (typeof (DomainType)), Is.False);
       Assert.That (typeof (IDomainInterface).IsAssignableFrom (_proxyType), Is.True);
       Assert.That (typeof (IAddedInterface).IsAssignableFrom (_proxyType), Is.False);
@@ -57,6 +57,20 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       _proxyType.AddInterface (typeof (IAddedInterface));
       Assert.That (typeof (IAddedInterface).IsAssignableFrom (_proxyType), Is.True);
+    }
+
+    [Test]
+    public void IsAssignableTo ()
+    {
+      Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
+      Assert.That (_proxyType.IsAssignableTo (typeof (object)), Is.True);
+      Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
+      Assert.That (_proxyType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
+      Assert.That (_proxyType.IsAssignableTo (typeof (IAddedInterface)), Is.False);
+      Assert.That (_proxyType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
+
+      _proxyType.AddInterface (typeof (IAddedInterface));
+      Assert.That (_proxyType.IsAssignableTo (typeof (IAddedInterface)), Is.True);
     }
 
     [Test]

@@ -148,6 +148,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return RuntimeHelpers.GetHashCode (this);
     }
 
+    // TODO 5354: Obsolete
+    public override bool IsAssignableFrom (Type c)
+    {
+      return base.IsAssignableFrom (c);
+    }
+
+    public bool IsAssignableTo (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return ReferenceEquals (type, this) || type.IsAssignableFrom (_baseType) || GetAllInterfaces().Any (type.IsAssignableFrom);
+    }
+
     public override Type GetElementType ()
     {
       return null;
