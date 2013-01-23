@@ -87,9 +87,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      var result = PrivateInvoke.InvokeNonPublicMethod (instance, "ProtectedVirtualMethod", 7.1);
+      var result = PrivateInvoke.InvokeNonPublicMethod (instance, "ProtectedVirtualMethod", 7);
 
-      Assert.That (result, Is.EqualTo ("hello 7.1"));
+      Assert.That (result, Is.EqualTo ("hello 7"));
     }
 
     [Test]
@@ -245,9 +245,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         return "" + i;
       }
 
-      protected virtual string ProtectedVirtualMethod (double d)
+      protected virtual string ProtectedVirtualMethod (int i)
       {
-        return "" + d;
+        return "" + i;
       }
 
       public string CallsOriginalMethod (int i)
