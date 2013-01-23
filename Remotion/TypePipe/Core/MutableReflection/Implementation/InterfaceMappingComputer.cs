@@ -28,31 +28,26 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IInterfaceMappingComputer"/>, computing <see cref="InterfaceMapping"/> instances for a <see cref="MutableType"/>.
+  /// Implements <see cref="IInterfaceMappingComputer"/>, computing <see cref="InterfaceMapping"/> instances for a <see cref="ProxyType"/>.
   /// </summary>
   public class InterfaceMappingComputer : IInterfaceMappingComputer
   {
     public InterfaceMapping ComputeMapping (
-        MutableType mutableType,
-        Func<Type, InterfaceMapping> interfacMappingProvider,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider,
-        Type interfaceType,
-        bool allowPartialInterfaceMapping)
+        ProxyType proxyType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType, bool allowPartialInterfaceMapping)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
-      ArgumentUtility.CheckNotNull ("mutableMethodProvider", mutableMethodProvider);
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type passed must be an interface.", "interfaceType");
-      if (!mutableType.GetInterfaces().Contains (interfaceType))
+      if (!proxyType.GetInterfaces().Contains (interfaceType))
         throw new ArgumentException ("Interface not found.", "interfaceType");
 
       var remainingInterfaceMethods = new HashSet<MethodInfo> (interfaceType.GetMethods());
       var explicitImplementations = new Dictionary<MethodInfo, MutableMethodInfo>();
 
-      foreach (var method in mutableType.AllMutableMethods)
+      foreach (var method in proxyType.AddedMethods)
       {
         foreach (var explicitBaseDefinition in method.AddedExplicitBaseDefinitions)
         {
@@ -66,28 +61,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
               var interfaceMethods = explicitImplementations.Keys.ToArray();
               var targetMethods = explicitImplementations.Values.Cast<MethodInfo>().ToArray();
 
-              return CreateInterfaceMapping (interfaceType, mutableType, interfaceMethods, targetMethods);
+              return CreateInterfaceMapping (interfaceType, proxyType, interfaceMethods, targetMethods);
             }
           }
         }
       }
 
-      // TODO 5230: Adapt code when implementing MutableType.ReImplementInterface
-      var isAddedInterface = mutableType.AddedInterfaces.Contains (interfaceType);
+      // TODO 5230: Adapt code when implementing ProxyType.ReImplementInterface
+      var isAddedInterface = proxyType.AddedInterfaces.Contains (interfaceType);
       return isAddedInterface
-                 ? CreateForAdded (mutableType, interfaceType, explicitImplementations, allowPartialInterfaceMapping)
-                 : CreateForExisting (mutableType, interfacMappingProvider, interfaceType, explicitImplementations, mutableMethodProvider);
+                 ? CreateForAdded (proxyType, interfaceType, explicitImplementations, allowPartialInterfaceMapping)
+                 : CreateForExisting (proxyType, interfacMappingProvider, interfaceType, explicitImplementations);
     }
 
     private InterfaceMapping CreateForAdded (
-        MutableType mutableType,
-        Type interfaceType,
-        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations,
-        bool allowPartialInterfaceMapping)
+        ProxyType proxyType, Type interfaceType, Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations, bool allowPartialInterfaceMapping)
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
-      var candidates = mutableType
-          .GetMethods (BindingFlags.Public | BindingFlags.Instance)
+      var methodInfos = proxyType.GetMethods (BindingFlags.Public | BindingFlags.Instance).Where (m => m.IsVirtual).ToArray();
+      var candidates = methodInfos
           .Where (m => m.IsVirtual)
           .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods().ToArray();
@@ -107,7 +99,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new InvalidOperationException (message);
       }
 
-      return CreateInterfaceMapping (interfaceType, mutableType, interfaceMethods, targetMethods);
+      return CreateInterfaceMapping (interfaceType, proxyType, interfaceMethods, targetMethods);
     }
 
     private MethodInfo GetMostDerivedOrDefault (IEnumerable<MethodInfo> candidates)
@@ -115,6 +107,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MethodInfo mostDerived = null;
       foreach (var method in candidates)
       {
+        // TODO 5354 : HAACK!
+        if (method is MutableMethodInfo)
+          return method;
+
         if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
           mostDerived = method;
       }
@@ -123,14 +119,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     private InterfaceMapping CreateForExisting (
-        MutableType mutableType,
+        ProxyType proxyType,
         Func<Type, InterfaceMapping> interfacMappingProvider,
         Type interfaceType,
-        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations,
-        IMutableMemberProvider<MethodInfo, MutableMethodInfo> mutableMethodProvider)
+        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations)
     {
       var mapping = interfacMappingProvider (interfaceType);
-      mapping.TargetType = mutableType;
+      mapping.TargetType = proxyType;
 
       for (int i = 0; i < mapping.InterfaceMethods.Length; i++)
       {
@@ -141,14 +136,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         if (explicitImplementations.TryGetValue (interfaceMethod, out explicitImplementation))
           mapping.TargetMethods[i] = explicitImplementation;
         else
-          mapping.TargetMethods[i] = mutableMethodProvider.GetMutableMember (targetMethod) ?? targetMethod;
+          mapping.TargetMethods[i] = targetMethod;
       }
 
       return mapping;
     }
 
     private InterfaceMapping CreateInterfaceMapping (
-        Type interfaceType, MutableType targetType, MethodInfo[] interfaceMethods, MethodInfo[] targetMethods)
+        Type interfaceType, ProxyType targetType, MethodInfo[] interfaceMethods, MethodInfo[] targetMethods)
     {
       return new InterfaceMapping
              {

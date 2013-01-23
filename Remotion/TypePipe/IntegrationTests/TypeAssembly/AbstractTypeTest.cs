@@ -17,9 +17,9 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using System.Linq;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -32,27 +32,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void NoChanges_BecomesConcrete ()
     {
       var type = AssembleType<AbstractTypeWithoutMethods> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.UnderlyingSystemType.IsAbstract, Is.True);
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.False);
       // The generated default constructor of abstract class has family visibility (protected in C#).
       Assert.That (() => Activator.CreateInstance (type, nonPublic: true), Throws.Nothing);
     }
-    
+
     [Test]
     public void ImplementPartially_RemainsAbstract ()
     {
       var type = AssembleType<AbstractTypeWithTwoMethods> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method1");
-            mutableMethod.SetBody (ctx => Expression.Empty());
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithTwoMethods obj) => obj.Method1());
+            proxyType.GetOrAddOverride (abstractBaseMethod).SetBody (ctx => Expression.Empty());
 
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -62,14 +62,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AddAbstractMethod_BecomesAbstract ()
     {
       var type = AssembleType<ConcreteType> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
 
-            var mutableMethod = mutableType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
-            Assert.That (mutableMethod.IsAbstract, Is.True);
+            var method = proxyType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
+            Assert.That (method.IsAbstract, Is.True);
 
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.True);
@@ -79,54 +79,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ImplementFully_BecomesConcrete ()
     {
       var type = AssembleType<AbstractTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
-            Assert.That (mutableType.IsAbstract, Is.True);
+            Assert.That (proxyType.IsAbstract, Is.True);
 
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
-            mutableMethod.SetBody (ctx => Expression.Empty());
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
+            var method = proxyType.GetOrAddOverride (abstractBaseMethod);
 
-            Assert.That (mutableType.IsAbstract, Is.False);
-          });
+            Assert.That (method.IsAbstract, Is.True);
+            method.SetBody (ctx => Expression.Empty());
+            Assert.That (method.IsAbstract, Is.False);
 
-      Assert.That (type.IsAbstract, Is.False);
-    }
-
-    [Test]
-    public void ImplementFully_AbstractBaseType_AddMethod_BecomesConcrete ()
-    {
-      var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
-          {
-            Assert.That (mutableType.IsAbstract, Is.True);
-
-            mutableType.AddMethod (
-                "Method",
-                MethodAttributes.Public | MethodAttributes.Virtual,
-                typeof (void),
-                ParameterDeclaration.EmptyParameters,
-                ctx => Expression.Empty());
-
-            Assert.That (mutableType.IsAbstract, Is.False);
-          });
-
-      Assert.That (type.IsAbstract, Is.False);
-    }
-
-    [Test]
-    public void ImplementFully_AbstractBaseType_GetOrAddMutableMethod_BecomesConcrete ()
-    {
-      var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
-          {
-            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
-            var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
-
-            Assert.That (mutableMethod.IsAbstract, Is.True);
-            mutableMethod.SetBody (ctx => Expression.Empty ());
-            Assert.That (mutableMethod.IsAbstract, Is.False);
-
-            Assert.That (mutableType.IsAbstract, Is.False);
+            Assert.That (proxyType.IsAbstract, Is.False);
           });
 
       Assert.That (type.IsAbstract, Is.False);
@@ -135,56 +99,43 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void Override_LeaveAbstract_ResultsInValidCode ()
     {
-      var type = AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
+      var type = AssembleType<AbstractTypeWithOneMethod> (
+          proxyType =>
           {
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
-            var mutableMethod = mutableType.GetOrAddMutableMethod (abstractBaseMethod);
-            Assert.That (mutableMethod.IsAbstract, Is.True);
+            var method = proxyType.GetOrAddOverride (abstractBaseMethod);
+            Assert.That (method.IsAbstract, Is.True);
           });
 
       Assert.That (type.IsAbstract, Is.True);
     }
 
     [Test]
-    public void AccessingBodyOfAbstractMethod_Throws ()
+    public void AccessingBodyOrCallingAbstractMethod_Throws ()
     {
       var message = "An abstract method has no body.";
       AssembleType<AbstractTypeWithOneMethod> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.AllMutableMethods.Single (x => x.Name == "Method");
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
+            var method = proxyType.GetOrAddOverride (abstractBaseMethod);
 
-            Assert.That (() => mutableMethod.Body, Throws.InvalidOperationException.With.Message.EqualTo (message));
-            mutableMethod.SetBody (
+            Assert.That (() => method.Body, Throws.InvalidOperationException.With.Message.EqualTo (message));
+            method.SetBody (
                 ctx =>
                 {
                   Assert.That (() => ctx.PreviousBody, Throws.InvalidOperationException.With.Message.EqualTo (message));
-                  Assert.That (() => ctx.GetPreviousBodyWithArguments (), Throws.InvalidOperationException.With.Message.EqualTo (message));
-                  return Expression.Empty ();
-                });
-          });
-    }
-
-    [Test]
-    public void BaseCallForAbstractMethod_Throws ()
-    {
-      AssembleType<AbstractDerivedTypeWithOneMethod> (
-          mutableType =>
-          {
-            var mutableMethod = mutableType.AllMutableMethods.Single();
-            mutableMethod.SetBody (
-                ctx =>
-                {
+                  Assert.That (() => ctx.InvokePreviousBodyWithArguments(), Throws.InvalidOperationException.With.Message.EqualTo (message));
                   Assert.That (
-                      () => ctx.GetBaseCall ("Method"),
+                      () => ctx.CallBase (abstractBaseMethod),
                       Throws.ArgumentException.With.Message.EqualTo ("Cannot perform base call on abstract method.\r\nParameter name: baseMethod"));
+
                   return Expression.Empty();
                 });
           });
     }
 
-    public class ConcreteType { }
+    [UsedImplicitly] public class ConcreteType { }
 
     public abstract class AbstractTypeWithoutMethods { }
 
@@ -197,11 +148,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       public abstract void Method1 ();
       public abstract void Method2 ();
-    }
-
-    public abstract class AbstractDerivedTypeWithOneMethod : AbstractTypeWithOneMethod
-    {
-      public virtual void Dummy () { }
     }
   }
 }

@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class KeepConstructorsTest : TypeAssemblerIntegrationTestBase
   {
-    private const BindingFlags CtorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+    private const BindingFlags c_ctorBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
     [Test]
     public void KeepPublicAndProtectedConstructors ()
@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           GetCtorSignatures (typeof (DomainType)),
           Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
 
-      var type = AssembleType<DomainType> (mutableType => { });
+      var type = AssembleType<DomainType> (proxyType => { });
 
-      Assert.That (type, Is.Not.SameAs (typeof (DomainType))); // no shortcut for zero modifications (yet)
+      Assert.That (type, Is.Not.SameAs (typeof (DomainType))); // No shortcut for zero modifications (yet).
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
 
       CheckConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ConstructorWithOutAndRefParameters ()
     {
-      var type = AssembleType<DomainTypeWithWeirdCtor> (mutableType => { });
+      var type = AssembleType<DomainTypeWithWeirdCtor> (proxyType => { });
 
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(Int32 ByRef, System.String ByRef)" }));
       
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance = ctor.Invoke (parameters);
 
       Assert.That (instance, Is.Not.Null);
-      Assert.That (instance.GetType (), Is.SameAs (type));
+      Assert.That (instance.GetType(), Is.SameAs (type));
       Assert.That (parameters[0], Is.EqualTo (88));
       Assert.That (parameters[1], Is.EqualTo ("in and out"));
     }
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         params object[] ctorArguments)
     {
       var ctorParameterTypes = ctorArguments.Select (arg => arg.GetType()).ToArray();
-      var constructor = generatedType.GetConstructor (CtorBindingFlags, null, ctorParameterTypes, null);
+      var constructor = generatedType.GetConstructor (c_ctorBindingFlags, null, ctorParameterTypes, null);
       var additionalMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
 
       Assert.That (constructor.Attributes, Is.EqualTo (expectedVisibility | additionalMethodAttributes));
@@ -86,9 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private IEnumerable<string> GetCtorSignatures (Type type)
     {
-      return type.GetConstructors (CtorBindingFlags)
-          .Select (ctor => ctor.ToString().Replace("Void ", ""))
-          .ToArray(); // better error message
+      return type.GetConstructors (c_ctorBindingFlags).Select (ctor => ctor.ToString().Replace ("Void ", ""));
     }
 
 // ReSharper disable MemberCanBePrivate.Global

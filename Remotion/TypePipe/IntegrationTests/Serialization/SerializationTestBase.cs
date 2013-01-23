@@ -36,10 +36,10 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     {
       var attributeConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
       return CreateParticipant (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddField ("AddedIntField", typeof (int), FieldAttributes.Public);
-            mutableType.AddField ("AddedSkippedIntField", typeof (int), FieldAttributes.Public)
+            proxyType.AddField ("AddedIntField", typeof (int), FieldAttributes.Public);
+            proxyType.AddField ("AddedSkippedIntField", typeof (int), FieldAttributes.Public)
                        .AddCustomAttribute (new CustomAttributeDeclaration (attributeConstructor, new object[0]));
           });
     }
@@ -47,11 +47,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     private static IParticipant CreateInitializationAddingParticipant ()
     {
       return CreateParticipant (
-          mutableType =>
+          proxyType =>
           {
-            var stringField = mutableType.GetField ("String");
+            var stringField = proxyType.GetField ("String");
 
-            mutableType.AddInstanceInitialization (
+            proxyType.AddInitialization (
                 ctx =>
                 Expression.AddAssign (
                     Expression.Field (ctx.This, stringField),
@@ -63,13 +63,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     private static IParticipant CreateCallbackImplementingParticipant ()
     {
       return CreateParticipant (
-          mutableType =>
+          proxyType =>
           {
-            var stringField = mutableType.GetField ("String");
+            var stringField = proxyType.GetField ("String");
             var callback = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 
-            mutableType.AddInterface (typeof (IDeserializationCallback));
-            mutableType.AddExplicitOverride (
+            proxyType.AddInterface (typeof (IDeserializationCallback));
+            proxyType.AddExplicitOverride (
                 callback,
                 ctx => Expression.AddAssign (
                     Expression.Field (ctx.This, stringField), Expression.Constant (" addedCallback"), ExpressionHelper.StringConcatMethod));
@@ -198,7 +198,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       SkipSavingAndPeVerification();
       var factory = CreateObjectFactoryForSerialization (CreateFieldAddingParticipant);
 
-      var message = "The underlying type implements ISerializable but GetObjectData cannot be overridden. "
+      var message = "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
                     + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (ExplicitISerializableType)),
@@ -214,7 +214,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       SkipSavingAndPeVerification();
       var factory = CreateObjectFactoryForSerialization (CreateInitializationAddingParticipant);
 
-      var message = "The underlying type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
+      var message = "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
                     + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
           () => factory.GetAssembledType (typeof (ExplicitIDeserializationCallbackType)),

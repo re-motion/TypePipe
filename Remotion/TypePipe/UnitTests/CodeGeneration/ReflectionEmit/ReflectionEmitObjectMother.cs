@@ -19,6 +19,8 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 
@@ -77,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public static Type GetSomeTypeBuilderInstantiation ()
     {
-      var type = typeof (UnspecifiedType<>).MakeGenericType (MutableTypeObjectMother.CreateForExisting());
+      var type = typeof (UnspecifiedType<>).MakeGenericType (ProxyTypeObjectMother.Create (baseType: null, memberSelector: null));
       Assertion.IsTrue (type.GetType().FullName == "System.Reflection.Emit.TypeBuilderInstantiation");
       return type;
     }

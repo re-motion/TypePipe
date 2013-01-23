@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
@@ -28,12 +29,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ExpressionPreparer : IExpressionPreparer
   {
-    public Expression PrepareBody (MemberEmitterContext context, Expression body)
+    private readonly IMethodTrampolineProvider _methodTrampolineProvider;
+
+    public ExpressionPreparer (IMethodTrampolineProvider methodTrampolineProvider)
+    {
+      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
+
+      _methodTrampolineProvider = methodTrampolineProvider;
+    }
+
+    public IMethodTrampolineProvider MethodTrampolineProvider
+    {
+      get { return _methodTrampolineProvider; }
+    }
+
+    public Expression PrepareBody (CodeGenerationContext context, Expression body)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("body", body);
 
-      return new UnemittableExpressionVisitor (context).Visit (body);
+      return new UnemittableExpressionVisitor (context, _methodTrampolineProvider).Visit (body);
     }
   }
 }

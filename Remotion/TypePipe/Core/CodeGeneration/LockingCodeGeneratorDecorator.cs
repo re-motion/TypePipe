@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -22,6 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Provides a synchronization wrapper around an implementation of <see cref="ICodeGenerator"/>.
   /// </summary>
+  /// <remarks>This class is used by <see cref="TypeCache"/>, which ensures a single-threaded environment for downstream implementation classes.</remarks>
   public class LockingCodeGeneratorDecorator : ICodeGenerator
   {
     private readonly ICodeGenerator _innerCodeGenerator;

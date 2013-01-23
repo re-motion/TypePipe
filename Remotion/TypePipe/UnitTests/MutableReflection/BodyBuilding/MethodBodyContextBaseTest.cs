@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class MethodBodyContextBaseTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private ParameterExpression[] _parameters;
     private bool _isStatic;
     private MethodInfo _baseMethod;
@@ -41,13 +41,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
+      _declaringType = ProxyTypeObjectMother.Create();
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new TestableMethodBodyContextBase (_declaringType, _parameters.AsOneTime (), _isStatic, _baseMethod, _memberSelectorMock);
+      _context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters.AsOneTime (), _baseMethod, _memberSelectorMock);
     }
 
     [Test]
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.HasBaseMethod, Is.True);
 
-      var context = new TestableMethodBodyContextBase (_declaringType, _parameters.AsOneTime (), _isStatic, null, _memberSelectorMock);
+      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters.AsOneTime (), null, _memberSelectorMock);
       Assert.That (context.HasBaseMethod, Is.False);
     }
 
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.BaseMethod, Is.SameAs(_baseMethod));
 
-      var context = new TestableMethodBodyContextBase (_declaringType, _parameters.AsOneTime (), _isStatic, null, _memberSelectorMock);
+      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters.AsOneTime (), null, _memberSelectorMock);
       Assert.That (
           () => context.BaseMethod, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
     }

@@ -25,9 +25,9 @@ using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -37,31 +37,46 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableMethodInfo : MethodInfo, IMutableMethodBase
   {
-    private readonly MutableType _declaringType;
-    private readonly MethodDescriptor _descriptor;
-
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly ProxyType _declaringType;
+    private readonly string _name;
+    private MethodAttributes _attributes;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
+    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly MethodInfo _baseMethod;
+
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
 
-    private MethodAttributes _attributes;
     private Expression _body;
 
-    public MutableMethodInfo (MutableType declaringType, MethodDescriptor descriptor)
+    public MutableMethodInfo (
+        ProxyType declaringType,
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
+        MethodInfo baseMethod,
+        Expression body)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
+      Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
+      Assertion.IsTrue (body == null || returnType.IsAssignableFrom (body.Type));
+
+      var paras = parameters.ConvertToCollection();
 
       _declaringType = declaringType;
-      _descriptor = descriptor;
-
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
-      _returnParameter = new MutableParameterInfo (this, descriptor.ReturnParameter);
-      _parameters = _descriptor.Parameters.Select (pd => new MutableParameterInfo (this, pd)).ToList().AsReadOnly();
-
-      _attributes = _descriptor.Attributes;
-      _body = _descriptor.Body;
+      _name = name;
+      _attributes = attributes;
+      _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
+      _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
+      _baseMethod = baseMethod;
+      _body = body;
     }
 
     public override Type DeclaringType
@@ -69,24 +84,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public MethodInfo UnderlyingSystemMethodInfo
-    {
-      get { return _descriptor.UnderlyingSystemInfo ?? this; }
-    }
-
-    public bool IsNew
-    {
-      get { return _descriptor.UnderlyingSystemInfo == null; }
-    }
-
-    public bool IsModified
-    {
-      get { return _body != _descriptor.Body || AddedCustomAttributes.Count > 0 || _addedExplicitBaseDefinitions.Count > 0; }
-    }
-
     public override string Name
     {
-      get { return _descriptor.Name; }
+      get { return _name; }
     }
 
     public override MethodAttributes Attributes
@@ -106,22 +106,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MethodInfo BaseMethod
     {
-      get { return _descriptor.BaseMethod; }
+      get { return _baseMethod; }
     }
 
     public override bool IsGenericMethod
     {
-      get { return _descriptor.IsGenericMethod; }
+      get { return false; }
     }
 
     public override bool IsGenericMethodDefinition
     {
-      get { return _descriptor.IsGenericMethodDefinition; }
+      get { return false; }
     }
 
     public override bool ContainsGenericParameters
     {
-      get { return _descriptor.ContainsGenericParameters; }
+      get { return false; }
     }
 
     public override ParameterInfo ReturnParameter
@@ -141,24 +141,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
-      get { return _descriptor.Parameters.Select (pd => pd.Expression).ToList().AsReadOnly(); }
-    }
-
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695
-      get { return CanSetBody; }
+      get { return _parameterExpressions; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
-    }
-
-    public bool CanSetBody
-    {
-      // TODO 4695
-      get { return IsNew || (IsVirtual && !IsFinal); }
     }
 
     public Expression Body
@@ -170,12 +158,6 @@ namespace Remotion.TypePipe.MutableReflection
 
         return _body;
       }
-    }
-
-    public bool CanAddExplicitBaseDefinition
-    {
-      // TODO 4695; Note that IsVirtual must always be checked here - this is not caused by the Reflection.Emit code generator, but by the CLI rules.
-      get { return IsVirtual && (IsNew || !IsFinal); }
     }
 
     /// <summary>
@@ -208,11 +190,10 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
 
-      // TODO 5309: Inline property and remove.
-      if (!CanAddExplicitBaseDefinition)
+      if (!IsVirtual)
       {
         // TODO 4695: Adapt message
-        var message = string.Format ("Cannot add an explicit base definition to the non-virtual or existing final method '{0}'.", Name);
+        var message = string.Format ("Cannot add an explicit base definition to the non-virtual method '{0}'.", Name);
         throw new NotSupportedException (message);
       }
 
@@ -243,15 +224,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      if (!CanSetBody)
-      {
-        // TODO 4695
-        var message = string.Format ("The body of the existing non-virtual or final method '{0}' cannot be replaced.", Name);
-        throw new NotSupportedException (message);
-      }
-
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new MethodBodyModificationContext (_declaringType, ParameterExpressions, _body, IsStatic, BaseMethod, memberSelector);
+      var context = new MethodBodyModificationContext (_declaringType, IsStatic, ParameterExpressions, _body, BaseMethod, memberSelector);
       var newBody = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
 
       if (_body == null)
@@ -272,7 +246,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

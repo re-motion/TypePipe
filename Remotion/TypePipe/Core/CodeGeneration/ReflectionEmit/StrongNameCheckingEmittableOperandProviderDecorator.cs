@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _emittableOperandProvider; }
     }
 
-    public void AddMapping (MutableType mappedType, Type emittableType)
+    public void AddMapping (ProxyType mappedType, Type emittableType)
     {
       _emittableOperandProvider.AddMapping (mappedType, emittableType);
     }

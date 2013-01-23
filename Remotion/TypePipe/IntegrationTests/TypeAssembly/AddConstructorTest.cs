@@ -31,11 +31,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Standard ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public, 
               new[] { new ParameterDeclaration (typeof (int), "i") }, 
               context => Expression.Block (
-                  context.GetConstructorCall (Expression.Call (context.Parameters[0], "ToString", Type.EmptyTypes)),
+                  context.CallThisConstructor (Expression.Call (context.Parameters[0], "ToString", Type.EmptyTypes)),
                   Expression.Assign (Expression.Field (context.This, "_addedConstructorInitializedValue"), Expression.Constant ("hello")))));
 
       var addedCtor = type.GetConstructor (new[] { typeof (int) });
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ParameterMetadataAndOutParameter ()
     {
       var type = AssembleType<DomainType> (
-          mutableType => mutableType.AddConstructor (
+          proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
               new[] { new ParameterDeclaration (typeof (int), "i"), new ParameterDeclaration (typeof (string).MakeByRefType (), "s", ParameterAttributes.Out) },
               context =>
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 return Expression.Block (
                     new[] { toStringResultLocal },
                     Expression.Assign (toStringResultLocal, Expression.Call (context.Parameters[0], "ToString", Type.EmptyTypes)),
-                    context.GetConstructorCall (toStringResultLocal),
+                    context.CallThisConstructor (toStringResultLocal),
                     Expression.Assign (context.Parameters[1], toStringResultLocal));
               }));
 

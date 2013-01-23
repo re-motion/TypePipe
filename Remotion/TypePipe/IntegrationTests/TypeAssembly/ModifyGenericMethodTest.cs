@@ -30,17 +30,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Ignore ("TODO 4789")]
     public void ExistingMethodWithGenericParameters ()
     {
+      var baseMethod = typeof (DomainType).GetMethod ("GenericMethod");
+
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "GenericMethod");
-            Assert.That (mutableMethod.IsGenericMethod, Is.True);
-            Assert.That (mutableMethod.IsGenericMethodDefinition, Is.True);
-            var genericParameters = mutableMethod.GetGenericArguments ();
+            var genericMethodOverride = proxyType.GetOrAddOverride (baseMethod);
+            Assert.That (genericMethodOverride.IsGenericMethod, Is.True);
+            Assert.That (genericMethodOverride.IsGenericMethodDefinition, Is.True);
+            var genericParameters = genericMethodOverride.GetGenericArguments();
             var genericParameterNames = genericParameters.Select (t => t.Name);
             Assert.That (genericParameterNames, Is.EqualTo (new[] { "TKey", "TValue" }));
+            // TODO : Check parameter constraints.
 
-            mutableMethod.SetBody (
+            genericMethodOverride.SetBody (
                 ctx =>
                 {
                   Assert.That (ctx.Parameters[0].Type, Is.SameAs (typeof (IDictionary<,>).MakeGenericType (genericParameters)));
@@ -66,8 +69,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public class DomainType
     {
       public virtual TValue GenericMethod<TKey, TValue> (IDictionary<TKey, TValue> dict, TKey key)
-        where TKey : IComparable<TKey>
-        where TValue : class
+          where TKey : IComparable<TKey>
+          where TValue : class
       {
         return dict[key];
       }

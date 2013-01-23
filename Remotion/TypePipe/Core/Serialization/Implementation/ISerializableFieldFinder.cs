@@ -19,12 +19,14 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Collections;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
   /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields.
   /// </summary>
+  [ConcreteImplementation (typeof (SerializableFieldFinder))]
   public interface ISerializableFieldFinder
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields);

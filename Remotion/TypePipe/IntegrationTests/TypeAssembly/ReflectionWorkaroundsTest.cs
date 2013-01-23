@@ -72,9 +72,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (property, Is.Not.Null);
 
       return AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableGetter = mutableType.GetOrAddMutableMethod (property.GetGetMethod());
+            var mutableGetter = proxyType.GetOrAddOverride (property.GetGetMethod());
             mutableGetter.SetBody (ctx => Expression.Constant (""));
           });
     }

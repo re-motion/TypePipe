@@ -18,167 +18,70 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class MutableConstructorInfoTest
   {
-    private MutableType _declaringType;
-    private ConstructorDescriptor _descriptor;
-
     private MutableConstructorInfo _constructor;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      _descriptor = ConstructorDescriptorObjectMother.Create (parameterDeclarations: parameters);
-
-      _constructor = Create (_descriptor);
+      _constructor = MutableConstructorInfoObjectMother.Create (parameters: ParameterDeclarationObjectMother.CreateMultiple (2));
     }
 
     [Test]
     public void Initialization ()
     {
-      var ctor = new MutableConstructorInfo (_declaringType, _descriptor);
+      var declaringType = ProxyTypeObjectMother.Create();
+      var attributes = (MethodAttributes) 7;
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      Assert.That (ctor.DeclaringType, Is.SameAs (_declaringType));
+      var ctor = new MutableConstructorInfo (declaringType, attributes, parameters.AsOneTime(), body);
+
+      Assert.That (ctor.DeclaringType, Is.SameAs (declaringType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
-      Assert.That (_constructor.Body, Is.SameAs (_descriptor.Body));
-    }
 
-    [Test]
-    public void UnderlyingSystemConstructorInfo ()
-    {
-      var underlyingConstructor = ReflectionObjectMother.GetSomeConstructor();
-      var constructor = MutableConstructorInfoObjectMother.CreateForExisting (underlyingConstructor);
+      var actualParameters = ctor.GetParameters();
+      Assert.That (actualParameters, Has.Length.EqualTo (2));
+      MutableParameterInfoTest.CheckParameter (actualParameters[0], ctor, 0, parameters[0].Name, parameters[0].Type, parameters[0].Attributes);
+      MutableParameterInfoTest.CheckParameter (actualParameters[1], ctor, 1, parameters[1].Name, parameters[1].Type, parameters[1].Attributes);
+      Assert.That (ctor.MutableParameters, Is.EqualTo (actualParameters));
 
-      Assert.That (constructor.UnderlyingSystemConstructorInfo, Is.SameAs (underlyingConstructor));
-    }
+      var paramExpressions = ctor.ParameterExpressions;
+      Assert.That (paramExpressions, Has.Count.EqualTo (2));
+      Assert.That (paramExpressions[0], Has.Property ("Name").EqualTo (parameters[0].Name).And.Property ("Type").SameAs (parameters[0].Type));
+      Assert.That (paramExpressions[1], Has.Property ("Name").EqualTo (parameters[1].Name).And.Property ("Type").SameAs (parameters[1].Type));
 
-    [Test]
-    public void UnderlyingSystemConstructorInfo_ForNull ()
-    {
-      var constructor = MutableConstructorInfoObjectMother.CreateForNew();
-
-      Assert.That (constructor.UnderlyingSystemConstructorInfo, Is.SameAs (constructor));
-    }
-
-    [Test]
-    public void IsNew ()
-    {
-      var ctor1 = MutableConstructorInfoObjectMother.CreateForExisting();
-      var ctor2 = MutableConstructorInfoObjectMother.CreateForNew();
-
-      Assert.That (ctor1.IsNew, Is.False);
-      Assert.That (ctor2.IsNew, Is.True);
-    }
-
-    [Test]
-    public void IsModified_CustomAttributes ()
-    {
-      Assert.That (_constructor.IsModified, Is.False);
-      _constructor.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
-
-      Assert.That (_constructor.IsModified, Is.True);
-    }
-
-    [Test]
-    public void IsModified_Body ()
-    {
-      Assert.That (_constructor.IsModified, Is.False);
-      _constructor.SetBody (ctx => Expression.Empty());
-
-      Assert.That (_constructor.IsModified, Is.True);
+      Assert.That (ctor.Body, Is.SameAs (body));
     }
 
     [Test]
     public void Name ()
     {
-      Assert.That (_constructor.Name, Is.EqualTo (_descriptor.Name));
-    }
+      var constructor = MutableConstructorInfoObjectMother.Create (attributes: 0);
+      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
-    [Test]
-    public void Attributes ()
-    {
-      Assert.That (_constructor.Attributes, Is.EqualTo (_descriptor.Attributes));
+      Assert.That (constructor.Name, Is.EqualTo (".ctor"));
+      Assert.That (typeInitializer.Name, Is.EqualTo (".cctor"));
     }
 
     [Test]
     public void CallingConvention ()
     {
-      var constructor = Create (ConstructorDescriptorObjectMother.CreateForNew (attributes: 0));
-      var typeInitializer = Create (ConstructorDescriptorObjectMother.CreateForNew (MethodAttributes.Static));
+      var constructor = MutableConstructorInfoObjectMother.Create (attributes: 0);
+      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
       Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
-    }
-
-    [Test]
-    public void CanAddCustomAttributes ()
-    {
-      var ctor1 = MutableConstructorInfoObjectMother.CreateForExisting();
-      var ctor2 = MutableConstructorInfoObjectMother.CreateForNew();
-
-      Assert.That (ctor1.CanAddCustomAttributes, Is.True);
-      Assert.That (ctor2.CanAddCustomAttributes, Is.True);
-    }
-
-    [Test]
-    public void MutableParameters ()
-    {
-      var decl1 = ParameterDeclarationObjectMother.Create (typeof (int), "p1");
-      var decl2 = ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out);
-      var method = CreateWithParameters (decl1, decl2);
-
-      var result = method.MutableParameters;
-
-      var actualParameter = result.Select (pi => new { pi.Member, pi.Position, pi.ParameterType, pi.Name, pi.Attributes }).ToArray();
-      var expectedParameter =
-          new[]
-          {
-              new { Member = (MemberInfo) method, Position = 0, ParameterType = decl1.Type, decl1.Name, decl1.Attributes },
-              new { Member = (MemberInfo) method, Position = 1, ParameterType = decl2.Type, decl2.Name, decl2.Attributes }
-          };
-      Assert.That (actualParameter, Is.EqualTo (expectedParameter));
-    }
-
-    [Test]
-    public void ParameterExpressions ()
-    {
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var descriptor = ConstructorDescriptorObjectMother.Create (parameterDeclarations: parameterDeclarations);
-      var ctor = Create (descriptor);
-
-      Assert.That (ctor.ParameterExpressions, Is.EqualTo (descriptor.Parameters.Select (pd => pd.Expression)));
-    }
-
-    [Test]
-    public void CanSetBody ()
-    {
-      var newInaccessibleCtor = Create (ConstructorDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Assembly));
-      var newAccessibleCtor = Create (ConstructorDescriptorObjectMother.CreateForNew (attributes: MethodAttributes.Family));
-
-      var existingInaccesibleCtor = Create (ConstructorDescriptorObjectMother.CreateForExisting (
-          NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7))));
-      var existingAccessibleCtor = Create (ConstructorDescriptorObjectMother.CreateForExisting (
-          NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ())));
-      Assert.That (existingInaccesibleCtor.IsPublic, Is.False);
-
-      Assert.That (newInaccessibleCtor.CanSetBody, Is.True);
-      Assert.That (newAccessibleCtor.CanSetBody, Is.True);
-      Assert.That (existingInaccesibleCtor.CanSetBody, Is.False);
-      Assert.That (existingAccessibleCtor.CanSetBody, Is.True);
     }
 
     [Test]
@@ -189,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       {
         Assert.That (_constructor.ParameterExpressions, Is.Not.Empty);
         Assert.That (context.Parameters, Is.EqualTo (_constructor.ParameterExpressions));
-        Assert.That (context.DeclaringType, Is.SameAs (_declaringType));
+        Assert.That (context.DeclaringType, Is.SameAs (_constructor.DeclaringType));
         Assert.That (context.IsStatic, Is.False);
         Assert.That (context.PreviousBody, Is.SameAs (_constructor.Body));
 
@@ -203,39 +106,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The body of the existing inaccessible constructor 'Void .ctor(Int32)' cannot be replaced.")]
-    public void SetBody_NonSettableCtor ()
+    public void SetBody_Static ()
     {
-      var inaccessibleCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
-      var descriptor = ConstructorDescriptorObjectMother.CreateForExisting (inaccessibleCtor);
-      var mutableCtor = Create (descriptor);
-
-      Func<ConstructorBodyModificationContext, Expression> bodyProvider = context =>
+      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      Func<ConstructorBodyModificationContext, Expression> bodyProvider = ctx =>
       {
-        Assert.Fail ("Should not be called.");
-        throw new NotImplementedException ();
+        Assert.That (ctx.IsStatic, Is.True);
+        return Expression.Empty();
       };
 
-      mutableCtor.SetBody (bodyProvider);
-    }
-
-    [Test]
-    public void GetParameters ()
-    {
-      var ctor = CreateWithParameters (ParameterDeclarationObjectMother.CreateMultiple (2));
-
-      var result = ctor.GetParameters();
-
-      Assert.That (result, Is.EqualTo (ctor.MutableParameters));
-      Assert.That (ctor.GetParameters()[0], Is.SameAs (result[0]), "should return same instances");
+      typeInitializer.SetBody (bodyProvider);
     }
 
     [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
-      Assert.That (_constructor.CanAddCustomAttributes, Is.True);
       _constructor.AddCustomAttribute (declaration);
 
       Assert.That (_constructor.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
@@ -252,21 +138,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public new void ToString ()
     {
-      var ctorInfo = CreateWithParameters (
-          ParameterDeclarationObjectMother.Create (typeof (int), "p1"),
-          ParameterDeclarationObjectMother.Create (typeof (string).MakeByRefType (), "p2", attributes: ParameterAttributes.Out));
+      var ctor = MutableConstructorInfoObjectMother.Create (
+          parameters:
+              new[]
+              {
+                  new ParameterDeclaration (typeof (int), "p1"),
+                  new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out)
+              });
 
-      Assert.That (ctorInfo.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
+      Assert.That (ctor.ToString(), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = MutableTypeObjectMother.CreateForExisting (GetType ());
-      var ctorInfo = MutableConstructorInfoObjectMother.CreateForNewWithParameters (declaringType, new ParameterDeclaration (typeof (int), "p1"));
+      var declaringType = ProxyTypeObjectMother.Create (name: "Abc");
+      var ctor = MutableConstructorInfoObjectMother.Create (declaringType, parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
-      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"MutableConstructorInfoTest\"";
-      Assert.That (ctorInfo.ToDebugString (), Is.EqualTo (expected));
+      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"Abc\"";
+      Assert.That (ctor.ToDebugString(), Is.EqualTo (expected));
     }
 
     [Test]
@@ -277,22 +167,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (null, 0, null, null, null), "Invoke");
       UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (0, null, null, null), "Invoke");
-    }
-
-    private MutableConstructorInfo Create (ConstructorDescriptor constructorDescriptor)
-    {
-      return new MutableConstructorInfo (_declaringType, constructorDescriptor);
-    }
-
-    private MutableConstructorInfo CreateWithParameters (params ParameterDeclaration[] parameterDeclarations)
-    {
-      return Create (ConstructorDescriptorObjectMother.CreateForNew (parameterDeclartions: parameterDeclarations));
-    }
-
-    class DomainType
-    {
-      public DomainType () { }
-      internal DomainType (int i) { Dev.Null = i; }
     }
   }
 }

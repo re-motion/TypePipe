@@ -16,10 +16,10 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ClosedGenericType_AddMethod ()
     {
       var type = AssembleType<DomainType<string>> (
-          mutableType => mutableType.AddMethod (
+          proxyType => proxyType.AddMethod (
               "AnotherMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (int),
@@ -43,17 +43,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo (7));
     }
 
-    // TODO 4744: Implement MutableType.GetGenericArguments, GetGenericTypeDefinition, IsGenericType, IsGenericTypeDefinition, etc.; use them in an integration test.
+    // TODO 4744: Implement ProxyType.GetGenericArguments, GetGenericTypeDefinition, IsGenericType, IsGenericTypeDefinition, etc.; use them in an integration test.
 
     [Test]
-    public void ClosedGenericType_ReplaceBodyOfMethodWithGenericParameter ()
+    public void ClosedGenericType_OverrideMethodWithGenericParameter ()
     {
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType<string> obj) => obj.Method (""));
       var type = AssembleType<DomainType<string>> (
-          mutableType =>
-          {
-            var mutableMethod = mutableType.ExistingMutableMethods.Single (m => m.Name == "Method");
-            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" test")));
-          });
+          p => p.GetOrAddOverride (baseMethod).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" test"))));
 
       var instance = Activator.CreateInstance (type);
       var method = type.GetMethod ("Method");
@@ -64,8 +61,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Original type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
-        + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: underlyingType")]
+        "Proxied type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+        + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType")]
     public void OpenGenericType_Throws ()
     {
       AssembleType (typeof (DomainType<>));
@@ -73,10 +70,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType<T>
     {
-      public virtual T Method (T t)
-      {
-        return t;
-      }
+      public virtual T Method (T t) { return t; }
     }
   }
 }

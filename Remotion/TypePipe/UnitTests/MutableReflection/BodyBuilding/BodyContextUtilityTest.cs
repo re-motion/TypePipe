@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         "The argument count (0) does not match the parameter count (2).\r\nParameter name: arguments")]
     public void ReplaceParameters_WrongNumberOfArguments ()
     {
-      CallReplaceParameters ();
+      CallReplaceParameters();
     }
 
     [Test]
@@ -79,6 +79,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var expectedBody = Expression.Block (arg1, Expression.Convert (arg2, typeof (object)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
+    }
+
+    [Test]
+    public void GetArgumentTypes ()
+    {
+      var arguments =
+          new Expression[] { Expression.Constant (""), Expression.Parameter (typeof (double)), Expression.Parameter (typeof (int).MakeByRefType()) };
+
+      var result = BodyContextUtility.GetArgumentTypes (arguments.AsOneTime());
+
+      Assert.That (result, Is.EqualTo (new[] { typeof (string), typeof (double), typeof (int).MakeByRefType() }));
     }
 
     private Expression CallReplaceParameters (params Expression[] arguments)

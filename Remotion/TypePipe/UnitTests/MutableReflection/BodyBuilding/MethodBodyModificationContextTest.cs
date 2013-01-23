@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class MethodBodyModificationContextTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private ParameterExpression[] _parameters;
     private Expression _previousBody;
     private MethodInfo _baseMethod;
@@ -46,15 +46,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create ();
+      _declaringType = ProxyTypeObjectMother.Create ();
       _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new MethodBodyModificationContext (_declaringType, _parameters.AsOneTime(), _previousBody, _isStatic, _baseMethod, _memberSelector);
-      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _parameters, null, _isStatic, _baseMethod, _memberSelector);
+      _context = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters.AsOneTime(), _previousBody, _baseMethod, _memberSelector);
+      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters, null, _baseMethod, _memberSelector);
     }
 
     [Test]
@@ -82,21 +82,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void GetPreviousBodyWithArguments_Params ()
+    public void InvokePreviousBodyWithArguments_Params ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[0].Type);
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
 
-      var invokedBody = _context.GetPreviousBodyWithArguments (arg1, arg2);
+      var invokedBody = _context.InvokePreviousBodyWithArguments (arg1, arg2);
 
       var expectedBody = Expression.Block (arg1, arg2);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
     }
 
     [Test]
-    public void GetPreviousBodyWithArguments_Enumerable ()
+    public void InvokePreviousBodyWithArguments_Enumerable ()
     {
-      var invokedBody = _context.GetPreviousBodyWithArguments (_parameters.Cast<Expression> ().AsOneTime ());
+      var invokedBody = _context.InvokePreviousBodyWithArguments (_parameters.Cast<Expression> ().AsOneTime ());
 
       var expectedBody = Expression.Block (_parameters[0], _parameters[1]);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, invokedBody);
@@ -104,9 +104,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
-    public void GetPreviousBodyWithArguments_Params_ThrowsForNoPreviousBody ()
+    public void InvokePreviousBodyWithArguments_Params_ThrowsForNoPreviousBody ()
     {
-      _contextWithoutPreviousBody.GetPreviousBodyWithArguments();
+      _contextWithoutPreviousBody.InvokePreviousBodyWithArguments();
     }
   }
 }

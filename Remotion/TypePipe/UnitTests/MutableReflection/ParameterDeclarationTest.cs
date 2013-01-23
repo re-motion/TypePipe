@@ -63,16 +63,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateReturnParameter ()
-    {
-      var declaration = ParameterDeclaration.CreateReturnParameter (typeof (int));
-
-      Assert.That (declaration.Name, Is.Null);
-      Assert.That (declaration.Type, Is.SameAs (typeof (int)));
-      Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.None));
-    }
-
-    [Test]
     public void Initialization ()
     {
       var type = ReflectionObjectMother.GetSomeType();
@@ -81,6 +71,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (declaration.Type, Is.SameAs (type));
       Assert.That (declaration.Name, Is.EqualTo ("parameterName"));
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.Out));
+      Assert.That (declaration.Expression.Type, Is.SameAs (type));
+      Assert.That (declaration.Expression.Name, Is.EqualTo ("parameterName"));
     }
 
     [Test]

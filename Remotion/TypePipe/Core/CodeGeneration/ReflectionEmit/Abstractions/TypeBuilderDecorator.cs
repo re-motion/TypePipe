@@ -24,7 +24,7 @@ using System.Linq;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="ITypeBuilder"/> to allow <see cref="MutableType"/>s to be used in signatures and 
+  /// Decorates an instance of <see cref="ITypeBuilder"/> to allow <see cref="ProxyType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
   public class TypeBuilderDecorator : BuilderDecoratorBase, ITypeBuilder
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _emittableOperandProvider = emittableOperandProvider;
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ProxyType type)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("type", type);

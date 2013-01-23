@@ -16,9 +16,9 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Descriptors;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -36,69 +36,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = MutableTypeObjectMother.Create();
-      var descriptor = FieldDescriptorObjectMother.Create();
+      var declaringType = ProxyTypeObjectMother.Create();
+      var name = "abc";
+      var type = ReflectionObjectMother.GetSomeType();
+      var attributes = (FieldAttributes) 7;
 
-      var field = new MutableFieldInfo (declaringType, descriptor);
+      var field = new MutableFieldInfo (declaringType, name, type, attributes);
 
       Assert.That (field.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (field.FieldType, Is.SameAs (descriptor.Type));
-      Assert.That (field.Name, Is.EqualTo (descriptor.Name));
-      Assert.That (field.Attributes, Is.EqualTo (descriptor.Attributes));
+      Assert.That (field.Name, Is.EqualTo (name));
+      Assert.That (field.FieldType, Is.SameAs (type));
+      Assert.That (field.Attributes, Is.EqualTo (attributes));
       Assert.That (field.AddedCustomAttributes, Is.Empty);
-    }
-
-    [Test]
-    public void UnderlyingSystemFieldInfo()
-    {
-      var underlyingField = ReflectionObjectMother.GetSomeField();
-      var field = MutableFieldInfoObjectMother.CreateForExisting (underlyingField: underlyingField);
-
-      Assert.That (field.UnderlyingSystemFieldInfo, Is.SameAs (underlyingField));
-    }
-
-    [Test]
-    public void UnderlyingSystemFieldInfo_ForNull ()
-    {
-      var field = MutableFieldInfoObjectMother.CreateForNew();
-
-      Assert.That (field.UnderlyingSystemFieldInfo, Is.SameAs (field));
-    }
-
-    [Test]
-    public void IsNew ()
-    {
-      var field1 = MutableFieldInfoObjectMother.CreateForExisting();
-      var field2 = MutableFieldInfoObjectMother.CreateForNew();
-
-      Assert.That (field1.IsNew, Is.False);
-      Assert.That (field2.IsNew, Is.True);
-    }
-
-    [Test]
-    public void IsModified ()
-    {
-      Assert.That (_field.IsModified, Is.False);
-      _field.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
-
-      Assert.That (_field.IsModified, Is.True);
-    }
-
-    [Test]
-    public void CanAddCustomAttributes ()
-    {
-      var field1 = MutableFieldInfoObjectMother.CreateForExisting();
-      var field2 = MutableFieldInfoObjectMother.CreateForNew();
-
-      Assert.That (field1.CanAddCustomAttributes, Is.False);
-      Assert.That (field2.CanAddCustomAttributes, Is.True);
     }
 
     [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
-      Assert.That (_field.CanAddCustomAttributes, Is.True);
       _field.AddCustomAttribute (declaration);
 
       Assert.That (_field.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));

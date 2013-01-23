@@ -76,12 +76,12 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNamed_CacheUsesReferenceEquality ()
     {
       var type = typeof (object);
-      var mutableType = MutableTypeObjectMother.CreateForExisting (type);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: type, memberSelector: null);
       _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (mutableType.Assembly)).Return (true);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (proxyType.Assembly)).Return (true);
 
       _analyzer.IsStrongNamed (type);
-      _analyzer.IsStrongNamed (mutableType);
+      _analyzer.IsStrongNamed (proxyType);
 
       _assemblyAnalyzerMock.VerifyAllExpectations();
     }

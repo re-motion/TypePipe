@@ -18,7 +18,6 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.Expressions.ReflectionAdapters
 {

@@ -17,19 +17,19 @@
 using System;
 using System.Reflection;
 using Remotion.Collections;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Helps with building initializations for a mutable type.
+  /// Helps with building initializations for a <see cref="ProxyType"/>.
   /// </summary>
-  /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyBuilder"/>.</remarks>
+  /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyCreator"/>.</remarks>
+  [ConcreteImplementation (typeof (InitializationBuilder))]
   public interface IInitializationBuilder
   {
-    MutableConstructorInfo CreateTypeInitializer (MutableType mutableType);
-
-    Tuple<FieldInfo, MethodInfo> CreateInstanceInitializationMembers (MutableType mutableType);
+    Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (ProxyType proxyType);
 
     void WireConstructorWithInitialization (
         MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler);

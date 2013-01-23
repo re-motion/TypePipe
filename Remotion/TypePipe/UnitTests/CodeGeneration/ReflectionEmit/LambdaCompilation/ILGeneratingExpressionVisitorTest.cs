@@ -61,13 +61,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "OriginalBodyExpression must be replaced before code generation.")]
-    public void VisitOriginalBody ()
-    {
-      _visitor.VisitOriginalBody (ExpressionTreeObjectMother.GetSomeOriginalBodyExpression());
-    }
-
-    [Test]
     public void VisitNewDelegate ()
     {
       var delegateType = typeof (Action);

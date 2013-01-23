@@ -91,11 +91,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private void CheckDecoratedAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
     {
-      Assert.That (moduleBuilder, Is.TypeOf<UniqueNamingModuleBuilderDecorator>());
-      var uniqueNamingDecorator = (UniqueNamingModuleBuilderDecorator) moduleBuilder;
-
-      Assert.That (uniqueNamingDecorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderDecorator>());
-      var decorator = (ModuleBuilderDecorator) uniqueNamingDecorator.InnerModuleBuilder;
+      Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderDecorator>());
+      var decorator = (ModuleBuilderDecorator) moduleBuilder;
 
       Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var adapter = (ModuleBuilderAdapter) decorator.InnerModuleBuilder;

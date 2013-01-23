@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -25,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// Adapts <see cref="MethodBuilder"/> for the <see cref="IMethodBuilderForLambdaCompiler"/> interface.
   /// </summary>
   /// <remarks>
-  /// This class is internal because it should only be used from <see cref="TypeModifier"/> and <see cref="SubclassProxyBuilder"/>.
+  /// This class is internal because it should only be used from <see cref="MethodBuilderAdapter"/>.
   /// </remarks>
   internal class MethodBuilderForLambdaCompiler : IMethodBuilderForLambdaCompiler
   {

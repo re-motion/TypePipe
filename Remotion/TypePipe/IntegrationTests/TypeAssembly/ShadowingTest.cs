@@ -30,11 +30,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ShadowMethod_NonVirtual ()
     {
       var type = AssembleType<ModifiedType> (
-          mutableType =>
+          proxyType =>
           {
             var shadowedMethod = typeof (ModifiedType).GetMethod ("OverridableMethod");
             var mutableMethodInfo = AddEquivalentMethod (
-                mutableType, 
+                proxyType, 
                 shadowedMethod,
                 MethodAttributes.Public,
                 ctx =>
@@ -45,13 +45,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                       Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
 
                   return ExpressionHelper.StringConcat (
-                      ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
+                      ctx.CallBase ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
 
             Assert.That (
-                mutableType.GetMethods ().Where (mi => mi.Name == "OverridableMethod"),
+                proxyType.GetMethods ().Where (mi => mi.Name == "OverridableMethod"),
                 Is.EquivalentTo (new[] { mutableMethodInfo, typeof (ModifiedType).GetMethod ("OverridableMethod") }));
           });
 
@@ -69,11 +69,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ShadowMethod_VirtualAndNewSlot ()
     {
       var type = AssembleType<ModifiedType> (
-          mutableType =>
+          proxyType =>
           {
             var shadowedMethod = typeof (ModifiedType).GetMethod ("OverridableMethod");
             var mutableMethodInfo = AddEquivalentMethod (
-                mutableType,
+                proxyType,
                 shadowedMethod,
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 ctx =>
@@ -81,13 +81,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.HasBaseMethod, Is.False);
 
                   return ExpressionHelper.StringConcat (
-                      ctx.GetBaseCall ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
+                      ctx.CallBase ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
 
             Assert.That (
-                mutableType.GetMethods().Where (mi => mi.Name == "OverridableMethod"),
+                proxyType.GetMethods().Where (mi => mi.Name == "OverridableMethod"),
                 Is.EquivalentTo (new[] { mutableMethodInfo, typeof (ModifiedType).GetMethod ("OverridableMethod") }));
           });
 

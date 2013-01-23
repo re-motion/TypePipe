@@ -30,12 +30,12 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly MethodInfo _baseMethod;
 
     protected MethodBodyContextBase (
-        MutableType declaringType,
-        IEnumerable<ParameterExpression> parameterExpressions,
+        ProxyType declaringType,
         bool isStatic,
+        IEnumerable<ParameterExpression> parameterExpressions,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, parameterExpressions, isStatic, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
       // Base method may be null
       _baseMethod = baseMethod;

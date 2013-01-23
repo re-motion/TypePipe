@@ -20,7 +20,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// <see cref="Type"/> extension methods that are useful when working with <see cref="MutableType"/>s.
+  /// <see cref="Type"/> extension methods that are useful when working with <see cref="ProxyType"/>s.
   /// </summary>
   public static class TypeExtensions
   {

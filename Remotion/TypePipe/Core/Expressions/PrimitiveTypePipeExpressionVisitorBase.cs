@@ -38,18 +38,6 @@ namespace Remotion.TypePipe.Expressions
       return VisitExtension (node);
     }
 
-    Expression IPrimitiveTypePipeExpressionVisitor.VisitOriginalBody (OriginalBodyExpression node)
-    {
-      return VisitOriginalBody (node);
-    }
-
-    protected virtual Expression VisitOriginalBody (OriginalBodyExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      return VisitExtension (node);
-    }
-
     Expression IPrimitiveTypePipeExpressionVisitor.VisitNewDelegate (NewDelegateExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);

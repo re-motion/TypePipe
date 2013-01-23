@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class MethodBaseBodyContextBaseTest
   {
-    private MutableType _declaringType;
+    private ProxyType _declaringType;
     private IMemberSelector _memberSelectorStub;
     private bool _isStatic;
 
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = MutableTypeObjectMother.Create();
+      _declaringType = ProxyTypeObjectMother.Create();
       _memberSelectorStub = MockRepository.GenerateStrictMock<IMemberSelector>();
       _isStatic = BooleanObjectMother.GetRandomBoolean();
 

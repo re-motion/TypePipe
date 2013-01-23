@@ -44,9 +44,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Remotion.Development">
-      <HintPath>..\..\Web\Test\Bin\Remotion.Development.dll</HintPath>
-    </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks.dll</HintPath>
     </Reference>
@@ -81,6 +78,10 @@
     <ProjectReference Include="..\..\Data\DomainObjects\Data.DomainObjects.csproj">
       <Project>{c2d4102a-6db9-4997-85be-afa6ecf42f1a}</Project>
       <Name>Data.DomainObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Development\Core\Development.Core.csproj">
+      <Project>{b719a305-0493-4c72-88fe-9a2fc6964578}</Project>
+      <Name>Development.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Mixins\Core\Mixins.Core.csproj">
       <Project>{d641e4e2-23f3-4454-8074-1327ef07baa1}</Project>

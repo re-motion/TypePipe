@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     public Expression[] Expressions
     {
-      get { return _constantExpressions; }
+      get { return _constantExpressions.Cast<Expression>().ToArray(); }
     }
   }
 }

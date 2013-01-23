@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("_privateInstanceField", typeof (string), FieldAttributes.Private));
+      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("_privateInstanceField", typeof (string), FieldAttributes.Private));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField" }));
 
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
       var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.InitOnly;
-      var type = AssembleType<OriginalType> (mutableType => mutableType.AddField ("PublicStaticField", typeof (int), fieldAttributes));
+      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("PublicStaticField", typeof (int), fieldAttributes));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "PublicStaticField" }));
 
@@ -65,12 +65,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var existingField = typeof (OriginalType).GetField ("OriginalField", nonPublicInstanceFlags);
       Assert.That (existingField, Is.Not.Null);
 
-      var type = AssembleType<DerivedType> (mutableType => 
+      var type = AssembleType<DerivedType> (proxyType => 
       { 
-        var addedField = mutableType.AddField (existingField.Name, existingField.FieldType, FieldAttributes.Family);
+        var addedField = proxyType.AddField (existingField.Name, existingField.FieldType, FieldAttributes.Family);
 
         Assert.That (
-            mutableType.GetFields (nonPublicInstanceFlags),
+            proxyType.GetFields (nonPublicInstanceFlags),
             Is.EquivalentTo (new[] { addedField, typeof (DerivedType).GetField ("OriginalField", nonPublicInstanceFlags) }));
       });
 
@@ -81,9 +81,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void WithCustomAttribute ()
     {
       var type = AssembleType<OriginalType> (
-          mutableType =>
+          proxyType =>
           {
-            var mutableFieldInfo = mutableType.AddField ("_fieldWithCustomAttributes", typeof (int));
+            var mutableFieldInfo = proxyType.AddField ("_fieldWithCustomAttributes", typeof (int));
 
             var attributeCtor = typeof (AddedAttribute).GetConstructor (new[] { typeof (string) });
             var namedProperty = typeof (AddedAttribute).GetProperty ("NamedPropertyArg");
@@ -110,23 +110,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void MutableField_UsedByMethodBodies ()
     {
       var type = AssembleType<OriginalType> (
-          mutableType =>
+          proxyType =>
           {
-            var fieldInfo = mutableType.AddField ("_privateInstanceField", typeof (string));
-            mutableType.AddConstructor (
+            var fieldInfo = proxyType.AddField ("_privateInstanceField", typeof (string));
+            proxyType.AddConstructor (
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (string), "arg") },
                 ctx =>
-                Expression.Block (ctx.GetConstructorCall (), Expression.Assign (Expression.Field (ctx.This, fieldInfo), ctx.Parameters[0]))
+                Expression.Block (ctx.CallThisConstructor (), Expression.Assign (Expression.Field (ctx.This, fieldInfo), ctx.Parameters[0]))
                 );
           },
-          mutableType =>
-          mutableType.AddMethod (
+          proxyType =>
+          proxyType.AddMethod (
               "MethodUsingField",
               MethodAttributes.Public,
               typeof (string),
               ParameterDeclaration.EmptyParameters,
-              ctx => Expression.Field (ctx.This, mutableType.GetField ("_privateInstanceField", BindingFlags.Instance | BindingFlags.NonPublic))));
+              ctx => Expression.Field (ctx.This, proxyType.GetField ("_privateInstanceField", BindingFlags.Instance | BindingFlags.NonPublic))));
 
       var instance = Activator.CreateInstance (type, "test value");
 

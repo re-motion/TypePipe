@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
       if (_instance != null)
         return _instance;
 
-      var underlyingTypeName = (string) SerializationInfo.GetValue (SerializationParticipant.UnderlyingTypeKey, typeof (string));
+      var underlyingTypeName = (string) SerializationInfo.GetValue (SerializationParticipant.BaseTypeKey, typeof (string));
       var factoryIdentifier = (string) SerializationInfo.GetValue (SerializationParticipant.FactoryIdentifierKey, typeof (string));
 
       var underlyingType = Type.GetType (underlyingTypeName, throwOnError: true);

@@ -14,12 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -31,10 +31,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedMethod());
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddInterface (typeof (IAddedInterface));
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            proxyType.AddInterface (typeof (IAddedInterface));
+            var method = proxyType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -57,22 +57,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var interfaceMethod2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInvalidCandidates obj) => obj.NonVirtualCandidate());
 
       AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            mutableType.AddInterface (typeof (IInvalidCandidates));
+            proxyType.AddMethod ("NonPublicCandidate", ctx => Expression.Empty(), MethodAttributes.Assembly | MethodAttributes.Virtual);
+            proxyType.AddMethod ("NonVirtualCandidate", ctx => Expression.Empty(), MethodAttributes.Public);
+
+            proxyType.AddInterface (typeof (IInvalidCandidates));
 
             var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already "
-                                + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
+                                + "exists. Use ProxyType.AddExplicitOverride to create an explicit implementation.";
             Assert.That (
-                () => mutableType.GetOrAddMutableMethod (interfaceMethod1),
+                () => proxyType.GetOrAddOverride (interfaceMethod1),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod1.Name)));
             Assert.That (
-                () => mutableType.GetOrAddMutableMethod (interfaceMethod2),
+                () => proxyType.GetOrAddOverride (interfaceMethod2),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod2.Name)));
 
             // Implement the interface, otherwise the type is invalid and cannot be generated.
-            mutableType.AddExplicitOverride (interfaceMethod1, ctx => Expression.Empty());
-            mutableType.AddExplicitOverride (interfaceMethod2, ctx => Expression.Empty());
+            proxyType.AddExplicitOverride (interfaceMethod1, ctx => Expression.Empty());
+            proxyType.AddExplicitOverride (interfaceMethod2, ctx => Expression.Empty());
           });
     }
 
@@ -81,16 +84,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
       var type = AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
-            method.SetBody (
-                ctx =>
-                {
-                  Assert.That (ctx.HasBaseMethod, Is.False);
-                  return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"));
-                });
-          });
+          p => p.GetOrAddOverride (interfaceMethod)
+                .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"))));
 
       var instance = (IDomainInterface) Activator.CreateInstance (type);
 
@@ -102,18 +97,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var explicitImplementation = mutableType.AllMutableMethods.Single (m => m.Name == "UnrelatedMethod");
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.UnrelatedMethod());
+            var explicitImplementation = proxyType.GetOrAddOverride (baseMethod);
             explicitImplementation.AddExplicitBaseDefinition (interfaceMethod);
 
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
-            method.SetBody (
-                ctx =>
-                {
-                  Assert.That (ctx.HasBaseMethod, Is.False);
-                  return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"));
-                });
+            proxyType.GetOrAddOverride (interfaceMethod)
+                     .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified")));
           });
 
       var instance = (IDomainInterface) Activator.CreateInstance (type);
@@ -122,17 +113,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    [ExpectedException (typeof (NotSupportedException),
+        ExpectedMessage = "Cannot override final method 'DomainType.Remotion.TypePipe.IntegrationTests.TypeAssembly.InterfaceImplementationTest."
+                          + "IDomainInterface.ExplicitlyImplemented'.")]
     public void Modify_Explicit_Existing ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.ExplicitlyImplemented());
-      AssembleType<DomainType> (
-          mutableType =>
-          {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
-
-            Assert.That (method.CanSetBody, Is.False);
-            Assert.That (method.BaseMethod, Is.Null);
-          });
+      AssembleType<DomainType> (p => p.GetOrAddOverride (interfaceMethod));
     }
 
     [Test]
@@ -142,7 +129,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var message = "Cannot override final method 'DomainTypeBase.Remotion.TypePipe.IntegrationTests.TypeAssembly."
                     + "InterfaceImplementationTest.IBaseInterface.ExplicitlyImplemented'.";
       AssembleType<DomainType> (
-          mt => Assert.That (() => mt.GetOrAddMutableMethod (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
+          p => Assert.That (() => p.GetOrAddOverride (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
     }
 
     [Test]
@@ -150,9 +137,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.BaseMethod());
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = proxyType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -171,9 +158,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.ShadowedBaseMethod());
       var type = AssembleType<DomainType> (
-          mutableType =>
+          proxyType =>
           {
-            var method = mutableType.GetOrAddMutableMethod (interfaceMethod);
+            var method = proxyType.GetOrAddOverride (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -220,9 +207,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         return "DomainType.UnrelatedMethod";
       }
-
-      internal virtual void NonPublicCandidate () { }
-      public void NonVirtualCandidate () { }
     }
 
     public interface IBaseInterface

@@ -141,11 +141,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void DelegatingMembers ()
     {
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
-      var mutableType = MutableTypeObjectMother.Create();
+      var proxyType = ProxyTypeObjectMother.Create();
 
       var helper = new DecoratorTestHelper<ITypeBuilder> (_decorator, _innerMock);
 
-      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableType));
+      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, proxyType));
       helper.CheckDelegation (d => d.CreateType(), ReflectionObjectMother.GetSomeType());
     }
   }

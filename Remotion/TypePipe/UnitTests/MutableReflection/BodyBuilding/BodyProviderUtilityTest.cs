@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new TestableBodyContextBase (MutableTypeObjectMother.Create(), false, _memberSelector);
+      _context = new TestableBodyContextBase (ProxyTypeObjectMother.Create(), false, _memberSelector);
     }
 
     [Test]

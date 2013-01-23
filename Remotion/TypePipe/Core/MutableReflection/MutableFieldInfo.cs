@@ -19,8 +19,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection.Descriptors;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -32,24 +32,25 @@ namespace Remotion.TypePipe.MutableReflection
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public class MutableFieldInfo : FieldInfo, IMutableInfo
   {
-    private readonly MutableType _declaringType;
-    private readonly FieldDescriptor _descriptor;
+    private readonly ProxyType _declaringType;
+    private readonly string _name;
+    private readonly Type _type;
 
-    private readonly MutableInfoCustomAttributeContainer _customAttributeContainer;
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     private FieldAttributes _attributes;
 
-    public MutableFieldInfo (MutableType declaringType, FieldDescriptor descriptor)
+    public MutableFieldInfo (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("descriptor", descriptor);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+      Assertion.IsTrue (type != typeof (void));
 
       _declaringType = declaringType;
-      _descriptor = descriptor;
-
-      _customAttributeContainer = new MutableInfoCustomAttributeContainer (descriptor.CustomAttributeDataProvider, () => CanAddCustomAttributes);
-
-      _attributes = descriptor.Attributes;
+      _name = name;
+      _type = type;
+      _attributes = attributes;
     }
 
     public override Type DeclaringType
@@ -57,40 +58,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _declaringType; }
     }
 
-    public FieldInfo UnderlyingSystemFieldInfo
+    public override string Name
     {
-      get { return _descriptor.UnderlyingSystemInfo ?? this; }
-    }
-
-    public bool IsNew
-    {
-      get { return _descriptor.UnderlyingSystemInfo == null; }
-    }
-
-    public bool IsModified
-    {
-      get { return AddedCustomAttributes.Count != 0; }
+      get { return _name; }
     }
 
     public override Type FieldType
     {
-      get { return _descriptor.Type; }
-    }
-
-    public override string Name
-    {
-      get { return _descriptor.Name; }
+      get { return _type; }
     }
 
     public override FieldAttributes Attributes
     {
       get { return _attributes; }
-    }
-
-    public bool CanAddCustomAttributes
-    {
-      // TODO 4695
-      get { return IsNew; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -110,7 +90,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return _customAttributeContainer.GetCustomAttributeData();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
