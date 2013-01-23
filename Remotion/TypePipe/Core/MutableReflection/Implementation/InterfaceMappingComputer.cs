@@ -78,11 +78,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         ProxyType proxyType, Type interfaceType, Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations, bool allowPartialInterfaceMapping)
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
-      var methodInfos = proxyType.GetMethods (BindingFlags.Public | BindingFlags.Instance).Where (m => m.IsVirtual).ToArray();
-      var candidates = methodInfos
+      var candidates = proxyType.GetMethods (BindingFlags.Public | BindingFlags.Instance)
           .Where (m => m.IsVirtual)
           .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
-      var interfaceMethods = interfaceType.GetMethods().ToArray();
+      var interfaceMethods = interfaceType.GetMethods();
       var targetMethods = interfaceMethods
           .Select (
               m => explicitImplementations.GetValueOrDefault (m)
@@ -107,10 +106,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MethodInfo mostDerived = null;
       foreach (var method in candidates)
       {
-        // TODO 5354 : HAACK!
-        if (method is MutableMethodInfo)
-          return method;
-
         if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
           mostDerived = method;
       }
