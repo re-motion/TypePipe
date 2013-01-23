@@ -16,12 +16,10 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -44,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       baseType = baseType ?? typeof (UnspecifiedType);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
-      underlyingSystemTypeFactory = underlyingSystemTypeFactory ?? CreateUnderlyingSystemTypeProviderStub (baseType);
+      underlyingSystemTypeFactory = underlyingSystemTypeFactory ?? new UnderlyingSystemTypeFactory();
 
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
@@ -54,7 +52,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           memberSelector,
           underlyingSystemTypeFactory,
           baseType,
-          name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
+          name,
+          @namespace,
+          fullName,
+          attributes,
+          interfaceMappingComputer,
+          mutableMemberFactory);
 
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
@@ -62,23 +65,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return proxyType;
     }
 
-    // tODO 5365 remove
-    private static IUnderlyingSystemTypeFactory CreateUnderlyingSystemTypeProviderStub (Type baseType)
-    {
-      var underlyingSystemTypeProviderStub = MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>();
-      underlyingSystemTypeProviderStub
-          .Stub (stub => stub.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
-          .Return (baseType);
-      // Workaround to be able to use RhinoMock expectations.
-
-      return underlyingSystemTypeProviderStub;
-    }
-
     private static void CopyConstructors (Type baseType, ProxyType proxyType)
     {
       PrivateInvoke.InvokeNonPublicMethod (s_factory, "CopyConstructors", baseType, proxyType);
     }
 
-    private class UnspecifiedType { }
+    public class UnspecifiedType { }
   }
 }

@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _moduleBuilder = _moduleBuilder ?? CreateModuleBuilder();
       _counter++;
 
-      var name = "UnderlyingSystemType{0}" + _counter;
+      var name = "UnderlyingSystemType" + _counter;
       var typeBuilder = _moduleBuilder.DefineType (name, TypeAttributes.Abstract, baseType, newInterfaces.ToArray());
       AddDummyConstructor (typeBuilder);
 
@@ -54,6 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private ModuleBuilder CreateModuleBuilder ()
     {
+      // TODO 5057: Ensure that generated assembly can be garbace collected when switching to .NET 4.x.
       var assemblyName = new AssemblyName ("UnderlyingSystemTypeFactory");
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");

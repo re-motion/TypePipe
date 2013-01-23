@@ -117,7 +117,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _fullName; }
     }
 
-    // tODO 5365
+    // TODO 5354
     //[Obsolete ("Do not use this property in client code.", error: true)]
     public override Type UnderlyingSystemType
     {

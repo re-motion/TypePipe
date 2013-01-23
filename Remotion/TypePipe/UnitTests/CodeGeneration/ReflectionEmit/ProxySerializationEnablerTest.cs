@@ -285,31 +285,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (new[] { Tuple.Create<string, FieldInfo> ("someField", MutableFieldInfoObjectMother.Create (declaringType)) });
     }
 
-    class SomeType { }
+    public class SomeType { }
 
-    class SerializableInterfaceType : ISerializable
+    public class SerializableInterfaceType : ISerializable
     {
       public SerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    class DeserializationCallbackType : IDeserializationCallback
+    public class DeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
     }
 
-    class SerializableWithDeserializationCallbackType : IDeserializationCallback
+    public class SerializableWithDeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
     }
 
-    class ExplicitSerializableInterfaceType : ISerializable
+    public class ExplicitSerializableInterfaceType : ISerializable
     {
       public ExplicitSerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    class ExplicitDeserializationCallbackType : IDeserializationCallback
+    public class ExplicitDeserializationCallbackType : IDeserializationCallback
     {
       void IDeserializationCallback.OnDeserialization (object sender) { }
     }

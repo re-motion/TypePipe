@@ -134,7 +134,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       ExpressionTreeComparer.CheckAreEqualTrees (expected, actualCall);
     }
 
-    class DomainType
+    public class DomainType
     {
       public DomainType (string s) { Dev.Null = s; }
       internal DomainType () { }

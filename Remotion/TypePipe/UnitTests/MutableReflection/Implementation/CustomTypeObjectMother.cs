@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
       underlyingSystemTypeFactory = underlyingSystemTypeFactory ?? MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>();
       // Declaring type stays null.
-      baseType = baseType ?? typeof (object);
+      baseType = baseType ?? typeof (UnspecifiedType);
 
       var customType = new TestableCustomType (memberSelector, underlyingSystemTypeFactory, declaringType, baseType, name, @namespace, fullName);
       customType.Interfaces = interfaces ?? Type.EmptyTypes;
@@ -51,5 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       return customType;
     }
+
+    public class UnspecifiedType { }
   }
 }

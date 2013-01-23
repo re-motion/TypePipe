@@ -42,6 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var result = _factory.CreateUnderlyingSystemType (baseType, interfaces);
 
       Assert.That (result.IsRuntimeType(), Is.True);
+      Assert.That (result.Name, Is.StringMatching (@"UnderlyingSystemType\d"));
       Assert.That (baseType.IsAssignableFrom (result), Is.True);
       Assert.That (typeof (IDisposable).IsAssignableFrom (result), Is.True);
       Assert.That (typeof (IComparable).IsAssignableFrom (result), Is.True);

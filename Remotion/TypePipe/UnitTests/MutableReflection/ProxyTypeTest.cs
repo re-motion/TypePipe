@@ -154,8 +154,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
 
-      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
-
       Assert.That (_proxyType.BaseType, Is.SameAs (typeof (DomainType)));
       Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
 
@@ -589,7 +587,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public string ExplicitOverrideTarget (double d) { return "" + d; }
     }
-
+    public interface IDomainInterface { }
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public int Field;
@@ -599,22 +597,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void NonVirtualMethod () { }
     }
 
-    public interface IDomainInterface { }
+    public class UnrelatedType { }
 
-    private class UnrelatedType { }
-
-    abstract class AbstractTypeBase
+    public abstract class AbstractTypeBase
     {
       public abstract void AbstractMethod1 ();
     }
-
-    abstract class AbstractType : AbstractTypeBase
+    public abstract class AbstractType : AbstractTypeBase
     {
       public override abstract void AbstractMethod1 ();
       public abstract void AbstractMethod2 ();
     }
 
-    private class TypeWithoutAccessibleConstructor
+    public class TypeWithoutAccessibleConstructor
     {
       internal TypeWithoutAccessibleConstructor () { }
     }

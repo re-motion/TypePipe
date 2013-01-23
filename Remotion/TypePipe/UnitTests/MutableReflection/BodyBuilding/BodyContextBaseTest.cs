@@ -263,7 +263,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, result);
     }
 
-    private class DomainType
+    public class DomainType
     {
       public void Method (int i) { Dev.Null = i; }
       public void MethodWithByRefParam (ref int i) { i++; }

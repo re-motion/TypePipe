@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
     public class SomeType { }
 
-    class SerializableInterfaceType : ISerializable
+    public class SerializableInterfaceType : ISerializable
     {
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }

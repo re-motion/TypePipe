@@ -238,18 +238,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       [UsedImplicitly] public void NonVirtualMethod () { }
     }
 
-    interface IExistingInterface
+    public interface IExistingInterface
     {
       void Method11 ();
       void Method12 ();
     }
-    interface IAddedInterface
+    public interface IAddedInterface
     {
       void Method21 ();
       void Method22 ();
       void Method23 ();
     }
-    interface IImplementationCandidates
+    public interface IImplementationCandidates
     {
       void NonPublicMethod ();
       void NonVirtualMethod ();
