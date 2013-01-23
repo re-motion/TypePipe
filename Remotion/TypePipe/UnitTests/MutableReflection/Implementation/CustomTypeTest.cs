@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingSystemTypeFactory>();
 
       _declaringType = ReflectionObjectMother.GetSomeType();
-      _baseType = ReflectionObjectMother.GetSomeType();
+      _baseType = ReflectionObjectMother.GetSomeSubclassableType();
       _name = "type name";
       _namespace = "namespace";
       _fullName = "full type name";
