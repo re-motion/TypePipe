@@ -117,8 +117,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _fullName; }
     }
 
-    // TODO 5354
-    //[Obsolete ("Do not use this property in client code.", error: true)]
     public override Type UnderlyingSystemType
     {
       get
@@ -136,22 +134,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <summary>
     /// Derivatives of <see cref="CustomType"/> use reference equality.
     /// </summary>
-    public override bool Equals (object o)
+    public override bool Equals (object other)
     {
-      return this == o;
+      return this == other;
     }
 
-    // public bool Equals (Type o) in System.Type will work as intended.
+    // Hidden method 'Equals (Type type)' in System.Type will work as intended, but slower (it depends on UnderlyingSystemType).
+    public new bool Equals (Type type)
+    {
+      // ReSharper disable PossibleUnintendedReferenceComparison
+      return this == type;
+      // ReSharper restore PossibleUnintendedReferenceComparison
+    }
 
     public override int GetHashCode ()
     {
       return RuntimeHelpers.GetHashCode (this);
-    }
-
-    // TODO 5354: Obsolete
-    public override bool IsAssignableFrom (Type c)
-    {
-      return base.IsAssignableFrom (c);
     }
 
     public bool IsAssignableTo (Type type)

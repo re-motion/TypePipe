@@ -146,8 +146,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var customType2 = CustomTypeObjectMother.Create (name: "Proxy");
 
       // Equals compares references and does not use the UnderlyingSystemType property.
-      Assert.That (customType1, Is.EqualTo (customType1));
-      Assert.That (customType1, Is.Not.EqualTo (customType2));
+      Assert.That (customType1.Equals ((object) customType1), Is.True);
+      Assert.That (customType1.Equals ((object) customType2), Is.False);
+      Assert.That (customType1.Equals (customType1), Is.True);
+      Assert.That (customType1.Equals (customType2), Is.False);
     }
 
     [Test]
