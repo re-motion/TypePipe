@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
@@ -35,51 +34,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </remarks>
   public class UnderlyingSystemTypeFactory : IUnderlyingSystemTypeFactory
   {
-    private class Comparer : IEqualityComparer<Tuple<string, Type, HashSet<Type>>>
-    {
-      public bool Equals (Tuple<string, Type, HashSet<Type>> x, Tuple<string, Type, HashSet<Type>> y)
-      {
-        return EqualityUtility.Equals (x.Item1, y.Item1)
-               && EqualityUtility.Equals (x.Item2, y.Item2)
-               && x.Item3.SetEquals (y.Item3);
-      }
-
-      public int GetHashCode (Tuple<string, Type, HashSet<Type>> obj)
-      {
-        // TODO
-        return 7;
-      }
-    }
-
-    private readonly ICache<Tuple<string, Type, HashSet<Type>>, Type> _cache =
-        CacheFactory.Create<Tuple<string, Type, HashSet<Type>>, Type> (new Comparer());
-
     private ModuleBuilder _moduleBuilder;
     private int _counter;
 
-    public Type CreateUnderlyingSystemType (CustomType customType)
+    public Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces)
     {
-      ArgumentUtility.CheckNotNull ("customType", customType);
-      Assertion.IsNotNull (customType.BaseType);
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      ArgumentUtility.CheckNotNull ("newInterfaces", newInterfaces);
 
-      // tODO: think about: re-implemented interfaces, maybe skip them.
-      var addedInterfaces = customType.GetInterfaces().Except (customType.BaseType.GetInterfaces());
-      var key = Tuple.Create (customType.FullName, customType.BaseType, new HashSet<Type> (addedInterfaces));
-
-      return _cache.GetOrCreateValue (key, CreateUnderlyingSystemType);
-    }
-
-    private Type CreateUnderlyingSystemType (Tuple<string, Type, HashSet<Type>> key)
-    {
       _moduleBuilder = _moduleBuilder ?? CreateModuleBuilder();
-
       _counter++;
-      var name = string.Format ("{0}_UnderlyingSystemType_{1}", key.Item1, _counter);
-      var attributes = TypeAttributes.Abstract;
-      var baseType = key.Item2;
-      var interfaces = key.Item3.ToArray();
 
-      var typeBuilder = _moduleBuilder.DefineType (name, attributes, baseType, interfaces);
+      var name = "UnderlyingSystemType{0}" + _counter;
+      var typeBuilder = _moduleBuilder.DefineType (name, TypeAttributes.Abstract, baseType, newInterfaces.ToArray());
       AddDummyConstructor (typeBuilder);
 
       return typeBuilder.CreateType();

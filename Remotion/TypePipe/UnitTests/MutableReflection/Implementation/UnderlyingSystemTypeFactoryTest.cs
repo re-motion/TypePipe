@@ -37,43 +37,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetUnderlyingSystemType ()
     {
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
-      var customType = CustomTypeObjectMother.Create (baseType: baseType, interfaces: new[] { typeof (IDisposable), typeof (IComparable) });
+      var interfaces = new[] { typeof (IDisposable), typeof (IComparable) };
 
-      var result = _factory.CreateUnderlyingSystemType (customType);
+      var result = _factory.CreateUnderlyingSystemType (baseType, interfaces);
 
       Assert.That (result.IsRuntimeType(), Is.True);
       Assert.That (baseType.IsAssignableFrom (result), Is.True);
       Assert.That (typeof (IDisposable).IsAssignableFrom (result), Is.True);
       Assert.That (typeof (IComparable).IsAssignableFrom (result), Is.True);
-
-      Assert.That (_factory.CreateUnderlyingSystemType (customType), Is.SameAs (result), "Should be cached.");
-    }
-
-    [Test]
-    public void GetUnderlyingSystemType_CacheKey ()
-    {
-      var baseType = typeof (object);
-      var otherBaseType = GetType();
-      var interfaceTypes = new[] { typeof (IDisposable), typeof (IComparable) };
-      var otherInterfaceTypes = new[] { typeof (IDisposable), typeof (ICloneable) };
-      var equivalentInterfaceTypes = new[] { typeof (IComparable), typeof (IDisposable) };
-
-      var result1 = _factory.CreateUnderlyingSystemType (CustomTypeObjectMother.Create (baseType: baseType, interfaces: interfaceTypes));
-      var result2 = _factory.CreateUnderlyingSystemType (CustomTypeObjectMother.Create (baseType: otherBaseType, interfaces: interfaceTypes));
-      var result3 = _factory.CreateUnderlyingSystemType (CustomTypeObjectMother.Create (baseType: baseType, interfaces: otherInterfaceTypes));
-      var result4 = _factory.CreateUnderlyingSystemType (CustomTypeObjectMother.Create (baseType: baseType, interfaces: equivalentInterfaceTypes));
-
-      Assert.That (result1, Is.Not.SameAs (result2));
-      Assert.That (result1, Is.Not.SameAs (result3));
-      Assert.That (result1, Is.SameAs (result4));
     }
 
     [Test]
     public void GetUnderlyingSystemType_AddEmptyDefaultCtor ()
     {
-      var customType = CustomTypeObjectMother.Create (baseType: typeof (TypeWithoutDefaultCtor));
+      var baseType = typeof (TypeWithoutDefaultCtor);
 
-      var result = _factory.CreateUnderlyingSystemType (customType);
+      var result = _factory.CreateUnderlyingSystemType (baseType, Type.EmptyTypes);
 
       var ctor = result.GetConstructor (Type.EmptyTypes);
       Assert.That (ctor, Is.Not.Null);

@@ -121,7 +121,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     //[Obsolete ("Do not use this property in client code.", error: true)]
     public override Type UnderlyingSystemType
     {
-      get { return _underlyingSystemType ?? (_underlyingSystemType = _underlyingSystemTypeFactory.CreateUnderlyingSystemType (this)); }
+      get
+      {
+        if (_underlyingSystemType == null)
+        {
+          var newInterfaces = GetAllInterfaces().Except (_baseType.GetInterfaces());
+          _underlyingSystemType = _underlyingSystemTypeFactory.CreateUnderlyingSystemType (_baseType, newInterfaces);
+        }
+
+        return _underlyingSystemType;
+      }
     }
 
     /// <summary>

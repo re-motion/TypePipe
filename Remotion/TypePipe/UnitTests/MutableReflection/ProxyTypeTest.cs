@@ -23,12 +23,14 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
+using Remotion.Development.RhinoMocks.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -225,18 +227,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingSystemTypeFactory>();
       var proxyType = ProxyTypeObjectMother.Create (underlyingSystemTypeFactory: underlyingSystemTypeFactoryMock);
-      underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (proxyType)).Return (ReflectionObjectMother.GetSomeType());
+      var interfaces = proxyType.GetInterfaces();
+      underlyingSystemTypeFactoryMock
+          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces)))
+          .Return (ReflectionObjectMother.GetSomeType());
 
       Dev.Null = proxyType.UnderlyingSystemType; // Retrieves underlying type, cache result.
       Dev.Null = proxyType.UnderlyingSystemType; // Cache hit.
 
-      underlyingSystemTypeFactoryMock.VerifyAllExpectations ();
+      underlyingSystemTypeFactoryMock.VerifyAllExpectations();
 
-      underlyingSystemTypeFactoryMock.BackToRecord ();
-      underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (proxyType)).Return (ReflectionObjectMother.GetSomeType ());
-      underlyingSystemTypeFactoryMock.Replay ();
+      underlyingSystemTypeFactoryMock.BackToRecord();
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      underlyingSystemTypeFactoryMock
+          .Expect (
+              mock => mock.CreateUnderlyingSystemType (
+                  Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces.Concat (addedInterface))))
+          .Return (ReflectionObjectMother.GetSomeType());
+      underlyingSystemTypeFactoryMock.Replay();
 
-      proxyType.AddInterface (ReflectionObjectMother.GetSomeInterfaceType ()); // Invalidates cache.
+      proxyType.AddInterface (addedInterface); // Invalidates cache.
       Dev.Null = proxyType.UnderlyingSystemType; // Retrieves new underlying type.
 
       underlyingSystemTypeFactoryMock.VerifyAllExpectations();

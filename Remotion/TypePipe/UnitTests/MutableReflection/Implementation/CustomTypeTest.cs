@@ -25,6 +25,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
+using Remotion.Development.RhinoMocks.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -110,18 +111,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void UnderlyingSystemType ()
     {
+      var baseType = typeof (TypeWithMyInterface);
+      var newInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      var allInterfaces = new[] { typeof (IMyInterface), newInterface };
+      var customType = CustomTypeObjectMother.Create (
+          underlyingSystemTypeFactory: _underlyingSystemTypeFactoryMock, baseType: baseType, interfaces: allInterfaces);
+
       var fakeType1 = ReflectionObjectMother.GetSomeType();
       var fakeType2 = ReflectionObjectMother.GetSomeDifferentType();
-      _underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (_customType)).Return (fakeType1);
-      _underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (_customType)).Return (fakeType2);
+      _underlyingSystemTypeFactoryMock
+          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (baseType), Arg<IEnumerable<Type>>.List.Equivalent (newInterface)))
+          .Return (fakeType1).Repeat.Once();
+      _underlyingSystemTypeFactoryMock
+          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (baseType), Arg<IEnumerable<Type>>.List.Equivalent (newInterface)))
+          .Return (fakeType2).Repeat.Once();
 
-      var result = _customType.UnderlyingSystemType;
+      var result1 = customType.UnderlyingSystemType;
 
-      Assert.That (result, Is.SameAs (fakeType1));
-      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (result), "Should be cached.");
+      Assert.That (result1, Is.SameAs (fakeType1));
+      Assert.That (customType.UnderlyingSystemType, Is.SameAs (result1), "Should be cached.");
 
-      PrivateInvoke.InvokeNonPublicMethod (_customType, "InvalidateUnderlyingSystemType");
-      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (fakeType2));
+      PrivateInvoke.InvokeNonPublicMethod (customType, "InvalidateUnderlyingSystemType");
+
+      var result2 = customType.UnderlyingSystemType;
+
+      _underlyingSystemTypeFactoryMock.VerifyAllExpectations();
+      Assert.That (result2, Is.SameAs (fakeType2));
     }
 
     [Test]
@@ -433,6 +448,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericArguments(), "GetGenericArguments");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericTypeDefinition(), "GetGenericTypeDefinition");
     }
+
+    class TypeWithMyInterface : IMyInterface { }
+    interface IMyInterface { }
 
     // This exists for GetInterface method with ignore case parameter.
     private interface Idisposable { }

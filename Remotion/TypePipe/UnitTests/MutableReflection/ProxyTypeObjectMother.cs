@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
@@ -65,7 +66,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private static IUnderlyingSystemTypeFactory CreateUnderlyingSystemTypeProviderStub (Type baseType)
     {
       var underlyingSystemTypeProviderStub = MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>();
-      underlyingSystemTypeProviderStub.Stub (stub => stub.CreateUnderlyingSystemType (Arg<ProxyType>.Is.Anything)).Return (baseType);
+      underlyingSystemTypeProviderStub
+          .Stub (stub => stub.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
+          .Return (baseType);
       // Workaround to be able to use RhinoMock expectations.
 
       return underlyingSystemTypeProviderStub;
