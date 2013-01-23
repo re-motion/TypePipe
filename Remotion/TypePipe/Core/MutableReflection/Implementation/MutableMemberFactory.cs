@@ -172,10 +172,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       Assertion.IsNotNull (baseMethod.DeclaringType);
 
-      // TODO 4972: Use TypeEqualityComparer (for Equals and IsSubclassOf)
-      if (!proxyType.UnderlyingSystemType.Equals (baseMethod.DeclaringType)
-          && !proxyType.IsAssignableTo (baseMethod.DeclaringType)
-          || baseMethod.DeclaringType == proxyType)
+      // ReSharper disable PossibleUnintendedReferenceComparison
+      if (!proxyType.IsAssignableTo (baseMethod.DeclaringType) || proxyType == baseMethod.DeclaringType)
+      // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format (
             "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", baseMethod.DeclaringType.Name);

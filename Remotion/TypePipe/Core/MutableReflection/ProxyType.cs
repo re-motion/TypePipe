@@ -29,14 +29,11 @@ using System.Linq;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a subclass proxy type <see cref="Type"/>, which allows overriding base members and the addition of new members and custom attributes.
+  /// Represents a subclass proxy type, which allows overriding base members and the addition of new members and custom attributes.
   /// </summary>
   /// <remarks>
-  ///   <para>
-  ///     TODO 4972: Update docs to use TypeEqualityComparer.
-  ///     OBSOLETE: When an instance of a <see cref="ProxyType"/> is to be compared for equality with another <see cref="Type"/> instance, the
-  ///     IsEquivalentTo method should be used rather than comparing via <see cref="object.Equals(object)"/>.
-  ///   </para>
+  /// Avoid using the members <see cref="CustomType.UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/> in combination with
+  /// <see cref="ProxyType"/> instances. Use <see cref="CustomType.IsAssignableTo"/> instead.
   /// </remarks>
   public class ProxyType : CustomType, IMutableInfo
   {
