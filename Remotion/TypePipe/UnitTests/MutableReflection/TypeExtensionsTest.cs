@@ -28,11 +28,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsRuntimeType ()
     {
-      var runtimeType = typeof (int);
-      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (object));
+      var runtimeType = ReflectionObjectMother.GetSomeType();
+      var customType = CustomTypeObjectMother.Create();
 
       Assert.That (runtimeType.IsRuntimeType(), Is.True);
-      Assert.That (proxyType.IsRuntimeType(), Is.False);
+      Assert.That (customType.IsRuntimeType(), Is.False);
     }
 
     [Test]
@@ -67,6 +67,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var unrelatedType = ReflectionObjectMother.GetSomeType();
       Assert.That (unrelatedType.IsAssignableFromFast (customType), Is.False);
+    }
+
+    [Test]
+    public void GetTypeCodeFast ()
+    {
+      var runtimeType = ReflectionObjectMother.GetSomeType();
+      var customType = CustomTypeObjectMother.Create();
+
+      Assert.That (runtimeType.GetTypeCodeFast(), Is.EqualTo (Type.GetTypeCode (runtimeType)));
+      Assert.That (customType.GetTypeCodeFast(), Is.EqualTo (TypeCode.Object));
     }
   }
 }

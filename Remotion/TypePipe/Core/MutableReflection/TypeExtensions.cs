@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Diagnostics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Dynamic.Utils;
@@ -58,6 +57,18 @@ namespace Remotion.TypePipe.MutableReflection
         return toType.IsAssignableFrom (fromType.BaseType) || fromType.GetInterfaces().Any (toType.IsAssignableFrom);
 
       return toType.IsAssignableFrom (fromType);
+    }
+
+    /// <summary>
+    /// This method is an replacement for <see cref="Type.GetTypeCode"/> which internally accesses the <see cref="Type.UnderlyingSystemType"/> property.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The appropriate type code.</returns>
+    public static TypeCode GetTypeCodeFast (this Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return type is CustomType ? TypeCode.Object : Type.GetTypeCode (type);
     }
   }
 }
