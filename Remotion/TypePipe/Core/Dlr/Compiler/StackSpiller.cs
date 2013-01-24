@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -978,7 +979,7 @@ namespace System.Linq.Expressions.Compiler {
             // Primitive value types are okay because they are all readonly,
             // but we can't rely on this for non-primitive types. So we throw
             // NotSupported.
-            if (instance != null && instance.Type.IsValueType && Type.GetTypeCode(instance.Type) == TypeCode.Object) {
+            if (instance != null && instance.Type.IsValueType && instance.Type.GetTypeCodeFast() == TypeCode.Object) {
                 throw Error.TryNotSupportedForValueTypeInstances(instance.Type);
             }
         }

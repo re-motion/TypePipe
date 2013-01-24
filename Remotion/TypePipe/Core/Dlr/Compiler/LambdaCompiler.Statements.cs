@@ -20,6 +20,7 @@ using System.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Globalization;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -251,7 +252,7 @@ namespace System.Linq.Expressions.Compiler {
                 Default = @default;
                 Type = Node.SwitchValue.Type;
                 IsUnsigned = TypeUtils.IsUnsigned(Type);
-                var code = Type.GetTypeCode(Type);
+                var code = Type.GetTypeCodeFast();
                 Is64BitSwitch = code == TypeCode.UInt64 || code == TypeCode.Int64;
             }
         }
@@ -299,7 +300,7 @@ namespace System.Linq.Expressions.Compiler {
         // Determines if the type is an integer we can switch on.
         private static bool CanOptimizeSwitchType(Type valueType) {
             // enums & char are allowed
-            switch (Type.GetTypeCode(valueType)) {
+            switch (valueType.GetTypeCodeFast()) {
                 case TypeCode.Byte:
                 case TypeCode.SByte:
                 case TypeCode.Char:
