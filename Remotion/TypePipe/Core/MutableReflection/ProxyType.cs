@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   /// <remarks>
   /// Avoid using the members <see cref="CustomType.UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/> in combination with
-  /// <see cref="ProxyType"/> instances. Use <see cref="CustomType.IsAssignableTo"/> instead.
+  /// <see cref="ProxyType"/> instances. Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
   /// </remarks>
   public class ProxyType : CustomType, IMutableInfo
   {

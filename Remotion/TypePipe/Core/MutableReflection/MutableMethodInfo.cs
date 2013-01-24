@@ -203,7 +203,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!MethodSignature.AreEqual (this, overriddenMethodBaseDefinition))
         throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
 
-      if (!_declaringType.IsAssignableTo (overriddenMethodBaseDefinition.DeclaringType))
+      if (!overriddenMethodBaseDefinition.DeclaringType.IsAssignableFromFast (_declaringType))
         throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
 
       if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)

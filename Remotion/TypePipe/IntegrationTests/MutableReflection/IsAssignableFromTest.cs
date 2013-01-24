@@ -63,17 +63,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    public void IsAssignableTo ()
+    public void IsAssignableFromFast ()
     {
-      Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
-      Assert.That (_proxyType.IsAssignableTo (typeof (object)), Is.True);
-      Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
-      Assert.That (_proxyType.IsAssignableTo (typeof (IAddedInterface)), Is.False);
-      Assert.That (_proxyType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
+      Assert.That (_proxyType.IsAssignableFromFast (_proxyType), Is.True);
+      Assert.That (typeof (object).IsAssignableFromFast (_proxyType), Is.True);
+      Assert.That (typeof (DomainType).IsAssignableFromFast (_proxyType), Is.True);
+      Assert.That (_proxyType.IsAssignableFromFast (typeof (DomainType)), Is.False);
+      Assert.That (typeof (IDomainInterface).IsAssignableFromFast (_proxyType), Is.True);
+      Assert.That (typeof (IAddedInterface).IsAssignableFromFast (_proxyType), Is.False);
+      Assert.That (typeof (UnrelatedType).IsAssignableFromFast (_proxyType), Is.False);
 
       _proxyType.AddInterface (typeof (IAddedInterface));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IAddedInterface)), Is.True);
+      Assert.That (typeof (IAddedInterface).IsAssignableFromFast (_proxyType), Is.True);
     }
 
     [Test]

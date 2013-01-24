@@ -15,12 +15,15 @@
 // under the License.
 // 
 using System;
+using System.Diagnostics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using System.Dynamic.Utils;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// <see cref="Type"/> extension methods that are useful when working with <see cref="ProxyType"/>s.
+  /// <see cref="Type"/> extension methods that are useful when working in the <see cref="Remotion.TypePipe.MutableReflection"/> domain.
   /// </summary>
   public static class TypeExtensions
   {
@@ -31,6 +34,30 @@ namespace Remotion.TypePipe.MutableReflection
       // ReSharper disable PossibleMistakenCallToGetType.2
       return type.GetType().FullName == "System.RuntimeType";
       // ReSharper restore PossibleMistakenCallToGetType.2
+    }
+
+    /// <summary>
+    /// Determines whether an instance of the current <see cref="Type"/> can be assigned from an instance of the specified type.
+    /// Use this as an replacement for <see cref="Type.IsAssignableFrom"/>.
+    /// </summary>
+    /// <param name="toType">The current type, i.e., the left-hand side of the assignment.</param>
+    /// <param name="fromType">The other type, i.e., the right-hand side of the assignment.</param>
+    /// <returns><c>true</c> if this type is "assignable from" the specified type; <c>false</c> otherwise.</returns>
+    public static bool IsAssignableFromFast (this Type toType, Type fromType)
+    {
+      ArgumentUtility.CheckNotNull ("toType", toType);
+      ArgumentUtility.CheckNotNull ("fromType", fromType);
+
+      // CustomTypes are only assignable from themselves.
+      if (toType is CustomType)
+        return toType == fromType;
+
+      // 1) The base type of the CustomType may be assignable to the other type.
+      // 2) The implemented interfaces of the CustomType may be assignable to the other interface.
+      if (fromType is CustomType)
+        return toType.IsAssignableFrom (fromType.BaseType) || fromType.GetInterfaces().Any (toType.IsAssignableFrom);
+
+      return toType.IsAssignableFrom (fromType);
     }
   }
 }

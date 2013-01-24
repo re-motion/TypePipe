@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   /// <remarks>
   /// Avoid using the members <see cref="UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/>.
-  /// Use <see cref="CustomType.IsAssignableTo"/> instead.
+  /// Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
   /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <summary>
     /// Returns a dummy representation of the underlying system type. Do not use the returned type for any kind of analysis. Accessing this property
     /// may cause significant overhead. It is only implemented as internal parts of <see cref="System.Reflection"/> depend on it.
-    /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="IsAssignableTo"/> instead.
+    /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
     /// </summary>
     /// <returns> A dummy representation of the underlying system type for the <see cref="CustomType"/>.</returns>
     public override Type UnderlyingSystemType
@@ -168,22 +168,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override int GetHashCode ()
     {
       return RuntimeHelpers.GetHashCode (this);
-    }
-
-    // TODO Review: Refactor to IsAssignableFromFast extension method on Type. If the right side is a CustomType, use this logic, else use standard
-    // IsAssignableFrom. Change whole TypePipe project to use this method in favor of IsAssignableFrom. Check integration tests - assert that no
-    // underlying type is generated. Integration test requiring underlying types must opt in.
-    /// <summary>
-    /// Determines whether an instance of the current <see cref="Type"/> can be assigned to an instance of the specified type.
-    /// Use this as an replacement for <see cref="Type.IsAssignableFrom"/>.
-    /// </summary>
-    /// <param name="type">The type to compare with the current type. </param>
-    /// <returns><c>true</c> if this type is "assignable to" the specified type; <c>false</c> otherwise.</returns>
-    public bool IsAssignableTo (Type type)
-    {
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      return ReferenceEquals (type, this) || type.IsAssignableFrom (_baseType) || GetAllInterfaces().Any (type.IsAssignableFrom);
     }
 
     public override Type GetElementType ()

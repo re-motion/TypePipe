@@ -173,21 +173,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void IsAssignableTo ()
-    {
-      Assert.That (_customType.IsAssignableTo (_customType), Is.True);
-
-      Assert.That (_customType.IsAssignableTo (_baseType), Is.True);
-      Assert.That (_customType.IsAssignableTo (typeof (object)), Is.True);
-
-      var @interface = _customType.Interfaces.Single();
-      Assert.That (_customType.IsAssignableTo (@interface), Is.True);
-
-      var unrelatedType = ReflectionObjectMother.GetSomeType();
-      Assert.That (_customType.IsAssignableTo (unrelatedType), Is.False);
-    }
-
-    [Test]
     public void GetElementType ()
     {
       Assert.That (_customType.GetElementType (), Is.Null);

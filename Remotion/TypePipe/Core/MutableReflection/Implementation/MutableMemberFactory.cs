@@ -173,7 +173,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsNotNull (baseMethod.DeclaringType);
 
       // ReSharper disable PossibleUnintendedReferenceComparison
-      if (!proxyType.IsAssignableTo (baseMethod.DeclaringType) || proxyType == baseMethod.DeclaringType)
+      if (!baseMethod.DeclaringType.IsAssignableFromFast (proxyType) || proxyType == baseMethod.DeclaringType)
       // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format (
