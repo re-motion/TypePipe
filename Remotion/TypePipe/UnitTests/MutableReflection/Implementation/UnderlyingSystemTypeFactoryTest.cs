@@ -48,7 +48,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (typeof (IComparable).IsAssignableFrom (result), Is.True);
     }
 
-    // TODO Review: Test showing that counter is necessary (generate two types)
+    [Test]
+    public void GetUnderlyingSystemType_GeneratesMultipleTypes_AvoidsNameClash ()
+    {
+      _factory.CreateUnderlyingSystemType (typeof (object), Type.EmptyTypes);
+      Assert.That (() => _factory.CreateUnderlyingSystemType (typeof (object), Type.EmptyTypes), Throws.Nothing);
+    }
 
     [Test]
     public void GetUnderlyingSystemType_AddEmptyDefaultCtor ()

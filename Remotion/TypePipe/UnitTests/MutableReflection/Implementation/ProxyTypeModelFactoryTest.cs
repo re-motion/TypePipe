@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       // This is not a mock because it is needed when copying the constructors.
       // TODO review
+      //_underlyingSystemTypeFactory = MockRepository.GenerateStrictMock<IUnderlyingSystemTypeFactory>();
       _underlyingSystemTypeFactory = new UnderlyingSystemTypeFactory();
 
       _factory = new ProxyTypeModelFactory (_underlyingSystemTypeFactory);
