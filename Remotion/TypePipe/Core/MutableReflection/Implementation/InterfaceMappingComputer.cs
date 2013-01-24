@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MethodInfo mostDerived = null;
       foreach (var method in candidates)
       {
-        if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFrom (method.DeclaringType))
+        if (mostDerived == null || mostDerived.DeclaringType.IsAssignableFromFast (method.DeclaringType))
           mostDerived = method;
       }
 

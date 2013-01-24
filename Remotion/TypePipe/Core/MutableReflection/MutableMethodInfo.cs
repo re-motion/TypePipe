@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
-      Assertion.IsTrue (body == null || returnType.IsAssignableFrom (body.Type));
+      Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
 
       var paras = parameters.ConvertToCollection();
 

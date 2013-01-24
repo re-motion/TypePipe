@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private static object[] GetCustomAttributes (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
       var attributes = customAttributeDatas
-          .Where (a => attributeType.IsAssignableFrom (a.Type))
+          .Where (a => attributeType.IsAssignableFromFast (a.Type))
           .Select (a => a.CreateInstance())
           .ToList();
 
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private static bool IsDefined (IEnumerable<ICustomAttributeData> customAttributeDatas, Type attributeType)
     {
-      return customAttributeDatas.Any (a => attributeType.IsAssignableFrom (a.Type));
+      return customAttributeDatas.Any (a => attributeType.IsAssignableFromFast (a.Type));
     }
   }
 }

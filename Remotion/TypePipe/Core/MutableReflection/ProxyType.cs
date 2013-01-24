@@ -381,7 +381,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       return type.IsSealed
              || type.IsInterface
-             || typeof (Delegate).IsAssignableFrom (type)
+             || typeof (Delegate).IsAssignableFromFast (type)
              || type.ContainsGenericParameters
              || !HasAccessibleConstructor (type);
     }
