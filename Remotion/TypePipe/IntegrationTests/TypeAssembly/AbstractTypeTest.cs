@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -34,7 +35,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<AbstractTypeWithoutMethods> (
           proxyType =>
           {
-            Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
+            Assertion.IsNotNull (proxyType.BaseType);
+            Assert.That (proxyType.BaseType.IsAbstract, Is.True);
             Assert.That (proxyType.IsAbstract, Is.False);
           });
 

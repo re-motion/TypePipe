@@ -18,19 +18,19 @@
 using System;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   public static class ProxyTypeObjectMother
   {
-    private static readonly ProxyTypeModelFactory s_proxyTypeModelFactory = new ProxyTypeModelFactory (new UnderlyingTypeFactory());
-
-    public static ProxyType Create (Type baseType)
+    public static ProxyType Create (Type baseType = null, IUnderlyingTypeFactory underlyingTypeFactory = null)
     {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      baseType = baseType ?? typeof (UnspecifiedType);
+      underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
 
-      return s_proxyTypeModelFactory.CreateProxyType (baseType);
+      return new ProxyTypeModelFactory (underlyingTypeFactory).CreateProxyType (baseType);
     }
+
+    public class UnspecifiedType { }
   }
 }

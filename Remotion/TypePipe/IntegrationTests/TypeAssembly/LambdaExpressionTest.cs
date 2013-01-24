@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       base.SetUp ();
 
+      AllowUnderlyingSystemTypeAccess();
+
       _invokeLambda = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InvokeLambda (7));
       _returnLambda = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ReturnLambda (7));
     }

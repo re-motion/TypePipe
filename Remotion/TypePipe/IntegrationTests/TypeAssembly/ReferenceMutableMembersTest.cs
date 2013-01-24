@@ -36,12 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (Type),
               ParameterDeclaration.EmptyParameters,
-              ctx =>
-              {
-                Assert.That (proxyType.UnderlyingSystemType, Is.InstanceOf<Type>().And.Not.TypeOf<ProxyType>());
-
-                return Expression.Constant (proxyType, typeof (Type));
-              }));
+              ctx => Expression.Constant (proxyType, typeof (Type))));
 
       var result = type.InvokeMember ("NewMethod", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
 

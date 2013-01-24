@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType), new UnderlyingTypeFactory());
     }
 
     [Test]
