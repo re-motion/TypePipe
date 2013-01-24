@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
     private readonly IMemberSelector _memberSelector;
-    private readonly IUnderlyingSystemTypeFactory _underlyingSystemTypeFactory;
+    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
 
     private readonly Type _declaringType;
     private readonly Type _baseType;
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected CustomType (
         IMemberSelector memberSelector,
-        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
+        IUnderlyingTypeFactory underlyingTypeFactory,
         Type declaringType,
         Type baseType,
         string name,
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string fullName)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       // Declaring type may be null (for non-nested types).
       ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _memberSelector = memberSelector;
-      _underlyingSystemTypeFactory = underlyingSystemTypeFactory;
+      _underlyingTypeFactory = underlyingTypeFactory;
       _declaringType = declaringType;
       _baseType = baseType;
       _name = name;
@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         if (_underlyingSystemType == null)
         {
           var newInterfaces = GetAllInterfaces().Except (_baseType.GetInterfaces());
-          _underlyingSystemType = _underlyingSystemTypeFactory.CreateUnderlyingSystemType (_baseType, newInterfaces);
+          _underlyingSystemType = _underlyingTypeFactory.CreateUnderlyingSystemType (_baseType, newInterfaces);
         }
 
         return _underlyingSystemType;

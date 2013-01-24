@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using JetBrains.Annotations;
 using NUnit.Framework;
@@ -22,11 +23,10 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.StrongNaming;
-using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.StrongNaming
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class StrongNameCheckingEmittableOperandProviderDecoratorTest
@@ -112,18 +112,22 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void DelegatingMembers ()
     {
-      var proxyType = ProxyTypeObjectMother.Create();
-      var mutableField = MutableFieldInfoObjectMother.Create();
-      var mutableConstructor = MutableConstructorInfoObjectMother.Create();
-      var mutableMethod = MutableMethodInfoObjectMother.Create();
+      var mappedType = ProxyTypeObjectMother.Create();
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      var mappedField = MutableFieldInfoObjectMother.Create();
+      var mappedConstructor = MutableConstructorInfoObjectMother.Create();
+      var mappedMethod = MutableMethodInfoObjectMother.Create();
+
+      var emittableField = ReflectionObjectMother.GetSomeField();
+      var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
+      var emittableMethod = ReflectionObjectMother.GetSomeMethod();
 
       var helper = new DecoratorTestHelper<IEmittableOperandProvider> (_decorator, _innerMock);
 
-      helper.CheckDelegation (d => d.AddMapping (proxyType, proxyType.UnderlyingSystemType));
-      // TODO
-      //helper.CheckDelegation (d => d.AddMapping (mutableField, mutableField.UnderlyingSystemFieldInfo));
-      //helper.CheckDelegation (d => d.AddMapping (mutableConstructor, mutableConstructor.UnderlyingSystemConstructorInfo));
-      //helper.CheckDelegation (d => d.AddMapping (mutableMethod, mutableMethod.UnderlyingSystemMethodInfo));
+      helper.CheckDelegation (d => d.AddMapping (mappedType, emittableType));
+      helper.CheckDelegation (d => d.AddMapping (mappedField, emittableField));
+      helper.CheckDelegation (d => d.AddMapping (mappedConstructor, emittableConstructor));
+      helper.CheckDelegation (d => d.AddMapping (mappedMethod, emittableMethod));
     }
 
     private void CheckGetEmittable<T> (Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc, T operand, T emittableOperand, Type checkedType)

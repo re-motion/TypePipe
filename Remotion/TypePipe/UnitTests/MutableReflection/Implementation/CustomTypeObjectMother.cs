@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     public static CustomType Create (
         IMemberSelector memberSelector = null,
-        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory = null,
+        IUnderlyingTypeFactory underlyingTypeFactory = null,
         Type declaringType = null,
         Type baseType = null,
         string name = "CustomType",
@@ -39,11 +39,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<MethodInfo> methods = null)
     {
       memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
-      underlyingSystemTypeFactory = underlyingSystemTypeFactory ?? MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>();
+      underlyingTypeFactory = underlyingTypeFactory ?? MockRepository.GenerateStub<IUnderlyingTypeFactory>();
       // Declaring type stays null.
       baseType = baseType ?? typeof (UnspecifiedType);
 
-      var customType = new TestableCustomType (memberSelector, underlyingSystemTypeFactory, declaringType, baseType, name, @namespace, fullName);
+      var customType = new TestableCustomType (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName);
       customType.Interfaces = interfaces ?? Type.EmptyTypes;
       customType.Fields = fields ?? new FieldInfo[0];
       customType.Constructors = constructors ?? new ConstructorInfo[0];

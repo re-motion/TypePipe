@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// the <see cref="CustomType.UnderlyingSystemType"/> property.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="CustomType"/>.</remarks>
-  [ConcreteImplementation (typeof (UnderlyingSystemTypeFactory))]
-  public interface IUnderlyingSystemTypeFactory
+  [ConcreteImplementation (typeof (UnderlyingTypeFactory))]
+  public interface IUnderlyingTypeFactory
   {
     Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces);
   }

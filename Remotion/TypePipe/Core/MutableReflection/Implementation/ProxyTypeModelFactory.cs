@@ -28,15 +28,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class ProxyTypeModelFactory : IProxyTypeModelFactory
   {
-    private readonly IUnderlyingSystemTypeFactory _underlyingSystemTypeFactory;
+    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
 
     private int _counter;
 
-    public ProxyTypeModelFactory (IUnderlyingSystemTypeFactory underlyingSystemTypeFactory)
+    public ProxyTypeModelFactory (IUnderlyingTypeFactory underlyingTypeFactory)
     {
-      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
 
-      _underlyingSystemTypeFactory = underlyingSystemTypeFactory;
+      _underlyingTypeFactory = underlyingTypeFactory;
     }
 
     public ProxyType CreateProxyType (Type baseType)
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var proxyType = new ProxyType (
           memberSelector,
-          _underlyingSystemTypeFactory,
+          _underlyingTypeFactory,
           baseType,
           name,
           baseType.Namespace,

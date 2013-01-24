@@ -23,14 +23,14 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class UnderlyingSystemTypeFactoryTest
+  public class UnderlyingTypeFactoryTest
   {
-    private UnderlyingSystemTypeFactory _factory;
+    private UnderlyingTypeFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
-      _factory = new UnderlyingSystemTypeFactory();
+      _factory = new UnderlyingTypeFactory();
     }
 
     [Test]

@@ -157,9 +157,10 @@
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
     <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\IUnderlyingSystemTypeFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\IUnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\UnderlyingSystemTypeFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />

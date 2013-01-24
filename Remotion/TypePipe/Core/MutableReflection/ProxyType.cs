@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ProxyType (
         IMemberSelector memberSelector,
-        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
+        IUnderlyingTypeFactory underlyingTypeFactory,
         Type baseType,
         string name,
         string @namespace,
@@ -63,9 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, underlyingSystemTypeFactory, null, baseType, name, @namespace, fullName)
+        : base (memberSelector, underlyingTypeFactory, null, baseType, name, @namespace, fullName)
     {
-      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
       Assertion.IsTrue (baseType.IsRuntimeType());

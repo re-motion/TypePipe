@@ -23,6 +23,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -42,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType), underlyingTypeFactory: new UnderlyingTypeFactory());
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType, emittableOperandProvider: _emittableOperandProviderMock);
       _methodTrampolineProviderMock = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();

@@ -25,9 +25,9 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IUnderlyingSystemTypeFactory"/> by creating new runtime types from <see cref="TypeBuilder"/> objects.
+  /// Implements <see cref="IUnderlyingTypeFactory"/> by creating new runtime types from <see cref="TypeBuilder"/> objects.
   /// </summary>
-  public class UnderlyingSystemTypeFactory : IUnderlyingSystemTypeFactory
+  public class UnderlyingTypeFactory : IUnderlyingTypeFactory
   {
     // Generated lazily, on demand.
     private ModuleBuilder _moduleBuilder;

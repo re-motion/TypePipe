@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var proxyType = new ProxyType (
           _memberSelectorMock,
-          MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>(),
+          MockRepository.GenerateStub<IUnderlyingTypeFactory>(),
           baseType,
           name,
           @namespace,
@@ -140,12 +140,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddCustomAttribute_Serializable ()
     {
+      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory ());
       _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (_proxyType.IsSerializable, Is.False);
+      Assert.That (proxyType.IsSerializable, Is.False);
 
-      _proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
+      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
 
-      Assert.That (_proxyType.IsSerializable, Is.True);
+      Assert.That (proxyType.IsSerializable, Is.True);
     }
 
     [Test]
@@ -199,8 +200,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface_InvalidatesUnderlyingSystemType ()
     {
-      var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingSystemTypeFactory>();
-      var proxyType = ProxyTypeObjectMother.Create (underlyingSystemTypeFactory: underlyingSystemTypeFactoryMock);
+      var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory>();
+      var proxyType = ProxyTypeObjectMother.Create (underlyingTypeFactory: underlyingSystemTypeFactoryMock);
       var interfaces = proxyType.GetInterfaces();
       underlyingSystemTypeFactoryMock
           .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces)))
@@ -443,7 +444,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       proxyType.AddMethod (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
 
       Assert.That (proxyType.IsAbstract, Is.False);
-      Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
+      Assert.That (proxyType.BaseType.IsAbstract, Is.True);
       Assert.That (proxyType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
     }
 

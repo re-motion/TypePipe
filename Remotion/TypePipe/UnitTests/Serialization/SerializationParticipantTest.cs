@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -108,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), memberSelector: null);
+      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), underlyingTypeFactory: new UnderlyingTypeFactory ());
 
       _participant.ModifyType (proxyType);
 
