@@ -21,6 +21,7 @@ using System.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -177,7 +178,7 @@ namespace System.Linq.Expressions.Compiler {
             }
 
             expr = node.Expression;
-            if (typeof(LambdaExpression).IsAssignableFrom(expr.Type)) {
+            if (typeof(LambdaExpression).IsAssignableFromFast(expr.Type)) {
                 // if the invoke target is a lambda expression tree, first compile it into a delegate
                 expr = Expression.Call(expr, expr.Type.GetMethod("Compile", new Type[0]));
             }

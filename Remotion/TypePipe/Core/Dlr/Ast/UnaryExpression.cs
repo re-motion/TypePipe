@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -771,7 +772,7 @@ namespace System.Linq.Expressions {
         ///<paramref name="array" />.Type does not represent an array type.</exception>
         public static UnaryExpression ArrayLength(Expression array) {
             ContractUtils.RequiresNotNull(array, "array");
-            if (!array.Type.IsArray || !typeof(Array).IsAssignableFrom(array.Type)) {
+            if (!array.Type.IsArray || !typeof(Array).IsAssignableFromFast(array.Type)) {
                 throw Error.ArgumentMustBeArray();
             }
             if (array.Type.GetArrayRank() != 1) {

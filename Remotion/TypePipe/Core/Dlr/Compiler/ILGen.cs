@@ -20,6 +20,7 @@ using System.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -621,8 +622,8 @@ namespace System.Linq.Expressions.Compiler {
                 il.EmitNullableConversion(typeFrom, typeTo, isChecked);
             } else if (!(TypeUtils.IsConvertible(typeFrom) && TypeUtils.IsConvertible(typeTo)) // primitive runtime conversion
                        &&
-                       (nnExprType.IsAssignableFrom(nnType) || // down cast
-                       nnType.IsAssignableFrom(nnExprType))) // up cast
+                       (nnExprType.IsAssignableFromFast(nnType) || // down cast
+                       nnType.IsAssignableFromFast(nnExprType))) // up cast
             {
                 il.EmitCastToType(typeFrom, typeTo);
             } else if (typeFrom.IsArray && typeTo.IsArray) {

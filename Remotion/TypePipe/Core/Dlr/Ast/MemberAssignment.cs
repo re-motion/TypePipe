@@ -16,6 +16,7 @@
 using System;
 using System.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -72,7 +73,7 @@ namespace System.Linq.Expressions {
             RequiresCanRead(expression, "expression");
             Type memberType;
             ValidateSettableFieldOrPropertyMember(member, out memberType);
-            if (!memberType.IsAssignableFrom(expression.Type)) {
+            if (!memberType.IsAssignableFromFast(expression.Type)) {
                 throw Error.ArgumentTypesMustMatch();
             }
             return new MemberAssignment(member, expression);

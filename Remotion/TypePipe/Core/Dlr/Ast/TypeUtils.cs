@@ -25,6 +25,7 @@ using System.Core;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace System.Dynamic.Utils {
   public static class TypeUtils {
@@ -160,7 +161,7 @@ namespace System.Dynamic.Utils {
             if (AreEquivalent(dest, src)) {
                 return true;
             }
-            if (!dest.IsValueType && !src.IsValueType && dest.IsAssignableFrom(src)) {
+            if (!dest.IsValueType && !src.IsValueType && dest.IsAssignableFromFast(src)) {
                 return true;
             }
             return false;
@@ -236,11 +237,11 @@ namespace System.Dynamic.Utils {
             Type nnDestType = TypeUtils.GetNonNullableType(dest);
 
             // Down conversion
-            if (nnSourceType.IsAssignableFrom(nnDestType)) {
+            if (nnSourceType.IsAssignableFromFast(nnDestType)) {
                 return true;
             }
             // Up conversion
-            if (nnDestType.IsAssignableFrom(nnSourceType)) {
+            if (nnDestType.IsAssignableFromFast(nnSourceType)) {
                 return true;
             }
             // Interface conversion
@@ -583,7 +584,7 @@ namespace System.Dynamic.Utils {
         }
 
         private static bool IsImplicitReferenceConversion(Type source, Type destination) {
-            return destination.IsAssignableFrom(source);
+            return destination.IsAssignableFromFast(source);
         }
 
         private static bool IsImplicitBoxingConversion(Type source, Type destination) {

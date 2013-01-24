@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -123,14 +124,14 @@ namespace System.Linq.Expressions.Compiler {
             if (b.Conversion != null) {
                 Debug.Assert(b.Conversion.Parameters.Count == 1);
                 ParameterExpression p = b.Conversion.Parameters[0];
-                Debug.Assert(p.Type.IsAssignableFrom(b.Left.Type) ||
-                             p.Type.IsAssignableFrom(nnLeftType));
+                Debug.Assert(p.Type.IsAssignableFromFast(b.Left.Type) ||
+                             p.Type.IsAssignableFromFast(nnLeftType));
 
                 // emit the delegate instance
                 EmitLambdaExpression(b.Conversion);
 
                 // emit argument
-                if (!p.Type.IsAssignableFrom(b.Left.Type)) {
+                if (!p.Type.IsAssignableFromFast(b.Left.Type)) {
                     _ilg.Emit(OpCodes.Ldloca, loc);
                     _ilg.EmitGetValueOrDefault(b.Left.Type);
                 } else {

@@ -16,6 +16,7 @@
 using System;
 using System.Diagnostics;
 using System.Dynamic.Utils;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -129,7 +130,7 @@ namespace System.Linq.Expressions {
             if (value == null && type.IsValueType && !TypeUtils.IsNullableType(type)) {
                 throw Error.ArgumentTypesMustMatch();
             }
-            if (value != null && !type.IsAssignableFrom(value.GetType())) {
+            if (value != null && !type.IsAssignableFromFast(value.GetType())) {
                 throw Error.ArgumentTypesMustMatch();
             }
             return ConstantExpression.Make(value, type);

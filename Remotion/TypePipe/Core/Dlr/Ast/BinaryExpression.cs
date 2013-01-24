@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -1336,7 +1337,7 @@ namespace System.Linq.Expressions {
             }
 
             Type delegateType = conversion.Type;
-            Debug.Assert(typeof(System.MulticastDelegate).IsAssignableFrom(delegateType) && delegateType != typeof(System.MulticastDelegate));
+            Debug.Assert(typeof(System.MulticastDelegate).IsAssignableFromFast(delegateType) && delegateType != typeof(System.MulticastDelegate));
             MethodInfo method = delegateType.GetMethod("Invoke");
             if (method.ReturnType == typeof(void)) {
                 throw Error.UserDefinedOperatorMustNotBeVoid(conversion);
@@ -1473,7 +1474,7 @@ namespace System.Linq.Expressions {
 
         private static void ValidateOpAssignConversionLambda(LambdaExpression conversion, Expression left, MethodInfo method, ExpressionType nodeType) {
             Type delegateType = conversion.Type;
-            Debug.Assert(typeof(System.MulticastDelegate).IsAssignableFrom(delegateType) && delegateType != typeof(System.MulticastDelegate));
+            Debug.Assert(typeof(System.MulticastDelegate).IsAssignableFromFast(delegateType) && delegateType != typeof(System.MulticastDelegate));
             MethodInfo mi = delegateType.GetMethod("Invoke");
             ParameterInfo[] pms = mi.GetParametersCached();
             Debug.Assert(pms.Length == conversion.Parameters.Count);
