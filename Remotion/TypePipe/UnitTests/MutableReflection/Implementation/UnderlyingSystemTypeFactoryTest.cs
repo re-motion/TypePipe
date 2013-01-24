@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void GetUnderlyingSystemType ()
+    public void GetUnderlyingSystemType_GeneratesType_AssignableToBaseAndInterfaces ()
     {
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var interfaces = new[] { typeof (IDisposable), typeof (IComparable) };
@@ -47,6 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (typeof (IDisposable).IsAssignableFrom (result), Is.True);
       Assert.That (typeof (IComparable).IsAssignableFrom (result), Is.True);
     }
+
+    // TODO Review: Test showing that counter is necessary (generate two types)
 
     [Test]
     public void GetUnderlyingSystemType_AddEmptyDefaultCtor ()

@@ -39,9 +39,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       Assert.That (result.IsRuntimeType(), Is.True);
       Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (result));
+      Assert.That (typeof (DomainType).IsAssignableFrom (_proxyType.UnderlyingSystemType), Is.True);
+      Assert.That (typeof (IDomainInterface).IsAssignableFrom (_proxyType.UnderlyingSystemType), Is.True);
 
       _proxyType.AddInterface (typeof (IAddedInterface));
       Assert.That (_proxyType.UnderlyingSystemType, Is.Not.SameAs (result));
+      Assert.That (typeof (IAddedInterface).IsAssignableFrom (_proxyType.UnderlyingSystemType), Is.True);
     }
 
     [Test]

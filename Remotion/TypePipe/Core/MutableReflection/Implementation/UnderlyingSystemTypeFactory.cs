@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -28,12 +27,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Implements <see cref="IUnderlyingSystemTypeFactory"/> by creating new runtime types from <see cref="TypeBuilder"/> objects.
   /// </summary>
-  /// <remarks>
-  /// This class is used behind the <see cref="TypeCache"/>, therefore the incrementation of the <see cref="_counter"/> field does not need to be
-  /// guarded.
-  /// </remarks>
   public class UnderlyingSystemTypeFactory : IUnderlyingSystemTypeFactory
   {
+    // Generated lazily, on demand.
     private ModuleBuilder _moduleBuilder;
     private int _counter;
 
@@ -54,8 +50,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private ModuleBuilder CreateModuleBuilder ()
     {
-      // TODO 5057: Ensure that generated assembly can be garbace collected when switching to .NET 4.x.
-      var assemblyName = new AssemblyName ("UnderlyingSystemTypeFactory");
+      // TODO 5057: Ensure that generated assembly can be garbage collected when switching to .NET 4.x.
+      var assemblyName = new AssemblyName ("TypePipe.UnderlyingSystemTypes");
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
 

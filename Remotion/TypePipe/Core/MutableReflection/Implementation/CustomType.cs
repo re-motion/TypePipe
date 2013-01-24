@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// may cause significant overhead. It is only implemented as internal parts of <see cref="System.Reflection"/> depend on it.
     /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="IsAssignableTo"/> instead.
     /// </summary>
-    /// <returns> A dummy representation of the underlying system type for the Type.</returns>
+    /// <returns> A dummy representation of the underlying system type for the <see cref="CustomType"/>.</returns>
     public override Type UnderlyingSystemType
     {
       get
@@ -170,6 +170,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return RuntimeHelpers.GetHashCode (this);
     }
 
+    // TODO Review: Refactor to IsAssignableFromFast extension method on Type. If the right side is a CustomType, use this logic, else use standard
+    // IsAssignableFrom. Change whole TypePipe project to use this method in favor of IsAssignableFrom. Check integration tests - assert that no
+    // underlying type is generated. Integration test requiring underlying types must opt in.
     /// <summary>
     /// Determines whether an instance of the current <see cref="Type"/> can be assigned to an instance of the specified type.
     /// Use this as an replacement for <see cref="Type.IsAssignableFrom"/>.

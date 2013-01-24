@@ -109,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void UnderlyingSystemType ()
+    public void UnderlyingSystemType_GeneratedByFactoryOnDemand ()
     {
       var baseType = typeof (TypeWithMyInterface);
       var newInterface = ReflectionObjectMother.GetSomeInterfaceType();
@@ -117,26 +117,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var customType = CustomTypeObjectMother.Create (
           underlyingSystemTypeFactory: _underlyingSystemTypeFactoryMock, baseType: baseType, interfaces: allInterfaces);
 
-      var fakeType1 = ReflectionObjectMother.GetSomeType();
-      var fakeType2 = ReflectionObjectMother.GetSomeDifferentType();
+      var fakeUnderlyingType = ReflectionObjectMother.GetSomeType();
       _underlyingSystemTypeFactoryMock
           .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (baseType), Arg<IEnumerable<Type>>.List.Equivalent (newInterface)))
-          .Return (fakeType1).Repeat.Once();
-      _underlyingSystemTypeFactoryMock
-          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (baseType), Arg<IEnumerable<Type>>.List.Equivalent (newInterface)))
-          .Return (fakeType2).Repeat.Once();
+          .Return (fakeUnderlyingType).Repeat.Once();
 
-      var result1 = customType.UnderlyingSystemType;
-
-      Assert.That (result1, Is.SameAs (fakeType1));
-      Assert.That (customType.UnderlyingSystemType, Is.SameAs (result1), "Should be cached.");
-
-      PrivateInvoke.InvokeNonPublicMethod (customType, "InvalidateUnderlyingSystemType");
-
-      var result2 = customType.UnderlyingSystemType;
+      var result = customType.UnderlyingSystemType;
 
       _underlyingSystemTypeFactoryMock.VerifyAllExpectations();
-      Assert.That (result2, Is.SameAs (fakeType2));
+      Assert.That (result, Is.SameAs (fakeUnderlyingType));
+    }
+
+    [Test]
+    public void UnderlyingSystemType_IsCached ()
+    {
+      var fakeUnderlyingType = ReflectionObjectMother.GetSomeType ();
+      _underlyingSystemTypeFactoryMock
+          .Stub (mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
+          .Return (fakeUnderlyingType);
+
+      var result = _customType.UnderlyingSystemType;
+
+      Assert.That (_customType.UnderlyingSystemType, Is.SameAs (result), "Should be cached.");
+      _underlyingSystemTypeFactoryMock.AssertWasCalled (
+          mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything), o => o.Repeat.Once());
     }
 
     [Test]
@@ -299,6 +303,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void InvalidateUnderlyingSystemType_CausesRegenerationOfUnderlyingSystemType ()
+    {
+      var fakeUnderlyingType1 = ReflectionObjectMother.GetSomeType ();
+      var fakeUnderlyingType2 = ReflectionObjectMother.GetSomeDifferentType ();
+      _underlyingSystemTypeFactoryMock
+          .Stub (stub => stub.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
+          .Return (fakeUnderlyingType1).Repeat.Once ();
+
+      Dev.Null = _customType.UnderlyingSystemType;
+
+      PrivateInvoke.InvokeNonPublicMethod (_customType, "InvalidateUnderlyingSystemType");
+
+      _underlyingSystemTypeFactoryMock
+        .Stub (stub => stub.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
+        .Return (fakeUnderlyingType2);
+
+      var resultAfterInvalidation = _customType.UnderlyingSystemType;
+
+      _underlyingSystemTypeFactoryMock.AssertWasCalled (
+          mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything), o => o.Repeat.Twice ());
+      Assert.That (resultAfterInvalidation, Is.SameAs (fakeUnderlyingType2));
     }
 
     [Test]
