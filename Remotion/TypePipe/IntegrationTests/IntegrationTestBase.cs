@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateReflectionEmitTypeModifier");
+      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateSubclassProxyBuilder");
 
       var assemblyPath = _codeGenerator.FlushCodeToDisk();
       if (assemblyPath == null)

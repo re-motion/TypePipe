@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -34,20 +35,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   {
     private const BindingFlags c_allDeclared =
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
-
-    private bool _allowUnderlyingSystemTypeAccess;
-
-    public override void SetUp ()
-    {
-      base.SetUp ();
-
-      _allowUnderlyingSystemTypeAccess = false;
-    }
-
-    protected void AllowUnderlyingSystemTypeAccess ()
-    {
-      _allowUnderlyingSystemTypeAccess = true;
-    }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType<T> (params Action<ProxyType>[] participantActions)
@@ -99,9 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ProxyType>> participantActions)
     {
       var participants = participantActions.Select (CreateParticipant).AsOneTime();
-      var underlyingTypeFactory =
-          _allowUnderlyingSystemTypeAccess ? (IUnderlyingTypeFactory) new UnderlyingTypeFactory() : new ThrowingUnderlyingTypeFactory();
-      var proxyTypeModelFactory = new ProxyTypeModelFactory (underlyingTypeFactory);
+      var proxyTypeModelFactory = SafeServiceLocator.Current.GetInstance<IProxyTypeModelFactory>();
       var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
       var typeAssembler = new TypeAssembler (participants, proxyTypeModelFactory, subclassProxyBuilder);
 

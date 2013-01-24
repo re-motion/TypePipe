@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddCustomAttribute_Serializable ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory ());
+      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
       _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
       Assert.That (proxyType.IsSerializable, Is.False);
 

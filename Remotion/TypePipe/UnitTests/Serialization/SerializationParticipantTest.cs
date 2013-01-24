@@ -109,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), underlyingTypeFactory: new UnderlyingTypeFactory ());
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SomeType), underlyingTypeFactory: new UnderlyingTypeFactory());
 
       _participant.ModifyType (proxyType);
 
