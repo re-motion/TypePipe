@@ -25,6 +25,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -32,6 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
+    private ServiceLocatorScope _serviceLocatorScope;
     private List<string> _assembliesToDelete;
 
     private bool _skipSavingAndVerification;
@@ -42,12 +44,15 @@ namespace Remotion.TypePipe.IntegrationTests
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp ()
     {
+      _serviceLocatorScope = new ServiceLocatorScope (typeof (IUnderlyingTypeFactory), () => new ThrowingUnderlyingTypeFactory());
       _assembliesToDelete = new List<string>();
     }
 
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown ()
     {
+      _serviceLocatorScope.Dispose();
+
       foreach (var assembly in _assembliesToDelete)
       {
         File.Delete (assembly);
@@ -104,6 +109,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
       var method = stackFrame.GetMethod();
+      Assertion.IsNotNull (method.DeclaringType);
 
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
