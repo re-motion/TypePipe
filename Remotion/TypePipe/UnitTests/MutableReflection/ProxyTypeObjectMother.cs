@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class ProxyTypeObjectMother
   {
-    private static readonly ProxyTypeModelFactory s_factory = new ProxyTypeModelFactory();
+    private static readonly ProxyTypeModelFactory s_proxyTypeModelFactory = new ProxyTypeModelFactory (new UnderlyingSystemTypeFactory());
 
     public static ProxyType Create (
         Type baseType = null,
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private static void CopyConstructors (Type baseType, ProxyType proxyType)
     {
-      PrivateInvoke.InvokeNonPublicMethod (s_factory, "CopyConstructors", baseType, proxyType);
+      PrivateInvoke.InvokeNonPublicMethod (s_proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);
     }
 
     public class UnspecifiedType { }

@@ -32,6 +32,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   [TestFixture]
   public class ProxyTypeModelFactoryTest
   {
+    private IUnderlyingSystemTypeFactory _underlyingSystemTypeFactory;
+
     private ProxyTypeModelFactory _factory;
 
     private Type _domainType;
@@ -39,7 +41,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _factory = new ProxyTypeModelFactory();
+      // This is not a mock because it is needed when copying the constructors.
+      // TODO review
+      _underlyingSystemTypeFactory = new UnderlyingSystemTypeFactory();
+
+      _factory = new ProxyTypeModelFactory (_underlyingSystemTypeFactory);
 
       _domainType = typeof (DomainType);
     }
@@ -54,6 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (result.FullName, Is.EqualTo (@"Remotion.TypePipe.UnitTests.MutableReflection.Implementation.DomainType_Proxy1"));
       Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      Assert.That (PrivateInvoke.GetNonPublicField (result, "_underlyingSystemTypeFactory"), Is.SameAs (_underlyingSystemTypeFactory));
     }
 
     [Test]

@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
   public static class ProxyTypeObjectMother
   {
-    private static readonly ProxyTypeModelFactory s_proxyTypeModelFactory = new ProxyTypeModelFactory();
+    private static readonly ProxyTypeModelFactory s_proxyTypeModelFactory = new ProxyTypeModelFactory (new UnderlyingSystemTypeFactory());
 
     public static ProxyType Create (Type baseType)
     {

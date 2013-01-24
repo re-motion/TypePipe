@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -25,6 +26,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// the <see cref="CustomType.UnderlyingSystemType"/> property.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="CustomType"/>.</remarks>
+  [ConcreteImplementation (typeof (UnderlyingSystemTypeFactory))]
   public interface IUnderlyingSystemTypeFactory
   {
     Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces);

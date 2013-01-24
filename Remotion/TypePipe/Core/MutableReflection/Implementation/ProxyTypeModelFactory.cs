@@ -19,7 +19,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -27,13 +26,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Creates a <see cref="ProxyType"/> model for the given base type.
   /// </summary>
-  /// <remarks>
-  /// This class is used behind the <see cref="TypeCache"/>, therefore the incrementation of the <see cref="_counter"/> field does not need to be
-  /// guarded.
-  /// </remarks>
   public class ProxyTypeModelFactory : IProxyTypeModelFactory
   {
+    private readonly IUnderlyingSystemTypeFactory _underlyingSystemTypeFactory;
+
     private int _counter;
+
+    public ProxyTypeModelFactory (IUnderlyingSystemTypeFactory underlyingSystemTypeFactory)
+    {
+      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
+
+      _underlyingSystemTypeFactory = underlyingSystemTypeFactory;
+    }
 
     public ProxyType CreateProxyType (Type baseType)
     {
@@ -41,8 +45,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var relatedMethodFinder = new RelatedMethodFinder();
-      // TODO Review: Inject this.
-      var underlyingSystemTypeProvider = new UnderlyingSystemTypeFactory();
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
 
@@ -53,9 +55,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var proxyType = new ProxyType (
           memberSelector,
-          underlyingSystemTypeProvider,
+          _underlyingSystemTypeFactory,
           baseType,
-          name, baseType.Namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
+          name,
+          baseType.Namespace,
+          fullname,
+          attributes,
+          interfaceMappingComputer,
+          mutableMemberFactory);
 
       CopyConstructors (baseType, proxyType);
 
