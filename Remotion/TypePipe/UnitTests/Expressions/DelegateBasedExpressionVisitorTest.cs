@@ -60,5 +60,15 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       Assert.That (result, Is.SameAs (fakeExpression));
     }
+
+    [Test]
+    public void Visit_Null ()
+    {
+      var visitor = new DelegateBasedExpressionVisitor (exp => { Assert.Fail ("Should not be called."); return null; });
+
+      var result = visitor.Visit (node: null);
+
+      Assert.That (result, Is.Null);
+    }
   }
 }

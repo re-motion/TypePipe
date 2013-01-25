@@ -41,9 +41,10 @@ namespace Remotion.TypePipe.Expressions
 
     public override Expression Visit (Expression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
-
       var newNode = base.Visit (node);
+      if (newNode == null)
+        return null;
+
       return _expressionVisitorDelegate (newNode);
     }
   }
