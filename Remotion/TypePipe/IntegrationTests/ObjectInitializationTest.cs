@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.IntegrationTests
       var participant = CreateParticipant (
           proxyType =>
           {
-            Assert.That (proxyType.InstanceInitializations, Is.Empty);
+            Assert.That (proxyType.Initializations, Is.Empty);
 
             proxyType.AddInitialization (
                 ctx =>
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.IntegrationTests
                   return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
                 });
 
-            Assert.That (proxyType.InstanceInitializations, Is.Not.Empty);
+            Assert.That (proxyType.Initializations, Is.Not.Empty);
           });
 
       return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1, underlyingTypeFactory: new UnderlyingTypeFactory());

@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      if (proxyType.InstanceInitializations.Count == 0)
+      if (proxyType.Initializations.Count == 0)
         return null;
 
       proxyType.AddInterface (typeof (IInitializableObject));
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 
       var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      var body = Expression.Block (interfaceMethod.ReturnType, proxyType.InstanceInitializations);
+      var body = Expression.Block (interfaceMethod.ReturnType, proxyType.Initializations);
       var initializationMethod = proxyType.AddExplicitOverride (interfaceMethod, ctx => body);
 
       return Tuple.Create<FieldInfo, MethodInfo> (counter, initializationMethod);

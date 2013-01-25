@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.FullName, Is.EqualTo (fullname));
 
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
-      Assert.That (proxyType.InstanceInitializations, Is.Empty);
+      Assert.That (proxyType.Initializations, Is.Empty);
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedFields, Is.Empty);
       Assert.That (proxyType.AddedConstructors, Is.Empty);
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _proxyType.AddInitialization (initializationProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
-      Assert.That (_proxyType.InstanceInitializations, Is.EqualTo (new[] { fakeExpression }));
+      Assert.That (_proxyType.Initializations, Is.EqualTo (new[] { fakeExpression }));
     }
 
     [Test]

@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _typeInitializer; }
     }
 
-    public ReadOnlyCollection<Expression> InstanceInitializations
+    public ReadOnlyCollection<Expression> Initializations
     {
       get { return _initializations.AsReadOnly(); }
     }
@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </para>
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>
-    /// <seealso cref="InstanceInitializations"/>
+    /// <seealso cref="Initializations"/>
     public void AddInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
