@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -921,7 +922,7 @@ namespace System.Linq.Expressions {
             if (SilverlightQuirks) quoteable = typeof(Expression);
 #endif
             if (TypeUtils.IsSameOrSubclass(quoteable, parameterType) &&
-                parameterType.IsAssignableFrom(argument.GetType())) {
+                parameterType.IsAssignableFromFast(argument.GetType())) {
                 argument = Expression.Quote(argument);
                 return true;
             }
@@ -983,7 +984,7 @@ namespace System.Linq.Expressions {
                     pType = pType.GetElementType();
                 }
                 if (!TypeUtils.AreReferenceAssignable(pType, argType) &&
-                    !(TypeUtils.IsSameOrSubclass(typeof(LambdaExpression), pType) && pType.IsAssignableFrom(arg.GetType()))) {
+                    !(TypeUtils.IsSameOrSubclass(typeof(LambdaExpression), pType) && pType.IsAssignableFromFast(arg.GetType()))) {
                     return false;
                 }
             }

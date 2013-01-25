@@ -23,6 +23,7 @@ using System.Reflection.Emit;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -509,7 +510,7 @@ namespace System.Linq.Expressions {
             ContractUtils.RequiresNotNull(delegateType, "delegateType");
             //RequiresCanRead(body, "body");
 
-            if (!typeof(MulticastDelegate).IsAssignableFrom(delegateType) || delegateType == typeof(MulticastDelegate)) {
+            if (!typeof(MulticastDelegate).IsAssignableFromFast(delegateType) || delegateType == typeof(MulticastDelegate)) {
                 throw Error.LambdaTypeMustBeDerivedFromSystemDelegate();
             }
 

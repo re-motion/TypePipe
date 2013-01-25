@@ -28,6 +28,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -57,9 +58,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enabler = new ProxySerializationEnabler (_serializableFieldFinderMock);
 
-      _someProxy = ProxyTypeObjectMother.Create (typeof (SomeType));
+      // Type.IsSerializable internally accesses the UnderlyingSystemType property.
+      var realUnderlyingTypeFactory = new UnderlyingTypeFactory();
+
+      _someProxy = ProxyTypeObjectMother.Create (typeof (SomeType), underlyingTypeFactory: realUnderlyingTypeFactory);
       _serializableProxy = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
-      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: true);
+      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (
+          typeof (SerializableInterfaceType), copyCtorsFromBase: true, underlyingTypeFactory: realUnderlyingTypeFactory);
       _deserializationCallbackProxy = ProxyTypeObjectMother.Create (typeof (DeserializationCallbackType));
       _serializableInterfaceWithDeserializationCallbackProxy =
           ProxyTypeObjectMother.Create (baseType: typeof (SerializableWithDeserializationCallbackType), attributes: TypeAttributes.Serializable);
@@ -228,7 +233,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SerializableInterfaceType), copyCtorsFromBase: false);
+      var proxyType = ProxyTypeObjectMother.Create (
+          typeof (SerializableInterfaceType), copyCtorsFromBase: false, underlyingTypeFactory: new UnderlyingTypeFactory ());
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
@@ -285,31 +291,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (new[] { Tuple.Create<string, FieldInfo> ("someField", MutableFieldInfoObjectMother.Create (declaringType)) });
     }
 
-    class SomeType { }
+    public class SomeType { }
 
-    class SerializableInterfaceType : ISerializable
+    public class SerializableInterfaceType : ISerializable
     {
       public SerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       public virtual void GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    class DeserializationCallbackType : IDeserializationCallback
+    public class DeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
     }
 
-    class SerializableWithDeserializationCallbackType : IDeserializationCallback
+    public class SerializableWithDeserializationCallbackType : IDeserializationCallback
     {
       public virtual void OnDeserialization (object sender) { }
     }
 
-    class ExplicitSerializableInterfaceType : ISerializable
+    public class ExplicitSerializableInterfaceType : ISerializable
     {
       public ExplicitSerializableInterfaceType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
-    class ExplicitDeserializationCallbackType : IDeserializationCallback
+    public class ExplicitDeserializationCallbackType : IDeserializationCallback
     {
       void IDeserializationCallback.OnDeserialization (object sender) { }
     }

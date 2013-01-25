@@ -31,6 +31,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Dynamic.Utils;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 namespace System.Dynamic {
     /// <summary>
@@ -283,7 +284,7 @@ namespace System.Dynamic {
         private static readonly Type ComObjectType = typeof(object).Assembly.GetType("System.__ComObject");
         private static bool IsComObject(object obj) {
             // we can't use System.Runtime.InteropServices.Marshal.IsComObject(obj) since it doesn't work in partial trust
-            return obj != null && ComObjectType.IsAssignableFrom(obj.GetType());
+            return obj != null && ComObjectType.IsAssignableFromFast(obj.GetType());
         }
 #endif
 

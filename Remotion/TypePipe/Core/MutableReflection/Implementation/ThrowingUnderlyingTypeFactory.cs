@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,21 +16,18 @@
 // 
 
 using System;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
+using System.Collections.Generic;
 
-namespace Remotion.TypePipe.IntegrationTests.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  public static class ProxyTypeObjectMother
+  /// <summary>
+  /// Throws an exception when <see cref="CreateUnderlyingSystemType"/> is invoked.
+  /// </summary>
+  public class ThrowingUnderlyingTypeFactory : IUnderlyingTypeFactory
   {
-    public static ProxyType Create (Type baseType = null, IUnderlyingTypeFactory underlyingTypeFactory = null)
+    public Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces)
     {
-      baseType = baseType ?? typeof (UnspecifiedType);
-      underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
-
-      return new ProxyTypeModelFactory (underlyingTypeFactory).CreateProxyType (baseType);
+      throw new NotSupportedException ("ThrowingUnderlyingTypeFactory.CreateUnderlyingSystemType was invoked.");
     }
-
-    public class UnspecifiedType { }
   }
 }

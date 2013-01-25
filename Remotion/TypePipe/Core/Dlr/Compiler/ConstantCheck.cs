@@ -16,6 +16,7 @@
 using System;
 using System.Diagnostics;
 using System.Dynamic.Utils;
+using Remotion.TypePipe.MutableReflection;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast {
@@ -84,7 +85,7 @@ namespace System.Linq.Expressions {
             // Type.IsInstanceOfType, and the isinst instruction were all
             // equivalent when used against a live object
             //
-            if (nnTestType.IsAssignableFrom(nnOperandType)) {
+            if (nnTestType.IsAssignableFromFast(nnOperandType)) {
                 // If the operand is a value type (other than nullable), we
                 // know the result is always true.
                 if (operandType.IsValueType && !operandType.IsNullableType()) {

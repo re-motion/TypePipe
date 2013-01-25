@@ -272,7 +272,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.VerifyAllExpectations ();
     }
 
-    class DomainType
+    public class DomainType
     {
       public virtual string ExplicitBaseDefinition (int i, out double d) { Dev.Null = i; d = Dev<double>.Null; return ""; }
     }

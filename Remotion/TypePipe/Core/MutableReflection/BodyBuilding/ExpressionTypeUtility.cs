@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (expectedType == typeof (void))
         return Expression.Block (typeof (void), expression);
 
-      if (expectedType.IsAssignableFrom (expression.Type))
+      if (expectedType.IsAssignableFromFast (expression.Type))
       {
         if (expression.Type.IsValueType)
           return Expression.Convert (expression, expectedType);

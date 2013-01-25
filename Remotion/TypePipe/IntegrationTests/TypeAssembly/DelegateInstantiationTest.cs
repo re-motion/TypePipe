@@ -77,7 +77,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckDelegateInstantiation (typeof (Func<string>), targetMethod, expectedDelegateTargetMethod, expectedReturnValue: "derived");
     }
 
-    [Ignore ("TODO 5354")]
     [Test]
     public void CreateVirtualFunc_PreventsMultipleExecutionOfSideEffects ()
     {
@@ -146,7 +145,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public void VoidMethod () { Field = "void method"; }
       public override string VirtualMethod () { return "derived"; }
 
-      public BaseType SideEffectMethod ()
+      public DerivedType SideEffectMethod ()
       {
         SideEffectCounter++;
         return this;

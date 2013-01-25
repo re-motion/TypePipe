@@ -20,6 +20,7 @@ using System.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -167,7 +168,7 @@ namespace System.Linq.Expressions.Compiler {
             } else if (type.IsEnum) {
                 il.Emit(OpCodes.Ldelem, type);
             } else {
-                switch (Type.GetTypeCode(type)) {
+                switch (type.GetTypeCodeFast()) {
                     case TypeCode.Boolean:
                     case TypeCode.SByte:
                         il.Emit(OpCodes.Ldelem_I1);
@@ -215,7 +216,7 @@ namespace System.Linq.Expressions.Compiler {
                 il.Emit(OpCodes.Stelem, type);
                 return;
             }
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Boolean:
                 case TypeCode.SByte:
                 case TypeCode.Byte:
@@ -453,7 +454,7 @@ namespace System.Linq.Expressions.Compiler {
 
         // matches TryEmitILConstant
         private static bool CanEmitILConstant(Type type) {
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Boolean:
                 case TypeCode.SByte:
                 case TypeCode.Int16:
@@ -541,7 +542,7 @@ namespace System.Linq.Expressions.Compiler {
 
 
         private static bool TryEmitILConstant(this ILGenerator il, object value, Type type) {
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Boolean:
                     il.EmitBoolean((bool)value);
                     return true;
@@ -621,8 +622,8 @@ namespace System.Linq.Expressions.Compiler {
                 il.EmitNullableConversion(typeFrom, typeTo, isChecked);
             } else if (!(TypeUtils.IsConvertible(typeFrom) && TypeUtils.IsConvertible(typeTo)) // primitive runtime conversion
                        &&
-                       (nnExprType.IsAssignableFrom(nnType) || // down cast
-                       nnType.IsAssignableFrom(nnExprType))) // up cast
+                       (nnExprType.IsAssignableFromFast(nnType) || // down cast
+                       nnType.IsAssignableFromFast(nnExprType))) // up cast
             {
                 il.EmitCastToType(typeFrom, typeTo);
             } else if (typeFrom.IsArray && typeTo.IsArray) {
@@ -663,7 +664,7 @@ namespace System.Linq.Expressions.Compiler {
                     il.Emit(OpCodes.Conv_R_Un);
                 il.Emit(OpCodes.Conv_R8);
             } else {
-                TypeCode tc = Type.GetTypeCode(typeTo);
+                TypeCode tc = typeTo.GetTypeCodeFast();
                 if (isChecked) {
                     // Overflow checking needs to know if the source value on the IL stack is unsigned or not.
                     if (isFromUnsigned) {
@@ -983,7 +984,7 @@ namespace System.Linq.Expressions.Compiler {
         /// Semantics match C# compiler behavior
         /// </summary>
         internal static void EmitDefault(this ILGenerator il, Type type) {
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Object:
                 case TypeCode.DateTime:
                     if (type.IsValueType) {

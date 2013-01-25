@@ -16,17 +16,19 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  // <summary>
-  // Defines an interface for classes that create <see cref="Type"/> objects that can be returned from 
-  // TODO 5365 comment and watch for XML error.
-  // the <see cref="ProxyType.UnderlyingSystemType"/> property.
-  // </summary>
-  // <remarks>This interface is an implementation detail of <see cref="ProxyType"/>.</remarks>
-  public interface IUnderlyingSystemTypeFactory
+  /// <summary>
+  /// Defines an interface for classes that create <see cref="Type"/> objects that can be returned from 
+  /// the <see cref="CustomType.UnderlyingSystemType"/> property.
+  /// </summary>
+  /// <remarks>This interface is an implementation detail of <see cref="CustomType"/>.</remarks>
+  [ConcreteImplementation (typeof (UnderlyingTypeFactory))]
+  public interface IUnderlyingTypeFactory
   {
-    Type CreateUnderlyingSystemType (CustomType customType);
+    Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces);
   }
 }

@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -85,7 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ProxyType>> participantActions)
     {
       var participants = participantActions.Select (CreateParticipant).AsOneTime();
-      var proxyTypeModelFactory = new ProxyTypeModelFactory();
+      var proxyTypeModelFactory = SafeServiceLocator.Current.GetInstance<IProxyTypeModelFactory>();
       var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
       var typeAssembler = new TypeAssembler (participants, proxyTypeModelFactory, subclassProxyBuilder);
 

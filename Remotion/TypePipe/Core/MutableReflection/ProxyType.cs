@@ -29,14 +29,11 @@ using System.Linq;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a subclass proxy type <see cref="Type"/>, which allows overriding base members and the addition of new members and custom attributes.
+  /// Represents a subclass proxy type, which allows overriding base members and the addition of new members and custom attributes.
   /// </summary>
   /// <remarks>
-  ///   <para>
-  ///     TODO 4972: Update docs to use TypeEqualityComparer.
-  ///     OBSOLETE: When an instance of a <see cref="ProxyType"/> is to be compared for equality with another <see cref="Type"/> instance, the
-  ///     IsEquivalentTo method should be used rather than comparing via <see cref="object.Equals(object)"/>.
-  ///   </para>
+  /// Avoid using the members <see cref="CustomType.UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/> in combination with
+  /// <see cref="ProxyType"/> instances. Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
   /// </remarks>
   public class ProxyType : CustomType, IMutableInfo
   {
@@ -58,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ProxyType (
         IMemberSelector memberSelector,
-        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
+        IUnderlyingTypeFactory underlyingTypeFactory,
         Type baseType,
         string name,
         string @namespace,
@@ -66,9 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, underlyingSystemTypeFactory, null, baseType, name, @namespace, fullName)
+        : base (memberSelector, underlyingTypeFactory, null, baseType, name, @namespace, fullName)
     {
-      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
       Assertion.IsTrue (baseType.IsRuntimeType());
@@ -141,18 +138,6 @@ namespace Remotion.TypePipe.MutableReflection
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
-    }
-
-    // TODO 5354: Close 4972 as Won't fix, remove TODO comments.
-    // TODO 4972: Replace usages with TypeEqualityComparer.
-    public bool IsAssignableTo (Type other)
-    {
-      ArgumentUtility.CheckNotNull ("other", other);
-
-      // TODO 4972: Use TypeEqualityComparer.
-      return UnderlyingSystemType.Equals (other)
-             || other.IsAssignableFrom (BaseType)
-             || GetInterfaces ().Any (other.IsAssignableFrom);
     }
 
     public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
@@ -396,7 +381,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       return type.IsSealed
              || type.IsInterface
-             || typeof (Delegate).IsAssignableFrom (type)
+             || typeof (Delegate).IsAssignableFromFast (type)
              || type.ContainsGenericParameters
              || !HasAccessibleConstructor (type);
     }

@@ -201,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodShadowingBaseMethod ());
       Assert.That (method.IsVirtual, Is.True);
-      Assert.That (MethodAttributesExtensions.IsSet (method.Attributes, MethodAttributes.NewSlot) , Is.True);
+      Assert.That (method.Attributes.IsSet (MethodAttributes.NewSlot) , Is.True);
       Assert.That (typeof (DomainTypeBase).GetMethod ("VirtualMethodShadowingBaseMethod", Type.EmptyTypes), Is.Not.Null);
 
       var result = _finder.GetBaseMethod (method);
@@ -383,16 +383,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return type.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
     }
 
-    // ReSharper disable UnusedMember.Local
-    // ReSharper disable VirtualMemberNeverOverriden.Global
-    private class DomainTypeBaseBase
+    public class DomainTypeBaseBase
     {
       public virtual void OverridingOverriddenMethod() { }
       public virtual void ShadowingOverridenMethod () { }
       public virtual void OverridingShadowingMethod () { }
     }
 
-    private class DomainTypeBase : DomainTypeBaseBase
+    public class DomainTypeBase : DomainTypeBaseBase
     {
       public virtual void BaseTypeMethod () { }
 
@@ -407,9 +405,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       public virtual void NonVirtualMethodShadowingBaseMethod () { }
     }
 
-    // ReSharper disable ClassWithVirtualMembersNeverInherited.Local
-    private class DomainType : DomainTypeBase
-    // ReSharper restore ClassWithVirtualMembersNeverInherited.Local
+    public class DomainType : DomainTypeBase
     {
       public virtual void DerivedTypeMethod () { }
       protected virtual void ProtectedDerivedTypeMethod () { }
@@ -431,8 +427,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       public virtual void UnrelatedMethod () { }
     }
-
-    // ReSharper restore VirtualMemberNeverOverriden.Global
-    // ReSharper restore UnusedMember.Local
   }
 }

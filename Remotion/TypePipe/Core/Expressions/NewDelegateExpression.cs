@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
@@ -46,7 +47,7 @@ namespace Remotion.TypePipe.Expressions
       if (method.IsStatic && target != null)
         throw new ArgumentException ("Static method must not have target.", "target");
 
-      if (target != null && !method.DeclaringType.IsAssignableFrom (target.Type))
+      if (target != null && !method.DeclaringType.IsAssignableFromFast (target.Type))
         throw new ArgumentException ("Method is not declared on type hierarchy of target.", "method");
 
       if (!MethodSignature.AreEqual (delegateType.GetMethod ("Invoke"), method))

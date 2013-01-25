@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return shadowingCandidates.Any (
           m => m.Name == baseDefinition.Name
                && MethodSignature.AreEqual (m, baseDefinition)
-               && baseDefinition.DeclaringType.IsAssignableFrom (m.DeclaringType.BaseType)
+               && baseDefinition.DeclaringType.IsAssignableFromFast (m.DeclaringType.BaseType)
                && m.GetBaseDefinition() != baseDefinition);
     }
 

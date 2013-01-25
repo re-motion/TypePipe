@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -128,7 +129,7 @@ namespace System.Linq.Expressions {
         }
 
         private static void ValidateListInitArgs(Type listType, ReadOnlyCollection<ElementInit> initializers) {
-            if (!typeof(IEnumerable).IsAssignableFrom(listType)) {
+            if (!typeof(IEnumerable).IsAssignableFromFast(listType)) {
                 throw Error.TypeNotIEnumerable(listType);
             }
             for (int i = 0, n = initializers.Count; i < n; i++) {

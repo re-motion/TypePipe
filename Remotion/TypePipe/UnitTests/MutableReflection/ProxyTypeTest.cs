@@ -23,12 +23,13 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Utilities;
 using Rhino.Mocks;
+using Remotion.Development.RhinoMocks.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -71,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var proxyType = new ProxyType (
           _memberSelectorMock,
-          MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>(),
+          MockRepository.GenerateStub<IUnderlyingTypeFactory>(),
           baseType,
           name,
           @namespace,
@@ -139,37 +140,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddCustomAttribute_Serializable ()
     {
+      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
       _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (_proxyType.IsSerializable, Is.False);
+      Assert.That (proxyType.IsSerializable, Is.False);
 
-      _proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
+      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
 
-      Assert.That (_proxyType.IsSerializable, Is.True);
-    }
-
-    [Test]
-    public void IsAssignableTo ()
-    {
-      Assert.That (_proxyType.IsAssignableTo (_proxyType), Is.True);
-
-      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (typeof (DomainType)));
-
-      Assert.That (_proxyType.BaseType, Is.SameAs (typeof (DomainType)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (DomainType)), Is.True);
-
-      Assertion.IsNotNull (_proxyType.BaseType); // For ReSharper...
-      Assert.That (_proxyType.BaseType.BaseType, Is.SameAs (typeof (DomainTypeBase)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (DomainTypeBase)), Is.True);
-
-      Assert.That (typeof (DomainType).GetInterfaces(), Has.Member (typeof (IDomainInterface)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDomainInterface)), Is.True);
-
-      Assert.That (_proxyType.GetInterfaces(), Has.No.Member (typeof (IDisposable)));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDisposable)), Is.False);
-      _proxyType.AddInterface (typeof (IDisposable));
-      Assert.That (_proxyType.IsAssignableTo (typeof (IDisposable)), Is.True);
-
-      Assert.That (_proxyType.IsAssignableTo (typeof (UnrelatedType)), Is.False);
+      Assert.That (proxyType.IsSerializable, Is.True);
     }
 
     [Test]
@@ -223,20 +200,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddInterface_InvalidatesUnderlyingSystemType ()
     {
-      var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingSystemTypeFactory>();
-      var proxyType = ProxyTypeObjectMother.Create (underlyingSystemTypeFactory: underlyingSystemTypeFactoryMock);
-      underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (proxyType)).Return (ReflectionObjectMother.GetSomeType());
+      var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory>();
+      var proxyType = ProxyTypeObjectMother.Create (underlyingTypeFactory: underlyingSystemTypeFactoryMock);
+      var interfaces = proxyType.GetInterfaces();
+      underlyingSystemTypeFactoryMock
+          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces)))
+          .Return (ReflectionObjectMother.GetSomeType());
 
       Dev.Null = proxyType.UnderlyingSystemType; // Retrieves underlying type, cache result.
       Dev.Null = proxyType.UnderlyingSystemType; // Cache hit.
 
-      underlyingSystemTypeFactoryMock.VerifyAllExpectations ();
+      underlyingSystemTypeFactoryMock.VerifyAllExpectations();
 
-      underlyingSystemTypeFactoryMock.BackToRecord ();
-      underlyingSystemTypeFactoryMock.Expect (mock => mock.CreateUnderlyingSystemType (proxyType)).Return (ReflectionObjectMother.GetSomeType ());
-      underlyingSystemTypeFactoryMock.Replay ();
+      underlyingSystemTypeFactoryMock.BackToRecord();
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      underlyingSystemTypeFactoryMock
+          .Expect (
+              mock => mock.CreateUnderlyingSystemType (
+                  Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces.Concat (addedInterface))))
+          .Return (ReflectionObjectMother.GetSomeType());
+      underlyingSystemTypeFactoryMock.Replay();
 
-      proxyType.AddInterface (ReflectionObjectMother.GetSomeInterfaceType ()); // Invalidates cache.
+      proxyType.AddInterface (addedInterface); // Invalidates cache.
       Dev.Null = proxyType.UnderlyingSystemType; // Retrieves new underlying type.
 
       underlyingSystemTypeFactoryMock.VerifyAllExpectations();
@@ -459,7 +444,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       proxyType.AddMethod (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
 
       Assert.That (proxyType.IsAbstract, Is.False);
-      Assert.That (proxyType.UnderlyingSystemType.IsAbstract, Is.True);
+      Assert.That (proxyType.BaseType.IsAbstract, Is.True);
       Assert.That (proxyType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
     }
 
@@ -579,7 +564,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       public string ExplicitOverrideTarget (double d) { return "" + d; }
     }
-
+    public interface IDomainInterface { }
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public int Field;
@@ -589,22 +574,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public void NonVirtualMethod () { }
     }
 
-    public interface IDomainInterface { }
-
-    private class UnrelatedType { }
-
-    abstract class AbstractTypeBase
+    public abstract class AbstractTypeBase
     {
       public abstract void AbstractMethod1 ();
     }
-
-    abstract class AbstractType : AbstractTypeBase
+    public abstract class AbstractType : AbstractTypeBase
     {
       public override abstract void AbstractMethod1 ();
       public abstract void AbstractMethod2 ();
     }
 
-    private class TypeWithoutAccessibleConstructor
+    public class TypeWithoutAccessibleConstructor
     {
       internal TypeWithoutAccessibleConstructor () { }
     }

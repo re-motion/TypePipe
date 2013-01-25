@@ -20,14 +20,11 @@ using System.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class ProxyTypeObjectMother
   {
-    private static readonly ProxyTypeModelFactory s_factory = new ProxyTypeModelFactory();
-
     public static ProxyType Create (
         Type baseType = null,
         string name = "Proxy",
@@ -35,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string fullName = "My.Proxy",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
         IMemberSelector memberSelector = null,
-        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory = null,
+        IUnderlyingTypeFactory underlyingTypeFactory = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null,
@@ -43,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       baseType = baseType ?? typeof (UnspecifiedType);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
-      underlyingSystemTypeFactory = underlyingSystemTypeFactory ?? CreateUnderlyingSystemTypeProviderStub (baseType);
+      underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
 
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
@@ -51,9 +48,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var proxyType = new ProxyType (
           memberSelector,
-          underlyingSystemTypeFactory,
+          underlyingTypeFactory,
           baseType,
-          name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
+          name,
+          @namespace,
+          fullName,
+          attributes,
+          interfaceMappingComputer,
+          mutableMemberFactory);
 
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
@@ -61,21 +63,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return proxyType;
     }
 
-    // tODO 5365 remove
-    private static IUnderlyingSystemTypeFactory CreateUnderlyingSystemTypeProviderStub (Type baseType)
-    {
-      var underlyingSystemTypeProviderStub = MockRepository.GenerateStub<IUnderlyingSystemTypeFactory>();
-      underlyingSystemTypeProviderStub.Stub (stub => stub.CreateUnderlyingSystemType (Arg<ProxyType>.Is.Anything)).Return (baseType);
-      // Workaround to be able to use RhinoMock expectations.
-
-      return underlyingSystemTypeProviderStub;
-    }
-
     private static void CopyConstructors (Type baseType, ProxyType proxyType)
     {
-      PrivateInvoke.InvokeNonPublicMethod (s_factory, "CopyConstructors", baseType, proxyType);
+      var proxyTypeModelFactory = new ProxyTypeModelFactory (new ThrowingUnderlyingTypeFactory());
+      PrivateInvoke.InvokeNonPublicMethod (proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);
     }
 
-    private class UnspecifiedType { }
+    public class UnspecifiedType { }
   }
 }

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Remotion.Utilities;
 
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests
     private static readonly Random s_random = new Random();
 
     private static readonly Type[] s_types = EnsureNoNulls (new[] { typeof (DateTime), typeof (Random) });
-    private static readonly Type[] s_otherTypes = EnsureNoNulls (new[] { typeof (decimal), typeof (IDisposable) });
+    private static readonly Type[] s_otherTypes = EnsureNoNulls (new[] { typeof (decimal), typeof (StringBuilder) });
     private static readonly Type[] s_serializableTypes = EnsureNoNulls (new[] { typeof (object), typeof (string), typeof(List<int>) });
     private static readonly Type[] s_unsealedTypes = EnsureNoNulls (new[] { typeof (object), typeof (List<int>) });
     private static readonly Type[] s_delegateTypes = EnsureNoNulls (new[] { typeof (EventHandler), typeof (Action<,,>) });
@@ -267,8 +268,7 @@ namespace Remotion.TypePipe.UnitTests
 
     private class DomainType : DomainTypeBase
     {
-      [UsedImplicitly]
-      public int Field = 0;
+      [UsedImplicitly] public int Field = 0;
 
       public sealed override void FinalMethod () { }
 

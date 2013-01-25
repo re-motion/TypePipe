@@ -19,6 +19,7 @@ using System.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -243,7 +244,7 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private void EmitConstantOne(Type type) {
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.UInt16:
                 case TypeCode.UInt32:
                 case TypeCode.Int16:

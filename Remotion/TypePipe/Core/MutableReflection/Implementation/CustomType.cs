@@ -29,14 +29,19 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A custom type that re-implements parts of the reflection API.
-  /// Other classes may derive from this class to inherit this implementation.
+  /// A custom type that re-implements parts of the reflection API. Other classes may derive from this class to inherit the implementation.
+  /// Note that the equality members <see cref="Equals(object)"/>, <see cref="Equals(System.Type)"/> and <see cref="GetHashCode"/> are implemented for
+  /// reference equality.
   /// </summary>
+  /// <remarks>
+  /// Avoid using the members <see cref="UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/>.
+  /// Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
+  /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
     private readonly IMemberSelector _memberSelector;
-    private readonly IUnderlyingSystemTypeFactory _underlyingSystemTypeFactory;
+    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
 
     private readonly Type _declaringType;
     private readonly Type _baseType;
@@ -48,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected CustomType (
         IMemberSelector memberSelector,
-        IUnderlyingSystemTypeFactory underlyingSystemTypeFactory,
+        IUnderlyingTypeFactory underlyingTypeFactory,
         Type declaringType,
         Type baseType,
         string name,
@@ -56,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string fullName)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      ArgumentUtility.CheckNotNull ("underlyingSystemTypeFactory", underlyingSystemTypeFactory);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       // Declaring type may be null (for non-nested types).
       ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -65,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _memberSelector = memberSelector;
-      _underlyingSystemTypeFactory = underlyingSystemTypeFactory;
+      _underlyingTypeFactory = underlyingTypeFactory;
       _declaringType = declaringType;
       _baseType = baseType;
       _name = name;
@@ -117,23 +122,49 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _fullName; }
     }
 
-    // tODO 5365
-    //[Obsolete ("Do not use this property in client code.", error: true)]
+    /// <summary>
+    /// Returns a dummy representation of the underlying system type. Do not use the returned type for any kind of analysis. Accessing this property
+    /// may cause significant overhead. It is only implemented as internal parts of <see cref="System.Reflection"/> depend on it.
+    /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
+    /// </summary>
+    /// <returns> A dummy representation of the underlying system type for the <see cref="CustomType"/>.</returns>
     public override Type UnderlyingSystemType
     {
-      get { return _underlyingSystemType ?? (_underlyingSystemType = _underlyingSystemTypeFactory.CreateUnderlyingSystemType (this)); }
+      get
+      {
+        if (_underlyingSystemType == null)
+        {
+          var newInterfaces = GetAllInterfaces().Except (_baseType.GetInterfaces());
+          _underlyingSystemType = _underlyingTypeFactory.CreateUnderlyingSystemType (_baseType, newInterfaces);
+        }
+
+        return _underlyingSystemType;
+      }
     }
 
     /// <summary>
-    /// Derivatives of <see cref="CustomType"/> use reference equality.
+    /// Implements reference equality for <see cref="CustomType"/> derivatives.
     /// </summary>
-    public override bool Equals (object o)
+    public override bool Equals (object other)
     {
-      return this == o;
+      return this == other;
     }
 
-    // public bool Equals (Type o) in System.Type will work as intended.
+    /// <summary>
+    /// Implements reference equality for <see cref="CustomType"/> derivatives. The method which is hidden by this method,
+    /// i.e., <see cref="Type.Equals(System.Type)"/> in class <see cref="Type"/>, still works as intended but is slower as it accesses
+    /// the <see cref="UnderlyingSystemType"/> property.
+    /// </summary>
+    public new bool Equals (Type type)
+    {
+      // ReSharper disable PossibleUnintendedReferenceComparison
+      return this == type;
+      // ReSharper restore PossibleUnintendedReferenceComparison
+    }
 
+    /// <summary>
+    /// Returns a hash code based on reference equality.
+    /// </summary>
     public override int GetHashCode ()
     {
       return RuntimeHelpers.GetHashCode (this);

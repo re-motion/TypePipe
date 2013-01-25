@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -55,7 +56,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       if (!_ignoreSignatureModifications)
         _methodBuilder.SetReturnType (returnType);
       else
-        Assertion.IsTrue (_methodBuilder.ReturnType.IsAssignableFrom(returnType));
+        Assertion.IsTrue (_methodBuilder.ReturnType.IsAssignableFromFast (returnType));
     }
 
     public void SetParameters (Type[] parameterTypes)

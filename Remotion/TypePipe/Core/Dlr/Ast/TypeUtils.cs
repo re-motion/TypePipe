@@ -25,6 +25,7 @@ using System.Core;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace System.Dynamic.Utils {
   public static class TypeUtils {
@@ -57,7 +58,7 @@ namespace System.Dynamic.Utils {
         internal static bool IsNumeric(Type type) {
             type = GetNonNullableType(type);
             if (!type.IsEnum) {
-                switch (Type.GetTypeCode(type)) {
+                switch (type.GetTypeCodeFast()) {
                     case TypeCode.Char:
                     case TypeCode.SByte:
                     case TypeCode.Byte:
@@ -80,7 +81,7 @@ namespace System.Dynamic.Utils {
             if (type.IsEnum) {
                 return false;
             }
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Byte:
                 case TypeCode.SByte:
                 case TypeCode.Int16:
@@ -99,7 +100,7 @@ namespace System.Dynamic.Utils {
         internal static bool IsArithmetic(Type type) {
             type = GetNonNullableType(type);
             if (!type.IsEnum) {
-                switch (Type.GetTypeCode(type)) {
+                switch (type.GetTypeCodeFast()) {
                     case TypeCode.Int16:
                     case TypeCode.Int32:
                     case TypeCode.Int64:
@@ -117,7 +118,7 @@ namespace System.Dynamic.Utils {
         internal static bool IsUnsignedInt(Type type) {
             type = GetNonNullableType(type);
             if (!type.IsEnum) {
-                switch (Type.GetTypeCode(type)) {
+                switch (type.GetTypeCodeFast()) {
                     case TypeCode.UInt16:
                     case TypeCode.UInt32:
                     case TypeCode.UInt64:
@@ -130,7 +131,7 @@ namespace System.Dynamic.Utils {
         internal static bool IsIntegerOrBool(Type type) {
             type = GetNonNullableType(type);
             if (!type.IsEnum) {
-                switch (Type.GetTypeCode(type)) {
+                switch (type.GetTypeCodeFast()) {
                     case TypeCode.Int64:
                     case TypeCode.Int32:
                     case TypeCode.Int16:
@@ -160,7 +161,7 @@ namespace System.Dynamic.Utils {
             if (AreEquivalent(dest, src)) {
                 return true;
             }
-            if (!dest.IsValueType && !src.IsValueType && dest.IsAssignableFrom(src)) {
+            if (!dest.IsValueType && !src.IsValueType && dest.IsAssignableFromFast(src)) {
                 return true;
             }
             return false;
@@ -236,11 +237,11 @@ namespace System.Dynamic.Utils {
             Type nnDestType = TypeUtils.GetNonNullableType(dest);
 
             // Down conversion
-            if (nnSourceType.IsAssignableFrom(nnDestType)) {
+            if (nnSourceType.IsAssignableFromFast(nnDestType)) {
                 return true;
             }
             // Up conversion
-            if (nnDestType.IsAssignableFrom(nnSourceType)) {
+            if (nnDestType.IsAssignableFromFast(nnSourceType)) {
                 return true;
             }
             // Interface conversion
@@ -359,7 +360,7 @@ namespace System.Dynamic.Utils {
             if (type.IsEnum) {
                 return true;
             }
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Boolean:
                 case TypeCode.Byte:
                 case TypeCode.SByte:
@@ -484,8 +485,8 @@ namespace System.Dynamic.Utils {
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         private static bool IsImplicitNumericConversion(Type source, Type destination) {
-            TypeCode tcSource = Type.GetTypeCode(source);
-            TypeCode tcDest = Type.GetTypeCode(destination);
+            TypeCode tcSource = source.GetTypeCodeFast();
+            TypeCode tcDest = destination.GetTypeCodeFast();
 
             switch (tcSource) {
                 case TypeCode.SByte:
@@ -583,7 +584,7 @@ namespace System.Dynamic.Utils {
         }
 
         private static bool IsImplicitReferenceConversion(Type source, Type destination) {
-            return destination.IsAssignableFrom(source);
+            return destination.IsAssignableFromFast(source);
         }
 
         private static bool IsImplicitBoxingConversion(Type source, Type destination) {
@@ -633,7 +634,7 @@ namespace System.Dynamic.Utils {
 
         internal static bool IsUnsigned(Type type) {
             type = GetNonNullableType(type);
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Byte:
                 case TypeCode.UInt16:
                 case TypeCode.Char:
@@ -647,7 +648,7 @@ namespace System.Dynamic.Utils {
 
         internal static bool IsFloatingPoint(Type type) {
             type = GetNonNullableType(type);
-            switch (Type.GetTypeCode(type)) {
+            switch (type.GetTypeCodeFast()) {
                 case TypeCode.Single:
                 case TypeCode.Double:
                     return true;

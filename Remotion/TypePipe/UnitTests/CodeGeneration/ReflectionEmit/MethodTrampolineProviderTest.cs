@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
@@ -120,13 +121,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result2.GetParameters(), Has.Length.EqualTo (1));
     }
 
-    // ReSharper disable UnusedParameter.Local
-    class DomainType
+    public class DomainType
     {
-      public string Abc (out int i, double d) { i = 7; return ""; }
+      public string Abc (out int i, double d) { i = 7; Dev.Null = d; return ""; }
 
       public void Def () { }
-      public void Def (int i) { }
+      public void Def (int i) { Dev.Null = i; }
     }
   }
 }

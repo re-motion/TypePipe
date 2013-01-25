@@ -111,10 +111,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<ProxyType>.Is.Anything)).Throw (exception1);
       _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<ProxyType>.Is.Anything)).Throw (exception2);
       _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<ProxyType>.Is.Anything)).Throw (exception3);
-      var typeAssembler = CreateTypeAssembler (participants: new SerializationParticipant ("dummy"));
+      var typeAssembler = CreateTypeAssembler (participants: MockRepository.GenerateStub<IParticipant>());
 
       var expectedMessageRegex = "An error occurred during code generation for 'ProxyName': blub "
-                                 + @"The following participants are currently configured and may have caused the error: 'SerializationParticipant'\.";
+                                 + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType),
           Throws.InvalidOperationException.With.InnerException.SameAs (exception1).And.With.Message.Matches (expectedMessageRegex));

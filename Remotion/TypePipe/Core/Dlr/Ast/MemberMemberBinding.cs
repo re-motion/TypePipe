@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
@@ -146,7 +147,7 @@ namespace System.Linq.Expressions {
             for (int i = 0, n = bindings.Count; i < n; i++) {
                 MemberBinding b = bindings[i];
                 ContractUtils.RequiresNotNull(b, "bindings");
-                if (!b.Member.DeclaringType.IsAssignableFrom(type)) {
+                if (!b.Member.DeclaringType.IsAssignableFromFast(type)) {
                     throw Error.NotAMemberOfType(b.Member.Name, type);
                 }
             }

@@ -806,11 +806,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       void InvalidCandidate ();
     }
 
-    abstract class AbstractTypeWithOneMethod
+    public abstract class AbstractTypeWithOneMethod
     {
       public abstract void Method ();
     }
-    abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
+    public abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
 
   }
 }

@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
@@ -132,8 +131,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      // TODO 4972: Use TypeEqualityComparer.
-      if (!_declaringType.UnderlyingSystemType.Equals (otherMethod.DeclaringType))
+      // ReSharper disable PossibleUnintendedReferenceComparison
+      if (otherMethod.DeclaringType != _declaringType)
+      // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format ("The specified method is declared by a different type '{0}'.", otherMethod.DeclaringType);
         throw new ArgumentException (message, "otherMethod");
@@ -161,6 +161,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       if (!SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
       {
+        Assertion.IsNotNull (baseMethod.DeclaringType);
         var message = string.Format (
             "Matching base method '{0}.{1}' is not accessible from proxy type.", baseMethod.DeclaringType.Name, baseMethod.Name);
         throw new MemberAccessException (message);

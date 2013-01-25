@@ -129,7 +129,7 @@
     <Compile Include="MutableReflection\Implementation\CustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
-    <Compile Include="MutableReflection\Implementation\UnderlyingSystemTypeFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactoryTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
