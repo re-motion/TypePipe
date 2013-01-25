@@ -128,6 +128,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
     /// </summary>
     /// <returns> A dummy representation of the underlying system type for the <see cref="CustomType"/>.</returns>
+    [DebuggerBrowsable (DebuggerBrowsableState.Never)]
     public override Type UnderlyingSystemType
     {
       get
