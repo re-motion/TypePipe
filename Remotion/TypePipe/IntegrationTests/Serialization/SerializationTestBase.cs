@@ -407,17 +407,20 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       public ReferencingSerializableType ReferencingObject;
     }
 
+    [Serializable]
     public class ExplicitISerializableType : ISerializable
     {
       public ExplicitISerializableType (SerializationInfo info, StreamingContext context) { Dev.Null = info; Dev.Null = context; }
       void ISerializable.GetObjectData (SerializationInfo info, StreamingContext context) { }
     }
 
+    [Serializable]
     public class DerivedExplicitISerializableType : ExplicitISerializableType
     {
       public DerivedExplicitISerializableType (SerializationInfo info, StreamingContext context) : base (info, context) { }
     }
 
+    [Serializable]
     public class ExplicitIDeserializationCallbackType : SerializableType, IDeserializationCallback
     {
       void IDeserializationCallback.OnDeserialization (object sender) { }

@@ -80,11 +80,21 @@ namespace Remotion.TypePipe.Serialization
         // If the mutable type already implements ISerializable, we only need to extend the implementation to include the metadata required for 
         // deserialization. Existing fields will be serialized by the base ISerialization implementation. Added fields will be serialized by
         // the TypePipe (ProxySerializationEnabler).
-        proxyType
-            .GetOrAddOverride (s_getObjectDataMethod)
-            .SetBody (
-                ctx => Expression.Block (
-                    new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithDeserializationConstructorProxy)))));
+        try
+        {
+          proxyType
+              .GetOrAddOverride (s_getObjectDataMethod)
+              .SetBody (
+                  ctx => Expression.Block (
+                      new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithDeserializationConstructorProxy)))));
+        }
+        catch (NotSupportedException exception)
+        {
+          throw new NotSupportedException (
+              "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
+              + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.",
+              exception);
+        }
       }
       else
       {
