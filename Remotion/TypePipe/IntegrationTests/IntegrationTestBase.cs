@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
-    private ServiceLocatorScope _serviceLocatorScope;
+    //private ServiceLocatorScope _serviceLocatorScope;
     private List<string> _assembliesToDelete;
 
     private bool _skipSavingAndVerification;
@@ -44,14 +44,14 @@ namespace Remotion.TypePipe.IntegrationTests
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp ()
     {
-      _serviceLocatorScope = new ServiceLocatorScope (typeof (IUnderlyingTypeFactory), () => new ThrowingUnderlyingTypeFactory());
+      //_serviceLocatorScope = new ServiceLocatorScope (typeof (IUnderlyingTypeFactory), () => new ThrowingUnderlyingTypeFactory());
       _assembliesToDelete = new List<string>();
     }
 
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown ()
     {
-      _serviceLocatorScope.Dispose();
+      //_serviceLocatorScope.Dispose();
 
       foreach (var assembly in _assembliesToDelete)
       {

@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using System.Linq;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -41,6 +42,7 @@ namespace Remotion.TypePipe.IntegrationTests
       var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
 
       var serviceLocator = new DefaultServiceLocator();
+      //serviceLocator.Register (typeof (IUnderlyingTypeFactory), () => new ThrowingUnderlyingTypeFactory());
       serviceLocator.Register (typeof (ISubclassProxyCreator), () => subclassProxyBuilder);
       serviceLocator.Register (typeof (IParticipant), participantProviders);
 
