@@ -27,6 +27,7 @@ using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
+  [Ignore ("TODO 5354")]
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
@@ -79,9 +80,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private static void SetUpDeserialization (IObjectFactoryRegistry registry, IEnumerable<Func<IParticipant>> participantProviders)
     {
-      var participantCreators = participantProviders.Select<Func<IParticipant>, Func<Object>> (pp => () => pp()).ToArray();
-
-      using (new ServiceLocatorScope (typeof (IParticipant), participantCreators))
+      using (new ServiceLocatorScope (typeof (IParticipant), () => participantProviders.Select (pp => (object) pp())))
       {
         var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
         // Register a factory for deserialization in current (new) app domain.
