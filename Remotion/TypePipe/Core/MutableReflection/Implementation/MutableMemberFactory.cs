@@ -109,13 +109,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string name,
         MethodAttributes attributes,
         Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterDeclarations", parameterDeclarations);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
       // bodyProvider is null for abstract methods
 
       // TODO : virtual and static is an invalid combination
@@ -137,8 +137,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var parameters = parameterDeclarations.ConvertToCollection();
-      var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
+      var paras = parameters.ConvertToCollection();
+      var signature = new MethodSignature (returnType, paras.Select (pd => pd.Type), genericParameterCount: 0);
       if (proxyType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
@@ -146,12 +146,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
-      var parameterExpressions = parameters.Select (pd => pd.Expression);
+      var parameterExpressions = paras.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var context = new MethodBodyCreationContext (proxyType, isStatic, parameterExpressions, baseMethod, _memberSelector);
+      var context = new MethodBodyCreationContext (proxyType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var method = new MutableMethodInfo (proxyType, name, attributes, returnType, parameters, baseMethod, body);
+      var method = new MutableMethodInfo (proxyType, name, attributes, returnType, paras, baseMethod, body);
 
       return method;
     }

@@ -225,7 +225,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new MethodBodyModificationContext (_declaringType, IsStatic, ParameterExpressions, _body, BaseMethod, memberSelector);
+      var context = new MethodBodyModificationContext (_declaringType, IsStatic, _parameterExpressions, ReturnType, _baseMethod, _body, memberSelector);
       var newBody = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
 
       if (_body == null)

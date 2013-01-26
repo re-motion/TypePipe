@@ -235,9 +235,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
       {
-        Assert.That (ctx.Parameters, Is.EqualTo (method.ParameterExpressions).And.Not.Empty);
         Assert.That (ctx.DeclaringType, Is.SameAs (method.DeclaringType));
         Assert.That (ctx.IsStatic, Is.False);
+        Assert.That (ctx.Parameters, Is.EqualTo (method.ParameterExpressions).And.Not.Empty);
+        Assert.That (ctx.ReturnType, Is.SameAs (returnType));
         Assert.That (ctx.BaseMethod, Is.SameAs (method.BaseMethod).And.Not.Null);
         Assert.That (ctx.PreviousBody, Is.SameAs (method.Body));
 

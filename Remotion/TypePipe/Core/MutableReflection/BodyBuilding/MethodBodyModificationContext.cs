@@ -35,12 +35,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         ProxyType declaringType,
         bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
-        Expression previousBody,
+        Type returnType,
         MethodInfo baseMethod,
+        Expression previousBody,
         IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, baseMethod, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, returnType, baseMethod, memberSelector)
     {
-      // previousBody is null for abstract methods.
+      // Previous body is null for abstract methods.
+
       _previousBody = previousBody;
     }
 

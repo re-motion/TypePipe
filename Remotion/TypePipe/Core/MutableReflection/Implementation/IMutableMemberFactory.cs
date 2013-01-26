@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string name,
         MethodAttributes attributes,
         Type returnType,
-        IEnumerable<ParameterDeclaration> parameterDeclarations,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateExplicitOverride (
