@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;

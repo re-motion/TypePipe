@@ -19,6 +19,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Rhino.Mocks;
