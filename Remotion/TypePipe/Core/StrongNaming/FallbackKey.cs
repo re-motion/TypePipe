@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     private static StrongNameKeyPair Load ()
     {
-      var assembly = Assembly.GetExecutingAssembly();
+      var assembly = typeof (FallbackKey).Assembly;
       using (var resourceStream = assembly.GetManifestResourceStream (typeof (FallbackKey), "FallbackKey.snk"))
       {
         var memoryStream = new MemoryStream (596);
