@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableParameterInfo (MemberInfo member, int position, string name, Type type, ParameterAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("member", member);
-      Assertion.IsTrue (name != null || position == -1);
+      // Name may be null.
       ArgumentUtility.CheckNotNull ("type", type);
       Assertion.IsTrue (type != typeof (void) || position == -1);
       Assertion.IsTrue (position >= -1);
