@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -26,6 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Defines an interface for classes providing methods for investigating method overrides.
   /// This is used by <see cref="ProxyType"/>.
   /// </summary>
+  [ConcreteImplementation (typeof (RelatedMethodFinder))]
   public interface IRelatedMethodFinder
   {
     /// <summary>
