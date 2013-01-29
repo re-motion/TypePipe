@@ -35,7 +35,7 @@ namespace Remotion.TypePipe
   /// </para>
   /// </remarks>
   [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
-                           + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>")]
+                           + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true)]
   public interface IParticipant
   {
     /// <summary>
