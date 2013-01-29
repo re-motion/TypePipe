@@ -84,6 +84,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Initialization_NullName ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      var declaration = new ParameterDeclaration (type, name: null);
+
+      Assert.That (declaration.Name, Is.Null);
+      Assert.That (declaration.Expression.Name, Is.Null);
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Parameter cannot be of type void.\r\nParameter name: type")]
     public void Initialization_VoidType ()
     {
