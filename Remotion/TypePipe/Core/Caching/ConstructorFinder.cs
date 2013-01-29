@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.Caching
       if (constructor == null)
       {
         var message = string.Format (
-            "Type {0} does not contain a constructor with the following signature: ({1}).",
+            "Type '{0}' does not contain a constructor with the following signature: ({1}).",
             originalType.FullName,
             SeparatedStringBuilder.Build (", ", originalParameterTypes, pt => pt.Name));
         throw new MissingMethodException (message);
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.Caching
       if (!constructor.IsPublic && !allowNonPublic)
       {
         var message = string.Format (
-            "Type {0} contains a constructor with the required signature, but it is not public (and the allowNonPublic flag is not set).",
+            "Type '{0}' contains a constructor with the required signature, but it is not public (and the allowNonPublic flag is not set).",
             originalType.FullName);
         throw new MissingMethodException (message);
       }
