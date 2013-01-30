@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// This is used by <see cref="ProxyType"/>.
   /// </summary>
   [ConcreteImplementation (typeof (RelatedMethodFinder))]
+  // TODO review: remove again
   public interface IRelatedMethodFinder
   {
     /// <summary>

@@ -71,6 +71,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsAssignableFromFast_NullFromType ()
+    {
+      Assert.That (typeof (object).IsAssignableFromFast (null), Is.False);
+    }
+
+    [Test]
     public void GetTypeCodeFast ()
     {
       var runtimeType = ReflectionObjectMother.GetSomeType();
