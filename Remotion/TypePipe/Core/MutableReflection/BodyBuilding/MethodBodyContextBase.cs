@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -27,18 +28,28 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class MethodBodyContextBase : MethodBaseBodyContextBase
   {
+    private readonly Type _returnType;
     private readonly MethodInfo _baseMethod;
 
     protected MethodBodyContextBase (
         ProxyType declaringType,
         bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
+        Type returnType,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
         : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
-      // Base method may be null
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      // Base method may be null.
+
+      _returnType = returnType;
       _baseMethod = baseMethod;
+    }
+
+    public Type ReturnType
+    {
+      get { return _returnType; }
     }
 
     public bool HasBaseMethod

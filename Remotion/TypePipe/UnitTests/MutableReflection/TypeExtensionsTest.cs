@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
@@ -67,6 +68,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var unrelatedType = ReflectionObjectMother.GetSomeType();
       Assert.That (unrelatedType.IsAssignableFromFast (customType), Is.False);
+    }
+
+    [Test]
+    public void IsAssignableFromFast_NullFromType ()
+    {
+      Assert.That (typeof (object).IsAssignableFromFast (null), Is.False);
     }
 
     [Test]

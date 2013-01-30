@@ -18,6 +18,7 @@ using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Rhino.Mocks;
 

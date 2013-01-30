@@ -327,12 +327,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
     {
       //types = types ?? Type.EmptyTypes;
-      throw new NotImplementedException ();
+      return GetProperties (bindingAttr).SingleOrDefault (p => p.Name == name);
     }
 
     public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
     {
-      return new PropertyInfo[0]; // Needed for virtual method check
+      // Needed for virtual method check.. 
+      return _baseType.GetProperties (bindingAttr);
     }
 
     public override string ToString ()

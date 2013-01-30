@@ -358,10 +358,9 @@
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
-    <None Include="Configuration\TypePipeConfigurationSchema.xsd">
+    <EmbeddedResource Include="Configuration\TypePipeConfigurationSchema.xsd">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
     <EmbeddedResource Include="StrongNaming\FallbackKey.snk" />
   </ItemGroup>

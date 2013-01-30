@@ -159,8 +159,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <para>
     /// The added initializations are not executed when instances of the type are created directly through the
     /// <see cref="FormatterServices.GetUninitializedObject"/> API, which creates an object of a type without invoking any constructor.
-    /// If possible, use <see cref="IObjectFactory.GetUninitializedObject"/> on <see cref="IObjectFactory"/> which is a simple wrapper but also
-    /// executes the specified instance initializations.
+    /// Such instances must be prepared with <see cref="IObjectFactory.PrepareExternalUninitializedObject"/> before usage.
     /// </para>
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>

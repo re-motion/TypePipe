@@ -42,24 +42,9 @@ namespace Remotion.TypePipe
     Type GetAssembledType (Type requestedType);
 
     /// <summary>
-    /// Creates an instance of the assembled type for the requested type, without invoking any constructor of the assembled type.
-    /// However, the instance is prepared as intended by the participants, therefore <see cref="PrepareExternalUninitializedObject"/> should not be
-    /// called.
-    /// </summary>
-    /// <remarks>
-    /// This API is a simple wrapper around <see cref="FormatterServices.GetUninitializedObject"/>.
-    /// </remarks>
-    /// <param name="requestedType">The requested type.</param>
-    /// <returns>A constructed instance of the requested type for which no constructor has run.</returns>
-    object GetUninitializedObject (Type requestedType);
-
-    /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.
     /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>.
     /// </summary>
-    /// <remarks>
-    /// If possible, use <see cref="IObjectFactory"/>.<see cref="GetUninitializedObject"/> to create objects without invoking any constructor.
-    /// </remarks>
     /// <param name="instance">The assembled type instance which should be prepared.</param>
     void PrepareExternalUninitializedObject (object instance);
   }

@@ -17,6 +17,7 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -124,31 +125,6 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void GetUninitializedObject ()
-    {
-      var assembledType = typeof (TypeWithCtor);
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
-
-      var result = (TypeWithCtor) _factory.GetUninitializedObject (_requestedType);
-
-      Assert.That (result.GetType(), Is.SameAs (assembledType));
-      Assert.That (result.CtorCalled, Is.False);
-    }
-
-    [Test]
-    public void GetUninitializedObject_Initializable ()
-    {
-      var assembledType = typeof (InitializableType);
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (_requestedType)).Return (assembledType);
-
-      var result = (InitializableType) _factory.GetUninitializedObject (_requestedType);
-
-      Assert.That (result.GetType(), Is.SameAs (assembledType));
-      Assert.That (result.CtorCalled, Is.False);
-      Assert.That (result.InitializeCalled, Is.True);
-    }
-
-    [Test]
     public void PrepareAssembledTypeInstance ()
     {
       Assert.That (() => _factory.PrepareExternalUninitializedObject (new object()), Throws.Nothing);
@@ -166,17 +142,5 @@ namespace Remotion.TypePipe.UnitTests
 
     class RequestedType { }
     class AssembledType : RequestedType { }
-
-    class TypeWithCtor
-    {
-      public readonly bool CtorCalled;
-      public TypeWithCtor () { CtorCalled = true; }
-    }
-
-    class InitializableType : TypeWithCtor, IInitializableObject
-    {
-      public bool InitializeCalled;
-      public void Initialize () { InitializeCalled = true; }
-    }
   }
 }

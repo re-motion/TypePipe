@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static bool IsAssignableFromFast (this Type toType, Type fromType)
     {
       ArgumentUtility.CheckNotNull ("toType", toType);
-      ArgumentUtility.CheckNotNull ("fromType", fromType);
+      // fromType may be null.
 
       // CustomTypes are only assignable from themselves.
       if (toType is CustomType)

@@ -18,8 +18,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -64,22 +64,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
+    public void Initialization_NullName ()
     {
-      var parameter = MutableParameterInfoObjectMother.Create (name: "param1", type: typeof (int), attributes: ParameterAttributes.Out);
+      var member = ReflectionObjectMother.GetSomeMember();
+      var type = ReflectionObjectMother.GetSomeType();
 
-      Assert.That (parameter.ToString(), Is.EqualTo ("Int32 param1"));
-    }
+      var parameter = new MutableParameterInfo (member, 7, null, type, (ParameterAttributes) 7);
 
-    [Test]
-    public void ToDebugString ()
-    {
-      var declaringMemberName = _parameter.Member.Name;
-      var parameterType = _parameter.ParameterType.Name;
-      var parameterName = _parameter.Name;
-      var expected = "MutableParameter = \"" + parameterType + " " + parameterName + "\", DeclaringMember = \"" + declaringMemberName + "\"";
-
-      Assert.That (_parameter.ToDebugString(), Is.EqualTo (expected));
+      Assert.That (parameter.Name, Is.Null);
     }
 
     [Test]
@@ -97,6 +89,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_parameter.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
       Assert.That (_parameter.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
+    }
+
+    [Test]
+    public new void ToString ()
+    {
+      var parameter = MutableParameterInfoObjectMother.Create (name: "param1", type: typeof (int), attributes: ParameterAttributes.Out);
+
+      Assert.That (parameter.ToString(), Is.EqualTo ("Int32 param1"));
+    }
+
+    [Test]
+    public void ToDebugString ()
+    {
+      var declaringMemberName = _parameter.Member.Name;
+      var parameterType = _parameter.ParameterType.Name;
+      var parameterName = _parameter.Name;
+      var expected = "MutableParameter = \"" + parameterType + " " + parameterName + "\", DeclaringMember = \"" + declaringMemberName + "\"";
+
+      Assert.That (_parameter.ToDebugString(), Is.EqualTo (expected));
     }
   }
 }

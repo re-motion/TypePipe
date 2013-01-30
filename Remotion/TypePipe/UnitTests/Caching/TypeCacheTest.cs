@@ -23,6 +23,7 @@ using Remotion.Collections;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;

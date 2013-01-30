@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.ObjectMothers;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
