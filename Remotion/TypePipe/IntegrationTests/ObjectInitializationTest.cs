@@ -48,15 +48,6 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [Test]
-    public void GetUninitializedObject ()
-    {
-      var instance = (DomainType) _factory.GetUninitializedObject (typeof (DomainType));
-
-      Assert.That (instance.String, Is.EqualTo ("initialized"));
-      Assert.That (instance.CtorCalled, Is.False);
-    }
-
-    [Test]
     public void GetAssembledType_CallWiredCtor ()
     {
       var type = _factory.GetAssembledType (typeof (DomainType));
