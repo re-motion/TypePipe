@@ -53,6 +53,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return string.Format ("{0} {1}", GetShortTypeName (parameter.ParameterType), parameter.Name);
     }
 
+    public static string GetPropertySignature (PropertyInfo parameter)
+    {
+      return string.Format ("{0} {1}", GetShortTypeName (parameter.PropertyType), parameter.Name);
+    }
+
+    public static string GetEventSignature (EventInfo event_)
+    {
+      return string.Format ("{0} {1}", GetShortTypeName (event_.EventHandlerType), event_.Name);
+    }
+
     private static string GetShortTypeName (Type type)
     {
       if (type.IsGenericType)

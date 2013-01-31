@@ -88,6 +88,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result3, Is.EqualTo ("String& s"));
     }
 
+    [Test]
+    public void GetPropertySignature ()
+    {
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+
+      var result = SignatureDebugStringGenerator.GetPropertySignature (property);
+
+      Assert.That (result, Is.EqualTo ("String Property"));
+    }
+
+    [Test]
+    public void GetEventSignature ()
+    {
+      var event_ = typeof (DomainType).GetEvent ("Event");
+
+      var result = SignatureDebugStringGenerator.GetEventSignature (event_);
+
+      Assert.That (result, Is.EqualTo ("EventHandler Event"));
+    }
+
     class DomainType
     {
 // ReSharper disable UnusedTypeParameter
@@ -109,6 +129,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Dev.Null = dictionary;
         return ""; 
       }
+
+      public string Property { get; set; }
+
+      public event EventHandler Event;
     }
   }
 }
