@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -29,55 +28,13 @@ namespace Remotion.TypePipe.MutableReflection
   /// Represents a <see cref="ParameterInfo"/> that can be modified.
   /// This allows to represent parameters for <see cref="MutableMethodInfo"/> or <see cref="MutableConstructorInfo"/> instances.
   /// </summary>
-  [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableParameterInfo : ParameterInfo, IMutableInfo
+  public class MutableParameterInfo : CustomParameterInfo, IMutableInfo
   {
-    private readonly MemberInfo _member;
-    private readonly int _position;
-    private readonly string _name;
-    private readonly Type _type;
-    private readonly ParameterAttributes _attributes;
-
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     public MutableParameterInfo (MemberInfo member, int position, string name, Type type, ParameterAttributes attributes)
+        : base (member, position, name, type, attributes)
     {
-      ArgumentUtility.CheckNotNull ("member", member);
-      // Name may be null.
-      ArgumentUtility.CheckNotNull ("type", type);
-      Assertion.IsTrue (type != typeof (void) || position == -1);
-      Assertion.IsTrue (position >= -1);
-
-      _member = member;
-      _position = position;
-      _name = name;
-      _type = type;
-      _attributes = attributes;
-    }
-
-    public override MemberInfo Member
-    {
-      get { return _member; }
-    }
-
-    public override int Position
-    {
-      get { return _position; }
-    }
-
-    public override string Name
-    {
-      get { return _name; }
-    }
-
-    public override Type ParameterType
-    {
-      get { return _type; }
-    }
-
-    public override ParameterAttributes Attributes
-    {
-      get { return _attributes; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -92,43 +49,9 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
     }
 
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
-    }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
-    {
-      return TypePipeCustomAttributeData.GetCustomAttributes (this);
-    }
-
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      return CustomAttributeFinder.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetParameterSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("MutableParameter = \"{0}\", DeclaringMember = \"{1}\"", ToString(), Member.Name);
     }
   }
 }
