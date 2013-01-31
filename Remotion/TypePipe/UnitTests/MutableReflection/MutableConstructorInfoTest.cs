@@ -65,26 +65,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Name ()
-    {
-      var constructor = MutableConstructorInfoObjectMother.Create (attributes: 0);
-      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
-
-      Assert.That (constructor.Name, Is.EqualTo (".ctor"));
-      Assert.That (typeInitializer.Name, Is.EqualTo (".cctor"));
-    }
-
-    [Test]
-    public void CallingConvention ()
-    {
-      var constructor = MutableConstructorInfoObjectMother.Create (attributes: 0);
-      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
-
-      Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
-      Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
-    }
-
-    [Test]
     public void SetBody ()
     {
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
@@ -125,48 +105,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _constructor.AddCustomAttribute (declaration);
 
       Assert.That (_constructor.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
-
       Assert.That (_constructor.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
-
-      Assert.That (_constructor.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
-      Assert.That (_constructor.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
-
-      Assert.That (_constructor.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_constructor.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
-    }
-
-    [Test]
-    public new void ToString ()
-    {
-      var ctor = MutableConstructorInfoObjectMother.Create (
-          parameters:
-              new[]
-              {
-                  new ParameterDeclaration (typeof (int), "p1"),
-                  new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out)
-              });
-
-      Assert.That (ctor.ToString(), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
 
     [Test]
     public void ToDebugString ()
     {
+      // Note: ToDebugString is defined in CustomConstructorInfo base class.
       var declaringType = ProxyTypeObjectMother.Create (name: "Abc");
       var ctor = MutableConstructorInfoObjectMother.Create (declaringType, parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"Abc\"";
       Assert.That (ctor.ToDebugString(), Is.EqualTo (expected));
-    }
-
-    [Test]
-    public void UnsupportedMembers ()
-    {
-      UnsupportedMemberTestHelper.CheckProperty (() => _constructor.MethodHandle, "MethodHandle");
-      UnsupportedMemberTestHelper.CheckProperty (() => _constructor.ReflectedType, "ReflectedType");
-
-      UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (null, 0, null, null, null), "Invoke");
-      UnsupportedMemberTestHelper.CheckMethod (() => _constructor.Invoke (0, null, null, null), "Invoke");
     }
   }
 }
