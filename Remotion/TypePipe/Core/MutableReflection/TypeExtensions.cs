@@ -70,5 +70,14 @@ namespace Remotion.TypePipe.MutableReflection
 
       return type is CustomType ? TypeCode.Object : Type.GetTypeCode (type);
     }
+
+    // TODO 5390: docs
+    public static Type MakeTypePipeGenericType (this Type type, params Type[] typeArguments)
+    {
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
+
+      return null;
+    }
   }
 }
