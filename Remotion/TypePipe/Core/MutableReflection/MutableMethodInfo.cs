@@ -17,8 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -34,12 +32,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a <see cref="MethodInfo"/> that can be modified.
   /// </summary>
-  [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableMethodInfo : MethodInfo, IMutableMethodBase
+  public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
-    private readonly ProxyType _declaringType;
-    private readonly string _name;
-    private MethodAttributes _attributes;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
@@ -58,9 +52,8 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
+        : base (declaringType, name, attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
@@ -69,9 +62,6 @@ namespace Remotion.TypePipe.MutableReflection
 
       var paras = parameters.ConvertToCollection();
 
-      _declaringType = declaringType;
-      _name = name;
-      _attributes = attributes;
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
@@ -79,49 +69,9 @@ namespace Remotion.TypePipe.MutableReflection
       _body = body;
     }
 
-    public override Type DeclaringType
-    {
-      get { return _declaringType; }
-    }
-
-    public override string Name
-    {
-      get { return _name; }
-    }
-
-    public override MethodAttributes Attributes
-    {
-      get { return _attributes; }
-    }
-
-    public override CallingConventions CallingConvention
-    {
-      get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
-    }
-
     public override Type ReturnType
     {
       get { return _returnParameter.ParameterType; }
-    }
-
-    public MethodInfo BaseMethod
-    {
-      get { return _baseMethod; }
-    }
-
-    public override bool IsGenericMethod
-    {
-      get { return false; }
-    }
-
-    public override bool IsGenericMethodDefinition
-    {
-      get { return false; }
-    }
-
-    public override bool ContainsGenericParameters
-    {
-      get { return false; }
     }
 
     public override ParameterInfo ReturnParameter
@@ -142,6 +92,22 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<ParameterExpression> ParameterExpressions
     {
       get { return _parameterExpressions; }
+    }
+
+    public override MethodAttributes Attributes
+    {
+      get
+      {
+        if (_body != null)
+          return base.Attributes.Unset (MethodAttributes.Abstract);
+
+        return base.Attributes;
+      }
+    }
+
+    public MethodInfo BaseMethod
+    {
+      get { return _baseMethod; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -203,7 +169,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!MethodSignature.AreEqual (this, overriddenMethodBaseDefinition))
         throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
 
-      if (!overriddenMethodBaseDefinition.DeclaringType.IsAssignableFromFast (_declaringType))
+      if (!overriddenMethodBaseDefinition.DeclaringType.IsAssignableFromFast (DeclaringType))
         throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
 
       if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)
@@ -225,14 +191,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new MethodBodyModificationContext (_declaringType, IsStatic, _parameterExpressions, ReturnType, _baseMethod, _body, memberSelector);
+      var context = new MethodBodyModificationContext (
+          (ProxyType) DeclaringType, IsStatic, _parameterExpressions, ReturnType, _baseMethod, _body, memberSelector);
       var newBody = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
-
-      if (_body == null)
-      {
-        Assertion.IsTrue (IsAbstract);
-        _attributes = _attributes.Unset (MethodAttributes.Abstract);
-      }
 
       _body = newBody;
     }
@@ -244,106 +205,9 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
     }
 
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
-    {
-      return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      return CustomAttributeFinder.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetMethodSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString (), DeclaringType);
-    }
-
-    #region Not YET Implemented from MethodInfo interface
-
-    public override MethodImplAttributes GetMethodImplementationFlags ()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override ICustomAttributeProvider ReturnTypeCustomAttributes
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Type ReflectedType
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override RuntimeMethodHandle MethodHandle
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override MethodInfo GetGenericMethodDefinition ()
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override MethodBody GetMethodBody ()
-    {
-      throw new NotImplementedException ();
-    }
-
-    #endregion
-
-    #region Unsupported Members
-
-    public override int MetadataToken
-    {
-      get { throw new NotSupportedException ("Property MetadataToken is not supported."); }
-    }
-
-    public override Module Module
-    {
-      get { throw new NotSupportedException ("Property Module is not supported."); }
-    }
-
-    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
-    {
-      throw new NotSupportedException ("Method Invoke is not supported.");
-    }
-
-    #endregion
   }
 }

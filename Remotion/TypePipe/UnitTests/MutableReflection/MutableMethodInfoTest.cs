@@ -87,16 +87,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CallingConvention ()
-    {
-      var instanceMethod = MutableMethodInfoObjectMother.Create (attributes: 0);
-      var staticMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
-
-      Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
-      Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
-    }
-
-    [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
     public void Body_ThrowsForAbstractMethod ()
     {
@@ -287,33 +277,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _method.AddCustomAttribute (declaration);
 
       Assert.That (_method.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
-
       Assert.That (_method.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
-
-      Assert.That (_method.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
-      Assert.That (_method.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
-
-      Assert.That (_method.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_method.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
-    }
-
-    [Test]
-    public new void ToString ()
-    {
-      var parameters =
-          new[]
-          {
-              new ParameterDeclaration (typeof (int), "p1"),
-              new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
-          };
-      var method = MutableMethodInfoObjectMother.Create (name: "Xxx", returnType: typeof (string), parameters: parameters);
-
-      Assert.That (method.ToString(), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
 
     [Test]
     public void ToDebugString ()
     {
+      // Note: ToDebugString is defined in CustomMethodInfo base class.
       var method = MutableMethodInfoObjectMother.Create (
           declaringType: ProxyTypeObjectMother.Create (name: "AbcProxy"),
           name: "Xxx",
@@ -321,23 +291,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"AbcProxy\"";
-      Assert.That (method.ToDebugString(), Is.EqualTo (expected));
-    }
-
-    [Test]
-    public void VirtualMethodsImplementedByMethodInfo ()
-    {
-      // None of these members should throw an exception 
-      Dev.Null = _method.MemberType;
-    }
-
-    [Test]
-    public void UnsupportedMembers ()
-    {
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.MetadataToken, "MetadataToken");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.Module, "Module");
-
-      UnsupportedMemberTestHelper.CheckMethod (() => _method.Invoke (null, 0, null, null, null), "Invoke");
+      Assert.That (method.ToDebugString (), Is.EqualTo (expected));
     }
 
     public class DomainTypeBase
