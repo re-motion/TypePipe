@@ -26,7 +26,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A custom <see cref="FieldInfo"/> that re-implements parts of the reflection API. Other classes may derive from this class to inherit the 
+  /// A custom <see cref="PropertyInfo"/> that re-implements parts of the reflection API. Other classes may derive from this class to inherit the 
   /// implementation. Note that the equality members <see cref="object.Equals(object)"/> and <see cref="object.GetHashCode"/> are implemented for
   /// reference equality.
   /// </summary>
