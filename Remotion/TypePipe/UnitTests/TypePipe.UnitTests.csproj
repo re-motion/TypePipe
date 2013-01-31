@@ -118,6 +118,7 @@
     <Compile Include="MutableReflection\Implementation\CustomFieldInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomMethodInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomParameterInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomPropertyInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
