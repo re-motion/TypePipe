@@ -412,10 +412,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ToDebugString ()
     {
-      // ReSharper disable PossibleMistakenCallToGetType.2
-      var typeName = _customType.GetType().Name;
-      // ReSharper restore PossibleMistakenCallToGetType.2
-      Assert.That (_customType.ToDebugString(), Is.EqualTo (typeName + " = \"type name\""));
+      Assert.That (_customType.ToDebugString(), Is.EqualTo ("TestableCustomType = \"type name\""));
     }
 
     [Test]

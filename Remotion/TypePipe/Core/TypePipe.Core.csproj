@@ -154,6 +154,7 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomFieldInfo.cs" />
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
     <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
@@ -369,6 +370,9 @@
       <Project>{2AA369EC-A4E7-4D75-9101-EFA90E902625}</Project>
       <Name>Core.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MutableReflection\Generics\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

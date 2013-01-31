@@ -540,13 +540,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
-    {
-      // Note: ToString() is implemented in CustomType base class.
-      Assert.That (_proxyType.ToString(), Is.EqualTo ("Proxy"));
-    }
-
-    [Test]
     public void ToDebugString ()
     {
       // Note: ToDebugString() is implemented in CustomType base class.

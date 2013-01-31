@@ -29,7 +29,7 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A custom type that re-implements parts of the reflection API. Other classes may derive from this class to inherit the implementation.
+  /// A custom <see cref="Type"/> that re-implements parts of the reflection API. Other classes may derive from this class to inherit the implementation.
   /// Note that the equality members <see cref="Equals(object)"/>, <see cref="Equals(System.Type)"/> and <see cref="GetHashCode"/> are implemented for
   /// reference equality.
   /// </summary>

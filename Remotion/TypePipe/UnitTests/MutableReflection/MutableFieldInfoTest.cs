@@ -52,24 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CustomAttributeMethods ()
-    {
-      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
-      _field.AddCustomAttribute (declaration);
-
-      Assert.That (_field.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
-
-      Assert.That (_field.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
-
-      Assert.That (_field.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
-      Assert.That (_field.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
-
-      Assert.That (_field.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_field.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
-    }
-
-    [Test]
-    public void AddCustomAttribute_NonSerialized ()
+    public void Attributes_NonSerialized ()
     {
       Assert.That (_field.IsNotSerialized, Is.False);
 
@@ -79,32 +62,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
+    public void CustomAttributeMethods ()
     {
-      var field = MutableFieldInfoObjectMother.Create (name: "_field", type: typeof (MutableFieldInfoTest));
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      _field.AddCustomAttribute (declaration);
 
-      Assert.That (field.ToString(), Is.EqualTo ("MutableFieldInfoTest _field"));
+      Assert.That (_field.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
+      Assert.That (_field.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
     }
 
     [Test]
     public void ToDebugString ()
     {
+      // Note: ToDebugString is defined in CustomFieldInfo base class.
       var declaringTypeName = _field.DeclaringType.Name;
       var fieldTypeName = _field.FieldType.Name;
       var fieldName = _field.Name;
       var expected = "MutableField = \"" + fieldTypeName + " " + fieldName + "\", DeclaringType = \"" + declaringTypeName + "\"";
 
       Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
-    }
-
-    [Test]
-    public void UnsupportedMembers ()
-    {
-      UnsupportedMemberTestHelper.CheckProperty (() => _field.FieldHandle, "FieldHandle");
-      UnsupportedMemberTestHelper.CheckProperty (() => _field.ReflectedType, "ReflectedType");
-
-      UnsupportedMemberTestHelper.CheckMethod (() => _field.GetValue (null), "GetValue");
-      UnsupportedMemberTestHelper.CheckMethod (() => _field.SetValue (null, null), "SetValue");
     }
   }
 }
