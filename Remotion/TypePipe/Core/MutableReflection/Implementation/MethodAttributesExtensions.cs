@@ -14,10 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
 using System.Reflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Provides extensions methods for working with <see cref="MethodAttributes"/>.

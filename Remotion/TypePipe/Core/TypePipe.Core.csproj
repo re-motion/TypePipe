@@ -190,7 +190,7 @@
     <Compile Include="MutableReflection\ICustomAttributeNamedArgument.cs" />
     <Compile Include="MutableReflection\Implementation\IMemberSelector.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedMethodFinder.cs" />
-    <Compile Include="MutableReflection\IOwnCustomAttributeDataProvider.cs" />
+    <Compile Include="MutableReflection\Implementation\IOwnCustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelector.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyCreationContext.cs" />
@@ -204,7 +204,7 @@
     <Compile Include="MutableReflection\Implementation\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\Implementation\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />
-    <Compile Include="MutableReflection\MethodAttributesExtensions.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtility.cs" />
     <Compile Include="MutableReflection\Implementation\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinder.cs" />

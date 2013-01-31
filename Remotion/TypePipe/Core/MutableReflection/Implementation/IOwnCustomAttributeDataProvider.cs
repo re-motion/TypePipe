@@ -15,9 +15,10 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Provides access to the <see cref="ICustomAttributeData"/> for custom attributes that are declared directly on the member or parameter.
