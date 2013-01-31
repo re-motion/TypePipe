@@ -19,34 +19,38 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
   public class CustomFieldInfoTest
   {
+    private CustomType _declaringType;
+    private string _name;
+    private Type _type;
+    private FieldAttributes _attributes;
+
     private TestableCustomFieldInfo _field;
 
     [SetUp]
     public void SetUp ()
     {
-      _field = new TestableCustomFieldInfo (CustomTypeObjectMother.Create(), "field", ReflectionObjectMother.GetSomeType(), (FieldAttributes) 7);
+      _declaringType = CustomTypeObjectMother.Create ();
+      _name = "abc";
+      _type = ReflectionObjectMother.GetSomeType ();
+      _attributes = (FieldAttributes) 7;
+
+      _field = new TestableCustomFieldInfo (_declaringType, _name, _type, _attributes);
     }
 
     [Test]
     public void Initialization ()
     {
-      var declaringType = CustomTypeObjectMother.Create();
-      var name = "abc";
-      var type = ReflectionObjectMother.GetSomeType();
-      var attributes = (FieldAttributes) 7;
-
-      var field = new TestableCustomFieldInfo (declaringType, name, type, attributes);
-
-      Assert.That (field.DeclaringType, Is.SameAs (declaringType));
-      Assert.That (field.Name, Is.EqualTo (name));
-      Assert.That (field.FieldType, Is.SameAs (type));
-      Assert.That (field.Attributes, Is.EqualTo (attributes));
+      Assert.That (_field.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_field.Name, Is.EqualTo (_name));
+      Assert.That (_field.FieldType, Is.SameAs (_type));
+      Assert.That (_field.Attributes, Is.EqualTo (_attributes));
     }
 
     [Test]
@@ -64,9 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public new void ToString ()
     {
-      var field = MutableFieldInfoObjectMother.Create (name: "_field", type: typeof (MutableFieldInfoTest));
-
-      Assert.That (field.ToString (), Is.EqualTo ("MutableFieldInfoTest _field"));
+      Assert.That (_field.ToString(), Is.EqualTo (_type.Name + " abc"));
     }
 
     [Test]
@@ -78,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var fieldName = _field.Name;
       var expected = "TestableCustomField = \"" + fieldTypeName + " " + fieldName + "\", DeclaringType = \"" + declaringTypeName + "\"";
 
-      Assert.That (_field.ToDebugString (), Is.EqualTo (expected));
+      Assert.That (_field.ToDebugString(), Is.EqualTo (expected));
     }
 
     [Test]

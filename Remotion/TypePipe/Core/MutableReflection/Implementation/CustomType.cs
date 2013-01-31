@@ -48,6 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
+    private readonly TypeAttributes _attributes;
 
     private Type _underlyingSystemType;
 
@@ -58,7 +59,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type baseType,
         string name,
         string @namespace,
-        string fullName)
+        string fullName,
+        TypeAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
@@ -76,12 +78,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
+      _attributes = attributes;
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
     public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
 
-    protected abstract override TypeAttributes GetAttributeFlagsImpl ();
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
@@ -241,6 +243,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected void InvalidateUnderlyingSystemType ()
     {
       _underlyingSystemType = null;
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return _attributes;
     }
 
     protected override ConstructorInfo GetConstructorImpl (

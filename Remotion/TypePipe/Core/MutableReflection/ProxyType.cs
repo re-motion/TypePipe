@@ -50,7 +50,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
     private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>();
 
-    private TypeAttributes _attributes;
     private MutableConstructorInfo _typeInitializer;
 
     public ProxyType (
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, underlyingTypeFactory, null, baseType, name, @namespace, fullName)
+        : base (memberSelector, underlyingTypeFactory, null, baseType, name, @namespace, fullName, attributes)
     {
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
@@ -79,7 +78,6 @@ namespace Remotion.TypePipe.MutableReflection
             "baseType");
       }
 
-      _attributes = attributes;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
     }
@@ -130,9 +128,6 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
       _customAttributes.AddCustomAttribute (customAttributeDeclaration);
-
-      if (customAttributeDeclaration.Type == typeof (SerializableAttribute))
-        _attributes |= TypeAttributes.Serializable;
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -338,11 +333,16 @@ namespace Remotion.TypePipe.MutableReflection
           .Select (m => m.GetBaseDefinition())
           .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
           .Any();
+      var isSerializable = _customAttributes.AddedCustomAttributes.Any (a => a.Type == typeof (SerializableAttribute));
+
+      var attributes = base.GetAttributeFlagsImpl();
+      if (isSerializable)
+        attributes |= TypeAttributes.Serializable;
 
       if (hasAbstractMethods)
-        return _attributes | TypeAttributes.Abstract;
+        return attributes | TypeAttributes.Abstract;
       else
-        return _attributes & ~TypeAttributes.Abstract;
+        return attributes & ~TypeAttributes.Abstract;
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()

@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string name = "CustomType",
         string @namespace = "My",
         string fullName = "My.CustomType",
+        TypeAttributes attributes = (TypeAttributes) 7,
         IEnumerable<Type> interfaces = null,
         IEnumerable<FieldInfo> fields = null,
         IEnumerable<ConstructorInfo> constructors = null,
@@ -43,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       // Declaring type stays null.
       baseType = baseType ?? typeof (UnspecifiedType);
 
-      var customType = new TestableCustomType (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName);
+      var customType = new TestableCustomType (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName, attributes);
       customType.Interfaces = interfaces ?? Type.EmptyTypes;
       customType.Fields = fields ?? new FieldInfo[0];
       customType.Constructors = constructors ?? new ConstructorInfo[0];

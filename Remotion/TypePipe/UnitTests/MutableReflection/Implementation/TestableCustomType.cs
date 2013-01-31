@@ -32,8 +32,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Type baseType,
         string name,
         string @namespace,
-        string fullName)
-        : base (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName)
+        string fullName,
+        TypeAttributes attributes)
+        : base (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName, attributes)
     {
     }
 
@@ -49,11 +50,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
     {
       throw new NotImplementedException();
     }

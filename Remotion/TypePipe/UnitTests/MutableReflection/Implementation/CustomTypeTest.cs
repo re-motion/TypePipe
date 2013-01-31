@@ -41,6 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private string _name;
     private string _namespace;
     private string _fullName;
+    private TypeAttributes _attributes;
 
     private TestableCustomType _customType;
 
@@ -55,6 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _name = "type name";
       _namespace = "namespace";
       _fullName = "full type name";
+      _attributes = (TypeAttributes) 7;
 
       _customType = new TestableCustomType (
           _memberSelectorMock,
@@ -63,7 +65,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _baseType,
           _name,
           _namespace,
-          _fullName);
+          _fullName,
+          _attributes);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
@@ -80,19 +83,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Name, Is.EqualTo (_name));
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
       Assert.That (_customType.FullName, Is.EqualTo (_fullName));
+      Assert.That (_customType.Attributes, Is.EqualTo (_attributes));
     }
 
     [Test]
     public void Initialization_Null ()
     {
-      var customType = new TestableCustomType (
-          _memberSelectorMock,
-          _underlyingTypeFactoryMock,
-          declaringType: null,
-          baseType: _baseType,
-          name: _name,
-          @namespace: _namespace,
-          fullName: _fullName);
+      var customType = new TestableCustomType (_memberSelectorMock, _underlyingTypeFactoryMock, null, _baseType, _name, _namespace, _fullName, 0);
 
       Assert.That (customType.DeclaringType, Is.Null);
     }

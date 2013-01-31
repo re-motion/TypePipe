@@ -138,18 +138,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddCustomAttribute_Serializable ()
-    {
-      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
-      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (proxyType.IsSerializable, Is.False);
-
-      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
-
-      Assert.That (proxyType.IsSerializable, Is.True);
-    }
-
-    [Test]
     public void AddTypeInitializer ()
     {
       Assert.That (_proxyType.MutableTypeInitializer, Is.Null);
@@ -411,6 +399,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _interfaceMappingComputerMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_Serializable ()
+    {
+      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
+      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      Assert.That (proxyType.IsSerializable, Is.False);
+
+      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
+
+      Assert.That (proxyType.IsSerializable, Is.True);
     }
 
     [Test]
