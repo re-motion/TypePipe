@@ -17,30 +17,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
-  public class TestableCustomConstructorInfo : CustomConstructorInfo
+  public static class CustomConstructorInfoObjectMother
   {
-    public TestableCustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
-        : base(declaringType, attributes)
+    public static CustomConstructorInfo Create (
+        CustomType declaringType = null, MethodAttributes attributes = (MethodAttributes) 7, IEnumerable<ParameterInfo> parameters = null)
     {
-    }
+      declaringType = declaringType ?? CustomTypeObjectMother.Create();
+      parameters = parameters ?? new ParameterInfo[0];
 
-    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-    public ParameterInfo[] Parameters;
+      var customConstructor = new TestableCustomConstructorInfo (declaringType, attributes);
+      customConstructor.Parameters = parameters.ToArray();
 
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return CustomAttributeDatas;
-    }
-
-    public override ParameterInfo[] GetParameters ()
-    {
-      return Parameters;
+      return customConstructor;
     }
   }
 }

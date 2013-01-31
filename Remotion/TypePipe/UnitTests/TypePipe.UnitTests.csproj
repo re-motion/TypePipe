@@ -114,9 +114,11 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomFieldInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomMethodInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomParameterInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomParameterInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomPropertyInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomTypeObjectMother.cs" />

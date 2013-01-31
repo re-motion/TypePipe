@@ -33,19 +33,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return GetShortTypeName (type);
     }
 
-    public static string GetFieldSignature (FieldInfo fieldInfo)
+    public static string GetFieldSignature (FieldInfo field)
     {
-      return GetShortTypeName (fieldInfo.FieldType) + " " + fieldInfo.Name;
+      return GetShortTypeName (field.FieldType) + " " + field.Name;
     }
 
-    public static string GetConstructorSignature (ConstructorInfo constructorInfo)
+    public static string GetConstructorSignature (ConstructorInfo constructor)
     {
-      return GetSignatureString (typeof (void), constructorInfo.Name, constructorInfo.GetParameters());
+      return GetSignatureString (typeof (void), constructor.Name, constructor.GetParameters());
     }
 
-    public static string GetMethodSignature (MethodInfo methodInfo)
+    public static string GetMethodSignature (MethodInfo method)
     {
-      return GetSignatureString (methodInfo.ReturnType, methodInfo.Name, methodInfo.GetParameters());
+      return GetSignatureString (method.ReturnType, method.Name, method.GetParameters());
     }
 
     public static string GetParameterSignature (ParameterInfo parameter)

@@ -16,31 +16,23 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
-  public class TestableCustomConstructorInfo : CustomConstructorInfo
+  public static class CustomParameterInfoObjectMother
   {
-    public TestableCustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
-        : base(declaringType, attributes)
+    public static CustomParameterInfo Create (
+        MemberInfo member = null, int position = 7, string name = "param", Type type = null, ParameterAttributes attributes = (ParameterAttributes) 7)
     {
+      member = member ?? NormalizingMemberInfoFromExpressionUtility.GetMethod (() => UnspecifiedMember());
+      type = type ?? ReflectionObjectMother.GetSomeType();
+
+      return new TestableCustomParameterInfo (member, position, name, type, attributes);
     }
 
-    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-    public ParameterInfo[] Parameters;
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return CustomAttributeDatas;
-    }
-
-    public override ParameterInfo[] GetParameters ()
-    {
-      return Parameters;
-    }
+    private static void UnspecifiedMember () { }
   }
 }
