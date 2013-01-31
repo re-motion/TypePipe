@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo[] GetAccessors (bool nonPublic)
     {
-      return Enumerable.Where<MethodInfo> (new[] { GetGetMethod (nonPublic), GetSetMethod (nonPublic) }, a => a != null).ToArray();
+      return new[] { GetGetMethod (nonPublic), GetSetMethod (nonPublic) }.Where (a => a != null).ToArray();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
