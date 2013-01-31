@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -89,6 +90,34 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var method = type.GetMethod ("Method");
       Assert.That (method.ReturnType, Is.SameAs (type));
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (type));
+    }
+
+    [Test]
+    [Ignore ("TODO 5392")]
+    public void GenericArgument ()
+    {
+      var type = AssembleType<DomainType> (p => p.AddField ("Field", typeof (List<>).MakeTypePipeGenericType (p), FieldAttributes.Public));
+
+      var field = type.GetField ("Field");
+      var expectedType = typeof (List<>).MakeGenericType (type);
+      Assert.That (field.FieldType, Is.SameAs (expectedType));
+    }
+
+    [Test]
+    [Ignore ("TODO 5392")]
+    public void GenericArgument_Recursive ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var funcType = typeof (Func<>).MakeTypePipeGenericType (proxyType);
+            var enumerableType = funcType.MakeTypePipeGenericType (funcType);
+            proxyType.AddField ("Field", enumerableType, FieldAttributes.Public);
+          });
+
+      var field = type.GetField ("Field");
+      var expectedType = typeof (IEnumerable<>).MakeGenericType (typeof (Func<>).MakeGenericType (type));
+      Assert.That (field.FieldType, Is.SameAs (expectedType));
     }
 
     private void CheckCustomAttribute (ICustomAttributeProvider customAttributeProvider, Type expectedType)
