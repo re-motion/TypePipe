@@ -23,7 +23,6 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -48,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var typeArgument = ReflectionObjectMother.GetSomeType();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock);
       var fakeBaseType = ReflectionObjectMother.GetSomeType();
-      SetupExpectationsOnMemberSelector (genericTypeDefinition);
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (genericTypeDefinition.BaseType)).Return (fakeBaseType);
       _typeInstantiatorMock.Expect (mock => mock.GetSimpleName (genericTypeDefinition)).Return ("name");
       _typeInstantiatorMock.Expect (mock => mock.GetFullName (genericTypeDefinition)).Return ("full name");
@@ -73,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var iface = ReflectionObjectMother.GetSomeInterfaceType();
       var fakeInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, interfaces: new[] { iface });
-      SetupExpectationsOnMemberSelector (genericTypeDefinition);
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition);
       StubBaseTypeAdjustment (genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (iface)).Return (fakeInterface);
 
@@ -90,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeField1 = ReflectionObjectMother.GetSomeField();
       var fakeField2 = ReflectionObjectMother.GetSomeOtherField();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, fields: fields);
-      SetupExpectationsOnMemberSelector (genericTypeDefinition, inputFields: fields, outputFields: new[] { fakeField1 });
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputFields: fields, outputFields: new[] { fakeField1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeField1)).Return (fakeField2);
 
@@ -107,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeConstructor1 = ReflectionObjectMother.GetSomeConstructor();
       var fakeConstructor2 = ReflectionObjectMother.GetSomeOtherConstructor();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, constructors: constructors);
-      SetupExpectationsOnMemberSelector (genericTypeDefinition, inputConstructors: constructors, outputConstructors: new[] { fakeConstructor1 });
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputConstructors: constructors, outputConstructors: new[] { fakeConstructor1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeConstructor1)).Return (fakeConstructor2);
 
@@ -124,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeMethod1 = ReflectionObjectMother.GetSomeMethod();
       var fakeMethod2 = ReflectionObjectMother.GetSomeOtherMethod();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, methods: methods);
-      SetupExpectationsOnMemberSelector (genericTypeDefinition, inputMethods: methods, outputMethods: new[] { fakeMethod1 });
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputMethods: methods, outputMethods: new[] { fakeMethod1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeMethod1)).Return (fakeMethod2);
 
@@ -135,6 +134,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     private void SetupExpectationsOnMemberSelector (
+        IMemberSelector memberSelectorMock,
         Type declaringType,
         FieldInfo[] inputFields = null,
         FieldInfo[] outputFields = null,
@@ -150,9 +150,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       inputMethods = inputMethods ?? new MethodInfo[0];
       outputMethods = outputMethods ?? new MethodInfo[0];
 
-      _memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (inputMethods, c_allBindingFlags, declaringType)).Return (outputMethods);
+      memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
+      memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
+      memberSelectorMock.Expect (mock => mock.SelectMethods (inputMethods, c_allBindingFlags, declaringType)).Return (outputMethods);
     }
 
     private Type CreateGenericTypeDefinition (
