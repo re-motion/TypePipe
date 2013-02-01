@@ -22,6 +22,7 @@ using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 {
@@ -51,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     [Test]
     public void GetSerializableFieldMapping_SameName ()
     {
-      FieldInfo field1 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (int));
-      FieldInfo field2 = MutableFieldInfoObjectMother.Create (name: "abc", type: typeof (string));
+      FieldInfo field1 = CustomFieldInfoObjectMother.Create (name: "abc", type: typeof (int));
+      FieldInfo field2 = CustomFieldInfoObjectMother.Create (name: "abc", type: typeof (string));
 
       var result = _finder.GetSerializableFieldMapping (new[] { field1, field2 });
 

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = CustomTypeObjectMother.Create ();
+      _declaringType = CustomTypeObjectMother.Create();
       _name = "abc";
       _type = ReflectionObjectMother.GetSomeType ();
       _attributes = (FieldAttributes) 7;
