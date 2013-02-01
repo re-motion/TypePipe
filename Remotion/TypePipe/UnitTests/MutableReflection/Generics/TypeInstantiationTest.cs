@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (genericTypeDefinition.BaseType)).Return (fakeBaseType);
       _typeInstantiatorMock.Expect (mock => mock.GetSimpleName (genericTypeDefinition)).Return ("name");
       _typeInstantiatorMock.Expect (mock => mock.GetFullName (genericTypeDefinition)).Return ("full name");
-      SetupExpectationsOnMemberSelector();
+      SetupExpectationsOnMemberSelector (genericTypeDefinition);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
       var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true, interfaces: new[] { iface });
       StubBaseTypeAdjustment (genericTypeDefinition);
-      SetupExpectationsOnMemberSelector();
+      SetupExpectationsOnMemberSelector (genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (iface)).Return (fakeInterface);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
@@ -84,10 +84,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var fields = new FieldInfo[0];
       var fakeField1 = ReflectionObjectMother.GetSomeField();
-      var fakeField2 = ReflectionObjectMother.GetSomeField();
+      var fakeField2 = ReflectionObjectMother.GetSomeOtherField();
       var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true, fields: fields);
       StubBaseTypeAdjustment (genericTypeDefinition);
-      SetupExpectationsOnMemberSelector (inputFields: fields, outputFields: new[] { fakeField1 });
+      SetupExpectationsOnMemberSelector (genericTypeDefinition, inputFields: fields, outputFields: new[] { fakeField1 });
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeField1)).Return (fakeField2);
 
       var instantiation = CreateTypeInstantion(_typeInstantiatorMock, genericTypeDefinition);
@@ -97,12 +97,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.GetFields (c_allBindingFlags), Is.EqualTo (new[] { fakeField2 }));
     }
 
-    private void SetupExpectationsOnMemberSelector (FieldInfo[] inputFields = null, FieldInfo[] outputFields = null)
+    [Test]
+    public void Initialization_AdjustConstructors ()
+    {
+      var constructors = new ConstructorInfo[0];
+      var fakeConstructor1 = ReflectionObjectMother.GetSomeConstructor();
+      var fakeConstructor2 = ReflectionObjectMother.GetSomeOtherConstructor();
+      var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true, constructors: constructors);
+      StubBaseTypeAdjustment (genericTypeDefinition);
+      SetupExpectationsOnMemberSelector (genericTypeDefinition, inputConstructors: constructors, outputConstructors: new[] { fakeConstructor1 });
+      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeConstructor1)).Return (fakeConstructor2);
+
+      var instantiation = CreateTypeInstantion(_typeInstantiatorMock, genericTypeDefinition);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      _typeInstantiatorMock.VerifyAllExpectations();
+      Assert.That (instantiation.GetConstructors (c_allBindingFlags), Is.EqualTo (new[] { fakeConstructor2 }));
+    }
+
+    private void SetupExpectationsOnMemberSelector (
+        Type declaringType,
+        FieldInfo[] inputFields = null,
+        FieldInfo[] outputFields = null,
+        ConstructorInfo[] inputConstructors = null,
+        ConstructorInfo[] outputConstructors = null)
     {
       inputFields = inputFields ?? new FieldInfo[0];
       outputFields = outputFields ?? new FieldInfo[0];
+      inputConstructors = inputConstructors ?? new ConstructorInfo[0];
+      outputConstructors = outputConstructors ?? new ConstructorInfo[0];
 
       _memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
     }
 
     private TypeInstantiation CreateTypeInstantion (ITypeInstantiator typeInstantiator, CustomType genericTypeDefinition)

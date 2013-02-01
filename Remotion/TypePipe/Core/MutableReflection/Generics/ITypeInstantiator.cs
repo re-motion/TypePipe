@@ -26,5 +26,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     string GetFullName (Type type);
 
     FieldInfo SubstituteGenericParameters (FieldInfo field);
+    ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);
+    MethodInfo SubstituteGenericParameters (MethodInfo method);
+    PropertyInfo SubstituteGenericParameters (PropertyInfo property);
+    EventInfo SubstituteGenericParameters (EventInfo event_);
   }
 }
