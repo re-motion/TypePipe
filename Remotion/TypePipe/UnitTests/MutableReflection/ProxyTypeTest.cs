@@ -86,6 +86,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.Name, Is.EqualTo (name));
       Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
       Assert.That (proxyType.FullName, Is.EqualTo (fullname));
+      _memberSelectorMock.Stub (mock => mock.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
+      Assert.That (proxyType.IsGenericType, Is.False);
+      Assert.That (proxyType.IsGenericTypeDefinition, Is.False);
 
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
       Assert.That (proxyType.Initializations, Is.Empty);

@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -17,48 +17,44 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
+namespace Remotion.TypePipe.MutableReflection.Generics
 {
-  public class TestableCustomType : CustomType
+  // TODO docs
+  public class TypeInstantiation : CustomType
   {
-    public TestableCustomType (
+    private readonly ReadOnlyCollection<Type> _interfaces;
+
+    public TypeInstantiation (
         IMemberSelector memberSelector,
         IUnderlyingTypeFactory underlyingTypeFactory,
-        Type declaringType,
-        Type baseType,
-        string name,
-        string @namespace,
-        string fullName,
-        TypeAttributes attributes,
-        bool isGenericType,
-        bool isGenericTypeDefinition)
+        ITypeInstantiator typeInstantiator,
+        Type genericTypeDefinition)
         : base (
             memberSelector,
             underlyingTypeFactory,
-            declaringType,
-            baseType,
-            name,
-            @namespace,
-            fullName,
-            attributes,
-            isGenericType,
-            isGenericTypeDefinition)
+            null,
+            typeInstantiator.SubstituteGenericParameters (genericTypeDefinition.BaseType),
+            typeInstantiator.GetSimpleName (genericTypeDefinition),
+            genericTypeDefinition.Namespace,
+            typeInstantiator.GetFullName (genericTypeDefinition),
+            genericTypeDefinition.Attributes,
+            isGenericType: true,
+            isGenericTypeDefinition: true)
     {
-    }
+      Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
 
-    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-    public IEnumerable<Type> Interfaces;
-    public IEnumerable<FieldInfo> Fields;
-    public IEnumerable<ConstructorInfo> Constructors;
-    public IEnumerable<MethodInfo> Methods;
+      _interfaces = genericTypeDefinition.GetInterfaces().Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+    }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return CustomAttributeDatas;
+      throw new NotImplementedException();
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
@@ -68,22 +64,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return Interfaces;
+      return _interfaces;
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      return Fields;
+      throw new NotImplementedException();
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      return Constructors;
+      throw new NotImplementedException();
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return Methods;
+      throw new NotImplementedException();
     }
   }
 }

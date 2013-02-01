@@ -154,6 +154,9 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
+    <Compile Include="MutableReflection\Generics\ITypeAdjuster.cs" />
+    <Compile Include="MutableReflection\Generics\ITypeInstantiator.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiation.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomEventInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomMethodInfo.cs" />
@@ -377,9 +380,7 @@
       <Name>Core.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MutableReflection\Generics\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

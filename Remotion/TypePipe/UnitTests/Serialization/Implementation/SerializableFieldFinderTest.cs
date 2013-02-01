@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.Serialization.Implementation

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -42,6 +43,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private string _namespace;
     private string _fullName;
     private TypeAttributes _attributes;
+    private bool _isGenericType;
+    private bool _isGenericTypeDefinition;
 
     private TestableCustomType _customType;
 
@@ -57,6 +60,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _namespace = "namespace";
       _fullName = "full type name";
       _attributes = (TypeAttributes) 7;
+      _isGenericType = BooleanObjectMother.GetRandomBoolean();
+      _isGenericTypeDefinition = BooleanObjectMother.GetRandomBoolean();
 
       _customType = new TestableCustomType (
           _memberSelectorMock,
@@ -66,7 +71,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _name,
           _namespace,
           _fullName,
-          _attributes);
+          _attributes,
+          _isGenericType,
+          _isGenericTypeDefinition);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
@@ -84,12 +91,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
       Assert.That (_customType.FullName, Is.EqualTo (_fullName));
       Assert.That (_customType.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_customType.IsGenericType, Is.EqualTo (_isGenericType));
+      Assert.That (_customType.IsGenericTypeDefinition, Is.EqualTo (_isGenericTypeDefinition));
     }
 
     [Test]
     public void Initialization_Null ()
     {
-      var customType = new TestableCustomType (_memberSelectorMock, _underlyingTypeFactoryMock, null, _baseType, _name, _namespace, _fullName, 0);
+      var customType = new TestableCustomType (
+          _memberSelectorMock, _underlyingTypeFactoryMock, null, _baseType, _name, _namespace, _fullName, 0, false, false);
 
       Assert.That (customType.DeclaringType, Is.Null);
     }
@@ -417,14 +427,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var customTypeWithUnderlyingSystemTypeFactoryStub = CustomTypeObjectMother.Create();
 
-      // None of these members should throw an exception 
+      // None of these members should throw an exception.
       Dev.Null = _customType.MemberType;
       Dev.Null = _customType.DeclaringMethod;
       Dev.Null = _customType.ReflectedType;
-      Dev.Null = _customType.IsGenericType;
-      Dev.Null = _customType.IsGenericTypeDefinition;
       Dev.Null = _customType.IsGenericParameter;
-      Dev.Null = _customType.ContainsGenericParameters;
+      Dev.Null = CustomTypeObjectMother.Create (isGenericType: false).ContainsGenericParameters;
 
       Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
       Dev.Null = customTypeWithUnderlyingSystemTypeFactoryStub.IsContextful; // IsContextfulImpl()
