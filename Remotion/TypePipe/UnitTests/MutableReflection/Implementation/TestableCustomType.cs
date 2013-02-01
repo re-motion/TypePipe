@@ -35,7 +35,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string fullName,
         TypeAttributes attributes,
         bool isGenericType,
-        bool isGenericTypeDefinition)
+        bool isGenericTypeDefinition,
+        IEnumerable<Type> typeArguments)
         : base (
             memberSelector,
             underlyingTypeFactory,
@@ -46,7 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
             fullName,
             attributes,
             isGenericType,
-            isGenericTypeDefinition)
+            isGenericTypeDefinition,
+            typeArguments)
     {
     }
 

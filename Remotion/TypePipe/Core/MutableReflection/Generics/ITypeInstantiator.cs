@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
@@ -22,6 +23,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   // tODO docs
   public interface ITypeInstantiator : ITypeAdjuster
   {
+    IEnumerable<Type> TypeArguments { get; }
+
     string GetSimpleName (Type type);
     string GetFullName (Type type);
 

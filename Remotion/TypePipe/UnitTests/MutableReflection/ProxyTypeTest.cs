@@ -90,6 +90,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
       Assert.That (proxyType.IsGenericType, Is.False);
       Assert.That (proxyType.IsGenericTypeDefinition, Is.False);
+      Assert.That (proxyType.GetGenericArguments(), Is.Empty);
 
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
       Assert.That (proxyType.Initializations, Is.Empty);

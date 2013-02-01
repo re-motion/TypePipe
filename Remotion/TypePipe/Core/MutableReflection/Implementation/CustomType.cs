@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -51,6 +52,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly TypeAttributes _attributes;
     private readonly bool _isGenericType;
     private readonly bool _isGenericTypeDefinition;
+    private readonly ReadOnlyCollection<Type> _typeArguments;
 
     private Type _underlyingSystemType;
 
@@ -64,7 +66,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string fullName,
         TypeAttributes attributes,
         bool isGenericType,
-        bool isGenericTypeDefinition)
+        bool isGenericTypeDefinition,
+        IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
@@ -74,6 +77,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 
       _memberSelector = memberSelector;
       _underlyingTypeFactory = underlyingTypeFactory;
@@ -85,6 +89,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _attributes = attributes;
       _isGenericType = isGenericType;
       _isGenericTypeDefinition = isGenericTypeDefinition;
+      _typeArguments = typeArguments.ToList().AsReadOnly();
+
+      Assertion.IsTrue ((isGenericType && _typeArguments.Count > 0) || (!isGenericType && _typeArguments.Count == 0));
+      Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
@@ -192,6 +200,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type GetElementType ()
     {
       return null;
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      return _typeArguments.ToArray();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
@@ -451,11 +464,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakeGenericType (params Type[] typeArguments)
     {
       throw new NotSupportedException ("Method MakeGenericType is not supported.");
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      throw new NotSupportedException ("Method GetGenericArguments is not supported.");
     }
 
     public override Type GetGenericTypeDefinition ()
