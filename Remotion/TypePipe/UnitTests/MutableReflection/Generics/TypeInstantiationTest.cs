@@ -115,20 +115,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.GetConstructors (c_allBindingFlags), Is.EqualTo (new[] { fakeConstructor2 }));
     }
 
+    [Test]
+    public void Initialization_AdjustMethods ()
+    {
+      var methods = new MethodInfo[0];
+      var fakeMethod1 = ReflectionObjectMother.GetSomeMethod();
+      var fakeMethod2 = ReflectionObjectMother.GetSomeOtherMethod();
+      var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true, methods: methods);
+      StubBaseTypeAdjustment (genericTypeDefinition);
+      SetupExpectationsOnMemberSelector (genericTypeDefinition, inputMethods: methods, outputMethods: new[] { fakeMethod1 });
+      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeMethod1)).Return (fakeMethod2);
+
+      var instantiation = CreateTypeInstantion(_typeInstantiatorMock, genericTypeDefinition);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      _typeInstantiatorMock.VerifyAllExpectations();
+      Assert.That (instantiation.GetMethods (c_allBindingFlags), Is.EqualTo (new[] { fakeMethod2 }));
+    }
+
     private void SetupExpectationsOnMemberSelector (
         Type declaringType,
         FieldInfo[] inputFields = null,
         FieldInfo[] outputFields = null,
         ConstructorInfo[] inputConstructors = null,
-        ConstructorInfo[] outputConstructors = null)
+        ConstructorInfo[] outputConstructors = null,
+        MethodInfo[] inputMethods = null,
+        MethodInfo[] outputMethods = null)
     {
       inputFields = inputFields ?? new FieldInfo[0];
       outputFields = outputFields ?? new FieldInfo[0];
       inputConstructors = inputConstructors ?? new ConstructorInfo[0];
       outputConstructors = outputConstructors ?? new ConstructorInfo[0];
+      inputMethods = inputMethods ?? new MethodInfo[0];
+      outputMethods = outputMethods ?? new MethodInfo[0];
 
       _memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
       _memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
+      _memberSelectorMock.Expect (mock => mock.SelectMethods (inputMethods, c_allBindingFlags, declaringType)).Return (outputMethods);
     }
 
     private TypeInstantiation CreateTypeInstantion (ITypeInstantiator typeInstantiator, CustomType genericTypeDefinition)

@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<FieldInfo> _fields;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
+    private readonly ReadOnlyCollection<MethodInfo> _methods;
 
     public TypeInstantiation (
         IMemberSelector memberSelector,
@@ -56,6 +57,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _interfaces = genericTypeDefinition.GetInterfaces().Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _fields = genericTypeDefinition.GetFields (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+      _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -85,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      throw new NotImplementedException();
+      return _methods;
     }
   }
 }
