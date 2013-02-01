@@ -155,6 +155,7 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomEventInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomParameterInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomFieldInfo.cs" />
