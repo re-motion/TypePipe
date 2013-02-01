@@ -50,17 +50,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static string GetParameterSignature (ParameterInfo parameter)
     {
-      return string.Format ("{0} {1}", GetShortTypeName (parameter.ParameterType), parameter.Name);
+      return GetShortTypeName (parameter.ParameterType) + " " + parameter.Name;
     }
 
-    public static string GetPropertySignature (PropertyInfo parameter)
+    public static string GetPropertySignature (PropertyInfo property)
     {
-      return string.Format ("{0} {1}", GetShortTypeName (parameter.PropertyType), parameter.Name);
+      return GetShortTypeName (property.PropertyType) + " " + property.Name;
     }
 
     public static string GetEventSignature (EventInfo event_)
     {
-      return string.Format ("{0} {1}", GetShortTypeName (event_.EventHandlerType), event_.Name);
+      return GetShortTypeName (event_.EventHandlerType) + " " + event_.Name;
     }
 
     private static string GetShortTypeName (Type type)

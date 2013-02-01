@@ -46,7 +46,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _attributes = attributes;
     }
 
-    public abstract override Type ReturnType { get; }
     public abstract override ParameterInfo ReturnParameter { get; }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
@@ -71,6 +70,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override CallingConventions CallingConvention
     {
       get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
+    }
+
+    public override Type ReturnType
+    {
+      get
+      {
+        Assertion.IsNotNull (ReturnParameter);
+        return ReturnParameter.ParameterType;
+      }
     }
 
     public override bool IsGenericMethod

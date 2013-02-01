@@ -81,10 +81,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public new void ToString ()
     {
-      // TODO
-      var parameter = MutableParameterInfoObjectMother.Create (name: "param1", type: typeof (int), attributes: ParameterAttributes.Out);
+      var parameter = CustomParameterInfoObjectMother.Create (name: "param1", type: typeof (int), attributes: ParameterAttributes.Out);
 
-      Assert.That (parameter.ToString (), Is.EqualTo ("Int32 param1"));
+      Assert.That (parameter.ToString(), Is.EqualTo ("Int32 param1"));
     }
 
     [Test]

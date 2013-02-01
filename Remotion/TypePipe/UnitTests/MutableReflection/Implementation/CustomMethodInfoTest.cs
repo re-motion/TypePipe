@@ -19,7 +19,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -53,11 +53,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CallingConvention ()
     {
-      var instanceMethod = MutableMethodInfoObjectMother.Create (attributes: 0);
-      var staticMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var instanceMethod = CustomMethodInfoObjectMother.Create (attributes: 0);
+      var staticMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
       Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
+    }
+
+    [Test]
+    public void ReturnType ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      _method.ReturnParameter_ = CustomParameterInfoObjectMother.Create (type: type);
+
+      Assert.That (_method.ReturnType, Is.SameAs (type));
     }
 
     [Test]
@@ -78,10 +87,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var parameters =
           new[]
           {
-              new ParameterDeclaration (typeof (int), "p1"),
-              new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", ParameterAttributes.Out)
+              CustomParameterInfoObjectMother.Create (type: typeof (int)),
+              CustomParameterInfoObjectMother.Create (type: typeof (string).MakeByRefType())
           };
-      var method = MutableMethodInfoObjectMother.Create (name: "Xxx", returnType: typeof (string), parameters: parameters);
+      var returnParameter = CustomParameterInfoObjectMother.Create (type: typeof (string));
+      var method = CustomMethodInfoObjectMother.Create (name: "Xxx", returnParameter: returnParameter, parameters: parameters);
 
       Assert.That (method.ToString (), Is.EqualTo ("String Xxx(Int32, String&)"));
     }
@@ -89,11 +99,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ToDebugString ()
     {
-      var method = MutableMethodInfoObjectMother.Create (
+      var method = CustomMethodInfoObjectMother.Create (
           declaringType: ProxyTypeObjectMother.Create (name: "AbcProxy"),
           name: "Xxx",
-          returnType: typeof (void),
-          parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
+          returnParameter: CustomParameterInfoObjectMother.Create (position: -1, type: typeof (void)),
+          parameters: new[] { CustomParameterInfoObjectMother.Create (type: typeof (int)) });
 
       var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"AbcProxy\"";
       Assert.That (method.ToDebugString(), Is.EqualTo (expected));
