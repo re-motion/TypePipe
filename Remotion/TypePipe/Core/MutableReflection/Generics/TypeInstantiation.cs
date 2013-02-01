@@ -28,7 +28,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   // TODO docs
   public class TypeInstantiation : CustomType
   {
+    private const BindingFlags c_allBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
+
     private readonly ReadOnlyCollection<Type> _interfaces;
+    private readonly IEnumerable<FieldInfo> _fields;
 
     public TypeInstantiation (
         IMemberSelector memberSelector,
@@ -50,6 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
 
       _interfaces = genericTypeDefinition.GetInterfaces().Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+      _fields = genericTypeDefinition.GetFields (c_allBindingFlags).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -69,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      throw new NotImplementedException();
+      return _fields;
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()

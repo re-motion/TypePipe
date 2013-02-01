@@ -15,10 +15,13 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
@@ -26,28 +29,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   [TestFixture]
   public class TypeInstantiationTest
   {
-    private MemberSelector _memberSelector;
-    private ThrowingUnderlyingTypeFactory _underlyingTypeFactory;
+    private const BindingFlags c_allBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
+
+    private IMemberSelector _memberSelectorMock;
     private ITypeInstantiator _typeInstantiatorMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _memberSelector = new MemberSelector(new BindingFlagsEvaluator());
-      _underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _typeInstantiatorMock = MockRepository.GenerateStrictMock<ITypeInstantiator>();
     }
 
     [Test]
     public void Initialization_AdjustBaseType_AndNames ()
     {
-      var genericTypeDefinition = typeof (SimpleDomainType<>);
+      var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true);
       var fakeBaseType = ReflectionObjectMother.GetSomeType();
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (genericTypeDefinition.BaseType)).Return (fakeBaseType);
       _typeInstantiatorMock.Expect (mock => mock.GetSimpleName (genericTypeDefinition)).Return ("name");
       _typeInstantiatorMock.Expect (mock => mock.GetFullName (genericTypeDefinition)).Return ("full name");
+      SetupExpectationsOnMemberSelector();
 
-      var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, _typeInstantiatorMock, genericTypeDefinition);
+      var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.BaseType, Is.SameAs (fakeBaseType));
@@ -59,19 +63,54 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.IsGenericTypeDefinition, Is.True);
     }
 
-    //[Test]
-    //public void Initialization_AdjustInterfaces ()
-    //{
-    //  var genericTypeDefinition = CustomTypeObjectMother.Create(typeof (DomainTypeWithInterface<>);
-    //  StubBaseTypeAdjustment (genericTypeDefinition);
-    //  var fakeInterface = ReflectionObjectMother.GetSomeType();
-    //  _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (typeof (IMyInterface))).Return (fakeInterface);
+    [Test]
+    public void Initialization_AdjustInterfaces ()
+    {
+      var iface = ReflectionObjectMother.GetSomeInterfaceType();
+      var fakeInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
+      var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true, interfaces: new[] { iface });
+      StubBaseTypeAdjustment (genericTypeDefinition);
+      SetupExpectationsOnMemberSelector();
+      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (iface)).Return (fakeInterface);
 
-    //  var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, _typeInstantiatorMock, genericTypeDefinition);
+      var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
-    //  _typeInstantiatorMock.VerifyAllExpectations();
-    //  Assert.That (instantiation.GetInterfaces(), Is.EqualTo (new[] { fakeInterface }));
-    //}
+      _typeInstantiatorMock.VerifyAllExpectations();
+      Assert.That (instantiation.GetInterfaces(), Is.EqualTo (new[] { fakeInterface }));
+    }
+
+    [Test]
+    public void Initialization_AdjustFields ()
+    {
+      var fields = new FieldInfo[0];
+      var fakeField1 = ReflectionObjectMother.GetSomeField();
+      var fakeField2 = ReflectionObjectMother.GetSomeField();
+      var genericTypeDefinition = CustomTypeObjectMother.Create (_memberSelectorMock, isGenericTypeDefinition: true, fields: fields);
+      StubBaseTypeAdjustment (genericTypeDefinition);
+      SetupExpectationsOnMemberSelector (inputFields: fields, outputFields: new[] { fakeField1 });
+      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeField1)).Return (fakeField2);
+
+      var instantiation = CreateTypeInstantion(_typeInstantiatorMock, genericTypeDefinition);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      _typeInstantiatorMock.VerifyAllExpectations();
+      Assert.That (instantiation.GetFields (c_allBindingFlags), Is.EqualTo (new[] { fakeField2 }));
+    }
+
+    private void SetupExpectationsOnMemberSelector (FieldInfo[] inputFields = null, FieldInfo[] outputFields = null)
+    {
+      inputFields = inputFields ?? new FieldInfo[0];
+      outputFields = outputFields ?? new FieldInfo[0];
+
+      _memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
+    }
+
+    private TypeInstantiation CreateTypeInstantion (ITypeInstantiator typeInstantiator, CustomType genericTypeDefinition)
+    {
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
+      return new TypeInstantiation (memberSelector, underlyingTypeFactory, typeInstantiator, genericTypeDefinition);
+    }
 
     private void StubBaseTypeAdjustment (Type genericTypeDefinition)
     {
@@ -80,10 +119,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _typeInstantiatorMock.Stub (stub => stub.GetSimpleName (genericTypeDefinition)).Return ("name");
       _typeInstantiatorMock.Stub (stub => stub.GetFullName (genericTypeDefinition)).Return ("full name");
     }
-
-    class SimpleDomainType<T> { }
-    class DomainTypeWithInterface<T> : IMyInterface { }
-
-    interface IMyInterface{}
   }
 }

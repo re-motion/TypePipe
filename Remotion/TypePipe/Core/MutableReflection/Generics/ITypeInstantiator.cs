@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -23,5 +24,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     string GetSimpleName (Type type);
     string GetFullName (Type type);
+
+    FieldInfo SubstituteGenericParameters (FieldInfo field);
   }
 }
