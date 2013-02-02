@@ -33,8 +33,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string name,
         string @namespace,
         string fullName,
-        TypeAttributes attributes)
-        : base (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName, attributes)
+        TypeAttributes attributes,
+        bool isGenericType,
+        bool isGenericTypeDefinition,
+        IEnumerable<Type> typeArguments)
+        : base (
+            memberSelector,
+            underlyingTypeFactory,
+            declaringType,
+            baseType,
+            name,
+            @namespace,
+            fullName,
+            attributes,
+            isGenericType,
+            isGenericTypeDefinition,
+            typeArguments)
     {
     }
 

@@ -16,31 +16,12 @@
 // 
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
+namespace Remotion.TypePipe.MutableReflection.Generics
 {
-  public class TestableCustomConstructorInfo : CustomConstructorInfo
+  // TODO docs
+  public interface ITypeAdjuster
   {
-    public TestableCustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
-        : base(declaringType, attributes)
-    {
-    }
-
-    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-    public ParameterInfo[] Parameters;
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return CustomAttributeDatas;
-    }
-
-    public override ParameterInfo[] GetParameters ()
-    {
-      return Parameters;
-    }
+    Type SubstituteGenericParameters (Type type);
   }
 }

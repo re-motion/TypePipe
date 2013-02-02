@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -50,8 +49,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Name ()
     {
-      var constructor = MutableConstructorInfoObjectMother.Create (attributes: 0);
-      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var constructor = CustomConstructorInfoObjectMother.Create (attributes: 0);
+      var typeInitializer = CustomConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
       Assert.That (constructor.Name, Is.EqualTo (".ctor"));
       Assert.That (typeInitializer.Name, Is.EqualTo (".cctor"));
@@ -60,8 +59,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CallingConvention ()
     {
-      var constructor = MutableConstructorInfoObjectMother.Create (attributes: 0);
-      var typeInitializer = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var constructor = CustomConstructorInfoObjectMother.Create (attributes: 0);
+      var typeInitializer = CustomConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
       Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
       Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
@@ -82,24 +81,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public new void ToString ()
     {
-      var ctor = MutableConstructorInfoObjectMother.Create (
-          parameters:
-              new[]
-              {
-                  new ParameterDeclaration (typeof (int), "p1"),
-                  new ParameterDeclaration (typeof (string).MakeByRefType(), "p2", attributes: ParameterAttributes.Out)
-              });
+      _constructor.Parameters =
+          new ParameterInfo[]
+          {
+              CustomParameterInfoObjectMother.Create (type: typeof (int)),
+              CustomParameterInfoObjectMother.Create (type: typeof (string).MakeByRefType())
+          };
 
-      Assert.That (ctor.ToString (), Is.EqualTo ("Void .ctor(Int32, String&)"));
+      Assert.That (_constructor.ToString(), Is.EqualTo ("Void .ctor(Int32, String&)"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = ProxyTypeObjectMother.Create (name: "Abc");
-      var ctor = MutableConstructorInfoObjectMother.Create (declaringType, parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
+      var declaringType = CustomTypeObjectMother.Create (name: "Abc");
+      var ctor = CustomConstructorInfoObjectMother.Create (
+          declaringType, parameters: new ParameterInfo[] { CustomParameterInfoObjectMother.Create (type: typeof (int)) });
 
-      var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"Abc\"";
+      var expected = "TestableCustomConstructor = \"Void .ctor(Int32)\", DeclaringType = \"Abc\"";
       Assert.That (ctor.ToDebugString (), Is.EqualTo (expected));
     }
 

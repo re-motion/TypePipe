@@ -14,33 +14,24 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
+namespace Remotion.TypePipe.MutableReflection.Generics
 {
-  public class TestableCustomConstructorInfo : CustomConstructorInfo
+  // tODO docs
+  public interface ITypeInstantiator : ITypeAdjuster
   {
-    public TestableCustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
-        : base(declaringType, attributes)
-    {
-    }
+    IEnumerable<Type> TypeArguments { get; }
 
-    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-    public ParameterInfo[] Parameters;
+    string GetSimpleName (Type type);
+    string GetFullName (Type type);
 
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return CustomAttributeDatas;
-    }
-
-    public override ParameterInfo[] GetParameters ()
-    {
-      return Parameters;
-    }
+    FieldInfo SubstituteGenericParameters (FieldInfo field);
+    ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);
+    MethodInfo SubstituteGenericParameters (MethodInfo method);
+    PropertyInfo SubstituteGenericParameters (PropertyInfo property);
+    EventInfo SubstituteGenericParameters (EventInfo event_);
   }
 }

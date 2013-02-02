@@ -66,7 +66,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _name,
           _namespace,
           _fullName,
-          _attributes);
+          _attributes,
+          isGenericType: false,
+          isGenericTypeDefinition: false,
+          typeArguments: Type.EmptyTypes);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
@@ -84,12 +87,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
       Assert.That (_customType.FullName, Is.EqualTo (_fullName));
       Assert.That (_customType.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_customType.IsGenericType, Is.False);
+      Assert.That (_customType.IsGenericTypeDefinition, Is.False);
+      Assert.That (_customType.GetGenericArguments(), Is.Empty);
+
+      var typeArgument = ReflectionObjectMother.GetSomeType();
+      var genericCustomType = CustomTypeObjectMother.Create (
+          isGenericType: true, isGenericTypeDefinition: true, typeArguments: new[] { typeArgument });
+      Assert.That (genericCustomType.IsGenericType, Is.True);
+      Assert.That (genericCustomType.IsGenericTypeDefinition, Is.True);
+      Assert.That (genericCustomType.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
     }
 
     [Test]
-    public void Initialization_Null ()
+    public void Initialization_NullDeclaringType_AndTypeArguments ()
     {
-      var customType = new TestableCustomType (_memberSelectorMock, _underlyingTypeFactoryMock, null, _baseType, _name, _namespace, _fullName, 0);
+      var customType = new TestableCustomType (
+          _memberSelectorMock, _underlyingTypeFactoryMock, null, _baseType, _name, _namespace, _fullName, _attributes, false, false, Type.EmptyTypes);
 
       Assert.That (customType.DeclaringType, Is.Null);
     }
@@ -173,7 +187,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetElementType ()
     {
-      Assert.That (_customType.GetElementType (), Is.Null);
+      Assert.That (_customType.GetElementType(), Is.Null);
     }
 
     [Test]
@@ -403,6 +417,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public new void ToString ()
     {
+
       Assert.That (_customType.ToString(), Is.EqualTo ("type name"));
     }
 
@@ -417,14 +432,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var customTypeWithUnderlyingSystemTypeFactoryStub = CustomTypeObjectMother.Create();
 
-      // None of these members should throw an exception 
+      // None of these members should throw an exception.
       Dev.Null = _customType.MemberType;
       Dev.Null = _customType.DeclaringMethod;
       Dev.Null = _customType.ReflectedType;
-      Dev.Null = _customType.IsGenericType;
-      Dev.Null = _customType.IsGenericTypeDefinition;
       Dev.Null = _customType.IsGenericParameter;
-      Dev.Null = _customType.ContainsGenericParameters;
+      Dev.Null = CustomTypeObjectMother.Create (isGenericType: false).ContainsGenericParameters;
 
       Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
       Dev.Null = customTypeWithUnderlyingSystemTypeFactoryStub.IsContextful; // IsContextfulImpl()
@@ -470,7 +483,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetArrayRank(), "GetArrayRank");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericParameterConstraints(), "GetGenericParameterConstraints");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeGenericType(), "MakeGenericType");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericArguments(), "GetGenericArguments");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericTypeDefinition(), "GetGenericTypeDefinition");
     }
 

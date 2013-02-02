@@ -16,31 +16,21 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
-  public class TestableCustomConstructorInfo : CustomConstructorInfo
+  public static class CustomFieldInfoObjectMother
   {
-    public TestableCustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
-        : base(declaringType, attributes)
+    public static CustomFieldInfo Create (
+        CustomType declaringType = null, string name = "CustomField", Type type = null, FieldAttributes attributes = (FieldAttributes) 7)
     {
-    }
+      declaringType = declaringType ?? CustomTypeObjectMother.Create();
+      type = type ?? ReflectionObjectMother.GetSomeType();
 
-    public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-    public ParameterInfo[] Parameters;
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return CustomAttributeDatas;
-    }
-
-    public override ParameterInfo[] GetParameters ()
-    {
-      return Parameters;
+      return new TestableCustomFieldInfo (declaringType, name, type, attributes);
     }
   }
 }
