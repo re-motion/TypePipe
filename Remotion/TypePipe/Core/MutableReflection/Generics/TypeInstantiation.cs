@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<FieldInfo> _fields;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
     private readonly ReadOnlyCollection<MethodInfo> _methods;
+    private readonly ReadOnlyCollection<PropertyInfo> _properties;
 
     public TypeInstantiation (
         IMemberSelector memberSelector,
@@ -59,8 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _fields = genericTypeDefinition.GetFields (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      var propertyInfos = genericTypeDefinition.GetProperties (c_allMembers).ToList();
-      propertyInfos.Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+      _properties = genericTypeDefinition.GetProperties (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      return null;
+      return _properties;
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
