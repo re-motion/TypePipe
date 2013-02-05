@@ -276,6 +276,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _memberSelector.SelectProperties (GetAllProperties(), bindingAttr, this).ToArray();
     }
 
+    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectEvents (GetAllEvents(), bindingAttr, this);
+    }
+
+    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      return _memberSelector.SelectSingleEvent (GetAllEvents(), bindingAttr, name, this);
+    }
+
     protected void InvalidateUnderlyingSystemType ()
     {
       _underlyingSystemType = null;
@@ -363,16 +375,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override MemberInfo[] GetMember (string name, MemberTypes type, BindingFlags bindingAttr)
     {
       return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
-    }
-
-    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
-    {
-      return new EventInfo[0]; // Needed for GetEvents() - virtual method check
     }
 
     public override Type[] GetNestedTypes (BindingFlags bindingAttr)

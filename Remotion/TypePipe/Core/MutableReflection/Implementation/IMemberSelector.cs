@@ -27,9 +27,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public interface IMemberSelector
   {
     IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType);
+
     IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
         where T : MethodBase;
+
     IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, Type declaringType);
+
+    EventInfo[] SelectEvents (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, Type declaringType);
+
 
     FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType);
 
@@ -41,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type declaringType,
         Type[] parameterTypesOrNull,
         ParameterModifier[] modifiersOrNull)
-        where T: MethodBase;
+        where T : MethodBase;
 
     PropertyInfo SelectSingleProperty (
         IEnumerable<PropertyInfo> properties,
@@ -52,5 +57,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type propertyTypeOrNull,
         Type[] indexerTypesOrNull,
         ParameterModifier[] modifiersOrNull);
+
+    EventInfo SelectSingleEvent (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, string name, Type declaringType);
   }
 }

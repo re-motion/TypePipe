@@ -65,6 +65,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return FilterByFlags (properties, bindingAttr, declaringType, predicate);
     }
 
+    public EventInfo[] SelectEvents (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, Type declaringType)
+    {
+      throw new NotImplementedException();
+    }
+
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
@@ -134,6 +139,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       // DefaultBinder does support null 'propertyType' and/or 'indexerTypes'.
       return binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
+    }
+
+    public EventInfo SelectSingleEvent (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, string name, Type declaringType)
+    {
+      throw new NotImplementedException();
     }
 
     private IEnumerable<T> FilterByFlags<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType, Func<T, bool> predicate)
