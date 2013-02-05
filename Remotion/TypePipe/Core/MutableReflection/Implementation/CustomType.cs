@@ -305,10 +305,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _memberSelector.SelectSingleMethod (GetAllMethods(), binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
     }
 
-    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
+    protected override PropertyInfo GetPropertyImpl (
+        string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnTypeOrNull, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
     {
-      //types = types ?? Type.EmptyTypes;
-      return GetProperties (bindingAttr).SingleOrDefault (p => p.Name == name);
+      var binder = binderOrNull ?? DefaultBinder;
+      return _memberSelector.SelectSingleProperty (GetAllProperties(), binder, bindingAttr, name, this, returnTypeOrNull, typesOrNull, modifiersOrNull);
     }
 
     protected override bool HasElementTypeImpl ()

@@ -111,6 +111,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
+    public PropertyInfo SelectSingleProperty (
+        IEnumerable<PropertyInfo> properties,
+        Binder binder,
+        BindingFlags bindingAttr,
+        string name,
+        Type declaringType,
+        Type returnTypeOrNull,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull)
+    {
+      throw new NotImplementedException();
+    }
+
     public PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingFlags, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("properties", properties);

@@ -271,12 +271,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = ReflectionObjectMother.GetSomeField ();
+      var fakeResult = ReflectionObjectMother.GetSomeField();
       _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name, _customType)).Return (fakeResult);
 
       var resultField = _customType.GetField (name, bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations ();
+      _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
@@ -363,10 +363,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (fakeResult);
 
       var arguments = new object[] { bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
-      var resultConstructor = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
+      var result = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
 
       _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultConstructor, Is.SameAs (fakeResult));
+      Assert.That (result, Is.SameAs (fakeResult));
     }
 
     [Test]
@@ -387,17 +387,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (fakeResult);
 
       var arguments = new object[] { name, bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
-      var resultMethod = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
+      var result = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
 
       _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultMethod, Is.SameAs (fakeResult));
+      Assert.That (result, Is.SameAs (fakeResult));
     }
 
     [Test]
-    public void GetPropertyImpl ()
+    [TestCaseSource ("GetBinderTestCases")]
+    public void GetPropertyImpl (Binder inputBinder, Binder expectedBinder)
     {
       Assert.That (_customType.Properties, Is.Not.Null.And.Not.Empty);
-      
+      var name = "some name";
+      var bindingAttr = BindingFlags.NonPublic;
+      var returnTypeOrNull = ReflectionObjectMother.GetSomeType();
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
+
+      var fakeResult = ReflectionObjectMother.GetSomeProperty();
+      _memberSelectorMock
+          .Expect (
+              mock => mock.SelectSingleProperty (
+                  _customType.Properties, expectedBinder, bindingAttr, name, _customType, returnTypeOrNull, typesOrNull, modifiersOrNull))
+          .Return (fakeResult);
+
+      var arguments = new object[] { name, bindingAttr, inputBinder, returnTypeOrNull, typesOrNull, modifiersOrNull };
+      var result = (PropertyInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetPropertyImpl", arguments);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
     }
 
     public static IEnumerable GetBinderTestCases ()

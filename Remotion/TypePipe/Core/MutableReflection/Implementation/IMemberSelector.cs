@@ -43,6 +43,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         ParameterModifier[] modifiersOrNull)
         where T: MethodBase;
 
-    PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, string name, Type declaringType);
+    PropertyInfo SelectSingleProperty (
+        IEnumerable<PropertyInfo> properties,
+        Binder binder,
+        BindingFlags bindingAttr,
+        string name,
+        Type declaringType,
+        Type returnTypeOrNull,
+        Type[] typesOrNull,
+        ParameterModifier[] modifiersOrNull);
   }
 }
