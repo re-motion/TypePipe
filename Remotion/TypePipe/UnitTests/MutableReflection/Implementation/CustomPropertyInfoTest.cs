@@ -15,13 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -34,20 +31,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var declaringType = CustomTypeObjectMother.Create();
       var name = "Property";
-      var type = ReflectionObjectMother.GetSomeType ();
+      var type = ReflectionObjectMother.GetSomeType();
       var attributes = (PropertyAttributes) 7;
       var getMethod = ReflectionObjectMother.GetSomeMethod();
       var setMethod = ReflectionObjectMother.GetSomeMethod();
       var indexParameters = new[] { ReflectionObjectMother.GetSomeParameter(), ReflectionObjectMother.GetSomeParameter() };
 
-      var result = CreateCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters);
+      var property = new TestableCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters);
 
-      Assert.That (result.Attributes, Is.EqualTo (attributes));
-      Assert.That (result.DeclaringType, Is.EqualTo (declaringType));
-      Assert.That (result.Name, Is.EqualTo (name));
-      Assert.That (result.GetGetMethod(), Is.SameAs (getMethod));
-      Assert.That (result.GetSetMethod(), Is.SameAs (setMethod));
-      Assert.That (result.GetIndexParameters(), Is.EqualTo (indexParameters));
+      Assert.That (property.Attributes, Is.EqualTo (attributes));
+      Assert.That (property.DeclaringType, Is.EqualTo (declaringType));
+      Assert.That (property.Name, Is.EqualTo (name));
+      Assert.That (property.GetGetMethod(), Is.SameAs (getMethod));
+      Assert.That (property.GetSetMethod(), Is.SameAs (setMethod));
+      Assert.That (property.GetIndexParameters(), Is.EqualTo (indexParameters));
     }
 
     [Test]
@@ -55,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var nonPublicMethod = ReflectionObjectMother.GetSomeNonPublicMethod();
       var publicMethod = ReflectionObjectMother.GetSomePublicMethod();
-      var property1 = CreateCustomPropertyInfo (getMethod: nonPublicMethod);
-      var property2 = CreateCustomPropertyInfo (getMethod: publicMethod);
+      var property1 = CustomPropertyInfoObjectMother.Create (getMethod: nonPublicMethod);
+      var property2 = CustomPropertyInfoObjectMother.Create (getMethod: publicMethod);
 
       Assert.That (property1.GetGetMethod (true), Is.SameAs (nonPublicMethod));
       Assert.That (property1.GetGetMethod (false), Is.Null);
@@ -69,8 +66,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var nonPublicMethod = ReflectionObjectMother.GetSomeNonPublicMethod();
       var publicMethod = ReflectionObjectMother.GetSomePublicMethod();
-      var property1 = CreateCustomPropertyInfo (setMethod: nonPublicMethod);
-      var property2 = CreateCustomPropertyInfo (setMethod: publicMethod);
+      var property1 = CustomPropertyInfoObjectMother.Create (setMethod: nonPublicMethod);
+      var property2 = CustomPropertyInfoObjectMother.Create (setMethod: publicMethod);
 
       Assert.That (property1.GetSetMethod (true), Is.SameAs (nonPublicMethod));
       Assert.That (property1.GetSetMethod (false), Is.Null);
@@ -83,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var getMethod = ReflectionObjectMother.GetSomePublicMethod();
       var setMethod = ReflectionObjectMother.GetSomeNonPublicMethod();
-      var property = CreateCustomPropertyInfo (getMethod: getMethod, setMethod: setMethod);
+      var property = CustomPropertyInfoObjectMother.Create (getMethod: getMethod, setMethod: setMethod);
 
       Assert.That (property.GetAccessors (true), Is.EquivalentTo (new[] { getMethod, setMethod }));
       Assert.That (property.GetAccessors (false), Is.EquivalentTo (new[] { getMethod }));
@@ -92,8 +89,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CustomAttributeMethods ()
     {
-      var property = CreateCustomPropertyInfo();
-      property.CustomAttributeDatas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute)) };
+      var customAttribute = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      var property = CustomPropertyInfoObjectMother.Create (customAttributes: new[] { customAttribute });
 
       Assert.That (property.GetCustomAttributes (false).Select (a => a.GetType()), Is.EqualTo (new[] { typeof (ObsoleteAttribute) }));
       Assert.That (property.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
@@ -107,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var type = ReflectionObjectMother.GetSomeType();
       var name = "MyProperty";
-      var property = CreateCustomPropertyInfo (name: name, type: type);
+      var property = CustomPropertyInfoObjectMother.Create (name: name, type: type);
 
       Assert.That (property.ToString(), Is.EqualTo (type.Name + " MyProperty"));
     }
@@ -118,7 +115,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var declaringType = CustomTypeObjectMother.Create();
       var type = ReflectionObjectMother.GetSomeType ();
       var name = "MyProperty";
-      var property = CreateCustomPropertyInfo (declaringType, name, type);
+      var property = CustomPropertyInfoObjectMother.Create (declaringType, name, type);
 
       // Note: ToDebugString is defined in CustomFieldInfo base class.
       Assertion.IsNotNull (property.DeclaringType);
@@ -133,46 +130,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void UnsupportedMembers ()
     {
-      var property = CreateCustomPropertyInfo();
+      var property = CustomPropertyInfoObjectMother.Create();
 
       UnsupportedMemberTestHelper.CheckProperty (() => property.ReflectedType, "ReflectedType");
+      UnsupportedMemberTestHelper.CheckProperty (() => property.CanRead, "CanRead");
+      UnsupportedMemberTestHelper.CheckProperty (() => property.CanWrite, "CanWrite");
 
       UnsupportedMemberTestHelper.CheckMethod (() => property.SetValue (null, null, null), "SetValue");
       UnsupportedMemberTestHelper.CheckMethod (() => property.GetValue (null, null), "GetValue");
-
-      UnsupportedMemberTestHelper.CheckProperty (() => property.CanRead, "CanRead");
-      UnsupportedMemberTestHelper.CheckProperty (() => property.CanWrite, "CanWrite");
-    }
-
-    private TestableCustomPropertyInfo CreateCustomPropertyInfo (
-        CustomType declaringType = null,
-        string name = "Property",
-        Type type = null,
-        PropertyAttributes attributes = (PropertyAttributes) 7,
-        MethodInfo getMethod = null,
-        MethodInfo setMethod = null,
-        ParameterInfo[] indexParameters = null)
-    {
-      declaringType = declaringType ?? CustomTypeObjectMother.Create();
-      type = type ?? ReflectionObjectMother.GetSomeType();
-      getMethod = getMethod ?? ReflectionObjectMother.GetSomeMethod();
-      setMethod = setMethod ?? ReflectionObjectMother.GetSomeMethod();
-      indexParameters = indexParameters ?? new ParameterInfo[0];
-
-      return new TestableCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters);
-    }
-
-    class TestableCustomPropertyInfo : CustomPropertyInfo
-    {
-      public TestableCustomPropertyInfo (CustomType declaringType, string name, Type type, PropertyAttributes attributes, MethodInfo getMethod, MethodInfo setMethod, params ParameterInfo[] indexParameters)
-          : base(declaringType, name, type, attributes, getMethod, setMethod, indexParameters) {}
-
-      public IEnumerable<ICustomAttributeData> CustomAttributeDatas; 
-
-      public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-      {
-        return CustomAttributeDatas;
-      }
     }
   }
 }

@@ -124,6 +124,7 @@
     <Compile Include="MutableReflection\Implementation\CustomMethodInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomParameterInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomParameterInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomPropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomPropertyInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="MutableReflection\Implementation\TestableCustomConstructorInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomFieldInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomParameterInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\TestableCustomPropertyInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\CustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />

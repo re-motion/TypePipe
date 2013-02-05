@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -15,37 +15,37 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
-  public static class CustomMethodInfoObjectMother
+  public static class CustomPropertyInfoObjectMother
   {
-    public static CustomMethodInfo Create (
+    public static CustomPropertyInfo Create (
         CustomType declaringType = null,
-        string name = "CustomMethod",
-        MethodAttributes attributes = (MethodAttributes) 7,
-        ParameterInfo returnParameter = null,
-        IEnumerable<ParameterInfo> parameters = null,
-        MethodInfo baseDefinition = null,
-        IEnumerable<ICustomAttributeData> customAttributes = null)
+        string name = "UnspecifiedProperty",
+        Type type = null,
+        PropertyAttributes attributes = (PropertyAttributes) 7,
+        IEnumerable<ICustomAttributeData> customAttributes = null,
+        MethodInfo getMethod = null,
+        MethodInfo setMethod = null,
+        ParameterInfo[] indexParameters = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
-      returnParameter = returnParameter ?? CustomParameterInfoObjectMother.Create();
-      parameters = parameters ?? new ParameterInfo[0];
-      // Base definition stays null.
+      type = type ?? ReflectionObjectMother.GetSomeType();
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
+      getMethod = getMethod ?? ReflectionObjectMother.GetSomeMethod();
+      setMethod = setMethod ?? ReflectionObjectMother.GetSomeMethod();
+      indexParameters = indexParameters ?? new ParameterInfo[0];
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes)
+      return new TestableCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters)
              {
-                 ReturnParameter_ = returnParameter,
-                 Parameters = parameters.ToArray(),
-                 BaseDefinition = baseDefinition,
-                 CustomAttributeDatas = customAttributes.ToArray()
+                 CustomAttributeDatas = customAttributes
              };
     }
   }
