@@ -37,6 +37,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     private MethodInfo _publicMethod;
     private MethodInfo _publicMethodWithOverloadEmpty;
     private MethodInfo _publicMethodWithOverloadInt;
+    private PropertyInfo _publicProperty;
+    private PropertyInfo _publicPropertyWithIndexParameter;
+    
 
     [SetUp]
     public void SetUp ()
@@ -47,6 +50,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _publicMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethod (0));
       _publicMethodWithOverloadEmpty = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethodWithOverload());
       _publicMethodWithOverloadInt = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.PublicMethodWithOverload (1));
+      _publicProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.PublicProperty);
+      _publicPropertyWithIndexParameter = typeof (DomainType).GetProperty ("Item");
     }
 
     [Test]
@@ -411,9 +416,85 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (negativeResultDueToTypes, Is.Null);
     }
 
+    [Test]
+    public void GetProperty_Name ()
+    {
+      var result = _proxyType.GetProperty ("PublicProperty");
+      Assert.That (result, Is.SameAs (_publicProperty));
+    }
+
+    [Test]
+    public void GetProperty_Name_NonMatchingName ()
+    {
+      var result = _proxyType.GetProperty ("DoesNotExist");
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlags ()
+    {
+      var result = _proxyType.GetProperty ("PublicProperty", BindingFlags.Public | BindingFlags.Instance);
+      Assert.That (result, Is.SameAs (_publicProperty));
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlags_NonMatchingName ()
+    {
+      var result = _proxyType.GetProperty ("DoesNotExist", BindingFlags.Public | BindingFlags.Instance);
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlags_NonMatchingBindingFlags ()
+    {
+      var result = _proxyType.GetProperty ("PublicProperty", BindingFlags.NonPublic | BindingFlags.Instance);
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlagsAndBinderAndReturnTypeAndTypes ()
+    {
+      var result = _proxyType.GetProperty (
+          "Item", BindingFlags.Public | BindingFlags.Instance, Type.DefaultBinder, typeof (int), new[] { typeof (int) }, modifiers: null);
+      Assert.That (result, Is.SameAs (_publicPropertyWithIndexParameter));
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlagsAndBinderAndReturnTypeAndTypes_NonMatchingName ()
+    {
+      var result = _proxyType.GetProperty (
+          "DoesNotExist", BindingFlags.Public | BindingFlags.Instance, Type.DefaultBinder, typeof (int), new[] { typeof (int) }, modifiers: null);
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlagsAndBinderAndReturnTypeAndTypes_NonBindingFlags ()
+    {
+      var result = _proxyType.GetProperty (
+          "Item", BindingFlags.NonPublic | BindingFlags.Instance, Type.DefaultBinder, typeof (int), new[] { typeof (int) }, modifiers: null);
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlagsAndBinderAndReturnTypeAndTypes_NonReturnType ()
+    {
+      var result = _proxyType.GetProperty (
+          "Item", BindingFlags.Public | BindingFlags.Instance, Type.DefaultBinder, typeof (string), new[] { typeof (int) }, modifiers: null);
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetProperty_NameAndBindingFlagsAndBinderAndReturnTypeAndTypes_NonTypes ()
+    {
+      var result = _proxyType.GetProperty (
+          "Item", BindingFlags.Public | BindingFlags.Instance, Type.DefaultBinder, typeof (int), new[] { typeof (string) }, modifiers: null);
+      Assert.That (result, Is.Null);
+    }
+
     public class DomainType
     {
-      [UsedImplicitly] public int PublicField;
+      [UsedImplicitly]
+      public int PublicField;
 
       public DomainType () { }
       public DomainType (int i) { Dev.Null = i; }
@@ -421,6 +502,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public void PublicMethod (int i) { Dev.Null = i; }
       public void PublicMethodWithOverload () { }
       public void PublicMethodWithOverload (int i) { Dev.Null = i; }
+
+      public int PublicProperty { get; set; }
+      public int this[int i] { get { return i; } set { Dev.Null = value; } }
     }
   }
 }
