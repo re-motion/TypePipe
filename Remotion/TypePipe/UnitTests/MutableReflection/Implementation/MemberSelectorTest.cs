@@ -42,7 +42,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _selector = new MemberSelector (_bindingFlagsEvaluatorMock);
 
       _someDeclaringType = ReflectionObjectMother.GetSomeType();
-
     }
 
     [Test]
@@ -373,55 +372,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           properties, binderMock, bindingFlags, "Property1", _someDeclaringType, propertyType, indexerTypes, modifiers);
 
       Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void SelectSingleProperty_PropertyTypeNull_IndexerTypesNull_SingleCandidate ()
-    {
-      var properties = new[] { CreatePropertyStub ("Property1") };
-      var bindingFlags = (BindingFlags) 1;
-
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is (bindingFlags))).Return (true);
-
-      var binderMock = MockRepository.GenerateStrictMock<Binder>();
-      var result = _selector.SelectSingleProperty (
-          properties,
-          binderMock,
-          bindingFlags,
-          "Property1",
-          _someDeclaringType,
-          propertyTypeOrNull: null,
-          indexerTypesOrNull: null,
-          modifiersOrNull: null);
-
-      binderMock.AssertWasNotCalled (
-          mock => mock.SelectProperty (
-              Arg<BindingFlags>.Is.Anything,
-              Arg<PropertyInfo[]>.Is.Anything,
-              Arg<Type>.Is.Anything,
-              Arg<Type[]>.Is.Anything,
-              Arg<ParameterModifier[]>.Is.Anything));
-      Assert.That (result, Is.SameAs (properties[0]));
-    }
-
-    [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous property name 'Property1'.")]
-    public void SelectSingleProperty_PropertyTypeNull_IndexerTypeNull_Ambiguous ()
-    {
-      var properties = new[]
-                     {
-                         CreatePropertyStub ("Property1", accessors: new[] { CreateMethodStub() }),
-                         CreatePropertyStub ("Property1", accessors: new[] { CreateMethodStub() })
-                     };
-      var bindingFlags = (BindingFlags) 1;
-
-      _bindingFlagsEvaluatorMock
-          .Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is (bindingFlags)))
-          .Return (true)
-          .Repeat.Twice ();
-
-      var binderStub = MockRepository.GenerateStub<Binder> ();
-      _selector.SelectSingleProperty (properties, binderStub, bindingFlags, "Property1", _someDeclaringType, null, null, null);
     }
 
     [Test]

@@ -106,6 +106,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         return candidates.Single();
       }
 
+      // DefaultBinder does *not* support null 'parameterTypes'.
       return (T) binder.SelectMethod (bindingAttr, candidates, parameterTypesOrNull, modifiersOrNull);
     }
 
@@ -131,17 +132,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (candidates.Length == 0)
         return null;
 
-      if (propertyTypeOrNull == null && indexerTypesOrNull == null)
-      {
-        if (candidates.Length > 1)
-        {
-          var message = string.Format ("Ambiguous property name '{0}'.", name);
-          throw new AmbiguousMatchException (message);
-        }
-
-        return candidates.Single();
-      }
-
+      // DefaultBinder does support null 'propertyType' and/or 'indexerTypes'.
       return binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
     }
 
