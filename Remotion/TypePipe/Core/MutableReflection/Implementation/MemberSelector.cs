@@ -69,11 +69,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
-
-      var candidates = fields.Where (fi => fi.Name == name);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       var message = string.Format ("Ambiguous field name '{0}'.", name);
-      return SelectFields (candidates, bindingAttr).SingleOrDefault (() => new AmbiguousMatchException (message));
+      return SelectFields (fields.Where (fi => fi.Name == name), bindingAttr).SingleOrDefault (() => new AmbiguousMatchException (message));
     }
 
     public T SelectSingleMethod<T> (
@@ -112,6 +111,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
 
       return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
+    }
+
+    public PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingFlags, string name)
+    {
+      ArgumentUtility.CheckNotNull ("properties", properties);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var message = string.Format ("Ambiguous property name '{0}'.", name);
+      return SelectProperties (properties.Where (p => p.Name == name), bindingFlags).SingleOrDefault (() => new AmbiguousMatchException (message));
     }
   }
 }

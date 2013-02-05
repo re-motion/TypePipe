@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void SelectSingleField_EmptyCandidates ()
+    public void SelectSingleField_NoMatching ()
     {
       var fields = new[] { CreateFieldStub ("field1"), CreateFieldStub ("wrong name") };
       var bindingFlags = (BindingFlags) 1;
@@ -228,7 +228,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void SelectSingleMethod_ZeroCandidates ()
+    public void SelectSingleMethod_NoMatching ()
     {
       var methods = new[] { CreateMethodStub ("Method1"), CreateMethodStub ("wrong name") };
       var binderStub = MockRepository.GenerateStub<Binder> ();
@@ -286,6 +286,66 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var binderStub = MockRepository.GenerateStub<Binder>();
       _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Whatever", _someType, null, modifiersOrNull);
+    }
+
+    [Test]
+    public void SelectSingleProperty ()
+    {
+      var properties =
+          new[]
+          {
+              CreatePropertyStub ("Property1", accessors: new[] { CreateMethodStub() }),
+              CreatePropertyStub ("Property2", accessors: new[] { CreateMethodStub (attributes: MethodAttributes.Private) }),
+              CreatePropertyStub (
+                  "Property2",
+                  accessors: new[]
+                             {
+                                 CreateMethodStub (attributes: MethodAttributes.Family),
+                                 CreateMethodStub (attributes: MethodAttributes.Public)
+                             }),
+          };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Private, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Family, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (true);
+
+      var result = _selector.SelectSingleProperty (properties, bindingFlags, "Property2");
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.SameAs (properties[2]));
+    }
+
+    [Test]
+    public void SelectSingleProperty_NoMatching ()
+    {
+      var properties = new[] { CreatePropertyStub ("Property2"), CreatePropertyStub ("Property1", accessors: new[] { CreateMethodStub() }) };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is (bindingFlags))).Return (false);
+
+      var result = _selector.SelectSingleProperty (properties, bindingFlags, "Property1");
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous property name 'Property1'.")]
+    public void SelectSingleProperty_Ambiguous ()
+    {
+      var properties = new[]
+                     {
+                         CreatePropertyStub ("Property1", accessors: new[] { CreateMethodStub() }),
+                         CreatePropertyStub ("Property1", accessors: new[] { CreateMethodStub() })
+                     };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock
+          .Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is (bindingFlags)))
+          .Return (true)
+          .Repeat.Twice ();
+
+      _selector.SelectSingleProperty (properties, bindingFlags, "Property1");
     }
 
     private FieldInfo CreateFieldStub (string name = "Unspecified", FieldAttributes attributes = FieldAttributes.PrivateScope)
