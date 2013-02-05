@@ -151,7 +151,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      return null;
+      return SelectSingle (events, name, bindingAttr, declaringType, SelectEvents, "event");
     }
 
     private IEnumerable<T> FilterByFlags<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType, Func<T, bool> predicate)
@@ -175,7 +175,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var byName = members.Where (m => m.Name == name);
       var byFlags = selectMembers (byName, bindingAttr, declaringType);
 
-      return byFlags.SingleOrDefault (() => new AmbiguousMatchException (string.Format ("Ambiguous {0} name '{1}'.", memberKind, name)));
+      var message = string.Format ("Ambiguous {0} name '{1}'.", memberKind, name);
+      return byFlags.SingleOrDefault (() => new AmbiguousMatchException (message));
     }
 
     private void CheckModifiers (Type[] parameterTypes, ParameterModifier[] modifiers)

@@ -426,6 +426,54 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _selector.SelectSingleProperty (properties, binderStub, bindingFlags, "Whatever", _someDeclaringType, propertyType, null, modifiersOrNull);
     }
 
+    [Test]
+    public void SelectSingleEvent ()
+    {
+      var events = new[]
+                   {
+                       CreateEventStub ("Event", adder: CreateMethodStub (attributes: MethodAttributes.Assembly)),
+                       CreateEventStub ("this event is removed because of its name"),
+                       CreateEventStub ("Event", adder: CreateMethodStub (attributes: MethodAttributes.Public))
+                   };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Assembly, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (true);
+
+      var result = _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType);
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (events[2]));
+    }
+
+    [Test]
+    public void SelectSingleEvent_NoMatching ()
+    {
+      var events = new[] { CreateEventStub ("Event"), CreateEventStub ("wrong name") };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (events[0].GetAddMethod (true).Attributes, bindingFlags)).Return (false);
+
+      var result = _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous event name 'Event'.")]
+    public void SelectSingleEvent_Ambiguous ()
+    {
+      var events = new[] { CreateEventStub ("Event"), CreateEventStub ("Event") };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock
+          .Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is(bindingFlags)))
+          .Return (true)
+          .Repeat.Twice();
+
+      _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType);
+    }
+
     private FieldInfo CreateFieldStub (
         string name = "Unspecified", FieldAttributes attributes = FieldAttributes.PrivateScope, Type declaringType = null)
     {
