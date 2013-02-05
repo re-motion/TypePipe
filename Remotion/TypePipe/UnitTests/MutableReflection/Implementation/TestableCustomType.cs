@@ -57,6 +57,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public IEnumerable<FieldInfo> Fields;
     public IEnumerable<ConstructorInfo> Constructors;
     public IEnumerable<MethodInfo> Methods;
+    public IEnumerable<PropertyInfo> Properties;
+    public IEnumerable<EventInfo> Events;
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
@@ -86,6 +88,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return Methods;
+    }
+
+    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      return Properties;
+    }
+
+    protected override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      return Events;
     }
   }
 }

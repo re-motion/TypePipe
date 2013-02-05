@@ -133,15 +133,37 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.GetMethods (c_allBindingFlags), Is.EqualTo (new[] { fakeMethod2 }));
     }
 
+    [Ignore ("TODO 5385")]
+    [Test]
+    public void Initialization_AdjustsProperties ()
+    {
+      var properties = new PropertyInfo[] { CustomPropertyInfoObjectMother.Create() };
+      var fakeProperty1 = ReflectionObjectMother.GetSomeProperty();
+      var fakeProperty2 = ReflectionObjectMother.GetSomeOtherProperty();
+      var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, properties: properties);
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputProperties: properties, outputProperties: new[] { fakeProperty1 });
+      StubBaseTypeAdjustment (genericTypeDefinition);
+      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeProperty1)).Return (fakeProperty2);
+
+      var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
+
+      _typeInstantiatorMock.VerifyAllExpectations();
+      Assert.That (instantiation.GetProperties (c_allBindingFlags), Is.EqualTo (new[] { fakeProperty2 }));
+    }
+
     private void SetupExpectationsOnMemberSelector (
         IMemberSelector memberSelectorMock,
         Type declaringType,
-        FieldInfo[] inputFields = null,
-        FieldInfo[] outputFields = null,
-        ConstructorInfo[] inputConstructors = null,
-        ConstructorInfo[] outputConstructors = null,
-        MethodInfo[] inputMethods = null,
-        MethodInfo[] outputMethods = null)
+        IEnumerable<FieldInfo> inputFields = null,
+        IEnumerable<FieldInfo> outputFields = null,
+        IEnumerable<ConstructorInfo> inputConstructors = null,
+        IEnumerable<ConstructorInfo> outputConstructors = null,
+        IEnumerable<MethodInfo> inputMethods = null,
+        IEnumerable<MethodInfo> outputMethods = null,
+        IEnumerable<PropertyInfo> inputProperties = null,
+        IEnumerable<PropertyInfo> outputProperties = null,
+        IEnumerable<EventInfo> inputEvents = null,
+        IEnumerable<EventInfo> outputEvents = null)
     {
       inputFields = inputFields ?? new FieldInfo[0];
       outputFields = outputFields ?? new FieldInfo[0];
@@ -149,6 +171,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       outputConstructors = outputConstructors ?? new ConstructorInfo[0];
       inputMethods = inputMethods ?? new MethodInfo[0];
       outputMethods = outputMethods ?? new MethodInfo[0];
+      inputProperties = inputProperties ?? new PropertyInfo[0];
+      outputProperties = outputProperties ?? new PropertyInfo[0];
+      inputEvents = inputEvents ?? new EventInfo[0];
+      outputEvents = outputEvents ?? new EventInfo[0];
 
       memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
@@ -160,17 +186,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         IEnumerable<Type> interfaces = null,
         IEnumerable<FieldInfo> fields = null,
         IEnumerable<ConstructorInfo> constructors = null,
-        IEnumerable<MethodInfo> methods = null)
+        IEnumerable<MethodInfo> methods = null,
+        IEnumerable<PropertyInfo> properties = null,
+        IEnumerable<EventInfo> events = null)
     {
       return CustomTypeObjectMother.Create (
           memberSelector,
           isGenericTypeDefinition: true,
           isGenericType: true,
-          typeArguments: new[] { ReflectionObjectMother.GetSomeType () },
+          typeArguments: new[] { ReflectionObjectMother.GetSomeType() },
           interfaces: interfaces,
           fields: fields,
           constructors: constructors,
-          methods: methods);
+          methods: methods,
+          properties: properties,
+          events: events);
     }
 
     private TypeInstantiation CreateTypeInstantion (ITypeInstantiator typeInstantiator, Type genericTypeDefinition)

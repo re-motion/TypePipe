@@ -376,6 +376,20 @@ namespace Remotion.TypePipe.MutableReflection
       return _addedMethods.Cast<MethodInfo>().Concat (filteredBaseMethods);
     }
 
+    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      // TODO; implement correctly
+      var all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      return BaseType.GetProperties (all);
+    }
+
+    protected override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      // TODO; implement correctly
+      var all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      return BaseType.GetEvents (all);
+    }
+
     private static bool CanNotBeSubclassed (Type type)
     {
       return type.IsSealed

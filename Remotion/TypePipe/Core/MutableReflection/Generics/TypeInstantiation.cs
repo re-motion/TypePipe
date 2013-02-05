@@ -90,5 +90,15 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       return _methods;
     }
+
+    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      return null;
+    }
+
+    protected override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      return null;
+    }
   }
 }

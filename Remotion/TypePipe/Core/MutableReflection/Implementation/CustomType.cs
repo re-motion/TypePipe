@@ -102,6 +102,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
     protected abstract IEnumerable<MethodInfo> GetAllMethods ();
+    protected abstract IEnumerable<PropertyInfo> GetAllProperties ();
+    protected abstract IEnumerable<EventInfo> GetAllEvents ();
 
     public override Assembly Assembly
     {
@@ -328,6 +330,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return false;
     }
 
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetTypeSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("{0} = \"{1}\"", GetType ().Name, ToString ());
+    }
+
     #region Not YET implemented abstract members of Type class
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
@@ -370,16 +382,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       // Needed for virtual method check.. 
       return _baseType.GetProperties (bindingAttr);
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetTypeSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("{0} = \"{1}\"", GetType().Name, ToString());
     }
 
     #endregion
