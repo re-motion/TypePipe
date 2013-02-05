@@ -375,7 +375,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           };
       var bindingFlags = (BindingFlags) 1;
       var propertyType = ReflectionObjectMother.GetSomeType();
-      var indexerTypes = new[] { ReflectionObjectMother.GetSomeDifferentType() };
+      var indexerTypes = new[] { ReflectionObjectMother.GetSomeOtherType() };
       var modifiers = new[] { new ParameterModifier (2) };
 
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Assembly, bindingFlags)).Return (true);

@@ -355,7 +355,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void InvalidateUnderlyingSystemType_CausesRegenerationOfUnderlyingSystemType ()
     {
       var fakeUnderlyingType1 = ReflectionObjectMother.GetSomeType ();
-      var fakeUnderlyingType2 = ReflectionObjectMother.GetSomeDifferentType ();
+      var fakeUnderlyingType2 = ReflectionObjectMother.GetSomeOtherType ();
       _underlyingTypeFactoryMock
           .Stub (stub => stub.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
           .Return (fakeUnderlyingType1).Repeat.Once ();

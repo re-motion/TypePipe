@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void BeginCatchBlock ()
     {
       var exceptionType = ReflectionObjectMother.GetSomeType();
-      var fakeEmittableOperand = ReflectionObjectMother.GetSomeDifferentType();
+      var fakeEmittableOperand = ReflectionObjectMother.GetSomeOtherType();
       _emittableOperandProviderStub.Stub (stub => stub.GetEmittableType (exceptionType)).Return (fakeEmittableOperand);
 
       _innerILGeneratorMock.Expect (mock => mock.BeginCatchBlock (fakeEmittableOperand));

@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _requestedType = ReflectionObjectMother.GetSomeType();
       _delegateType = ReflectionObjectMother.GetSomeDelegateType();
       _allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var parameterTypes = new[] { ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeDifferentType() };
+      var parameterTypes = new[] { ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType() };
       var returnType = ReflectionObjectMother.GetSomeType();
       _fakeSignature = Tuple.Create (parameterTypes, returnType);
       _fakeConstructor = ReflectionObjectMother.GetSomeConstructor();

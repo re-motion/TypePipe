@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var ctorArg = new object[] { 7, new object[] { "7", type } };
       var declaration = new CustomAttributeDeclaration (attributeCtor, new object[] { ctorArg }, new NamedArgumentDeclaration (field, type));
 
-      var emittableType = ReflectionObjectMother.GetSomeDifferentType();
+      var emittableType = ReflectionObjectMother.GetSomeOtherType();
       _operandProvider.Expect (mock => mock.GetEmittableType (type)).Return (emittableType).Repeat.Twice();
       _innerMock
           .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeDeclaration>.Is.Anything))

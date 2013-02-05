@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeType();
 
-      var emittableBaseType = ReflectionObjectMother.GetSomeDifferentType();
+      var emittableBaseType = ReflectionObjectMother.GetSomeOtherType();
       var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
       _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableBaseType);
       _innerMock.Expect (mock => mock.DefineType (name, attributes, emittableBaseType)).Return (fakeTypeBuilder);

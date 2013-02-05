@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_AdjustsInterfaces ()
     {
       var iface = ReflectionObjectMother.GetSomeInterfaceType();
-      var fakeInterface = ReflectionObjectMother.GetSomeDifferentInterfaceType();
+      var fakeInterface = ReflectionObjectMother.GetSomeOtherInterfaceType();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, interfaces: new[] { iface });
       SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition);
       StubBaseTypeAdjustment (genericTypeDefinition);

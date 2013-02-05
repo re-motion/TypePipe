@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     {
       var interfaceType = ReflectionObjectMother.GetSomeInterfaceType();
 
-      var emittableType = ReflectionObjectMother.GetSomeDifferentType();
+      var emittableType = ReflectionObjectMother.GetSomeOtherType();
       _operandProvider.Expect (mock => mock.GetEmittableType (interfaceType)).Return (emittableType);
       _innerMock.Expect (mock => mock.AddInterfaceImplementation (emittableType));
 
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var type = ReflectionObjectMother.GetSomeType();
       var attributes = (FieldAttributes) 7;
 
-      var emittableType = ReflectionObjectMother.GetSomeDifferentType();
+      var emittableType = ReflectionObjectMother.GetSomeOtherType();
       var fakeFieldBuilder = MockRepository.GenerateStub<IFieldBuilder>();
       _operandProvider.Expect (mock => mock.GetEmittableType (type)).Return (emittableType);
       _innerMock.Expect (mock => mock.DefineField (name, emittableType, attributes)).Return (fakeFieldBuilder);
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var attributes = (MethodAttributes) 7;
       var callingConvention = (CallingConventions) 7;
 
-      var emittableParameterType = ReflectionObjectMother.GetSomeDifferentType();
+      var emittableParameterType = ReflectionObjectMother.GetSomeOtherType();
       var fakeConstructorBuilder = MockRepository.GenerateStub<IConstructorBuilder>();
       _operandProvider.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
       _innerMock.Expect (mock => mock.DefineConstructor (attributes, callingConvention, new[] { emittableParameterType })).Return (fakeConstructorBuilder);

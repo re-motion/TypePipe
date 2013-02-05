@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var name = "DomainType";
       var attributes = (TypeAttributes) 7;
       var type = ReflectionObjectMother.GetSomeType();
-      var otherType = ReflectionObjectMother.GetSomeDifferentType();
+      var otherType = ReflectionObjectMother.GetSomeOtherType();
       var forceStrongNaming = BooleanObjectMother.GetRandomBoolean();
       var keyFilePath = "key file path";
 
