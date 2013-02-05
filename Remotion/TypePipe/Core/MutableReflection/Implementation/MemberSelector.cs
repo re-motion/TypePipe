@@ -86,9 +86,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("methods", methods);
       ArgumentUtility.CheckNotNull ("binder", binder);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-
-      if (parameterTypesOrNull == null && modifiersOrNull != null)
-        throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
+      CheckModifiers (parameterTypesOrNull, modifiersOrNull);
 
       if (nameOrNull != null)
         methods = methods.Where (m => m.Name == nameOrNull);
@@ -126,17 +124,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
+      CheckModifiers (indexerTypesOrNull, modifiersOrNull);
 
-      //return (PropertyInfo) binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
-      return null;
-    }
+      var byName = properties.Where (p => p.Name == name);
+      var candidates = SelectProperties (byName, bindingAttr, declaringType).ToArray();
+      if (candidates.Length == 0)
+        return null;
 
-    public PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingFlags, string name, Type declaringType)
-    {
-      ArgumentUtility.CheckNotNull ("properties", properties);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      if (propertyTypeOrNull == null && indexerTypesOrNull == null)
+      {
+        if (candidates.Length > 1)
+        {
+          var message = string.Format ("Ambiguous property name '{0}'.", name);
+          throw new AmbiguousMatchException (message);
+        }
 
-      return SelectSingle (properties, name, bindingFlags, declaringType, SelectProperties, "property");
+        return candidates.Single();
+      }
+
+      return binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
     }
 
     private IEnumerable<T> FilterByFlags<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType, Func<T, bool> predicate)
@@ -161,6 +167,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var byFlags = selectMembers (byName, bindingAttr, declaringType);
 
       return byFlags.SingleOrDefault (() => new AmbiguousMatchException (string.Format ("Ambiguous {0} name '{1}'.", memberKind, name)));
+    }
+
+    private void CheckModifiers (Type[] parameterTypes, ParameterModifier[] modifiers)
+    {
+      if (parameterTypes == null && modifiers != null)
+        throw new ArgumentException ("Modifiers must not be specified if parameter types are null.", "modifiers");
     }
   }
 }
