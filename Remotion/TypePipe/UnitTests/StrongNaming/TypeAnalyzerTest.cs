@@ -61,10 +61,10 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     [Test]
     public void IsStrongNamed_Generic ()
     {
-      var type = typeof (IList<Set<IParticipant>>);
+      var type = typeof (IList<DoubleCheckedLockingContainer<IParticipant>>);
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
       _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (IList<>).Assembly)).Return (true);
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (Set<>).Assembly)).Return (true);
+      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (DoubleCheckedLockingContainer<>).Assembly)).Return (true);
       _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (IParticipant).Assembly)).Return (fakeResult);
 
       var result = _analyzer.IsStrongNamed (type);
