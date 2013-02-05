@@ -65,9 +65,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return FilterByFlags (properties, bindingAttr, declaringType, predicate);
     }
 
-    public EventInfo[] SelectEvents (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, Type declaringType)
+    public IEnumerable<EventInfo> SelectEvents (IEnumerable<EventInfo> events, BindingFlags bindingAttr, Type declaringType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("events", events);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      Func<EventInfo, bool> predicate = e => _bindingFlagsEvaluator.HasRightAttributes (e.GetAddMethod (true).Attributes, bindingAttr);
+      return FilterByFlags (events, bindingAttr, declaringType, predicate);
     }
 
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)
@@ -141,9 +145,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
     }
 
-    public EventInfo SelectSingleEvent (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, string name, Type declaringType)
+    public EventInfo SelectSingleEvent (IEnumerable<EventInfo> events, BindingFlags bindingAttr, string name, Type declaringType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("events", events);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      return null;
     }
 
     private IEnumerable<T> FilterByFlags<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType, Func<T, bool> predicate)

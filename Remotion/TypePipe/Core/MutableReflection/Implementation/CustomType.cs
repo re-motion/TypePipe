@@ -278,7 +278,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override EventInfo[] GetEvents (BindingFlags bindingAttr)
     {
-      return _memberSelector.SelectEvents (GetAllEvents(), bindingAttr, this);
+      return _memberSelector.SelectEvents (GetAllEvents(), bindingAttr, this).ToArray();
     }
 
     public override EventInfo GetEvent (string name, BindingFlags bindingAttr)

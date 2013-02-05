@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, Type declaringType);
 
-    EventInfo[] SelectEvents (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, Type declaringType);
+    IEnumerable<EventInfo> SelectEvents (IEnumerable<EventInfo> events, BindingFlags bindingAttr, Type declaringType);
 
 
     FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType);
@@ -58,6 +58,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type[] indexerTypesOrNull,
         ParameterModifier[] modifiersOrNull);
 
-    EventInfo SelectSingleEvent (IEnumerable<EventInfo> getAllEvents, BindingFlags bindingAttr, string name, Type declaringType);
+    EventInfo SelectSingleEvent (IEnumerable<EventInfo> events, BindingFlags bindingAttr, string name, Type declaringType);
   }
 }

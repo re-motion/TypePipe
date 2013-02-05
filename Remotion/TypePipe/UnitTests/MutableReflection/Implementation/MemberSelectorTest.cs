@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var candidates =
           new[]
           {
-              CreatePropertyStub (declaringType: declaringType1, accessors: new[] { CreateMethodStub() }),
+              CreatePropertyStub (declaringType: declaringType1),
               CreatePropertyStub (declaringType: declaringType2, accessors: new[] { consideredAccessor })
           };
       var bindingFlags = (BindingFlags) 1 | BindingFlags.DeclaredOnly;
@@ -164,15 +164,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void SelectEvents ()
+    {
+      var candidates = new[]
+                       {
+                           CreateEventStub (adder: CreateMethodStub (attributes: MethodAttributes.Assembly)),
+                           CreateEventStub (adder: CreateMethodStub (attributes: MethodAttributes.Family)),
+                           CreateEventStub (adder: CreateMethodStub (attributes: MethodAttributes.FamORAssem))
+                       };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Assembly, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Family, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.FamORAssem, bindingFlags)).Return (true);
+
+      var result = _selector.SelectEvents (candidates, bindingFlags, _someDeclaringType).ForceEnumeration();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (new[] { candidates[0], candidates[2] }));
+    }
+
+    [Test]
+    public void SelectEvents_DeclaredOnly ()
+    {
+      var declaringType1 = typeof (string);
+      var declaringType2 = typeof (int);
+      var consideredAdder = CreateMethodStub();
+      var candidates = new[]
+                       { CreateEventStub (declaringType: declaringType1), CreateEventStub (declaringType: declaringType2, adder: consideredAdder) };
+      var bindingFlags = (BindingFlags) 1 | BindingFlags.DeclaredOnly;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (consideredAdder.Attributes, bindingFlags)).Return (true);
+
+      var result = _selector.SelectEvents (candidates, bindingFlags, declaringType2).ForceEnumeration();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (new[] { candidates[1] }));
+    }
+
+    [Test]
     public void SelectSingleField ()
     {
-      var fields =
-          new[]
-          {
-              CreateFieldStub ("field1", FieldAttributes.Assembly), 
-              CreateFieldStub ("this field is removed because of its name", FieldAttributes.Family),
-              CreateFieldStub ("field1", FieldAttributes.Public)
-          };
+      var fields = new[]
+                   {
+                       CreateFieldStub ("field1", FieldAttributes.Assembly),
+                       CreateFieldStub ("this field is removed because of its name", FieldAttributes.Family),
+                       CreateFieldStub ("field1", FieldAttributes.Public)
+                   };
       var bindingFlags = (BindingFlags) 1;
 
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (false);
@@ -425,6 +463,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       propertyStub.Stub (stub => stub.GetAccessors (true)).Return (accessors ?? new[] { CreateMethodStub() });
 
       return propertyStub;
+    }
+
+    private EventInfo CreateEventStub (string name = "Unspecified", Type declaringType = null, MethodInfo adder = null)
+    {
+      var eventStub = MockRepository.GenerateStub<EventInfo>();
+      eventStub.Stub (stub => stub.Name).Return (name);
+      eventStub.Stub (stub => stub.DeclaringType).Return (declaringType);
+      eventStub.Stub (stub => stub.GetAddMethod (true)).Return (adder ?? CreateMethodStub());
+
+      return eventStub;
     }
   }
 }
