@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       inputEvents = inputEvents ?? new EventInfo[0];
       outputEvents = outputEvents ?? new EventInfo[0];
 
-      memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags)).Return (outputFields);
+      memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags, declaringType)).Return (outputFields);
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputMethods, c_allBindingFlags, declaringType)).Return (outputMethods);
     }

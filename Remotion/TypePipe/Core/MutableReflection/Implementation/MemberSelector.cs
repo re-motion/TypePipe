@@ -39,11 +39,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr)
+    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      return fields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
+      return FilterByFlags (fields, bindingAttr, declaringType, f => _bindingFlagsEvaluator.HasRightAttributes (f.Attributes, bindingAttr));
     }
 
     public IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
@@ -52,27 +53,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("methods", methods);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      var candidates = methods.Where (m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
-      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
-        candidates = candidates.Where (m => declaringType == m.DeclaringType);
-
-      return candidates;
+      return FilterByFlags (methods, bindingAttr, declaringType, m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
     }
 
-    public IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr)
+    public IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("properties", properties);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      return properties.Where (p => p.GetAccessors (true).Any (a => _bindingFlagsEvaluator.HasRightAttributes (a.Attributes, bindingAttr)));
+      Func<PropertyInfo, bool> predicate = p => p.GetAccessors (true).Any (a => _bindingFlagsEvaluator.HasRightAttributes (a.Attributes, bindingAttr));
+      return FilterByFlags (properties, bindingAttr, declaringType, predicate);
     }
 
-    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
+    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      var message = string.Format ("Ambiguous field name '{0}'.", name);
-      return SelectFields (fields.Where (fi => fi.Name == name), bindingAttr).SingleOrDefault (() => new AmbiguousMatchException (message));
+      return SelectSingle (fields, name, bindingAttr, declaringType, SelectFields, "field");
     }
 
     public T SelectSingleMethod<T> (
@@ -113,13 +111,36 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
     }
 
-    public PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingFlags, string name)
+    public PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingFlags, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("properties", properties);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      var message = string.Format ("Ambiguous property name '{0}'.", name);
-      return SelectProperties (properties.Where (p => p.Name == name), bindingFlags).SingleOrDefault (() => new AmbiguousMatchException (message));
+      return SelectSingle (properties, name, bindingFlags, declaringType, SelectProperties, "property");
+    }
+
+    private IEnumerable<T> FilterByFlags<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType, Func<T, bool> predicate)
+        where T : MemberInfo
+    {
+      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
+        candidates = candidates.Where (m => m.DeclaringType == declaringType);
+
+      return candidates.Where (predicate);
+    }
+
+    private T SelectSingle<T> (
+        IEnumerable<T> members,
+        string name,
+        BindingFlags bindingAttr,
+        Type declaringType,
+        Func<IEnumerable<T>, BindingFlags, Type, IEnumerable<T>> selectMembers,
+        string memberKind)
+        where T : MemberInfo
+    {
+      var byName = members.Where (m => m.Name == name);
+      var byFlags = selectMembers (byName, bindingAttr, declaringType);
+
+      return byFlags.SingleOrDefault (() => new AmbiguousMatchException (string.Format ("Ambiguous {0} name '{1}'.", memberKind, name)));
     }
   }
 }

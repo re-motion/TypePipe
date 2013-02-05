@@ -254,7 +254,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeField () };
-      _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr)).Return (fakeResult);
+      _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr, _customType)).Return (fakeResult);
 
       var result = _customType.GetFields (bindingAttr);
 
@@ -268,7 +268,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = ReflectionObjectMother.GetSomeField ();
-      _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name)).Return (fakeResult);
+      _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name, _customType)).Return (fakeResult);
 
       var resultField = _customType.GetField (name, bindingAttr);
 
@@ -458,8 +458,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new ConstructorInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new FieldInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectProperties (Arg<IEnumerable<PropertyInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new PropertyInfo[0]);
       _customType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
     }
 

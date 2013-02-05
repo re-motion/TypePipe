@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     
     private MemberSelector _selector;
 
-    private Type _someType;
+    private Type _someDeclaringType;
 
     [SetUp]
     public void SetUp ()
@@ -41,7 +41,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _selector = new MemberSelector (_bindingFlagsEvaluatorMock);
 
-      _someType = ReflectionObjectMother.GetSomeType();
+      _someDeclaringType = ReflectionObjectMother.GetSomeType();
+
     }
 
     [Test]
@@ -59,10 +60,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
 
-      var result = _selector.SelectFields (candidates, bindingFlags).ForceEnumeration();
+      var result = _selector.SelectFields (candidates, bindingFlags, _someDeclaringType).ForceEnumeration();
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (new[] { candidates[0], candidates[2] }));
+    }
+
+    [Test]
+    public void SelectFields_DeclaredOnly ()
+    {
+      var declaringType1 = typeof (string);
+      var declaringType2 = typeof (int);
+      var candidates = new[] { CreateFieldStub (declaringType: declaringType1), CreateFieldStub (declaringType: declaringType2) };
+      var bindingFlags = (BindingFlags) 1 | BindingFlags.DeclaredOnly;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (true);
+
+      var result = _selector.SelectFields (candidates, bindingFlags, declaringType2).ForceEnumeration();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (new[] { candidates[1] }));
     }
 
     [Test]
@@ -90,7 +107,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var candidates = new[] { CreateMethodStub (declaringType: declaringType1), CreateMethodStub (declaringType: declaringType2) };
       var bindingFlags = (BindingFlags) 1 | BindingFlags.DeclaredOnly;
 
-      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (true);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (true);
 
       var result = _selector.SelectMethods (candidates, bindingFlags, declaringType2).ForceEnumeration();
@@ -120,10 +136,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (((MethodAttributes) 2), bindingFlags)).Return (true);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes ((MethodAttributes) 3, bindingFlags)).Return (true);
 
-      var result = _selector.SelectProperties (candidates, bindingFlags).ForceEnumeration();
+      var result = _selector.SelectProperties (candidates, bindingFlags, _someDeclaringType).ForceEnumeration();
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (new[] { candidates[1], candidates[2] }));
+    }
+
+    [Test]
+    public void SelectProperties_DeclaredOnly ()
+    {
+      var declaringType1 = typeof (string);
+      var declaringType2 = typeof (int);
+      var consideredAccessor = CreateMethodStub();
+      var candidates =
+          new[]
+          {
+              CreatePropertyStub (declaringType: declaringType1, accessors: new[] { CreateMethodStub() }),
+              CreatePropertyStub (declaringType: declaringType2, accessors: new[] { consideredAccessor })
+          };
+      var bindingFlags = (BindingFlags) 1 | BindingFlags.DeclaredOnly;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (consideredAccessor.Attributes, bindingFlags)).Return (true);
+
+      var result = _selector.SelectProperties (candidates, bindingFlags, declaringType2).ForceEnumeration ();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
+      Assert.That (result, Is.EqualTo (new[] { candidates[1] }));
     }
 
     [Test]
@@ -141,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[2].Attributes, bindingFlags)).Return (true);
 
-      var result = _selector.SelectSingleField (fields, bindingFlags, "field1");
+      var result = _selector.SelectSingleField (fields, bindingFlags, "field1", _someDeclaringType);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fields[2]));
@@ -155,7 +193,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (false);
 
-      var result = _selector.SelectSingleField (fields, bindingFlags, "field1");
+      var result = _selector.SelectSingleField (fields, bindingFlags, "field1", _someDeclaringType);
 
       Assert.That (result, Is.Null);
     }
@@ -170,7 +208,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Return (true);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (fields[1].Attributes, bindingFlags)).Return (true);
 
-      _selector.SelectSingleField (fields, bindingFlags, "field1");
+      _selector.SelectSingleField (fields, bindingFlags, "field1", _someDeclaringType);
     }
 
     [Test]
@@ -196,7 +234,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.SelectMethod (bindingFlags, new[] { methods[2] }, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _someType, typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _someDeclaringType, typesOrNull, modifiersOrNull);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       binderMock.VerifyAllExpectations();
@@ -220,7 +258,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.SelectMethod (bindingFlags, new[] { constructors[1] }, typesOrNull, modifiersOrNull))
           .Return (fakeResult);
 
-      var result = _selector.SelectSingleMethod (constructors, binderMock, bindingFlags, null, _someType, typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (constructors, binderMock, bindingFlags, null, _someDeclaringType, typesOrNull, modifiersOrNull);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       binderMock.VerifyAllExpectations ();
@@ -238,7 +276,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (false);
 
-      var result = _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Method1", _someType, typesOrNull, modifiersOrNull);
+      var result = _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Method1", _someDeclaringType, typesOrNull, modifiersOrNull);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (result, Is.Null);
@@ -255,7 +293,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[1].Attributes, bindingFlags)).Return (true);
 
       var binderStub = MockRepository.GenerateStub<Binder>();
-      _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Method1", _someType, typesOrNull: null, modifiersOrNull: null);
+      _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Method1", _someDeclaringType, typesOrNull: null, modifiersOrNull: null);
     }
 
     [Test]
@@ -267,7 +305,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (true);
 
       var binderMock = MockRepository.GenerateStrictMock<Binder>();
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _someType, typesOrNull: null, modifiersOrNull: null);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _someDeclaringType, typesOrNull: null, modifiersOrNull: null);
 
       binderMock.AssertWasNotCalled (
           mock => mock.SelectMethod (
@@ -285,7 +323,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
       var binderStub = MockRepository.GenerateStub<Binder>();
-      _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Whatever", _someType, null, modifiersOrNull);
+      _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Whatever", _someDeclaringType, null, modifiersOrNull);
     }
 
     [Test]
@@ -310,7 +348,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Family, bindingFlags)).Return (false);
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Public, bindingFlags)).Return (true);
 
-      var result = _selector.SelectSingleProperty (properties, bindingFlags, "Property2");
+      var result = _selector.SelectSingleProperty (properties, bindingFlags, "Property2", _someDeclaringType);
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (properties[2]));
@@ -324,7 +362,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (Arg<MethodAttributes>.Is.Anything, Arg.Is (bindingFlags))).Return (false);
 
-      var result = _selector.SelectSingleProperty (properties, bindingFlags, "Property1");
+      var result = _selector.SelectSingleProperty (properties, bindingFlags, "Property1", _someDeclaringType);
 
       Assert.That (result, Is.Null);
     }
@@ -345,14 +383,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (true)
           .Repeat.Twice ();
 
-      _selector.SelectSingleProperty (properties, bindingFlags, "Property1");
+      _selector.SelectSingleProperty (properties, bindingFlags, "Property1", _someDeclaringType);
     }
 
-    private FieldInfo CreateFieldStub (string name = "Unspecified", FieldAttributes attributes = FieldAttributes.PrivateScope)
+    private FieldInfo CreateFieldStub (
+        string name = "Unspecified", FieldAttributes attributes = FieldAttributes.PrivateScope, Type declaringType = null)
     {
       var fieldStub = MockRepository.GenerateStub<FieldInfo>();
       fieldStub.Stub (stub => stub.Name).Return (name);
       fieldStub.Stub (stub => stub.Attributes).Return (attributes);
+      fieldStub.Stub (stub => stub.DeclaringType).Return (declaringType);
 
       return fieldStub;
     }
@@ -375,10 +415,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return methodStub;
     }
 
-    private PropertyInfo CreatePropertyStub (string name = "Unspecified", MethodInfo[] accessors = null)
+    private PropertyInfo CreatePropertyStub (string name = "Unspecified", Type declaringType = null, MethodInfo[] accessors = null)
     {
       var propertyStub = MockRepository.GenerateStub<PropertyInfo>();
       propertyStub.Stub (stub => stub.Name).Return (name);
+      propertyStub.Stub (stub => stub.DeclaringType).Return (declaringType);
       propertyStub.Stub (stub => stub.GetAccessors (true)).Return(accessors);
 
       return propertyStub;

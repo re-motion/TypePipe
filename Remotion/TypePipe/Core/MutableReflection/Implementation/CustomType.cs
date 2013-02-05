@@ -251,14 +251,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _memberSelector.SelectFields (GetAllFields(), bindingAttr).ToArray ();
+      return _memberSelector.SelectFields (GetAllFields(), bindingAttr, this).ToArray();
     }
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name);
+      return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name, this);
     }
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
