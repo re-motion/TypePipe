@@ -138,6 +138,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => event_.GetOtherMethods (true), "GetOtherMethods");
     }
 
+    // TODO xxx: Create ObjectMother and move to own file.
     private TestableCustomEventInfo CreateCustomEventInfo (
         CustomType declaringType = null,
         string name = "Event",

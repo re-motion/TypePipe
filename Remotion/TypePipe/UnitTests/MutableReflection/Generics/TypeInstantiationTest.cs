@@ -150,6 +150,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.GetProperties (c_allBindingFlags), Is.EqualTo (new[] { fakeProperty2 }));
     }
 
+    [Ignore ("TODO xxx")]
+    [Test]
+    public void Initialization_AdjustsEvents ()
+    {
+      var events = new EventInfo[0];
+      //var events = new EventInfo[] { CustomEventInfoObjectMother.Create() };
+      var fakeEvent1 = ReflectionObjectMother.GetSomeEvent();
+      var fakeEvent2 = ReflectionObjectMother.GetSomeOtherEvent();
+      var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, events: events);
+      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputEvents: events, outputEvents: new[] { fakeEvent1 });
+      StubBaseTypeAdjustment (genericTypeDefinition);
+      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeEvent1)).Return (fakeEvent2);
+
+      var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
+
+      _typeInstantiatorMock.VerifyAllExpectations();
+      Assert.That (instantiation.GetProperties (c_allBindingFlags), Is.EqualTo (new[] { fakeEvent2 }));
+    }
+
     private void SetupExpectationsOnMemberSelector (
         IMemberSelector memberSelectorMock,
         Type declaringType,
@@ -179,6 +198,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputMethods, c_allBindingFlags, declaringType)).Return (outputMethods);
       memberSelectorMock.Expect (mock => mock.SelectProperties (inputProperties, c_allBindingFlags, declaringType)).Return (outputProperties);
+      memberSelectorMock.Expect (mock => mock.SelectEvents (inputEvents, c_allBindingFlags, declaringType)).Return (outputEvents);
     }
 
     private Type CreateGenericTypeDefinition (
