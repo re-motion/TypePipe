@@ -59,6 +59,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return candidates;
     }
 
+    public IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNull ("properties", properties);
+
+      return properties.Where (p => p.GetAccessors (true).Any (a => _bindingFlagsEvaluator.HasRightAttributes (a.Attributes, bindingAttr)));
+    }
+
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);

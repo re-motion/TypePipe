@@ -19,7 +19,6 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -33,8 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     
     private MemberSelector _selector;
 
-    private Type _someType;    
-
+    private Type _someType;
 
     [SetUp]
     public void SetUp ()
@@ -51,9 +49,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var candidates = new[]
                        {
-                           CreateFieldStub (fieldAttributes: FieldAttributes.Assembly),
-                           CreateFieldStub (fieldAttributes: FieldAttributes.Family),
-                           CreateFieldStub (fieldAttributes: FieldAttributes.FamORAssem)
+                           CreateFieldStub (attributes: FieldAttributes.Assembly),
+                           CreateFieldStub (attributes: FieldAttributes.Family),
+                           CreateFieldStub (attributes: FieldAttributes.FamORAssem)
                        };
       var bindingFlags = (BindingFlags) 1;
 
@@ -99,6 +97,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (new[] { candidates[1] }));
+    }
+
+    [Test]
+    public void SelectProperties ()
+    {
+      var candidates =
+          new[]
+          {
+              CreatePropertyStub (accessors: new[] { CreateMethodStub (attributes: MethodAttributes.Final) }),
+              // Visbility is encoded in the lower 3 bits.
+              CreatePropertyStub (
+                  accessors: new[] { CreateMethodStub (attributes: (MethodAttributes) 1), CreateMethodStub (attributes: (MethodAttributes) 2) }),
+              // The 4-th bit (value 8) does not contribute to the visibility and should be masked out.
+              CreatePropertyStub (
+                  accessors: new[] { CreateMethodStub (attributes: (MethodAttributes) 3), CreateMethodStub (attributes: (MethodAttributes) 4) })
+          };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (MethodAttributes.Final, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (((MethodAttributes) 1), bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (((MethodAttributes) 2), bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes ((MethodAttributes) 3, bindingFlags)).Return (true);
+
+      var result = _selector.SelectProperties (candidates, bindingFlags).ForceEnumeration();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (new[] { candidates[1], candidates[2] }));
     }
 
     [Test]
@@ -263,31 +288,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Whatever", _someType, null, modifiersOrNull);
     }
 
-    private FieldInfo CreateFieldStub (string name = "Unspecified", FieldAttributes fieldAttributes = FieldAttributes.PrivateScope)
+    private FieldInfo CreateFieldStub (string name = "Unspecified", FieldAttributes attributes = FieldAttributes.PrivateScope)
     {
       var fieldStub = MockRepository.GenerateStub<FieldInfo>();
       fieldStub.Stub (stub => stub.Name).Return (name);
-      fieldStub.Stub (stub => stub.Attributes).Return (fieldAttributes);
+      fieldStub.Stub (stub => stub.Attributes).Return (attributes);
 
       return fieldStub;
     }
 
-    private ConstructorInfo CreateConstructorStub (MethodAttributes methodAttributes = MethodAttributes.PrivateScope)
+    private ConstructorInfo CreateConstructorStub (MethodAttributes attributes = MethodAttributes.PrivateScope)
     {
       var constructorStub = MockRepository.GenerateStub<ConstructorInfo>();
       constructorStub.Stub (stub => stub.Name).Repeat.Never();
-      constructorStub.Stub (stub => stub.Attributes).Return (methodAttributes);
+      constructorStub.Stub (stub => stub.Attributes).Return (attributes);
       return constructorStub;
     }
 
     private MethodInfo CreateMethodStub (
-        string name = "Unspecified", MethodAttributes methodAttributes = MethodAttributes.PrivateScope, Type declaringType = null)
+        string name = "Unspecified", MethodAttributes attributes = MethodAttributes.PrivateScope, Type declaringType = null)
     {
       var methodStub = MockRepository.GenerateStub<MethodInfo>();
       methodStub.Stub (stub => stub.Name).Return (name);
-      methodStub.Stub (stub => stub.Attributes).Return (methodAttributes);
+      methodStub.Stub (stub => stub.Attributes).Return (attributes);
       methodStub.Stub (stub => stub.DeclaringType).Return (declaringType);
       return methodStub;
+    }
+
+    private PropertyInfo CreatePropertyStub (string name = "Unspecified", MethodInfo[] accessors = null)
+    {
+      var propertyStub = MockRepository.GenerateStub<PropertyInfo>();
+      propertyStub.Stub (stub => stub.Name).Return (name);
+      propertyStub.Stub (stub => stub.GetAccessors (true)).Return(accessors);
+
+      return propertyStub;
     }
   }
 }
