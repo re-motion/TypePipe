@@ -59,6 +59,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _fields = genericTypeDefinition.GetFields (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+      var propertyInfos = genericTypeDefinition.GetProperties (c_allMembers).ToList();
+      propertyInfos.Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

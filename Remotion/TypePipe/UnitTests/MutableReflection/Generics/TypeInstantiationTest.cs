@@ -133,7 +133,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.GetMethods (c_allBindingFlags), Is.EqualTo (new[] { fakeMethod2 }));
     }
 
-    [Ignore ("TODO 5385")]
     [Test]
     public void Initialization_AdjustsProperties ()
     {
@@ -179,6 +178,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       memberSelectorMock.Expect (mock => mock.SelectFields (inputFields, c_allBindingFlags, declaringType)).Return (outputFields);
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputConstructors, c_allBindingFlags, declaringType)).Return (outputConstructors);
       memberSelectorMock.Expect (mock => mock.SelectMethods (inputMethods, c_allBindingFlags, declaringType)).Return (outputMethods);
+      memberSelectorMock.Expect (mock => mock.SelectProperties (inputProperties, c_allBindingFlags, declaringType)).Return (outputProperties);
     }
 
     private Type CreateGenericTypeDefinition (

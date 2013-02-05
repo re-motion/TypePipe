@@ -76,6 +76,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
       _customType.Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() };
       _customType.Methods = new[] { ReflectionObjectMother.GetSomeMethod() };
+      _customType.Properties = new[] { ReflectionObjectMother.GetSomeProperty() };
+      _customType.Events = new[] { ReflectionObjectMother.GetSomeEvent() };
     }
 
     [Test]
@@ -252,6 +254,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetFields ()
     {
+      Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeField () };
       _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr, _customType)).Return (fakeResult);
@@ -265,6 +268,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetField ()
     {
+      Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = ReflectionObjectMother.GetSomeField ();
@@ -279,6 +283,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetConstructors ()
     {
+      Assert.That (_customType.Constructors, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor() };
       _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType)).Return (fakeResult);
@@ -292,11 +297,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetMethods ()
     {
+      Assert.That (_customType.Methods, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod() };
       _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Methods, bindingAttr, _customType)).Return (fakeResult);
 
       var result = _customType.GetMethods (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void GetProperties ()
+    {
+      Assert.That (_customType.Properties, Is.Not.Null.And.Not.Empty);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeProperty() };
+      _memberSelectorMock.Expect (mock => mock.SelectProperties (_customType.Properties, bindingAttr, _customType)).Return (fakeResult);
+
+      var result = _customType.GetProperties (bindingAttr);
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
@@ -330,6 +350,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [TestCaseSource ("GetBinderTestCases")]
     public void GetConstructorImpl (Binder inputBinder, Binder expectedBinder)
     {
+      Assert.That (_customType.Constructors, Is.Not.Null.And.Not.Empty);
       var callingConvention = CallingConventions.Any;
       var bindingAttr = BindingFlags.NonPublic;
       var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
@@ -352,6 +373,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [TestCaseSource ("GetBinderTestCases")]
     public void GetMethodImpl (Binder inputBinder, Binder expectedBinder)
     {
+      Assert.That (_customType.Methods, Is.Not.Null.And.Not.Empty);
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var callingConvention = CallingConventions.Any;
@@ -369,6 +391,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultMethod, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    public void GetPropertyImpl ()
+    {
+      Assert.That (_customType.Properties, Is.Not.Null.And.Not.Empty);
+      
     }
 
     public static IEnumerable GetBinderTestCases ()

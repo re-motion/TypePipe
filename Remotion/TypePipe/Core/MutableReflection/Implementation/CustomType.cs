@@ -271,6 +271,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
     }
 
+    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectProperties (GetAllProperties(), bindingAttr, this).ToArray();
+    }
+
     protected void InvalidateUnderlyingSystemType ()
     {
       _underlyingSystemType = null;
@@ -298,6 +303,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (GetAllMethods(), binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
+    }
+
+    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
+    {
+      //types = types ?? Type.EmptyTypes;
+      return GetProperties (bindingAttr).SingleOrDefault (p => p.Name == name);
     }
 
     protected override bool HasElementTypeImpl ()
@@ -370,18 +381,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type GetNestedType (string name, BindingFlags bindingAttr)
     {
       throw new NotImplementedException ();
-    }
-
-    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
-    {
-      //types = types ?? Type.EmptyTypes;
-      return GetProperties (bindingAttr).SingleOrDefault (p => p.Name == name);
-    }
-
-    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
-    {
-      // Needed for virtual method check.. 
-      return _baseType.GetProperties (bindingAttr);
     }
 
     #endregion
