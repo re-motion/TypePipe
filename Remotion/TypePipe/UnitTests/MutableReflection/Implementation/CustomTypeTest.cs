@@ -503,10 +503,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.ToDebugString(), Is.EqualTo ("TestableCustomType = \"type name\""));
     }
 
-    [Ignore("TODO xxx")]
     [Test]
     public void VirtualMethodsImplementedByType ()
     {
+      _memberSelectorMock
+          .Stub (stub => stub.SelectEvents (Arg<IEnumerable<EventInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new EventInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new MethodInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new ConstructorInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new FieldInfo[0]);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectProperties (Arg<IEnumerable<PropertyInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new PropertyInfo[0]);
       var customTypeWithUnderlyingSystemTypeFactoryStub = CustomTypeObjectMother.Create();
 
       // None of these members should throw an exception.
@@ -527,20 +541,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Dev.Null = _customType.IsSubclassOf (null);
       Dev.Null = _customType.IsInstanceOfType (null);
       Dev.Null = _customType.IsAssignableFrom (null);
-
-      _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
-          .Return (new MethodInfo[0]);
-      _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
-          .Return (new ConstructorInfo[0]);
-      _memberSelectorMock
-          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
-          .Return (new FieldInfo[0]);
-      _memberSelectorMock
-          .Stub (stub => stub.SelectProperties (Arg<IEnumerable<PropertyInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
-          .Return (new PropertyInfo[0]);
-      _customType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
+      Dev.Null = _customType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
     }
 
     [Test]
