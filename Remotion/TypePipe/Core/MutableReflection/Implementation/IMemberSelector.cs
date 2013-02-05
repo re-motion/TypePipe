@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         BindingFlags bindingAttr,
         string nameOrNull,
         Type declaringType,
-        Type[] typesOrNull,
+        Type[] parameterTypesOrNull,
         ParameterModifier[] modifiersOrNull)
         where T: MethodBase;
 
@@ -49,8 +49,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         BindingFlags bindingAttr,
         string name,
         Type declaringType,
-        Type returnTypeOrNull,
-        Type[] typesOrNull,
+        Type propertyTypeOrNull,
+        Type[] indexerTypesOrNull,
         ParameterModifier[] modifiersOrNull);
   }
 }

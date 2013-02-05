@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         BindingFlags bindingAttr,
         string nameOrNull,
         Type declaringType,
-        Type[] typesOrNull,
+        Type[] parameterTypesOrNull,
         ParameterModifier[] modifiersOrNull)
         where T : MethodBase
     {
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("binder", binder);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      if (typesOrNull == null && modifiersOrNull != null)
+      if (parameterTypesOrNull == null && modifiersOrNull != null)
         throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
 
       if (nameOrNull != null)
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (candidates.Length == 0)
         return null;
 
-      if (typesOrNull == null)
+      if (parameterTypesOrNull == null)
       {
         if (candidates.Length > 1)
         {
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         return candidates.Single();
       }
 
-      return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      return (T) binder.SelectMethod (bindingAttr, candidates, parameterTypesOrNull, modifiersOrNull);
     }
 
     public PropertyInfo SelectSingleProperty (
@@ -117,11 +117,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         BindingFlags bindingAttr,
         string name,
         Type declaringType,
-        Type returnTypeOrNull,
-        Type[] typesOrNull,
+        Type propertyTypeOrNull,
+        Type[] indexerTypesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("properties", properties);
+      ArgumentUtility.CheckNotNull ("binder", binder);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+
+      //return (PropertyInfo) binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
+      return null;
     }
 
     public PropertyInfo SelectSingleProperty (IEnumerable<PropertyInfo> properties, BindingFlags bindingFlags, string name, Type declaringType)

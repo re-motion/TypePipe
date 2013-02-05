@@ -293,7 +293,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[1].Attributes, bindingFlags)).Return (true);
 
       var binderStub = MockRepository.GenerateStub<Binder>();
-      _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Method1", _someDeclaringType, typesOrNull: null, modifiersOrNull: null);
+      _selector.SelectSingleMethod (methods, binderStub, bindingFlags, "Method1", _someDeclaringType, parameterTypesOrNull: null, modifiersOrNull: null);
     }
 
     [Test]
@@ -305,7 +305,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (methods[0].Attributes, bindingFlags)).Return (true);
 
       var binderMock = MockRepository.GenerateStrictMock<Binder>();
-      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _someDeclaringType, typesOrNull: null, modifiersOrNull: null);
+      var result = _selector.SelectSingleMethod (methods, binderMock, bindingFlags, "Method1", _someDeclaringType, parameterTypesOrNull: null, modifiersOrNull: null);
 
       binderMock.AssertWasNotCalled (
           mock => mock.SelectMethod (

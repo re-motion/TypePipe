@@ -301,6 +301,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type[] typesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
+      // TODO 4836: Consider CallingConventions.
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (GetAllMethods(), binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
     }
