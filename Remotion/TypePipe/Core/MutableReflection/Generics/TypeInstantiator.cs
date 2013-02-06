@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var mapping = typeParameters.ToDictionary (a => a, SubstituteGenericParameters);
 
       // Make RuntimeType if all type arguments are RuntimeTypes.
+      // This implicitly optimizes cases in which all key-value pairs have the same key and value (i.e., pair.Key == pair.Value).
       if (mapping.Values.All (typeArg => typeArg.IsRuntimeType()))
       {
         // Do not simply use mapping.Values (because order matters).
