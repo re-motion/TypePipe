@@ -30,8 +30,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     string GetFullName (Type genericTypeDefinition);
 
     FieldInfo SubstituteGenericParameters (TypeInstantiation declaringType, FieldInfo field);
-    ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);
-    PropertyInfo SubstituteGenericParameters (PropertyInfo property);
-    EventInfo SubstituteGenericParameters (EventInfo event_);
+    ConstructorInfo SubstituteGenericParameters (TypeInstantiation declaringType, ConstructorInfo constructor);
+    PropertyInfo SubstituteGenericParameters (TypeInstantiation declaringType, PropertyInfo property);
+    EventInfo SubstituteGenericParameters (TypeInstantiation declaringType, EventInfo event_);
   }
 }

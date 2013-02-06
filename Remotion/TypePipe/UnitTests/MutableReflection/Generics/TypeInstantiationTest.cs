@@ -110,14 +110,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeConstructor1 = ReflectionObjectMother.GetSomeConstructor();
       var fakeConstructor2 = ReflectionObjectMother.GetSomeOtherConstructor();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, constructors: constructors);
-      SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputConstructors: constructors, outputConstructors: new[] { fakeConstructor1 });
+      SetupExpectationsOnMemberSelector (
+          _memberSelectorMock, genericTypeDefinition, inputConstructors: constructors, outputConstructors: new[] { fakeConstructor1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
-      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeConstructor1)).Return (fakeConstructor2);
+      object backReference = null;
+      _typeInstantiatorMock
+          .Expect (mock => mock.SubstituteGenericParameters (Arg<TypeInstantiation>.Is.Anything, Arg.Is (fakeConstructor1)))
+          .Return (fakeConstructor2)
+          .WhenCalled (mi => backReference = mi.Arguments[0]);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.GetConstructors (c_allBindingFlags), Is.EqualTo (new[] { fakeConstructor2 }));
+      Assert.That (backReference, Is.SameAs (instantiation));
     }
 
     [Test]
@@ -129,12 +135,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, methods: methods);
       SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputMethods: methods, outputMethods: new[] { fakeMethod1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
-      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeMethod1)).Return (fakeMethod2);
+      object backReference = null;
+      _typeInstantiatorMock
+          .Expect (mock => mock.SubstituteGenericParameters (Arg<TypeInstantiation>.Is.Anything, Arg.Is (fakeMethod1)))
+          .Return (fakeMethod2)
+          .WhenCalled (mi => backReference = mi.Arguments[0]);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.GetMethods (c_allBindingFlags), Is.EqualTo (new[] { fakeMethod2 }));
+      Assert.That (backReference, Is.SameAs (instantiation));
     }
 
     [Test]
@@ -146,12 +157,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, properties: properties);
       SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputProperties: properties, outputProperties: new[] { fakeProperty1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
-      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeProperty1)).Return (fakeProperty2);
+      object backReference = null;
+      _typeInstantiatorMock
+          .Expect (mock => mock.SubstituteGenericParameters (Arg<TypeInstantiation>.Is.Anything, Arg.Is (fakeProperty1)))
+          .Return (fakeProperty2)
+          .WhenCalled (mi => backReference = mi.Arguments[0]);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.GetProperties (c_allBindingFlags), Is.EqualTo (new[] { fakeProperty2 }));
+      Assert.That (backReference, Is.SameAs (instantiation));
     }
 
     [Test]
@@ -163,12 +179,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, events: events);
       SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputEvents: events, outputEvents: new[] { fakeEvent1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
-      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeEvent1)).Return (fakeEvent2);
+      object backReference = null;
+      _typeInstantiatorMock
+          .Expect (mock => mock.SubstituteGenericParameters (Arg<TypeInstantiation>.Is.Anything, Arg.Is(fakeEvent1)))
+          .Return (fakeEvent2)
+          .WhenCalled (mi => backReference = mi.Arguments[0]);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.GetEvents (c_allBindingFlags), Is.EqualTo (new[] { fakeEvent2 }));
+      Assert.That (backReference, Is.SameAs (instantiation));
     }
 
     private void SetupExpectationsOnMemberSelector (

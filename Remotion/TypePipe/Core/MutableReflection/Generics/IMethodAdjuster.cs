@@ -24,6 +24,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public interface IMethodAdjuster
   {
-    MethodInfo SubstituteGenericParameters (MethodInfo method);
+    MethodInfo SubstituteGenericParameters (TypeInstantiation declaringType, MethodInfo method);
   }
 }

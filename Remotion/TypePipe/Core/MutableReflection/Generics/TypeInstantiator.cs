@@ -98,14 +98,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return new FieldOnTypeInstantiation (declaringType, this, field);
     }
 
-    public ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor)
+    public ConstructorInfo SubstituteGenericParameters (TypeInstantiation declaringType, ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
       return constructor;
     }
 
-    public MethodInfo SubstituteGenericParameters (MethodInfo method)
+    public MethodInfo SubstituteGenericParameters (TypeInstantiation declaringType, MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
@@ -117,14 +117,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return parameter;
     }
 
-    public PropertyInfo SubstituteGenericParameters (PropertyInfo property)
+    public PropertyInfo SubstituteGenericParameters (TypeInstantiation declaringType, PropertyInfo property)
     {
       ArgumentUtility.CheckNotNull ("property", property);
 
       return property;
     }
 
-    public EventInfo SubstituteGenericParameters (EventInfo event_)
+    public EventInfo SubstituteGenericParameters (TypeInstantiation declaringType, EventInfo event_)
     {
       ArgumentUtility.CheckNotNull ("event_", event_);
 

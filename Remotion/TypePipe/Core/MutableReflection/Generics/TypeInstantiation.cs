@@ -62,11 +62,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
 
       _interfaces = genericTypeDefinition.GetInterfaces().Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      _fields = genericTypeDefinition.GetFields (c_allMembers).Select (field => typeInstantiator.SubstituteGenericParameters (this, field)).ToList().AsReadOnly();
-      _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      _properties = genericTypeDefinition.GetProperties (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      _events = genericTypeDefinition.GetEvents (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+      _fields = genericTypeDefinition.GetFields (c_allMembers).Select (f => typeInstantiator.SubstituteGenericParameters (this, f)).ToList().AsReadOnly();
+      _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (c => typeInstantiator.SubstituteGenericParameters (this, c)).ToList().AsReadOnly();
+      _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (m => typeInstantiator.SubstituteGenericParameters (this, m)).ToList().AsReadOnly();
+      _properties = genericTypeDefinition.GetProperties (c_allMembers).Select (p => typeInstantiator.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
+      _events = genericTypeDefinition.GetEvents (c_allMembers).Select (e => typeInstantiator.SubstituteGenericParameters (this, e)).ToList().AsReadOnly();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
