@@ -154,6 +154,7 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
+    <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\FieldOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\IMethodAdjuster.cs" />
     <Compile Include="MutableReflection\Generics\IParameterAdjuster.cs" />
