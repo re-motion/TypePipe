@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
@@ -85,30 +86,65 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SubstituteGenericParameters_Type_GenericType_CustomTypeAsArgument ()
     {
       var result = _typeInstantiator.SubstituteGenericParameters (_genericType);
+
       Assert.That (result, Is.TypeOf<TypeInstantiation>());
-      var typeArguments = result.GetGenericArguments();
-      Assert.That (typeArguments, Is.EqualTo (_typeArgs));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (_typeArgs));
     }
 
     [Test]
     public void SubstituteGenericParameters_Type_GenericType_OnlyRuntimeTypeAsArguments ()
     {
       var result = _typeInstantiatorWithRuntimeTypes.SubstituteGenericParameters (_genericType);
+
       Assert.That (result.IsRuntimeType(), Is.True);
-      var typeArguments = result.GetGenericArguments();
-      Assert.That (typeArguments, Is.EqualTo (_typeArgsWithRuntimeTypes));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (_typeArgsWithRuntimeTypes));
     }
 
     [Test]
     public void SubstituteGenericParameters_Type_NonGenericType ()
     {
       var result = _typeInstantiator.SubstituteGenericParameters (_nonGenericType);
+
       Assert.That (result, Is.SameAs (_nonGenericType));
     }
 
+    //[Test]
+    //public void SubstituteGenericParameters_Field_CustomTypeAsArgument ()
+    //{
+    //  var field = _genericType.GetField ("Field1");
+    //  var result = _typeInstantiator.SubstituteGenericParameters (TODO, field);
+
+    //  Assert.That (result, Is.TypeOf<FieldOnTypeInstantiation>());
+    //  Assert.That (result.FieldType, Is.EqualTo (_typeArgs[1]));
+    //}
+
+    //[Test]
+    //public void SubstituteGenericParameters_Field_RuntimeTypeAsArguments ()
+    //{
+    //  var field = _genericType.GetField ("Field2");
+    //  var result = _typeInstantiator.SubstituteGenericParameters (TODO, field);
+
+    //  Assert.That (result.GetType().FullName, Is.EqualTo ("System.Reflection.RuntimeFieldInfo"));
+    //  Assert.That (result.FieldType, Is.EqualTo (_typeArgs[0]));
+    //}
+
+    //[Test]
+    //public void SubstituteGenericParameters_Field_NoSubstitution ()
+    //{
+    //  var field = _genericType.GetField ("Field3");
+    //  var result = _typeInstantiator.SubstituteGenericParameters (TODO, field);
+
+    //  Assert.That (result, Is.SameAs (field));
+    //}
+
     class NonGenerictype { }
 // ReSharper disable UnusedTypeParameter
-    class GenericType<T1, T2> { }
+    class GenericType<T1, T2>
+    {
+      public T1 Field1 = default (T1);
+      public T2 Field2 = default (T2);
+      public int Field3 = 0;
+    }
 // ReSharper restore UnusedTypeParameter
   }
 }

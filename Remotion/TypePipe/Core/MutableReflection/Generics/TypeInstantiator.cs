@@ -90,11 +90,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       }
     }
 
-    public FieldInfo SubstituteGenericParameters (FieldInfo field)
+    public FieldInfo SubstituteGenericParameters (TypeInstantiation declaringType, FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return field;
+      if (!_parametersToArguments.ContainsKey (field.FieldType))
+        return field;
+
+      return null;
     }
 
     public ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor)

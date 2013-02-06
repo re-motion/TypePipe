@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     string GetFullName (Type genericTypeDefinition);
 
-    FieldInfo SubstituteGenericParameters (FieldInfo field);
+    FieldInfo SubstituteGenericParameters (TypeInstantiation declaringType, FieldInfo field);
     ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);
     MethodInfo SubstituteGenericParameters (MethodInfo method);
     PropertyInfo SubstituteGenericParameters (PropertyInfo property);

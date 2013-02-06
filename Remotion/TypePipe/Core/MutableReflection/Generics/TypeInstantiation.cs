@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
 
       _interfaces = genericTypeDefinition.GetInterfaces().Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      _fields = genericTypeDefinition.GetFields (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
+      _fields = genericTypeDefinition.GetFields (c_allMembers).Select (field => typeInstantiator.SubstituteGenericParameters (this, field)).ToList().AsReadOnly();
       _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
       _properties = genericTypeDefinition.GetProperties (c_allMembers).Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();

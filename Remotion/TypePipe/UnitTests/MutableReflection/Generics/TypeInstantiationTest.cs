@@ -90,12 +90,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, fields: fields);
       SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition, inputFields: fields, outputFields: new[] { fakeField1 });
       StubBaseTypeAdjustment (genericTypeDefinition);
-      _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (fakeField1)).Return (fakeField2);
+      object backReference = null;
+      _typeInstantiatorMock
+          .Expect (mock => mock.SubstituteGenericParameters (Arg<TypeInstantiation>.Is.Anything, Arg.Is (fakeField1)))
+          .Return (fakeField2)
+          .WhenCalled (mi => backReference = mi.Arguments[0]);
 
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.GetFields (c_allBindingFlags), Is.EqualTo (new[] { fakeField2 }));
+      Assert.That (backReference, Is.SameAs (instantiation));
     }
 
     [Test]
