@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _baseType = ReflectionObjectMother.GetSomeSubclassableType();
       _name = "type name";
       _namespace = "namespace";
-      _fullName = "full type name";
+      _fullName = "MyNameSpace.MyTypeName";
       _attributes = (TypeAttributes) 7;
 
       _customType = new TestableCustomType (
@@ -120,6 +120,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void Module ()
     {
       Assert.That (_customType.Module, Is.Null);
+    }
+
+    [Test]
+    public void AssemblyQualifiedName ()
+    {
+      Assert.That (_customType.AssemblyQualifiedName, Is.EqualTo ("MyNameSpace.MyTypeName, TypePipe_GeneratedAssembly"));
     }
 
     [Test]
@@ -549,7 +555,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.MetadataToken, "MetadataToken");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GUID, "GUID");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.AssemblyQualifiedName, "AssemblyQualifiedName");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterAttributes, "GenericParameterAttributes");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterPosition, "GenericParameterPosition");

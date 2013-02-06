@@ -140,6 +140,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _fullName; }
     }
 
+    public override string AssemblyQualifiedName
+    {
+      get { return _fullName + ", TypePipe_GeneratedAssembly"; }
+    }
+
     public override bool IsGenericType
     {
       get { return _isGenericType; }
@@ -399,11 +404,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Guid GUID
     {
       get { throw new NotSupportedException ("Property GUID is not supported."); }
-    }
-
-    public override string AssemblyQualifiedName
-    {
-      get { throw new NotSupportedException ("Property AssemblyQualifiedName is not supported."); }
     }
 
     public override StructLayoutAttribute StructLayoutAttribute
