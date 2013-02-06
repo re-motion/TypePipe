@@ -15,14 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -39,13 +35,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      var methods = typeof (DomainType).GetMethods (BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-      _publicAddMethod = methods.Single (m => m.Name == "PublicAddMethod");
-      _publicRemoveMethod = methods.Single (m => m.Name == "PublicRemoveMethod");
-      _publicRaiseMethod = methods.Single (m => m.Name == "PublicRaiseMethod");
-      _nonPublicAddMethod = methods.Single (m => m.Name == "NonPublicAddMethod");
-      _nonPublicRemoveMethod = methods.Single (m => m.Name == "NonPublicRemoveMethod");
-      _nonPublicRaiseMethod = methods.Single (m => m.Name == "NonPublicRaiseMethod");
+      _publicAddMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.PublicAddMethod (null));
+      _publicRemoveMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.PublicRemoveMethod (null));
+      _publicRaiseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.PublicRaiseMethod ("", 7));
+      _nonPublicAddMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.NonPublicAddMethod (null));
+      _nonPublicRemoveMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.NonPublicRemoveMethod (null));
+      _nonPublicRaiseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.NonPublicRaiseMethod ("", 7));
     }
 
     [Test]
@@ -55,11 +50,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "Event";
       var attributes = (EventAttributes) 7;
 
-      var result = CreateCustomEventInfo (declaringType, name, attributes, _publicAddMethod, _publicRemoveMethod, _publicRaiseMethod);
+      var result = new TestableCustomEventInfo (declaringType, name, attributes, _publicAddMethod, _publicRemoveMethod, _publicRaiseMethod);
 
-      Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.DeclaringType, Is.EqualTo (declaringType));
       Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.GetAddMethod(), Is.SameAs (_publicAddMethod));
       Assert.That (result.GetRemoveMethod(), Is.SameAs (_publicRemoveMethod));
       Assert.That (result.GetRaiseMethod(), Is.SameAs (_publicRaiseMethod));
@@ -68,32 +63,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAddMethod ()
     {
-      var event1 = CreateCustomEventInfo (addMethod: _nonPublicAddMethod);
-      var event2 = CreateCustomEventInfo (addMethod: _publicAddMethod);
+      var event1 = CustomEventInfoObjectMother.Create (addMethod: _publicAddMethod, removeMethod: _publicRemoveMethod);
+      var event2 = CustomEventInfoObjectMother.Create (addMethod: _nonPublicAddMethod, removeMethod: _nonPublicRemoveMethod);
 
-      Assert.That (event1.GetAddMethod (true), Is.SameAs (_nonPublicAddMethod));
-      Assert.That (event1.GetAddMethod (false), Is.Null);
-      Assert.That (event2.GetAddMethod (true), Is.SameAs (_publicAddMethod));
-      Assert.That (event2.GetAddMethod (false), Is.SameAs (_publicAddMethod));
+      Assert.That (event1.GetAddMethod (true), Is.SameAs (_publicAddMethod));
+      Assert.That (event1.GetAddMethod (false), Is.SameAs (_publicAddMethod));
+      Assert.That (event2.GetAddMethod (true), Is.SameAs (_nonPublicAddMethod));
+      Assert.That (event2.GetAddMethod (false), Is.Null);
     }
 
     [Test]
     public void GetRemoveMethod ()
     {
-      var event1 = CreateCustomEventInfo (removeMethod: _nonPublicRemoveMethod);
-      var event2 = CreateCustomEventInfo (removeMethod: _publicRemoveMethod);
+      var event1 = CustomEventInfoObjectMother.Create (removeMethod: _publicRemoveMethod, addMethod: _publicAddMethod);
+      var event2 = CustomEventInfoObjectMother.Create (removeMethod: _nonPublicRemoveMethod, addMethod: _nonPublicAddMethod);
 
-      Assert.That (event1.GetRemoveMethod (true), Is.SameAs (_nonPublicRemoveMethod));
-      Assert.That (event1.GetRemoveMethod (false), Is.Null);
-      Assert.That (event2.GetRemoveMethod (true), Is.SameAs (_publicRemoveMethod));
-      Assert.That (event2.GetRemoveMethod (false), Is.SameAs (_publicRemoveMethod));
+      Assert.That (event1.GetRemoveMethod (true), Is.SameAs (_publicRemoveMethod));
+      Assert.That (event1.GetRemoveMethod (false), Is.SameAs (_publicRemoveMethod));
+      Assert.That (event2.GetRemoveMethod (true), Is.SameAs (_nonPublicRemoveMethod));
+      Assert.That (event2.GetRemoveMethod (false), Is.Null);
+    }
+
+    [Test]
+    public void GetRaiseMethod ()
+    {
+      var event1 = CustomEventInfoObjectMother.Create (raiseMethod: _publicRaiseMethod);
+      var event2 = CustomEventInfoObjectMother.Create (raiseMethod: _nonPublicRaiseMethod);
+
+      Assert.That (event1.GetRaiseMethod (true), Is.SameAs (_publicRaiseMethod));
+      Assert.That (event1.GetRaiseMethod (false), Is.SameAs (_publicRaiseMethod));
+      Assert.That (event2.GetRaiseMethod (true), Is.SameAs (_nonPublicRaiseMethod));
+      Assert.That (event2.GetRaiseMethod (false), Is.Null);
     }
 
     [Test]
     public void CustomAttributeMethods ()
     {
-      var event_ = CreateCustomEventInfo();
-      event_.CustomAttributeDatas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute)) };
+      var event_ = CustomEventInfoObjectMother.Create (
+          customAttributes: new[] { CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute)) });
 
       Assert.That (event_.GetCustomAttributes (false).Select (a => a.GetType()), Is.EqualTo (new[] { typeof (ObsoleteAttribute) }));
       Assert.That (event_.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
@@ -106,85 +113,46 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public new void ToString ()
     {
       var name = "MyEvent";
-      var eventTypeName = _publicAddMethod.GetParameters().Single().ParameterType.Name;
-      var event_ = CreateCustomEventInfo (name: name, addMethod: _publicAddMethod);
+      var event_ = CustomEventInfoObjectMother.Create (name: name, addMethod: _publicAddMethod, removeMethod:_publicRemoveMethod);
 
-      Assert.That (event_.ToString (), Is.EqualTo (eventTypeName + " MyEvent"));
+      Assert.That (event_.ToString(), Is.EqualTo ("MyEventDelegate MyEvent"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = CustomTypeObjectMother.Create ();
+      var declaringType = CustomTypeObjectMother.Create (name: "MyType");
       var name = "MyEvent";
-      var event_ = CreateCustomEventInfo (declaringType, name, addMethod: _publicAddMethod);
+      var event_ = CustomEventInfoObjectMother.Create (declaringType, name, addMethod: _publicAddMethod, removeMethod: _publicRemoveMethod);
 
-      // Note: ToDebugString is defined in CustomFieldInfo base class.
-      Assertion.IsNotNull (event_.DeclaringType);
-      var declaringTypeName = event_.DeclaringType.Name;
-      var eventTypeName = event_.EventHandlerType.Name;
-      var eventName = event_.Name;
-      var expected = "TestableCustomEvent = \"" + eventTypeName + " " + eventName + "\", DeclaringType = \"" + declaringTypeName + "\"";
+      var expected = "TestableCustomEvent = \"MyEventDelegate MyEvent\", DeclaringType = \"MyType\"";
 
-      Assert.That (event_.ToDebugString (), Is.EqualTo (expected));
+      Assert.That (event_.ToDebugString(), Is.EqualTo (expected));
     }
 
     [Test]
     public void UnsupportedMembers ()
     {
-      var event_ = CreateCustomEventInfo();
+      var event_ = CustomEventInfoObjectMother.Create();
 
       UnsupportedMemberTestHelper.CheckProperty (() => event_.ReflectedType, "ReflectedType");
       UnsupportedMemberTestHelper.CheckMethod (() => event_.GetOtherMethods (true), "GetOtherMethods");
-    }
-
-    // TODO xxx: Create ObjectMother and move to own file.
-    private TestableCustomEventInfo CreateCustomEventInfo (
-        CustomType declaringType = null,
-        string name = "Event",
-        EventAttributes attributes = (EventAttributes) 7,
-        MethodInfo addMethod = null,
-        MethodInfo removeMethod = null,
-        MethodInfo raiseMethod = null)
-    {
-      declaringType = declaringType ?? CustomTypeObjectMother.Create();
-      addMethod = addMethod ?? _publicAddMethod;
-      removeMethod = removeMethod ?? _publicRemoveMethod;
-      raiseMethod = raiseMethod ?? _publicRaiseMethod;
-
-      return new TestableCustomEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
-    }
-
-    class TestableCustomEventInfo : CustomEventInfo
-    {
-      public TestableCustomEventInfo (
-          CustomType declaringType,
-          string name,
-          EventAttributes attributes,
-          MethodInfo addMethod,
-          MethodInfo removeMethod,
-          MethodInfo raiseMethod)
-          : base (declaringType, name, attributes, addMethod, removeMethod, raiseMethod) {}
-
-      public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
-
-      public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-      {
-        return CustomAttributeDatas;
-      }
     }
 
     delegate void MyEventDelegate (string arg1, int arg2);
 
     class DomainType
     {
+      // ReSharper disable UnusedParameter.Local
       public void PublicAddMethod (MyEventDelegate delegate_) { }
+
       public void PublicRemoveMethod (MyEventDelegate delegate_) { }
       public void PublicRaiseMethod (string arg1, int arg2) { }
 
-      private void NonPublicAddMethod (MyEventDelegate delegate_) { }
-      private void NonPublicRemoveMethod (MyEventDelegate delegate_) { }
-      private void NonPublicRaiseMethod (string arg1, int arg2) { }
+      internal void NonPublicAddMethod (MyEventDelegate delegate_) { }
+      internal void NonPublicRemoveMethod (MyEventDelegate delegate_) { }
+      internal void NonPublicRaiseMethod (string arg1, int arg2) { }
+      // ReSharper restore UnusedParameter.Local
     }
   }
 }

@@ -117,6 +117,7 @@
     <Compile Include="MutableReflection\Generics\TypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomEventInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomEventInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomFieldInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomFieldInfoTest.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="MutableReflection\CustomAttributeNamedArgumentAdapterTest.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedPropertyFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomConstructorInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\TestableCustomEventInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomFieldInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomParameterInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomPropertyInfo.cs" />

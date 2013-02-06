@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public string ToDebugString ()
     {
-      return string.Format ("{0} = \"{1}\", DeclaringType = \"{2}\"", GetType ().Name.Replace ("Info", ""), ToString (), DeclaringType);
+      return string.Format ("{0} = \"{1}\", DeclaringType = \"{2}\"", GetType().Name.Replace ("Info", ""), ToString(), DeclaringType);
     }
 
     #region Unsupported Members
