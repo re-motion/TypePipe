@@ -15,23 +15,15 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Defines methods for substituting generic type parameters with type arguments in members of a generic type definition.
+  /// Provides functionality to substitute type parameters with type arguments in a <see cref="ParameterInfo"/>.
   /// </summary>
-  public interface ITypeInstantiator : ITypeAdjuster, IMethodAdjuster, IParameterAdjuster
+  public interface IParameterAdjuster
   {
-    IEnumerable<Type> TypeArguments { get; }
-
-    string GetFullName (Type genericTypeDefinition);
-
-    FieldInfo SubstituteGenericParameters (TypeInstantiation declaringType, FieldInfo field);
-    ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);
-    PropertyInfo SubstituteGenericParameters (PropertyInfo property);
-    EventInfo SubstituteGenericParameters (EventInfo event_);
+    ParameterInfo SubstituteGenericParameters (MemberInfo member, ParameterInfo parameter);
   }
 }

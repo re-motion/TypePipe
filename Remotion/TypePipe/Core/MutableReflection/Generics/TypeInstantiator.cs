@@ -112,6 +112,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return method;
     }
 
+    public ParameterInfo SubstituteGenericParameters (MemberInfo member, ParameterInfo parameter)
+    {
+      return parameter;
+    }
+
     public PropertyInfo SubstituteGenericParameters (PropertyInfo property)
     {
       ArgumentUtility.CheckNotNull ("property", property);
