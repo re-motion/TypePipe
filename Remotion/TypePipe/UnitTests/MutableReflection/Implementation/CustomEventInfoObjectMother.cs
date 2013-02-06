@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
       addMethod = addMethod ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.AddMethod (null));
       removeMethod = removeMethod ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.RemoveMethod (null));
-      raiseMethod = raiseMethod ?? NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.RaiseMethod ("", 7));
+      // Raise method stays null.
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
 
       return new TestableCustomEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod)

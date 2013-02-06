@@ -51,12 +51,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("addMethod", addMethod);
       ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
-      ArgumentUtility.CheckNotNull ("raiseMethod", raiseMethod);
+      // Raise method may be null.
       var delegateType = addMethod.GetParameters().Single().ParameterType;
       Assertion.IsTrue (typeof (Delegate).IsAssignableFrom (delegateType));
       Assertion.IsTrue (removeMethod.GetParameters().Single().ParameterType == delegateType);
       var parameterTypes = delegateType.GetMethod ("Invoke").GetParameters().Select (p => p.ParameterType);
-      Assertion.IsTrue (raiseMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes));
+      // TODO xxx: Raise method may be null (but still do that check as it is valuable!)
+      //Assertion.IsTrue (raiseMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes));
 
       _declaringType = declaringType;
       _name = name;
@@ -93,6 +94,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _addMethod.IsPublic || nonPublic ? _addMethod : null;
     }
 
+    // TODO xxx: Raise method may be null.
     public override MethodInfo GetRaiseMethod (bool nonPublic)
     {
       return _raiseMethod.IsPublic || nonPublic ? _raiseMethod : null;
