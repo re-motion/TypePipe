@@ -150,12 +150,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.GetProperties (c_allBindingFlags), Is.EqualTo (new[] { fakeProperty2 }));
     }
 
-    [Ignore ("TODO xxx")]
     [Test]
     public void Initialization_AdjustsEvents ()
     {
-      var events = new EventInfo[0];
-      //var events = new EventInfo[] { CustomEventInfoObjectMother.Create() };
+      var events = new EventInfo[] { CustomEventInfoObjectMother.Create() };
       var fakeEvent1 = ReflectionObjectMother.GetSomeEvent();
       var fakeEvent2 = ReflectionObjectMother.GetSomeOtherEvent();
       var genericTypeDefinition = CreateGenericTypeDefinition (_memberSelectorMock, events: events);
@@ -166,7 +164,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var instantiation = CreateTypeInstantion (_typeInstantiatorMock, genericTypeDefinition);
 
       _typeInstantiatorMock.VerifyAllExpectations();
-      Assert.That (instantiation.GetProperties (c_allBindingFlags), Is.EqualTo (new[] { fakeEvent2 }));
+      Assert.That (instantiation.GetEvents (c_allBindingFlags), Is.EqualTo (new[] { fakeEvent2 }));
     }
 
     private void SetupExpectationsOnMemberSelector (
