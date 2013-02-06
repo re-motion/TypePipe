@@ -49,6 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result.Name, Is.EqualTo (field.Name));
       Assert.That (result.Attributes, Is.EqualTo (field.Attributes));
       Assert.That (result.FieldType, Is.SameAs (fakeType));
+      Assert.That (result.FieldOnGenericType, Is.SameAs (field));
     }
   }
 }

@@ -28,6 +28,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class FieldOnTypeInstantiation : CustomFieldInfo
   {
+    private readonly FieldInfo _field;
+
     public FieldOnTypeInstantiation (TypeInstantiation declaringType, ITypeAdjuster typeAdjuster, FieldInfo field)
         : base (
             declaringType,
@@ -35,6 +37,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             ArgumentUtility.CheckNotNull ("typeAdjuster", typeAdjuster).SubstituteGenericParameters (field.FieldType),
             field.Attributes)
     {
+      _field = field;
+    }
+
+    public FieldInfo FieldOnGenericType
+    {
+      get { return _field; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

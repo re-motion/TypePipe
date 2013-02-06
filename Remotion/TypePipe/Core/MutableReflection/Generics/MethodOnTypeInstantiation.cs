@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class MethodOnTypeInstantiation : CustomMethodInfo
   {
+    private readonly MethodInfo _method;
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
@@ -38,8 +39,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("parameterAdjuster", parameterAdjuster);
 
+      _method = method;
       _returnParameter = parameterAdjuster.SubstituteGenericParameters (this, method.ReturnParameter);
       _parameters = method.GetParameters().Select (p => parameterAdjuster.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
+    }
+
+    public MethodInfo MethodOnGenericType
+    {
+      get { return _method; }
     }
 
     public override ParameterInfo ReturnParameter

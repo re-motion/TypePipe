@@ -55,6 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (result.Attributes, Is.EqualTo (ctor.Attributes));
+      Assert.That (result.ConstructorOnGenericType, Is.SameAs (ctor));
 
       Assert.That (result.GetParameters(), Is.EqualTo (new[] { fakeParameter }));
     }

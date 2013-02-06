@@ -16,7 +16,9 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
@@ -113,11 +115,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SubstituteGenericParameters_Field ()
     {
       var field = _genericType.GetField ("Field");
+
       var result = _typeInstantiator.SubstituteGenericParameters (_declaringType, field);
 
       Assert.That (result, Is.TypeOf<FieldOnTypeInstantiation>());
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (result.FieldType, Is.EqualTo (_typeArgs[0]));
+      Assert.That (((FieldOnTypeInstantiation) result).FieldOnGenericType, Is.SameAs (field));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_Constructor ()
+    {
+      var ctor = _genericType.GetConstructors().Single();
+
+      var result = _typeInstantiator.SubstituteGenericParameters (_declaringType, ctor);
+
+      Assert.That (result, Is.TypeOf<ConstructorOnTypeInstantiation>());
+      Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (((ConstructorOnTypeInstantiation) result).ConstructorOnGenericType, Is.SameAs (ctor));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_Method ()
+    {
+      var method = _genericType.GetMethod ("Method");
+
+      var result = _typeInstantiator.SubstituteGenericParameters (_declaringType, method);
+
+      Assert.That (result, Is.TypeOf<MethodOnTypeInstantiation> ());
+      Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (((MethodOnTypeInstantiation) result).MethodOnGenericType, Is.SameAs (method));
     }
 
     class NonGenerictype { }
@@ -125,6 +152,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     class GenericType<T1, T2>
     {
       public T1 Field = default (T1);
+      public GenericType (T1 t1) { Dev.Null = t1; }
+      public T1 Method (T2 t2) { Dev.Null = t2; return default (T1); }
     }
     // ReSharper restore UnusedTypeParameter
   }

@@ -63,6 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (result.Name, Is.EqualTo (method.Name));
       Assert.That (result.Attributes, Is.EqualTo (method.Attributes));
+      Assert.That (result.MethodOnGenericType, Is.SameAs (method));
 
       Assert.That (result.ReturnParameter, Is.SameAs (fakeReturnParameter));
       Assert.That (result.GetParameters(), Is.EqualTo (new[] { fakeParameter }));

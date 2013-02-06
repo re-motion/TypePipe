@@ -29,6 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class ConstructorOnTypeInstantiation : CustomConstructorInfo
   {
+    private readonly ConstructorInfo _constructor;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
     public ConstructorOnTypeInstantiation (TypeInstantiation declaringType, IParameterAdjuster parameterAdjuster, ConstructorInfo constructor)
@@ -36,7 +37,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("parameterAdjuster", parameterAdjuster);
 
+      _constructor = constructor;
       _parameters = constructor.GetParameters().Select (p => parameterAdjuster.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
+    }
+
+    public ConstructorInfo ConstructorOnGenericType
+    {
+      get { return _constructor; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
