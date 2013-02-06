@@ -55,9 +55,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var delegateType = addMethod.GetParameters().Single().ParameterType;
       Assertion.IsTrue (typeof (Delegate).IsAssignableFrom (delegateType));
       Assertion.IsTrue (removeMethod.GetParameters().Single().ParameterType == delegateType);
-      var parameterTypes = delegateType.GetMethod ("Invoke").GetParameters().Select (p => p.ParameterType);
-      // TODO xxx: Raise method may be null (but still do that check as it is valuable!)
-      //Assertion.IsTrue (raiseMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes));
+      var parameterTypes = delegateType.GetMethod ("Invoke").GetParameters ().Select (p => p.ParameterType);
+      Assertion.IsTrue (raiseMethod == null || raiseMethod.GetParameters ().Select (p => p.ParameterType).SequenceEqual (parameterTypes));
 
       _declaringType = declaringType;
       _name = name;
@@ -94,10 +93,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _addMethod.IsPublic || nonPublic ? _addMethod : null;
     }
 
-    // TODO xxx: Raise method may be null.
     public override MethodInfo GetRaiseMethod (bool nonPublic)
     {
-      return _raiseMethod.IsPublic || nonPublic ? _raiseMethod : null;
+      return _raiseMethod != null && (_raiseMethod.IsPublic || nonPublic) ? _raiseMethod : null;
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

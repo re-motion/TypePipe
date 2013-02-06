@@ -89,11 +89,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var event1 = CustomEventInfoObjectMother.Create (raiseMethod: _publicRaiseMethod);
       var event2 = CustomEventInfoObjectMother.Create (raiseMethod: _nonPublicRaiseMethod);
+      var event3 = CustomEventInfoObjectMother.Create (raiseMethod: null);
 
       Assert.That (event1.GetRaiseMethod (true), Is.SameAs (_publicRaiseMethod));
       Assert.That (event1.GetRaiseMethod (false), Is.SameAs (_publicRaiseMethod));
       Assert.That (event2.GetRaiseMethod (true), Is.SameAs (_nonPublicRaiseMethod));
       Assert.That (event2.GetRaiseMethod (false), Is.Null);
+      Assert.That (event3.GetRaiseMethod (true), Is.Null);
+      Assert.That (event3.GetRaiseMethod (false), Is.Null);
     }
 
     [Test]
