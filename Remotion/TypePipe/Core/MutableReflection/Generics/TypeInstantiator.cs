@@ -75,10 +75,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var typeParameters = type.GetGenericArguments();
       var mapping = typeParameters.ToDictionary (a => a, SubstituteGenericParameters);
 
-      //// Skip substitution if it does not change the type, i.e., type contains no type parameters that are instantiated.
-      //if (mapping.All (pair => pair.Key == pair.Value))
-      //  return type;
-
       // Make RuntimeType if all type arguments are RuntimeTypes.
       if (mapping.Values.All (typeArg => typeArg.IsRuntimeType()))
       {
