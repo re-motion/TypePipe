@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             underlyingTypeFactory,
             null,
             typeInstantiator.SubstituteGenericParameters (genericTypeDefinition.BaseType),
-            typeInstantiator.GetSimpleName (genericTypeDefinition),
+            genericTypeDefinition.Name, // Simple names of constructed type and generic type definition are equal.
             genericTypeDefinition.Namespace,
             typeInstantiator.GetFullName (genericTypeDefinition),
             genericTypeDefinition.Attributes,

@@ -49,7 +49,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeBaseType = ReflectionObjectMother.GetSomeType();
       SetupExpectationsOnMemberSelector (_memberSelectorMock, genericTypeDefinition);
       _typeInstantiatorMock.Expect (mock => mock.SubstituteGenericParameters (genericTypeDefinition.BaseType)).Return (fakeBaseType);
-      _typeInstantiatorMock.Expect (mock => mock.GetSimpleName (genericTypeDefinition)).Return ("name");
       _typeInstantiatorMock.Expect (mock => mock.GetFullName (genericTypeDefinition)).Return ("full name");
       _typeInstantiatorMock.Expect (mock => mock.TypeArguments).Return (new[] { typeArgument });
 
@@ -57,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       _typeInstantiatorMock.VerifyAllExpectations();
       Assert.That (instantiation.BaseType, Is.SameAs (fakeBaseType));
-      Assert.That (instantiation.Name, Is.EqualTo ("name"));
+      Assert.That (instantiation.Name, Is.EqualTo (genericTypeDefinition.Name));
       Assert.That (instantiation.Namespace, Is.EqualTo (genericTypeDefinition.Namespace));
       Assert.That (instantiation.FullName, Is.EqualTo ("full name"));
       Assert.That (instantiation.Attributes, Is.EqualTo (genericTypeDefinition.Attributes));
@@ -232,7 +231,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var fakeBaseType = ReflectionObjectMother.GetSomeType();
       _typeInstantiatorMock.Stub (stub => stub.SubstituteGenericParameters (genericTypeDefinition.BaseType)).Return (fakeBaseType);
-      _typeInstantiatorMock.Stub (stub => stub.GetSimpleName (genericTypeDefinition)).Return ("name");
       _typeInstantiatorMock.Stub (stub => stub.GetFullName (genericTypeDefinition)).Return ("full name");
       _typeInstantiatorMock.Stub (stub => stub.TypeArguments).Return (new[] { ReflectionObjectMother.GetSomeType() });
     }

@@ -27,7 +27,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     IEnumerable<Type> TypeArguments { get; }
 
-    string GetSimpleName (Type genericTypeDefinition);
     string GetFullName (Type genericTypeDefinition);
 
     FieldInfo SubstituteGenericParameters (FieldInfo field);

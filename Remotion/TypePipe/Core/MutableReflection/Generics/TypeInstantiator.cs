@@ -16,7 +16,11 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
+using Remotion.Text;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -25,19 +29,28 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class TypeInstantiator : ITypeInstantiator
   {
+    private readonly ReadOnlyCollection<Type> _typeArguments;
+
+    public TypeInstantiator (IEnumerable<Type> typeArguments)
+    {
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+
+      _typeArguments = typeArguments.ToList().AsReadOnly();
+    }
+
     public IEnumerable<Type> TypeArguments
     {
-      get { throw new NotImplementedException(); }
+      get { return _typeArguments; }
     }
 
-    public string GetSimpleName (Type genericTypeDefinition)
-    {
-      throw new NotImplementedException();
-    }
-
+    // TODO yyy: what about ToString?
     public string GetFullName (Type genericTypeDefinition)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
+      Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
+
+      var typeArguments = SeparatedStringBuilder.Build (",", _typeArguments, t => "[" + t.AssemblyQualifiedName + "]");
+      return string.Format ("{0}[{1}]", genericTypeDefinition.FullName, typeArguments);
     }
 
     public Type SubstituteGenericParameters (Type type)

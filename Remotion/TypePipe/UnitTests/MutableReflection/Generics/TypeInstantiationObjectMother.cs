@@ -16,8 +16,10 @@
 // 
 
 using System;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -30,7 +32,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         IUnderlyingTypeFactory underlyingTypeFactory = null)
     {
       genericTypeDefinition = genericTypeDefinition ?? typeof (MyGenericType<>);
-      typeInstantiator = typeInstantiator ?? new TypeInstantiator();
+      var typeArguments = genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType());
+      typeInstantiator = typeInstantiator ?? new TypeInstantiator (typeArguments);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
 
