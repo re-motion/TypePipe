@@ -18,45 +18,97 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Rhino.Mocks;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
   public class TypeInstantiatorTest
   {
+    private Type _nonGenericType;
     private Type _genericType;
-    private Type _constructedType;
-    private Type[] _typeArguments;
+    private Type[] _typeParameters;
+    private CustomType _customTypeArgument;
+    private Type[] _typeArgs;
+    private Type[] _typeArgsWithRuntimeTypes;
+
+    private IMemberSelector _memberSelectorMock;
+    private ThrowingUnderlyingTypeFactory _underlyingTypeFactory;
 
     private TypeInstantiator _typeInstantiator;
+    private TypeInstantiator _typeInstantiatorWithRuntimeTypes;
 
     [SetUp]
     public void SetUp ()
     {
-      _genericType = typeof (MyGenericType<,>);
-      _constructedType = typeof (MyGenericType<List<int>, string>);
-      _typeArguments = new[] { typeof (List<int>), typeof (string) };
+      _nonGenericType = typeof (NonGenerictype);
+      _genericType = typeof (GenericType<,>);
 
-      _typeInstantiator = new TypeInstantiator (_typeArguments.AsOneTime());
+      _customTypeArgument = CustomTypeObjectMother.Create(fullName: "My.Blub");
+      _typeParameters = _genericType.GetGenericArguments();
+      _typeArgs = new[] { typeof (string), _customTypeArgument };
+      _typeArgsWithRuntimeTypes = new[] { typeof (List<int>), typeof (string) };
+      var mapping = new Dictionary<Type, Type> { { _typeParameters[0], _typeArgs[0] }, { _typeParameters[1], _typeArgs[1] } };
+      var mappingWithRuntimeTypes =
+          new Dictionary<Type, Type> { { _typeParameters[0], _typeArgsWithRuntimeTypes[0] }, { _typeParameters[1], _typeArgsWithRuntimeTypes[1] } };
+
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
+
+      _typeInstantiator = new TypeInstantiator (_memberSelectorMock, _underlyingTypeFactory, mapping);
+      _typeInstantiatorWithRuntimeTypes = new TypeInstantiator (_memberSelectorMock, _underlyingTypeFactory, mappingWithRuntimeTypes);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_typeInstantiator.TypeArguments, Is.EqualTo (_typeArguments));
+      Assert.That (_typeInstantiator.TypeArguments, Is.EqualTo (_typeArgs));
     }
 
     [Test]
     public void GetFullName ()
     {
-      var result = _typeInstantiator.GetFullName (_genericType);
+      var result1 = _typeInstantiator.GetFullName (_genericType);
+      var result2 = _typeInstantiatorWithRuntimeTypes.GetFullName (_genericType);
 
-      Assert.That (result,Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Generics.TypeInstantiatorTest+MyGenericType`2[[System.Collections.Generic.List`1[[System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"));
-      Assert.That (result, Is.EqualTo (_constructedType.FullName), "Should be equal to original reflection.");
+      Assert.That (result1, Is.EqualTo (
+          "Remotion.TypePipe.UnitTests.MutableReflection.Generics.TypeInstantiatorTest+GenericType`2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[My.Blub, TypePipe_GeneratedAssembly]]"));
+
+      var constructedType = _genericType.MakeGenericType (_typeArgsWithRuntimeTypes);
+      Assert.That (result2, Is.EqualTo (constructedType.FullName), "Should be equal to original reflection.");
     }
 
+    [Test]
+    public void SubstituteGenericParameters_Type_GenericType_CustomTypeAsArgument ()
+    {
+      var result = _typeInstantiator.SubstituteGenericParameters (_genericType);
+      Assert.That (result, Is.TypeOf<TypeInstantiation>());
+      var typeArguments = result.GetGenericArguments();
+      Assert.That (typeArguments, Is.EqualTo (_typeArgs));
+    }
 
-    class MyGenericType<T1, T2> { }
+    [Test]
+    public void SubstituteGenericParameters_Type_GenericType_OnlyRuntimeTypeAsArguments ()
+    {
+      var result = _typeInstantiatorWithRuntimeTypes.SubstituteGenericParameters (_genericType);
+      Assert.That (result.IsRuntimeType(), Is.True);
+      var typeArguments = result.GetGenericArguments();
+      Assert.That (typeArguments, Is.EqualTo (_typeArgsWithRuntimeTypes));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_Type_NonGenericType ()
+    {
+      var result = _typeInstantiator.SubstituteGenericParameters (_nonGenericType);
+      Assert.That (result, Is.SameAs (_nonGenericType));
+    }
+
+    class NonGenerictype { }
+// ReSharper disable UnusedTypeParameter
+    class GenericType<T1, T2> { }
+// ReSharper restore UnusedTypeParameter
   }
 }

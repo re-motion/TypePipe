@@ -16,11 +16,12 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Text;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -29,18 +30,25 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class TypeInstantiator : ITypeInstantiator
   {
-    private readonly ReadOnlyCollection<Type> _typeArguments;
+    private readonly IMemberSelector _memberSelector;
+    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
+    private readonly IDictionary<Type, Type> _parametersToArguments;
 
-    public TypeInstantiator (IEnumerable<Type> typeArguments)
+    public TypeInstantiator (
+        IMemberSelector memberSelector, IUnderlyingTypeFactory underlyingTypeFactory, IDictionary<Type, Type> parametersToArguments)
     {
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
+      ArgumentUtility.CheckNotNull ("parametersToArguments", parametersToArguments);
 
-      _typeArguments = typeArguments.ToList().AsReadOnly();
+      _memberSelector = memberSelector;
+      _underlyingTypeFactory = underlyingTypeFactory;
+      _parametersToArguments = parametersToArguments;
     }
 
     public IEnumerable<Type> TypeArguments
     {
-      get { return _typeArguments; }
+      get { return _parametersToArguments.Values; }
     }
 
     // TODO yyy: what about ToString?
@@ -49,38 +57,75 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
 
-      var typeArguments = SeparatedStringBuilder.Build (",", _typeArguments, t => "[" + t.AssemblyQualifiedName + "]");
+      var typeArguments = SeparatedStringBuilder.Build (",", TypeArguments, t => "[" + t.AssemblyQualifiedName + "]");
       return string.Format ("{0}[{1}]", genericTypeDefinition.FullName, typeArguments);
     }
 
     public Type SubstituteGenericParameters (Type type)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      var typeArgument = _parametersToArguments.GetValueOrDefault (type);
+      if (typeArgument != null)
+        return typeArgument;
+
+      if (!type.IsGenericType)
+        return type;
+
+      var typeParameters = type.GetGenericArguments();
+      var mapping = typeParameters.ToDictionary (a => a, SubstituteGenericParameters);
+
+      //// Skip substitution if it does not change the type, i.e., type contains no type parameters that are instantiated.
+      //if (mapping.All (pair => pair.Key == pair.Value))
+      //  return type;
+
+      // Make RuntimeType if all type arguments are RuntimeTypes.
+      if (mapping.Values.All (typeArg => typeArg.IsRuntimeType()))
+      {
+        // Do not simply use mapping.Values (because order matters).
+        var typeArguments = typeParameters.Select (typeParam => mapping[typeParam]).ToArray();
+        return type.MakeGenericType (typeArguments);
+      }
+      else
+      {
+        var typeInstantiator = new TypeInstantiator (_memberSelector, _underlyingTypeFactory, mapping);
+        return new TypeInstantiation (_memberSelector, _underlyingTypeFactory, typeInstantiator, type);
+      }
     }
 
     public FieldInfo SubstituteGenericParameters (FieldInfo field)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("field", field);
+
+      return field;
     }
 
     public ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      return constructor;
     }
 
     public MethodInfo SubstituteGenericParameters (MethodInfo method)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      return method;
     }
 
     public PropertyInfo SubstituteGenericParameters (PropertyInfo property)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("property", property);
+
+      return property;
     }
 
     public EventInfo SubstituteGenericParameters (EventInfo event_)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("event_", event_);
+
+      return event_;
     }
   }
 }

@@ -32,10 +32,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         IUnderlyingTypeFactory underlyingTypeFactory = null)
     {
       genericTypeDefinition = genericTypeDefinition ?? typeof (MyGenericType<>);
-      var typeArguments = genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType());
-      typeInstantiator = typeInstantiator ?? new TypeInstantiator (typeArguments);
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
+      var mapping = genericTypeDefinition.GetGenericArguments().ToDictionary (a => a, a => ReflectionObjectMother.GetSomeType());
+      typeInstantiator = typeInstantiator ?? new TypeInstantiator (memberSelector, underlyingTypeFactory, mapping);
 
       return new TypeInstantiation (memberSelector, underlyingTypeFactory, typeInstantiator, genericTypeDefinition);
     }

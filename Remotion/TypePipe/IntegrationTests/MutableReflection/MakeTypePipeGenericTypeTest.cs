@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
+using Remotion.TypePipe.MutableReflection.Generics;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
@@ -116,14 +117,22 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    public void RecursiveTypeInstantiations ()
+    public void RecursiveTypeInstantiations_Substitution ()
     {
-      var enumerable = _typeInstantiation.GetMethod ("ReturnTypeMethod").ReturnType;
+      var enumerable = _typeInstantiation.GetMethod ("ReturnTypeMethod_NeedsSubstitute").ReturnType;
+      Assert.That (enumerable, Is.TypeOf<TypeInstantiation>());
       Assert.That (enumerable.Name, Is.EqualTo ("IEnumerable`1"));
       var func = enumerable.GetGenericArguments().Single();
       Assert.That (func.Name, Is.EqualTo ("Func`1"));
       var typeArgs = func.GetGenericArguments();
       Assert.That (typeArgs, Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
+    }
+
+    [Test]
+    public void RecursiveTypeInstantiations_NoSubstitution ()
+    {
+      var enumerable = _typeInstantiation.GetMethod ("ReturnTypeMethod_RuntimeType").ReturnType;
+      Assert.That (enumerable.IsRuntimeType(), Is.True);
     }
 
     interface IMyInterface<T> { }
@@ -136,7 +145,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public T1 Property { get; set; }
       public event Func<T1> Event;
 
-      public IEnumerable<Func<T1, T2>> ReturnTypeMethod () { return null; }
+      public IEnumerable<Func<T1, T2>> ReturnTypeMethod_NeedsSubstitute () { return null; }
+      public IEnumerable<Func<int, string>> ReturnTypeMethod_RuntimeType () { return null; }
     }
   }
 }
