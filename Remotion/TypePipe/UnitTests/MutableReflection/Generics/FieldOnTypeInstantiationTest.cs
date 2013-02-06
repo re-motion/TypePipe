@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _typeAdjuster = MockRepository.GenerateStrictMock<ITypeAdjuster>();
     }
 
-    [Ignore("TODO yyy")]
     [Test]
     public void Initialization ()
     {
@@ -49,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (constructedField.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (constructedField.Name, Is.EqualTo (field.Name));
       Assert.That (constructedField.Attributes, Is.EqualTo (field.Attributes));
-      Assert.That (constructedField.FieldType, Is.SameAs (field.FieldType));
+      Assert.That (constructedField.FieldType, Is.SameAs (fakeType));
     }
   }
 }
