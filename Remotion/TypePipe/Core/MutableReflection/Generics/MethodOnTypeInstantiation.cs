@@ -17,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -24,20 +26,38 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Represents a field on a constructed type.
+  /// Represents a method on a constructed type.
   /// </summary>
-  public class FieldOnTypeInstantiation : CustomFieldInfo
+  public class MethodOnTypeInstantiation : CustomMethodInfo
   {
-    public FieldOnTypeInstantiation (TypeInstantiation declaringType, ITypeAdjuster typeAdjuster, FieldInfo field)
-        : base (
-            declaringType,
-            ArgumentUtility.CheckNotNull ("field", field).Name,
-            ArgumentUtility.CheckNotNull ("typeAdjuster", typeAdjuster).SubstituteGenericParameters (field.FieldType),
-            field.Attributes)
+    private readonly ParameterInfo _returnParameter;
+    private readonly ReadOnlyCollection<ParameterInfo> _parameters;
+
+    public MethodOnTypeInstantiation (TypeInstantiation declaringType, IParameterAdjuster parameterAdjuster, MethodInfo method)
+        : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes)
     {
+      ArgumentUtility.CheckNotNull ("parameterAdjuster", parameterAdjuster);
+
+      _returnParameter = parameterAdjuster.SubstituteGenericParameters (this, method.ReturnParameter);
+      _parameters = method.GetParameters().Select (p => parameterAdjuster.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
+    }
+
+    public override ParameterInfo ReturnParameter
+    {
+      get { return _returnParameter; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override ParameterInfo[] GetParameters ()
+    {
+      return _parameters.ToArray();
+    }
+
+    public override MethodInfo GetBaseDefinition ()
     {
       throw new NotImplementedException();
     }

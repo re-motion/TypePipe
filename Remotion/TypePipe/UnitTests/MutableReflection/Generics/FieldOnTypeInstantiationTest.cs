@@ -42,13 +42,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var fakeType = ReflectionObjectMother.GetSomeOtherType();
       _typeAdjuster.Expect (mock => mock.SubstituteGenericParameters (field.FieldType)).Return (fakeType);
 
-      var constructedField = new FieldOnTypeInstantiation (_declaringType, _typeAdjuster, field);
+      var result = new FieldOnTypeInstantiation (_declaringType, _typeAdjuster, field);
 
       _typeAdjuster.VerifyAllExpectations();
-      Assert.That (constructedField.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (constructedField.Name, Is.EqualTo (field.Name));
-      Assert.That (constructedField.Attributes, Is.EqualTo (field.Attributes));
-      Assert.That (constructedField.FieldType, Is.SameAs (fakeType));
+      Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (result.Name, Is.EqualTo (field.Name));
+      Assert.That (result.Attributes, Is.EqualTo (field.Attributes));
+      Assert.That (result.FieldType, Is.SameAs (fakeType));
     }
   }
 }

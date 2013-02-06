@@ -159,6 +159,7 @@
     <Compile Include="MutableReflection\Generics\IParameterAdjuster.cs" />
     <Compile Include="MutableReflection\Generics\ITypeAdjuster.cs" />
     <Compile Include="MutableReflection\Generics\ITypeInstantiator.cs" />
+    <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiator.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfo.cs" />
