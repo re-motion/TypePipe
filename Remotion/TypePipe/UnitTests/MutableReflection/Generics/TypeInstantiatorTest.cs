@@ -41,12 +41,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
     private TypeInstantiator _typeInstantiator;
     private TypeInstantiator _typeInstantiatorWithRuntimeTypes;
+    private TypeInstantiation _declaringType;
 
     [SetUp]
     public void SetUp ()
     {
       _nonGenericType = typeof (NonGenerictype);
       _genericType = typeof (GenericType<,>);
+      _declaringType = TypeInstantiationObjectMother.Create ();
 
       _customTypeArgument = CustomTypeObjectMother.Create(fullName: "My.Blub");
       _typeParameters = _genericType.GetGenericArguments();
@@ -108,43 +110,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result, Is.SameAs (_nonGenericType));
     }
 
-    //[Test]
-    //public void SubstituteGenericParameters_Field_CustomTypeAsArgument ()
-    //{
-    //  var field = _genericType.GetField ("Field1");
-    //  var result = _typeInstantiator.SubstituteGenericParameters (TODO, field);
+    [Test]
+    public void SubstituteGenericParameters_Field ()
+    {
+      var field = _genericType.GetField ("Field");
+      var result = _typeInstantiator.SubstituteGenericParameters (_declaringType, field);
 
-    //  Assert.That (result, Is.TypeOf<FieldOnTypeInstantiation>());
-    //  Assert.That (result.FieldType, Is.EqualTo (_typeArgs[1]));
-    //}
-
-    //[Test]
-    //public void SubstituteGenericParameters_Field_RuntimeTypeAsArguments ()
-    //{
-    //  var field = _genericType.GetField ("Field2");
-    //  var result = _typeInstantiator.SubstituteGenericParameters (TODO, field);
-
-    //  Assert.That (result.GetType().FullName, Is.EqualTo ("System.Reflection.RuntimeFieldInfo"));
-    //  Assert.That (result.FieldType, Is.EqualTo (_typeArgs[0]));
-    //}
-
-    //[Test]
-    //public void SubstituteGenericParameters_Field_NoSubstitution ()
-    //{
-    //  var field = _genericType.GetField ("Field3");
-    //  var result = _typeInstantiator.SubstituteGenericParameters (TODO, field);
-
-    //  Assert.That (result, Is.SameAs (field));
-    //}
+      Assert.That (result, Is.TypeOf<FieldOnTypeInstantiation>());
+      Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (result.FieldType, Is.EqualTo (_typeArgs[0]));
+    }
 
     class NonGenerictype { }
-// ReSharper disable UnusedTypeParameter
+    // ReSharper disable UnusedTypeParameter
     class GenericType<T1, T2>
     {
-      public T1 Field1 = default (T1);
-      public T2 Field2 = default (T2);
-      public int Field3 = 0;
+      public T1 Field = default (T1);
     }
-// ReSharper restore UnusedTypeParameter
+    // ReSharper restore UnusedTypeParameter
   }
 }
