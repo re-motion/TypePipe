@@ -20,13 +20,15 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
-  // tODO docs
+  /// <summary>
+  /// Provides methods for substituting generic type parameters with type arguments in members of a generic type definition.
+  /// </summary>
   public interface ITypeInstantiator : ITypeAdjuster
   {
     IEnumerable<Type> TypeArguments { get; }
 
-    string GetSimpleName (Type type);
-    string GetFullName (Type type);
+    string GetSimpleName (Type genericTypeDefinition);
+    string GetFullName (Type genericTypeDefinition);
 
     FieldInfo SubstituteGenericParameters (FieldInfo field);
     ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);

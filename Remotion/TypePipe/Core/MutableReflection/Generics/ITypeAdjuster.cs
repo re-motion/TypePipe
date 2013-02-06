@@ -19,7 +19,9 @@ using System;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
-  // TODO docs
+  /// <summary>
+  /// Provides functionality to substitute type parameters with type arguments in a <see cref="Type"/>.
+  /// </summary>
   public interface ITypeAdjuster
   {
     Type SubstituteGenericParameters (Type type);
